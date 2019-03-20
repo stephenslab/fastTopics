@@ -36,7 +36,7 @@ L <- matrix(runif(n*K),n,K)
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model using multiplicative updates.\n")
-fit.betanmf <- betanmf(counts,L,t(F))
+fit.betanmf <- betanmf(counts,L,t(F),numiter = 200)
     
 # RUN ALTERNATING SQP METHOD
 # --------------------------
@@ -45,8 +45,10 @@ cat("Fitting Poisson topic model using alternating SQP method.\n")
 
 # PLOT IMPROVEMENT OF SOLUTIONS OVER TIME
 # ---------------------------------------
-bestf <- fit.betanmf$value
-p1 <- ggplot(fit.betanmf$progress,aes(x = iter,y = objective - bestf + 1e-8)) +
+bestf <- -250300.7483213344530668
+p1 <- ggplot(fit.betanmf$progress,
+             aes(x = iter,y = objective - bestf + 1e-8)) +
   geom_line(color = "darkblue",size = 1) +
   scale_y_continuous(trans = "log10") +
   labs(x = "iteration",y = "distance from minimum")
+print(p1)
