@@ -21,10 +21,16 @@ cat("Loading count data.\n")
 counts        <- suppressMessages(read_csv("../data/droplet.csv.gz"))
 class(counts) <- "data.frame"
 counts        <- as.matrix(counts)
-cat(sprintf("Loaded %d x %d counts matrix.\n",nrow(counts),ncol(counts)))
+n             <- nrow(counts)
+p             <- ncol(counts)
+cat(sprintf("Loaded %d x %d counts matrix.\n",n,p))
 
 # GENERATE INITIAL ESTIMATES
 # --------------------------
+# Generate initial estimates of the factors (stored as an p x K
+# matrix) and loadings (stored as an n x K matrix).
+F <- matrix(runif(p*K),p,K)
+L <- matrix(runif(n*K),n,K)
 
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
