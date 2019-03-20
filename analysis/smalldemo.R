@@ -2,13 +2,14 @@
 
 # SCRIPT PARAMETERS
 # -----------------
-
 # Number of factors (topics).
 K <- 13
 
 # SET UP ENVIRONMENT
 # ------------------
 library(readr)
+library(ggplot2)
+library(cowplot)
 source("../code/misc.R")
 source("../code/betanmf.R")
 
@@ -35,9 +36,17 @@ L <- matrix(runif(n*K),n,K)
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model using multiplicative updates.\n")
-fit.betanmf <- betanmf(counts,L,t(F),numiter = 200)
+fit.betanmf <- betanmf(counts,L,t(F))
     
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
 # TO DO.
+
+# PLOT IMPROVEMENT OF SOLUTIONS OVER TIME
+# ---------------------------------------
+bestf <- fit.betanmf$value
+p1 <- ggplot(fit.betanmf$progress,aes(x = iter,y = objective - bestf + 1e-8)) +
+  geom_line(color = "darkblue",size = 1) +
+  scale_y_continuous(trans = "log10") +
+  labs(x = "iteration",y = "distance from minimum")
