@@ -35,8 +35,9 @@ L <- matrix(runif(n*K),n,K)
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model using multiplicative updates.\n")
-# TO DO.
-
+fit.betanmf <- betanmf(counts,L,t(F),numiter = 200)
+    
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
+# TO DO.
