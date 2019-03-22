@@ -7,9 +7,11 @@
 #   - Implement function "fitpoismix.update" that implements a single
 #     iteration of fitpoismix.
 #
-fitpoismix <- function (L, w, x, numiter = 1000, beta = 0.75, suffdecr = 0.01,
+fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
                         minstepsize = 1e-10, e = 1e-8, verbose = TRUE) {
-
+  n <- nrow(L)
+  m <- ncol(L)
+    
   # Initialize the output data frame.
   progress <- data.frame(iter      = 1:numiter,
                          objective = 0,
@@ -21,21 +23,22 @@ fitpoismix <- function (L, w, x, numiter = 1000, beta = 0.75, suffdecr = 0.01,
   
   # Repeat until we reach the number of requested iterations.
   if (verbose)
-    cat("iter         objective max.diff step.size\n")
+    cat("iter           objective max.diff step.size\n")
   for (i in 1:numiter) {
 
     # Save the current estimates of the Poisson rates.
     x0 <- x
 
     # Compute the gradient (g) and Hessian (H) at the current iterate.
-    u <- 1/(drop(L %*% x) + e)
+    u <- drop(L %*% x) + e
     g <- drop((1 - w/u) %*% L)
-    H <- crossprod((sqrt(w)*u)*L)
+    H <- crossprod((sqrt(w)/u)*L)
     
     # Compute a search direction, p, by minimizing p'*H*p/2 + p'*g,
     # where g is the gradient and H is the Hessian, subject to all
     # elements of x + p being non-negative.
-    # TO DO.
+    out <- solve.QP(H,-g,Diagonal(m),-x)
+    p   <- out$solution
 
     # Perform backtracking line search to determine a suitable step
     # size.
@@ -49,10 +52,16 @@ fitpoismix <- function (L, w, x, numiter = 1000, beta = 0.75, suffdecr = 0.01,
       if (a < minstepsize)
         break
     }
-
+    
     # Move to the new iterate.
     x <- y
     f <- fnew
+    d <- max(abs(x - x0))
+    progress[i,"objective"] <- f
+    progress[i,"max.diff"]  <- d
+    progress[i,"step.size"] <- a
+    if (verbose)
+      cat(sprintf("%4d %+0.12e %0.2e %0.3e\n",i,f,d,a))
   }
 
   return(list(x = x,value = f,progress = progress))
