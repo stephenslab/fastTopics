@@ -1,0 +1,6 @@
+source("altsqp.R")
+set.seed(1)
+L <- matrix(round(100*runif(15)),5,3)
+w <- c(1,5,100,1,2)
+x <- c(1,1,1)
+out <- fitpoismix(L,w,x)
