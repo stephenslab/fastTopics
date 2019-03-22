@@ -1,3 +1,4 @@
+# Small script to test that fitpoismix works on a toy data set.
 library(Matrix)
 library(quadprog)
 source("misc.R")
