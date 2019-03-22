@@ -1,3 +1,7 @@
+# Return the dot product of vectors x and y.
+dot <- function (x, y)
+  sum(x*y)
+
 # Compute the value of the cost function for non-negative matrix
 # factorization in which matrix X is approximated by matrix AB = A *
 # B. This is equivalent to the negative Poisson log-likelihood.
