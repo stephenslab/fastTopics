@@ -45,7 +45,8 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
 # Maximize a Poisson likelihood in which the Poisson rate for the jth
 # sample is r[j] = sum(L[j,]*x).
 fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
-                        minstepsize = 1e-10, e = 1e-8, verbose = TRUE) {
+                        minstepsize = 1e-10, e = 1e-8, delta = 1e-10,
+                        verbose = TRUE) {
 
   # Remove rows with zero weights.
   rows <- which(w > 0)
@@ -66,7 +67,7 @@ fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
     cat("iter           objective max.diff step.size\n")
   for (i in 1:numiter) {
     x0  <- x
-    out <- fitpoismix.update(L,w,x,f,e,beta,suffdecr,minstepsize)
+    out <- fitpoismix.update(L,w,x,f,e,delta,beta,suffdecr,minstepsize)
     x   <- out$x
     f   <- out$f
     a   <- out$a
@@ -82,14 +83,14 @@ fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
 }
 
 # Implement a single iteration of fixpoismix.
-fitpoismix.update <- function (L, w, x, f, e = 1e-8, beta = 0.75,
+fitpoismix.update <- function (L, w, x, f, e = 1e-8, delta = 1e-6, beta = 0.75,
                                suffdecr = 0.01, minstepsize = 1e-10) {
   m <- length(x)
     
   # Compute the gradient (g) and Hessian (H) at the current iterate.
   u <- drop(L %*% x) + e
   g <- drop((1 - w/u) %*% L)
-  H <- crossprod((sqrt(w)/u)*L) + 1e-6*diag(m)
+  H <- crossprod((sqrt(w)/u)*L) + delta*diag(m)
 
   # Compute a search direction, p, by minimizing p'*H*p/2 + p'*g,
   # where g is the gradient and H is the Hessian, subject to all
