@@ -6,10 +6,10 @@
 # (http://d-kitamura.net).
 betanmf <- function (X, A, B, numiter = 1000, e = 1e-8, verbose = TRUE) {
   n <- nrow(X)
-  p <- ncol(X)
-  E <- matrix(1,n,p)
-  progress <- data.frame(iter = 1:numiter,objective = 0,max.diff  = 0,
-                         timing = 0)
+  m <- ncol(X)
+  E <- matrix(1,n,m)
+  progress <- data.frame(iter = 1:numiter,objective = 0,
+                         max.diff  = 0,timing = 0)
       
   # Repeat until we reach the number of requested iterations.
   if (verbose)

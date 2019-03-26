@@ -1,3 +1,47 @@
+# TO DO: Explain here what this function does, and how to use it.
+altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
+  n <- nrow(X)
+  m <- ncol(X)
+  
+  progress <- data.frame(iter = 1:numiter,objective = 0,
+                         max.diff  = 0,timing = 0)
+
+  # Repeat until we reach the number of requested iterations.
+  if (verbose)
+    cat("iter         objective max.diff\n")
+  for (i in 1:numiter) {
+
+    # Save the current estimates of the factors and loadings.
+    F0 <- F
+    L0 <- L
+
+    # Update the loadings ("activations").
+    browser()
+    for (i in 1:n) {
+      fi    <- cost.poismix(F,X[i,],L[i,],e)
+      out   <- fitpoismix.update(F,X[i,],L[i,],fi,e)
+      L[i,] <- out$x
+    }
+    
+    # Update the factors ("basis vectors").
+    for (j in 1:m) {
+      fj    <- cost.poismix(L,X[,j],F[j,],e)
+      out   <- fitpoismix.update(L,X[,j],F[j,],fj,e)
+      F[j,] <- out$x
+    }
+
+    # Compute the value of the objective (cost) function at the
+    # current estimates of the factors and loadings.
+    f <- cost(X,tcrossprod(L,F),e)
+    d <- max(max(abs(F - F0)),max(abs(L - L0)))
+    progress[i,"objective"] <- f
+    progress[i,"max.diff"]  <- d
+    progress[i,"timing"]    <- timing["elapsed"]
+    if (verbose)
+      cat(sprintf("%4d %0.10e %0.2e\n",i,f,d))
+  }
+}
+
 # Maximize a Poisson likelihood in which the Poisson rate for the jth
 # sample is r[j] = sum(L[j,]*x).
 fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
