@@ -9,20 +9,19 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
   # Repeat until we reach the number of requested iterations.
   if (verbose)
     cat("iter         objective max.diff\n")
-  for (i in 1:numiter) {
+  for (iter in 1:numiter) {
 
     # Save the current estimates of the factors and loadings.
     F0 <- F
     L0 <- L
 
     # Update the loadings ("activations").
-    browser()
     for (i in 1:n) {
       fi    <- cost.poismix(F,X[i,],L[i,],e)
       out   <- fitpoismix.update(F,X[i,],L[i,],fi,e)
       L[i,] <- out$x
     }
-    
+
     # Update the factors ("basis vectors").
     for (j in 1:m) {
       fj    <- cost.poismix(L,X[,j],F[j,],e)
@@ -34,12 +33,13 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
     # current estimates of the factors and loadings.
     f <- cost(X,tcrossprod(L,F),e)
     d <- max(max(abs(F - F0)),max(abs(L - L0)))
-    progress[i,"objective"] <- f
-    progress[i,"max.diff"]  <- d
-    progress[i,"timing"]    <- timing["elapsed"]
+    progress[iter,"objective"] <- f
+    progress[iter,"max.diff"]  <- d
     if (verbose)
-      cat(sprintf("%4d %0.10e %0.2e\n",i,f,d))
+      cat(sprintf("%4d %+0.10e %0.2e\n",iter,f,d))
   }
+
+  return(list(F = F,L = L,value = f,progress = progress))
 }
 
 # Maximize a Poisson likelihood in which the Poisson rate for the jth
@@ -66,7 +66,7 @@ fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
     cat("iter           objective max.diff step.size\n")
   for (i in 1:numiter) {
     x0  <- x
-    out <- fitpoismix.update(L,w,x,f,e,suffdecr,minstepsize)
+    out <- fitpoismix.update(L,w,x,f,e,beta,suffdecr,minstepsize)
     x   <- out$x
     f   <- out$f
     a   <- out$a
@@ -82,28 +82,31 @@ fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
 }
 
 # Implement a single iteration of fixpoismix.
-fitpoismix.update <- function (L, w, x, f, e, suffdecr, minstepsize) {
+fitpoismix.update <- function (L, w, x, f, e = 1e-8, beta = 0.75,
+                               suffdecr = 0.01, minstepsize = 1e-10) {
   m <- length(x)
     
   # Compute the gradient (g) and Hessian (H) at the current iterate.
   u <- drop(L %*% x) + e
   g <- drop((1 - w/u) %*% L)
-  H <- crossprod((sqrt(w)/u)*L)
-    
+  H <- crossprod((sqrt(w)/u)*L) + 1e-6*diag(m)
+
   # Compute a search direction, p, by minimizing p'*H*p/2 + p'*g,
   # where g is the gradient and H is the Hessian, subject to all
   # elements of x + p being non-negative.
   out <- solve.QP(H,-g,Diagonal(m),-x)
   p   <- out$solution
-  
+
   # Perform backtracking line search to determine a suitable step
   # size.
   a <- 0.99
   while (TRUE) {
-    y    <- x + a*p
-    fnew <- cost.poismix(L,w,y,e)
-    if (fnew <= f + a*suffdecr*dot(p,g))
-      break
+    y <- x + a*p
+    if (all(y >= 0)) {
+      fnew <- cost.poismix(L,w,y,e)
+      if (fnew <= f + a*suffdecr*dot(p,g))
+        break
+    }
     a <- a * beta
     if (a < minstepsize)
       break
@@ -111,6 +114,7 @@ fitpoismix.update <- function (L, w, x, f, e, suffdecr, minstepsize) {
 
   # Output the new iterate (x), the value of the objective at this
   # point (f), and the step size (a).
+  fnew <- cost.poismix(L,w,y,e)
   return(list(x = y,f = fnew,a = a))
 }
 

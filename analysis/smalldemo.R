@@ -7,10 +7,13 @@ K <- 13
 
 # SET UP ENVIRONMENT
 # ------------------
+library(Matrix)
+library(quadprog)
 library(readr)
 library(ggplot2)
 library(cowplot)
 source("../code/misc.R")
+source("../code/altsqp.R")
 source("../code/betanmf.R")
 
 # Initialize the sequence of pseudorandom numbers.
@@ -36,12 +39,12 @@ L <- matrix(runif(n*K),n,K)
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model using multiplicative updates.\n")
-fit.betanmf <- betanmf(counts,L,t(F),numiter = 200)
-    
+fit.betanmf <- betanmf(counts,L,t(F),numiter = 100)
+
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
-fit.altsqp <- altsqp(counts,F,L)
+fit.altsqp <- altsqp(counts,F,L,numiter = 50)
     
 # PLOT IMPROVEMENT OF SOLUTIONS OVER TIME
 # ---------------------------------------
@@ -51,4 +54,9 @@ p1 <- ggplot(fit.betanmf$progress,
   geom_line(color = "darkblue",size = 1) +
   scale_y_continuous(trans = "log10") +
   labs(x = "iteration",y = "distance from minimum")
-print(p1)
+p2 <- ggplot(fit.altsqp$progress,
+             aes(x = iter,y = objective - bestf + 1e-8)) +
+  geom_line(color = "darkorange",size = 1) +
+  scale_y_continuous(trans = "log10") +
+  labs(x = "iteration",y = "distance from minimum")
+print(plot_grid(p1,p2))

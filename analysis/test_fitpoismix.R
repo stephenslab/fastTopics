@@ -1,8 +1,8 @@
 # Small script to test that fitpoismix works on a toy data set.
 library(Matrix)
 library(quadprog)
-source("misc.R")
-source("altsqp.R")
+source("../code/misc.R")
+source("../code/altsqp.R")
 set.seed(1)
 L <- matrix(round(100*runif(18)),6,3)
 w <- c(1,5,100,1,2,0)
