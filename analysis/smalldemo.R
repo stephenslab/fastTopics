@@ -8,6 +8,7 @@ K <- 13
 
 # SET UP ENVIRONMENT
 # ------------------
+library(parallel)
 library(Matrix)
 library(quadprog)
 library(readr)
@@ -26,6 +27,7 @@ cat("Loading count data.\n")
 counts        <- suppressMessages(read_csv("../data/droplet.csv.gz"))
 class(counts) <- "data.frame"
 counts        <- as.matrix(counts)
+counts        <- Matrix(counts,sparse = TRUE)
 n             <- nrow(counts)
 p             <- ncol(counts)
 cat(sprintf("Loaded %d x %d counts matrix.\n",n,p))

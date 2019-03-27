@@ -5,6 +5,8 @@
 # positive. This is adapted from the MATLAB code by D. Kitamura
 # (http://d-kitamura.net).
 betanmf <- function (X, A, B, numiter = 1000, e = 1e-8, verbose = TRUE) {
+  if (inherits(X,"matrix"))
+    X <- as.matrix(X)
   n <- nrow(X)
   m <- ncol(X)
   E <- matrix(1,n,m)
