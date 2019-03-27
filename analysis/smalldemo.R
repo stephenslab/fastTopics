@@ -3,8 +3,8 @@
 
 # SCRIPT PARAMETERS
 # -----------------
-# Number of factors (topics).
-K <- 13
+K  <- 13  # Number of factors (topics).
+nc <- 2   # Number of threads to use.
 
 # SET UP ENVIRONMENT
 # ------------------
@@ -47,7 +47,7 @@ fit.betanmf <- betanmf(counts,L,t(F),numiter = 100)
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
-fit.altsqp <- altsqp(counts,F,L,numiter = 50)
+fit.altsqp <- altsqp(counts,F,L,nc = nc,numiter = 50)
     
 # PLOT IMPROVEMENT OF SOLUTIONS OVER TIME
 # ---------------------------------------

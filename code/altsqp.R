@@ -1,11 +1,18 @@
 # TO DO: Explain here what this function does, and how to use it.
-altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
+altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, nc = 1,
+                    verbose = TRUE) {
   n <- nrow(X)
   m <- ncol(X)
-  
   progress <- data.frame(iter = 1:numiter,objective = 0,
                          max.diff = 0,timing = 0)
-
+  if (nc > 1) {
+    cl <- makeCluster(nc)
+    clusterExport(cl,c("altsqp.update.loadings","altsqp.update.factors",
+                       "fitpoismix.update","cost.poismix","dot"))
+    rows <- clusterSplit(cl,1:n)
+    cols <- clusterSplit(cl,1:m)
+  }
+  
   # Repeat until we reach the number of requested iterations.
   if (verbose)
     cat("iter         objective max.diff\n")
@@ -16,19 +23,27 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
     L0 <- L
 
     timing <- system.time({
-        
+
       # Update the loadings ("activations").
-      for (i in 1:n) {
-        fi    <- cost.poismix(F,X[i,],L[i,],e)
-        out   <- fitpoismix.update(F,X[i,],L[i,],fi,e)
-        L[i,] <- out$x
+      if (nc == 1)  
+        L <- altsqp.update.loadings(X,F,L,e)
+      else {
+        L <- parLapply(cl,rows,
+               function (i,X,F,L,e) altsqp.update.loadings(X[i,],F,L[i,],e),
+               X,F,L,e)
+        L <- do.call(rbind,L)
+        L[unlist(rows),] <- L
       }
 
       # Update the factors ("basis vectors").
-      for (j in 1:m) {
-        fj    <- cost.poismix(L,X[,j],F[j,],e)
-        out   <- fitpoismix.update(L,X[,j],F[j,],fj,e)
-        F[j,] <- out$x
+      if (nc == 1)
+        F <- altsqp.update.factors(X,F,L,e)
+      else {
+        F <- parLapply(cl,cols,
+               function (j,X,F,L,e) altsqp.update.factors(X[,j],F[j,],L,e),
+               X,F,L,e)
+        F <- do.call(rbind,F)
+        F[unlist(cols),] <- F
       }
     })
 
@@ -42,8 +57,31 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
     if (verbose)
       cat(sprintf("%4d %+0.10e %0.2e\n",iter,f,d))
   }
-
+  if (nc > 1)
+    stopCluster(cl)
   return(list(F = F,L = L,value = f,progress = progress))
+}
+
+# This implements the loadings update step in the alternating SQP method.
+altsqp.update.loadings <- function (X, F, L, e) {
+  n <- nrow(X)
+  for (i in 1:n) {
+    fi    <- cost.poismix(F,X[i,],L[i,],e)
+    out   <- fitpoismix.update(F,X[i,],L[i,],fi,e)
+    L[i,] <- out$x
+  }
+  return(L)
+}
+
+# This implements the factors update step in the alternating SQP method.
+altsqp.update.factors <- function (X, F, L, e) {
+  m <- ncol(X)
+  for (j in 1:m) {
+    fj    <- cost.poismix(L,X[,j],F[j,],e)
+    out   <- fitpoismix.update(L,X[,j],F[j,],fj,e)
+    F[j,] <- out$x
+  }
+  return(F)
 }
 
 # Maximize a Poisson likelihood in which the Poisson rate for the jth
@@ -99,7 +137,7 @@ fitpoismix.update <- function (L, w, x, f, e = 1e-8, delta = 1e-6, beta = 0.75,
   # Compute a search direction, p, by minimizing p'*H*p/2 + p'*g,
   # where g is the gradient and H is the Hessian, subject to all
   # elements of x + p being non-negative.
-  out <- solve.QP(H,-g,Diagonal(m),-x)
+  out <- quadprog::solve.QP(H,-g,Matrix::Diagonal(m),-x)
   p   <- out$solution
 
   # Perform backtracking line search to determine a suitable step
