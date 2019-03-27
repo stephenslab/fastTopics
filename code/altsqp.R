@@ -112,9 +112,9 @@ fitpoismix.update <- function (L, w, x, f, e = 1e-8, delta = 1e-6, beta = 0.75,
       if (fnew <= f + a*suffdecr*dot(p,g))
         break
     }
-    a <- a * beta
-    if (a < minstepsize)
+    if (a*beta < minstepsize)
       break
+    a <- a * beta
   }
 
   # Output the new iterate (x), the value of the objective at this
