@@ -44,10 +44,13 @@ L <- matrix(runif(n*K),n,K)
 cat("Fitting Poisson topic model using multiplicative updates.\n")
 fit.betanmf <- betanmf(counts,L,t(F),numiter = 100)
 
+stop()
+
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
-fit.altsqp <- altsqp(counts,F,L,nc = nc,numiter = 50)
+counts <- as.matrix(counts)
+fit.altsqp <- altsqp(counts,F,L,nc = 28,numiter = 10)
     
 # PLOT IMPROVEMENT OF SOLUTIONS OVER TIME
 # ---------------------------------------
