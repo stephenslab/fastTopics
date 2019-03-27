@@ -52,8 +52,8 @@ fit.altsqp <- altsqp(counts,F,L,numiter = 50)
 bestf <- -250300.7483213344530668
 p1 <- ggplot(fit.betanmf$progress,
              aes(x = iter,y = objective - bestf + 1e-8)) +
-  geom_line(color = "darkblue",size = 1.5) +
-  geom_line(color = "darkorange",data = fit.altsqp$progress,size = 1.5) +
+  geom_line(color = "darkblue",size = 1) +
+  geom_line(color = "darkorange",data = fit.altsqp$progress,size = 1) +
   scale_y_continuous(trans = "log10") +
   labs(x = "iteration",y = "distance from minimum")
 print(p1)

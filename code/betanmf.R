@@ -9,7 +9,7 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-8, verbose = TRUE) {
   m <- ncol(X)
   E <- matrix(1,n,m)
   progress <- data.frame(iter = 1:numiter,objective = 0,
-                         max.diff  = 0,timing = 0)
+                         max.diff = 0,timing = 0)
       
   # Repeat until we reach the number of requested iterations.
   if (verbose)
@@ -21,7 +21,7 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-8, verbose = TRUE) {
     B0 <- B
 
     timing <- system.time({
-    
+
       # Update the loadings ("activations").
       A <- A * (((X / (A %*% B)) %*% t(B)) / (E %*% t(B)))
       A <- pmax(A,e)

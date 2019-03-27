@@ -4,7 +4,7 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
   m <- ncol(X)
   
   progress <- data.frame(iter = 1:numiter,objective = 0,
-                         max.diff  = 0,timing = 0)
+                         max.diff = 0,timing = 0)
 
   # Repeat until we reach the number of requested iterations.
   if (verbose)
@@ -15,19 +15,22 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
     F0 <- F
     L0 <- L
 
-    # Update the loadings ("activations").
-    for (i in 1:n) {
-      fi    <- cost.poismix(F,X[i,],L[i,],e)
-      out   <- fitpoismix.update(F,X[i,],L[i,],fi,e)
-      L[i,] <- out$x
-    }
+    timing <- system.time({
+        
+      # Update the loadings ("activations").
+      for (i in 1:n) {
+        fi    <- cost.poismix(F,X[i,],L[i,],e)
+        out   <- fitpoismix.update(F,X[i,],L[i,],fi,e)
+        L[i,] <- out$x
+      }
 
-    # Update the factors ("basis vectors").
-    for (j in 1:m) {
-      fj    <- cost.poismix(L,X[,j],F[j,],e)
-      out   <- fitpoismix.update(L,X[,j],F[j,],fj,e)
-      F[j,] <- out$x
-    }
+      # Update the factors ("basis vectors").
+      for (j in 1:m) {
+        fj    <- cost.poismix(L,X[,j],F[j,],e)
+        out   <- fitpoismix.update(L,X[,j],F[j,],fj,e)
+        F[j,] <- out$x
+      }
+    })
 
     # Compute the value of the objective (cost) function at the
     # current estimates of the factors and loadings.
@@ -35,6 +38,7 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
     d <- max(max(abs(F - F0)),max(abs(L - L0)))
     progress[iter,"objective"] <- f
     progress[iter,"max.diff"]  <- d
+    progress[iter,"timing"]    <- timing["elapsed"]
     if (verbose)
       cat(sprintf("%4d %+0.10e %0.2e\n",iter,f,d))
   }
@@ -82,7 +86,7 @@ fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
   return(list(x = x,value = f,progress = progress))
 }
 
-# Implement a single iteration of fixpoismix.
+# Implements a single iteration of fixpoismix.
 fitpoismix.update <- function (L, w, x, f, e = 1e-8, delta = 1e-6, beta = 0.75,
                                suffdecr = 0.01, minstepsize = 1e-10) {
   m <- length(x)
@@ -129,4 +133,3 @@ cost.poismix <- function (L, w, x, e = 1e-8) {
  else
    return(Inf)
 }
-
