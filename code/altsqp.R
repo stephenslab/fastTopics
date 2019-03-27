@@ -94,8 +94,8 @@ fitpoismix.update <- function (L, w, x, f, e = 1e-8, delta = 1e-6, beta = 0.75,
   # Compute the gradient (g) and Hessian (H) at the current iterate.
   u <- drop(L %*% x) + e
   g <- drop((1 - w/u) %*% L)
-  H <- crossprod((sqrt(w)/u)*L) + delta*diag(m)
-
+  H <- as.matrix(crossprod((sqrt(w)/u)*L)) + delta*diag(m)
+  
   # Compute a search direction, p, by minimizing p'*H*p/2 + p'*g,
   # where g is the gradient and H is the Hessian, subject to all
   # elements of x + p being non-negative.
