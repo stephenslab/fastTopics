@@ -24,7 +24,7 @@ set.seed(1)
 # LOAD DATA
 # ---------
 cat("Loading count data.\n")
-counts        <- suppressMessages(read_csv("../data/droplet.csv.gz"))
+counts        <- suppressMessages(read_csv("../data/droplet_small.csv.gz"))
 class(counts) <- "data.frame"
 counts        <- as.matrix(counts)
 counts        <- Matrix(counts,sparse = TRUE)
