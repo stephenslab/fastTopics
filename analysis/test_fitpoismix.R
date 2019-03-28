@@ -2,6 +2,7 @@
 # encoded as a dense matrix, the other encoded as a sparse matrix.
 library(Matrix)
 library(quadprog)
+library(RcppArmadillo)
 source("../code/misc.R")
 source("../code/altsqp.R")
 set.seed(1)
