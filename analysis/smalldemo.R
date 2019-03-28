@@ -3,8 +3,8 @@
 
 # SCRIPT PARAMETERS
 # -----------------
-K  <- 13  # Number of factors (topics).
-nc <- 2   # Number of threads to use.
+# Number of factors (topics).
+K <- 13  
 
 # SET UP ENVIRONMENT
 # ------------------
