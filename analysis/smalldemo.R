@@ -47,7 +47,7 @@ fit.betanmf <- betanmf(counts,L,t(F),numiter = 100)
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
-fit.altsqp <- altsqp(counts,F,L,nc = 2,numiter = 10)
+fit.altsqp <- altsqp(counts,F,L,nc = 2,numiter = 50)
     
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------

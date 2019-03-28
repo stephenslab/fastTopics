@@ -57,7 +57,7 @@ altsqp.update.loadings <- function (X, F, L, e) {
   n <- nrow(X)
   for (i in 1:n) {
     fi    <- cost.poismix(F,X[i,],L[i,],e)
-    out   <- fitpoismix.update(F,X[i,],L[i,],fi,e)
+    out   <- fitpoismix.update(F,X[i,],L[i,],fi,e = e)
     L[i,] <- out$x
   }
   return(L)
@@ -68,7 +68,7 @@ altsqp.update.factors <- function (X, F, L, e) {
   m <- ncol(X)
   for (j in 1:m) {
     fj    <- cost.poismix(L,X[,j],F[j,],e)
-    out   <- fitpoismix.update(L,X[,j],F[j,],fj,e)
+    out   <- fitpoismix.update(L,X[,j],F[j,],fj,e = e)
     F[j,] <- out$x
   }
   return(F)
@@ -80,7 +80,8 @@ fitpoismix <- function (L, w, x, numiter = 100,
                         qp.solver = c("quadprog", "activeset"),
                         beta = 0.75, suffdecr = 0.01, minstepsize = 1e-10,
                         e = 1e-8, delta = 1e-10, verbose = TRUE) {
-
+  qp.solver <- match.arg(qp.solver)
+    
   # Remove rows with zero weights.
   rows <- which(w > 0)
   w    <- w[rows]
@@ -121,8 +122,9 @@ fitpoismix.update <- function (L, w, x, f,
                                qp.solver = c("quadprog", "activeset"),
                                e = 1e-8, delta = 1e-6, beta = 0.75,
                                suffdecr = 0.01, minstepsize = 1e-10) {
-  m <- length(x)
-    
+  m         <- length(x)
+  qp.solver <- match.arg(qp.solver)
+
   # Compute the gradient (g) and Hessian (H) at the current iterate.
   u <- drop(L %*% x) + e
   g <- drop((1 - w/u) %*% L)
