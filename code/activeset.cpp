@@ -17,21 +17,28 @@ using namespace arma;
 //
 // [[Rcpp::export]]
 //
-double activeset_rcpp (const mat& H, const vec& g, vec& y,
-		       int maxiter_activeset, double zerothreshold) {
+vec activeset_rcpp (const mat& H, const vec& g, const vec& y0,
+		    int maxiter_activeset, double convtol,
+		    double zerothreshold, double zerosearchdir) {
 
-  // Get the number of parameters to optimize.
-  int k = y.n_elem;
+  // Get the number of parameters to be optimized.
+  int k = g.n_elem;
 
   double n;
   double a;
+  int    inew;
   
-  uvec   t(k);
-  uvec   i(k);
-  vec    p(k);
-  vec    b(k);
-  vec    bs(k);
-  mat    Hs(k,k);
+  vec  y = y0;
+  uvec t(k);
+  uvec i(k);
+  uvec j(k);
+  uvec A(k);
+  vec  p(k);
+  vec  p0(k);
+  vec  alpha(k);
+  vec  b(k);
+  vec  bs(k);
+  mat  Hs(k,k);
 
   // Initialize the solution to the quadratic subproblem.
   t = (y >= zerothreshold);
@@ -44,6 +51,8 @@ double activeset_rcpp (const mat& H, const vec& g, vec& y,
 
     // Get the set of co-ordinates outside the working set.
     i = find(t);
+    j = find(1 - t);
+    n = j.n_elem;
     
     // Define the equality-constrained quadratic subproblem.
     b  = H*y + g;
@@ -56,7 +65,55 @@ double activeset_rcpp (const mat& H, const vec& g, vec& y,
       
     // Reset the step size.
     a = 0.99;
+
+    // If the working set is empty, and we have already tried to
+    // update the working set at least once, we have reached a
+    // suitable solution.
+    if (n == 0 & iter > 0) {
+      break;
+
+    // Check that the search direction is close to zero.
+    } else if ((p.max()  <= zerosearchdir) &
+	       (-p.min() <= zerosearchdir) &
+	       (n > 0)) {
+
+      // If all the gradient entries in the working set (that is,
+      // zeroed co-ordinates) are positive, or nearly positive, we
+      // have reached a suitable solution.
+      if (b(j).min() >= convtol)
+	break;
+
+      // Find a co-ordinate with the smallest gradient entry, and
+      // remove it from the working set.
+      inew    = j[b(j).index_min()];
+      t[inew] = 1;
+
+     // In this next part, we consider adding a co-ordinate to the
+     // working set, but only if there are two or more non-zero
+     // co-ordinates.
+    } else if (n < k - 1) {
+
+      // Revise the step size.
+      p0 = p;
+      p0.elem(j).fill(0);
+      A = find(p0 < 0);
+      if (!A.is_empty()) {
+        alpha = -y.elem(A)/p.elem(A);
+        inew  = alpha.index_min();
+        if (alpha[inew] < 1) {
+
+	  // Blocking constraint exists; find and add it to the
+          // working set.
+          a          = alpha[inew]; 
+          t[A[inew]] = 0;
+        }
+      }
+    }
+
+    // Move to the new iterate along the search
+    // direction.
+    y += a * p;
   }
   
-  return g.min();
+  return y;
 }
