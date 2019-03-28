@@ -76,9 +76,10 @@ altsqp.update.factors <- function (X, F, L, e) {
 
 # Maximize a Poisson likelihood in which the Poisson rate for the jth
 # sample is r[j] = sum(L[j,]*x).
-fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
-                        minstepsize = 1e-10, e = 1e-8, delta = 1e-10,
-                        verbose = TRUE) {
+fitpoismix <- function (L, w, x, numiter = 100,
+                        qp.solver = c("quadprog", "activeset"),
+                        beta = 0.75, suffdecr = 0.01, minstepsize = 1e-10,
+                        e = 1e-8, delta = 1e-10, verbose = TRUE) {
 
   # Remove rows with zero weights.
   rows <- which(w > 0)
@@ -99,7 +100,8 @@ fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
     cat("iter           objective max.diff step.size\n")
   for (i in 1:numiter) {
     x0  <- x
-    out <- fitpoismix.update(L,w,x,f,e,delta,beta,suffdecr,minstepsize)
+    out <- fitpoismix.update(L,w,x,f,qp.solver,e,delta,beta,suffdecr,
+                             minstepsize)
     x   <- out$x
     f   <- out$f
     a   <- out$a
@@ -115,7 +117,9 @@ fitpoismix <- function (L, w, x, numiter = 100, beta = 0.75, suffdecr = 0.01,
 }
 
 # Implements a single iteration of fixpoismix.
-fitpoismix.update <- function (L, w, x, f, e = 1e-8, delta = 1e-6, beta = 0.75,
+fitpoismix.update <- function (L, w, x, f,
+                               qp.solver = c("quadprog", "activeset"),
+                               e = 1e-8, delta = 1e-6, beta = 0.75,
                                suffdecr = 0.01, minstepsize = 1e-10) {
   m <- length(x)
     
@@ -127,8 +131,12 @@ fitpoismix.update <- function (L, w, x, f, e = 1e-8, delta = 1e-6, beta = 0.75,
   # Compute a search direction, p, by minimizing p'*H*p/2 + p'*g,
   # where g is the gradient and H is the Hessian, subject to all
   # elements of x + p being non-negative.
-  out <- quadprog::solve.QP(H,-g,Matrix::Diagonal(m),-x)
-  p   <- out$solution
+  if (qp.solver == "quadprog") {
+    out <- quadprog::solve.QP(H,-g,Matrix::Diagonal(m),-x)
+    p   <- out$solution
+  } else if (qp.solver == "activeset") {
+    # TO DO.
+  }
 
   # Perform backtracking line search to determine a suitable step
   # size.
