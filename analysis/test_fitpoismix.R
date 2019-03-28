@@ -14,7 +14,10 @@ L <- matrix(round(100*runif(18)),6,3)
 L <- L * U
 w <- c(1,5,100,1,2,0)
 x <- c(1,1,1)
-out1 <- fitpoismix(L,w,x,numiter = 20)
+out1 <- fitpoismix(L,w,x,numiter = 20,qp.solver = "activeset")
+out2 <- fitpoismix(L,w,x,numiter = 20,qp.solver = "quadprog")
+
+stop()
 
 # Example 2: sparse matrix.
 L    <- Matrix(L,sparse = TRUE)

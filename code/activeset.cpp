@@ -17,9 +17,9 @@ using namespace arma;
 //
 // [[Rcpp::export]]
 //
-vec activeset_rcpp (const mat& H, const vec& g, const vec& y0,
-		    int maxiter_activeset, double convtol,
-		    double zerothreshold, double zerosearchdir) {
+double activeset_rcpp (const mat& H, const vec& g, const vec& y0, vec& y,
+		       int maxiter_activeset, double convtol,
+		       double zerothreshold, double zerosearchdir) {
 
   // Get the number of parameters to be optimized.
   int k = g.n_elem;
@@ -28,7 +28,6 @@ vec activeset_rcpp (const mat& H, const vec& g, const vec& y0,
   double a;
   int    inew;
   
-  vec  y = y0;
   uvec t(k);
   uvec i(k);
   uvec j(k);
@@ -41,14 +40,15 @@ vec activeset_rcpp (const mat& H, const vec& g, const vec& y0,
   mat  Hs(k,k);
 
   // Initialize the solution to the quadratic subproblem.
-  t = (y >= zerothreshold);
-  n = sum(t);
+  t = (y0 >= zerothreshold);
+  i = find(t);
+  n = i.n_elem;
   y.fill(0);
   y.elem(i).fill(1/n);
   
   // Run active set method to solve the quadratic subproblem.
   for (int iter = 0; iter < maxiter_activeset; iter++) {
-
+    
     // Get the set of co-ordinates outside the working set.
     i = find(t);
     j = find(1 - t);
@@ -91,7 +91,7 @@ vec activeset_rcpp (const mat& H, const vec& g, const vec& y0,
      // In this next part, we consider adding a co-ordinate to the
      // working set, but only if there are two or more non-zero
      // co-ordinates.
-    } else if (n < k - 1) {
+    } else if (n < (k - 1)) {
 
       // Revise the step size.
       p0 = p;
@@ -115,5 +115,5 @@ vec activeset_rcpp (const mat& H, const vec& g, const vec& y0,
     y += a * p;
   }
   
-  return y;
+  return 0;
 }
