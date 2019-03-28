@@ -5,13 +5,6 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, nc = 1,
   m <- ncol(X)
   progress <- data.frame(iter = 1:numiter,objective = 0,
                          max.diff = 0,timing = 0)
-  if (nc > 1) {
-    cl <- makeCluster(nc)
-    clusterExport(cl,c("altsqp.update.loadings","altsqp.update.factors",
-                       "fitpoismix.update","cost.poismix","dot"))
-    rows <- clusterSplit(cl,1:n)
-    cols <- clusterSplit(cl,1:m)
-  }
   
   # Repeat until we reach the number of requested iterations.
   if (verbose)
@@ -28,10 +21,10 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, nc = 1,
       if (nc == 1)  
         L <- altsqp.update.loadings(X,F,L,e)
       else {
-        L <- parLapply(cl,rows,
-               function (i,X,F,L,e) altsqp.update.loadings(X[i,],F,L[i,],e),
-               X,F,L,e)
-        L <- do.call(rbind,L)
+        rows <- splitIndices(n,nc)
+        L    <- mclapply(rows,
+                         function (i) altsqp.update.loadings(X[i,],F,L[i,],e))
+        L    <- do.call(rbind,L)
         L[unlist(rows),] <- L
       }
 
@@ -39,10 +32,10 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, nc = 1,
       if (nc == 1)
         F <- altsqp.update.factors(X,F,L,e)
       else {
-        F <- parLapply(cl,cols,
-               function (j,X,F,L,e) altsqp.update.factors(X[,j],F[j,],L,e),
-               X,F,L,e)
-        F <- do.call(rbind,F)
+        cols <- splitIndices(m,nc)
+        F    <- mclapply(cols,
+                         function(j) altsqp.update.factors(X[,j],F[j,],L,e))
+        F    <- do.call(rbind,F)
         F[unlist(cols),] <- F
       }
     })
@@ -57,8 +50,7 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, nc = 1,
     if (verbose)
       cat(sprintf("%4d %+0.10e %0.2e\n",iter,f,d))
   }
-  if (nc > 1)
-    stopCluster(cl)
+  
   return(list(F = F,L = L,value = f,progress = progress))
 }
 
