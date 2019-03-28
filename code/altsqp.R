@@ -132,10 +132,12 @@ fitpoismix.update <- function (L, w, x, f,
   
   # Compute a search direction, p, by minimizing p'*H*p/2 + p'*g,
   # where g is the gradient and H is the Hessian, subject to all
-  # elements of x + p being non-negative.
+  # elements of x + p being non-negative. Although rather than solve
+  # this problem directly, we instead minimize y'*H*y/2 + y'*(g - H*x)
+  # subject to y being non-negative, then set p = y - x.
   if (qp.solver == "quadprog") {
-    out <- quadprog::solve.QP(H,-g,Matrix::Diagonal(m),-x)
-    p   <- out$solution
+    out <- quadprog::solve.QP(H,drop(H %*% x - g),Matrix::Diagonal(m))
+    p   <- out$solution - x
   } else if (qp.solver == "activeset") {
     # TO DO.
   }
