@@ -13,10 +13,38 @@
 using namespace Rcpp;
 
 // TO DO: Explain here what this function does, and how to use it.
-// 
+//
 // [[Rcpp::export]]
 //
 double activeset_rcpp (const arma::mat& H, const arma::vec& g,
-		       const arma::vec& x0) {
+		       arma::vec& y, int maxiter_activeset,
+		       double zerothreshold) {
+
+  // Get the number of parameters to optimize.
+  int k = y.n_elem;
+
+  double     n;
+  arma::uvec t(k);
+  arma::uvec i(k);
+  arma::vec  b(k);
+  arma::vec  bs(k);
+  arma::mat  Hs(k,k);
+
+  // Initialize the solution to the quadratic subproblem.
+  t = (y >= zerothreshold);
+  n = sum(t);
+  y.fill(0);
+  y.elem(i).fill(1/n);
+  
+  // Run active set method to solve the quadratic subproblem.
+  for (int iter = 0; iter < maxiter_activeset; iter++) {
+
+    // Define the equality-constrained quadratic subproblem.
+    b  = H*y + g;
+    i  = find(t);
+    bs = b.elem(i);
+    Hs = H.elem(i,i);
+  }
+  
   return g.min();
 }
