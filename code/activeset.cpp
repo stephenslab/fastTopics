@@ -24,8 +24,11 @@ double activeset_rcpp (const mat& H, const vec& g, vec& y,
   int k = y.n_elem;
 
   double n;
+  double a;
+  
   uvec   t(k);
   uvec   i(k);
+  vec    p(k);
   vec    b(k);
   vec    bs(k);
   mat    Hs(k,k);
@@ -39,11 +42,20 @@ double activeset_rcpp (const mat& H, const vec& g, vec& y,
   // Run active set method to solve the quadratic subproblem.
   for (int iter = 0; iter < maxiter_activeset; iter++) {
 
+    // Get the set of co-ordinates outside the working set.
+    i = find(t);
+    
     // Define the equality-constrained quadratic subproblem.
     b  = H*y + g;
-    i  = find(t);
     bs = b.elem(i);
     Hs = H.elem(i,i);
+
+    // Solve the equality-constrained subproblem.
+    p.fill(0);
+    p.elem(i) = -solve(Hs,bs);
+      
+    // Reset the step size.
+    a = 0.99;
   }
   
   return g.min();
