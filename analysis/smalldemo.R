@@ -47,9 +47,9 @@ fit.betanmf <- betanmf(counts,L,t(F),numiter = 100)
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
-fit.altsqp <- altsqp(counts,F,L,nc = 2,numiter = 50)
+fit.altsqp <- altsqp(counts,F,L,nc = 2,numiter = 10)
     
-# PLOT IMPROVEMENT OF SOLUTIONS OVER TIME
+# PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
 bestf <- -250300.7483213344530668
 p1 <- ggplot(fit.betanmf$progress,
@@ -58,4 +58,4 @@ p1 <- ggplot(fit.betanmf$progress,
   geom_line(color = "darkorange",data = fit.altsqp$progress,size = 1) +
   scale_y_continuous(trans = "log10") +
   labs(x = "iteration",y = "distance from minimum")
-print(p1)
+

@@ -22,9 +22,8 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, nc = 1,
         L <- altsqp.update.loadings(X,F,L,e)
       else {
         rows <- splitIndices(n,nc)
-        L    <- mclapply(rows,
-                         function (i) altsqp.update.loadings(X[i,],F,L[i,],e))
-        L    <- do.call(rbind,L)
+        L <- mclapply(rows,function(i) altsqp.update.loadings(X[i,],F,L[i,],e))
+        L <- do.call(rbind,L)
         L[unlist(rows),] <- L
       }
 
@@ -33,9 +32,8 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, nc = 1,
         F <- altsqp.update.factors(X,F,L,e)
       else {
         cols <- splitIndices(m,nc)
-        F    <- mclapply(cols,
-                         function(j) altsqp.update.factors(X[,j],F[j,],L,e))
-        F    <- do.call(rbind,F)
+        F <- mclapply(cols,function(j) altsqp.update.factors(X[,j],F[j,],L,e))
+        F <- do.call(rbind,F)
         F[unlist(cols),] <- F
       }
     })
