@@ -77,7 +77,7 @@ altsqp.update.factors <- function (X, F, L, e) {
 # Maximize a Poisson likelihood in which the Poisson rate for the jth
 # sample is r[j] = sum(L[j,]*x).
 fitpoismix <- function (L, w, x, numiter = 100,
-                        qp.solver = c("quadprog", "activeset"),
+                        qp.solver = c("quadprog","activeset"),
                         beta = 0.75, suffdecr = 0.01, minstepsize = 1e-10,
                         e = 1e-8, delta = 1e-10, verbose = TRUE) {
   qp.solver <- match.arg(qp.solver)
@@ -119,7 +119,7 @@ fitpoismix <- function (L, w, x, numiter = 100,
 
 # Implements a single iteration of fixpoismix.
 fitpoismix.update <- function (L, w, x, f,
-                               qp.solver = c("quadprog", "activeset"),
+                               qp.solver = c("quadprog","activeset"),
                                e = 1e-8, delta = 1e-6, beta = 0.75,
                                suffdecr = 0.01, minstepsize = 1e-10) {
   m         <- length(x)
@@ -135,27 +135,25 @@ fitpoismix.update <- function (L, w, x, f,
   # elements of x + p being non-negative. Although rather than solve
   # this problem directly, we instead minimize y'*H*y/2 + y'*(g - H*x)
   # subject to y being non-negative, then set p = y - x.
+  browser()
   if (qp.solver == "quadprog") {
     out <- quadprog::solve.QP(H,drop(H %*% x - g),Matrix::Diagonal(m))
     p   <- out$solution - x
   } else if (qp.solver == "activeset") {
-    out <- quadprog::solve.QP(H,drop(H %*% x - g),Matrix::Diagonal(m))
-    p1  <- out$solution - x
-    y <- 1 * x
-    activeset_rcpp(H,drop(g - H %*% x),x,y,1000,1e-10,1e-8,1e-10)
-    p <- y - x
-    browser()
-    print(max(abs(p - p1)))
+    z    <- 1 * x
+    ghat <- drop(g - H %*% x)
+    activeset_rcpp(H,ghat,x,z,100,1e-10,0,1e-10)
+    p <- z - x
   }
-  
+
   # Perform backtracking line search to determine a suitable step
   # size.
-  a <- 0.99
+  a <- 1
   while (TRUE) {
     y <- x + a*p
     if (all(y >= 0)) {
       fnew <- cost.poismix(L,w,y,e)
-      if (fnew <= f + a*suffdecr*dot(p,g))
+      if (fnew <= f + suffdecr*a*dot(p,g))
         break
     }
     if (a*beta < minstepsize)

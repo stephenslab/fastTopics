@@ -64,7 +64,7 @@ double activeset_rcpp (const mat& H, const vec& g, const vec& y0, vec& y,
     p.elem(i) = -solve(Hs,bs);
       
     // Reset the step size.
-    a = 0.99;
+    a = 1;
 
     // If the working set is empty, and we have already tried to
     // update the working set at least once, we have reached a
@@ -88,9 +88,9 @@ double activeset_rcpp (const mat& H, const vec& g, const vec& y0, vec& y,
       inew    = j[b(j).index_min()];
       t[inew] = 1;
 
-     // In this next part, we consider adding a co-ordinate to the
-     // working set, but only if there are two or more non-zero
-     // co-ordinates.
+    // In this next part, we consider adding a co-ordinate to the
+    // working set, but only if there are two or more non-zero
+    // co-ordinates.
     } else if (n < (k - 1)) {
 
       // Revise the step size.
