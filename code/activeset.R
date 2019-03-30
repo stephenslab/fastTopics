@@ -8,26 +8,26 @@ activeset <- function (H, g, x0, maxiter = 100) {
   # Get the working set.
   n <- length(x0)
   x <- x0
-  S <- (x >= 1e-8)
+  S <- (x >= 0)
 
   for (iter in 1:maxiter) {
-
+      
     # Compute the search direction by solving the equality-constrained
     # subproblem.
     b    <- H %*% x + g
     i    <- which(S)
     p    <- rep(0,n)
-    p[i] <- solve(H[i,i],-b[i])
+    p[i] <- qr.solve(H[i,i],-b[i])
 
     # Check that the search direction is close to zero.
-    if (max(abs(p)) < 1e-8) {
+    if (max(abs(p)) < 1e-15) {
       i <- which(!S)
 
       # If the Lagrange multipliers for all co-ordinates in the
       # working set
       if (length(i) == 0)
         break
-      else if (all(b[i] >= -1e-10))
+      else if (all(b[i] >= -1e-15))
         break
       else {
 
