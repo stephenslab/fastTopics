@@ -140,15 +140,17 @@ fitpoismix.update <- function (L, w, x, f,
     out <- quadprog::solve.QP(H,drop(H %*% x - g),Matrix::Diagonal(m))
     p   <- out$solution - x
   } else if (qp.solver == "activeset") {
-    z    <- 1 * x
+    # z    <- 1 * x
+    # activeset_rcpp(H,ghat,x,z,maxiter_activeset = 100,convtol = 1e-10,
+    #                zerothreshold = 0,zerosearchdir = 1e-10)
     ghat <- drop(g - H %*% x)
-    activeset_rcpp(H,ghat,x,z,100,1e-10,0,1e-10)
-    p <- z - x
+    z    <- activeset(H,ghat,x)
+    p    <- z - x
   }
 
   # Perform backtracking line search to determine a suitable step
   # size.
-  a <- 1
+  a <- 0.99
   while (TRUE) {
     y <- x + a*p
     if (all(y >= 0)) {

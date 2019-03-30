@@ -24,17 +24,17 @@ double activeset_rcpp (const mat& H, const vec& g, const vec& y0, vec& y,
   // Get the number of parameters to be optimized.
   int k = g.n_elem;
 
-  double n;
+  double n0, n1;
   double a;
   int    inew;
   
   uvec t(k);
   uvec i(k);
   uvec j(k);
-  uvec A(k);
+  // uvec A(k);
   vec  p(k);
   vec  p0(k);
-  vec  alpha(k);
+  // vec  alpha(k);
   vec  b(k);
   vec  bs(k);
   mat  Hs(k,k);
@@ -42,17 +42,18 @@ double activeset_rcpp (const mat& H, const vec& g, const vec& y0, vec& y,
   // Initialize the solution to the quadratic subproblem.
   t = (y0 >= zerothreshold);
   i = find(t);
-  n = i.n_elem;
   y.fill(0);
-  y.elem(i).fill(1/n);
+  y.elem(i).fill(1);
   
   // Run active set method to solve the quadratic subproblem.
   for (int iter = 0; iter < maxiter_activeset; iter++) {
     
-    // Get the set of co-ordinates outside the working set.
-    i = find(t);
-    j = find(1 - t);
-    n = j.n_elem;
+    // Get the set of co-ordinates in the working set (j) and outside
+    // the working set (i).
+    i  = find(t);
+    j  = find(1 - t);
+    n1 = i.n_elem;
+    n0 = j.n_elem;
     
     // Define the equality-constrained quadratic subproblem.
     b  = H*y + g;
@@ -69,18 +70,18 @@ double activeset_rcpp (const mat& H, const vec& g, const vec& y0, vec& y,
     // If the working set is empty, and we have already tried to
     // update the working set at least once, we have reached a
     // suitable solution.
-    if (n == 0 & iter > 0) {
+    if (n0 == 0 & iter > 0) {
       break;
 
     // Check that the search direction is close to zero.
     } else if ((p.max()  <= zerosearchdir) &
 	       (-p.min() <= zerosearchdir) &
-	       (n > 0)) {
+	       (n0 > 0)) {
 
       // If all the gradient entries in the working set (that is,
       // zeroed co-ordinates) are positive, or nearly positive, we
       // have reached a suitable solution.
-      if (b(j).min() >= convtol)
+      if (b(j).min() >= -convtol)
 	break;
 
       // Find a co-ordinate with the smallest gradient entry, and
@@ -91,14 +92,14 @@ double activeset_rcpp (const mat& H, const vec& g, const vec& y0, vec& y,
     // In this next part, we consider adding a co-ordinate to the
     // working set, but only if there are two or more non-zero
     // co-ordinates.
-    } else if (n < (k - 1)) {
+    } else if (n1 > 1) {
 
       // Revise the step size.
       p0 = p;
       p0.elem(j).fill(0);
-      A = find(p0 < 0);
+      uvec A = find(p0 < 0);
       if (!A.is_empty()) {
-        alpha = -y.elem(A)/p.elem(A);
+        vec alpha = -y.elem(A)/p.elem(A);
         inew  = alpha.index_min();
         if (alpha[inew] < 1) {
 

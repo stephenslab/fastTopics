@@ -4,6 +4,7 @@ library(Matrix)
 library(quadprog)
 library(Rcpp)
 source("../code/misc.R")
+source("../code/activeset.R")
 source("../code/altsqp.R")
 sourceCpp("../code/activeset.cpp")
 set.seed(1)
@@ -14,8 +15,10 @@ L <- matrix(round(100*runif(18)),6,3)
 L <- L * U
 w <- c(1,5,100,1,2,0)
 x <- c(1,1,1)
-out1 <- fitpoismix(L,w,c(1,1,0),numiter = 40,qp.solver = "activeset")
-out2 <- fitpoismix(L,w,x,numiter = 20,qp.solver = "quadprog")
+out1 <- fitpoismix(L,w,c(1,1,1),numiter = 4,qp.solver = "activeset")
+out2 <- fitpoismix(L,w,c(1,1,1),numiter = 4,qp.solver = "quadprog")
+
+stop()
 
 # Example 2: sparse matrix.
 L    <- Matrix(L,sparse = TRUE)
