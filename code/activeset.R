@@ -27,36 +27,35 @@ activeset <- function (H, g, x0, maxiter = min(100,length(g) + 1),
 
     # Check that the search direction is close to zero.
     if (max(abs(p)) < zerosearchdir) {
-      i <- which(!S)
+      j <- which(!S)
 
       # If the Lagrange multipliers for all co-ordinates in the
-      # working set
-      if (length(i) == 0)
+      # working set are positive, we have reached the solution.
+      if (length(j) == 0 | all(b[j] >= -convtol))
         break
-      else if (all(b[i] >= -convtol))
-        break
-      else {
 
-        # Find the co-ordinate with the smallest Lagrange multiplier,
-        # and remove it from the working set.
-        j    <- i[which.min(b[i])]
-        S[j] <- TRUE
-      }
+      # Find the co-ordinate with the smallest Lagrange multiplier,
+      # and remove it from the working set.
+      S[j[which.min(b[j])]] <- TRUE
     } else {
 
-      # Determine the step size.
+      # Determine the step size, check for any blocking constraints,
+      # and adjust the working set if there are any blocking
+      # constraints.
       a <- 1
       i <- which(S & p < 0)
       if (length(i) > 0) {
+
+        # Check for a blocking constraint.
         y <- -x[i]/p[i]
         j <- which.min(y)
-
-        # Check if there are any blocking constraints. If so, then the
-        # step size will be less than 1.
         if (y[j] < 1) {
-          a    <- y[j]
-          j    <- i[j]
-          S[j] <- FALSE
+
+          # There is a blocking constraint; adjust the step size to
+          # retain feasibility, and add this blocking constraint to
+          # the working set.
+          a       <- y[j]
+          S[i[j]] <- FALSE
         }
       }
 
