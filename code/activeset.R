@@ -3,13 +3,19 @@
 #   minimize x'*H*x/2 + y'*g
 #   subject to x >= 0.
 #
-activeset <- function (H, g, x0, maxiter = 100) {
+# This implementation closely follows Algorithm 16.3 from Nocedal &
+# Wright (2006).
+activeset <- function (H, g, x0, maxiter = min(100,length(g) + 1),
+                       convtol = 1e-15, zerosearchdir = 1e-15,
+                       zerothreshold = 1e-8) {
 
-  # Get the working set.
+  # Initialize the solution, and get the working set.
   n <- length(x0)
   x <- x0
-  S <- (x >= 0)
+  S <- (x >= zerothreshold)
 
+  # Repeat until we have reached the maximum number of iterations, or
+  # until the convergence criteria have been met.
   for (iter in 1:maxiter) {
       
     # Compute the search direction by solving the equality-constrained
@@ -20,14 +26,14 @@ activeset <- function (H, g, x0, maxiter = 100) {
     p[i] <- qr.solve(H[i,i],-b[i])
 
     # Check that the search direction is close to zero.
-    if (max(abs(p)) < 1e-15) {
+    if (max(abs(p)) < zerosearchdir) {
       i <- which(!S)
 
       # If the Lagrange multipliers for all co-ordinates in the
       # working set
       if (length(i) == 0)
         break
-      else if (all(b[i] >= -1e-15))
+      else if (all(b[i] >= -convtol))
         break
       else {
 

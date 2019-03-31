@@ -18,7 +18,7 @@ using namespace arma;
 // [[Rcpp::export]]
 //
 double activeset_rcpp (const mat& H, const vec& g, const vec& y0, vec& y,
-		       int maxiter_activeset, double convtol,
+		       int maxiter, double convtol,
 		       double zerothreshold, double zerosearchdir) {
 
   // Get the number of parameters to be optimized.

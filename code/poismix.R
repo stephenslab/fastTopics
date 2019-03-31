@@ -64,9 +64,7 @@ fitpoismix.update <- function (L, w, x, f,
     out <- quadprog::solve.QP(H,-ghat,Matrix::Diagonal(m))
     p   <- out$solution - x
   } else if (qp.solver == "activeset") {
-    # out <- quadprog::solve.QP(H,-ghat,Matrix::Diagonal(m))
     z <- activeset(H,ghat,x)
-    # print(max(abs(out$solution  - z)))
     p <- z - x
   }
 
