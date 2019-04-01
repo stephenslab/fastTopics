@@ -23,7 +23,7 @@ activeset <- function (H, g, x0, maxiter = min(100,length(g) + 1),
     b    <- H %*% x + g
     i    <- which(S)
     p    <- rep(0,n)
-    p[i] <- qr.solve(H[i,i],-b[i])
+    p[i] <- qr.solve(H[i,i] + 1e-6*max(abs(H[i,i]))*diag(length(i)),-b[i])
 
     # Check that the search direction is close to zero.
     if (max(abs(p)) < zerosearchdir) {

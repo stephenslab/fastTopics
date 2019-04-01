@@ -1,6 +1,5 @@
 # TO DO: Explain here what this function does, and how to use it.
-altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, nc = 1,
-                    verbose = TRUE) {
+altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, verbose = TRUE) {
   n <- nrow(X)
   m <- ncol(X)
   progress <- data.frame(iter = 1:numiter,objective = 0,
@@ -18,24 +17,18 @@ altsqp <- function (X, F, L, numiter = 1000, e = 1e-8, nc = 1,
     timing <- system.time({
 
       # Update the loadings ("activations").
-      if (nc == 1)  
-        L <- altsqp.update.loadings(X,F,L,e)
-      else {
-        rows <- splitIndices(n,nc)
-        L <- mclapply(rows,function(i) altsqp.update.loadings(X[i,],F,L[i,],e))
-        L <- do.call(rbind,L)
-        L[unlist(rows),] <- L
-      }
+      L <- altsqp.update.loadings(X,F,L,e)
+      # rows <- splitIndices(n,nc)
+      # L <- mclapply(rows,function(i) altsqp.update.loadings(X[i,],F,L[i,],e))
+      # L <- do.call(rbind,L)
+      # L[unlist(rows),] <- L
 
       # Update the factors ("basis vectors").
-      if (nc == 1)
-        F <- altsqp.update.factors(X,F,L,e)
-      else {
-        cols <- splitIndices(m,nc)
-        F <- mclapply(cols,function(j) altsqp.update.factors(X[,j],F[j,],L,e))
-        F <- do.call(rbind,F)
-        F[unlist(cols),] <- F
-      }
+      F <- altsqp.update.factors(X,F,L,e)
+      # cols <- splitIndices(m,nc)
+      # F <- mclapply(cols,function(j) altsqp.update.factors(X[,j],F[j,],L,e))
+      # F <- do.call(rbind,F)
+      # F[unlist(cols),] <- F
     })
 
     # Compute the value of the objective (cost) function at the
@@ -57,7 +50,7 @@ altsqp.update.loadings <- function (X, F, L, e) {
   n <- nrow(X)
   for (i in 1:n) {
     fi    <- cost.poismix(F,X[i,],L[i,],e)
-    out   <- fitpoismix.update(F,X[i,],L[i,],fi,e = e)
+    out   <- fitpoismix.update(F,X[i,],L[i,],fi,e = e,qp.solver = "activeset")
     L[i,] <- out$x
   }
   return(L)
@@ -68,7 +61,7 @@ altsqp.update.factors <- function (X, F, L, e) {
   m <- ncol(X)
   for (j in 1:m) {
     fj    <- cost.poismix(L,X[,j],F[j,],e)
-    out   <- fitpoismix.update(L,X[,j],F[j,],fj,e = e)
+    out   <- fitpoismix.update(L,X[,j],F[j,],fj,e = e,qp.solver = "activeset")
     F[j,] <- out$x
   }
   return(F)

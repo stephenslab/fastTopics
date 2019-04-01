@@ -15,6 +15,8 @@ library(readr)
 library(ggplot2)
 library(cowplot)
 source("../code/misc.R")
+source("../code/activeset.R")
+source("../code/poismix.R")
 source("../code/altsqp.R")
 source("../code/betanmf.R")
 
@@ -47,7 +49,7 @@ fit.betanmf <- betanmf(counts,L,t(F),numiter = 100)
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
-fit.altsqp <- altsqp(counts,F,L,nc = 2,numiter = 50)
+fit.altsqp <- altsqp(counts,F,L,numiter = 50)
     
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
