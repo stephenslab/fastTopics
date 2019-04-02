@@ -43,8 +43,8 @@ fitpoismix <- function (L, w, x, numiter = 100,
 
 # Implements a single iteration of fixpoismix.
 fitpoismix.update <- function (L, w, x, f,
-                               qp.solver = c("quadprog","activeset"),
-                               e = 1e-8, delta = 1e-6, beta = 0.75,
+                               qp.solver = c("quadprog", "activeset"),
+                               e = 1e-8, beta = 0.75,
                                suffdecr = 0.01, minstepsize = 1e-10) {
   m         <- length(x)
   qp.solver <- match.arg(qp.solver)
@@ -52,7 +52,7 @@ fitpoismix.update <- function (L, w, x, f,
   # Compute the gradient (g) and Hessian (H) at the current iterate.
   u <- drop(L %*% x) + e
   g <- drop((1 - w/u) %*% L)
-  H <- as.matrix(crossprod((sqrt(w)/u)*L)) + delta*diag(m)
+  H <- as.matrix(crossprod((sqrt(w)/u)*L))
   
   # Compute a search direction, p, by minimizing p'*H*p/2 + p'*g,
   # where g is the gradient and H is the Hessian, subject to all
