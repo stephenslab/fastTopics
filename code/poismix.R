@@ -64,6 +64,7 @@ fitpoismix.update <- function (L, w, x, f,
     out <- quadprog::solve.QP(H,-ghat,Matrix::Diagonal(m))
     p   <- out$solution - x
   } else if (qp.solver == "activeset") {
+    x[x <= 1e-8] <- 0
     z <- activeset(H,ghat,x)
     p <- z - x
   }

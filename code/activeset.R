@@ -6,24 +6,26 @@
 # This implementation closely follows Algorithm 16.3 from Nocedal &
 # Wright (2006).
 activeset <- function (H, g, x0, maxiter = min(100,length(g) + 1),
-                       convtol = 1e-15, zerosearchdir = 1e-15,
-                       zerothreshold = 1e-8) {
+                       convtol = 1e-15, zerosearchdir = 1e-15) {
 
   # Initialize the solution, and get the working set.
   n <- length(x0)
   x <- x0
-  S <- (x >= zerothreshold)
-
+  S <- (x >= 0)
+  
   # Repeat until we have reached the maximum number of iterations, or
   # until the convergence criteria have been met.
   for (iter in 1:maxiter) {
       
     # Compute the search direction by solving the equality-constrained
     # subproblem.
-    b    <- H %*% x + g
+    b    <- drop(H %*% x + g)
     i    <- which(S)
     p    <- rep(0,n)
-    p[i] <- qr.solve(H[i,i] + 1e-6*max(abs(H[i,i]))*diag(length(i)),-b[i])
+    if (length(i) > 0)
+      p[i] <- tryCatch(drop(solve(H[i,i],-b[i])),error = function (e) {
+        browser()
+      })
 
     # Check that the search direction is close to zero.
     if (max(abs(p)) < zerosearchdir) {
