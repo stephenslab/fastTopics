@@ -1,5 +1,5 @@
 # Maximize a Poisson likelihood in which the Poisson rate for the jth
-# sample is r[j] = sum(L[j,]*x).
+# sample is given by r[j] = sum(L[j,]*x).
 fitpoismix <- function (L, w, x, numiter = 100,
                         qp.solver = c("quadprog","activeset"),
                         beta = 0.75, suffdecr = 0.01, minstepsize = 1e-10,
