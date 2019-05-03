@@ -14,6 +14,18 @@
 
 \maketitle
 
+\noindent Given an $n \times p$ matrix of counts $X$ with individual
+entries $x_{ij} \geq 0$, our aim is to fit a Poisson model of the
+counts,
+\begin{equation}
+p(x) = \prod_{i=1}^n \prod_{j=1}^p \mathrm{Poisson}(x_{ij}; \lambda_{ij}),
+\end{equation}
+in which the Poisson rates are given by the mixture $\lambda_{ij} =
+\sum_{k=1}^K l_{ik} f_{jk}$. Therefore, the Poisson model is specified
+by a $p \times K$ matrix $F$ with entries $f_{ik} \geq 0$ (the
+``factors''), and an $n \times K$ matrix $L$ with entries $l_{ik} \geq
+0$ (the ``loadings'').
+
 Here's a citation: \cite{blei-2003}.
 
 \bibliographystyle{siamplain}
