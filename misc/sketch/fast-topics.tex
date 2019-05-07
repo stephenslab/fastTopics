@@ -44,9 +44,21 @@ The log-likelihood for the Poisson model is
 \label{eq:poisson-log-likelihood}
 \end{equation}
 where the constant of proportionality is obtained from factorial terms
-in the Poisson densities. Our specific aim is to find a $F$ and $L$
-that maximizes the log-likelihood. In the remainder, we derive an
-efficient approach to doing this.
+in the Poisson densities. We propose a slight modification to this
+log-likelihood to allow for missing counts, which may be useful for
+some applications:
+\begin{equation}
+\log p(x \,|\, F, L) \propto
+  \sum_{i=1}^n \sum_{j=1}^p x_{ij} \log
+  ({\textstyle \sum_{k=1}^K l_{ik} f_{jk}})
+    - \sum_{i=1}^n \sum_{j=1}^p \sum_{k=1}^K a_{ij} l_{ik} f_{jk},
+\label{eq:poisson-log-likelihood-with-missing-data}
+\end{equation}
+in which we introduce an $n \times p$ matrix $A$ such that $a_{ij} =
+0$ and $x_{ij} = 0$ whenever the count is missing. Our specific aim is
+to find a $F$ and $L$ that maximizes the log-likelihood
+\eqref{eq:poisson-log-likelihood-with-missing-data}. In the remainder,
+we derive an efficient approach to doing this.
 
 \bibliographystyle{siamplain}
 \bibliography{fast-topics}
