@@ -65,16 +65,16 @@ subproblems that are more tractable to solve. All the subproblems are
 of the following form:
 \begin{equation}
 \begin{array}{ll}
-\mbox{minimize} & \phi(x; B, w) \\
-\mbox{subject to} & \mbox{$x_k \geq 0$ for all $k = 1, \ldots, K$},
+\mbox{minimize} & \phi(y; B, w) \\
+\mbox{subject to} & \mbox{$y_k \geq 0$ for all $k = 1, \ldots, K$},
 \end{array}
 \label{eq:subproblem}
 \end{equation}
 in which the objective function is defined as
 \begin{equation}
-\phi(x; B, w) =
-    - \sum_{i=1}^n w_i \log\big({\textstyle \sum_{k=1}^K b_{ik} x_k}\big)
-    + \sum_{i=1}^n \sum_{k=1}^K b_{ik} x_k.
+\phi(y; B, w) =
+    - \sum_{i=1}^n w_i \log\big({\textstyle \sum_{k=1}^K b_{ik} y_k}\big)
+    + \sum_{i=1}^n \sum_{k=1}^K b_{ik} y_k.
 \label{eq:subproblem-objective}
 \end{equation}
 To see the connection between subproblem \eqref{eq:subproblem} and the
@@ -94,6 +94,25 @@ optimized separately by solving a problem of the form
 \eqref{eq:subproblem}, and when $L$ is fixed, each row of $F$ can be
 optimized separately by solving a problem of the form
 \eqref{eq:subproblem}.
+
+Instead, we will solve the following optimization problem,
+\begin{equation}
+\begin{array}{ll}
+\mbox{minimize}   & f(t; P, u) \\
+\mbox{subject to} & \mbox{$t_k \geq 0$ for all $k = 1, \ldots, K$},
+\end{array}
+\end{equation}
+in which the objective function is defined as
+\begin{equation}
+f(t; P, u) =
+    - \sum_{i=1}^n u_i \log\big({\textstyle \sum_{k=1}^K p_{ik} t_k}\big)
+    + \sum_{k=1}^K t_k.
+\end{equation}
+This is equivalent to the above when
+\begin{align*}
+u_k    &= w_k/(\sum_{k'} w_{k'}) \\
+p_{ik} &= b_{ik} \times \sum_i w_i / \sum_i b_{ik}
+\end{align*}
 
 \bibliographystyle{siamplain}
 \bibliography{fast-topics}
