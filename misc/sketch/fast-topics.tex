@@ -50,15 +50,56 @@ some applications:
 \begin{equation}
 \log p(x \,|\, F, L) \propto
   \sum_{i=1}^n \sum_{j=1}^p x_{ij} \log
-  ({\textstyle \sum_{k=1}^K l_{ik} f_{jk}})
+  ({\textstyle \sum_{k=1}^K a_{ij} l_{ik} f_{jk}})
     - \sum_{i=1}^n \sum_{j=1}^p \sum_{k=1}^K a_{ij} l_{ik} f_{jk},
 \label{eq:poisson-log-likelihood-with-missing-data}
 \end{equation}
 in which we introduce an $n \times p$ matrix $A$ such that $a_{ij} =
-0$ and $x_{ij} = 0$ whenever the count is missing. Our specific aim is
-to find a $F$ and $L$ that maximizes the log-likelihood
-\eqref{eq:poisson-log-likelihood-with-missing-data}. In the remainder,
-we derive an efficient approach to doing this.
+0$ and $x_{ij} = 0$ whenever the count is missing (we also define $x
+\log x$ to be zero whenever $x$ is zero). Our specific aim is to find
+a $F$ and $L$ that maximizes the log-likelihood
+\eqref{eq:poisson-log-likelihood-with-missing-data}; that is, we would
+like to solve
+\begin{equation}
+\begin{array}{ll}
+\mbox{minimize} & -\log p(x \,|\, F, L) \\
+\mbox{subject to} & F \geq 0, L \geq 0.
+\end{array}
+\label{eq:problem}
+\end{equation}
+In the remainder, we derive an efficient approach to
+doing this.
+
+Our strategy for solving \eqref{eq:problem} is to alternate between
+solving for $F$ with $L$ fixed, and solving for $L$ with $F$
+fixed. When solving for $F$ with $L$ fixed, and vice versa, the
+problem naturally decomposes into a collection of much smaller
+subproblems that are more tractable to solve. All the subproblems are
+of the following form:
+\begin{equation}
+\begin{array}{ll}
+\mbox{minimize} & \phi(x; B, w) \\
+\mbox{subject to} & \mbox{$x_k \geq 0$ for all $k = 1, \ldots, K$},
+\end{array}
+\label{eq:subproblem}
+\end{equation}
+in which the objective function is defined as
+\begin{equation}
+\phi(x; B, w) =
+    - \sum_{j=1}^n w_j \log\big({\textstyle \sum_{k=1}^K B_{jk} x_k}\big)
+    + \sum_{j=1}^n \sum_{k=1}^K B_{jk} x_k.
+\label{eq:subproblem-objective}
+\end{equation}
+To see the connection between subproblem \eqref{eq:subproblem} and the
+original optimization problem, observe that the negative
+log-likelihood can be written as
+\begin{equation}
+-\log p(x \,|\, F, L) =
+\end{equation}
+and it can be equally written as
+\begin{equation}
+-\log p(x \,|\, F, L) =
+\end{equation}
 
 \bibliographystyle{siamplain}
 \bibliography{fast-topics}
