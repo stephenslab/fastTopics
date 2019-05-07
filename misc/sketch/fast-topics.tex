@@ -44,22 +44,9 @@ The log-likelihood for the Poisson model is
 \label{eq:poisson-log-likelihood}
 \end{equation}
 where the constant of proportionality is obtained from factorial terms
-in the Poisson densities. We propose a slight modification to this
-log-likelihood to allow for missing counts, which may be useful for
-some applications:
-\begin{equation}
-\log p(x \,|\, F, L) \propto
-  \sum_{i=1}^n \sum_{j=1}^p x_{ij} \log
-  ({\textstyle \sum_{k=1}^K a_{ij} l_{ik} f_{jk}})
-    - \sum_{i=1}^n \sum_{j=1}^p \sum_{k=1}^K a_{ij} l_{ik} f_{jk},
-\label{eq:poisson-log-likelihood-with-missing-data}
-\end{equation}
-in which we introduce an $n \times p$ matrix $A$ such that $a_{ij} =
-0$ and $x_{ij} = 0$ whenever the count is missing (we also define $x
-\log x$ to be zero whenever $x$ is zero). Our specific aim is to find
-a $F$ and $L$ that maximizes the log-likelihood
-\eqref{eq:poisson-log-likelihood-with-missing-data}; that is, we would
-like to solve
+in the Poisson densities. Our specific aim is to find a $F$ and $L$
+that maximizes the log-likelihood \eqref{eq:poisson-log-likelihood};
+that is, we would like to solve
 \begin{equation}
 \begin{array}{ll}
 \mbox{minimize} & -\log p(x \,|\, F, L) \\
@@ -86,20 +73,27 @@ of the following form:
 in which the objective function is defined as
 \begin{equation}
 \phi(x; B, w) =
-    - \sum_{j=1}^n w_j \log\big({\textstyle \sum_{k=1}^K B_{jk} x_k}\big)
-    + \sum_{j=1}^n \sum_{k=1}^K B_{jk} x_k.
+    - \sum_{i=1}^n w_i \log\big({\textstyle \sum_{k=1}^K b_{ik} x_k}\big)
+    + \sum_{i=1}^n \sum_{k=1}^K b_{ik} x_k.
 \label{eq:subproblem-objective}
 \end{equation}
 To see the connection between subproblem \eqref{eq:subproblem} and the
 original optimization problem, observe that the negative
 log-likelihood can be written as
 \begin{equation}
--\log p(x \,|\, F, L) =
+-\log p(x \,|\, F, L) = \sum_{i=1}^n \phi(l_i; F, x_i),
 \end{equation}
-and it can be equally written as
+where $x_i$ is the $i$th row of $X$ and $l_i$ is the $i$th row of $L$,
+and it can additionally be written as
 \begin{equation}
--\log p(x \,|\, F, L) =
+-\log p(x \,|\, F, L) = \sum_{j=1}^p \phi(f_j; L, x_i),
 \end{equation}
+in which $x_j$ is the $j$th column of $X$, and $f_j$ is the $j$th row
+of $F$. Therefore, when $F$ is unchanging, each row of $L$ can be
+optimized separately by solving a problem of the form
+\eqref{eq:subproblem}, and when $L$ is fixed, each row of $F$ can be
+optimized separately by solving a problem of the form
+\eqref{eq:subproblem}.
 
 \bibliographystyle{siamplain}
 \bibliography{fast-topics}
