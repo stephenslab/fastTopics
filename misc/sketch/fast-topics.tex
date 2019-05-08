@@ -77,7 +77,7 @@ in which the objective function is defined as
 \label{eq:subproblem-objective}
 \end{equation}
 To see the connection between subproblem \eqref{eq:subproblem} and the
-original optimization problem \label{eq:problem}, observe that the
+original optimization problem \eqref{eq:problem}, observe that the
 negative log-likelihood can be recovered as
 \begin{equation}
 -\log p(x \,|\, F, L) = \sum_{i=1}^n \phi(l_i; F, x_i),
@@ -94,24 +94,42 @@ separately optimized by solving a problem of the form
 separately optimized by solving a problem of the form
 \eqref{eq:subproblem}.
 
-Instead, we will solve the following optimization problem,
+Initially this may seem like a sensible strategy, but directly
+optimizing \eqref{eq:subproblem} turns out to be difficult to do for
+numerical reasons: in practice, the entries of $B$ can be very large
+or very small, resulting in solutions $y$ in which all the entries are
+either very large or very small. This makes it difficult to devise an
+algorithm that will work well for all possible input matrices $B$.
+
+I propose to solve for $y$ indirectly by instead solving
 \begin{equation}
 \begin{array}{ll}
 \mbox{minimize}   & f(t; P, u) \\
 \mbox{subject to} & \mbox{$t_k \geq 0$ for all $k = 1, \ldots, K$},
+\label{eq:subproblem-modified}
 \end{array}
 \end{equation}
-in which the objective function is defined as
+in which the new objective function is
 \begin{equation}
 f(t; P, u) =
     - \sum_{i=1}^n u_i \log\big({\textstyle \sum_{k=1}^K p_{ik} t_k}\big)
-    + \sum_{k=1}^K t_k.
+    + \sum_{k=1}^K t_k,
 \end{equation}
-This is equivalent to the above when
+where I've defined
 \begin{align*}
-u_k    &= w_k/(\sum_{k'} w_{k'}) \\
-p_{ik} &= b_{ik} \times \sum_i w_i / \sum_i b_{ik}
+u_i    &= \frac{w_i}{\sum_{i'=1}^n w_{i'}} \\
+p_{ik} &= b_{ik} \times \frac{\sum_{i'=1}^n w_{i'}}{\sum_{i'=1}^n b_{i'k}}.
 \end{align*}
+After finding the solution $t^{\star}$ to
+\eqref{eq:subproblem-modified}, the solution $y^{\star}$ to
+\eqref{eq:subproblem} is recovered as
+\begin{equation}
+y_k^{\star} = t_k^{\star} \times
+  \frac{\sum_{i=1}^n w_i}{\sum_{i=1}^n b_{ik}}.
+\end{equation}
+The main advantage of solving \eqref{eq:subproblem-modified} is that
+the solution is numerically well behaved; in particular, the entries
+of the solution $t^{\star}$ sum to 1 \cite{kim-2019}.
 
 \bibliographystyle{siamplain}
 \bibliography{fast-topics}
