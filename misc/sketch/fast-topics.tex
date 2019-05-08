@@ -129,7 +129,17 @@ y_k^{\star} = t_k^{\star} \times
 \end{equation}
 The main advantage of solving \eqref{eq:subproblem-modified} is that
 the solution is numerically well behaved; in particular, the entries
-of the solution $t^{\star}$ sum to 1 \cite{kim-2019}.
+of the solution $t^{\star}$ sum to 1 \cite{kim-2019}. A
+straightforward way to appreciate this result is to compare the
+complementary slackness condition $\sum_{k=1}^K g_k x_k = 0$ for the
+original and modified subproblems, where $g_k$ denotes the partial
+derivative of the objective (either $\phi$ or $f$) with respect to the
+$k$th co-ordinate (either $y_k$ or $t_k$). Further, since problem
+\eqref{eq:subproblem-modified} is obtained by a simple linear
+transformation of the variables, any iterate that leads to an
+improvement in the solution to the modified subproblem will produce an
+improvement in the solution to the original subproblem, and vice
+versa.
 
 \bibliographystyle{siamplain}
 \bibliography{fast-topics}
