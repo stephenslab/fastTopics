@@ -14,10 +14,6 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-double mixobjective (const mat& L, const vec& w, const vec& x, const vec& e,
-		     vec& u);
-void   computegrad  (const mat& L, const vec& w, const vec& x, const vec& e, 
-		     vec& g, mat& H, vec& u, mat& Z);
 double activesetqp  (const mat& H, const vec& g, vec& y, uvec& t,
 		     int maxiteractiveset, double zerothresholdsearchdir, 
 		     double convtolactiveset, double identitycontribincrease);
@@ -28,6 +24,10 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
 			     const vec& eps, double suffdecr,
 			     double stepsizereduce, double minstepsize, 
 			     vec& y, vec& u);
+double mixobjective (const mat& L, const vec& w, const vec& x,
+		     const vec& e, vec& u);
+void   computegrad  (const mat& L, const vec& w, const vec& x,
+		     const vec& e, vec& g, mat& H, mat& Z);
 
 // FUNCTION DEFINITIONS
 // --------------------
@@ -76,14 +76,14 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
     Rprintf("%+0.12f\n",obj);
 
     // Compute the gradient and Hessian.
-    computegrad(L,w,x,eps,g,H,u,Z);
+    computegrad(L,w,x,eps,g,H,Z);
     
     // Determine the nonzero co-ordinates in the current estimate of
     // the solution, x. This specifies the "inactive set".
     t = (x >= zerothresholdsolution);
 
     // Solve the quadratic subproblem to obtain a search direction.
-    ghat = g - H*x + 1;
+    ghat = g - H*x;
     activesetqp(H,ghat,y,t,maxiteractiveset,zerothresholdsearchdir,
 		convtolactiveset,identitycontribincrease);
     p = y - x;
@@ -95,31 +95,6 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   }
 
   return x;
-}
-
-// Compute the gradient and Hessian of the (unmodified) objective at
-// x, assuming x is (primal) feasible; arguments L and w specify the
-// objective, and e is an additional positive constant near
-// zero. Inputs g and H store the value of the gradient and Hessian (a
-// vector of length m, and an m x m matrix). Intermediate results used
-// in these calculations are stored in three variables: u, a vector of
-// length n; Z, an n x m matrix; and ZW, another n x m matrix.
-void computegrad (const mat& L, const vec& w, const vec& x, const vec& e,
-		  vec& g, mat& H, vec& u, mat& Z) {
-   
-  // Compute the gradient g = -L'*(w.*u) where u = 1./(L*x + e), ".*"
-  // denotes element-wise multiplication, and "./" denotes
-  // element-wise division.
-  u = L*x + e;
-  u = w / u;
-  g = -trans(L) * u;
-  
-  // Compute the Hessian H = L'*U*W*U*L, where U = diag(u) and 
-  // W = diag(w), with vector u defined as above.
-  Z = L;
-  u /= sqrt(w);
-  Z.each_col() %= u;
-  H = trans(Z) * Z;
 }
 
 // This implements the active-set method from p. 472 of of Nocedal &
@@ -281,7 +256,7 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
     // Check whether the new candidate solution (y) satisfies the
     // sufficient decrease condition, and remains feasible. If so,
     // accept this candidate solution.
-    if (y.min() >= 0 & fnew <= f + suffdecr*stepsize*dot(p,g + 1))
+    if (y.min() >= 0 & fnew <= f + suffdecr*stepsize*dot(p,g))
       break;
     newstepsize = stepsizereduce * stepsize;
     if (newstepsize < minstepsize) {
@@ -315,3 +290,12 @@ double mixobjective (const mat& L, const vec& w, const vec& x, const vec& e,
   return sum(x) - sum(w % log(u));
 }
 
+// Compute the gradient and Hessian of the objective at x.
+void computegrad (const mat& L, const vec& w, const vec& x,
+		  const vec& e, vec& g, mat& H, mat& Z) {
+  vec u = L*x + e;
+  g = -trans(L)*(w/u) + 1;
+  Z = L;
+  Z.each_col() %= (sqrt(w)/u);
+  H = trans(Z) * Z;
+}
