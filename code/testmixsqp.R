@@ -26,7 +26,7 @@ fit1 <- mixem(L,w,x0,numiter = 1000)
 # FIT MODEL USING SQP
 # -------------------
 cat("Fitting model by iterating SQP updates.\n")
-fit2 <- mixsqp(L,w,x0,numiter = 100)
+fit2 <- mixsqp(L,w,x0,numiter = 14)
 
 # SUMMARIZE RESULTS
 # -----------------

@@ -37,13 +37,12 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
 // mixsqp_rcpp is called inside the mixsqp function.
 // 
 // [[Rcpp::export]]
-arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w, 
-		       const arma::vec& x0, 
-                  double convtolsqp, double convtolactiveset,
-		  double zerothresholdsolution, double zerothresholdsearchdir,
-		  double suffdecr, double stepsizereduce, double minstepsize,
-		  double identitycontribincrease, const arma::vec& eps,
-		  int maxitersqp, int maxiteractiveset, bool verbose) {
+vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0, 
+		 double convtolactiveset,
+		 double zerothresholdsolution, double zerothresholdsearchdir,
+		 double suffdecr, double stepsizereduce, double minstepsize,
+		 double identitycontribincrease, const vec& eps,
+		 int numiter, int maxiteractiveset) {
   
   // Get the number of rows (n) and columns (m) of the conditional
   // likelihood matrix.
@@ -67,15 +66,12 @@ arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
                 // differences between between two solution
 	        // estimates.
   
-  // Initialize some loop variables used in the loops below.
-  int i = 0; 
-  
-  // Repeat until the convergence criterion is met, or until we reach
-  // the maximum number of (outer loop) iterations.
-  for (i = 0; i < maxitersqp; i++) {
+  // Iterate the SQP updates for a fixed number of iterations.
+  for (int iter = 0; iter < numiter; iter++) {
 
     // Compute the value of the objective at x.
     double obj = mixobjective(L,w,x,eps,u);
+    Rprintf("%+0.12f\n",obj);
 
     // COMPUTE GRADIENT AND HESSIAN
     // ----------------------------
