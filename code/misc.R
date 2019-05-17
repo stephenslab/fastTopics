@@ -1,6 +1,6 @@
-# Return the dot product of vectors x and y.
-dot <- function (x, y)
-  sum(x*y)
+# Scale each column A[,i] by b[i].
+scale.cols <- function (A, b)
+  t(t(A) * b)
 
 # Compute the value of the cost function for non-negative matrix
 # factorization, in which matrix X is approximated by matrix AB = A *
