@@ -14,7 +14,8 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-double mixobj (const mat& L, const vec& w, const vec& x, const vec& e, vec& u);
+double mixobjective (const mat& L, const vec& w, const vec& x, const vec& e,
+		     vec& u);
 void   computegrad  (const mat& L, const vec& w, const vec& x, const vec& e, 
 		     vec& g, mat& H, vec& u, mat& Z);
 double activesetqp  (const mat& H, const vec& g, vec& y, uvec& t,
@@ -69,7 +70,7 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   for (int iter = 0; iter < numiter; iter++) {
 
     // Compute the value of the objective at x.
-    double obj = mixobj(L,w,x,eps,u);
+    double obj = mixobjective(L,w,x,eps,u);
 
     // *** FOR TESTING ***
     Rprintf("%+0.12f\n",obj);
@@ -82,7 +83,7 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
     t = (x >= zerothresholdsolution);
 
     // Solve the quadratic subproblem to obtain a search direction.
-    ghat   = g - H*x + 1;
+    ghat = g - H*x + 1;
     activesetqp(H,ghat,y,t,maxiteractiveset,zerothresholdsearchdir,
 		convtolactiveset,identitycontribincrease);
     p = y - x;
@@ -94,19 +95,6 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   }
 
   return x;
-}
-
-// Compute the value of the (unmodified) objective at x, assuming x is
-// (primal) feasible; arguments L and w specify the objective, and e
-// is an additional positive constant near zero. Input argument u is a
-// vector of length n used to store an intermediate result used in the
-// calculation of the objective.
-double mixobj (const mat& L, const vec& w, const vec& x, const vec& e, 
-	       vec& u) {
-  u = L*x + e;
-  if (u.min() <= 0)
-    Rcpp::stop("Halting because the objective function has a non-finite value (logarithms of numbers less than or equal to zero) at the current estimate of the solution");
-  return -sum(w % log(u));
 }
 
 // Compute the gradient and Hessian of the (unmodified) objective at
@@ -288,12 +276,12 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
   // decrease" condition.
   while (true) {
     y    = x + stepsize*p;
-    fnew = mixobj(L,w,y,eps,u);
+    fnew = mixobjective(L,w,y,eps,u);
 
     // Check whether the new candidate solution (y) satisfies the
     // sufficient decrease condition, and remains feasible. If so,
     // accept this candidate solution.
-    if (y.min() >= 0 & fnew <= f + suffdecr*stepsize*dot(p,g))
+    if (y.min() >= 0 & fnew <= f + suffdecr*stepsize*dot(p,g + 1))
       break;
     newstepsize = stepsizereduce * stepsize;
     if (newstepsize < minstepsize) {
@@ -314,3 +302,16 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
     stepsize = newstepsize;
   }
 }
+
+// Compute the value of the objective at x; arguments L and w specify
+// the objective, and e is a vector in which the entries can be set to
+// small, positive numbers, or to zero. Input u stores an intermediate
+// result used in the calculation.
+double mixobjective (const mat& L, const vec& w, const vec& x, const vec& e, 
+		     vec& u) {
+  u = L*x + e;
+  if (u.min() <= 0)
+    Rcpp::stop("Objective is -Inf");
+  return sum(x) - sum(w % log(u));
+}
+

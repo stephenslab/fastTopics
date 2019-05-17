@@ -77,18 +77,13 @@ mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, tol = 1e-10,
   return(list(x = x,value = f))
 }
 
-# TO DO: Explain here what this function does, and how to use it.
-mixsqp.update <- function (L, w, x, e) {
-
-}
-
 # Compute the value of the mixsqp objective at x; arguments L and w
 # specify the objective, and e is a vector in which the entries can be
 # set to small, positive numbers, or to zero.
 mixobjective <- function (L, w, x, e) {
  y <- drop(L %*% x) + e
  if (all(y > 0))
-   return(-sum(w * log(y)))
+   return(sum(x) - sum(w * log(y)))
  else
    return(Inf)
 }
