@@ -2,6 +2,8 @@
 
 # SET UP ENVIRONMENT
 # ------------------
+library(Rcpp)
+# sourceCpp("mixsqp.cpp")
 source("misc.R")
 source("mixsqp.R")
 
@@ -24,17 +26,18 @@ fit1 <- mixem(L,w,x0,numiter = 1000)
 # FIT MODEL USING SQP
 # -------------------
 cat("Fitting model by iterating SQP updates.\n")
-# TO DO.
+fit2 <- mixsqp(L,w,x0,numiter = 100)
 
 # SUMMARIZE RESULTS
 # -----------------
 cat(sprintf("Objective at true solution: %0.12f\n",mixdata$value))
 cat(sprintf("Objective at EM solution:   %0.12f\n",fit1$value))
-cat(sprintf("Objective at SQP solution:  %0.12f\n",0))
+cat(sprintf("Objective at SQP solution:  %0.12f\n",fit2$value))
 cat(sprintf("Largest difference between true and EM solutions:  %0.1e\n",
             max(abs(mixdata$x - fit1$x))))
-cat(sprintf("Largest difference between true and SQP solutions: %0.1e\n",0))
-cat(sprintf("Each EM update yields an improvement between %0.1e and %0.1e.\n",
+cat(sprintf("Largest difference between true and SQP solutions: %0.1e\n",
+            max(abs(mixdata$x - fit2$x))))
+cat(sprintf("EM updates yield improvement between %0.1e and %0.1e.\n",
             min(-diff(fit1$progress$obj)),max(-diff(fit1$progress$obj))))
-cat(sprintf("Each SQP update yields an improvement between %0.1e and %0.1e.\n",
+cat(sprintf("SQP updates yields improvement between %0.1e and %0.1e.\n",
             0,0))

@@ -6,7 +6,7 @@
 # (http://d-kitamura.net).
 betanmf <- function (X, A, B, numiter = 1000, e = 1e-8, verbose = TRUE) {
 
-  # Check that input A is a dense matrix.
+  # Check that input X is a dense matrix.
   if (!inherits(X,"matrix"))
     stop("Argument \"X\" should be an object of class \"matrix\"")
 
