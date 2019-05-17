@@ -5,13 +5,18 @@
 # positive. This is adapted from the MATLAB code by D. Kitamura
 # (http://d-kitamura.net).
 betanmf <- function (X, A, B, numiter = 1000, e = 1e-8, verbose = TRUE) {
-  if (inherits(X,"Matrix"))
-    X <- as.matrix(X)
+
+  # Check that input A is a dense matrix.
+  if (!inherits(X,"matrix"))
+    stop("Argument \"X\" should be an object of class \"matrix\"")
+
   n <- nrow(X)
   m <- ncol(X)
   E <- matrix(1,n,m)
-  progress <- data.frame(iter = 1:numiter,objective = 0,
-                         max.diff = 0,timing = 0)
+  progress <- data.frame(iter      = 1:numiter,
+                         objective = 0,
+                         max.diff  = 0,
+                         timing    = 0)
       
   # Repeat until we reach the number of requested iterations.
   if (verbose)
