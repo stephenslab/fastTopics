@@ -65,9 +65,8 @@ mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15) {
   # (3) the largest change in the solution at each iteration.
   progress <- data.frame(iter = 1:numiter,obj = 0,maxd = 0)
 
-  out <- mixsqp_rcpp(L,w,x,1e-8,1e-10,1e-8,1e-15,0.01,0.75,1e-8,10,e,
-                     1000,20,TRUE)
-  x <- out$x
+  x <- mixsqp_rcpp(L,w,x,1e-8,1e-10,1e-8,1e-15,0.01,0.75,1e-8,10,e,
+                   1000,20,TRUE)
   
   # Iterate the E and M steps.
   for (i in c()) {

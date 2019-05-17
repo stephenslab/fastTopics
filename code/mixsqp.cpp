@@ -4,8 +4,7 @@
 
 #include <RcppArmadillo.h>
 
-// This depends statement is needed to tell R where to find the
-// additional header files.
+// This is needed to tell R where to find the additional header files.
 //
 // [[Rcpp::depends(RcppArmadillo)]]
 //
@@ -38,7 +37,8 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
 // mixsqp_rcpp is called inside the mixsqp function.
 // 
 // [[Rcpp::export]]
-List mixsqp_rcpp (const arma::mat& L, const arma::vec& w, const arma::vec& x0, 
+arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w, 
+		       const arma::vec& x0, 
                   double convtolsqp, double convtolactiveset,
 		  double zerothresholdsolution, double zerothresholdsearchdir,
 		  double suffdecr, double stepsizereduce, double minstepsize,
@@ -49,24 +49,6 @@ List mixsqp_rcpp (const arma::mat& L, const arma::vec& w, const arma::vec& x0,
   // likelihood matrix.
   int n = L.n_rows;
   int m = L.n_cols;
-
-  // PREPARE DATA STRUCTURES
-  // -----------------------
-  // Initialize storage for the outputs obj, gmin, nnz, nqp and dmax.
-  vec obj(maxitersqp);
-  vec gmin(maxitersqp);
-  vec nnz(maxitersqp);
-  vec nqp(maxitersqp);
-  vec nls(maxitersqp);
-  vec stepsize(maxitersqp);
-  vec dmax(maxitersqp);
-  obj.zeros();
-  gmin.zeros();
-  nnz.zeros();
-  nqp.fill(-1);
-  nls.fill(-1);
-  stepsize.fill(-1);
-  dmax.fill(-1);
 
   // Initialize the solution.
   vec x = x0;
@@ -85,8 +67,6 @@ List mixsqp_rcpp (const arma::mat& L, const arma::vec& w, const arma::vec& x0,
                 // differences between between two solution
 	        // estimates.
   
-  double status = 1;  // Convergence status.
-  
   // Initialize some loop variables used in the loops below.
   int i = 0; 
   
@@ -94,8 +74,8 @@ List mixsqp_rcpp (const arma::mat& L, const arma::vec& w, const arma::vec& x0,
   // the maximum number of (outer loop) iterations.
   for (i = 0; i < maxitersqp; i++) {
 
-    // Compute the value of the objective at x (obj).
-    obj[i] = mixobjective(L,w,x,eps,u);
+    // Compute the value of the objective at x.
+    double obj = mixobjective(L,w,x,eps,u);
 
     // COMPUTE GRADIENT AND HESSIAN
     // ----------------------------
@@ -105,75 +85,29 @@ List mixsqp_rcpp (const arma::mat& L, const arma::vec& w, const arma::vec& x0,
     // the solution, x. This specifies the "inactive set".
     t = (x >= zerothresholdsolution);
 
-    // Report on the algorithm's progress. Here we compute: the
-    // smallest gradient value (gmin), which is used as a convergence
-    // criterion; and the number of nonzeros in the solution (nnz).
-    // Note that only the dual residuals (gmin's) corresponding to the
-    // nonzero co-ordinates are relevant.
-    gmin[i] = 1 + g.min();
-    nnz[i]  = sum(t);
-    if (verbose) {
-      if (i == 0)
-        Rprintf("%4d %+0.9e %+0.3e%4d  ------   ------   --  --\n",
-		i + 1,obj[i],-gmin[i],int(nnz[i]));
-      else
-        Rprintf("%4d %+0.9e %+0.3e%4d %0.2e %0.2e %3d %3d\n",i + 1,obj[i],
-		-gmin[i],(int) nnz[i],stepsize[i-1],dmax[i-1],
-		(int) nqp[i-1],(int) nls[i-1]);
-    }
-    
-    // CHECK CONVERGENCE
-    // -----------------
-    // Convergence is reached with the maximum dual residual is
-    // small. The negative of "gmin" is also the maximum dual residual
-    // (denoted as "rdual" on p. 609 of Boyd & Vandenberghe, "Convex
-    // Optimization", 2009). Although "gmin" here includes both zero
-    // (active) and non-zero (inactive) co-ordinates, this condition
-    // is trivially satisfied for the zero co-ordinates as the
-    // gradient must be non-negative for these co-ordinates. (See
-    // communication with Youngseok on Slack.)
-    if (gmin[i] >= -convtolsqp) {
-      status = 0;
-      i++;
-      break;
-    }
-
-    // This is also a good point to check for a user interrupt; if the
-    // user requests an interrupt, then an exception is thrown and
-    // control is returned to the R console.
-    Rcpp::checkUserInterrupt();
-    
     // SOLVE QUADRATIC SUBPROBLEM
     // --------------------------
     // Run the active-set solver to obtain a search direction.
     ghat   = g - H*x + 1;
-    nqp[i] = activesetqp(H,ghat,y,t,maxiteractiveset,zerothresholdsearchdir,
-			 convtolactiveset,identitycontribincrease);
+    activesetqp(H,ghat,y,t,maxiteractiveset,zerothresholdsearchdir,
+		convtolactiveset,identitycontribincrease);
     p = y - x;
     
     // BACKTRACKING LINE SEARCH
     // ------------------------
-    backtrackinglinesearch(obj[i],L,w,g,x,p,eps,suffdecr,stepsizereduce,
-			   minstepsize,nls[i],stepsize[i],y,u);
+    double stepsize;
+    double nls;
+    backtrackinglinesearch(obj,L,w,g,x,p,eps,suffdecr,stepsizereduce,
+			   minstepsize,nls,stepsize,y,u);
     
     // UPDATE THE SOLUTION
     // -------------------
-    d       = abs(x - y);
-    dmax[i] = d.max();
     x = y;
   }
 
   // CONSTRUCT OUTPUT
   // ----------------
-  return List::create(Named("x")         = x,
-		      Named("status")    = status,
-		      Named("objective") = obj.head(i),
-		      Named("max.rdual") = -gmin.head(i),
-		      Named("nnz")       = nnz.head(i),
-		      Named("stepsize")  = stepsize.head(i),
-		      Named("max.diff")  = dmax.head(i),
-		      Named("nqp")       = nqp.head(i),
-		      Named("nls")       = nls.head(i));
+  return x;
 }
 
 // Compute the value of the (unmodified) objective at x, assuming x is
