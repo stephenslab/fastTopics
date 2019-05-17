@@ -14,8 +14,7 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-double mixobjective (const mat& L, const vec& w, const vec& x, const vec& e, 
-		     vec& u);
+double mixobj (const mat& L, const vec& w, const vec& x, const vec& e, vec& u);
 void   computegrad  (const mat& L, const vec& w, const vec& x, const vec& e, 
 		     vec& g, mat& H, vec& u, mat& Z);
 double activesetqp  (const mat& H, const vec& g, vec& y, uvec& t,
@@ -27,7 +26,7 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
 			     const vec& g, const vec& x, const vec& p,
 			     const vec& eps, double suffdecr,
 			     double stepsizereduce, double minstepsize, 
-			     double& nls, double& stepsize, vec& y, vec& u);
+			     vec& y, vec& u);
 
 // FUNCTION DEFINITIONS
 // --------------------
@@ -70,39 +69,30 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   for (int iter = 0; iter < numiter; iter++) {
 
     // Compute the value of the objective at x.
-    double obj = mixobjective(L,w,x,eps,u);
+    double obj = mixobj(L,w,x,eps,u);
+
+    // *** FOR TESTING ***
     Rprintf("%+0.12f\n",obj);
 
-    // COMPUTE GRADIENT AND HESSIAN
-    // ----------------------------
+    // Compute the gradient and Hessian.
     computegrad(L,w,x,eps,g,H,u,Z);
     
     // Determine the nonzero co-ordinates in the current estimate of
     // the solution, x. This specifies the "inactive set".
     t = (x >= zerothresholdsolution);
 
-    // SOLVE QUADRATIC SUBPROBLEM
-    // --------------------------
-    // Run the active-set solver to obtain a search direction.
+    // Solve the quadratic subproblem to obtain a search direction.
     ghat   = g - H*x + 1;
     activesetqp(H,ghat,y,t,maxiteractiveset,zerothresholdsearchdir,
 		convtolactiveset,identitycontribincrease);
     p = y - x;
     
-    // BACKTRACKING LINE SEARCH
-    // ------------------------
-    double stepsize;
-    double nls;
+    // Run backtracking line search.
     backtrackinglinesearch(obj,L,w,g,x,p,eps,suffdecr,stepsizereduce,
-			   minstepsize,nls,stepsize,y,u);
-    
-    // UPDATE THE SOLUTION
-    // -------------------
+			   minstepsize,y,u);
     x = y;
   }
 
-  // CONSTRUCT OUTPUT
-  // ----------------
   return x;
 }
 
@@ -111,8 +101,8 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
 // is an additional positive constant near zero. Input argument u is a
 // vector of length n used to store an intermediate result used in the
 // calculation of the objective.
-double mixobjective (const mat& L, const vec& w, const vec& x, const vec& e,
-		     vec& u) {
+double mixobj (const mat& L, const vec& w, const vec& x, const vec& e, 
+	       vec& u) {
   u = L*x + e;
   if (u.min() <= 0)
     Rcpp::stop("Halting because the objective function has a non-finite value (logarithms of numbers less than or equal to zero) at the current estimate of the solution");
@@ -287,11 +277,10 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
 			     const vec& g, const vec& x, const vec& p,
 			     const vec& eps, double suffdecr,
 			     double stepsizereduce, double minstepsize, 
-			     double& nls, double& stepsize, vec& y, vec& u) {
+			     vec& y, vec& u) {
   double fnew;
   double newstepsize;
-  stepsize = 0.99;
-  nls      = 0;
+  double stepsize = 0.99;
 
   // Iteratively reduce the step size until either (1) we can't reduce
   // any more (because we have hit the minimum step size constraint),
@@ -299,8 +288,7 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
   // decrease" condition.
   while (true) {
     y    = x + stepsize*p;
-    fnew = mixobjective(L,w,y,eps,u);
-    nls++;
+    fnew = mixobj(L,w,y,eps,u);
 
     // Check whether the new candidate solution (y) satisfies the
     // sufficient decrease condition, and remains feasible. If so,
