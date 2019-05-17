@@ -51,15 +51,25 @@ mixem.update <- function (L, w, x, e) {
 }
 
 # TO DO: Explain here what this function does, and how to use it.
-mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15) {
+mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, tol = 1e-10,
+                    zerothreshold.solution = 1e-8,
+                    zerothreshold.searchdir = 1e-15, suffdecr = 0.01,
+                    stepsizereduce = 0.75, minstepsize = 1e-8,
+                    identity.contrib.increase = 10) {
 
+  # Get the number of rows (n) and columns (m) of the matrix L.
+  n <- nrow(L)
+  m <- ncol(L)
+    
   # Scale the correction factor (e) by the maximum value of each row
   # of the matrix (L). Therefore, we end up with a separate correction
   # factor for each row of L.
   e <- e * apply(L,1,max)
 
-  x <- mixsqp_rcpp(L,w,x0,1e-10,1e-8,1e-15,0.01,0.75,1e-8,10,e,
-                   numiter,20)
+  # Run the updates implemented in C++.
+  x <- mixsqp_rcpp(L,w,x0,tol,zerothreshold.solution,zerothreshold.searchdir,
+                   suffdecr,stepsizereduce,minstepsize,
+                   identity.contrib.increase,e,numiter,m + 1)
 
   # Return (1) the estimate of the solution and (2) the value of the
   # objective at this estimate.
