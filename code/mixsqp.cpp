@@ -238,39 +238,51 @@ void backtrackinglinesearch (double f, const mat& L, const vec& w,
 			     const vec& e, double suffdecr, double beta,
 			     double amin, vec& y, vec& u) {
   double fnew;
-  double anew;
+
+  // This is the largest possible step size.
   double a = 0.99;
+  
+  // First determine the largest step size maintaining feasibility; if
+  // it is larger than the minimum step size, return the minimum step
+  // size that maintains feasibility of the solution. Otherwise,
+  // continue to backtracking line search.
+  uvec   i     = find(p < 0);
+  vec    t     = -x.elem(i)/p.elem(i);
+  double afeas = t.min();
+  if (afeas <= amin)
+    y = x + afeas*p;
+  else {
 
-  // Iteratively reduce the step size until either (1) we can't reduce
-  // any more (because we have hit the minimum step size constraint),
-  // or (2) the new candidate solution satisfies the "sufficient
-  // decrease" condition.
-  while (true) {
-    y    = x + a*p;
-    fnew = mixobjective(L,w,y,e,u);
-
-    // Check whether the new candidate solution satisfies the
-    // sufficient decrease condition, and remains feasible. If so,
-    // accept this candidate solution.
-    if (y.min() >= 0 & fnew <= f + suffdecr*a*dot(p,g))
-      break;
-    anew = beta * a;
-    if (anew < amin) {
-
-      // We need to terminate backtracking line search because we have
-      // arrived at the smallest allowed step size.
-      a = amin;
-      y = x + a*p;
-      if (y.min() < 0) {
-	a = 0;
-	y = x;
-      }
-      break;
-    }
+    // Set the initial step size.
+    if (afeas < a)
+      a = afeas;
     
-    // The new candidate does not satisfy the sufficient decrease
-    // condition, so we need to try again with a smaller step size.
-    a = anew;
+    // Iteratively reduce the step size until either (1) we can't reduce
+    // any more (because we have hit the minimum step size constraint),
+    // or (2) the new candidate solution satisfies the "sufficient
+    // decrease" condition.
+    while (true) {
+      y    = x + a*p;
+      fnew = mixobjective(L,w,y,e,u);
+
+      // Check whether the new candidate solution satisfies the
+      // sufficient decrease condition, and remains feasible. If so,
+      // accept this candidate solution.
+      if (y.min() >= 0 & fnew <= f + suffdecr*a*dot(p,g))
+        break;
+
+      // If we cannot decrease the step size further, terminate the
+      // backtracking line search, and set the step size to be the
+      // minimum step size..
+      else if (a*beta < amin) {
+        y = x + amin*p;
+        break;
+      }
+    
+      // The new candidate does not satisfy the sufficient decrease
+      // condition, so we need to try again with a smaller step size.
+      a *= beta;
+    }
   }
 }
 
