@@ -21,9 +21,8 @@ void computeactivesetsearchdir (const mat& H, const vec& y, vec& p,
 				mat& B, double ainc);
 void backtrackinglinesearch (double f, const mat& L, const vec& w,
 			     const vec& g, const vec& x, const vec& p,
-			     const vec& eps, double suffdecr,
-			     double stepsizereduce, double minstepsize, 
-			     vec& y, vec& u);
+			     const vec& e, double suffdecr, double beta,
+			     double amin, vec& y, vec& u);
 double mixobjective (const mat& L, const vec& w, const vec& x,
 		     const vec& e, vec& u);
 void   computegrad  (const mat& L, const vec& w, const vec& x,
@@ -57,7 +56,7 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   vec  g(m);    // Vector of length m storing the gradient.
   vec  ghat(m); // Vector of length m storing gradient of subproblem.
   vec  p(m);    // Vector of length m storing the search direction.
-  vec  u(n);    // Vector of length n storing L*x + eps or its log.
+  vec  u(n);    // Vector of length n storing matrix-vector product L*x.
   mat  H(m,m);  // m x m matrix storing Hessian.
   mat  Z(n,m);  // n x m matrix Z = D*L, where D = diag(1/(L*x+e)).
   uvec t(m);    // Temporary unsigned int. vector result of length m.
@@ -233,48 +232,45 @@ void computeactivesetsearchdir (const mat& H, const vec& y, vec& p,
 }
 
 // This implements the backtracking line search algorithm from p. 37
-// of Nocedal & Wright, Numerical Optimization, 2nd ed, 2006. Note
-// that sum(x) = sum(y) = 1, so replacing g by g + 1 in dot product of
-// p and g has no effect.
+// of Nocedal & Wright, Numerical Optimization, 2nd ed, 2006.
 void backtrackinglinesearch (double f, const mat& L, const vec& w,
 			     const vec& g, const vec& x, const vec& p,
-			     const vec& eps, double suffdecr,
-			     double stepsizereduce, double minstepsize, 
-			     vec& y, vec& u) {
+			     const vec& e, double suffdecr, double beta,
+			     double amin, vec& y, vec& u) {
   double fnew;
-  double newstepsize;
-  double stepsize = 0.99;
+  double anew;
+  double a = 0.99;
 
   // Iteratively reduce the step size until either (1) we can't reduce
   // any more (because we have hit the minimum step size constraint),
   // or (2) the new candidate solution satisfies the "sufficient
   // decrease" condition.
   while (true) {
-    y    = x + stepsize*p;
-    fnew = mixobjective(L,w,y,eps,u);
+    y    = x + a*p;
+    fnew = mixobjective(L,w,y,e,u);
 
-    // Check whether the new candidate solution (y) satisfies the
+    // Check whether the new candidate solution satisfies the
     // sufficient decrease condition, and remains feasible. If so,
     // accept this candidate solution.
-    if (y.min() >= 0 & fnew <= f + suffdecr*stepsize*dot(p,g))
+    if (y.min() >= 0 & fnew <= f + suffdecr*a*dot(p,g))
       break;
-    newstepsize = stepsizereduce * stepsize;
-    if (newstepsize < minstepsize) {
+    anew = beta * a;
+    if (anew < amin) {
 
       // We need to terminate backtracking line search because we have
       // arrived at the smallest allowed step size.
-      stepsize = minstepsize;
-      y        = x + stepsize*p;
+      a = amin;
+      y = x + a*p;
       if (y.min() < 0) {
-	stepsize = 0;
-	y        = x;
+	a = 0;
+	y = x;
       }
       break;
     }
     
     // The new candidate does not satisfy the sufficient decrease
     // condition, so we need to try again with a smaller step size.
-    stepsize = newstepsize;
+    a = anew;
   }
 }
 

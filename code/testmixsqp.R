@@ -3,7 +3,7 @@
 # SET UP ENVIRONMENT
 # ------------------
 library(Rcpp)
-# sourceCpp("mixsqp.cpp")
+# sourceCpp("mixsqp.cpp",verbose = TRUE)
 source("misc.R")
 source("mixsqp.R")
 
@@ -39,4 +39,3 @@ cat(sprintf("Largest difference between true and EM solutions: %0.1e\n",
             max(abs(mixdata$x - fit2$x))))
 cat(sprintf("EM updates yield improvement between %0.1e and %0.1e.\n",
             min(-diff(fit2$progress$obj)),max(-diff(fit2$progress$obj))))
-
