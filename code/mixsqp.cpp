@@ -14,7 +14,7 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-void activesetqp(const mat& H, const vec& g, vec& y, uvec& t, int maxiter,
+void activesetqp(const mat& H, const vec& g, vec& y, int maxiter,
 		 double zerothresholdsearchdir, double tol);
 void compute_activeset_searchdir (const mat& H, const vec& y, vec& p, mat& B);
 void backtracking_line_search (double f, const mat& L, const vec& w,
@@ -54,15 +54,14 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   
   // Scalars, vectors and matrices used in the computations below.
   double obj;
-  uvec i(m);
-  vec  g(m);
-  vec  ghat(m);
-  vec  p(m);
-  vec  u(n);
-  mat  H(m,m);
-  mat  Z(n,m);
-  uvec t(m);
-  vec  y(m);
+  uvec   i(m);
+  vec    g(m);
+  vec    ghat(m);
+  vec    p(m);
+  vec    u(n);
+  mat    H(m,m);
+  mat    Z(n,m);
+  vec    y(m);
   
   // Iterate the SQP updates for a fixed number of iterations.
   for (int iter = 0; iter < numiter; iter++) {
@@ -79,12 +78,10 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
     // Compute the gradient and Hessian.
     compute_grad(L,w,x,e,g,H,Z);
     
-    // This specifies the "inactive set".
-    t = (x > 0);
-
     // Solve the quadratic subproblem to obtain a search direction.
     ghat = g - H*x;
-    activesetqp(H,ghat,y,t,maxiteractiveset,zerosearchdir,tol);
+    y    = x;
+    activesetqp(H,ghat,y,maxiteractiveset,zerosearchdir,tol);
     p = y - x;
     
     // Run backtracking line search.
@@ -102,45 +99,43 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
 
 // This implements the active-set method from p. 472 of of Nocedal &
 // Wright, Numerical Optimization, 2nd ed, 2006.
-void activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
-		  int maxiter, double zerosearchdir, double tol) {
-  int    m     = g.n_elem;
-  double nnz   = sum(t);
-  double alpha;  // The step size.
+void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
+		  double zerosearchdir, double tol) {
+  int    m = g.n_elem;
+  double a;
   int    k;
-  vec    b(m);   // Vector of length m storing H*y + 2*g + 1.
-  vec    p(m);   // Vector of length m storing the search direction.
-  vec    p0(m);  // Search direction for nonzero co-ordinates only.
+  vec    b(m);
+  vec    p(m);
+  vec    p0(m);
   vec    bs(m);
   vec    z(m);
   mat    Hs(m,m);
   mat    B(m,m);
   uvec   S(m);
-  uvec   i0(m);
-  uvec   i1(m);
+  uvec   i(m);
+  uvec   j(m);
   
-  // Initialize the solution to the QP subproblem, y.
-  y.fill(0);
-  i1 = find(t);
-  y.elem(i1).fill(1/nnz);
+  // This is used to keep track of the working set; all zero entries
+  // of "t" are co-ordinates belonging to the working set.
+  uvec t = (y > 0);
+  
+  // Run active set method to solve the quadratic subproblem.
+  for (int iter = 0; iter < maxiter; iter++) {
     
-  // Run active set method to solve the QP subproblem.
-  for (int j = 0; j < maxiter; j++) {
-    
-    // Define the smaller QP subproblem.
-    i0 = find(1 - t);
-    i1 = find(t);
+    // Define the smaller quadratic subproblem.
+    i  = find(t != 0);
+    j  = find(t == 0);
     b  = H*y + g;
-    bs = b.elem(i1);
-    Hs = H.elem(i1,i1);
+    bs = b.elem(i);
+    Hs = H.elem(i,i);
       
     // Solve the smaller problem.
     p.fill(0);
     compute_activeset_searchdir(Hs,bs,p0,B);
-    p.elem(i1) = p0;
+    p.elem(i) = p0;
       
     // Reset the step size.
-    alpha = 1;
+    a = 1;
     
     // Check that the search direction is close to zero.
     if ((p.max() <= zerosearchdir) & (-p.min() <= zerosearchdir)) {
@@ -148,17 +143,14 @@ void activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
       // If all the Lagrange multiplers in the working set (that is,
       // zeroed co-ordinates) are positive, or nearly positive, we
       // have reached a suitable solution.
-      if (i0.n_elem == 0) {
-	j++;
+      if (j.n_elem == 0)
 	break;
-      } else if (b(i0).min() >= -tol) {
-	j++;
+      else if (b(j).min() >= -tol)
 	break;
-      }
 
       // Find an co-ordinate with the smallest multiplier, and remove
       // it from the working set.
-      k    = i0[b(i0).index_min()];
+      k    = j[b(j).index_min()];
       t[k] = 1;
 
     // In this next part, we consider adding a co-ordinate to the
@@ -167,9 +159,9 @@ void activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
     } else {
         
       // Define the step size.
-      alpha = 1;
-      p0    = p;
-      p0.elem(i0).fill(0);
+      a  = 1;
+      p0 = p;
+      p0.elem(j).fill(0);
       S = find(p0 < 0);
       if (!S.is_empty()) {
         z = -y.elem(S)/p.elem(S);
@@ -179,15 +171,15 @@ void activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
           // Blocking constraint exists; find and add it to the
           // working set (but only if there are two or more non-zero
           // co-ordinates).
-          alpha = z[k];
-	  if (i1.n_elem >= 2)
+          a = z[k];
+	  if (i.n_elem >= 2)
 	    t[S[k]] = 0;
         }
       }
       
       // Move to the new "inner loop" iterate (y) along the search
       // direction.
-      y += alpha * p;
+      y += a*p;
     }
   }
 }
