@@ -1,4 +1,6 @@
-# TO DO: Explain here what this script does, and how to use it.
+# This is a short script to verify the implementation of the SQP and
+# EM updates for computing maximum-likelihood estimates of the mixture
+# proportions in a mixture model.
 
 # SET UP ENVIRONMENT
 # ------------------

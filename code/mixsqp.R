@@ -50,7 +50,9 @@ mixem.update <- function (L, w, x, e) {
   return(drop(w %*% P))
 }
 
-# TO DO: Explain here what this function does, and how to use it.
+# Compute maximum-likelihood estimates of the mixture proportions in a
+# mixture model by iterating the SQP updates for a fixed number of
+# iterations.
 mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, tol = 1e-10,
                     zerothreshold.solution = 1e-8,
                     zerothreshold.searchdir = 1e-15, suffdecr = 0.01,
