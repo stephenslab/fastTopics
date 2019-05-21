@@ -23,10 +23,12 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
 			       const vec& g, const vec& x, const vec& p,
 			       const vec& e, double suffdecr, double beta,
 			       double amin, vec& y, vec& u);
-double mixobjective (const mat& L, const vec& w, const vec& x,
-		     const vec& e, vec& u);
-void   computegrad  (const mat& L, const vec& w, const vec& x,
-		     const vec& e, vec& g, mat& H, mat& Z);
+double feasible_stepsize (const vec& x, const vec& p);
+double compute_objective (const mat& L, const vec& w, const vec& x,
+			  const vec& e, vec& u);
+void   compute_grad (const mat& L, const vec& w, const vec& x,const vec& e,
+		     vec& g, mat& H, mat& Z);
+double min (double a, double b);
 
 // FUNCTION DEFINITIONS
 // --------------------
@@ -70,12 +72,12 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   for (int iter = 0; iter < numiter; iter++) {
 
     // Compute the value of the objective at x.
-    obj = mixobjective(L,w,x,eps,u);
+    obj = compute_objective(L,w,x,eps,u);
     if (verbose)
       Rprintf("%4d %+0.15f\n",iter,obj);
 
     // Compute the gradient and Hessian.
-    computegrad(L,w,x,eps,g,H,Z);
+    compute_grad(L,w,x,eps,g,H,Z);
     
     // Determine the nonzero co-ordinates in the current estimate of
     // the solution, x. This specifies the "inactive set".
@@ -94,7 +96,7 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   }
 
   if (verbose) {
-    obj = mixobjective(L,w,x,eps,u);
+    obj = compute_objective(L,w,x,eps,u);
     Rprintf("%4d %+0.15f\n",numiter,obj);
   }
   return x;
@@ -243,23 +245,17 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
 			       double amin, vec& y, vec& u) {
   double fnew;
 
-  // This is the largest possible step size.
-  double a = 0.99;
-  
-  // First determine the largest step size maintaining feasibility; if
-  // it is larger than the minimum step size, return the minimum step
-  // size that maintains feasibility of the solution. Otherwise,
-  // continue to backtracking line search.
-  uvec   i     = find(p < 0);
-  vec    t     = -x.elem(i)/p.elem(i);
-  double afeas = t.min();
+  // Determine the largest step size maintaining feasibility; if it is
+  // larger than the minimum step size, return the minimum step size
+  // that maintains feasibility of the solution. Otherwise, continue
+  // to backtracking line search.
+  double afeas = feasible_stepsize(x,p);
   if (afeas <= amin)
     y = x + afeas*p;
   else {
 
     // Set the initial step size.
-    if (afeas < a)
-      a = afeas;
+    double a = min(0.99,afeas);
     
     // Iteratively reduce the step size until either (1) we can't reduce
     // any more (because we have hit the minimum step size constraint),
@@ -267,7 +263,7 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
     // decrease" condition.
     while (true) {
       y    = x + a*p;
-      fnew = mixobjective(L,w,y,e,u);
+      fnew = compute_objective(L,w,y,e,u);
 
       // Check whether the new candidate solution satisfies the
       // sufficient decrease condition, and remains feasible. If so,
@@ -277,7 +273,7 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
 
       // If we cannot decrease the step size further, terminate the
       // backtracking line search, and set the step size to be the
-      // minimum step size..
+      // minimum step size.
       else if (a*beta < amin) {
         y = x + amin*p;
         break;
@@ -290,12 +286,20 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
   }
 }
 
+// Return the largest step size maintaining feasibility (x >= 0) for
+// the given the search direction (p).
+double feasible_stepsize (const vec& x, const vec& p) {
+  uvec i = find(p < 0);
+  vec  t = -x.elem(i)/p.elem(i);
+  return t.min();
+}
+
 // Compute the value of the objective at x; arguments L and w specify
 // the objective, and e is a vector in which the entries can be set to
 // small, positive numbers, or to zero. Input u stores an intermediate
 // result used in the calculation.
-double mixobjective (const mat& L, const vec& w, const vec& x, const vec& e, 
-		     vec& u) {
+double compute_objective (const mat& L, const vec& w, const vec& x,
+			  const vec& e, vec& u) {
   u = L*x + e;
   if (u.min() <= 0)
     Rcpp::stop("Objective is -Inf");
@@ -303,11 +307,21 @@ double mixobjective (const mat& L, const vec& w, const vec& x, const vec& e,
 }
 
 // Compute the gradient and Hessian of the objective at x.
-void computegrad (const mat& L, const vec& w, const vec& x,
+void compute_grad (const mat& L, const vec& w, const vec& x,
 		  const vec& e, vec& g, mat& H, mat& Z) {
   vec u = L*x + e;
   g = -trans(L)*(w/u) + 1;
   Z = L;
   Z.each_col() %= (sqrt(w)/u);
   H = trans(Z) * Z;
+}
+
+// Return a or b, which ever is smaller.
+double min (double a, double b) {
+  double y;
+  if (a < b)
+    y = a;
+  else
+    y = b;
+  return y;
 }
