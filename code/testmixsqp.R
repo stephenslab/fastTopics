@@ -21,7 +21,7 @@ x0 <- rep(1/m,m)
 # FIT MODEL USING SQP
 # -------------------
 cat("Fitting model by iterating SQP updates.\n")
-fit1 <- mixsqp(L,w,x0,numiter = 14)
+fit1 <- mixsqp(L,w,x0,numiter = 14,verbose = TRUE)
 
 # FIT MODEL USING EM
 # ------------------

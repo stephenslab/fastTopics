@@ -19,10 +19,10 @@ double activesetqp  (const mat& H, const vec& g, vec& y, uvec& t,
 		     double convtolactiveset, double identitycontribincrease);
 void computeactivesetsearchdir (const mat& H, const vec& y, vec& p,
 				mat& B, double ainc);
-void backtrackinglinesearch (double f, const mat& L, const vec& w,
-			     const vec& g, const vec& x, const vec& p,
-			     const vec& e, double suffdecr, double beta,
-			     double amin, vec& y, vec& u);
+void backtracking_line_search (double f, const mat& L, const vec& w,
+			       const vec& g, const vec& x, const vec& p,
+			       const vec& e, double suffdecr, double beta,
+			       double amin, vec& y, vec& u);
 double mixobjective (const mat& L, const vec& w, const vec& x,
 		     const vec& e, vec& u);
 void   computegrad  (const mat& L, const vec& w, const vec& x,
@@ -41,7 +41,7 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
 		 double zerothresholdsolution, double zerothresholdsearchdir,
 		 double suffdecr, double stepsizereduce, double minstepsize,
 		 double identitycontribincrease, const vec& eps,
-		 int numiter, int maxiteractiveset) {
+		 int numiter, int maxiteractiveset, bool verbose) {
   
   // Get the number of rows (n) and columns (m) of the conditional
   // likelihood matrix.
@@ -53,6 +53,7 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   
   // Initialize storage for matrices and vectors used in the
   // computations below.
+  double obj;
   vec  g(m);    // Vector of length m storing the gradient.
   vec  ghat(m); // Vector of length m storing gradient of subproblem.
   vec  p(m);    // Vector of length m storing the search direction.
@@ -69,10 +70,9 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   for (int iter = 0; iter < numiter; iter++) {
 
     // Compute the value of the objective at x.
-    double obj = mixobjective(L,w,x,eps,u);
-
-    // *** FOR TESTING ***
-    Rprintf("%+0.12f\n",obj);
+    obj = mixobjective(L,w,x,eps,u);
+    if (verbose)
+      Rprintf("%4d %+0.15f\n",iter,obj);
 
     // Compute the gradient and Hessian.
     computegrad(L,w,x,eps,g,H,Z);
@@ -88,11 +88,15 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
     p = y - x;
     
     // Run backtracking line search.
-    backtrackinglinesearch(obj,L,w,g,x,p,eps,suffdecr,stepsizereduce,
-			   minstepsize,y,u);
+    backtracking_line_search(obj,L,w,g,x,p,eps,suffdecr,stepsizereduce,
+			     minstepsize,y,u);
     x = y;
   }
 
+  if (verbose) {
+    obj = mixobjective(L,w,x,eps,u);
+    Rprintf("%4d %+0.15f\n",numiter,obj);
+  }
   return x;
 }
 
@@ -233,10 +237,10 @@ void computeactivesetsearchdir (const mat& H, const vec& y, vec& p,
 
 // This implements the backtracking line search algorithm from p. 37
 // of Nocedal & Wright, Numerical Optimization, 2nd ed, 2006.
-void backtrackinglinesearch (double f, const mat& L, const vec& w,
-			     const vec& g, const vec& x, const vec& p,
-			     const vec& e, double suffdecr, double beta,
-			     double amin, vec& y, vec& u) {
+void backtracking_line_search (double f, const mat& L, const vec& w,
+			       const vec& g, const vec& x, const vec& p,
+			       const vec& e, double suffdecr, double beta,
+			       double amin, vec& y, vec& u) {
   double fnew;
 
   // This is the largest possible step size.

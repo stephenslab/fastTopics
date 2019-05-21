@@ -55,7 +55,7 @@ mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, tol = 1e-10,
                     zerothreshold.solution = 1e-8,
                     zerothreshold.searchdir = 1e-15, suffdecr = 0.01,
                     stepsizereduce = 0.75, minstepsize = 1e-8,
-                    identity.contrib.increase = 10) {
+                    identity.contrib.increase = 10, verbose = FALSE) {
 
   # Get the number of rows (n) and columns (m) of the matrix L.
   n <- nrow(L)
@@ -67,9 +67,13 @@ mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, tol = 1e-10,
   e <- e * apply(L,1,max)
 
   # Run the updates implemented in C++.
+  if (verbose) {
+    cat("iter objective function\n")
+    cat("---- ------------------\n")
+  }
   x <- mixsqp_rcpp(L,w,x0,tol,zerothreshold.solution,zerothreshold.searchdir,
                    suffdecr,stepsizereduce,minstepsize,
-                   identity.contrib.increase,e,numiter,m + 1)
+                   identity.contrib.increase,e,numiter,m + 1,verbose)
 
   # Return (1) the estimate of the solution and (2) the value of the
   # objective at this estimate.
