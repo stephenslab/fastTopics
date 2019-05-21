@@ -68,7 +68,7 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
 
     // Zero any co-ordinates that are below the specified threshold.
     i = find(x <= zerothreshold);
-    x.elem(i).fill(0);
+    x(i).fill(0);
     
     // Compute the value of the objective at x.
     obj = compute_objective(L,w,x,e,u);
@@ -105,9 +105,9 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
   double a;
   int    k;
   vec    b(m);
+  vec    bs(m);
   vec    p(m);
   vec    p0(m);
-  vec    bs(m);
   vec    z(m);
   mat    Hs(m,m);
   mat    B(m,m);
@@ -115,24 +115,31 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
   uvec   i(m);
   uvec   j(m);
   
-  // This is used to keep track of the working set; all zero entries
-  // of "t" are co-ordinates belonging to the working set.
+  // This vector is used to keep track of the working set; all zero
+  // entries of "t" are co-ordinates belonging to the working set.
   uvec t = (y > 0);
   
   // Run active set method to solve the quadratic subproblem.
   for (int iter = 0; iter < maxiter; iter++) {
+
+    // Find the co-ordinates inside (j) and outside (i) the working
+    // set.
+    i = find(t != 0);
+    j = find(t == 0);
+
+    // Make sure that co-ordinates in the working set are set to zero.
+    y(j).fill(0);
     
     // Define the smaller quadratic subproblem.
-    i  = find(t != 0);
-    j  = find(t == 0);
-    b  = H*y + g;
-    bs = b.elem(i);
-    Hs = H.elem(i,i);
+    Hs    = H(i,i);
+    b     = g;
+    b(i) += Hs*y(i);
+    bs    = b(i);
       
-    // Solve the smaller problem.
+    // Solve the quadratic subproblem to obtain a search direction.
     p.fill(0);
     compute_activeset_searchdir(Hs,bs,p0,B);
-    p.elem(i) = p0;
+    p(i) = p0;
       
     // Reset the step size.
     a = 1;
@@ -161,10 +168,10 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
       // Define the step size.
       a  = 1;
       p0 = p;
-      p0.elem(j).fill(0);
+      p0(j).fill(0);
       S = find(p0 < 0);
       if (!S.is_empty()) {
-        z = -y.elem(S)/p.elem(S);
+        z = -y(S)/p(S);
         k = z.index_min();
         if (z[k] < 1) {
             
@@ -286,7 +293,7 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
 // the given the search direction (p).
 double feasible_stepsize (const vec& x, const vec& p) {
   uvec i = find(p < 0);
-  vec  t = -x.elem(i)/p.elem(i);
+  vec  t = -x(i)/p(i);
   return t.min();
 }
 
