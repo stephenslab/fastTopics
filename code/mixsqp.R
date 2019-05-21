@@ -56,7 +56,7 @@ mixem.update <- function (L, w, x, e) {
 mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, tol = 1e-10,
                     zero.threshold = 0, zero.searchdir = 1e-15,
                     suffdecr = 0.01, stepsizereduce = 0.75,
-                    minstepsize = 1e-8, verbose = FALSE) {
+                    minstepsize = 1e-10, verbose = FALSE) {
 
   # Get the number of rows (n) and columns (m) of the matrix L.
   n <- nrow(L)

@@ -78,6 +78,11 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
     // Compute the gradient and Hessian.
     compute_grad(L,w,x,e,g,H,Z);
     
+    // This is also a good point to check for a user interrupt; if the
+    // user requests an interrupt, then an exception is thrown and
+    // control is returned to the R console.
+    Rcpp::checkUserInterrupt();
+    
     // Solve the quadratic subproblem to obtain a search direction.
     ghat = g - H*x;
     y    = x;

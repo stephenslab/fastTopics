@@ -5,9 +5,9 @@
 # SET UP ENVIRONMENT
 # ------------------
 library(Rcpp)
-# sourceCpp("mixsqp.cpp",verbose = TRUE)
 source("misc.R")
 source("mixsqp.R")
+sourceCpp("mixsqp.cpp")
 
 # LOAD DATA
 # ---------
