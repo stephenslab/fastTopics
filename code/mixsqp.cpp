@@ -14,20 +14,19 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-double activesetqp  (const mat& H, const vec& g, vec& y, uvec& t,
-		     int maxiter, double zerothresholdsearchdir, 
-		     double tol, double identitycontribincrease);
-void computeactivesetsearchdir (const mat& H, const vec& y, vec& p,
-				mat& B, double ainc);
+void activesetqp(const mat& H, const vec& g, vec& y, uvec& t, int maxiter,
+		 double zerothresholdsearchdir, double tol);
+void compute_activeset_searchdir (const mat& H, const vec& y, vec& p, mat& B);
 void backtracking_line_search (double f, const mat& L, const vec& w,
 			       const vec& g, const vec& x, const vec& p,
 			       const vec& e, double suffdecr, double beta,
 			       double amin, vec& y, vec& u);
+void   compute_grad (const mat& L, const vec& w, const vec& x,const vec& e,
+		     vec& g, mat& H, mat& Z);
+double init_hessian_correction (const mat& H, double a0);
 double feasible_stepsize (const vec& x, const vec& p);
 double compute_objective (const mat& L, const vec& w, const vec& x,
 			  const vec& e, vec& u);
-void   compute_grad (const mat& L, const vec& w, const vec& x,const vec& e,
-		     vec& g, mat& H, mat& Z);
 double min (double a, double b);
 
 // FUNCTION DEFINITIONS
@@ -42,8 +41,8 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
 		 double tol, double zerothreshold,
 		 double zerosearchdir, double suffdecr,
 		 double stepsizereduce, double minstepsize,
-		 double identitycontribincrease, const vec& e,
-		 int numiter, int maxiteractiveset, bool verbose) {
+		 const vec& e, int numiter, int maxiteractiveset,
+		 bool verbose) {
   
   // Get the number of rows (n) and columns (m) of the conditional
   // likelihood matrix.
@@ -68,7 +67,7 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   // Iterate the SQP updates for a fixed number of iterations.
   for (int iter = 0; iter < numiter; iter++) {
 
-    // Zero any co-ordinates that are below the threshold.
+    // Zero any co-ordinates that are below the specified threshold.
     i = find(x <= zerothreshold);
     x.elem(i).fill(0);
     
@@ -85,8 +84,7 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
 
     // Solve the quadratic subproblem to obtain a search direction.
     ghat = g - H*x;
-    activesetqp(H,ghat,y,t,maxiteractiveset,zerosearchdir,
-		tol,identitycontribincrease);
+    activesetqp(H,ghat,y,t,maxiteractiveset,zerosearchdir,tol);
     p = y - x;
     
     // Run backtracking line search.
@@ -104,13 +102,12 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
 
 // This implements the active-set method from p. 472 of of Nocedal &
 // Wright, Numerical Optimization, 2nd ed, 2006.
-double activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
-		    int maxiter, double zerosearchdir, double tol,
-		    double identitycontribincrease) {
+void activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
+		  int maxiter, double zerosearchdir, double tol) {
   int    m     = g.n_elem;
   double nnz   = sum(t);
   double alpha;  // The step size.
-  int    j, k;
+  int    k;
   vec    b(m);   // Vector of length m storing H*y + 2*g + 1.
   vec    p(m);   // Vector of length m storing the search direction.
   vec    p0(m);  // Search direction for nonzero co-ordinates only.
@@ -128,7 +125,7 @@ double activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
   y.elem(i1).fill(1/nnz);
     
   // Run active set method to solve the QP subproblem.
-  for (j = 0; j < maxiter; j++) {
+  for (int j = 0; j < maxiter; j++) {
     
     // Define the smaller QP subproblem.
     i0 = find(1 - t);
@@ -139,7 +136,7 @@ double activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
       
     // Solve the smaller problem.
     p.fill(0);
-    computeactivesetsearchdir(Hs,bs,p0,B,identitycontribincrease);
+    compute_activeset_searchdir(Hs,bs,p0,B);
     p.elem(i1) = p0;
       
     // Reset the step size.
@@ -193,25 +190,32 @@ double activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
       y += alpha * p;
     }
   }
+}
 
-  return j;
+// Get the initial scalar multiplier for the identity matrix based on
+// examining the diagonal entries of the Hessian.
+double init_hessian_correction (const mat& H, double a0) {
+  double d  = H.diag().min();
+  double a;
+  if (d > a0)
+    a = 0;
+  else
+    a = a0 - d;
+  return a;
 }
 
 // This implements Algorithm 3.3, "Cholesky with added multiple of the
 // identity", from Nocedal & Wright, 2nd ed, p. 51.
-void computeactivesetsearchdir (const mat& H, const vec& y, vec& p,
-				mat& B, double ainc) {
+void compute_activeset_searchdir (const mat& H, const vec& y, vec& p, mat& B) {
   double a0   = 1e-15;
   double amax = 1;
-  int    n = y.n_elem;
-  double d = H.diag().min();
-  double a = 0;
+  double ainc = 10;
+  int    n    = y.n_elem;
   mat    I(n,n,fill::eye);
   mat    R(n,n);
 
-  // Initialize the scalar multiplier for the identity matrix.
-  if (d < 0)
-    a = a0 - d;
+  // Get the initial scalar multiplier for the identity matrix.
+  double a = init_hessian_correction(H,a0);
 
   // Repeat until a modified Hessian is found that is symmetric
   // positive definite, or until we cannot modify it any longer.
@@ -223,7 +227,9 @@ void computeactivesetsearchdir (const mat& H, const vec& y, vec& p,
     // Attempt to compute the Cholesky factorization of the modified
     // Hessian. If this fails, increase the contribution of the
     // identity matrix in the modified Hessian.
-    if (chol(R,B) | (a*ainc > amax))
+    if (chol(R,B))
+      break;
+    else if (a*ainc > amax)
       break;
     else if (a <= 0)
       a = a0;
@@ -232,7 +238,7 @@ void computeactivesetsearchdir (const mat& H, const vec& y, vec& p,
   }
   
   // Compute the search direction using the modified Hessian.
-  p = -solve(B,y);
+  p = solve(B,-y);
 }
 
 // This implements the backtracking line search algorithm from p. 37
