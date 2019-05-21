@@ -105,10 +105,10 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
   double a;
   int    k;
   vec    b(m);
-  vec    bs(m);
   vec    p(m);
-  vec    p0(m);
-  vec    z(m);
+  vec    bs(m);
+  vec    ps(m);
+  vec    r(m);
   mat    Hs(m,m);
   mat    B(m,m);
   uvec   S(m);
@@ -129,7 +129,7 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
 
     // Make sure that co-ordinates in the working set are set to zero.
     y(j).fill(0);
-    
+
     // Define the smaller quadratic subproblem.
     Hs    = H(i,i);
     b     = g;
@@ -138,8 +138,8 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
       
     // Solve the quadratic subproblem to obtain a search direction.
     p.fill(0);
-    compute_activeset_searchdir(Hs,bs,p0,B);
-    p(i) = p0;
+    compute_activeset_searchdir(Hs,bs,ps,B);
+    p(i) = ps;
       
     // Reset the step size.
     a = 1;
@@ -150,42 +150,41 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
       // If all the Lagrange multiplers in the working set (that is,
       // zeroed co-ordinates) are positive, or nearly positive, we
       // have reached a suitable solution.
-      if (j.n_elem == 0)
+      if (j.is_empty())
 	break;
       else if (b(j).min() >= -tol)
 	break;
-
-      // Find an co-ordinate with the smallest multiplier, and remove
-      // it from the working set.
-      k    = j[b(j).index_min()];
-      t[k] = 1;
-
+      else {
+	
+        // Find a co-ordinate with the smallest multiplier, and remove
+        // it from the working set.
+        k    = j(b(j).index_min());
+        t(k) = 1;
+      }
+      
     // In this next part, we consider adding a co-ordinate to the
     // working set (but only if there are two or more non-zero
     // co-ordinates).
     } else {
         
       // Define the step size.
-      a  = 1;
-      p0 = p;
-      p0(j).fill(0);
-      S = find(p0 < 0);
+      a = 1;
+      S = find(p < 0);
       if (!S.is_empty()) {
-        z = -y(S)/p(S);
-        k = z.index_min();
-        if (z[k] < 1) {
+        r = -y(S)/p(S);
+        k = r.index_min();
+        if (r(k) < 1) {
+          a = r(k);
             
-          // Blocking constraint exists; find and add it to the
+          // A blocking constraint exists; find it, and add it to the
           // working set (but only if there are two or more non-zero
           // co-ordinates).
-          a = z[k];
-	  if (i.n_elem >= 2)
-	    t[S[k]] = 0;
+	  if (i.n_elem > 1)
+	    t(S(k)) = 0;
         }
       }
       
-      // Move to the new "inner loop" iterate (y) along the search
-      // direction.
+      // Move to the new iterate along the search direction.
       y += a*p;
     }
   }
@@ -292,9 +291,13 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
 // Return the largest step size maintaining feasibility (x >= 0) for
 // the given the search direction (p).
 double feasible_stepsize (const vec& x, const vec& p) {
-  uvec i = find(p < 0);
-  vec  t = -x(i)/p(i);
-  return t.min();
+  double a = 1;
+  uvec   i = find(p < 0);
+  if (!i.is_empty()) {
+    vec t = -x(i)/p(i);
+    a = t.min();
+  }
+  return a;
 }
 
 // Compute the value of the objective at x; arguments L and w specify
