@@ -15,8 +15,8 @@ using namespace arma;
 // FUNCTION DECLARATIONS
 // ---------------------
 double activesetqp  (const mat& H, const vec& g, vec& y, uvec& t,
-		     int maxiteractiveset, double zerothresholdsearchdir, 
-		     double convtolactiveset, double identitycontribincrease);
+		     int maxiter, double zerothresholdsearchdir, 
+		     double tol, double identitycontribincrease);
 void computeactivesetsearchdir (const mat& H, const vec& y, vec& p,
 				mat& B, double ainc);
 void backtracking_line_search (double f, const mat& L, const vec& w,
@@ -39,10 +39,10 @@ double min (double a, double b);
 // 
 // [[Rcpp::export]]
 vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0, 
-		 double convtolactiveset,
-		 double zerothresholdsolution, double zerothresholdsearchdir,
-		 double suffdecr, double stepsizereduce, double minstepsize,
-		 double identitycontribincrease, const vec& eps,
+		 double tol, double zerothreshold,
+		 double zerosearchdir, double suffdecr,
+		 double stepsizereduce, double minstepsize,
+		 double identitycontribincrease, const vec& e,
 		 int numiter, int maxiteractiveset, bool verbose) {
   
   // Get the number of rows (n) and columns (m) of the conditional
@@ -53,50 +53,50 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
   // Initialize the solution.
   vec x = x0;
   
-  // Initialize storage for matrices and vectors used in the
-  // computations below.
+  // Scalars, vectors and matrices used in the computations below.
   double obj;
-  vec  g(m);    // Vector of length m storing the gradient.
-  vec  ghat(m); // Vector of length m storing gradient of subproblem.
-  vec  p(m);    // Vector of length m storing the search direction.
-  vec  u(n);    // Vector of length n storing matrix-vector product L*x.
-  mat  H(m,m);  // m x m matrix storing Hessian.
-  mat  Z(n,m);  // n x m matrix Z = D*L, where D = diag(1/(L*x+e)).
-  uvec t(m);    // Temporary unsigned int. vector result of length m.
-  vec  y(m);    // Vector of length m storing y
-  vec  d(m);    // Vector of length m storing absolute
-                // differences between between two solution
-	        // estimates.
+  uvec i(m);
+  vec  g(m);
+  vec  ghat(m);
+  vec  p(m);
+  vec  u(n);
+  mat  H(m,m);
+  mat  Z(n,m);
+  uvec t(m);
+  vec  y(m);
   
   // Iterate the SQP updates for a fixed number of iterations.
   for (int iter = 0; iter < numiter; iter++) {
 
+    // Zero any co-ordinates that are below the threshold.
+    i = find(x <= zerothreshold);
+    x.elem(i).fill(0);
+    
     // Compute the value of the objective at x.
-    obj = compute_objective(L,w,x,eps,u);
+    obj = compute_objective(L,w,x,e,u);
     if (verbose)
       Rprintf("%4d %+0.15f\n",iter,obj);
 
     // Compute the gradient and Hessian.
-    compute_grad(L,w,x,eps,g,H,Z);
+    compute_grad(L,w,x,e,g,H,Z);
     
-    // Determine the nonzero co-ordinates in the current estimate of
-    // the solution, x. This specifies the "inactive set".
-    t = (x >= zerothresholdsolution);
+    // This specifies the "inactive set".
+    t = (x > 0);
 
     // Solve the quadratic subproblem to obtain a search direction.
     ghat = g - H*x;
-    activesetqp(H,ghat,y,t,maxiteractiveset,zerothresholdsearchdir,
-		convtolactiveset,identitycontribincrease);
+    activesetqp(H,ghat,y,t,maxiteractiveset,zerosearchdir,
+		tol,identitycontribincrease);
     p = y - x;
     
     // Run backtracking line search.
-    backtracking_line_search(obj,L,w,g,x,p,eps,suffdecr,stepsizereduce,
+    backtracking_line_search(obj,L,w,g,x,p,e,suffdecr,stepsizereduce,
 			     minstepsize,y,u);
     x = y;
   }
 
   if (verbose) {
-    obj = compute_objective(L,w,x,eps,u);
+    obj = compute_objective(L,w,x,e,u);
     Rprintf("%4d %+0.15f\n",numiter,obj);
   }
   return x;
@@ -105,8 +105,8 @@ vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0,
 // This implements the active-set method from p. 472 of of Nocedal &
 // Wright, Numerical Optimization, 2nd ed, 2006.
 double activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
-		    int maxiteractiveset, double zerothresholdsearchdir, 
-		    double convtolactiveset, double identitycontribincrease) {
+		    int maxiter, double zerosearchdir, double tol,
+		    double identitycontribincrease) {
   int    m     = g.n_elem;
   double nnz   = sum(t);
   double alpha;  // The step size.
@@ -128,7 +128,7 @@ double activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
   y.elem(i1).fill(1/nnz);
     
   // Run active set method to solve the QP subproblem.
-  for (j = 0; j < maxiteractiveset; j++) {
+  for (j = 0; j < maxiter; j++) {
     
     // Define the smaller QP subproblem.
     i0 = find(1 - t);
@@ -145,10 +145,8 @@ double activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
     // Reset the step size.
     alpha = 1;
     
-    // Check that the search direction is close to zero (according to
-    // the "zerothresholdsearchdir" parameter).
-    if ((p.max() <= zerothresholdsearchdir) &
-	(-p.min() <= zerothresholdsearchdir)) {
+    // Check that the search direction is close to zero.
+    if ((p.max() <= zerosearchdir) & (-p.min() <= zerosearchdir)) {
         
       // If all the Lagrange multiplers in the working set (that is,
       // zeroed co-ordinates) are positive, or nearly positive, we
@@ -156,7 +154,7 @@ double activesetqp (const mat& H, const vec& g, vec& y, uvec& t,
       if (i0.n_elem == 0) {
 	j++;
 	break;
-      } else if (b(i0).min() >= -convtolactiveset) {
+      } else if (b(i0).min() >= -tol) {
 	j++;
 	break;
       }
