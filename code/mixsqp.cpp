@@ -23,8 +23,8 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
 			       double amin, vec& y, vec& u);
 void   compute_grad (const mat& L, const vec& w, const vec& x,const vec& e,
 		     vec& g, mat& H, mat& Z);
+void   feasible_stepsize (const vec& x, const vec& p, int& j, double& a);
 double init_hessian_correction (const mat& H, double a0);
-double feasible_stepsize (const vec& x, const vec& p);
 double compute_objective (const mat& L, const vec& w, const vec& x,
 			  const vec& e, vec& u);
 double min (double a, double b);
@@ -146,9 +146,6 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
     compute_activeset_searchdir(Hs,bs,ps,B);
     p(i) = ps;
       
-    // Reset the step size.
-    a = 1;
-    
     // Check that the search direction is close to zero.
     if ((p.max() <= zerosearchdir) & (-p.min() <= zerosearchdir)) {
         
@@ -173,20 +170,14 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
     } else {
         
       // Define the step size.
-      a = 1;
-      S = find(p < 0);
-      if (!S.is_empty()) {
-        r = -y(S)/p(S);
-        k = r.index_min();
-        if (r(k) < 1) {
-          a = r(k);
-            
-          // A blocking constraint exists; find it, and add it to the
-          // working set (but only if there are two or more non-zero
-          // co-ordinates).
-	  if (i.n_elem > 1)
-	    t(S(k)) = 0;
-        }
+      feasible_stepsize(y,p,k,a);
+      if (k >= 0 & a < 1) {
+	
+        // A blocking constraint exists; find it, and add it to the
+        // working set (but only if there are two or more non-zero
+        // co-ordinates).
+	if (i.n_elem > 1)
+	  t(k) = 0;
       }
       
       // Move to the new iterate along the search direction.
@@ -250,13 +241,15 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
 			       const vec& g, const vec& x, const vec& p,
 			       const vec& e, double suffdecr, double beta,
 			       double amin, vec& y, vec& u) {
+  int    i;
+  double afeas;
   double fnew;
 
   // Determine the largest step size maintaining feasibility; if it is
   // larger than the minimum step size, return the minimum step size
   // that maintains feasibility of the solution. Otherwise, continue
   // to backtracking line search.
-  double afeas = feasible_stepsize(x,p);
+  feasible_stepsize(x,p,i,afeas);
   if (afeas <= amin)
     y = x + afeas*p;
   else {
@@ -295,14 +288,17 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
 
 // Return the largest step size maintaining feasibility (x >= 0) for
 // the given the search direction (p).
-double feasible_stepsize (const vec& x, const vec& p) {
-  double a = 1;
-  uvec   i = find(p < 0);
+void feasible_stepsize (const vec& x, const vec& p, int& j, double& a) {
+  uvec i = find(p < 0);
+  a = 1;
+  j = -1;
   if (!i.is_empty()) {
     vec t = -x(i)/p(i);
-    a = t.min();
+    j = t.index_min();
+    if (t(j) < 1)
+      a = t(j);
+    j = i(j);
   }
-  return a;
 }
 
 // Compute the value of the objective at x; arguments L and w specify

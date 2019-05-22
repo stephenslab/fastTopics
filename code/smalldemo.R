@@ -1,5 +1,5 @@
 # Small script illustrating application of the betanmf and altsqp
-# methods for fitting a Poisson topic model.
+# methods to fitting a Poisson topic model.
 
 # SCRIPT PARAMETERS
 # -----------------
