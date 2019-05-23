@@ -4,12 +4,7 @@
 # rules. All entries of initial estimates A and B should be
 # positive. This is adapted from the MATLAB code by D. Kitamura
 # (http://d-kitamura.net).
-betanmf <- function (X, A, B, numiter = 1000, e = 1e-8, verbose = TRUE) {
-
-  # Check that input X is a dense matrix.
-  if (!inherits(X,"matrix"))
-    stop("Argument \"X\" should be an object of class \"matrix\"")
-
+betanmf <- function (X, A, B, numiter = 1000, e = 1e-15, verbose = TRUE) {
   n <- nrow(X)
   m <- ncol(X)
   E <- matrix(1,n,m)
@@ -18,7 +13,7 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-8, verbose = TRUE) {
                          max.diff  = 0,
                          timing    = 0)
       
-  # Repeat until we reach the number of requested iterations.
+  # Iteratively apply the multiplicative updates.
   if (verbose)
     cat("iter         objective max.diff\n")
   for (i in 1:numiter) {

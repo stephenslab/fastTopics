@@ -1,5 +1,5 @@
-# Small script illustrating application of the betanmf and altsqp
-# methods to fitting a Poisson topic model.
+# Small script illustrating application of the multiplicative updates
+# and the alternating SQP method for fitting a Poisson topic model.
 
 # SCRIPT PARAMETERS
 # -----------------
@@ -8,16 +8,11 @@ K <- 13
 
 # SET UP ENVIRONMENT
 # ------------------
-library(parallel)
 library(Matrix)
-library(quadprog)
 library(readr)
 library(ggplot2)
 library(cowplot)
 source("../code/misc.R")
-source("../code/activeset.R")
-source("../code/poismix.R")
-source("../code/altsqp.R")
 source("../code/betanmf.R")
 
 # Initialize the sequence of pseudorandom numbers.
@@ -43,12 +38,13 @@ L <- matrix(runif(n*K),n,K)
 
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
-cat("Fitting Poisson topic model using multiplicative updates.\n")
+cat("Fitting Poisson topic model by iterating multiplicative updates.\n")
 fit.betanmf <- betanmf(counts,L,t(F),numiter = 100)
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
-cat("Fitting Poisson topic model using alternating SQP method.\n")
+cat("Fitting Poisson topic model by iterating SQP updates.\n")
+# TO DO: Revise this line of code.
 fit.altsqp <- altsqp(counts,F,L,numiter = 50)
     
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
