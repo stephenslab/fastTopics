@@ -36,7 +36,9 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-15, verbose = TRUE) {
     # Compute the value of the objective (cost) function at the
     # current estimates of the factors and loadings.
     f <- cost(X,A %*% B,e)
-    d <- max(max(abs(A - A0)),max(abs(B - B0)))
+    d <- max(max(abs(A/rowMeans(A) - A0/rowMeans(A0))),
+             max(abs(scale.cols(B,1/colMeans(B)) -
+                     scale.cols(B0,1/rowMeans(B0)))))
     progress[i,"objective"] <- f
     progress[i,"max.diff"]  <- d
     progress[i,"timing"]    <- timing["elapsed"]
