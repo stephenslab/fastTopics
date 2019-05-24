@@ -43,7 +43,7 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, tol = 1e-10,
                                      minstepsize)
       }
     })
-                      
+
     # Compute the value of the objective (cost) function at the
     # current estimates of the factors and loadings.
     f <- cost(X,tcrossprod(L,F),e)
@@ -60,9 +60,18 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, tol = 1e-10,
 
 # Run a fixed number of EM updates for the alternating SQP method.
 altsqp.update.em <- function (B, w, y, numiter, e) {
-  ws  <- sum(w)
-  bs  <- colSums(B)  
+
+  # Remove any counts that are exactly zero.
+  ws <- sum(w)
+  bs <- colSums(B)
+  i  <- which(w > 0)
+  w  <- w[i]
+  B  <- B[i,]
+
+  # Run the EM updates for the modified problem.
   out <- mixem(scale.cols(B,ws/bs),w/ws,y*bs/ws,numiter,e)
+
+  # Recover the solution to the unmodified problem.
   return(out$x*ws/bs)
 }
 
@@ -70,10 +79,19 @@ altsqp.update.em <- function (B, w, y, numiter, e) {
 altsqp.update.sqp <- function (B, w, y, numiter, e, tol, zero.threshold,
                                zero.searchdir, suffdecr, stepsizereduce,
                                minstepsize) {
-  ws  <- sum(w)
-  bs  <- colSums(B)  
+    
+  # Remove any counts that are exactly zero.
+  ws <- sum(w)
+  bs <- colSums(B)  
+  i  <- which(w > 0)
+  w  <- w[i]
+  B  <- B[i,]
+
+  # Run the SQP updates for the modified problem.
   out <- mixsqp(scale.cols(B,ws/bs),w/ws,y*bs/ws,numiter,e,tol,
                 zero.threshold,zero.searchdir,suffdecr,stepsizereduce,
                 minstepsize)
+
+  # Recover the solution to the unmodified problem.
   return(out$x*ws/bs)
 }

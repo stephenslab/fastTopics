@@ -48,7 +48,9 @@ fit1 <- betanmf(counts,L,t(F),numiter = 50)
 # --------------------------
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
 fit2 <- altsqp(counts,F,L,numiter = 50)
-    
+
+stop()
+
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
 p1 <- ggplot(fit.betanmf$progress,
