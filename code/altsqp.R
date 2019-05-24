@@ -1,8 +1,8 @@
 # Compute maximum-likelihood estimates for the Poisson topic model;
 # equivalently, find a non-negative matrix factorization X = L*F' that
 # optimizes the beta divergence objective.
-altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, tol = 1e-10,
-                    zero.threshold = 0, zero.searchdir = 1e-15,
+altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, nc = 1,
+                    tol = 1e-10, zero.threshold = 0, zero.searchdir = 1e-15,
                     suffdecr = 0.01, stepsizereduce = 0.75,
                     minstepsize = 1e-10, e = 1e-15, verbose = TRUE) {
   n <- nrow(X)
@@ -24,14 +24,34 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, tol = 1e-10,
     timing <- system.time({
 
       # Update the loadings ("activations").
-      L <- altsqp.update.loadings(X,F,L,nem,nsqp,e,tol,zero.threshold,
+      if (nc == 1)
+        L <- altsqp.update.loadings(X,F,L,nem,nsqp,e,tol,zero.threshold,
                                   zero.searchdir,suffdecr,stepsizereduce,
                                   minstepsize)
-
+      else {
+        rows <- splitIndices(n,nc)
+        L    <- mclapply(rows,function (i)
+                  altsqp.update.loadings(X[i,],F,L[i,],nem,nsqp,e,tol,
+                                         zero.threshold,zero.searchdir,
+                                         suffdecr,stepsizereduce,minstepsize))
+        L    <- do.call(rbind,L)
+        L[unlist(rows),] <- L
+      }
+          
       # Update the factors ("basis vectors").
-      F <- altsqp.update.factors(X,F,L,nem,nsqp,e,tol,zero.threshold,
-                                 zero.searchdir,suffdecr,stepsizereduce,
-                                 minstepsize)
+      if (nc == 1)
+        F <- altsqp.update.factors(X,F,L,nem,nsqp,e,tol,zero.threshold,
+                                   zero.searchdir,suffdecr,stepsizereduce,
+                                   minstepsize)
+      else {
+        cols <- splitIndices(m,nc)
+        F    <- mclapply(cols,function (j)
+                  altsqp.update.factors(X[,j],F[j,],L,nem,nsqp,e,tol,
+                                        zero.threshold,zero.searchdir,
+                                        suffdecr,stepsizereduce,minstepsize))
+        F    <- do.call(rbind,F)
+        F[unlist(cols),] <- F
+      }
     })
 
     # Compute the value of the objective (cost) function at the
