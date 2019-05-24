@@ -60,3 +60,4 @@ p1    <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
   scale_color_manual(values = c("darkorange","darkblue")) +
   scale_y_continuous(breaks = 10^(0:6),trans = "log10") +
   labs(x = "iteration",y = "distance from minimum")
+print(p1)
