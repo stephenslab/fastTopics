@@ -1,4 +1,6 @@
-# TO DO: Explain here what this function does, and how to use it.
+# Compute maximum-likelihood estimates for the Poisson topic model;
+# equivalently, find a non-negative matrix factorization X = L*F' that
+# optimizes the beta divergence objective.
 altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, tol = 1e-10,
                     zero.threshold = 0, zero.searchdir = 1e-15,
                     suffdecr = 0.01, stepsizereduce = 0.75,
@@ -56,7 +58,7 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, tol = 1e-10,
   return(list(F = F,L = L,value = f,progress = progress))
 }
 
-# TO DO: Explain here what this function does, and how to use it.
+# Run a fixed number of EM updates for the alternating SQP method.
 altsqp.update.em <- function (B, w, y, numiter, e) {
   ws  <- sum(w)
   bs  <- colSums(B)  
@@ -64,7 +66,7 @@ altsqp.update.em <- function (B, w, y, numiter, e) {
   return(out$x*ws/bs)
 }
 
-# TO DO: Explain here what this function does, and how to use it.
+# Run a fixed number of SQP updates for the alternating SQP method.
 altsqp.update.sqp <- function (B, w, y, numiter, e, tol, zero.threshold,
                                zero.searchdir, suffdecr, stepsizereduce,
                                minstepsize) {
