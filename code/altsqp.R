@@ -1,6 +1,8 @@
 # TO DO: Explain here what this function does, and how to use it.
-altsqp <- function (X, F, L, numiter = 100, nem = 1, e = 1e-15,
-                    verbose = TRUE) {
+altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, tol = 1e-10,
+                    zero.threshold = 0, zero.searchdir = 1e-15,
+                    suffdecr = 0.01, stepsizereduce = 0.75,
+                    minstepsize = 1e-10, e = 1e-15, verbose = TRUE) {
   n <- nrow(X)
   m <- ncol(X)
   progress <- data.frame(iter      = 1:numiter,
@@ -21,21 +23,25 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, e = 1e-15,
 
       # Update the loadings ("activations").
       for (i in 1:n) {
-        fi    <- cost.poismix(F,X[i,],L[i,],e)
-        out   <- fitpoismix.update(F,X[i,],L[i,],fi,e = e,
-                                   qp.solver = "activeset")
-        L[i,] <- out$x
+        if (nem > 0)
+          L[i,] <- altsqp.update.em(F,X[i,],L[i,],nem,e)
+        if (nsqp > 0)
+          L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],nsqp,e,tol,zero.threshold,
+                                     zero.searchdir,suffdecr,stepsizereduce,
+                                     minstepsize)
       }
-      
+
       # Update the factors ("basis vectors").
       for (j in 1:m) {
-        fj    <- cost.poismix(L,X[,j],F[j,],e)
-        out   <- fitpoismix.update(L,X[,j],F[j,],fj,e = e,
-                                   qp.solver = "activeset")
-        F[j,] <- out$x
+        if (nem > 0)
+          F[j,] <- altsqp.update.em(L,X[,j],F[j,],nem,e)
+        if (nsqp > 0)
+          F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],nsqp,e,tol,zero.threshold,
+                                     zero.searchdir,suffdecr,stepsizereduce,
+                                     minstepsize)
       }
     })
-
+                      
     # Compute the value of the objective (cost) function at the
     # current estimates of the factors and loadings.
     f <- cost(X,tcrossprod(L,F),e)
@@ -48,4 +54,24 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, e = 1e-15,
   }
   
   return(list(F = F,L = L,value = f,progress = progress))
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+altsqp.update.em <- function (B, w, y, numiter, e) {
+  ws  <- sum(w)
+  bs  <- colSums(B)  
+  out <- mixem(scale.cols(B,ws/bs),w/ws,y*bs/ws,numiter,e)
+  return(out$x*ws/bs)
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+altsqp.update.sqp <- function (B, w, y, numiter, e, tol, zero.threshold,
+                               zero.searchdir, suffdecr, stepsizereduce,
+                               minstepsize) {
+  ws  <- sum(w)
+  bs  <- colSums(B)  
+  out <- mixsqp(scale.cols(B,ws/bs),w/ws,y*bs/ws,numiter,e,tol,
+                zero.threshold,zero.searchdir,suffdecr,stepsizereduce,
+                minstepsize)
+  return(out$x*ws/bs)
 }
