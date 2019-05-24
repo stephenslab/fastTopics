@@ -24,24 +24,14 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, tol = 1e-10,
     timing <- system.time({
 
       # Update the loadings ("activations").
-      for (i in 1:n) {
-        if (nem > 0)
-          L[i,] <- altsqp.update.em(F,X[i,],L[i,],nem,e)
-        if (nsqp > 0)
-          L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],nsqp,e,tol,zero.threshold,
-                                     zero.searchdir,suffdecr,stepsizereduce,
-                                     minstepsize)
-      }
+      L <- altsqp.update.loadings(X,F,L,nem,nsqp,e,tol,zero.threshold,
+                                  zero.searchdir,suffdecr,stepsizereduce,
+                                  minstepsize)
 
       # Update the factors ("basis vectors").
-      for (j in 1:m) {
-        if (nem > 0)
-          F[j,] <- altsqp.update.em(L,X[,j],F[j,],nem,e)
-        if (nsqp > 0)
-          F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],nsqp,e,tol,zero.threshold,
-                                     zero.searchdir,suffdecr,stepsizereduce,
-                                     minstepsize)
-      }
+      F <- altsqp.update.factors(X,F,L,nem,nsqp,e,tol,zero.threshold,
+                                 zero.searchdir,suffdecr,stepsizereduce,
+                                 minstepsize)
     })
 
     # Compute the value of the objective (cost) function at the
@@ -56,6 +46,38 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, tol = 1e-10,
   }
   
   return(list(F = F,L = L,value = f,progress = progress))
+}
+
+# Update all the loadings with the factors remaining fixed.
+altsqp.update.loadings <- function (X, F, L, nem, nsqp, e, tol, zero.threshold,
+                                    zero.searchdir, suffdecr, stepsizereduce,
+                                    minstepsize) {
+  n <- nrow(X)
+  for (i in 1:n) {
+    if (nem > 0)
+      L[i,] <- altsqp.update.em(F,X[i,],L[i,],nem,e)
+    if (nsqp > 0)
+      L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],nsqp,e,tol,zero.threshold,
+                                 zero.searchdir,suffdecr,stepsizereduce,
+                                 minstepsize)
+  }
+  return(L)  
+}
+
+# Update all the factors with the loadings remaining fixed.
+altsqp.update.factors <- function (X, F, L, nem, nsqp, e, tol, zero.threshold,
+                                   zero.searchdir, suffdecr, stepsizereduce,
+                                   minstepsize) {
+  m <- ncol(X)
+  for (j in 1:m) {
+    if (nem > 0)
+      F[j,] <- altsqp.update.em(L,X[,j],F[j,],nem,e)
+    if (nsqp > 0)
+      F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],nsqp,e,tol,zero.threshold,
+                                 zero.searchdir,suffdecr,stepsizereduce,
+                                 minstepsize)
+  }
+  return(F)
 }
 
 # Run a fixed number of EM updates for the alternating SQP method.

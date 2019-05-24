@@ -8,6 +8,7 @@ K <- 13
 
 # SET UP ENVIRONMENT
 # ------------------
+library(parallel)
 library(Rcpp)
 library(readr)
 library(ggplot2)
@@ -42,12 +43,12 @@ L <- matrix(runif(n*K),n,K)
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model by iterating multiplicative updates.\n")
-fit1 <- betanmf(counts,L,t(F),numiter = 50)
+fit1 <- betanmf(counts,L,t(F),numiter = 100)
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
-fit2 <- altsqp(counts,F,L,numiter = 50)
+fit2 <- altsqp(counts,F,L,numiter = 100)
 
 stop()
 
