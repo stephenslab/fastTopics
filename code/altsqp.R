@@ -1,7 +1,7 @@
 # Compute maximum-likelihood estimates for the Poisson topic model;
 # equivalently, find a non-negative matrix factorization X = L*F' that
 # optimizes the beta divergence objective.
-altsqp <- function (X, F, L, numiter = 100, method = c("fpiter","daarem"),
+altsqp <- function (X, F, L, numiter = 100, method = c("normal","accerelated"),
                     control = list(), verbose = TRUE) {
 
   # Get the optimization settings.
@@ -15,22 +15,29 @@ altsqp <- function (X, F, L, numiter = 100, method = c("fpiter","daarem"),
   # Iteratively apply the EM And SQP updates.
   if (verbose)
       cat("        objective max.diff time(s)\n")
-  if (method == "fpiter")
-    out <- suppressWarnings(
-      fpiter(c(as.vector(F),as.vector(L)),altsqp.update,altsqp.objective,
-             list(maxiter = numiter,tol = 0),X = X,
-             control.update = control,verbose = verbose))
-  else
+  if (method == "normal") {
+    value <- rep(0,numiter)
+    vars  <- c(as.vector(F),as.vector(L))
+    for (iter in 1:numiter) {
+
+      # Update the loadings and factors.
+      vars  <- altsqp.update(vars,X,control,verbose)
+      value <- altsqp.objective(vars,X,control,verbose)
+    }    
+    vars <- project.iterate(vars,n,m)
+  } else if (method == "accelerated") {
     out <- suppressWarnings(
       daarem(c(as.vector(F),as.vector(L)),altsqp.update,altsqp.objective,
-             list(maxiter = numiter,tol = 0,order = order,
-                  mon.tol = 0.05,kappa = 20,alpha = 1.2),
+             control = list(maxiter = numiter,tol = 0,order = control$order,
+                            mon.tol = 0.05,kappa = 20,alpha = 1.2),
              X = X,control.update = control,verbose = verbose))
+    vars  <- project.iterate(out$par,n,m)
+    value <- out$objfn.track[-1]
+  }
   
   # Return (1) the estimated factors, (2) the estimated loadings, and
   # (3) the value of the objective at each iteration.
-  vars <- project.iterate(out$par,n,m)
-  return(list(F = vars$F,L = vars$L,value = out$objfn.track[-1]))
+  return(list(F = vars$F,L = vars$L,value = value))
 }
 
 # These are the default optimization settings used in altsqp.
