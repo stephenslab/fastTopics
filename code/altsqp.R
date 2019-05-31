@@ -1,12 +1,17 @@
 # Compute maximum-likelihood estimates for the Poisson topic model;
 # equivalently, find a non-negative matrix factorization X = L*F' that
 # optimizes the beta divergence objective.
-altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, nc = 1,
-                    tol = 1e-10, zero.threshold = 0, zero.searchdir = 1e-15,
-                    suffdecr = 0.01, stepsizereduce = 0.75,
-                    minstepsize = 1e-10, e = 1e-15, verbose = TRUE) {
+altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
+
+  # Get the optimization settings.
+  method  <- match.arg(method)
+  control <- modifyList(altsqp_control_defaults,control,keep.null = TRUE)
+
+  # Get the number of rows (n) and columns (m) of the counts matrix.
   n <- nrow(X)
   m <- ncol(X)
+
+  # Set up the data structure to record the algorithm's progress.
   progress <- data.frame(iter      = 1:numiter,
                          objective = 0,
                          max.diff  = 0,
@@ -25,31 +30,23 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, nc = 1,
 
       # Update the loadings ("activations").
       if (nc == 1)
-        L <- altsqp.update.loadings(X,F,L,nem,nsqp,e,tol,zero.threshold,
-                                  zero.searchdir,suffdecr,stepsizereduce,
-                                  minstepsize)
+        L <- altsqp.update.loadings(X,F,L,control)
       else {
         rows <- splitIndices(n,nc)
-        L    <- mclapply(rows,function (i)
-                  altsqp.update.loadings(X[i,],F,L[i,],nem,nsqp,e,tol,
-                                         zero.threshold,zero.searchdir,
-                                         suffdecr,stepsizereduce,minstepsize))
-        L    <- do.call(rbind,L)
+        L <- mclapply(rows,function (i) altsqp.update.loadings(X[i,],F,L[i,],
+                                                               control))
+        L <- do.call(rbind,L)
         L[unlist(rows),] <- L
       }
           
       # Update the factors ("basis vectors").
       if (nc == 1)
-        F <- altsqp.update.factors(X,F,L,nem,nsqp,e,tol,zero.threshold,
-                                   zero.searchdir,suffdecr,stepsizereduce,
-                                   minstepsize)
+        F <- altsqp.update.factors(X,F,L,control)
       else {
         cols <- splitIndices(m,nc)
-        F    <- mclapply(cols,function (j)
-                  altsqp.update.factors(X[,j],F[j,],L,nem,nsqp,e,tol,
-                                        zero.threshold,zero.searchdir,
-                                        suffdecr,stepsizereduce,minstepsize))
-        F    <- do.call(rbind,F)
+        F <- mclapply(cols,function (j) altsqp.update.factors(X[,j],F[j,],L,
+                                                              control))
+        F <- do.call(rbind,F)
         F[unlist(cols),] <- F
       }
     })
@@ -69,34 +66,30 @@ altsqp <- function (X, F, L, numiter = 100, nem = 1, nsqp = 4, nc = 1,
   return(list(F = F,L = L,value = f,progress = progress))
 }
 
+# These are the default optimization settings used in altsqp.
+altsqp_control_defaults <- c(list(nem = 1,nsqp = 4,nc = 1,order = 10),
+                             mixsqp_control_defaults)
+
 # Update all the loadings with the factors remaining fixed.
-altsqp.update.loadings <- function (X, F, L, nem, nsqp, e, tol, zero.threshold,
-                                    zero.searchdir, suffdecr, stepsizereduce,
-                                    minstepsize) {
+altsqp.update.loadings <- function (X, F, L, control) {
   n <- nrow(X)
   for (i in 1:n) {
     if (nem > 0)
-      L[i,] <- altsqp.update.em(F,X[i,],L[i,],nem,e)
+      L[i,] <- altsqp.update.em(F,X[i,],L[i,],control$nem,control$e)
     if (nsqp > 0)
-      L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],nsqp,e,tol,zero.threshold,
-                                 zero.searchdir,suffdecr,stepsizereduce,
-                                 minstepsize)
+      L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],control$nsqp,control)
   }
   return(L)  
 }
 
 # Update all the factors with the loadings remaining fixed.
-altsqp.update.factors <- function (X, F, L, nem, nsqp, e, tol, zero.threshold,
-                                   zero.searchdir, suffdecr, stepsizereduce,
-                                   minstepsize) {
+altsqp.update.factors <- function (X, F, L, control) {
   m <- ncol(X)
   for (j in 1:m) {
     if (nem > 0)
-      F[j,] <- altsqp.update.em(L,X[,j],F[j,],nem,e)
+      F[j,] <- altsqp.update.em(L,X[,j],F[j,],control$nem,control$e)
     if (nsqp > 0)
-      F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],nsqp,e,tol,zero.threshold,
-                                 zero.searchdir,suffdecr,stepsizereduce,
-                                 minstepsize)
+      F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control$nsqp,control)
   }
   return(F)
 }
@@ -119,9 +112,7 @@ altsqp.update.em <- function (B, w, y, numiter, e) {
 }
 
 # Run a fixed number of SQP updates for the alternating SQP method.
-altsqp.update.sqp <- function (B, w, y, numiter, e, tol, zero.threshold,
-                               zero.searchdir, suffdecr, stepsizereduce,
-                               minstepsize) {
+altsqp.update.sqp <- function (B, w, y, numiter, control) {
     
   # Remove any counts that are exactly zero.
   ws <- sum(w)
@@ -131,9 +122,7 @@ altsqp.update.sqp <- function (B, w, y, numiter, e, tol, zero.threshold,
   B  <- B[i,]
 
   # Run the SQP updates for the modified problem.
-  out <- mixsqp(scale.cols(B,ws/bs),w/ws,y*bs/ws,numiter,e,tol,
-                zero.threshold,zero.searchdir,suffdecr,stepsizereduce,
-                minstepsize)
+  out <- mixsqp(scale.cols(B,ws/bs),w/ws,y*bs/ws,numiter,control)
 
   # Recover the solution to the unmodified problem.
   return(out$x*ws/bs)

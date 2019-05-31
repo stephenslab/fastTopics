@@ -4,7 +4,7 @@
 # SCRIPT PARAMETERS
 # -----------------
 # Number of factors (topics).
-K <- 13  
+k <- 13
 
 # SET UP ENVIRONMENT
 # ------------------
@@ -30,15 +30,15 @@ counts        <- suppressMessages(read_csv("../data/droplet_small.csv.gz"))
 class(counts) <- "data.frame"
 counts        <- as.matrix(counts)
 n             <- nrow(counts)
-p             <- ncol(counts)
-cat(sprintf("Loaded %d x %d counts matrix.\n",n,p))
+m             <- ncol(counts)
+cat(sprintf("Loaded %d x %d counts matrix.\n",n,m))
 
 # GENERATE INITIAL ESTIMATES
 # --------------------------
-# Generate initial estimates of the factors (stored as an p x K
-# matrix) and loadings (stored as an n x K matrix).
-F <- matrix(runif(p*K),p,K)
-L <- matrix(runif(n*K),n,K)
+# Generate initial estimates of the factors (stored as an m x k
+# matrix) and loadings (stored as an n x k matrix).
+F <- matrix(runif(m*k),m,k)
+L <- matrix(runif(n*k),n,k)
 
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
@@ -58,6 +58,6 @@ pdat  <- rbind(cbind(fit1$progress,data.frame(method = "betanmf")),
 p1    <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
   geom_line(size = 1) +
   scale_color_manual(values = c("darkorange","darkblue")) +
-  scale_y_continuous(breaks = 10^(0:6),trans = "log10") +
+  scale_y_continuous(breaks = 10^seq(0,6,0.5),trans = "log10") +
   labs(x = "iteration",y = "distance from minimum")
 print(p1)
