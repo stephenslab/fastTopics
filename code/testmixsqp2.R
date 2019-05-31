@@ -23,7 +23,8 @@ x0 <- rep(1/m,m)
 # ------------------------
 cat("Fitting model by iterating SQP updates.\n")
 fit1 <- mixem(L,w,x0,numiter = 4)
-fit2 <- mixsqp(L,w,fit1$x,numiter = 24,zero.threshold = 1e-8,verbose = TRUE)
+fit2 <- mixsqp(L,w,fit1$x,numiter = 24,control = list(zero.threshold = 1e-8),
+               verbose = TRUE)
 
 # SUMMARIZE RESULTS
 # -----------------

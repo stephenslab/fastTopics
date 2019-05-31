@@ -53,15 +53,16 @@ mixem.update <- function (L, w, x, e) {
 # Compute maximum-likelihood estimates of the mixture proportions in a
 # mixture model by iterating the SQP updates for a fixed number of
 # iterations.
-mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, tol = 1e-10,
-                    zero.threshold = 0, zero.searchdir = 1e-15,
-                    suffdecr = 0.01, stepsizereduce = 0.75,
-                    minstepsize = 1e-10, verbose = FALSE) {
+mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, control = list(),
+                    verbose = FALSE) {
 
+  # Get the optimization settings.
+  control <- modifyList(mixsqp_control_defaults,control,keep.null = TRUE)
+  
   # Get the number of rows (n) and columns (m) of the matrix L.
   n <- nrow(L)
   m <- ncol(L)
-    
+
   # Scale the correction factor (e) by the maximum value of each row
   # of the matrix (L). Therefore, we end up with a separate correction
   # factor for each row of L.
@@ -72,8 +73,10 @@ mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, tol = 1e-10,
     cat("iter objective function\n")
     cat("---- ------------------\n")
   }
-  x <- mixsqp_rcpp(L,w,x0,tol,zero.threshold,zero.searchdir,suffdecr,
-                   stepsizereduce,minstepsize,e,numiter,m + 1,verbose)
+  x <- mixsqp_rcpp(L,w,x0,control$tol,control$zero.threshold,
+                   control$zero.searchdir,control$suffdecr,
+                   control$stepsizereduce,control$minstepsize,
+                   e,numiter,m + 1,verbose)
 
   # Return (1) the estimate of the solution and (2) the value of the
   # objective at this estimate.
@@ -81,6 +84,15 @@ mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, tol = 1e-10,
   return(list(x = x,value = f))
 }
 
+# These are the default optimization settings used in mixsqp.
+mixsqp_control_defaults <-
+  list(tol            = 1e-10,
+       zero.threshold = 0,
+       zero.searchdir = 1e-15,
+       suffdecr       = 0.01,
+       stepsizereduce = 0.75,
+       minstepsize    = 1e-10)
+                    
 # Compute the value of the mixsqp objective at x; arguments L and w
 # specify the objective, and e is a vector in which the entries can be
 # set to small, positive numbers, or to zero.
@@ -91,4 +103,3 @@ mixobjective <- function (L, w, x, e) {
  else
    return(Inf)
 }
-
