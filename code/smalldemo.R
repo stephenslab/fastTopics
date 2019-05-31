@@ -44,22 +44,26 @@ L <- matrix(runif(n*k),n,k)
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model by iterating multiplicative updates.\n")
-fit1 <- betanmf(counts,L,t(F),numiter = 80)
+fit1 <- betanmf(counts,L,t(F),numiter = 100)
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
+order <- 4
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
-fit2 <- altsqp(counts,F,L,numiter = 80,method = "normal",
-               control = list(nc = 4))
+fit2 <- altsqp(counts,F,L,numiter = 100,method = "accelerated",
+               control = list(nc = 2,order = order))
 
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
 bestf <- -251269.912745
-pdat  <- rbind(cbind(fit1$progress,data.frame(method = "betanmf")),
-               cbind(fit2$progress,data.frame(method = "altsqp")))
-p1    <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
+pdat <- rbind(cbind(data.frame(iter      = 1:100,objective = fit1$value,
+                               method    = "betanmf")),
+              cbind(data.frame(iter      = 1:100,
+                               objective = fit2$value,
+                               method    = "altsqp")))
+p1 <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
   geom_line(size = 1) +
   scale_color_manual(values = c("darkorange","darkblue")) +
-  scale_y_continuous(breaks = 10^(0:6),trans = "log10") +
+  scale_y_continuous(breaks = 10^seq(0,6,0.5),trans = "log10") +
   labs(x = "iteration",y = "distance from minimum")
 print(p1)

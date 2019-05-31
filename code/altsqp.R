@@ -1,7 +1,7 @@
 # Compute maximum-likelihood estimates for the Poisson topic model;
 # equivalently, find a non-negative matrix factorization X = L*F' that
 # optimizes the beta divergence objective.
-altsqp <- function (X, F, L, numiter = 100, method = c("normal","accerelated"),
+altsqp <- function (X, F, L, numiter = 100, method = c("normal","accelerated"),
                     control = list(), verbose = TRUE) {
 
   # Get the optimization settings.
@@ -18,11 +18,11 @@ altsqp <- function (X, F, L, numiter = 100, method = c("normal","accerelated"),
   if (method == "normal") {
     value <- rep(0,numiter)
     vars  <- c(as.vector(F),as.vector(L))
-    for (iter in 1:numiter) {
+    for (i in 1:numiter) {
 
       # Update the loadings and factors.
-      vars  <- altsqp.update(vars,X,control,verbose)
-      value <- altsqp.objective(vars,X,control,verbose)
+      vars     <- altsqp.update(vars,X,control,verbose)
+      value[i] <- altsqp.objective(vars,X,control,verbose)
     }    
     vars <- project.iterate(vars,n,m)
   } else if (method == "accelerated") {
