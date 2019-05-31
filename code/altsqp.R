@@ -14,13 +14,12 @@ altsqp <- function (X, F, L, numiter = 100, method = c("fpiter","daarem"),
 
   # Iteratively apply the EM And SQP updates.
   if (verbose)
-      cat("         objective max.diff time(s)\n")
+      cat("        objective max.diff time(s)\n")
   if (method == "fpiter")
     out <- suppressWarnings(
       fpiter(c(as.vector(F),as.vector(L)),altsqp.update,altsqp.objective,
-             list(maxiter = numiter,order = control$order,tol = 0,
-                  mon.tol = 0.05,kappa = 20,alpha = 1.2),
-             X = X,control.update = control,verbose = verbose))
+             list(maxiter = numiter,tol = 0),X = X,
+             control.update = control,verbose = verbose))
   else {
     # TO DO.
   }
@@ -40,8 +39,8 @@ altsqp_control_defaults <- c(list(nem = 1,nsqp = 4,nc = 1,order = 10),
 project.iterate <-  function (vars, n, m) {
   nv <- length(vars)
   k  <- nv/(n + m)  
-  F  <- matrix(vars[seq(1,m*k)],p,k)
-  L  <- matrix(vars[seq(m*k+1,nv)],k)
+  F  <- matrix(vars[seq(1,m*k)],m,k)
+  L  <- matrix(vars[seq(m*k+1,nv)],n,k)
   return(list(F = pmax(F,0),L = pmax(L,0)))
 }
 
@@ -50,6 +49,7 @@ project.iterate <-  function (vars, n, m) {
 altsqp.objective <- function (vars, X, control.update, verbose) {
   n    <- nrow(X)
   m    <- ncol(X)
+  browser()
   e    <- control.update$e
   vars <- project.iterate(vars,n,m)
   return(cost(X,tcrossprod(vars$L,vars$F),e))
@@ -60,6 +60,7 @@ altsqp.objective <- function (vars, X, control.update, verbose) {
 altsqp.update <- function (vars, X, control.update, verbose) {
   n    <- nrow(X)
   m    <- ncol(X)
+  nc   <- control.update$nc
   e    <- control.update$e
   vars <- project.iterate(vars,n,m)
   F    <- vars$F
@@ -93,19 +94,21 @@ altsqp.update <- function (vars, X, control.update, verbose) {
   # Report the algorithm's progress, if requested.
   if (verbose) {
     f <- cost(X,tcrossprod(L,F),e)
-    d <- max(max(abs(F/rowMeans(F) - F0/rowMeans(F0))),
-             max(abs(L/rowMeans(L) - L0/rowMeans(L0))))
-    cat(sprintf("%+0.10e %0.2e %0.2f\n",f,d,timing["elapsed"]))
+    d <- max(max(abs(F/rowMeans(F) - vars$F/rowMeans(vars$F))),
+             max(abs(L/rowMeans(L) - vars$L/rowMeans(vars$L))))
+    cat(sprintf("%+0.10e %0.2e %7.1f\n",f,d,timing["elapsed"]))
   }
+
+  return(c(as.vector(F),as.vector(L)))
 }
 
 # Update all the loadings with the factors remaining fixed.
 altsqp.update.loadings <- function (X, F, L, control) {
   n <- nrow(X)
   for (i in 1:n) {
-    if (nem > 0)
+    if (control$nem > 0)
       L[i,] <- altsqp.update.em(F,X[i,],L[i,],control$nem,control$e)
-    if (nsqp > 0)
+    if (control$nsqp > 0)
       L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],control$nsqp,control)
   }
   return(L)  
@@ -115,9 +118,9 @@ altsqp.update.loadings <- function (X, F, L, control) {
 altsqp.update.factors <- function (X, F, L, control) {
   m <- ncol(X)
   for (j in 1:m) {
-    if (nem > 0)
+    if (control$nem > 0)
       F[j,] <- altsqp.update.em(L,X[,j],F[j,],control$nem,control$e)
-    if (nsqp > 0)
+    if (control$nsqp > 0)
       F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control$nsqp,control)
   }
   return(F)
