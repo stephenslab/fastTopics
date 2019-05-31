@@ -53,12 +53,12 @@ mixem.update <- function (L, w, x, e) {
 # Compute maximum-likelihood estimates of the mixture proportions in a
 # mixture model by iterating the SQP updates for a fixed number of
 # iterations.
-mixsqp <- function (L, w, x0, numiter = 100, e = 1e-15, control = list(),
+mixsqp <- function (L, w, x0, numiter = 100, control = list(),
                     verbose = FALSE) {
 
   # Get the optimization settings.
   control <- modifyList(mixsqp_control_defaults,control,keep.null = TRUE)
-  
+  e       <- control$e
   # Get the number of rows (n) and columns (m) of the matrix L.
   n <- nrow(L)
   m <- ncol(L)
@@ -91,8 +91,9 @@ mixsqp_control_defaults <-
        zero.searchdir = 1e-15,
        suffdecr       = 0.01,
        stepsizereduce = 0.75,
-       minstepsize    = 1e-10)
-                    
+       minstepsize    = 1e-10,
+       e              = 1e-15)
+
 # Compute the value of the mixsqp objective at x; arguments L and w
 # specify the objective, and e is a vector in which the entries can be
 # set to small, positive numbers, or to zero.
