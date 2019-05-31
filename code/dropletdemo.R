@@ -5,14 +5,13 @@
 library(parallel)
 library(Rcpp)
 library(readr)
+library(ggplot2)
+library(cowplot)
 source("misc.R")
 source("betanmf.R")
 source("mixsqp.R")
 source("altsqp.R")
 sourceCpp("mixsqp.cpp")
-
-# Initialize the sequence of pseudorandom numbers.
-set.seed(1)
 
 # LOAD DATA
 # ---------
@@ -36,6 +35,8 @@ class(F0) <- "data.frame"
 class(L0) <- "data.frame"
 F0        <- as.matrix(F0)
 L0        <- as.matrix(L0)
+
+stop()
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
