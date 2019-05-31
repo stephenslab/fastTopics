@@ -43,16 +43,16 @@ L <- matrix(runif(n*k),n,k)
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model by iterating multiplicative updates.\n")
-fit1 <- betanmf(counts,L,t(F),numiter = 80)
+fit1 <- betanmf(counts,L,t(F),numiter = 300)
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
-fit2 <- altsqp(counts,F,L,numiter = 80,control = list(nc = 4))
+fit2 <- altsqp(counts,F,L,numiter = 300,control = list(nc = 4))
 
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
-bestf <- -251269.912745
+bestf <- -251460
 pdat  <- rbind(cbind(fit1$progress,data.frame(method = "betanmf")),
                cbind(fit2$progress,data.frame(method = "altsqp")))
 p1    <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
