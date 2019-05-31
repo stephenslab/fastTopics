@@ -4,12 +4,11 @@
 # SCRIPT PARAMETERS
 # -----------------
 # Number of factors (topics).
-k <- 13  
+K <- 13  
 
 # SET UP ENVIRONMENT
 # ------------------
 library(parallel)
-library(daarem)
 library(Rcpp)
 library(readr)
 library(ggplot2)
@@ -31,39 +30,34 @@ counts        <- suppressMessages(read_csv("../data/droplet_small.csv.gz"))
 class(counts) <- "data.frame"
 counts        <- as.matrix(counts)
 n             <- nrow(counts)
-m             <- ncol(counts)
-cat(sprintf("Loaded %d x %d counts matrix.\n",n,m))
+p             <- ncol(counts)
+cat(sprintf("Loaded %d x %d counts matrix.\n",n,p))
 
 # GENERATE INITIAL ESTIMATES
 # --------------------------
-# Generate initial estimates of the factors (stored as an m x k
-# matrix) and loadings (stored as an n x k matrix).
-F <- matrix(runif(m*k),m,k)
-L <- matrix(runif(n*k),n,k)
+# Generate initial estimates of the factors (stored as an p x K
+# matrix) and loadings (stored as an n x K matrix).
+F <- matrix(runif(p*K),p,K)
+L <- matrix(runif(n*K),n,K)
 
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model by iterating multiplicative updates.\n")
-fit1 <- betanmf(counts,L,t(F),numiter = 100)
+fit1 <- betanmf(counts,L,t(F),numiter = 80)
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
-order <- 4
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
-fit2 <- altsqp(counts,F,L,numiter = 100,method = "accelerated",
-               control = list(nc = 2,order = order))
+fit2 <- altsqp(counts,F,L,numiter = 80,nc = 4)
 
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
 bestf <- -251269.912745
-pdat <- rbind(cbind(data.frame(iter      = 1:100,objective = fit1$value,
-                               method    = "betanmf")),
-              cbind(data.frame(iter      = 1:100,
-                               objective = fit2$value,
-                               method    = "altsqp")))
-p1 <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
+pdat  <- rbind(cbind(fit1$progress,data.frame(method = "betanmf")),
+               cbind(fit2$progress,data.frame(method = "altsqp")))
+p1    <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
   geom_line(size = 1) +
   scale_color_manual(values = c("darkorange","darkblue")) +
-  scale_y_continuous(breaks = 10^seq(0,6,0.5),trans = "log10") +
+  scale_y_continuous(breaks = 10^(0:6),trans = "log10") +
   labs(x = "iteration",y = "distance from minimum")
 print(p1)

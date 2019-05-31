@@ -8,14 +8,14 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-15, verbose = TRUE) {
   n <- nrow(X)
   m <- ncol(X)
   E <- matrix(1,n,m)
-  value <- data.frame(iter      = 1:numiter,
+  progress <- data.frame(iter      = 1:numiter,
                          objective = 0,
                          max.diff  = 0,
                          timing    = 0)
       
   # Iteratively apply the multiplicative updates.
   if (verbose)
-    cat("        objective max.diff time(s)\n")
+    cat("iter         objective max.diff\n")
   for (i in 1:numiter) {
 
     # Save the current estimates of the factors and loadings.
@@ -35,14 +35,16 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-15, verbose = TRUE) {
 
     # Compute the value of the objective (cost) function at the
     # current estimates of the factors and loadings.
-    value[i] <- cost(X,A %*% B,e)
-    if (verbose) {
-      d <- max(max(abs(A/rowMeans(A) - A0/rowMeans(A0))),
-               max(abs(scale.cols(B,1/colMeans(B)) -
-                       scale.cols(B0,1/rowMeans(B0)))))
-      cat(sprintf("%0.10e %0.2e %07.2f\n",value[i],d,timing["elapsed"]))
-    }
+    f <- cost(X,A %*% B,e)
+    d <- max(max(abs(A/rowMeans(A) - A0/rowMeans(A0))),
+             max(abs(scale.cols(B,1/colMeans(B)) -
+                     scale.cols(B0,1/rowMeans(B0)))))
+    progress[i,"objective"] <- f
+    progress[i,"max.diff"]  <- d
+    progress[i,"timing"]    <- timing["elapsed"]
+    if (verbose)
+      cat(sprintf("%4d %0.10e %0.2e\n",i,f,d))
   }
 
-  return(list(A = A,B = B,value = value))
+  return(list(A = A,B = B,value = f,progress = progress))
 }

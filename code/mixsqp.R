@@ -59,7 +59,6 @@ mixsqp <- function (L, w, x0, numiter = 100, control = list(),
   # Get the optimization settings.
   control <- modifyList(mixsqp_control_defaults,control,keep.null = TRUE)
   e       <- control$e
-  
   # Get the number of rows (n) and columns (m) of the matrix L.
   n <- nrow(L)
   m <- ncol(L)
