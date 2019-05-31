@@ -48,10 +48,9 @@ fit1 <- betanmf(counts,L,t(F),numiter = 100)
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
-order <- 4
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
 fit2 <- altsqp(counts,F,L,numiter = 100,method = "accelerated",
-               control = list(nc = 2,order = order))
+               control = list(nc = 2,order = 10))
 
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
