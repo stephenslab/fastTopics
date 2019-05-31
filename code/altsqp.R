@@ -4,9 +4,10 @@
 altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 
   # Get the optimization settings.
-  method  <- match.arg(method)
   control <- modifyList(altsqp_control_defaults,control,keep.null = TRUE)
-
+  nc      <- control$nc
+  e       <- control$e
+  
   # Get the number of rows (n) and columns (m) of the counts matrix.
   n <- nrow(X)
   m <- ncol(X)
@@ -67,16 +68,16 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 }
 
 # These are the default optimization settings used in altsqp.
-altsqp_control_defaults <- c(list(nem = 1,nsqp = 4,nc = 1,order = 10),
+altsqp_control_defaults <- c(list(nem = 1,nsqp = 4,nc = 1),
                              mixsqp_control_defaults)
 
 # Update all the loadings with the factors remaining fixed.
 altsqp.update.loadings <- function (X, F, L, control) {
   n <- nrow(X)
   for (i in 1:n) {
-    if (nem > 0)
+    if (control$nem > 0)
       L[i,] <- altsqp.update.em(F,X[i,],L[i,],control$nem,control$e)
-    if (nsqp > 0)
+    if (control$nsqp > 0)
       L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],control$nsqp,control)
   }
   return(L)  
@@ -86,9 +87,9 @@ altsqp.update.loadings <- function (X, F, L, control) {
 altsqp.update.factors <- function (X, F, L, control) {
   m <- ncol(X)
   for (j in 1:m) {
-    if (nem > 0)
+    if (control$nem > 0)
       F[j,] <- altsqp.update.em(L,X[,j],F[j,],control$nem,control$e)
-    if (nsqp > 0)
+    if (control$nsqp > 0)
       F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control$nsqp,control)
   }
   return(F)
