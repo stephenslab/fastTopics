@@ -3,11 +3,13 @@
 # SET UP ENVIRONMENT
 # ------------------
 library(parallel)
-library(Matrix)
-library(quadprog)
+library(Rcpp)
 library(readr)
-source("../code/misc.R")
-source("../code/altsqp.R")
+source("misc.R")
+source("betanmf.R")
+source("mixsqp.R")
+source("altsqp.R")
+sourceCpp("mixsqp.cpp")
 
 # Initialize the sequence of pseudorandom numbers.
 set.seed(1)
@@ -19,7 +21,6 @@ counts <- read_csv("../data/droplet.csv.gz",col_names = FALSE,progress = FALSE,
                    col_types = cols(.default = col_double()))
 class(counts) <- "data.frame"
 counts        <- as.matrix(counts)
-counts        <- Matrix(counts,sparse = TRUE)
 n             <- nrow(counts)
 p             <- ncol(counts)
 cat(sprintf("Loaded %d x %d counts matrix.\n",n,p))

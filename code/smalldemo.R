@@ -4,11 +4,12 @@
 # SCRIPT PARAMETERS
 # -----------------
 # Number of factors (topics).
-K <- 13  
+k <- 13  
 
 # SET UP ENVIRONMENT
 # ------------------
 library(parallel)
+library(daarem)
 library(Rcpp)
 library(readr)
 library(ggplot2)
@@ -30,25 +31,27 @@ counts        <- suppressMessages(read_csv("../data/droplet_small.csv.gz"))
 class(counts) <- "data.frame"
 counts        <- as.matrix(counts)
 n             <- nrow(counts)
-p             <- ncol(counts)
-cat(sprintf("Loaded %d x %d counts matrix.\n",n,p))
+m             <- ncol(counts)
+cat(sprintf("Loaded %d x %d counts matrix.\n",n,m))
 
 # GENERATE INITIAL ESTIMATES
 # --------------------------
-# Generate initial estimates of the factors (stored as an p x K
-# matrix) and loadings (stored as an n x K matrix).
-F <- matrix(runif(p*K),p,K)
-L <- matrix(runif(n*K),n,K)
+# Generate initial estimates of the factors (stored as an m x k
+# matrix) and loadings (stored as an n x k matrix).
+F <- matrix(runif(m*k),m,k)
+L <- matrix(runif(n*k),n,k)
 
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model by iterating multiplicative updates.\n")
 fit1 <- betanmf(counts,L,t(F),numiter = 80)
 
+stop()
+
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
-fit2 <- altsqp(counts,F,L,numiter = 80,nc = 4)
+fit2 <- altsqp(counts,F,L,numiter = 80,control = list(nc = 4))
 
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
