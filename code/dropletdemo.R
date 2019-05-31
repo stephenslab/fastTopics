@@ -33,12 +33,10 @@ L0 <- read_csv("../data/droplet_loadings_rough.csv.gz",col_names = FALSE,
                progress = FALSE,col_types = cols(.default = col_double()))
 class(F0) <- "data.frame"
 class(L0) <- "data.frame"
-F0        <- as.matrix(F0)
-L0        <- as.matrix(L0)
-
-stop()
+F0        <- as.matrix(F0) + 1e-5
+L0        <- as.matrix(L0) + 1e-5
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
-fit <- altsqp(counts,F0,L0,nc = 2,numiter = 10)
+fit <- altsqp(counts,F0,L0,numiter = 100,control = list(nc = 28))

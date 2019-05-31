@@ -35,7 +35,9 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
       else {
         rows <- splitIndices(n,nc)
         L <- mclapply(rows,function (i) altsqp.update.loadings(X[i,],F,L[i,],
-                                                               control))
+                                                               control),
+                      mc.set.seed = FALSE,mc.allow.recursive = FALSE,
+                      mc.cores = nc)
         L <- do.call(rbind,L)
         L[unlist(rows),] <- L
       }
@@ -46,7 +48,9 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
       else {
         cols <- splitIndices(m,nc)
         F <- mclapply(cols,function (j) altsqp.update.factors(X[,j],F[j,],L,
-                                                              control))
+                                                              control),
+                      mc.set.seed = FALSE,mc.allow.recursive = FALSE,
+                      mc.cores = nc)
         F <- do.call(rbind,F)
         F[unlist(cols),] <- F
       }
