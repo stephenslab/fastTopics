@@ -20,13 +20,16 @@ altsqp <- function (X, F, L, numiter = 100, method = c("fpiter","daarem"),
       fpiter(c(as.vector(F),as.vector(L)),altsqp.update,altsqp.objective,
              list(maxiter = numiter,tol = 0),X = X,
              control.update = control,verbose = verbose))
-  else {
-    # TO DO.
-  }
-
+  else
+    out <- suppressWarnings(
+      daarem(c(as.vector(F),as.vector(L)),altsqp.update,altsqp.objective,
+             list(maxiter = numiter,tol = 0,order = order,
+                  mon.tol = 0.05,kappa = 20,alpha = 1.2),
+             X = X,control.update = control,verbose = verbose))
+  
   # Return (1) the estimated factors, (2) the estimated loadings, and
   # (3) the value of the objective at each iteration.
-  vars <- project.iterate(out$par)
+  vars <- project.iterate(out$par,n,m)
   return(list(F = vars$F,L = vars$L,value = out$objfn.track[-1]))
 }
 
@@ -49,7 +52,6 @@ project.iterate <-  function (vars, n, m) {
 altsqp.objective <- function (vars, X, control.update, verbose) {
   n    <- nrow(X)
   m    <- ncol(X)
-  browser()
   e    <- control.update$e
   vars <- project.iterate(vars,n,m)
   return(cost(X,tcrossprod(vars$L,vars$F),e))
@@ -96,7 +98,7 @@ altsqp.update <- function (vars, X, control.update, verbose) {
     f <- cost(X,tcrossprod(L,F),e)
     d <- max(max(abs(F/rowMeans(F) - vars$F/rowMeans(vars$F))),
              max(abs(L/rowMeans(L) - vars$L/rowMeans(vars$L))))
-    cat(sprintf("%+0.10e %0.2e %7.1f\n",f,d,timing["elapsed"]))
+    cat(sprintf("%+0.10e %0.2e %07.2f\n",f,d,timing["elapsed"]))
   }
 
   return(c(as.vector(F),as.vector(L)))
