@@ -1,4 +1,6 @@
-# TO DO: Explain here what this script does, and how to use it.
+# Small script illustrating application of the alternating SQP method
+# for fitting a Poisson topic model to a 7193 x 17133 counts matrix
+# derived from a single-cell RNA-seq data set.
 
 # SET UP ENVIRONMENT
 # ------------------
