@@ -42,3 +42,12 @@ L0        <- as.matrix(L0) + 1e-5
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
 fit <- altsqp(counts,F0,L0,numiter = 100,control = list(nc = 28))
+
+# source("/project2/mstephens/pcarbo/git/topics/code/misc.R")
+# out <- poisson2multinom(fit$F,fit$L)
+# F   <- out$F
+# L   <- out$L
+# rm(out)
+# f <- loglik.multinom(counts,F,L)
+# print(f,digits = 12)
+
