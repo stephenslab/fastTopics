@@ -59,8 +59,7 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
     # Compute the value of the objective (cost) function at the
     # current estimates of the factors and loadings.
     f <- cost(X,tcrossprod(L,F),e)
-    d <- max(max(abs(F/rowMeans(F) - F0/rowMeans(F0))),
-             max(abs(L/rowMeans(L) - L0/rowMeans(L0))))
+    d <- max(abs(tcrossprod(L,F) - tcrossprod(L0,F0)))
     progress[iter,"objective"] <- f
     progress[iter,"max.diff"]  <- d
     progress[iter,"timing"]    <- timing["elapsed"]
