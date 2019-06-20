@@ -4,12 +4,11 @@
 # SCRIPT PARAMETERS
 # -----------------
 # Number of factors (topics).
-k <- 13  
+k <- 13
 
 # SET UP ENVIRONMENT
 # ------------------
 library(parallel)
-library(daarem)
 library(Rcpp)
 library(readr)
 library(ggplot2)
@@ -44,23 +43,23 @@ L <- matrix(runif(n*k),n,k)
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model by iterating multiplicative updates.\n")
-fit1 <- betanmf(counts,L,t(F),numiter = 100)
+fit1 <- betanmf(counts,L,t(F),numiter = 50)
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
-fit2 <- altsqp(counts,F,L,numiter = 100,method = "accelerated",
-               control = list(nc = 2,order = 10))
+fit2 <- altsqp(counts,F,L,numiter = 50,control = list(nc = 4))
+
+# Testing.
+# fit2 <- altem(counts,F,L,numiter = 50)
+# fit2$progress <- data.frame(iter = 1:50,objective = fit2$value)
 
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
-bestf <- -251269.912745
-pdat <- rbind(cbind(data.frame(iter      = 1:100,objective = fit1$value,
-                               method    = "betanmf")),
-              cbind(data.frame(iter      = 1:100,
-                               objective = fit2$value,
-                               method    = "altsqp")))
-p1 <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
+bestf <- -251460
+pdat  <- rbind(cbind(fit1$progress[1:2],data.frame(method = "betanmf")),
+               cbind(fit2$progress[1:2],data.frame(method = "altsqp")))
+p1    <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
   geom_line(size = 1) +
   scale_color_manual(values = c("darkorange","darkblue")) +
   scale_y_continuous(breaks = 10^seq(0,6,0.5),trans = "log10") +

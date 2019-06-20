@@ -1,18 +1,19 @@
-# TO DO: Explain here what this script does, and how to use it.
+# Small script illustrating application of the alternating SQP method
+# for fitting a Poisson topic model to a 7193 x 17133 counts matrix
+# derived from a single-cell RNA-seq data set.
 
 # SET UP ENVIRONMENT
 # ------------------
 library(parallel)
 library(Rcpp)
 library(readr)
+library(ggplot2)
+library(cowplot)
 source("misc.R")
 source("betanmf.R")
 source("mixsqp.R")
 source("altsqp.R")
 sourceCpp("mixsqp.cpp")
-
-# Initialize the sequence of pseudorandom numbers.
-set.seed(1)
 
 # LOAD DATA
 # ---------
@@ -34,10 +35,10 @@ L0 <- read_csv("../data/droplet_loadings_rough.csv.gz",col_names = FALSE,
                progress = FALSE,col_types = cols(.default = col_double()))
 class(F0) <- "data.frame"
 class(L0) <- "data.frame"
-F0        <- as.matrix(F0)
-L0        <- as.matrix(L0)
+F0        <- as.matrix(F0) + 1e-5
+L0        <- as.matrix(L0) + 1e-5
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model using alternating SQP method.\n")
-fit <- altsqp(counts,F0,L0,nc = 2,numiter = 10)
+fit <- altsqp(counts,F0,L0,numiter = 100,control = list(nc = 28))
