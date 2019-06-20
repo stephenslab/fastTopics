@@ -50,15 +50,11 @@ fit1 <- betanmf(counts,L,t(F),numiter = 50)
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
 fit2 <- altsqp(counts,F,L,numiter = 50,control = list(nc = 4))
 
-# Testing.
-# fit2 <- altem(counts,F,L,numiter = 50)
-# fit2$progress <- data.frame(iter = 1:50,objective = fit2$value)
-
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
 bestf <- -251460
-pdat  <- rbind(cbind(fit1$progress[1:2],data.frame(method = "betanmf")),
-               cbind(fit2$progress[1:2],data.frame(method = "altsqp")))
+pdat  <- rbind(cbind(fit1$progress,data.frame(method = "betanmf")),
+               cbind(fit2$progress,data.frame(method = "altsqp")))
 p1    <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
   geom_line(size = 1) +
   scale_color_manual(values = c("darkorange","darkblue")) +
