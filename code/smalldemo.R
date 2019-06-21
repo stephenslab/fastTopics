@@ -57,7 +57,7 @@ fit3 <- altsqp(counts,F,L,numiter = 50,control = list(nc = 4))
 
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
-bestf <- -251481.3
+bestf <- -251490.3874
 pdat  <-
   rbind(cbind(fit1$progress,data.frame(method = "betanmf")),
         cbind(fit2$progress[-4],data.frame(method = "altsqp")),

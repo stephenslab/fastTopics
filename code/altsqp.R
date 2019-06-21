@@ -23,8 +23,8 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
   
   # These are additional quantities used to implement the
   # extrapolation scheme of Ang & Gillis (2019).
+  bmax  <- 0.99
   b     <- 0
-  bmax  <- 1
   Fy    <- F
   Fbest <- F
   Ly    <- L 
@@ -71,7 +71,7 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 
       # Compute the extrapolated update for the factors.
       Fy <- pmax(Fn + b*(Fn - F),0)
-
+      
       # Update the loadings ("activations").
       if (nc == 1)
         Ln <- altsqp.update.loadings(X,Fy,Ly,control)
@@ -117,7 +117,7 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
         F    <- Fn
         L    <- Ln
         b    <- min(bmax,binc * b)
-        bmax <- min(1,bmaxinc * bmax)
+        bmax <- min(0.99,bmaxinc * bmax)
       }
     }        
 
