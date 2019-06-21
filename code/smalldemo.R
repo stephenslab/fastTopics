@@ -45,19 +45,26 @@ L <- matrix(runif(n*k),n,k)
 cat("Fitting Poisson topic model by iterating multiplicative updates.\n")
 fit1 <- betanmf(counts,L,t(F),numiter = 50)
 
-# RUN ALTERNATING SQP METHOD
-# --------------------------
+# RUN ALTERNATING SQP METHOD WITHOUT EXTRAPOLATION
+# ------------------------------------------------
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
-fit2 <- altsqp(counts,F,L,numiter = 50,control = list(nc = 4))
+fit2 <- altsqp(counts,F,L,numiter = 50,control = list(nc = 4,exiter0 = Inf))
+
+# RUN ALTERNATING SQP METHOD WITH EXTRAPOLATION
+# ---------------------------------------------
+cat("Fitting Poisson topic model by iterating extrapolated SQP updates.\n")
+fit3 <- altsqp(counts,F,L,numiter = 50,control = list(nc = 4))
 
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
-bestf <- -251460
-pdat  <- rbind(cbind(fit1$progress,data.frame(method = "betanmf")),
-               cbind(fit2$progress,data.frame(method = "altsqp")))
+bestf <- -251481.3
+pdat  <-
+  rbind(cbind(fit1$progress,data.frame(method = "betanmf")),
+        cbind(fit2$progress[-4],data.frame(method = "altsqp")),
+        cbind(fit3$progress[-4],data.frame(method = "altsqp (extrapolated)")))
 p1    <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
   geom_line(size = 1) +
-  scale_color_manual(values = c("darkorange","darkblue")) +
-  scale_y_continuous(breaks = 10^seq(0,6,0.5),trans = "log10") +
+  scale_color_manual(values = c("darkblue","darkorange","magenta")) +
+  scale_y_continuous(breaks = 10^seq(-6,6,0.5),trans = "log10") +
   labs(x = "iteration",y = "distance from minimum")
 print(p1)

@@ -5,73 +5,146 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 
   # Get the optimization settings.
   control <- modifyList(altsqp_control_defaults,control,keep.null = TRUE)
+  b0      <- control$b0
+  exiter0 <- control$exiter0
+  bmaxinc <- control$bmaxinc
+  binc    <- control$binc
+  bred    <- control$bred
   nc      <- control$nc
   e       <- control$e
   
   # Get the number of rows (n) and columns (m) of the counts matrix.
   n <- nrow(X)
   m <- ncol(X)
+
+  # Compute the value of the objective at the initial iterate.
+  f     <- cost(X,tcrossprod(L,F),e)
+  fbest <- f
+  
+  # These are additional quantities used to implement the
+  # extrapolation scheme of Ang & Gillis (2019).
+  b     <- 0
+  bmax  <- 1
+  Fy    <- F
+  Fbest <- F
+  Ly    <- L 
+  Lbest <- L
   
   # Set up the data structure to record the algorithm's progress.
   progress <- data.frame(iter      = 1:numiter,
                          objective = 0,
                          max.diff  = 0,
+                         beta      = 0,
                          timing    = 0)
 
   # Iteratively apply the EM And SQP updates.
   if (verbose)
-    cat("iter         objective max.diff\n")
+    cat("iter         objective max.diff    beta\n")
   for (iter in 1:numiter) {
 
-    # Save the current estimates of the factors and loadings.
-    F0 <- F
-    L0 <- L
+    # Store the value of the objective at the current iterate.
+    f0 <- f
 
+    # Store the current best solution.
+    Fbest0 <- Fbest
+    Lbest0 <- Lbest
+      
+    # Initiate the extrapolation scheme when the time is right.
+    if (iter == exiter0)
+      b <- b0
+      
     timing <- system.time({
+
+      # Update the factors ("basis vectors").
+      if (nc == 1)
+        Fn <- altsqp.update.factors(X,Fy,Ly,control)
+      else {
+        cols <- splitIndices(m,nc)
+        Fn <- mclapply(cols,
+                       function (j) altsqp.update.factors(X[,j],Fy[j,],Ly,
+                                                          control),
+                       mc.set.seed = FALSE,mc.allow.recursive = FALSE,
+                       mc.cores = nc)
+        Fn <- do.call(rbind,Fn)
+        Fn[unlist(cols),] <- Fn
+      }
+
+      # Compute the extrapolated update for the factors.
+      Fy <- pmax(Fn + b*(Fn - F),0)
 
       # Update the loadings ("activations").
       if (nc == 1)
-        L <- altsqp.update.loadings(X,F,L,control)
+        Ln <- altsqp.update.loadings(X,Fy,Ly,control)
       else {
         rows <- splitIndices(n,nc)
-        L <- mclapply(rows,function (i) altsqp.update.loadings(X[i,],F,L[i,],
-                                                               control),
-                      mc.set.seed = FALSE,mc.allow.recursive = FALSE,
-                      mc.cores = nc)
-        L <- do.call(rbind,L)
-        L[unlist(rows),] <- L
+        Ln <- mclapply(rows,
+                       function (i) altsqp.update.loadings(X[i,],Fy,Ly[i,],
+                                                           control),
+                       mc.set.seed = FALSE,mc.allow.recursive = FALSE,
+                       mc.cores = nc)
+        Ln <- do.call(rbind,Ln)
+        Ln[unlist(rows),] <- Ln
       }
-          
-      # Update the factors ("basis vectors").
-      if (nc == 1)
-        F <- altsqp.update.factors(X,F,L,control)
-      else {
-        cols <- splitIndices(m,nc)
-        F <- mclapply(cols,function (j) altsqp.update.factors(X[,j],F[j,],L,
-                                                              control),
-                      mc.set.seed = FALSE,mc.allow.recursive = FALSE,
-                      mc.cores = nc)
-        F <- do.call(rbind,F)
-        F[unlist(cols),] <- F
-      }
+
+      # Compute the extrapolated update for the loadings.
+      Ly <- pmax(Ln + b*(Ln - L),0)
     })
 
     # Compute the value of the objective (cost) function at the
-    # current estimates of the factors and loadings.
-    f <- cost(X,tcrossprod(L,F),e)
-    d <- max(abs(tcrossprod(L,F) - tcrossprod(L0,F0)))
-    progress[iter,"objective"] <- f
+    # extrapolated solution for the factors (F) and the basic co-ordinate
+    # ascent solution for the loadings (L).
+    f <- cost(X,tcrossprod(Ln,Fy),e)
+
+    if (b == 0) {
+      F <- Fn
+      L <- Ln
+    } else {
+
+      # Before updating the extrapolation parameter, store the current
+      # value.
+      b0 <- b
+      if (f > f0) {
+
+        # The solution did not improve, so restart the extrapolation scheme.
+        Fy   <- F
+        Ly   <- L
+        bmax <- b0
+        b    <- bred*b
+      } else {
+        
+        # The solution is improved; keep the basic co-ordinate ascent
+        # update as well.
+        F    <- Fn
+        L    <- Ln
+        b    <- min(bmax,binc * b)
+        bmax <- min(1,bmaxinc * bmax)
+      }
+    }        
+
+    # If the solution is improved, update the current best solution.
+    if (f < f0) {
+      Fbest <- Fy
+      Lbest <- Ln 
+      fbest <- f
+    }    
+
+    # Record the algorithm's progress.
+    d <- max(abs(tcrossprod(Lbest,Fbest) - tcrossprod(Lbest0,Fbest0)))
+    progress[iter,"objective"] <- fbest
     progress[iter,"max.diff"]  <- d
+    progress[iter,"beta"]      <- b
     progress[iter,"timing"]    <- timing["elapsed"]
     if (verbose)
-      cat(sprintf("%4d %+0.10e %0.2e\n",iter,f,d))
+      cat(sprintf("%4d %+0.10e %0.2e %0.1e\n",iter,fbest,d,b))
   }
   
-  return(list(F = F,L = L,value = f,progress = progress))
+  return(list(F = Fbest,L = Lbest,value = fbest,progress = progress))
 }
 
 # These are the default optimization settings used in altsqp.
-altsqp_control_defaults <- c(list(nc = 1),mixsqp_control_defaults)
+altsqp_control_defaults <-
+  c(list(nc = 1,exiter0 = 10,b0 = 0.5,bmaxinc = 1.05,binc = 1.1,bred = 0.75),
+    mixsqp_control_defaults)
 
 # Update all the loadings with the factors remaining fixed.
 altsqp.update.loadings <- function (X, F, L, control) {
