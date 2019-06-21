@@ -24,13 +24,10 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-15, verbose = TRUE) {
     timing <- system.time({
 
       # Update the loadings ("activations").
-      A <- scale.cols(A * ((X / AB0) %*% t(B)),1/rowSums(B))
-      A <- pmax(A,e)
+      A <- betanmf.update.loadings(X,A,B,e,AB0)
     
       # Update the factors ("basis vectors").
-      AB <- A %*% B
-      B  <- B * (t(A) %*% (X / AB)) / colSums(A)
-      B  <- pmax(B,e)
+      B <- betanmf.update.factors(X,A,B,e)
     })
 
     # Compute the value of the objective (cost) function at the
@@ -46,4 +43,20 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-15, verbose = TRUE) {
   }
 
   return(list(A = A,B = B,value = f,progress = progress))
+}
+
+# Update all the loadings with the factors remaining fixed.
+betanmf.update.loadings <- function (X, A, B, e, AB) {
+  if (missing(AB))
+    AB <- A %*% B
+  A <- scale.cols(A * ((X / AB) %*% t(B)),1/rowSums(B))
+  return(pmax(A,e))
+}
+
+# Update all the factors with the loadings remaining fixed.
+betanmf.update.factors <- function (X, A, B, e, AB) {
+  if (missing(AB))
+    AB <- A %*% B
+  B <- B * (t(A) %*% (X / AB)) / colSums(A)
+  return(pmax(B,e))
 }
