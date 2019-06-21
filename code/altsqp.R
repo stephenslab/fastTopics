@@ -45,11 +45,7 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
     # Store the value of the objective at the current iterate.
     f0 <- f
 
-    # Store the current best solution.
-    Fbest0 <- Fbest
-    Lbest0 <- Lbest
-      
-    # Initiate the extrapolation scheme when the time is right.
+    # When the time is right, initiate the extrapolation scheme.
     if (iter == exiter0)
       b <- b0
       
@@ -123,13 +119,14 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 
     # If the solution is improved, update the current best solution.
     if (f < f0) {
+      d     <- max(abs(tcrossprod(Lbest,Fbest) - tcrossprod(Ln,Fy)))
       Fbest <- Fy
       Lbest <- Ln 
       fbest <- f
-    }    
+    } else
+      d <- 0
 
     # Record the algorithm's progress.
-    d <- max(abs(tcrossprod(Lbest,Fbest) - tcrossprod(Lbest0,Fbest0)))
     progress[iter,"objective"] <- fbest
     progress[iter,"max.diff"]  <- d
     progress[iter,"beta"]      <- b
