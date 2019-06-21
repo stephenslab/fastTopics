@@ -33,7 +33,7 @@ n             <- nrow(counts)
 m             <- ncol(counts)
 cat(sprintf("Loaded %d x %d counts matrix.\n",n,m))
 
-# GENERATE INITIAL ESTIMATES
+c# GENERATE INITIAL ESTIMATES
 # --------------------------
 # Generate initial estimates of the factors (stored as an m x k
 # matrix) and loadings (stored as an n x k matrix).
@@ -43,18 +43,18 @@ L <- matrix(runif(n*k),n,k)
 # RUN MULTIPLICATIVE UPDATES
 # --------------------------
 cat("Fitting Poisson topic model by iterating multiplicative updates.\n")
-fit1 <- betanmf(counts,L,t(F),numiter = 50)
+fit1 <- betanmf(counts,L,t(F),numiter = 100)
 
 # RUN ALTERNATING SQP METHOD
 # --------------------------
 cat("Fitting Poisson topic model by iterating SQP updates.\n")
-fit2 <- altsqp(counts,F,L,numiter = 50,control = list(nc = 4))
+fit2 <- altsqp(counts,F,L,numiter = 100,control = list(nc = 4))
 
 # PLOT IMPROVEMENT IN SOLUTIONS OVER TIME
 # ---------------------------------------
 bestf <- -251460
 pdat  <- rbind(cbind(fit1$progress,data.frame(method = "betanmf")),
-               cbind(fit2$progress,data.frame(method = "altsqp")))
+               cbind(fit2$progress[1:4],data.frame(method = "altsqp")))
 p1    <- ggplot(pdat,aes(x = iter,y = objective - bestf,color = method)) +
   geom_line(size = 1) +
   scale_color_manual(values = c("darkorange","darkblue")) +

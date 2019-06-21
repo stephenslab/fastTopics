@@ -5,24 +5,36 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 
   # Get the optimization settings.
   control <- modifyList(altsqp_control_defaults,control,keep.null = TRUE)
-  nc      <- control$nc
-  e       <- control$e
+  beta.reset.period <- control$beta.reset.period
+  beta.reduce       <- control$beta.reduce
+  nc                <- control$nc
+  e                 <- control$e
   
-  # Get the number of rows (n) and columns (m) of the counts matrix.
+  # Get the number of rows (n) and columns (m) of the counts matrix,
+  # and the number of factors, or topics (k).
   n <- nrow(X)
   m <- ncol(X)
-
+  k <- ncol(F)
+  
   # Set up the data structure to record the algorithm's progress.
   progress <- data.frame(iter      = 1:numiter,
                          objective = 0,
                          max.diff  = 0,
-                         timing    = 0)
+                         timing    = 0,
+                         beta      = 0)
+
+  # Initialize storage for the search direction.
+  p <- list(F = matrix(0,m,k),
+            L = matrix(0,n,k))
   
   # Iteratively apply the EM And SQP updates.
   if (verbose)
-    cat("iter         objective max.diff\n")
+    cat("iter         objective max.diff    beta\n")
   for (iter in 1:numiter) {
 
+    # Save the search drection from the previous step.
+    p0 <- p
+    
     # Save the current estimates of the factors and loadings.
     F0 <- F
     L0 <- L
@@ -56,6 +68,44 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
       }
     })
 
+    # Compute the search direction.
+    p$F <- F - F0
+    p$L <- L - L0
+
+    # Periodically "reset" the conjugate gradient update.
+    if (iter < 10 | iter %% beta.reset.period == 0)
+      b <- 0
+    else {
+
+      # Initialize "beta" parameter.
+      # b <- (norm2(p$F)^2 + norm2(p$L)^2)/(norm2(p0$F)^2 + norm2(p0$L)^2)
+      # b <- max(0,(dot(p$F,p$F - p0$F) + dot(p$L,p$L - p0$L))/
+      #            (norm2(p0$F)^2 + norm2(p0$L)^2))
+      b <- 10
+      
+      # Run backtracking line search to determine a suitable setting for
+      # "beta" parameter.
+      f0 <- cost(X,tcrossprod(L0,F0),e)
+      while (TRUE) {
+        L <- pmax(L0 + p$L + b*p0$L,0)
+        F <- pmax(F0 + p$F + b*p0$F,0)
+        f <- cost(X,tcrossprod(L,F),e)
+
+        # Check whether the new candidate solution decreases the objective.
+        if (f < f0 + 0.01)
+          break
+    
+        # The new candidate does not decrease the objective, so we
+        # need to try again with a smaller "beta" setting.
+        b <- b * beta.reduce
+      }
+    }
+
+    # Perform a conjugate gradient update (or a simple coordinate-wise
+    # update for the special case when b = 0).
+    L <- pmax(L0 + p$L + b*p0$L,0)
+    F <- pmax(F0 + p$F + b*p0$F,0)
+
     # Compute the value of the objective (cost) function at the
     # current estimates of the factors and loadings.
     f <- cost(X,tcrossprod(L,F),e)
@@ -63,15 +113,18 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
     progress[iter,"objective"] <- f
     progress[iter,"max.diff"]  <- d
     progress[iter,"timing"]    <- timing["elapsed"]
+    progress[iter,"beta"]      <- b
     if (verbose)
-      cat(sprintf("%4d %+0.10e %0.2e\n",iter,f,d))
+      cat(sprintf("%4d %+0.10e %0.2e %0.1e\n",iter,f,d,b))
   }
   
   return(list(F = F,L = L,value = f,progress = progress))
 }
 
 # These are the default optimization settings used in altsqp.
-altsqp_control_defaults <- c(list(nc = 1),mixsqp_control_defaults)
+altsqp_control_defaults <-
+  c(list(beta.reset.period = 20,beta.reduce = 0.75,nc = 1),
+    mixsqp_control_defaults)
 
 # Update all the loadings with the factors remaining fixed.
 altsqp.update.loadings <- function (X, F, L, control) {
