@@ -48,19 +48,16 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
     # When the time is right, initiate the extrapolation scheme.
     if (iter == exiter0)
       b <- b0
-
+      
     timing <- system.time({
 
-      # Apply a single multiplicative update to the factors.
-      Fn <- t(betanmf.update.factors(X,Ly,t(Fy),e))
-      
       # Update the factors ("basis vectors").
       if (nc == 1)
-         Fn <- altsqp.update.factors(X,Fn,Ly,control)
+        Fn <- altsqp.update.factors(X,Fy,Ly,control)
       else {
         cols <- splitIndices(m,nc)
         Fn <- mclapply(cols,
-                       function (j) altsqp.update.factors(X[,j],Fn[j,],Ly,
+                       function (j) altsqp.update.factors(X[,j],Fy[j,],Ly,
                                                           control),
                        mc.set.seed = FALSE,mc.allow.recursive = FALSE,
                        mc.cores = nc)
@@ -70,17 +67,14 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 
       # Compute the extrapolated update for the factors.
       Fy <- pmax(Fn + b*(Fn - F),0)
-
-      # Apply a single multiplicative update to the loadings.
-      Ln <- betanmf.update.loadings(X,Ly,t(Fy),e)
       
       # Update the loadings ("activations").
       if (nc == 1)
-        Ln <- altsqp.update.loadings(X,Fy,Ln,control)
+        Ln <- altsqp.update.loadings(X,Fy,Ly,control)
       else {
         rows <- splitIndices(n,nc)
         Ln <- mclapply(rows,
-                       function (i) altsqp.update.loadings(X[i,],Fy,Ln[i,],
+                       function (i) altsqp.update.loadings(X[i,],Fy,Ly[i,],
                                                            control),
                        mc.set.seed = FALSE,mc.allow.recursive = FALSE,
                        mc.cores = nc)
@@ -152,17 +146,38 @@ altsqp_control_defaults <-
 # Update all the loadings with the factors remaining fixed.
 altsqp.update.loadings <- function (X, F, L, control) {
   n <- nrow(X)
-  for (i in 1:n)
+  for (i in 1:n) {
+    L[i,] <- altsqp.update.em(F,X[i,],L[i,],control$e)
     L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],control)
+  }
   return(L)  
 }
 
 # Update all the factors with the loadings remaining fixed.
 altsqp.update.factors <- function (X, F, L, control) {
   m <- ncol(X)
-  for (j in 1:m)
+  for (j in 1:m) {
+    F[j,] <- altsqp.update.em(L,X[,j],F[j,],control$e)
     F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control)
+  }
   return(F)
+}
+
+# Run one EM update for the alternating SQP method.
+altsqp.update.em <- function (B, w, y, e) {
+
+  # Remove any counts that are exactly zero.
+  ws <- sum(w)
+  bs <- colSums(B)
+  i  <- which(w > 0)
+  w  <- w[i]
+  B  <- B[i,]
+
+  # Run an EM update for the modified problem.
+  out <- mixem(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,e)
+
+  # Recover the solution to the unmodified problem.
+  return(out$x*ws/bs)
 }
 
 # Run one SQP update for the alternating SQP method.
