@@ -19,26 +19,25 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-15, verbose = TRUE) {
   for (i in 1:numiter) {
 
     # Save the current estimates of the factors and loadings.
-    A0 <- A
-    B0 <- B
+    AB0 <- A %*% B
 
     timing <- system.time({
 
       # Update the loadings ("activations").
-      A <- A * (((X / (A %*% B)) %*% t(B)) / (E %*% t(B)))
+      A <- scale.cols(A * ((X / AB0) %*% t(B)),1/rowSums(B))
       A <- pmax(A,e)
     
       # Update the factors ("basis vectors").
-      B <- B * ((t(A) %*% (X / (A %*% B))) / (t(A) %*% E))
-      B <- pmax(B,e)
+      AB <- A %*% B
+      B  <- B * (t(A) %*% (X / AB)) / colSums(A)
+      B  <- pmax(B,e)
     })
 
     # Compute the value of the objective (cost) function at the
     # current estimates of the factors and loadings.
-    f <- cost(X,A %*% B,e)
-    d <- max(max(abs(A/rowMeans(A) - A0/rowMeans(A0))),
-             max(abs(scale.cols(B,1/colMeans(B)) -
-                     scale.cols(B0,1/rowMeans(B0)))))
+    AB <- A %*% B
+    f  <- cost(X,AB,e)
+    d  <- max(abs(AB - AB0))
     progress[i,"objective"] <- f
     progress[i,"max.diff"]  <- d
     progress[i,"timing"]    <- timing["elapsed"]
