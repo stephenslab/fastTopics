@@ -1,4 +1,5 @@
-#' @title Non-negative matrix factorization using alternating SQP method
+#' @title Alternating SQP method for non-negative matrix factorization
+#'   and topic modeling.
 #' 
 #' @description Compute maximum-likelihood estimates for the Poisson
 #'   topic model; equivalently, find a non-negative matrix factorization

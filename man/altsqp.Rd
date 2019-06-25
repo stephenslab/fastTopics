@@ -2,7 +2,8 @@
 % Please edit documentation in R/altsqp.R
 \name{altsqp}
 \alias{altsqp}
-\title{Non-negative matrix factorization using alternating SQP method}
+\title{Alternating SQP method for non-negative matrix factorization
+  and topic modeling.}
 \usage{
 altsqp(X, F, L, numiter = 100, control = list(), verbose = TRUE)
 }
