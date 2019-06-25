@@ -17,6 +17,7 @@ to do
 
 + Add "developer notes" section to README.
 
-+ Add test(s) for mixsqp.
++ Add test(s) for mixsqp function.
 
++ Review code in mixsqp.R.
 
