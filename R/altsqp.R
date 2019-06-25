@@ -15,6 +15,10 @@
 #' @param control Describe control here.
 #'
 #' @param verbose Describe verbose here.
+#'
+#' @importFrom utils modifyList
+#' @importFrom parallel splitIndices
+#' @importFrom parallel mclapply
 #' 
 #' @export
 #' 

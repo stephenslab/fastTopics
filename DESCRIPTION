@@ -3,7 +3,7 @@ Type: Package
 Package: fastTopics
 Version: 0.1-1
 Date: 2019-06-25
-Title: Fast Optimization Methods for Topic Modeling and Non-negative Matrix Factorization
+Title: Fast Optimization Methods for Topic Modeling and Non-Negative Matrix Factorization
 Authors@R: person("Peter","Carbonetto",role=c("aut","cre"),
  	          email="peter.carbonetto@gmail.com")
 URL: https://github.com/stephenslab/fastTopics
@@ -14,6 +14,8 @@ Description: This is an R package in active development providing
     factorization and topic modeling.
 License: MIT + file LICENSE
 Imports:
+    utils,
+    parallel
 Suggests:
 LinkingTo:
     Rcpp,

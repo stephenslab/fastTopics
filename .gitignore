@@ -1,8 +1,8 @@
 src/*.o
 src/*.so
-inst/latex/fast-topics.aux
-inst/latex/fast-topics.bbl
-inst/latex/fast-topics.blg
-inst/latex/fast-topics.log
-inst/latex/fast-topics.out
-inst/latex/fast-topics.thm
+inst/derivations/fast-topics.aux
+inst/derivations/fast-topics.bbl
+inst/derivations/fast-topics.blg
+inst/derivations/fast-topics.log
+inst/derivations/fast-topics.out
+inst/derivations/fast-topics.thm

@@ -1,6 +1,8 @@
 # Compute maximum-likelihood estimates of the mixture proportions in a
 # mixture model by iterating the EM updates for a fixed number of
 # iterations.
+#
+#' @importFrom utils modifyList
 mixem <- function (L, w, x0, numiter = 1000, e = 1e-15) {
 
   # Get the initial estimate of the solution.
