@@ -1,11 +1,11 @@
 Encoding: UTF-8
 Type: Package
-Package: mixsqp
-Version: 0.1-0
+Package: fastTopics
+Version: 0.1-1
 Date: 2019-06-25
 Title: Fast Optimization Methods for Topic Modeling and Non-negative Matrix Factorization
 Authors@R: person("Peter","Carbonetto",role=c("aut","cre"),
-		  email="peter.carbonetto@gmail.com")
+ 	          email="peter.carbonetto@gmail.com")
 URL: https://github.com/stephenslab/fastTopics
 BugReports: https://github.com/stephenslab/fastTopics/issues
 Depends: R (>= 3.3.0)
@@ -20,3 +20,4 @@ LinkingTo:
     RcppArmadillo
 LazyData: true
 NeedsCompilation: yes
+RoxygenNote: 6.1.1

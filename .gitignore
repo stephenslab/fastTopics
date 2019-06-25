@@ -1,3 +1,5 @@
+src/*.o
+src/*.so
 inst/latex/fast-topics.aux
 inst/latex/fast-topics.bbl
 inst/latex/fast-topics.blg

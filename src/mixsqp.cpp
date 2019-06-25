@@ -37,12 +37,12 @@ double min (double a, double b);
 // mixsqp_rcpp is called inside the mixsqp function.
 // 
 // [[Rcpp::export]]
-vec mixsqp_rcpp (const mat& L, const vec& w, const vec& x0, 
-		 double tol, double zerothreshold,
-		 double zerosearchdir, double suffdecr,
-		 double stepsizereduce, double minstepsize,
-		 const vec& e, int numiter, int maxiteractiveset,
-		 bool verbose) {
+arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
+		       const arma::vec& x0, double tol, double zerothreshold,
+		       double zerosearchdir, double suffdecr,
+		       double stepsizereduce, double minstepsize,
+		       const arma::vec& e, int numiter, int maxiteractiveset,
+		       bool verbose) {
   
   // Get the number of rows (n) and columns (m) of the conditional
   // likelihood matrix.

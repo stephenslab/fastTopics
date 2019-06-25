@@ -1,10 +1,27 @@
-# Compute maximum-likelihood estimates for the Poisson topic model;
-# equivalently, find a non-negative matrix factorization X = L*F' that
-# optimizes the beta divergence objective.
+#' @title Non-negative matrix factorization using alternating SQP method
+#' 
+#' @description Compute maximum-likelihood estimates for the Poisson
+#'   topic model; equivalently, find a non-negative matrix factorization
+#'   X = L*F' that optimizes the beta divergence objective.
+#'
+#' @param X Describe X here.
+#'
+#' @param F Describe F here.
+#'
+#' @param L Describe L here.
+#'
+#' @param numiter Describe numiter here.
+#'
+#' @param control Describe control here.
+#'
+#' @param verbose Describe verbose here.
+#' 
+#' @export
+#' 
 altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 
   # Get the optimization settings.
-  control <- modifyList(altsqp_control_defaults,control,keep.null = TRUE)
+  control <- modifyList(altsqp_control_defaults(),control,keep.null = TRUE)
   b0      <- control$b0
   exiter0 <- control$exiter0
   bmaxinc <- control$bmaxinc
@@ -139,9 +156,9 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 }
 
 # These are the default optimization settings used in altsqp.
-altsqp_control_defaults <-
+altsqp_control_defaults <- function()
   c(list(nc = 1,exiter0 = 10,b0 = 0.5,bmaxinc = 1.05,binc = 1.1,bred = 0.75),
-    mixsqp_control_defaults)
+    mixsqp_control_defaults())
 
 # Update all the loadings with the factors remaining fixed.
 altsqp.update.loadings <- function (X, F, L, control) {
