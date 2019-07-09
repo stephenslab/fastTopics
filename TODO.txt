@@ -7,6 +7,4 @@ to do
 
 + Add Codecov.
 
-+ Add Quick Start instructions to README.
-
-+ Add test(s) for mixsqp function.
++ Fill out "Quick Start" instructions in README.
