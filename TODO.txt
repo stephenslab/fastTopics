@@ -9,15 +9,8 @@ to do
 
 + Add Quick Start instructions to README.
 
-+ Update description of R package in README.
-
-+ Add license info to README.
-
-+ Add credits section to README.
-
 + Add "developer notes" section to README.
 
 + Add test(s) for mixsqp function.
 
 + Review code in mixsqp.R.
-
