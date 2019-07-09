@@ -12,19 +12,12 @@ mixem <- function (L, w, x0, numiter = 1000, e = 1e-15) {
   e <- e * apply(L,1,max)
 
   # Iterate the E and M steps.
-  for (i in 1:numiter) {
-
-    # Store the current estimate of the solution.
-    x0 <- x
-
-    # Update the solution.
+  for (i in 1:numiter)
     x <- mixem.update(L,w,x,e)
-  }
 
   # Return (1) the estimate of the solution and (2) the value of the
   # objective at this estimate.
-  f <- mixobjective(L,w,x,e)
-  return(list(x = x,value = f))
+  return(list(x = x,value = mixobjective(L,w,x,e)))
 }
 
 # Compute maximum-likelihood estimates of the mixture proportions in a
@@ -54,15 +47,14 @@ mixsqp <- function (L, w, x0, numiter = 100, control = list(),
   # Run the updates implemented in C++.
   if (verbose)
     cat("iter objective function\n")
-  x <- mixsqp_rcpp(L,w,x0,control$tol,control$zero.threshold,
-                   control$zero.searchdir,control$suffdecr,
-                   control$stepsizereduce,control$minstepsize,
-                   e,numiter,m + 1,verbose)
-
+  x <- drop(mixsqp_rcpp(L,w,x0,control$tol,control$zero.threshold,
+                        control$zero.searchdir,control$suffdecr,
+                        control$stepsizereduce,control$minstepsize,
+                        e,numiter,m + 1,verbose))
+  
   # Return (1) the estimate of the solution and (2) the value of the
   # objective at this estimate.
-  f <- mixobjective(L,w,x,e)
-  return(list(x = x,value = f))
+  return(list(x = x,value = mixobjective(L,w,x,e)))
 }
 
 # Perform a single EM update.
