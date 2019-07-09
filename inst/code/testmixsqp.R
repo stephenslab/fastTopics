@@ -4,15 +4,12 @@
 
 # SET UP ENVIRONMENT
 # ------------------
-library(Rcpp)
-source("misc.R")
-source("mixsqp.R")
-sourceCpp("mixsqp.cpp")
+library(fastTopics)
 
 # LOAD DATA
 # ---------
 cat("Loading data set.\n")
-mixdata <- readRDS("../data/mixdata.rds")
+mixdata <- readRDS("../datafiles/mixdata.rds")
 L       <- mixdata$L
 w       <- mixdata$w
 
@@ -23,12 +20,12 @@ x0 <- rep(1/m,m)
 # FIT MODEL USING SQP
 # -------------------
 cat("Fitting model by iterating SQP updates.\n")
-fit1 <- mixsqp(L,w,x0,numiter = 14,verbose = TRUE)
+fit1 <- fastTopics:::mixsqp(L,w,x0,numiter = 14,verbose = TRUE)
 
 # FIT MODEL USING EM
 # ------------------
 cat("Fitting model by iterating EM updates.\n")
-fit2 <- mixem(L,w,x0,numiter = 1000)
+fit2 <- fastTopics:::mixem(L,w,x0,numiter = 1000)
 
 # SUMMARIZE RESULTS
 # -----------------
@@ -39,5 +36,4 @@ cat(sprintf("Largest difference between true and SQP solutions: %0.1e\n",
             max(abs(mixdata$x - fit1$x))))
 cat(sprintf("Largest difference between true and EM solutions: %0.1e\n",
             max(abs(mixdata$x - fit2$x))))
-cat(sprintf("EM updates yield improvement between %0.1e and %0.1e.\n",
-            min(-diff(fit2$progress$obj)),max(-diff(fit2$progress$obj))))
+
