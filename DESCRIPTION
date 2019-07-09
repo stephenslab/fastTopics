@@ -18,7 +18,8 @@ Imports:
     utils,
     parallel
 Suggests:
-    testthat
+    testthat,
+    NNLM
 LinkingTo:
     Rcpp,
     RcppArmadillo
