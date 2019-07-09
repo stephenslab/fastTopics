@@ -32,7 +32,7 @@ mixsqp <- function (L, w, x0, numiter = 100, control = list(),
                     verbose = FALSE) {
 
   # Get the optimization settings.
-  control <- modifyList(mixsqp_control_defaults(),control,keep.null = TRUE)
+  control <- modifyList(mixsqp_control_default(),control,keep.null = TRUE)
   e       <- control$e
   
   # Get the number of rows (n) and columns (m) of the matrix L.
@@ -71,7 +71,7 @@ mixem.update <- function (L, w, x, e) {
 
 # These are the default optimization settings used in the "mixsqp"
 # function.
-mixsqp_control_defaults <- function()
+mixsqp_control_default <- function()
   list(tol            = 1e-10,
        zero.threshold = 1e-10,
        zero.searchdir = 1e-15,

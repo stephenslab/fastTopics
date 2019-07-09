@@ -26,7 +26,7 @@
 altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 
   # Get the optimization settings.
-  control <- modifyList(altsqp_control_defaults(),control,keep.null = TRUE)
+  control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
   b0      <- control$b0
   exiter0 <- control$exiter0
   bmaxinc <- control$bmaxinc
@@ -79,10 +79,8 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
       else {
         cols <- splitIndices(m,nc)
         Fn <- mclapply(cols,
-                       function (j) altsqp.update.factors(X[,j],Fy[j,],Ly,
-                                                          control),
-                       mc.set.seed = FALSE,mc.allow.recursive = FALSE,
-                       mc.cores = nc)
+                function (j) altsqp.update.factors(X[,j],Fy[j,],Ly,control),
+                mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
         Fn <- do.call(rbind,Fn)
         Fn[unlist(cols),] <- Fn
       }
@@ -96,10 +94,8 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
       else {
         rows <- splitIndices(n,nc)
         Ln <- mclapply(rows,
-                       function (i) altsqp.update.loadings(X[i,],Fy,Ly[i,],
-                                                           control),
-                       mc.set.seed = FALSE,mc.allow.recursive = FALSE,
-                       mc.cores = nc)
+               function (i) altsqp.update.loadings(X[i,],Fy,Ly[i,],control),
+               mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
         Ln <- do.call(rbind,Ln)
         Ln[unlist(rows),] <- Ln
       }
@@ -149,6 +145,9 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
       d <- 0
 
     # Record the algorithm's progress.
+    #
+    # TO DO: Add comments here.
+    # 
     progress[iter,"objective"] <- fbest
     progress[iter,"max.diff"]  <- d
     progress[iter,"beta"]      <- b
@@ -156,13 +155,17 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
     if (verbose)
       cat(sprintf("%4d %+0.10e %0.2e %0.1e\n",iter,fbest,d,b))
   }
-  
+
+  # TO DO: Add comments here.
   return(list(F = Fbest,L = Lbest,value = fbest,progress = progress))
 }
 
-# These are the default optimization settings used in altsqp.
-altsqp_control_defaults <- function()
-  c(mixsqp_control_defaults(),
+#' @rdname altsqp
+#' 
+#' @export
+#' 
+altsqp_control_default <- function()
+  c(mixsqp_control_default(),
     list(nc = 1,exiter0 = 10,b0 = 0.5,bmaxinc = 1.05,
          binc = 1.1,bred = 0.75))
 
@@ -190,11 +193,11 @@ altsqp.update.factors <- function (X, F, L, control) {
 altsqp.update.em <- function (B, w, y, e) {
 
   # Remove any counts that are exactly zero.
-  ws <- sum(w)
-  bs <- colSums(B)
   i  <- which(w > 0)
   w  <- w[i]
   B  <- B[i,]
+  ws <- sum(w)
+  bs <- colSums(B)
 
   # Run an EM update for the modified problem.
   out <- mixem(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,e)
@@ -207,12 +210,12 @@ altsqp.update.em <- function (B, w, y, e) {
 altsqp.update.sqp <- function (B, w, y, control) {
     
   # Remove any counts that are exactly zero.
-  ws <- sum(w)
-  bs <- colSums(B)  
   i  <- which(w > 0)
   w  <- w[i]
   B  <- B[i,]
-
+  ws <- sum(w)
+  bs <- colSums(B)  
+  
   # Run an SQP update for the modified problem.
   out <- mixsqp(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,control)
 

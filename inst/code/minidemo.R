@@ -17,6 +17,6 @@ fit2 <- nnmf(X,k,init = list(W = L0,H = t(F0)),method = "scd",loss = "mkl",
              trace = 1,verbose = 2)
 fit3 <- altsqp(X,F0,L0)
 
-print(cost(X,fit1$A %*% fit1$B),digits = 12)
-print(cost(X,fit2$W %*% fit2$H),digits = 12)
+print(cost(X,fit1$A %*% fit1$B,1e-15),digits = 12)
+print(cost(X,fit2$W %*% fit2$H,1e-15),digits = 12)
 print(fit3$value,digits = 12)
