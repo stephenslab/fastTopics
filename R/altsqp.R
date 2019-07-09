@@ -166,8 +166,7 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 #' 
 altsqp_control_default <- function()
   c(mixsqp_control_default(),
-    list(nc = 1,exiter0 = 10,b0 = 0.5,bmaxinc = 1.05,
-         binc = 1.1,bred = 0.75))
+    list(nc = 1,exiter0 = 10,b0 = 0.5,bmaxinc = 1.05,binc = 1.1,bred = 0.75))
 
 # Update all the loadings with the factors remaining fixed.
 altsqp.update.loadings <- function (X, F, L, control) {
