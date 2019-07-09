@@ -58,7 +58,7 @@ and the package documentation files in the `man` directory.
 ## Credits
 
 The fastTopics R package was developed by [Peter Carbonetto][peter] at
-the [University of Chicago][uchicago], with help from
+the [University of Chicago][uchicago], with guidance from
 [Matthew Stephens][matthew].
 
 [issues]: https://github.com/stephenslab/fastTopics/issues
