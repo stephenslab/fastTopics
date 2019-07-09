@@ -73,7 +73,7 @@ mixem.update <- function (L, w, x, e) {
 # function.
 mixsqp_control_defaults <- function()
   list(tol            = 1e-10,
-       zero.threshold = 1e-15,
+       zero.threshold = 1e-10,
        zero.searchdir = 1e-15,
        suffdecr       = 0.01,
        stepsizereduce = 0.75,

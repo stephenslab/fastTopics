@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.1-5
+Version: 0.1-6
 Date: 2019-07-09
 Title: Fast Optimization Algorithms for Topic Modeling and Non-Negative Matrix Factorization
 Authors@R: person("Peter","Carbonetto",role=c("aut","cre"),
@@ -14,10 +14,11 @@ Description: This is an R package in active development providing
     factorization and topic modeling.
 License: MIT + file LICENSE
 Imports:
-    Rcpp,
+    Rcpp (>= 0.12.15),
     utils,
     parallel
 Suggests:
+    testthat
 LinkingTo:
     Rcpp,
     RcppArmadillo

@@ -19,8 +19,8 @@ in the shell:
 
 ```bash
 R CMD build fastTopics
-R CMD INSTALL mixsqp_0.1-5.tar.gz
-R CMD check --as-cran fastTopics_0.1-5.tar.gz
+R CMD INSTALL fastTopics_0.1-6.tar.gz
+R CMD check --as-cran fastTopics_0.1-6.tar.gz
 ```
 
 Note that these commands require that the dependencies have already

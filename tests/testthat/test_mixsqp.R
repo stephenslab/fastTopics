@@ -35,8 +35,8 @@ test_that("Verify mixsqp on tacks data",{
   x0 <- rep(1/m,m)
 
   # Fit model by iterating the SQP and EM updates.
-  fit1 <- mixem(L,w,x0,numiter = 4)
-  fit2 <- mixsqp(L,w,fit1$x,numiter = 24,verbose = TRUE)
+  fit1 <- mixem(L,w,x0,numiter = 10)
+  capture.output(fit2 <- mixsqp(L,w,fit1$x,numiter = 30,verbose = TRUE))
 
   # Verify the solutions.
   expect_equal(fit2$value,f,tolerance = 1e-8)
