@@ -5,10 +5,6 @@ to do
 
 + Create test for altsqp from minidemo.R.
 
-+ Implement exported function "loglik.multinom".
-
-+ Implement test for loglik.multinom.
-
 + Polish up function "altsqp".
 
 + Fill out roxygen2 docs for "altsqp".

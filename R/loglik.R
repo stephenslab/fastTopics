@@ -40,15 +40,6 @@ loglik.poisson <- function (X, fit, e = 1e-15) {
   return(-cost(X,tcrossprod(L,F),e))
 }
 
-# Compute the log-likelihood for the multinomial topic model. Input X
-# is an n x p matrix of counts, F is a p x K matrix of "factors", and
-# L is an n x K matrix of "loadings". Example:
-#
-#   X <- matrix(0:19,4,5,byrow = TRUE)
-#   L <- matrix(0:7,4,2,byrow = TRUE)
-#   F <- matrix(0:9,5,2,byrow = TRUE)
-#   loglik.multinom(X,F,L)
-#
 #' @rdname altsqp
 #' 
 #' @export
@@ -67,6 +58,8 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
 
   # Verify and process input F.
   verify.matrix(fit$F)
+  if (any(colSums(F) != 1))
+    stop("Each column of input matrix \"fit$F\" should sum to 1")
   if (!is.matrix(F))
     F <- as.matrix(F)
   if (is.integer(F))
@@ -74,6 +67,8 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
 
   # Verify and process input L.
   verify.matrix(fit$L)
+  if (any(rowSums(L) != 1))
+    stop("Each row of input matrix \"fit$L\" should sum to 1")
   if (!is.matrix(L))
     L <- as.matrix(L)
   if (is.integer(L))
