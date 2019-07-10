@@ -1,10 +1,11 @@
 # Verify that x is a minimally valid non-negative matrix.
 verify.matrix <- function (x, arg.name = deparse(substitute(x))) {
   arg.name <- sprintf("\"%s\"",arg.name)
-  msg <- paste("Input argument",arg.name,"should be a non-negative numeric",
-               "matrix with at least two 2 and 2 columns, and all entries",
-               "should be finite and non-missing")
-  if (!((is.matrix(x) & is.numeric(x)) | inherits(x,"Matrix")))
+  msg <- paste("Input argument",arg.name,"should be a non-negative,",
+               "double-precision matrix with at least two 2 rows and",
+               "at least 2 columns, and all entries should be finite",
+               "and non-missing")
+  if (!((is.matrix(x) & is.double(x)) | inherits(x,"dMatrix")))
     stop(msg)
   else if (!(nrow(x) > 1 & ncol(x) > 1 & all(x >= 0) &
              all(is.finite(x)) & !any(is.na(x))))
@@ -23,7 +24,7 @@ scale.cols <- function (A, b)
 loglik.poisson <- function (X, fit, e = 1e-15) {
 
   # Verify input X.
-  # TO DO.
+  verify.matrix(X)
     
   # Input argument "fit" should be a list with list elements "F" and
   # "L".
