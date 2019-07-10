@@ -7,8 +7,6 @@ to do
 
 + Implement exported function "loglik.multinom".
 
-+ Implement exported function "poisson2multinom".
-
 + Polish up function "altsqp".
 
 + Fill out roxygen2 docs for "altsqp".

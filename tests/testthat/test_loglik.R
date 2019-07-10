@@ -1,4 +1,4 @@
-context("misc")
+context("loglik")
 
 test_that("loglik.poisson gives same result for sparse and dense matrix",{
   set.seed(1)
