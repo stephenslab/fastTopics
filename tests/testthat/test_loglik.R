@@ -1,6 +1,7 @@
 context("loglik")
 
 test_that("loglik.poisson gives same result for sparse and dense matrix",{
+  library(Matrix)
   set.seed(1)
   A   <- matrix(runif(20),4,5) > 0.5
   X   <- matrix(0:19,4,5) * A
