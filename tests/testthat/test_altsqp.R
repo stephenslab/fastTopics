@@ -1,1 +1,1 @@
-context("altsqp.R")
+context("altsqp")

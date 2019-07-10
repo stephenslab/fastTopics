@@ -5,10 +5,6 @@ to do
 
 + Create test for altsqp from minidemo.R.
 
-+ Implement exported function "loglik.poisson".
-
-+ Test loglik.poisson on dense and sparse matrices.
-
 + Implement exported function "loglik.multinom".
 
 + Implement exported function "poisson2multinom".
