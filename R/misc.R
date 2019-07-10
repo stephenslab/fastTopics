@@ -2,13 +2,16 @@
 verify.matrix <- function (x, arg.name = deparse(substitute(x))) {
   arg.name <- sprintf("\"%s\"",arg.name)
   msg <- paste("Input argument",arg.name,"should be a non-negative,",
-               "double-precision matrix with at least two 2 rows and",
-               "at least 2 columns, and all entries should be finite",
-               "and non-missing")
-  if (!((is.matrix(x) & is.double(x)) | inherits(x,"dMatrix")))
+               "numeric matrix with at least two 2 rows and at least",
+               "2 columns, and all entries should be finite and non-missing")
+  if (!((is.matrix(x) & is.numeric(x)) |
+        inherits(x,"dMatrix")))
     stop(msg)
-  else if (!(nrow(x) > 1 & ncol(x) > 1 & all(x >= 0) &
-             all(is.finite(x)) & !any(is.na(x))))
+  else if (nrow(x) < 2 |
+           ncol(x) < 2 |
+           any(x < 0)  |
+           any(is.infinite(x)) |
+           any(is.na(x)))
     stop(msg)
   return(TRUE)
 }
@@ -23,9 +26,11 @@ scale.cols <- function (A, b)
 #' 
 loglik.poisson <- function (X, fit, e = 1e-15) {
 
-  # Verify input X.
+  # Verify and process input X.
   verify.matrix(X)
-    
+  if (is.matrix(X) & is.integer(X))
+    storage.mode(X) <- "double"
+  
   # Input argument "fit" should be a list with list elements "F" and
   # "L".
   if (!is.list(fit))
@@ -36,12 +41,19 @@ loglik.poisson <- function (X, fit, e = 1e-15) {
   F <- fit$F
   L <- fit$L
   
-  # Verify input F.
-  # TO DO.
+  # Verify and process inputs F and L.
+  verify.matrix(F)
+  verify.matrix(L)
+  if (!(nrow(L) == nrow(X) &
+        nrow(F) == ncol(X) &
+        ncol(L) == ncol(F)))
+    stop("Dimensions of input arguments \"X\", \"fit$F\" and/or \"fit$L\" ",
+         "do not agree")
+  if (!is.matrix(F))
+    F <- as.matrix(F)
+  if (!is.matrix(L))
+    L <- as.matrix(L)
   
-  # Verify input L.
-  # TO DO.
-      
   # Compute the Poisson log-likelihood after removing terms that do
   # not depend on L or F.
   return(-cost(X,tcrossprod(L,F),e))
