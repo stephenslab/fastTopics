@@ -16,6 +16,7 @@ License: MIT + file LICENSE
 Imports:
     Rcpp (>= 0.12.15),
     utils,
+    Matrix,
     parallel
 Suggests:
     testthat,

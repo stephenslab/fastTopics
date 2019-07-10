@@ -7,6 +7,8 @@ to do
 
 + Implement exported function "loglik.poisson".
 
++ Test loglik.poisson on dense and sparse matrices.
+
 + Implement exported function "loglik.multinom".
 
 + Implement exported function "poisson2multinom".
