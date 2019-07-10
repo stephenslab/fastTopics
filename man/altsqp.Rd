@@ -6,8 +6,7 @@
 \alias{loglik.poisson}
 \alias{loglik.multinom}
 \alias{poisson2multinom}
-\title{Alternating SQP method for non-negative matrix factorization
-  and topic modeling.}
+\title{Alternating SQP Method for Optimizing Topic Models and Non-negative Matrix Factorizations}
 \usage{
 altsqp(X, F, L, numiter = 100, control = list(), verbose = TRUE)
 
@@ -20,20 +19,27 @@ loglik.multinom(X, fit, e = 1e-15)
 poisson2multinom(fit)
 }
 \arguments{
-\item{X}{Describe X here.}
+\item{X}{The n x m matrix of counts (or pseudocounts). It can be dense
+or sparse.}
 
 \item{F}{Describe F here.}
 
 \item{L}{Describe L here.}
 
-\item{numiter}{Describe numiter here.}
+\item{numiter}{A positive integer specifying the number of updates
+to perform.}
 
 \item{control}{Describe control here.}
 
-\item{verbose}{Describe verbose here.}
+\item{verbose}{If \code{verbose = TRUE}, the algorithm's progress
+and a summary of the optimization settings are printed to the
+console.}
 }
 \description{
 Compute maximum-likelihood estimates for the Poisson
   topic model; equivalently, find a non-negative matrix factorization
   X = L*F' that optimizes the beta divergence objective.
+}
+\examples{
+
 }

@@ -5,7 +5,8 @@ to do
 
 + Fill out @description for altsqp.
 
-+ Create test for altsqp from minidemo.R.
++ Create tests for altsqp from minidemo.R---verify that running with a
+  sparse and dense matrix X gives the same result.
 
 + Add example in @examples section of altsqp illustrating use of
   altsqp and other functions.

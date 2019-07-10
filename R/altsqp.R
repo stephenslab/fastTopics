@@ -21,8 +21,10 @@
 #'   console.
 #'
 #' @examples
-#' 
+#'
 #' @importFrom utils modifyList
+#' @importFrom Matrix rowSums
+#' @importFrom Matrix colSums
 #' @importFrom parallel splitIndices
 #' @importFrom parallel mclapply
 #' 
@@ -34,8 +36,8 @@ altsqp <- function (X, F, L, numiter = 100, control = list(),
   # Verify and process input matrix X. Each row and each column of the
   # matrix should have at least two positive entries.
   verify.matrix(X)
-  if (!(all(rowSums(X > 0) >= 2) &
-        all(colSums(X > 0) >= 2)))
+  if (!(all(rowSums((X > 0)*1) >= 2) &
+        all(colSums((X > 0)*1) >= 2)))
     stop(paste("Each row and column of \"X\" should have at least two",
                "positive entries"))
   if (is.matrix(X) & is.integer(X))
