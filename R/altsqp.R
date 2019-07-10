@@ -95,7 +95,7 @@ altsqp <- function (X, F, L, numiter = 100, control = list(),
     f0 <- f
 
     # When the time is right, initiate the extrapolation scheme.
-    if (iter >= extrapolate)
+    if (b == 0 & iter >= extrapolate)
       b <- b0
 
     timing <- system.time({
@@ -201,7 +201,7 @@ altsqp.update.loadings <- function (X, F, L, control) {
   n <- nrow(X)
   for (i in 1:n) {
     L[i,] <- altsqp.update.em(F,X[i,],L[i,],control$e)
-    # L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],control)
+    L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],control)
   }
   return(L)  
 }
@@ -211,7 +211,7 @@ altsqp.update.factors <- function (X, F, L, control) {
   m <- ncol(X)
   for (j in 1:m) {
     F[j,] <- altsqp.update.em(L,X[,j],F[j,],control$e)
-    # F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control)
+    F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control)
   }
   return(F)
 }
