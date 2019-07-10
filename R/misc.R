@@ -31,28 +31,35 @@ loglik.poisson <- function (X, fit, e = 1e-15) {
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
   
-  # Input argument "fit" should be a list with list elements "F" and
-  # "L".
+  # Input argument "fit" should be a list with elements "F" and "L".
   if (!is.list(fit))
     stop("Input argument \"fit\" should be a list")
   if (!all(is.element(c("F","L"),names(fit))))
-    stop("Input argument \"fit\" should be a list containing named elements ",
-         "\"F\" and \"L\"")
+    stop("Input argument \"fit\" should be a list containing named ",
+         "elements \"F\" and \"L\"")
   F <- fit$F
   L <- fit$L
-  
-  # Verify and process inputs F and L.
+
+  # Verify and process input F.
   verify.matrix(F)
+  if (!is.matrix(F))
+    F <- as.matrix(F)
+  if (is.integer(F))
+    storage.mode(F) <- "double"
+
+  # Verify and process input L.
   verify.matrix(L)
+  if (!is.matrix(L))
+    L <- as.matrix(L)
+  if (is.integer(L))
+    storage.mode(L) <- "double"
+
+  # Check that matrices X, F and L are compatible.
   if (!(nrow(L) == nrow(X) &
         nrow(F) == ncol(X) &
         ncol(L) == ncol(F)))
     stop("Dimensions of input arguments \"X\", \"fit$F\" and/or \"fit$L\" ",
          "do not agree")
-  if (!is.matrix(F))
-    F <- as.matrix(F)
-  if (!is.matrix(L))
-    L <- as.matrix(L)
   
   # Compute the Poisson log-likelihood after removing terms that do
   # not depend on L or F.

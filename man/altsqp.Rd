@@ -13,9 +13,9 @@ altsqp(X, F, L, numiter = 100, control = list(), verbose = TRUE)
 
 altsqp_control_default()
 
-loglik.poisson(fit)
+loglik.poisson(X, fit, e = 1e-15)
 
-loglik.multinom(X, F, L, e = .Machine$double.eps)
+loglik.multinom(X, fit, e = 1e-15)
 
 poisson2multinom(F, L)
 }
