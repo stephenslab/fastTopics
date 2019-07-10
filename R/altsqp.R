@@ -1,45 +1,72 @@
-#' @title Alternating SQP method for non-negative matrix factorization
-#'   and topic modeling.
+#' @title Alternating SQP Method for Optimizing Topic Models and Non-negative Matrix Factorizations
 #' 
 #' @description Compute maximum-likelihood estimates for the Poisson
 #'   topic model; equivalently, find a non-negative matrix factorization
 #'   X = L*F' that optimizes the beta divergence objective.
 #'
-#' @param X Describe X here.
+#' @param X The n x m matrix of counts (or pseudocounts). It can be dense
+#'   or sparse.
 #'
 #' @param F Describe F here.
 #'
 #' @param L Describe L here.
 #'
-#' @param numiter Describe numiter here.
+#' @param numiter A positive integer specifying the number of updates
+#'   to perform.
 #'
 #' @param control Describe control here.
 #'
-#' @param verbose Describe verbose here.
+#' @param verbose If \code{verbose = TRUE}, the algorithm's progress
+#'   and a summary of the optimization settings are printed to the
+#'   console.
 #'
+#' @examples
+#' 
 #' @importFrom utils modifyList
 #' @importFrom parallel splitIndices
 #' @importFrom parallel mclapply
 #' 
 #' @export
 #' 
-altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
+altsqp <- function (X, F, L, numiter = 100, control = list(),
+                    verbose = TRUE) {
+
+  # Verify and process input matrix X. Each row and each column of the
+  # matrix should have at least two positive entries.
+  verify.matrix(X)
+  if (!(all(rowSums(X > 0) >= 2) &
+        all(colSums(X > 0) >= 2)))
+    stop(paste("Each row and column of \"X\" should have at least two",
+               "positive entries"))
+  if (is.matrix(X) & is.integer(X))
+    storage.mode(X) <- "double"
+
+  # Verify and process input matrix F.
+  verify.matrix(F)
+  if (!is.matrix(F))
+    F <- as.matrix(F)
+  if (is.integer(F))
+    storage.mode(F) <- "double"
+
+  # Verify and process input matrix L.
+  verify.matrix(L)
+  if (!is.matrix(L))
+    L <- as.matrix(L)
+  if (is.integer(L))
+    storage.mode(L) <- "double"
 
   # Get the optimization settings.
-  control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
-  b0      <- control$b0
-  exiter0 <- control$exiter0
-  bmaxinc <- control$bmaxinc
-  binc    <- control$binc
-  bred    <- control$bred
-  nc      <- control$nc
-  e       <- control$e
+  control     <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
+  nc          <- control$nc
+  extrapolate <- control$extrapolate
+  b0          <- control$b0
+  bmaxinc     <- control$bmaxinc
+  binc        <- control$binc
+  bred        <- control$bred
+  e           <- control$e
   
-  # Get the number of rows (n) and columns (m) of the counts matrix.
-  n <- nrow(X)
-  m <- ncol(X)
-
-  # Compute the value of the objective at the initial iterate.
+  # Compute the value of the objective (the negative of the Poisson
+  # log-likelihood) at the initial iterate.
   f     <- cost(X,tcrossprod(L,F),e)
   fbest <- f
   
@@ -68,9 +95,9 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
     f0 <- f
 
     # When the time is right, initiate the extrapolation scheme.
-    if (iter == exiter0)
+    if (iter >= extrapolate)
       b <- b0
-      
+
     timing <- system.time({
 
       # Update the factors ("basis vectors").
@@ -136,7 +163,7 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
     }        
 
     # If the solution is improved, update the current best solution.
-    if (f < f0) {
+    if (f < fbest) {
       d     <- max(abs(tcrossprod(Lbest,Fbest) - tcrossprod(Ln,Fy)))
       Fbest <- Fy
       Lbest <- Ln 
@@ -166,14 +193,15 @@ altsqp <- function (X, F, L, numiter = 100, control = list(), verbose = TRUE) {
 #' 
 altsqp_control_default <- function()
   c(mixsqp_control_default(),
-    list(nc = 1,exiter0 = 10,b0 = 0.5,bmaxinc = 1.05,binc = 1.1,bred = 0.75))
+    list(nc = 1,extrapolate = Inf,b0 = 0.5,bmaxinc = 1.05,binc = 1.1,
+         bred = 0.75))
 
 # Update all the loadings with the factors remaining fixed.
 altsqp.update.loadings <- function (X, F, L, control) {
   n <- nrow(X)
   for (i in 1:n) {
     L[i,] <- altsqp.update.em(F,X[i,],L[i,],control$e)
-    L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],control)
+    # L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],control)
   }
   return(L)  
 }
@@ -183,7 +211,7 @@ altsqp.update.factors <- function (X, F, L, control) {
   m <- ncol(X)
   for (j in 1:m) {
     F[j,] <- altsqp.update.em(L,X[,j],F[j,],control$e)
-    F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control)
+    # F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control)
   }
   return(F)
 }
@@ -192,12 +220,14 @@ altsqp.update.factors <- function (X, F, L, control) {
 altsqp.update.em <- function (B, w, y, e) {
 
   # Remove any counts that are exactly zero.
+  ws <- sum(w)
+  bs <- colSums(B)
   i  <- which(w > 0)
   w  <- w[i]
   B  <- B[i,]
-  ws <- sum(w)
-  bs <- colSums(B)
 
+  # TO DO: Verify that inputs are valid.
+  
   # Run an EM update for the modified problem.
   out <- mixem(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,e)
 
@@ -209,11 +239,13 @@ altsqp.update.em <- function (B, w, y, e) {
 altsqp.update.sqp <- function (B, w, y, control) {
     
   # Remove any counts that are exactly zero.
+  ws <- sum(w)
+  bs <- colSums(B)  
   i  <- which(w > 0)
   w  <- w[i]
   B  <- B[i,]
-  ws <- sum(w)
-  bs <- colSums(B)  
+
+  # TO DO: Verify that inputs are valid.
   
   # Run an SQP update for the modified problem.
   out <- mixsqp(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,control)

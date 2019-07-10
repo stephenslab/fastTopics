@@ -3,7 +3,12 @@ to do
 
 + Fill out "Quick Start" instructions in README.
 
++ Fill out @description for altsqp.
+
 + Create test for altsqp from minidemo.R.
+
++ Add example in @examples section of altsqp illustrating use of
+  altsqp and other functions.
 
 + Polish up function "altsqp".
 

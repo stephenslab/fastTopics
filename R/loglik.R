@@ -4,7 +4,7 @@
 #' 
 loglik.poisson <- function (X, fit, e = 1e-15) {
 
-  # Verify and process input X.
+  # Verify and process input matrix X. 
   verify.matrix(X)
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
@@ -14,14 +14,14 @@ loglik.poisson <- function (X, fit, e = 1e-15) {
   F <- fit$F
   L <- fit$L
 
-  # Verify and process input F.
+  # Verify and process input matrix F.
   verify.matrix(fit$F)
   if (!is.matrix(F))
     F <- as.matrix(F)
   if (is.integer(F))
     storage.mode(F) <- "double"
 
-  # Verify and process input L.
+  # Verify and process input matrix L.
   verify.matrix(fit$L)
   if (!is.matrix(L))
     L <- as.matrix(L)
@@ -46,7 +46,7 @@ loglik.poisson <- function (X, fit, e = 1e-15) {
 #' 
 loglik.multinom <- function (X, fit, e = 1e-15) {
 
-  # Verify and process input X.
+  # Verify and process input matrix X.
   verify.matrix(X)
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
@@ -56,7 +56,7 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
   F <- fit$F
   L <- fit$L
 
-  # Verify and process input F.
+  # Verify and process input matrix F.
   verify.matrix(fit$F)
   if (any(colSums(F) != 1))
     stop("Each column of input matrix \"fit$F\" should sum to 1")
@@ -65,7 +65,7 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
   if (is.integer(F))
     storage.mode(F) <- "double"
 
-  # Verify and process input L.
+  # Verify and process input matrix L.
   verify.matrix(fit$L)
   if (any(rowSums(L) != 1))
     stop("Each row of input matrix \"fit$L\" should sum to 1")
