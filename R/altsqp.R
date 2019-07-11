@@ -1,13 +1,19 @@
 #' @title Alternating SQP Method for Optimizing Topic Models and Non-negative Matrix Factorizations
 #' 
 #' @description Compute maximum-likelihood estimates for the Poisson
-#'   topic model; equivalently, find a non-negative matrix factorization
-#'   X = L*F' that optimizes the beta divergence objective.
+#' topic model with factors F and loadings L; equivalently, find a
+#' non-negative matrix factorization \eqn{L * F^T} of matrix X that
+#' optimizes the beta (or Bregman) divergence objective.
 #'
 #' @param X The n x m matrix of counts or pseudocounts. It can be a
 #'   dense matrix or sparse matrix.
 #'
-#' @param fit Describe "fit" here.
+#' @param fit A list containing two (dense, non-negative) matrices,
+#'   \code{fit$F} and \code{fit$L}; for example, this can be the output
+#'   of \code{altsqp}. The former is an m x k matrix of factors (or
+#'   "basic vectors"), and the latter is an n x k matrix of loadings (or
+#'   "activations").For \code{altsqp}, this provides the initial
+#'   estimates.
 #'
 #' @param numiter A positive integer specifying the number of updates
 #'   to perform.
@@ -17,6 +23,8 @@
 #' @param verbose If \code{verbose = TRUE}, the algorithm's progress
 #'   and a summary of the optimization settings are printed to the
 #'   console.
+#'
+#' @param e Describe this parameter here.
 #'
 #' @references
 #'
@@ -123,6 +131,19 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
   if (is.integer(L))
     storage.mode(L) <- "double"
 
+  # Check that matrices X, F and L are compatible.
+  if (!(nrow(L) == nrow(X) &
+        nrow(F) == ncol(X) &
+        ncol(L) == ncol(F)))
+    stop(paste("Dimensions of input arguments \"X\", \"fit$F\" and/or",
+               "\"fit$L\ do not agree"))
+  
+  # Get the number of rows (n) and columns (m) of X, and the rank of
+  # the matrix factorization (k).
+  n <- nrow(X)
+  m <- ncol(X)
+  k <- ncol(F)
+  
   # Get the optimization settings.
   control     <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
   nc          <- control$nc
@@ -172,6 +193,8 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
       if (nc == 1)
         Fn <- altsqp.update.factors(X,Fy,Ly,control)
       else {
+
+        # TO DO: Implement function altsqp.update.factors.multicore.
         cols <- splitIndices(m,nc)
         Fn <- mclapply(cols,
                 function (j) altsqp.update.factors(X[,j],Fy[j,],Ly,control),
@@ -187,6 +210,8 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
       if (nc == 1)
         Ln <- altsqp.update.loadings(X,Fy,Ly,control)
       else {
+
+        # TO DO: Implement function altsqp.update.factors.multicore.
         rows <- splitIndices(n,nc)
         Ln <- mclapply(rows,
                function (i) altsqp.update.loadings(X[i,],Fy,Ly[i,],control),
@@ -200,8 +225,8 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
     })
 
     # Compute the value of the objective (cost) function at the
-    # extrapolated solution for the factors (F) and the basic co-ordinate
-    # ascent solution for the loadings (L).
+    # extrapolated solution for the factors (F) and the
+    # non-extrapolated solution for the loadings (L).
     f <- cost(X,tcrossprod(Ln,Fy),e)
 
     if (b == 0) {

@@ -22,7 +22,12 @@ poisson2multinom(fit)
 \item{X}{The n x m matrix of counts or pseudocounts. It can be a
 dense matrix or sparse matrix.}
 
-\item{fit}{Describe "fit" here.}
+\item{fit}{A list containing two (dense, non-negative) matrices,
+\code{fit$F} and \code{fit$L}; for example, this can be the output
+of \code{altsqp}. The former is an m x k matrix of factors (or
+"basic vectors"), and the latter is an n x k matrix of loadings (or
+"activations").For \code{altsqp}, this provides the initial
+estimates.}
 
 \item{numiter}{A positive integer specifying the number of updates
 to perform.}
@@ -32,11 +37,14 @@ to perform.}
 \item{verbose}{If \code{verbose = TRUE}, the algorithm's progress
 and a summary of the optimization settings are printed to the
 console.}
+
+\item{e}{Describe this parameter here.}
 }
 \description{
 Compute maximum-likelihood estimates for the Poisson
-  topic model; equivalently, find a non-negative matrix factorization
-  X = L*F' that optimizes the beta divergence objective.
+topic model with factors F and loadings L; equivalently, find a
+non-negative matrix factorization \eqn{L * F^T} of matrix X that
+optimizes the beta (or Bregman) divergence objective.
 }
 \examples{
 
@@ -69,10 +77,8 @@ fit1 <- suppressWarnings(
        inner.max.iter = 4,trace = 1,verbose = 0))
 
 # Run 60 coordinate-wise updates of the SQP method implemented in the
-# fastTopics package. This uses the extrapolation scheme of Ang &
-# Gillis (2019) to accelerate the updates.
-fit2 <- altsqp(X,fit0,numiter = 60,control = list(extrapolate = 10),
-               verbose = FALSE)
+# fastTopics package.
+fit2 <- altsqp(X,fit0,numiter = 60,verbose = FALSE)
 
 # Compare the Poisson log-likelihood at the two solutions; the
 # likelihood should be higher at the the altsqp solution.
