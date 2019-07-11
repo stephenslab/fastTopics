@@ -46,6 +46,9 @@ topic model with factors F and loadings L; equivalently, find a
 non-negative matrix factorization \eqn{L * F^T} of matrix X that
 optimizes the beta (or Bregman) divergence objective.
 }
+\details{
+Add details here.
+}
 \examples{
 
 library(Matrix)

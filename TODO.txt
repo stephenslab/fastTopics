@@ -3,15 +3,9 @@ to do
 
 + Fill out "Quick Start" instructions in README.
 
-+ Fill out @description for altsqp.
-
-+ Create tests for altsqp from minidemo.R---verify that running with a
-  sparse and dense matrix X gives the same result.
++ Fill out @details for altsqp.
 
 + Polish up function "altsqp".
 
 + Fill out roxygen2 docs for "altsqp".
 
-+ Clean up files in inst directory.
-
-+ Implement altsqp example.

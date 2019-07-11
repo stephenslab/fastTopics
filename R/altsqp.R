@@ -5,6 +5,8 @@
 #' non-negative matrix factorization \eqn{L * F^T} of matrix X that
 #' optimizes the beta (or Bregman) divergence objective.
 #'
+#' @details Add details here.
+#' 
 #' @param X The n x m matrix of counts or pseudocounts. It can be a
 #'   dense matrix or sparse matrix.
 #'
@@ -154,13 +156,13 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
   bred        <- control$bred
   e           <- control$e
   
-  # Compute the value of the objective (the negative of the Poisson
+  # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
   f     <- cost(X,tcrossprod(L,F),e)
   fbest <- f
   
   # These are additional quantities used to implement the
-  # extrapolation scheme of Ang & Gillis (2019).
+  # extrapolation scheme.
   bmax  <- 0.99
   b     <- 0
   Fy    <- F
