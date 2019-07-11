@@ -4,12 +4,10 @@
 #'   topic model; equivalently, find a non-negative matrix factorization
 #'   X = L*F' that optimizes the beta divergence objective.
 #'
-#' @param X The n x m matrix of counts (or pseudocounts). It can be dense
-#'   or sparse.
+#' @param X The n x m matrix of counts or pseudocounts. It can be a
+#'   dense matrix or sparse matrix.
 #'
-#' @param F Describe F here.
-#'
-#' @param L Describe L here.
+#' @param fit Describe "fit" here.
 #'
 #' @param numiter A positive integer specifying the number of updates
 #'   to perform.
@@ -20,18 +18,79 @@
 #'   and a summary of the optimization settings are printed to the
 #'   console.
 #'
+#' @references
+#'
+#' A. Ang and N. Gillis (2019). Accelerating nonnegative matrix
+#' factorization algorithms using extrapolation. \emph{Neural Computation}
+#' \bold{31}, 417-–439. \url{https://doi.org/10.1162/neco_a_01157}
+#' 
 #' @examples
+#'
+#' library(Matrix)
+#' library(NNLM)
+#'
+#' # Generate a 300 x 400 data matrix to factorize. Less than 10% of the
+#' # matrix elements should be nonzero.
+#' set.seed(1)
+#' n <- 300
+#' m <- 400
+#' k <- 3
+#' F <- matrix(runif(m*k)/3,m,k)
+#' L <- matrix(runif(n*k)/3,n,k)
+#' X <- matrix(rpois(n*m,L %*% t(F)),n,m)
+#' X <- as(X,"sparseMatrix")
+#' nnzero(X)/(n*m)
+#' 
+#' # Generate random initial estimates of the factors and loadings.
+#' fit0 <- list(F = matrix(runif(m*k),m,k),
+#'              L = matrix(runif(n*k),n,k))
+#'
+#' # Run 60 iterations of the sequential coordinate-wise descent
+#' # algorithm implemented in the NNLM package. Note that nnmf does not
+#' # accept a sparse matrix as input, so we need to provide it with a
+#' # dense matrix instead.
+#' fit1 <- suppressWarnings(
+#'   nnmf(as.matrix(X),k,init = list(W = fit0$L,H = t(fit0$F)),
+#'        method = "scd",loss = "mkl",max.iter = 60,rel.tol = 0, 
+#'        inner.max.iter = 4,trace = 1,verbose = 0))
+#'
+#' # Run 60 coordinate-wise updates of the SQP method implemented in the
+#' # fastTopics package. This uses the extrapolation scheme of Ang &
+#' # Gillis (2019) to accelerate the updates.
+#' fit2 <- altsqp(X,fit0,numiter = 60,control = list(extrapolate = 10),
+#'                verbose = FALSE)
+#' 
+#' # Compare the Poisson log-likelihood at the two solutions; the
+#' # likelihood should be higher at the the altsqp solution.
+#' fit1$F <- t(fit1$H)
+#' fit1$L <- fit1$W
+#' print(loglik.poisson(X,fit1),digits = 14)
+#' print(loglik.poisson(X,fit2),digits = 14)
+#' 
+#' # Compare the multinomial log-likelihood at the two solutions; again,
+#' # the likelihood should be higher at the altsqp solution.
+#' print(loglik.multinom(X,poisson2multinom(fit1)),digits = 14)
+#' print(loglik.multinom(X,poisson2multinom(fit2)),digits = 14)
+#' 
+#' # Plot the improvement in the solution over time; the altsqp iterates
+#' # (the solid, orange line) gets much closer to the best solution.
+#' fbest    <- 31041.93896745
+#' fit1$mkl <- n*m*fit1$mkl + sum(X - X*log(X + 1e-16))
+#' plot(fit2$progress$iter,fit2$progress$objective - fbest,
+#'      log = "y",col = "darkorange",type = "l",lwd = 2,xlab = "iteration",
+#'      ylab = "distance from solution")
+#' lines(1:60,fit1$mkl - fbest,col = "darkblue",lwd = 2,lty = "dashed")
 #'
 #' @importFrom utils modifyList
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums
+#' @importFrom Matrix mean
 #' @importFrom parallel splitIndices
 #' @importFrom parallel mclapply
 #' 
 #' @export
 #' 
-altsqp <- function (X, F, L, numiter = 100, control = list(),
-                    verbose = TRUE) {
+altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
 
   # Verify and process input matrix X. Each row and each column of the
   # matrix should have at least two positive entries.
@@ -40,18 +99,27 @@ altsqp <- function (X, F, L, numiter = 100, control = list(),
         all(colSums((X > 0)*1) >= 2)))
     stop(paste("Each row and column of \"X\" should have at least two",
                "positive entries"))
+  if (!inherits(X,"sparseMatrix") & mean(X > 0) < 0.1)
+    message(paste("Input matrix \"X\" has less than 10% nonzero entries;",
+                  "consider converting \"X\" to a sparse matrix to reduce",
+                  "computational effort"))
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
 
+  # Input argument "fit" should be a list with elements "F" and "L".
+  verify.fit(fit)
+  F <- fit$F
+  L <- fit$L
+  
   # Verify and process input matrix F.
-  verify.matrix(F)
+  verify.matrix(fit$F)
   if (!is.matrix(F))
     F <- as.matrix(F)
   if (is.integer(F))
     storage.mode(F) <- "double"
 
   # Verify and process input matrix L.
-  verify.matrix(L)
+  verify.matrix(fit$L)
   if (!is.matrix(L))
     L <- as.matrix(L)
   if (is.integer(L))

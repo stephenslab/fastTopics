@@ -8,9 +8,6 @@ to do
 + Create tests for altsqp from minidemo.R---verify that running with a
   sparse and dense matrix X gives the same result.
 
-+ Add example in @examples section of altsqp illustrating use of
-  altsqp and other functions.
-
 + Polish up function "altsqp".
 
 + Fill out roxygen2 docs for "altsqp".

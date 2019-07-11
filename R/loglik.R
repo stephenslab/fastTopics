@@ -58,7 +58,8 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
 
   # Verify and process input matrix F.
   verify.matrix(fit$F)
-  if (any(colSums(F) != 1))
+  eps <- 2*.Machine$double.eps
+  if (any((colSums(F) - 1) > eps))
     stop("Each column of input matrix \"fit$F\" should sum to 1")
   if (!is.matrix(F))
     F <- as.matrix(F)
@@ -67,7 +68,7 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
 
   # Verify and process input matrix L.
   verify.matrix(fit$L)
-  if (any(rowSums(L) != 1))
+  if (any((rowSums(L) - 1) > eps))
     stop("Each row of input matrix \"fit$L\" should sum to 1")
   if (!is.matrix(L))
     L <- as.matrix(L)
