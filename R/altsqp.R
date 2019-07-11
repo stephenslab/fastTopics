@@ -55,10 +55,8 @@
 #'        inner.max.iter = 4,trace = 1,verbose = 0))
 #'
 #' # Run 60 coordinate-wise updates of the SQP method implemented in the
-#' # fastTopics package. This uses the extrapolation scheme of Ang &
-#' # Gillis (2019) to accelerate the updates.
-#' fit2 <- altsqp(X,fit0,numiter = 60,control = list(extrapolate = 10),
-#'                verbose = FALSE)
+#' # fastTopics package.
+#' fit2 <- altsqp(X,fit0,numiter = 60,verbose = FALSE)
 #' 
 #' # Compare the Poisson log-likelihood at the two solutions; the
 #' # likelihood should be higher at the the altsqp solution.
@@ -263,7 +261,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
 #' 
 altsqp_control_default <- function()
   c(mixsqp_control_default(),
-    list(nc = 1,extrapolate = Inf,b0 = 0.5,bmaxinc = 1.05,binc = 1.1,
+    list(nc = 1,extrapolate = 10,b0 = 0.5,bmaxinc = 1.05,binc = 1.1,
          bred = 0.75))
 
 # Update all the loadings with the factors remaining fixed.
