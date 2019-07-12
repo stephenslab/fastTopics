@@ -26,11 +26,14 @@ dense matrix or sparse matrix.}
 \code{fit$F} and \code{fit$L}; for example, this can be the output
 of \code{altsqp}. The former is an m x k matrix of factors (or
 "basic vectors"), and the latter is an n x k matrix of loadings (or
-"activations").For \code{altsqp}, this provides the initial
-estimates.}
+"activations"). For \code{loglik.multinom}, it is additionally
+required that each row of \code{fit$L} and each column of
+ \code{fit$F} must sum to 1; \code{poisson2multinom} can be used to
+generate factors and loadings satisfying this requirement. For
+\code{altsqp}, this provides the initial estimates.}
 
-\item{numiter}{A positive integer specifying the number of updates
-to perform.}
+\item{numiter}{A positive integer specifying the number of
+updates to perform.}
 
 \item{control}{Describe control here.}
 
@@ -38,16 +41,29 @@ to perform.}
 and a summary of the optimization settings are printed to the
 console.}
 
-\item{e}{Describe this parameter here.}
+\item{e}{A small, non-negative number that is added to the
+terms inside the logarithms to sidestep computing logarithms of
+zero. This prevents numerical problems at the cost of introducing a
+small inaccuracy in the computation.}
+}
+\value{
+Describe return value here.
 }
 \description{
 Compute maximum-likelihood estimates for the Poisson
-topic model with factors F and loadings L; equivalently, find a
-non-negative matrix factorization \eqn{L * F^T} of matrix X that
-optimizes the beta (or Bregman) divergence objective.
+  topic model with factors F and loadings L; equivalently, find a
+  non-negative matrix factorization \eqn{L * F^T} of matrix X that
+  optimizes the beta (or Bregman) divergence objective.
 }
 \details{
-Add details here.
+Functions \code{loglik.poisson} and \code{loglik.multinom}
+  compute the log-likelihood for the Poisson and multinomial topic
+  models, excluding terms that do not depend on the model
+  parameters. These functions can be used to evaluate a solution
+  returned by \code{altsqp}.
+
+  Use function \code{poisson2multinom} to obtain parameters for the
+  multinomial topic model from the Poisson topic model.
 }
 \examples{
 

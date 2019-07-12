@@ -1,11 +1,18 @@
 #' @title Alternating SQP Method for Optimizing Topic Models and Non-negative Matrix Factorizations
 #' 
 #' @description Compute maximum-likelihood estimates for the Poisson
-#' topic model with factors F and loadings L; equivalently, find a
-#' non-negative matrix factorization \eqn{L * F^T} of matrix X that
-#' optimizes the beta (or Bregman) divergence objective.
+#'   topic model with factors F and loadings L; equivalently, find a
+#'   non-negative matrix factorization \eqn{L * F^T} of matrix X that
+#'   optimizes the beta (or Bregman) divergence objective.
 #'
-#' @details Add details here.
+#' @details Functions \code{loglik.poisson} and \code{loglik.multinom}
+#'   compute the log-likelihood for the Poisson and multinomial topic
+#'   models, excluding terms that do not depend on the model
+#'   parameters. These functions can be used to evaluate a solution
+#'   returned by \code{altsqp}.
+#'
+#'   Use function \code{poisson2multinom} to obtain parameters for the
+#'   multinomial topic model from the Poisson topic model.
 #' 
 #' @param X The n x m matrix of counts or pseudocounts. It can be a
 #'   dense matrix or sparse matrix.
@@ -14,11 +21,14 @@
 #'   \code{fit$F} and \code{fit$L}; for example, this can be the output
 #'   of \code{altsqp}. The former is an m x k matrix of factors (or
 #'   "basic vectors"), and the latter is an n x k matrix of loadings (or
-#'   "activations").For \code{altsqp}, this provides the initial
-#'   estimates.
+#'   "activations"). For \code{loglik.multinom}, it is additionally
+#'   required that each row of \code{fit$L} and each column of
+#'    \code{fit$F} must sum to 1; \code{poisson2multinom} can be used to
+#'   generate factors and loadings satisfying this requirement. For
+#'   \code{altsqp}, this provides the initial estimates.
 #'
-#' @param numiter A positive integer specifying the number of updates
-#'   to perform.
+#' @param numiter A positive integer specifying the number of
+#'   updates to perform.
 #'
 #' @param control Describe control here.
 #'
@@ -26,8 +36,13 @@
 #'   and a summary of the optimization settings are printed to the
 #'   console.
 #'
-#' @param e Describe this parameter here.
+#' @param e A small, non-negative number that is added to the
+#'   terms inside the logarithms to sidestep computing logarithms of
+#'   zero. This prevents numerical problems at the cost of introducing a
+#'   small inaccuracy in the computation.
 #'
+#' @return Describe return value here.
+#' 
 #' @references
 #'
 #' A. Ang and N. Gillis (2019). Accelerating nonnegative matrix
@@ -177,9 +192,20 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
                          beta      = 0,
                          timing    = 0)
 
-  # Iteratively apply the EM And SQP updates.
-  if (verbose)
+  # Print a brief summary of the analysis, if requested.
+  if (verbose) {
+    cat(sprintf("Running %d alternating SQP updates ",numiter))
+    cat("(fastTopics version 0.1-20)\n")
+    if (extrapolate < Inf)
+      cat(sprintf("Extrapolation begins at iteration %d\n",extrapolate))
+    else
+      cat("Extrapolation is not active.\n")
+    cat(sprintf("Data are %d x %d matrix with %0.1f%% nonzero rate\n",
+                n,m,100*mean(X > 0)))
     cat("iter         objective max.diff    beta\n")
+  }
+  
+  # Iteratively apply the EM And SQP updates.
   for (iter in 1:numiter) {
 
     # Store the value of the objective at the current iterate.

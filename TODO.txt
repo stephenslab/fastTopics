@@ -9,3 +9,4 @@ to do
 
 + Fill out roxygen2 docs for "altsqp".
 
++ Add summary of optimization problem to altsqp when verbose = TRUE.
