@@ -48,15 +48,28 @@ zero. This prevents numerical problems at the cost of introducing a
 small inaccuracy in the computation.}
 }
 \value{
-A list object with the following elements:
+\code{altsqp} returns a list object with the following
+elements:
 
-\item{F}{Describe F here.}
+\item{F}{A dense matrix containing estimates of the factors.}
 
-\item{L}{Describe L here.}
+\item{L}{A dense matrix containing estimates of the loadings.}
 
-\item{value}{Describe "value" here.}
+\item{value}{The value of the objective (or cost function) at the
+  outputted values of \code{F} and \code{L}. The objective function
+  is equal to \code{-loglik.poisson(X,out$,out$L)}, where \code{out}
+  is the \code{altsqp} return value.}
 
-\item{progress}{Describe "progress" here.}
+\item{progress}{A data frame containing more detailed information
+  about the algorithm's progress. The data frame should have
+  \code{numiter} rows. The columns of the data frame are: "iter", the
+  SQP iteration; "objective", the value of the objective at the
+  current estimate of the solution; "max.diff", the maximum
+  difference in the Poisson rate parameters \code{tcrossprod(L,F)}
+  between two the successive iterations; "beta", the current setting
+  of the extrapolation parameter (zero means no extrapolation is
+  used); and "timing", the elapsed time in seconds (based on
+  \link{\code{system.time}}).}
 }
 \description{
 Compute maximum-likelihood estimates for the Poisson
@@ -85,13 +98,29 @@ optimization algorithm settings (as they are defined by
 
 \item{\code{extrapolate}}{Describe extrapolate here.}
 
-\item{\code{beta0}}{Describe beta0 here.}
+\item{\code{beta.init}}{Describe beta0 here.}
 
-\item{\code{betamaxinc}}{Describe betamaxinc here.}
+\item{\code{beta.increase}}{Describe betainc here.}
 
-\item{\code{betainc}}{Describe betainc here.}
+\item{\code{beta.reduce}}{Describe betared here.}
 
-\item{\code{betared}}{Describe betared here.}
+\item{\code{betamax.increase}}{Describe betamaxinc here.}
+
+\item{\code{tol}}{Describe tol here.}
+
+\item{\code{zero.threshold}}{Describe zero.threshold here.}
+
+\item{\code{zero.searchdir}}{Describe zero.searchdir here.}
+
+\item{\code{suffdecr}}{Describe suffdecr here.}
+
+\item{\code{stepsizereduce}}{Describe stepsizereduce here.}
+
+\item{\code{minstepsize}}{Describe minstepsize here.}
+
+\item{\code{e}}{Describe e here.}
+      zero.threshold = 1e-10,
+      zero.searchdir = 1e-15,
 }
 }
 \examples{
@@ -107,7 +136,7 @@ m <- 400
 k <- 3
 F <- matrix(runif(m*k)/3,m,k)
 L <- matrix(runif(n*k)/3,n,k)
-X <- matrix(rpois(n*m,L \%*\% t(F)),n,m)
+X <- matrix(rpois(n*m,tcrossprod(L,F)),n,m)
 X <- as(X,"sparseMatrix")
 nnzero(X)/(n*m)
 
