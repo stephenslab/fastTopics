@@ -66,13 +66,33 @@ Compute maximum-likelihood estimates for the Poisson
 }
 \details{
 Functions \code{loglik.poisson} and \code{loglik.multinom}
-  compute the log-likelihood for the Poisson and multinomial topic
-  models, excluding terms that do not depend on the model
-  parameters. These functions can be used to evaluate a solution
-  returned by \code{altsqp}.
+compute the log-likelihood for the Poisson and multinomial topic
+models, excluding terms that do not depend on the model
+parameters. These functions can be used to evaluate a solution
+returned by \code{altsqp}.
 
-  Use function \code{poisson2multinom} to obtain parameters for the
-  multinomial topic model from the Poisson topic model.
+Use function \code{poisson2multinom} to obtain parameters for the
+multinomial topic model from the Poisson topic model.
+
+The \code{control} argument to \code{altsqp} is a list in which any
+of the following named components will override the default
+optimization algorithm settings (as they are defined by
+\code{altsqp_control_default}):
+
+\describe{
+
+\item{\code{nc}}{Describe nc here.}
+
+\item{\code{extrapolate}}{Describe extrapolate here.}
+
+\item{\code{beta0}}{Describe beta0 here.}
+
+\item{\code{betamaxinc}}{Describe betamaxinc here.}
+
+\item{\code{betainc}}{Describe betainc here.}
+
+\item{\code{betared}}{Describe betared here.}
+}
 }
 \examples{
 

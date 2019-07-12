@@ -6,13 +6,33 @@
 #'   optimizes the beta (or Bregman) divergence objective.
 #'
 #' @details Functions \code{loglik.poisson} and \code{loglik.multinom}
-#'   compute the log-likelihood for the Poisson and multinomial topic
-#'   models, excluding terms that do not depend on the model
-#'   parameters. These functions can be used to evaluate a solution
-#'   returned by \code{altsqp}.
+#' compute the log-likelihood for the Poisson and multinomial topic
+#' models, excluding terms that do not depend on the model
+#' parameters. These functions can be used to evaluate a solution
+#' returned by \code{altsqp}.
 #'
-#'   Use function \code{poisson2multinom} to obtain parameters for the
-#'   multinomial topic model from the Poisson topic model.
+#' Use function \code{poisson2multinom} to obtain parameters for the
+#' multinomial topic model from the Poisson topic model.
+#' 
+#' The \code{control} argument to \code{altsqp} is a list in which any
+#' of the following named components will override the default
+#' optimization algorithm settings (as they are defined by
+#' \code{altsqp_control_default}):
+#' 
+#' \describe{
+#' 
+#' \item{\code{nc}}{Describe nc here.}
+#'
+#' \item{\code{extrapolate}}{Describe extrapolate here.}
+#'
+#' \item{\code{beta0}}{Describe beta0 here.}
+#'
+#' \item{\code{betamaxinc}}{Describe betamaxinc here.}
+#'
+#' \item{\code{betainc}}{Describe betainc here.}
+#'
+#' \item{\code{betared}}{Describe betared here.}
+#' }
 #' 
 #' @param X The n x m matrix of counts or pseudocounts. It can be a
 #'   dense matrix or sparse matrix.
@@ -127,8 +147,8 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
   # Verify and process input matrix X. Each row and each column of the
   # matrix should have at least two positive entries.
   verify.matrix(X)
-  if (!(all(rowSums((X > 0)*1) >= 2) &
-        all(colSums((X > 0)*1) >= 2)))
+  if (!(all(rowSums(X > 0) >= 2) &
+        all(colSums(X > 0) >= 2)))
     stop(paste("Each row and column of \"X\" should have at least two",
                "positive entries"))
   if (!inherits(X,"sparseMatrix") & mean(X > 0) < 0.1)
@@ -171,28 +191,30 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
   k <- ncol(F)
   
   # Get the optimization settings.
-  control     <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
-  nc          <- control$nc
-  extrapolate <- control$extrapolate
-  b0          <- control$b0
-  bmaxinc     <- control$bmaxinc
-  binc        <- control$binc
-  bred        <- control$bred
-  e           <- control$e
-  
+  control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
+  nc               <- control$nc
+  extrapolate      <- control$extrapolate
+  beta.init        <- control$beta.init
+  betamax.increase <- control$betamax.increase
+  beta.increase    <- control$beta.increase
+  beta.reduce      <- control$beta.reduce
+  e                <- control$e
+
   # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
   f     <- cost(X,tcrossprod(L,F),e)
   fbest <- f
   
   # These are additional quantities used to implement the
-  # extrapolation scheme.
-  bmax  <- 0.99
-  b     <- 0
-  Fy    <- F
-  Fbest <- F
-  Ly    <- L 
-  Lbest <- L
+  # extrapolation scheme. Here, "beta" and "betamax" are the
+  # extrapolation parameters "beta" and "beta-bar" (the upper bound on
+  # beta) used in Algorithm 3 of Ang & Gillis (2019).
+  beta     <- 0
+  betamax  <- 0.99
+  Fy       <- F
+  Fbest    <- F
+  Ly       <- L 
+  Lbest    <- L
   
   # Set up the data structure to record the algorithm's progress.
   progress <- data.frame(iter      = 1:numiter,
@@ -209,7 +231,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
       cat(sprintf("Extrapolation begins at iteration %d\n",extrapolate))
     else
       cat("Extrapolation is not active.\n")
-    cat(sprintf("Data are %d x %d matrix with %0.1f%% nonzero rate\n",
+    cat(sprintf("Data are %d x %d matrix with %0.1f%% nonzero proportion\n",
                 n,m,100*mean(X > 0)))
     cat("iter         objective max.diff    beta\n")
   }
@@ -217,48 +239,38 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
   # Iteratively apply the EM And SQP updates.
   for (iter in 1:numiter) {
 
-    # Store the value of the objective at the current iterate.
-    f0 <- f
+    # Store the value of the objective at the current iterate, and the
+    # current setting of the extrapolation parameter.
+    f0    <- f
+    beta0 <- beta
 
     # When the time is right, initiate the extrapolation scheme.
-    if (b == 0 & iter >= extrapolate)
-      b <- b0
+    if (beta == 0 & iter >= extrapolate)
+      beta <- beta.init
 
     timing <- system.time({
 
+      # UPDATE FACTORS
+      # --------------
       # Update the factors ("basis vectors").
       if (nc == 1)
         Fn <- altsqp.update.factors(X,Fy,Ly,control)
-      else {
-
-        # TO DO: Implement function altsqp.update.factors.multicore.
-        cols <- splitIndices(m,nc)
-        Fn <- mclapply(cols,
-                function (j) altsqp.update.factors(X[,j],Fy[j,],Ly,control),
-                mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
-        Fn <- do.call(rbind,Fn)
-        Fn[unlist(cols),] <- Fn
-      }
+      else
+        Fn <- altsqp.update.factors.multicore(X,Fy,Ly,control)
 
       # Compute the extrapolated update for the factors.
-      Fy <- pmax(Fn + b*(Fn - F),0)
-      
+      Fy <- pmax(Fn + beta*(Fn - F),0)
+
+      # UPDATE LOADINGS
+      # ---------------
       # Update the loadings ("activations").
       if (nc == 1)
         Ln <- altsqp.update.loadings(X,Fy,Ly,control)
-      else {
-
-        # TO DO: Implement function altsqp.update.factors.multicore.
-        rows <- splitIndices(n,nc)
-        Ln <- mclapply(rows,
-               function (i) altsqp.update.loadings(X[i,],Fy,Ly[i,],control),
-               mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
-        Ln <- do.call(rbind,Ln)
-        Ln[unlist(rows),] <- Ln
-      }
+      else
+        Ln <- altsqp.update.loadings.multicore(X,Fy,Ly,control)
 
       # Compute the extrapolated update for the loadings.
-      Ly <- pmax(Ln + b*(Ln - L),0)
+      Ly <- pmax(Ln + beta*(Ln - L),0)
     })
 
     # Compute the value of the objective (cost) function at the
@@ -266,29 +278,29 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
     # non-extrapolated solution for the loadings (L).
     f <- cost(X,tcrossprod(Ln,Fy),e)
 
-    if (b == 0) {
+    if (beta == 0) {
       F <- Fn
       L <- Ln
     } else {
 
-      # Before updating the extrapolation parameter, store the current
-      # value.
-      b0 <- b
+      # Update the extrapolation parameters following Algorithm 3 of
+      # Ang & Gillis (2019).
       if (f > f0) {
 
-        # The solution did not improve, so restart the extrapolation scheme.
-        Fy   <- F
-        Ly   <- L
-        bmax <- b0
-        b    <- bred*b
+        # The solution did not improve, so restart the extrapolation
+        # scheme.
+        Fy      <- F
+        Ly      <- L
+        betamax <- beta0
+        beta    <- beta.reduce*beta
       } else {
         
-        # The solution is improved; keep the basic co-ordinate ascent
+        # The solution is improved; retain the basic co-ordinate ascent
         # update as well.
-        F    <- Fn
-        L    <- Ln
-        b    <- min(bmax,binc * b)
-        bmax <- min(0.99,bmaxinc * bmax)
+        F       <- Fn
+        L       <- Ln
+        beta    <- min(betamax,beta.increase * beta)
+        betamax <- min(0.99,betamax.increase * betamax)
       }
     }        
 
@@ -302,18 +314,18 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
       d <- 0
 
     # Record the algorithm's progress.
-    #
-    # TO DO: Add comments here.
-    # 
     progress[iter,"objective"] <- fbest
     progress[iter,"max.diff"]  <- d
-    progress[iter,"beta"]      <- b
+    progress[iter,"beta"]      <- beta
     progress[iter,"timing"]    <- timing["elapsed"]
     if (verbose)
-      cat(sprintf("%4d %+0.10e %0.2e %0.1e\n",iter,fbest,d,b))
+      cat(sprintf("%4d %+0.10e %0.2e %0.1e\n",iter,fbest,d,beta))
   }
 
-  # TO DO: Add comments here.
+  # Return a list containing (1) the estimate of the factors, (2) the
+  # estimate of the loadings, (3) the value of the objective at these
+  # estimates, and (4) a data frame recording the algorithm's progress
+  # at each iteration.
   return(list(F = Fbest,L = Lbest,value = fbest,progress = progress))
 }
 
@@ -323,8 +335,18 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
 #' 
 altsqp_control_default <- function()
   c(mixsqp_control_default(),
-    list(nc = 1,extrapolate = 10,b0 = 0.5,bmaxinc = 1.05,binc = 1.1,
-         bred = 0.75))
+    list(nc = 1,extrapolate = 10,beta.init = 0.5,betamax.increase = 1.05,
+         beta.increase = 1.1,beta.reduce = 0.75))
+
+# Update all the factors with the loadings remaining fixed.
+altsqp.update.factors <- function (X, F, L, control) {
+  m <- ncol(X)
+  for (j in 1:m) {
+    F[j,] <- altsqp.update.em(L,X[,j],F[j,],control$e)
+    F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control)
+  }
+  return(F)
+}
 
 # Update all the loadings with the factors remaining fixed.
 altsqp.update.loadings <- function (X, F, L, control) {
@@ -336,14 +358,28 @@ altsqp.update.loadings <- function (X, F, L, control) {
   return(L)  
 }
 
-# Update all the factors with the loadings remaining fixed.
-altsqp.update.factors <- function (X, F, L, control) {
-  m <- ncol(X)
-  for (j in 1:m) {
-    F[j,] <- altsqp.update.em(L,X[,j],F[j,],control$e)
-    F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control)
-  }
+# This is the multithreaded version of altsqp.update.factors,
+# implemented using mclapply from the parallel package.
+altsqp.update.factors.multicore <- function (X, F, L, control) {
+  cols <- splitIndices(m,nc)
+  F <- mclapply(cols,
+         function (j) altsqp.update.factors(X[,j],F[j,],L,control),
+           mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
+  F <- do.call(rbind,F)
+  F[unlist(cols),] <- F
   return(F)
+}
+
+# This is the multithreaded version of altsqp.update.loadings,
+# implementing using mclapply from the parallel package.
+altsqp.update.loadings.multicore <- function (X, F, L, control) {
+  rows <- splitIndices(n,nc)
+  L <- mclapply(rows,
+         function (i) altsqp.update.loadings(X[i,],F,L[i,],control),
+           mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
+  L <- do.call(rbind,L)
+  L[unlist(rows),] <- L
+  return(L)
 }
 
 # Run one EM update for the alternating SQP method.
@@ -356,7 +392,9 @@ altsqp.update.em <- function (B, w, y, e) {
   w  <- w[i]
   B  <- B[i,]
 
-  # TO DO: Verify that inputs are valid.
+  # -----
+  # TO DO: Verify that all inputs to mixem are valid.
+  # -----
   
   # Run an EM update for the modified problem.
   out <- mixem(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,e)
@@ -375,7 +413,9 @@ altsqp.update.sqp <- function (B, w, y, control) {
   w  <- w[i]
   B  <- B[i,]
 
-  # TO DO: Verify that inputs are valid.
+  # -----
+  # TO DO: Verify that all inputs to mixsqp are valid.
+  # -----
   
   # Run an SQP update for the modified problem.
   out <- mixsqp(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,control)
