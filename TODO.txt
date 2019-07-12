@@ -5,6 +5,10 @@ to do
 
 + Fill out @details for altsqp.
 
++ Describe altsqp "control" parameter in roxygen2 docs.
+
++ Describe altsqp return value in roxygen2 docs.
+
 + Polish up function "altsqp".
 
 + Fill out roxygen2 docs for "altsqp".

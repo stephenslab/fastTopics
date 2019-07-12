@@ -35,7 +35,8 @@ generate factors and loadings satisfying this requirement. For
 \item{numiter}{A positive integer specifying the number of
 updates to perform.}
 
-\item{control}{Describe control here.}
+\item{control}{A list of parameters controlling the behaviour of
+the optimization algorithm. See \sQuote{Details}.}
 
 \item{verbose}{If \code{verbose = TRUE}, the algorithm's progress
 and a summary of the optimization settings are printed to the
@@ -47,7 +48,15 @@ zero. This prevents numerical problems at the cost of introducing a
 small inaccuracy in the computation.}
 }
 \value{
-Describe return value here.
+A list object with the following elements:
+
+\item{F}{Describe F here.}
+
+\item{L}{Describe L here.}
+
+\item{value}{Describe "value" here.}
+
+\item{progress}{Describe "progress" here.}
 }
 \description{
 Compute maximum-likelihood estimates for the Poisson

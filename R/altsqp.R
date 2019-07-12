@@ -30,7 +30,8 @@
 #' @param numiter A positive integer specifying the number of
 #'   updates to perform.
 #'
-#' @param control Describe control here.
+#' @param control A list of parameters controlling the behaviour of
+#'   the optimization algorithm. See \sQuote{Details}.
 #'
 #' @param verbose If \code{verbose = TRUE}, the algorithm's progress
 #'   and a summary of the optimization settings are printed to the
@@ -41,7 +42,15 @@
 #'   zero. This prevents numerical problems at the cost of introducing a
 #'   small inaccuracy in the computation.
 #'
-#' @return Describe return value here.
+#' @return A list object with the following elements:
+#'
+#' \item{F}{Describe F here.}
+#'
+#' \item{L}{Describe L here.}
+#'
+#' \item{value}{Describe "value" here.}
+#'
+#' \item{progress}{Describe "progress" here.}
 #' 
 #' @references
 #'
