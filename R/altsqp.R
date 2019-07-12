@@ -76,7 +76,7 @@
 #' @param e A small, non-negative number that is added to the
 #'   terms inside the logarithms to sidestep computing logarithms of
 #'   zero. This prevents numerical problems at the cost of introducing a
-#'   small inaccuracy in the computation.
+#'   small (typically very small) inaccuracy in the computation.
 #'
 #' @return \code{altsqp} returns a list object with the following
 #' elements:
@@ -99,7 +99,7 @@
 #'   between two the successive iterations; "beta", the current setting
 #'   of the extrapolation parameter (zero means no extrapolation is
 #'   used); and "timing", the elapsed time in seconds (based on
-#'   \link{\code{system.time}}).}
+#'   \code{\link{system.time}}).}
 #' 
 #' @references
 #'
@@ -390,6 +390,8 @@ altsqp.update.loadings <- function (X, F, L, control) {
 # This is the multithreaded version of altsqp.update.factors,
 # implemented using mclapply from the parallel package.
 altsqp.update.factors.multicore <- function (X, F, L, control) {
+  m    <- ncol(X)
+  nc   <- control$nc
   cols <- splitIndices(m,nc)
   F <- mclapply(cols,
          function (j) altsqp.update.factors(X[,j],F[j,],L,control),
@@ -402,6 +404,8 @@ altsqp.update.factors.multicore <- function (X, F, L, control) {
 # This is the multithreaded version of altsqp.update.loadings,
 # implementing using mclapply from the parallel package.
 altsqp.update.loadings.multicore <- function (X, F, L, control) {
+  n    <- nrow(X)
+  nc   <- control$nc
   rows <- splitIndices(n,nc)
   L <- mclapply(rows,
          function (i) altsqp.update.loadings(X[i,],F,L[i,],control),

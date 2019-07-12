@@ -45,7 +45,7 @@ console.}
 \item{e}{A small, non-negative number that is added to the
 terms inside the logarithms to sidestep computing logarithms of
 zero. This prevents numerical problems at the cost of introducing a
-small inaccuracy in the computation.}
+small (typically very small) inaccuracy in the computation.}
 }
 \value{
 \code{altsqp} returns a list object with the following
@@ -69,7 +69,7 @@ elements:
   between two the successive iterations; "beta", the current setting
   of the extrapolation parameter (zero means no extrapolation is
   used); and "timing", the elapsed time in seconds (based on
-  \link{\code{system.time}}).}
+  \code{\link{system.time}}).}
 }
 \description{
 Compute maximum-likelihood estimates for the Poisson
