@@ -100,6 +100,18 @@
 #'   of the extrapolation parameter (zero means no extrapolation is
 #'   used); and "timing", the elapsed time in seconds (based on
 #'   \code{\link{system.time}}).}
+#'
+#' \code{poisson2multinom} returns a list with two dense matrices,
+#' \code{F} and \code{L}, containing the factors (word probabilities)
+#' and loadings (topic probabilities), respectively, for the
+#' multinomial topic model.
+#' 
+#' \item{F}{A dense matrix containing estimates of the factors.}
+#'
+#' \item{L}{A dense matrix containing estimates of the loadings.}
+#' 
+#' \code{loglik.poisson} and \code{loglik.multinom} return a single
+#' numeric value giving the value of the log-likelihood.
 #' 
 #' @references
 #'
