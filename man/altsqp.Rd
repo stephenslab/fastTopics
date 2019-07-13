@@ -120,19 +120,30 @@ optimization algorithm settings (as they are defined by
 
 \item{\code{tol}}{Describe tol here.}
 
-\item{\code{zero.threshold}}{Describe zero.threshold here.}
+\item{\code{zero.threshold}}{A small, non-negative number used to
+  determine the "active set"; that is, it determines which entries of
+  the solution are exactly zero. Any entries that are less than or
+  equal to \code{zero.threshold} are considered to be exactly
+  zero. Larger values of \code{zero.threshold} may lead to speedups
+  for matrices with many columns, at the (slight) risk of prematurely
+  zeroing some co-ordinates.}
 
-\item{\code{zero.searchdir}}{Describe zero.searchdir here.}
+\item{\code{zero.searchdir}}{A small, non-negative number used to
+  determine when the search direction in the active-set step is
+  considered "small enough".}
 
-\item{\code{suffdecr}}{Describe suffdecr here.}
+\item{\code{suffdecr}}{This parameter determines how stringent the
+  "sufficient decrease" condition is for accepting a step size in the
+  backtracking line search. Larger values will make the condition
+  more stringent. This should be a positive number less than 1.}
 
-\item{\code{stepsizereduce}}{Describe stepsizereduce here.}
+\item{\code{stepsizereduce}}{The multiplicative factor for
+  decreasing the step size in the backtracking line search.}
 
-\item{\code{minstepsize}}{Describe minstepsize here.}
+\item{\code{minstepsize}}{The smallest step size accepted by the
+  line search step. Should be a number greater than 0 and at most 1.}
 
-\item{\code{e}}{Describe e here.}
-      zero.threshold = 1e-10,
-      zero.searchdir = 1e-15,
+\item{\code{e}}{The same as input argument \code{e} described above.}
 }
 }
 \examples{
