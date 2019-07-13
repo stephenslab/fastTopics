@@ -106,19 +106,35 @@ optimization algorithm settings (as they are defined by
 
 \describe{
 
-\item{\code{nc}}{Describe nc here.}
+\item{\code{nc}}{This determines the \code{mc.cores} argument in
+  calls to \code{\link[parallel]{mclapply}}.}
 
-\item{\code{extrapolate}}{Describe extrapolate here.}
+\item{\code{extrapolate}}{The iteration at which extrapolation is
+  initiated. If \code{extrapolate > numiter}, extrapolation is not
+  used.}
 
-\item{\code{beta.init}}{Describe beta0 here.}
+\item{\code{beta.init}}{The initial setting of the extrapolation
+  parameter.}
 
-\item{\code{beta.increase}}{Describe betainc here.}
+\item{\code{beta.increase}}{The extrapolation parameter is
+  increased by this amount whenever the update improves the
+  solution. This is denoted by \eqn{\gamma} in Algorithm 3 of Ang &
+  Gillis (2019).}
 
-\item{\code{beta.reduce}}{Describe betared here.}
+\item{\code{beta.reduce}}{The extrapolation parameter is decreased
+  by this amount whenever the update does not improve the
+  solution. This is denoted by eqn{\eta} in Algorithm 3 of Ang &
+  Gillis (2019).}
 
-\item{\code{betamax.increase}}{Describe betamaxinc here.}
+\item{\code{betamax.increase}}{The upper bound on the extrapolation
+  parameter is increased by this amount whenever the update improves
+  the solution. This is denoted by \eqn{\bar{\gamma}} in Algorithm 3
+  of Ang & Gillis (2019).}
 
-\item{\code{tol}}{Describe tol here.}
+\item{\code{tol}}{A small, non-negative number specifying the
+  convergence tolerance for the active-set step. Smaller values will
+  result in higher quality search directions for the SQP algorithm
+  but possibly a greater per-iteration computational cost.}
 
 \item{\code{zero.threshold}}{A small, non-negative number used to
   determine the "active set"; that is, it determines which entries of
