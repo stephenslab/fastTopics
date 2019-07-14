@@ -38,7 +38,7 @@
 #'
 #' \item{\code{beta.reduce}}{The extrapolation parameter is decreased
 #'   by this amount whenever the update does not improve the
-#'   solution. This is denoted by eqn{\eta} in Algorithm 3 of Ang &
+#'   solution. This is denoted by \eqn{\eta} in Algorithm 3 of Ang &
 #'   Gillis (2019).}
 #'
 #' \item{\code{betamax.increase}}{The upper bound on the extrapolation
@@ -237,13 +237,17 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
     F <- as.matrix(F)
   if (is.integer(F))
     storage.mode(F) <- "double"
-
+  if (all(F <= 0))
+    stop("Some entries of input matrix \"fit$F\" should be positive")
+  
   # Verify and process input matrix L.
   verify.matrix(fit$L)
   if (!is.matrix(L))
     L <- as.matrix(L)
   if (is.integer(L))
     storage.mode(L) <- "double"
+  if (all(L <= 0))
+    stop("Some entries of input matrix \"fit$L\" should be positive")
 
   # Check that matrices X, F and L are compatible.
   if (!(nrow(L) == nrow(X) &
@@ -472,12 +476,11 @@ altsqp.update.em <- function (B, w, y, e) {
   w  <- w[i]
   B  <- B[i,]
 
-  # -----
-  # TO DO: Verify that all inputs to mixem are valid.
-  # -----
-  
   # Run an EM update for the modified problem.
-  out <- mixem(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,e)
+  P   <- scale.cols(B,ws/bs)
+  u   <- w/ws
+  t0  <- y*bs/ws
+  out <- mixem(P,u,t0,1,e)
 
   # Recover the solution to the unmodified problem.
   return(out$x*ws/bs)
@@ -493,10 +496,6 @@ altsqp.update.sqp <- function (B, w, y, control) {
   w  <- w[i]
   B  <- B[i,]
 
-  # -----
-  # TO DO: Verify that all inputs to mixsqp are valid.
-  # -----
-  
   # Run an SQP update for the modified problem.
   out <- mixsqp(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,control)
 
