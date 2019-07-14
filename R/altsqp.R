@@ -37,8 +37,8 @@
 #'   Gillis (2019).}
 #'
 #' \item{\code{beta.reduce}}{The extrapolation parameter is decreased
-#'   by this amount whenever the update does not improve the
-#'   solution. This is denoted by \eqn{\eta} in Algorithm 3 of Ang &
+#'   by this amount whenever the update does not improve the solution.
+#'   This is denoted by \eqn{\eta} in Algorithm 3 of Ang &
 #'   Gillis (2019).}
 #'
 #' \item{\code{betamax.increase}}{The upper bound on the extrapolation

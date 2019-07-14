@@ -41,5 +41,10 @@ poisson2multinom <- function (fit) {
   s <- rowSums(L)
   L <- L / s
   F <- scale.cols(F)
-  return(list(F = F,L = L,s = s))
+
+  # Update the "fit" object, and return it.
+  fit$F <- F
+  fit$L <- L
+  fit$s <- s
+  return(fit)
 }
