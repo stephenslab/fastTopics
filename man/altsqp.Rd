@@ -71,10 +71,10 @@ elements:
   used); and "timing", the elapsed time in seconds (based on
   \code{\link{system.time}}).}
 
-\code{poisson2multinom} returns a list with two dense matrices,
-\code{F} and \code{L}, containing the factors (word probabilities)
-and loadings (topic probabilities), respectively, for the
-multinomial topic model.
+\code{poisson2multinom} returns an updated \code{fit}, in which the
+factors \code{fit$F} and loadings \code{fit$L} are converted to
+matrices of the same dimension containing, respectively, word
+probabilities and topic probabilities.
 
 \item{F}{A dense matrix containing estimates of the factors.}
 
@@ -122,8 +122,8 @@ optimization algorithm settings (as they are defined by
   Gillis (2019).}
 
 \item{\code{beta.reduce}}{The extrapolation parameter is decreased
-  by this amount whenever the update does not improve the
-  solution. This is denoted by \eqn{\eta} in Algorithm 3 of Ang &
+  by this amount whenever the update does not improve the solution.
+  This is denoted by \eqn{\eta} in Algorithm 3 of Ang &
   Gillis (2019).}
 
 \item{\code{betamax.increase}}{The upper bound on the extrapolation
