@@ -3,7 +3,8 @@
 #' @description Compute maximum-likelihood estimates for the Poisson
 #'   topic model with factors F and loadings L; equivalently, find a
 #'   non-negative matrix factorization \eqn{L * F^T} of matrix X that
-#'   optimizes the beta (or Bregman) divergence objective.
+#'   optimizes the "generalized Kullback-Leibler" (or Bregman)
+#'   divergence objective.
 #'
 #' @details Functions \code{loglik.poisson} and \code{loglik.multinom}
 #' compute the log-likelihood for the Poisson and multinomial topic
