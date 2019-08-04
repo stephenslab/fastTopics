@@ -211,7 +211,8 @@
 #' 
 #' @export
 #' 
-altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
+altsqp <- function (X, fit, numiter = 100, control = list(),
+                    version = c("R", "Rcpp"), verbose = TRUE) {
 
   # Verify and process input matrix X. Each row and each column of the
   # matrix should have at least two positive entries.
@@ -265,14 +266,12 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
   
   # Get the optimization settings.
   control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
-  nc               <- control$nc
-  extrapolate      <- control$extrapolate
-  beta.init        <- control$beta.init
-  beta.increase    <- control$beta.increase
-  beta.reduce      <- control$beta.reduce
-  betamax.increase <- control$betamax.increase
-  e                <- control$e
+  e       <- control$e
 
+  # Determine whether to use the R or Rcpp implementation of the
+  # algorithm.
+  version <- match.arg(version)
+  
   # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
   f     <- cost(X,tcrossprod(L,F),e)
@@ -290,26 +289,63 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
   Lbest    <- L
   
   # Set up the data structure to record the algorithm's progress.
-  progress <- data.frame(iter      = 1:numiter,
-                         objective = 0,
-                         max.diff  = 0,
-                         beta      = 0,
-                         timing    = 0)
+  progress <- as.matrix(data.frame(iter      = 1:numiter,
+                                   objective = 0,
+                                   max.diff  = 0,
+                                   beta      = 0,
+                                   timing    = 0))
 
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
     cat("(fastTopics version 0.1-27)\n")
-    if (extrapolate < Inf)
-      cat(sprintf("Extrapolation begins at iteration %d\n",extrapolate))
+    if (control$extrapolate < Inf)
+      cat(sprintf("Extrapolation begins at iteration %d\n",
+                  control$extrapolate))
     else
       cat("Extrapolation is not active.\n")
     cat(sprintf("Data are %d x %d matrix with %0.1f%% nonzero proportion\n",
                 n,m,100*mean(X > 0)))
     cat("iter         objective max.diff    beta\n")
   }
+
+  # Iteratively apply the EM and SQP updates using the R or Rcpp
+  # implementation.
+  if (version == "R") {
+    out <- altsqp_main_loop(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,beta,
+                            betamax,numiter,control,progress,verbose)
+    Fbest    <- out$Fbest
+    Lbest    <- out$Lbest
+    fbest    <- out$fbest
+    progress <- out$progress
+    rm(out)
+  } else if (version == "Rcpp") {
+    stop("Rcpp version is not yet implemented.")
+  }
+
+  # Return a list containing (1) the estimate of the factors, (2) the
+  # estimate of the loadings, (3) the value of the objective at these
+  # estimates, and (4) a data frame recording the algorithm's progress
+  # at each iteration.
+  progress <- as.data.frame(progress)
+  return(list(F = Fbest,L = Lbest,value = fbest,progress = progress))
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
+                              f, fbest, beta, betamax, numiter, control,
+                              progress, verbose) {
+    
+  # Get the optimization settings.
+  nc               <- control$nc
+  extrapolate      <- control$extrapolate
+  beta.init        <- control$beta.init
+  beta.increase    <- control$beta.increase
+  beta.reduce      <- control$beta.reduce
+  betamax.increase <- control$betamax.increase
+  e                <- control$e
   
-  # Iteratively apply the EM And SQP updates.
+  # Iteratively apply the EM and SQP updates
   for (iter in 1:numiter) {
 
     # Store the value of the objective at the current iterate.
@@ -403,11 +439,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
       cat(sprintf("%4d %+0.10e %0.2e %0.1e\n",iter,fbest,d,beta))
   }
 
-  # Return a list containing (1) the estimate of the factors, (2) the
-  # estimate of the loadings, (3) the value of the objective at these
-  # estimates, and (4) a data frame recording the algorithm's progress
-  # at each iteration.
-  return(list(F = Fbest,L = Lbest,value = fbest,progress = progress))
+  return(list(Fbest = Fbest,Lbest = Lbest,fbest = fbest,progress = progress))
 }
 
 #' @rdname altsqp
