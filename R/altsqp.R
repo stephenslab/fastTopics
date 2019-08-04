@@ -276,6 +276,11 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   # log-likelihood) at the initial iterate.
   f     <- cost(X,tcrossprod(L,F),e)
   fbest <- f
+
+  # Compute the sum of the elements in each row and each column of the
+  # counts matrix.
+  xsrow <- rowSums(X)
+  xscol <- colSums(X)
   
   # These are additional quantities used to implement the
   # extrapolation scheme. Here, "beta" and "betamax" are the
@@ -312,8 +317,8 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   # Iteratively apply the EM and SQP updates using the R or Rcpp
   # implementation.
   if (version == "R") {
-    out <- altsqp_main_loop(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,beta,
-                            betamax,numiter,control,progress,verbose)
+    out <- altsqp_main_loop(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,xsrow,xscol,
+                            beta,betamax,numiter,control,progress,verbose)
     Fbest    <- out$Fbest
     Lbest    <- out$Lbest
     fbest    <- out$fbest
@@ -333,8 +338,8 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
 
 # TO DO: Explain here what this function does, and how to use it.
 altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
-                              f, fbest, beta, betamax, numiter, control,
-                              progress, verbose) {
+                              f, fbest, xsrow, xscol, beta, betamax,
+                              numiter, control, progress, verbose) {
     
   # Get the optimization settings.
   nc               <- control$nc
@@ -363,9 +368,9 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
       # --------------
       # Update the factors ("basis vectors").
       if (nc == 1)
-        Fn <- altsqp.update.factors(X,Fy,Ly,control)
+        Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
       else
-        Fn <- altsqp.update.factors.multicore(X,Fy,Ly,control)
+        Fn <- altsqp.update.factors.multicore(X,Fy,Ly,xscol,control)
 
       # Compute the extrapolated update for the factors. Note that
       # when beta = 0, Fy = Fn.
@@ -375,9 +380,9 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
       # ---------------
       # Update the loadings ("activations").
       if (nc == 1)
-        Ln <- altsqp.update.loadings(X,Fy,Ly,control)
+        Ln <- altsqp.update.loadings(X,Fy,Ly,xsrow,control)
       else
-        Ln <- altsqp.update.loadings.multicore(X,Fy,Ly,control)
+        Ln <- altsqp.update.loadings.multicore(X,Fy,Ly,xsrow,control)
 
       # Compute the extrapolated update for the loadings. Note that
       # when beta = 0, Ly = Ln.
@@ -452,33 +457,33 @@ altsqp_control_default <- function()
          beta.reduce = 0.75,betamax.increase = 1.05))
 
 # Update all the factors with the loadings remaining fixed.
-altsqp.update.factors <- function (X, F, L, control) {
+altsqp.update.factors <- function (X, F, L, xscol, control) {
   m <- ncol(X)
   for (j in 1:m) {
-    F[j,] <- altsqp.update.em(L,X[,j],F[j,],control$e)
-    F[j,] <- altsqp.update.sqp(L,X[,j],F[j,],control)
+    F[j,] <- altsqp.update.em(L,X[,j],xscol[j],F[j,],control$e)
+    F[j,] <- altsqp.update.sqp(L,X[,j],xscol[j],F[j,],control)
   }
   return(F)
 }
 
 # Update all the loadings with the factors remaining fixed.
-altsqp.update.loadings <- function (X, F, L, control) {
+altsqp.update.loadings <- function (X, F, L, xsrow, control) {
   n <- nrow(X)
   for (i in 1:n) {
-    L[i,] <- altsqp.update.em(F,X[i,],L[i,],control$e)
-    L[i,] <- altsqp.update.sqp(F,X[i,],L[i,],control)
+    L[i,] <- altsqp.update.em(F,X[i,],xsrow[i],L[i,],control$e)
+    L[i,] <- altsqp.update.sqp(F,X[i,],xsrow[i],L[i,],control)
   }
   return(L)  
 }
 
 # This is the multithreaded version of altsqp.update.factors,
 # implemented using mclapply from the parallel package.
-altsqp.update.factors.multicore <- function (X, F, L, control) {
+altsqp.update.factors.multicore <- function (X, F, L, xscol, control) {
   m    <- ncol(X)
   nc   <- control$nc
   cols <- splitIndices(m,nc)
   F <- mclapply(cols,
-         function (j) altsqp.update.factors(X[,j],F[j,],L,control),
+         function (j) altsqp.update.factors(X[,j],F[j,],L,xscol[j],control),
            mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
   F <- do.call(rbind,F)
   F[unlist(cols),] <- F
@@ -487,12 +492,12 @@ altsqp.update.factors.multicore <- function (X, F, L, control) {
 
 # This is the multithreaded version of altsqp.update.loadings,
 # implementing using mclapply from the parallel package.
-altsqp.update.loadings.multicore <- function (X, F, L, control) {
+altsqp.update.loadings.multicore <- function (X, F, L, xsrow, control) {
   n    <- nrow(X)
   nc   <- control$nc
   rows <- splitIndices(n,nc)
   L <- mclapply(rows,
-         function (i) altsqp.update.loadings(X[i,],F,L[i,],control),
+         function (i) altsqp.update.loadings(X[i,],F,L[i,],xsrow[i],control),
            mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
   L <- do.call(rbind,L)
   L[unlist(rows),] <- L
@@ -500,10 +505,9 @@ altsqp.update.loadings.multicore <- function (X, F, L, control) {
 }
 
 # Run one EM update for the alternating SQP method.
-altsqp.update.em <- function (B, w, y, e) {
+altsqp.update.em <- function (B, w, ws, y, e) {
 
   # Remove any counts that are exactly zero.
-  ws <- sum(w)
   bs <- colSums(B)
   i  <- which(w > 0)
   w  <- w[i]
@@ -520,10 +524,9 @@ altsqp.update.em <- function (B, w, y, e) {
 }
 
 # Run one SQP update for the alternating SQP method.
-altsqp.update.sqp <- function (B, w, y, control) {
+altsqp.update.sqp <- function (B, w, ws, y, control) {
     
   # Remove any counts that are exactly zero.
-  ws <- sum(w)
   bs <- colSums(B)  
   i  <- which(w > 0)
   w  <- w[i]
