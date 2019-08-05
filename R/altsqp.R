@@ -97,6 +97,10 @@
 #' @param control A list of parameters controlling the behaviour of
 #'   the optimization algorithm. See \sQuote{Details}.
 #'
+#' @param version If \code{version = "R"}, use the slower (but
+#'   simpler) implementation; if \code{version = "Rcpp"}, use the much
+#'   faster C++ implementation.
+#'
 #' @param verbose If \code{verbose = TRUE}, the algorithm's progress
 #'   and a summary of the optimization settings are printed to the
 #'   console.
@@ -514,10 +518,7 @@ altsqp.update.em <- function (B, w, ws, y, e) {
   B  <- B[i,]
 
   # Run an EM update for the modified problem.
-  P   <- scale.cols(B,ws/bs)
-  u   <- w/ws
-  t0  <- y*bs/ws
-  out <- mixem(P,u,t0,1,e)
+  out <- mixem(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,e)
 
   # Recover the solution to the unmodified problem.
   return(out$x*ws/bs)
