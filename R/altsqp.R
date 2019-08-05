@@ -290,12 +290,14 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   # extrapolation scheme. Here, "beta" and "betamax" are the
   # extrapolation parameters "beta" and "beta-bar" (the upper bound on
   # beta) used in Algorithm 3 of Ang & Gillis (2019).
-  beta     <- 0
-  betamax  <- 0.99
-  Fy       <- F
-  Fbest    <- F
-  Ly       <- L 
-  Lbest    <- L
+  beta    <- 0
+  betamax <- 0.99
+  Fy      <- F
+  Fn      <- F
+  Fbest   <- F
+  Ly      <- L
+  Ln      <- L
+  Lbest   <- L
   
   # Set up the data structure to record the algorithm's progress.
   progress <- as.matrix(data.frame(iter      = 1:numiter,
@@ -307,7 +309,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-27)\n")
+    cat("(fastTopics version 0.1-32)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -329,7 +331,10 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
     progress <- out$progress
     rm(out)
   } else if (version == "Rcpp") {
-    stop("Rcpp version is not yet implemented.")
+    if (inherits(X,"sparseMatrix"))
+      stop("Rcpp version is not yet implemented for sparse matrices.")
+    fbest <- altsqp_main_loop_rcpp(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,
+                                   verbose)
   }
 
   # Return a list containing (1) the estimate of the factors, (2) the

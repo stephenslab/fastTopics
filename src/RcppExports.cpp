@@ -6,6 +6,28 @@
 
 using namespace Rcpp;
 
+// altsqp_main_loop_rcpp
+double altsqp_main_loop_rcpp(const arma::mat& X, arma::mat& F, arma::mat& Fn, arma::mat& Fy, arma::mat& Fbest, arma::mat& L, arma::mat& Ln, arma::mat& Ly, arma::mat& Lbest, double f, double fbest, bool verbose);
+RcppExport SEXP _fastTopics_altsqp_main_loop_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP FnSEXP, SEXP FySEXP, SEXP FbestSEXP, SEXP LSEXP, SEXP LnSEXP, SEXP LySEXP, SEXP LbestSEXP, SEXP fSEXP, SEXP fbestSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type F(FSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Fn(FnSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Fy(FySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Fbest(FbestSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Ln(LnSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Ly(LySEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Lbest(LbestSEXP);
+    Rcpp::traits::input_parameter< double >::type f(fSEXP);
+    Rcpp::traits::input_parameter< double >::type fbest(fbestSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(altsqp_main_loop_rcpp(X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f, fbest, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mixsqp_rcpp
 arma::vec mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, double tol, double zerothreshold, double zerosearchdir, double suffdecr, double stepsizereduce, double minstepsize, const arma::vec& e, int numiter, int maxiteractiveset, bool verbose);
 RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP tolSEXP, SEXP zerothresholdSEXP, SEXP zerosearchdirSEXP, SEXP suffdecrSEXP, SEXP stepsizereduceSEXP, SEXP minstepsizeSEXP, SEXP eSEXP, SEXP numiterSEXP, SEXP maxiteractivesetSEXP, SEXP verboseSEXP) {
@@ -31,6 +53,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_fastTopics_altsqp_main_loop_rcpp", (DL_FUNC) &_fastTopics_altsqp_main_loop_rcpp, 12},
     {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 13},
     {NULL, NULL, 0}
 };
