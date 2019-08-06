@@ -2,7 +2,6 @@ context("altsqp")
 
 test_that("altsqp gives same result for sparse and dense matrix",{
   library(Matrix)
-  library(NNLM)
 
   # Generate a 100 x 200 data matrix to factorize.
   set.seed(1)

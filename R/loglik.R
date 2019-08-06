@@ -93,11 +93,12 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
 # removing terms that do not depend on A or B.
 cost <- function (X, A, B, e, version = c("Rcpp", "R")) {
   version <- match.arg(version)
-  if (version == "Rcpp" & is.matrix(X))
-    f <- cost_rcpp(X,A,B,e)
-  else {
+  if (version == "R") {
     AB <- A %*% B
     f  <- sum(AB - X*log(AB + e))
-  }
+  } else if (is.matrix(X))
+    f <- cost_rcpp(X,A,B,e)
+  else
+    f <- cost_sparse_rcpp(X,A,B,e)
   return(f)
 }
