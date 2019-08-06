@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // altsqp_main_loop_rcpp
-double altsqp_main_loop_rcpp(const arma::mat& X, arma::mat& F, arma::mat& Fn, arma::mat& Fy, arma::mat& Fbest, arma::mat& L, arma::mat& Ln, arma::mat& Ly, arma::mat& Lbest, double f, double fbest, bool verbose);
-RcppExport SEXP _fastTopics_altsqp_main_loop_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP FnSEXP, SEXP FySEXP, SEXP FbestSEXP, SEXP LSEXP, SEXP LnSEXP, SEXP LySEXP, SEXP LbestSEXP, SEXP fSEXP, SEXP fbestSEXP, SEXP verboseSEXP) {
+double altsqp_main_loop_rcpp(const arma::mat& X, arma::mat& F, arma::mat& Fn, arma::mat& Fy, arma::mat& Fbest, arma::mat& L, arma::mat& Ln, arma::mat& Ly, arma::mat& Lbest, double f, double fbest, const arma::vec& xsrow, const arma::vec& xscol, double best, double betamax, int numiter, int nc, int extrapolate, double betainit, double betaincrease, double betareduce, double betamaxincrease, double e, arma::mat& progress, bool verbose);
+RcppExport SEXP _fastTopics_altsqp_main_loop_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP FnSEXP, SEXP FySEXP, SEXP FbestSEXP, SEXP LSEXP, SEXP LnSEXP, SEXP LySEXP, SEXP LbestSEXP, SEXP fSEXP, SEXP fbestSEXP, SEXP xsrowSEXP, SEXP xscolSEXP, SEXP bestSEXP, SEXP betamaxSEXP, SEXP numiterSEXP, SEXP ncSEXP, SEXP extrapolateSEXP, SEXP betainitSEXP, SEXP betaincreaseSEXP, SEXP betareduceSEXP, SEXP betamaxincreaseSEXP, SEXP eSEXP, SEXP progressSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -23,8 +23,21 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type Lbest(LbestSEXP);
     Rcpp::traits::input_parameter< double >::type f(fSEXP);
     Rcpp::traits::input_parameter< double >::type fbest(fbestSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type xsrow(xsrowSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type xscol(xscolSEXP);
+    Rcpp::traits::input_parameter< double >::type best(bestSEXP);
+    Rcpp::traits::input_parameter< double >::type betamax(betamaxSEXP);
+    Rcpp::traits::input_parameter< int >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< int >::type nc(ncSEXP);
+    Rcpp::traits::input_parameter< int >::type extrapolate(extrapolateSEXP);
+    Rcpp::traits::input_parameter< double >::type betainit(betainitSEXP);
+    Rcpp::traits::input_parameter< double >::type betaincrease(betaincreaseSEXP);
+    Rcpp::traits::input_parameter< double >::type betareduce(betareduceSEXP);
+    Rcpp::traits::input_parameter< double >::type betamaxincrease(betamaxincreaseSEXP);
+    Rcpp::traits::input_parameter< double >::type e(eSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type progress(progressSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(altsqp_main_loop_rcpp(X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f, fbest, verbose));
+    rcpp_result_gen = Rcpp::wrap(altsqp_main_loop_rcpp(X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f, fbest, xsrow, xscol, best, betamax, numiter, nc, extrapolate, betainit, betaincrease, betareduce, betamaxincrease, e, progress, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -53,7 +66,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fastTopics_altsqp_main_loop_rcpp", (DL_FUNC) &_fastTopics_altsqp_main_loop_rcpp, 12},
+    {"_fastTopics_altsqp_main_loop_rcpp", (DL_FUNC) &_fastTopics_altsqp_main_loop_rcpp, 25},
     {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 13},
     {NULL, NULL, 0}
 };

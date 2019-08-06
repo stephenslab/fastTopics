@@ -309,7 +309,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-32)\n")
+    cat("(fastTopics version 0.1-33)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -334,7 +334,12 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
     if (inherits(X,"sparseMatrix"))
       stop("Rcpp version is not yet implemented for sparse matrices.")
     fbest <- altsqp_main_loop_rcpp(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,
-                                   verbose)
+                                   xsrow,xscol,beta,betamax,numiter,
+                                   control$nc,control$extrapolate - 1,
+                                   control$beta.init,control$beta.increase,
+                                   control$beta.reduce,
+                                   control$betamax.increase,control$e,
+                                   progress,verbose)
   }
 
   # Return a list containing (1) the estimate of the factors, (2) the

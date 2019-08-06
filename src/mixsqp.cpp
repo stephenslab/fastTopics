@@ -3,6 +3,8 @@
 #define ARMA_DONT_PRINT_ERRORS
 
 #include <RcppArmadillo.h>
+#include "misc.h"
+#include "mixsqp.h"
 
 // This is needed to tell R where to find the additional header files.
 //
@@ -27,7 +29,6 @@ void   feasible_stepsize (const vec& x, const vec& p, int& j, double& a);
 double init_hessian_correction (const mat& H, double a0);
 double compute_objective (const mat& L, const vec& w, const vec& x,
 			  const vec& e, vec& u);
-double min (double a, double b);
 
 // FUNCTION DEFINITIONS
 // --------------------
@@ -323,12 +324,3 @@ void compute_grad (const mat& L, const vec& w, const vec& x,
   H = trans(Z) * Z;
 }
 
-// Return a or b, which ever is smaller.
-double min (double a, double b) {
-  double y;
-  if (a < b)
-    y = a;
-  else
-    y = b;
-  return y;
-}
