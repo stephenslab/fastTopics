@@ -12,7 +12,7 @@ test_that("altsqp gives same result for sparse and dense matrix",{
   F <- matrix(0.75*runif(m*k),m,k)
   L <- matrix(0.75*runif(n*k),n,k)
   X <- matrix(rpois(n*m,L %*% t(F)),n,m)
-  Y <- as(X,"sparseMatrix")
+  Y <- as(X,"dgCMatrix")
   
   # Generate random initial estimates of the factors and loadings.
   fit0 <- list(F = matrix(runif(m*k),m,k),
@@ -39,7 +39,7 @@ test_that("altsqp gives a better solution than nnmf on a sparse matrix",{
   F <- matrix(0.6*runif(m*k),m,k)
   L <- matrix(0.6*runif(n*k),n,k)
   X <- matrix(rpois(n*m,L %*% t(F)),n,m)
-  X <- as(X,"sparseMatrix")
+  X <- as(X,"dgCMatrix")
 
  # Generate random initial estimates of the factors and loadings.
  fit0 <- list(F = matrix(runif(m*k),m,k),

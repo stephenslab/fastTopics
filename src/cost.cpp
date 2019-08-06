@@ -16,6 +16,15 @@ double cost_rcpp (const arma::mat& X, const arma::mat& A,
   return cost(X,A,B,e);
 }
 
+// This is the same as cost_rcpp, except that input matrix X must be
+// sparse.
+//
+// [[Rcpp::export]]
+double cost_sparse_rcpp (const arma::sp_mat& X, const arma::mat& A,
+			 const arma::mat& B, double e) {
+  return 0;
+}
+
 // Helper function for cost_rcpp.
 double cost (const arma::mat& X, const arma::mat& A,
 	     const arma::mat& B, double e) {

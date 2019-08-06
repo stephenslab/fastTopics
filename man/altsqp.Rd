@@ -182,7 +182,7 @@ k <- 3
 F <- matrix(runif(m*k)/3,m,k)
 L <- matrix(runif(n*k)/3,n,k)
 X <- matrix(rpois(n*m,tcrossprod(L,F)),n,m)
-X <- as(X,"sparseMatrix")
+X <- as(X,"dgCMatrix")
 nnzero(X)/(n*m)
 
 # Generate random initial estimates of the factors and loadings.

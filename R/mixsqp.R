@@ -23,8 +23,6 @@ mixem <- function (L, w, x0, numiter = 1000, e = 1e-15) {
 # Compute maximum-likelihood estimates of the mixture proportions in a
 # mixture model by iterating the SQP updates for a fixed number of
 # 
-#' @useDynLib fastTopics
-#' 
 #' @importFrom utils modifyList
 #' @importFrom Rcpp evalCpp
 #' 

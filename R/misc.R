@@ -2,10 +2,11 @@
 verify.matrix <- function (x, arg.name = deparse(substitute(x))) {
   arg.name <- sprintf("\"%s\"",arg.name)
   msg <- paste("Input argument",arg.name,"should be a non-negative,",
-               "numeric matrix with at least two 2 rows and at least",
-               "2 columns, and all entries should be finite and non-missing")
+               "numeric matrix (a \"matrix\" or a \"dgCMatrix\") with at",
+               "least two 2 rows and at least 2 columns, and all entries",
+               "should be finite and non-missing")
   if (!((is.matrix(x) & is.numeric(x)) |
-        inherits(x,"dMatrix")))
+        inherits(x,"dgCMatrix")))
     stop(msg)
   else if (nrow(x) < 2 |
            ncol(x) < 2 |

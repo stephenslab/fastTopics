@@ -165,7 +165,7 @@
 #' F <- matrix(runif(m*k)/3,m,k)
 #' L <- matrix(runif(n*k)/3,n,k)
 #' X <- matrix(rpois(n*m,tcrossprod(L,F)),n,m)
-#' X <- as(X,"sparseMatrix")
+#' X <- as(X,"dgCMatrix")
 #' nnzero(X)/(n*m)
 #' 
 #' # Generate random initial estimates of the factors and loadings.
@@ -206,6 +206,9 @@
 #'      ylab = "distance from solution")
 #' lines(1:60,fit1$mkl - fbest,col = "darkblue",lwd = 2,lty = "dashed")
 #'
+#' @useDynLib fastTopics
+#' 
+#' @importFrom Rcpp evalCpp
 #' @importFrom utils modifyList
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums
@@ -225,7 +228,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
         all(colSums(X > 0) >= 2)))
     stop(paste("Each row and column of \"X\" should have at least two",
                "positive entries"))
-  if (!inherits(X,"sparseMatrix") & mean(X > 0) < 0.1)
+  if (is.matrix(X) & mean(X > 0) < 0.1)
     message(paste("Input matrix \"X\" has less than 10% nonzero entries;",
                   "consider converting \"X\" to a sparse matrix to reduce",
                   "computational effort"))
@@ -278,10 +281,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   
   # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
-  if (inherits(X,"sparseMatrix"))
-    f <- cost(X,tcrossprod(L,F),e)
-  else
-    f <- cost_rcpp(X,L,t(F),e)
+  f     <- cost(X,L,t(F),e)
   fbest <- f
 
   # Compute the sum of the elements in each row and each column of the
@@ -312,7 +312,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-35)\n")
+    cat("(fastTopics version 0.1-36)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -334,15 +334,16 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
     progress <- out$progress
     rm(out)
   } else if (version == "Rcpp") {
-    if (inherits(X,"sparseMatrix"))
+    if (is.matrix(X))
+      fbest <- altsqp_main_loop_rcpp(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,
+                                     xsrow,xscol,beta,betamax,numiter,
+                                     control$nc,control$extrapolate - 1,
+                                     control$beta.init,control$beta.increase,
+                                     control$beta.reduce,
+                                     control$betamax.increase,control$e,
+                                     progress,verbose)
+    else
       stop("Rcpp version is not yet implemented for sparse matrices.")
-    fbest <- altsqp_main_loop_rcpp(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,
-                                   xsrow,xscol,beta,betamax,numiter,
-                                   control$nc,control$extrapolate - 1,
-                                   control$beta.init,control$beta.increase,
-                                   control$beta.reduce,
-                                   control$betamax.increase,control$e,
-                                   progress,verbose)
   }
 
   # Return a list containing (1) the estimate of the factors, (2) the
@@ -409,10 +410,7 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
     # Compute the value of the objective (cost) function at the
     # extrapolated solution for the factors (F) and the
     # non-extrapolated solution for the loadings (L).
-    if (inherits(X,"sparseMatrix"))
-      f <- cost(X,tcrossprod(Ln,Fy),e)
-    else
-      f <- cost_rcpp(X,Ln,t(Fy),e)
+    f <- cost(X,Ln,t(Fy),e)
 
     if (beta == 0) {
 
