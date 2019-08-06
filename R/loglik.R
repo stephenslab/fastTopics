@@ -37,7 +37,10 @@ loglik.poisson <- function (X, fit, e = 1e-15) {
   
   # Compute the log-likelihood for the Poisson topic model after
   # removing terms that do not depend on L or F.
-  return(-cost(X,tcrossprod(L,F),e))
+  if (inherits(X,"sparseMatrix"))
+    return(-cost(X,tcrossprod(L,F),e))
+  else
+    return(-cost_rcpp(X,L,t(F),e))
 }
 
 #' @rdname altsqp

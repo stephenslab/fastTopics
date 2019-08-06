@@ -278,7 +278,10 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   
   # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
-  f     <- cost(X,tcrossprod(L,F),e)
+  if (inherits(X,"sparseMatrix"))
+    f <- cost(X,tcrossprod(L,F),e)
+  else
+    f <- cost_rcpp(X,L,t(F),e)
   fbest <- f
 
   # Compute the sum of the elements in each row and each column of the
@@ -309,7 +312,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-34)\n")
+    cat("(fastTopics version 0.1-35)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -406,7 +409,10 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
     # Compute the value of the objective (cost) function at the
     # extrapolated solution for the factors (F) and the
     # non-extrapolated solution for the loadings (L).
-    f <- cost(X,tcrossprod(Ln,Fy),e)
+    if (inherits(X,"sparseMatrix"))
+      f <- cost(X,tcrossprod(Ln,Fy),e)
+    else
+      f <- cost_rcpp(X,Ln,t(Fy),e)
 
     if (beta == 0) {
 

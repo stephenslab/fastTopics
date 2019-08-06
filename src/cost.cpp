@@ -1,11 +1,14 @@
-#include <RcppArmadillo.h>
 #include "cost.h"
+#include "misc.h"
 
 using namespace arma;
 
 // FUNCTION DEFINITIONS
 // --------------------
-// TO DO: Explain what this function does.
+// Compute the value of the cost function for non-negative matrix
+// factorization, in which matrix X is approximated by the matrix
+// product A*B. This is equivalent to the negative Poisson
+// log-likelihood after removing terms that do not depend on A or B.
 //
 // [[Rcpp::export]]
 double cost_rcpp (const arma::mat& X, const arma::mat& A,
@@ -18,18 +21,21 @@ double cost (const arma::mat& X, const arma::mat& A,
 	     const arma::mat& B, double e) {
   int    n = X.n_rows;
   int    m = X.n_cols;
-  int    K = A.n_cols;
+  int    k = A.n_cols;
   double f = 0;
-  double ab;
+
+  // Quantities used in the computations below.
+  vec x(n);
+  vec y(n);
+  vec b(k);
   
-  // Repeat for each row and column of X.
-  for (int j = 0; j < m; j++)
-    for (int i = 0; i < n; i++) {
-      ab = 0;
-      for (int k = 0; k < K; k++)
-	ab += A(i,k) * B(k,j);
-      f += ab - X(i,j)*log(ab + e);
-    }
+  // Repeat for each column of X.
+  for (int j = 0; j < m; j++) {
+    copycol(X,j,x);
+    copycol(B,j,b);
+    y = A * b;
+    f += sum(y - x % log(y + e));
+  }
   
   return f;
 }
