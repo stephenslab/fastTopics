@@ -7,11 +7,9 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 //
 
-using namespace Rcpp;
-using namespace arma;
-
 // FUNCTION DECLARATIONS
 // ---------------------
+// TO DO.
 
 // FUNCTION DEFINITIONS
 // --------------------
@@ -33,9 +31,9 @@ double altsqp_main_loop_rcpp (const arma::mat& X, arma::mat& F, arma::mat& Fn,
   double d;
   
   if (verbose)
-    Rprintf("Running altsqp_main_loop_cpp\n");
+    Rprintf("Running altsqp_main_loop_rcpp\n");
 
-  // Iteratively apply the EM and SQP updates
+  // Iteratively apply the EM and SQP updates.
   for (int iter = 0; iter < numiter; iter++) {
     
     // Store the value of the objective at the current iterate.

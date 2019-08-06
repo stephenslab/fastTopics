@@ -6,11 +6,6 @@
 #include "misc.h"
 #include "mixsqp.h"
 
-// This is needed to tell R where to find the additional header files.
-//
-// [[Rcpp::depends(RcppArmadillo)]]
-//
-
 using namespace Rcpp;
 using namespace arma;
 

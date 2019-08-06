@@ -5,6 +5,10 @@ altsqp_main_loop_rcpp <- function(X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f, fbes
     .Call('_fastTopics_altsqp_main_loop_rcpp', PACKAGE = 'fastTopics', X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f, fbest, xsrow, xscol, best, betamax, numiter, nc, extrapolate, betainit, betaincrease, betareduce, betamaxincrease, e, progress, verbose)
 }
 
+cost_rcpp <- function(X, A, B, e) {
+    .Call('_fastTopics_cost_rcpp', PACKAGE = 'fastTopics', X, A, B, e)
+}
+
 mixsqp_rcpp <- function(L, w, x0, tol, zerothreshold, zerosearchdir, suffdecr, stepsizereduce, minstepsize, e, numiter, maxiteractiveset, verbose) {
     .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, tol, zerothreshold, zerosearchdir, suffdecr, stepsizereduce, minstepsize, e, numiter, maxiteractiveset, verbose)
 }
