@@ -1,17 +1,14 @@
 # Compute maximum-likelihood estimates of the mixture proportions in a
 # mixture model by iterating the EM updates for a fixed number of
 # iterations.
-mixem <- function (L, w, x0, numiter = 1000, e = 1e-15) {
+mixem <- function (L, w, x0, numiter, e = 1e-15) {
 
   # Get the initial estimate of the solution.
   x <- x0
 
-  # Scale the correction factor (e) by the maximum value of each row
-  # of the matrix (L). Therefore, we end up with a separate correction
-  # factor for each row of L.
-  e <- e * apply(L,1,max)
-
   # Iterate the E and M steps.
+  n <- nrow(L)
+  e <- rep(e,n)
   for (i in 1:numiter)
     x <- mixem.update(L,w,x,e)
 
@@ -26,8 +23,7 @@ mixem <- function (L, w, x0, numiter = 1000, e = 1e-15) {
 #' @importFrom utils modifyList
 #' @importFrom Rcpp evalCpp
 #' 
-mixsqp <- function (L, w, x0, numiter = 100, control = list(),
-                    verbose = FALSE) {
+mixsqp <- function (L, w, x0, numiter, control = list(), verbose = FALSE) {
 
   # Get the optimization settings.
   control <- modifyList(mixsqp_control_default(),control,keep.null = TRUE)
@@ -37,14 +33,10 @@ mixsqp <- function (L, w, x0, numiter = 100, control = list(),
   n <- nrow(L)
   m <- ncol(L)
 
-  # Scale the correction factor (e) by the maximum value of each row
-  # of the matrix (L). Therefore, we end up with a separate correction
-  # factor for each row of L.
-  e <- e * apply(L,1,max)
-
   # Run the updates implemented in C++.
   if (verbose)
-    cat("iter objective function\n")
+      cat("iter objective function\n")
+  e <- rep(e,n)
   x <- drop(mixsqp_rcpp(L,w,x0,control$tol,control$zero.threshold,
                         control$zero.searchdir,control$suffdecr,
                         control$stepsizereduce,control$minstepsize,
