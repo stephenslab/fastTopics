@@ -2,6 +2,10 @@
 // system is singular or close to singular.
 #define ARMA_DONT_PRINT_ERRORS
 
+// Disable all run-time checks, such as bounds checking. This will
+// speed up code a bit.
+// #define ARMA_NO_DEBUG
+
 #include <RcppArmadillo.h>
 #include "misc.h"
 #include "mixsqp.h"

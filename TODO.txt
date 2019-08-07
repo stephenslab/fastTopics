@@ -5,5 +5,3 @@ to do
 
 + Fill out @details for altsqp.
 
-+ Implement more memory-efficient version of the cost function that
-  can handle either sparse or dense matrices.

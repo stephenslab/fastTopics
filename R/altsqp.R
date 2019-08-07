@@ -479,7 +479,7 @@ altsqp.update.factors <- function (X, F, L, xscol, control) {
   m  <- ncol(X)
   ls <- colSums(L)
   for (j in 1:m) {
-    F[j,] <- altsqp.update.em(L,X[,j],ls,xscol[j],F[j,],control$e)
+  # F[j,] <- altsqp.update.em(L,X[,j],ls,xscol[j],F[j,],control$e)
     F[j,] <- altsqp.update.sqp(L,X[,j],ls,xscol[j],F[j,],control)
   }
   return(F)
@@ -490,7 +490,7 @@ altsqp.update.loadings <- function (X, F, L, xsrow, control) {
   n  <- nrow(X)
   fs <- colSums(F)
   for (i in 1:n) {
-    L[i,] <- altsqp.update.em(F,X[i,],fs,xsrow[i],L[i,],control$e)
+  # L[i,] <- altsqp.update.em(F,X[i,],fs,xsrow[i],L[i,],control$e)
     L[i,] <- altsqp.update.sqp(F,X[i,],fs,xsrow[i],L[i,],control)
   }
   return(L)  
