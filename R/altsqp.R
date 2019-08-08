@@ -108,7 +108,7 @@
 #' @param e A small, non-negative number that is added to the
 #'   terms inside the logarithms to sidestep computing logarithms of
 #'   zero. This prevents numerical problems at the cost of introducing a
-#'   small (typically very small) inaccuracy in the computation.
+#'   small (and typically very small) inaccuracy in the computation.
 #'
 #' @return \code{altsqp} returns a list object with the following
 #' elements:
@@ -308,19 +308,22 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
                                    max.diff  = 0,
                                    beta      = 0,
                                    timing    = 0))
-
+  
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-39)\n")
+    cat("(fastTopics version 0.1-40)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
     else
       cat("Extrapolation is not active.\n")
+    if (control$em > 0)
+      cat(sprintf("Iterates are initialized with %d iterations of EM.\n",
+                  control$em))
     cat(sprintf("Data are %d x %d matrix with %0.1f%% nonzero proportion\n",
                 n,m,100*mean(X > 0)))
-    cat("iter         objective max.diff    beta\n")
+    cat("iter objective (cost fn) max.diff    beta\n")
   }
 
   # Iteratively apply the EM and SQP updates using the R or Rcpp
@@ -385,7 +388,13 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
       # UPDATE FACTORS
       # --------------
       # Update the factors ("basis vectors").
-      if (nc == 1)
+      if (FALSE) { # (iter > control$em) {
+            
+        # Update the factors using the multiplicative update rules
+        # (equivalently, EM updates).
+        # TO DO.
+      }
+      else if (nc == 1)
         Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
       else
         Fn <- altsqp.update.factors.multicore(X,Fy,Ly,xscol,control)
@@ -397,7 +406,12 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
       # UPDATE LOADINGS
       # ---------------
       # Update the loadings ("activations").
-      if (nc == 1)
+      if (FALSE) { # (iter > control$em) {
+
+        # Update the factors using the multiplicative update rules
+        # (equivalently, EM updates).
+        # TO DO.
+      } else if (nc == 1)
         Ln <- altsqp.update.loadings(X,Fy,Ly,xsrow,control)
       else
         Ln <- altsqp.update.loadings.multicore(X,Fy,Ly,xsrow,control)
@@ -459,7 +473,7 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
     progress[iter,"beta"]      <- beta
     progress[iter,"timing"]    <- timing["elapsed"]
     if (verbose)
-      cat(sprintf("%4d %+0.10e %0.2e %0.1e\n",iter,fbest,d,beta))
+      cat(sprintf("%4d %+0.12e %0.2e %0.1e\n",iter,fbest,d,beta))
   }
 
   return(list(Fbest = Fbest,Lbest = Lbest,fbest = fbest,progress = progress))
@@ -471,7 +485,7 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
 #' 
 altsqp_control_default <- function()
   c(mixsqp_control_default(),
-    list(nc = 1,extrapolate = 10,beta.init = 0.5,beta.increase = 1.1,
+    list(nc = 1,em = 4,extrapolate = 10,beta.init = 0.5,beta.increase = 1.1,
          beta.reduce = 0.75,betamax.increase = 1.05))
 
 # Update all the factors with the loadings remaining fixed.
@@ -479,7 +493,7 @@ altsqp.update.factors <- function (X, F, L, xscol, control) {
   m  <- ncol(X)
   ls <- colSums(L)
   for (j in 1:m) {
-  # F[j,] <- altsqp.update.em(L,X[,j],ls,xscol[j],F[j,],control$e)
+    F[j,] <- altsqp.update.em(L,X[,j],ls,xscol[j],F[j,],control$e)
     F[j,] <- altsqp.update.sqp(L,X[,j],ls,xscol[j],F[j,],control)
   }
   return(F)
@@ -490,7 +504,7 @@ altsqp.update.loadings <- function (X, F, L, xsrow, control) {
   n  <- nrow(X)
   fs <- colSums(F)
   for (i in 1:n) {
-  # L[i,] <- altsqp.update.em(F,X[i,],fs,xsrow[i],L[i,],control$e)
+    L[i,] <- altsqp.update.em(F,X[i,],fs,xsrow[i],L[i,],control$e)      
     L[i,] <- altsqp.update.sqp(F,X[i,],fs,xsrow[i],L[i,],control)
   }
   return(L)  
