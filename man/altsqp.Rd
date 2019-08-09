@@ -50,7 +50,7 @@ console.}
 \item{e}{A small, non-negative number that is added to the
 terms inside the logarithms to sidestep computing logarithms of
 zero. This prevents numerical problems at the cost of introducing a
-small (typically very small) inaccuracy in the computation.}
+small (and typically very small) inaccuracy in the computation.}
 }
 \value{
 \code{altsqp} returns a list object with the following
