@@ -24,7 +24,7 @@ library(devtools)
 install_github("stephenslab/fastTopics")
 ```
 
-This command should automatically install all required packages if
+This command should automatically install all required packages if 
 they are not installed already.
 
 Compiling this package from source will require a C++ compiler setup
