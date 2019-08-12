@@ -97,10 +97,6 @@
 #' @param control A list of parameters controlling the behaviour of
 #'   the optimization algorithm. See \sQuote{Details}.
 #'
-#' @param version If \code{version = "R"}, use the slower (but
-#'   simpler) implementation; if \code{version = "Rcpp"}, use the much
-#'   faster C++ implementation.
-#'
 #' @param verbose If \code{verbose = TRUE}, the algorithm's progress
 #'   and a summary of the optimization settings are printed to the
 #'   console.
@@ -218,8 +214,7 @@
 #' 
 #' @export
 #' 
-altsqp <- function (X, fit, numiter = 100, control = list(),
-                    version = c("R", "Rcpp"), verbose = TRUE) {
+altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
 
   # Verify and process input matrix X. Each row and each column of the
   # matrix should have at least two positive entries.
@@ -275,10 +270,6 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
   e       <- control$e
 
-  # Determine whether to use the R or Rcpp implementation of the
-  # algorithm.
-  version <- match.arg(version)
-  
   # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
   f     <- cost(X,L,t(F),e)
@@ -312,7 +303,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-41)\n")
+    cat("(fastTopics version 0.1-42)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -325,33 +316,21 @@ altsqp <- function (X, fit, numiter = 100, control = list(),
 
   # Iteratively apply the EM and SQP updates using the R or Rcpp
   # implementation.
-  if (version == "R") {
-    out <- altsqp_main_loop(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,xsrow,xscol,
-                            beta,betamax,numiter,control,progress,verbose)
-    Fbest    <- out$Fbest
-    Lbest    <- out$Lbest
-    fbest    <- out$fbest
-    progress <- out$progress
-    rm(out)
-  } else if (version == "Rcpp") {
-    if (is.matrix(X))
-      fbest <- altsqp_main_loop_rcpp(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,
-                                     xsrow,xscol,beta,betamax,numiter,
-                                     control$nc,control$extrapolate - 1,
-                                     control$beta.init,control$beta.increase,
-                                     control$beta.reduce,
-                                     control$betamax.increase,control$e,
-                                     progress,verbose)
-    else
-      stop("Rcpp version is not yet implemented for sparse matrices.")
-  }
+  out <- altsqp_main_loop(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,xsrow,xscol,
+                          beta,betamax,numiter,control,progress,verbose)
+  Fbest    <- out$Fbest
+  Lbest    <- out$Lbest
+  fbest    <- out$fbest
+  progress <- out$progress
+  rm(out)
 
   # Return a list containing (1) the estimate of the factors, (2) the
   # estimate of the loadings, (3) the value of the objective at these
   # estimates, and (4) a data frame recording the algorithm's progress
   # at each iteration.
   progress <- as.data.frame(progress)
-  return(list(F = Fbest,L = Lbest,value = fbest,progress = progress))
+  return(list(F = Fbest,L = Lbest,value = fbest,
+              progress = as.data.frame(progress)))
 }
 
 # This helper function implements the main alt-SQP loop.
