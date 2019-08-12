@@ -209,8 +209,11 @@
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums
 #' @importFrom Matrix mean
-#' @importFrom parallel splitIndices
-#' @importFrom parallel mclapply
+#' @importFrom parallel makeCluster
+#' @importFrom parallel clusterExport
+#' @importFrom parallel clusterSplit
+#' @importFrom parallel stopCluster
+#' @importFrom parallel parLapply
 #' 
 #' @export
 #' 
@@ -480,12 +483,13 @@ altsqp.update.loadings <- function (X, F, L, xsrow, control) {
 altsqp.update.factors.multicore <- function (X, F, L, xscol, control) {
   m    <- ncol(X)
   nc   <- control$nc
-  cols <- splitIndices(m,nc)
-  F <- mclapply(cols,
-         function (j) altsqp.update.factors(X[,j],F[j,],L,xscol[j],control),
-           mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
+  cl   <- makeCluster(nc)
+  cols <- clusterSplit(cl,1:m)
+  F <- parLapply(cl,cols,
+         function (j) altsqp.update.factors(X[,j],F[j,],L,xscol[j],control))
   F <- do.call(rbind,F)
   F[unlist(cols),] <- F
+  stopCluster(cl)
   return(F)
 }
 
@@ -494,12 +498,13 @@ altsqp.update.factors.multicore <- function (X, F, L, xscol, control) {
 altsqp.update.loadings.multicore <- function (X, F, L, xsrow, control) {
   n    <- nrow(X)
   nc   <- control$nc
-  rows <- splitIndices(n,nc)
-  L <- mclapply(rows,
-         function (i) altsqp.update.loadings(X[i,],F,L[i,],xsrow[i],control),
-           mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
+  cl   <- makeCluster(nc)
+  rows <- clusterSplit(cl,1:n)
+  L <- parLapply(cl,rows,
+         function (i) altsqp.update.loadings(X[i,],F,L[i,],xsrow[i],control))
   L <- do.call(rbind,L)
   L[unlist(rows),] <- L
+  stopCluster(cl)
   return(L)
 }
 
