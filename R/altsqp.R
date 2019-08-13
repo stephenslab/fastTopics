@@ -271,6 +271,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
   
   # Get the optimization settings.
   control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
+  nc      <- control$nc
   e       <- control$e
 
   # Compute the value of the objective (the negative Poisson
@@ -306,7 +307,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-43)\n")
+    cat("(fastTopics version 0.1-44)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -317,16 +318,26 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
     cat("iter objective (cost fn) max.diff    beta\n")
   }
 
+  # Start up multithreading.
+  if (nc > 1)
+    cl <- makeCluster(nc)
+  else
+    cl <- NULL
+  
   # Iteratively apply the EM and SQP updates using the R or Rcpp
   # implementation.
   out <- altsqp_main_loop(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,xsrow,xscol,
-                          beta,betamax,numiter,control,progress,verbose)
+                          beta,betamax,numiter,control,progress,cl,verbose)
   Fbest    <- out$Fbest
   Lbest    <- out$Lbest
   fbest    <- out$fbest
   progress <- out$progress
   rm(out)
 
+  # Halt multithreading.
+  if (nc > 1)
+    stopCluster(cl)
+  
   # Return a list containing (1) the estimate of the factors, (2) the
   # estimate of the loadings, (3) the value of the objective at these
   # estimates, and (4) a data frame recording the algorithm's progress
@@ -339,7 +350,7 @@ altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
 # This helper function implements the main alt-SQP loop.
 altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
                               f, fbest, xsrow, xscol, beta, betamax,
-                              numiter, control, progress, verbose) {
+                              numiter, control, progress, cl, verbose) {
     
   # Get the optimization settings.
   nc               <- control$nc
@@ -370,7 +381,7 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
       if (nc == 1)
         Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
       else
-        Fn <- altsqp.update.factors.multicore(X,Fy,Ly,xscol,control)
+        Fn <- altsqp.update.factors.multicore(X,Fy,Ly,xscol,cl,control)
 
       # Compute the extrapolated update for the factors. Note that
       # when beta = 0, Fy = Fn.
@@ -382,7 +393,7 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
       if (nc == 1)
         Ln <- altsqp.update.loadings(X,Fy,Ly,xsrow,control)
       else
-        Ln <- altsqp.update.loadings.multicore(X,Fy,Ly,xsrow,control)
+        Ln <- altsqp.update.loadings.multicore(X,Fy,Ly,xsrow,cl,control)
 
       # Compute the extrapolated update for the loadings. Note that
       # when beta = 0, Ly = Ln.
@@ -480,31 +491,25 @@ altsqp.update.loadings <- function (X, F, L, xsrow, control) {
 
 # This is the multithreaded version of altsqp.update.factors,
 # implemented using mclapply from the parallel package.
-altsqp.update.factors.multicore <- function (X, F, L, xscol, control) {
-  m    <- ncol(X)
-  nc   <- control$nc
-  cl   <- makeCluster(nc)
+altsqp.update.factors.multicore <- function (X, F, L, xscol, cl, control) {
+  m <- ncol(X)
   cols <- clusterSplit(cl,1:m)
   F <- parLapply(cl,cols,
          function (j) altsqp.update.factors(X[,j],F[j,],L,xscol[j],control))
   F <- do.call(rbind,F)
   F[unlist(cols),] <- F
-  stopCluster(cl)
   return(F)
 }
 
 # This is the multithreaded version of altsqp.update.loadings,
 # implementing using mclapply from the parallel package.
-altsqp.update.loadings.multicore <- function (X, F, L, xsrow, control) {
-  n    <- nrow(X)
-  nc   <- control$nc
-  cl   <- makeCluster(nc)
+altsqp.update.loadings.multicore <- function (X, F, L, xsrow, cl, control) {
+  n <- nrow(X)
   rows <- clusterSplit(cl,1:n)
   L <- parLapply(cl,rows,
          function (i) altsqp.update.loadings(X[i,],F,L[i,],xsrow[i],control))
   L <- do.call(rbind,L)
   L[unlist(rows),] <- L
-  stopCluster(cl)
   return(L)
 }
 

@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.1-43
-Date: 2019-08-12
+Version: 0.1-44
+Date: 2019-08-13
 Title: Fast Optimization Algorithms for Topic Modeling and Non-Negative Matrix Factorization
 Authors@R: person("Peter","Carbonetto",role=c("aut","cre"),
  	          email="peter.carbonetto@gmail.com")
