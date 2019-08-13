@@ -214,7 +214,8 @@
 #' 
 #' @export
 #' 
-altsqp <- function (X, fit, numiter = 100, control = list(), verbose = TRUE) {
+altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
+                    control = list(), verbose = TRUE) {
 
   # Verify and process input matrix X. Each row and each column of the
   # matrix should have at least two positive entries.
