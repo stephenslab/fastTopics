@@ -26,6 +26,31 @@ test_that("altsqp gives same result for sparse and dense matrix",{
   expect_equal(fit1,fit2)
 })
 
+test_that(paste("Multicore version of altsqp gives same result as",
+                "single-core version"),{
+
+  # Generate a 100 x 200 data matrix to factorize.
+  set.seed(1)
+  n <- 100
+  m <- 200
+  k <- 3
+  F <- matrix(0.75*runif(m*k),m,k)
+  L <- matrix(0.75*runif(n*k),n,k)
+  X <- matrix(rpois(n*m,L %*% t(F)),n,m)
+
+  # Generate random initial estimates of the factors and loadings.
+  fit0 <- list(F = matrix(runif(m*k),m,k),
+               L = matrix(runif(n*k),n,k))
+
+  # Fit the non-negative matrix factorization to the sparse and dense
+  # matrices, and check that the two solutions are the same.
+  capture.output(fit1 <- altsqp(X,fit0,numiter = 10))
+  capture.output(fit2 <- altsqp(X,fit0,numiter = 10,control = list(nc = 2)))
+  fit1$progress       <- fit1$progress[1:4]
+  fit2$progress       <- fit2$progress[1:4]
+  expect_equal(fit1,fit2)
+})
+
 test_that("altsqp gives a better solution than nnmf on a sparse matrix",{
   library(Matrix)
   library(NNLM)
