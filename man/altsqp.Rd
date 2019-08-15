@@ -8,7 +8,8 @@
 \alias{poisson2multinom}
 \title{Alternating SQP Method for Optimizing Topic Models and Non-negative Matrix Factorizations}
 \usage{
-altsqp(X, fit, numiter = 100, control = list(), verbose = TRUE)
+altsqp(X, fit, numiter = 100, version = c("R", "Rcpp"),
+  control = list(), verbose = TRUE)
 
 altsqp_control_default()
 
@@ -34,6 +35,10 @@ generate factors and loadings satisfying this requirement. For
 
 \item{numiter}{A positive integer specifying the number of
 updates to perform.}
+
+\item{version}{With \code{version = "R"}, a slower, but more easily
+debugged, implementation is used; with \code{version = "Rcpp"}, a
+faster, less easily debugged implementation is used.}
 
 \item{control}{A list of parameters controlling the behaviour of
 the optimization algorithm. See \sQuote{Details}.}

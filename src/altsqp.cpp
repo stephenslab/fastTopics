@@ -1,13 +1,5 @@
-// This is included to suppress the warnings from solve() when the
-// system is singular or close to singular.
-#define ARMA_DONT_PRINT_ERRORS
-
-// Disable all run-time checks, such as bounds checking. This will
-// speed up code a bit.
-// #define ARMA_NO_DEBUG
-
-#include <RcppArmadillo.h>
 #include "mixsqp.h"
+#include <RcppArmadillo.h>
 
 using namespace Rcpp;
 using namespace arma;
@@ -18,18 +10,22 @@ using namespace arma;
 
 // FUNCTION DEFINITIONS
 // --------------------
-// TO DO: Describe here what this function does.
+// TO DO: Describe here what this function does, and describe the
+// inputs and outputs.
 // 
 // [[Rcpp::export]]
-void altsqp_update_factors_rcpp (const mat& X, arma::mat& F,
-				 const arma::mat& L, const arma::vec& xscol) {
+void altsqp_update_factors_rcpp (const arma::mat& X, arma::mat& F,
+				 const arma::mat& L, const arma::vec& xscol,
+				 const arma::vec& ls) {
   // TO DO.
 }
 
-// TO DO: Describe here what this function does.
+// TO DO: Describe here what this function does, and describe the
+// inputs and outputs.
 // 
 // [[Rcpp::export]]
-void altsqp_update_loadings_rcpp (const mat& X, const arma::mat& F,
-				  arma::mat& L, const arma::vec& xsrow) {
+void altsqp_update_loadings_rcpp (const arma::mat& X, const arma::mat& F,
+				  arma::mat& L, const arma::vec& xsrow,
+				  const arma::vec& fs) {
   // TO DO.
 }

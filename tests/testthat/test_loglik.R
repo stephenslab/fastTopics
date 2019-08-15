@@ -26,3 +26,14 @@ test_that("loglik.poisson gives same result for sparse and dense matrix",{
   f2  <- loglik.multinom(Y,fit)
   expect_equal(f1,f2)
 })
+
+test_that("R and Rcpp versions of cost function return same result",{
+  e  <- 1e-8
+  A  <- matrix(runif(20),4,5) > 0.5
+  X  <- matrix(0:19,4,5) * A
+  F  <- matrix(0:9,5,2)
+  L  <- matrix(0:7,4,2)
+  f1 <- cost(X,L,t(F),e,"R")
+  f2 <- cost(X,L,t(F),e,"Rcpp")
+  expect_equal(f1,f2)
+})

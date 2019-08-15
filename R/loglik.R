@@ -91,8 +91,14 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
 # factorization, in which matrix X is approximated by matrix AB = A*B.
 # This is equivalent to the negative Poisson log-likelihood after
 # removing terms that do not depend on A or B.
-cost <- function (X, A, B, e) {
-  AB <- A %*% B
-  f  <- sum(AB - X*log(AB + e))
+cost <- function (X, A, B, e, version = c("R", "Rcpp")) {
+  version <- match.arg(version)
+  if (version == "Rcpp" & !is.matrix(X))
+    stop("version = \"Rcpp\" is not yet implemented for sparse matrices")
+  if (version == "R") {
+    AB <- A %*% B
+    f  <- sum(AB - X*log(AB + e))
+  } else
+    f <- cost_rcpp(X,A,B,e)
   return(f)
 }

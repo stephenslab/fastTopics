@@ -94,6 +94,10 @@
 #' @param numiter A positive integer specifying the number of
 #'   updates to perform.
 #'
+#' @param version With \code{version = "R"}, a slower, but more easily
+#'   debugged, implementation is used; with \code{version = "Rcpp"}, a
+#'   faster, less easily debugged implementation is used.
+#' 
 #' @param control A list of parameters controlling the behaviour of
 #'   the optimization algorithm. See \sQuote{Details}.
 #'
@@ -260,12 +264,17 @@ altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
         ncol(L) == ncol(F)))
     stop(paste("Dimensions of input arguments \"X\", \"fit$F\" and/or",
                "\"fit$L\ do not agree"))
-  
+
   # Get the number of rows (n) and columns (m) of X, and the rank of
   # the matrix factorization (k).
   n <- nrow(X)
   m <- ncol(X)
   k <- ncol(F)
+
+  # Determine which implementation to use.
+  version <- match.arg(version)
+  if (version == "Rcpp" & !is.matrix(X))
+    stop("version = \"Rcpp\" is not yet implemented for sparse matrices")
   
   # Get the optimization settings.
   control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
@@ -273,7 +282,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
 
   # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
-  f     <- cost(X,L,t(F),e)
+  f     <- cost(X,L,t(F),e,version)
   fbest <- f
 
   # Compute the sum of the elements in each row and each column of the
@@ -304,7 +313,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-45)\n")
+    cat("(fastTopics version 0.1-47)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -318,7 +327,8 @@ altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
   # Iteratively apply the EM and SQP updates using the R or Rcpp
   # implementation.
   out <- altsqp_main_loop(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,xsrow,xscol,
-                          beta,betamax,numiter,control,progress,verbose)
+                          beta,betamax,numiter,version,control,progress,
+                          verbose)
   Fbest    <- out$Fbest
   Lbest    <- out$Lbest
   fbest    <- out$fbest
@@ -335,9 +345,9 @@ altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
 }
 
 # This helper function implements the main alt-SQP loop.
-altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
-                              f, fbest, xsrow, xscol, beta, betamax,
-                              numiter, control, progress, verbose) {
+altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
+                              fbest, xsrow, xscol, beta, betamax, numiter,
+                              version, control, progress, verbose) {
     
   # Get the optimization settings.
   nc               <- control$nc
@@ -365,7 +375,9 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
       # UPDATE FACTORS
       # --------------
       # Update the factors ("basis vectors").
-      if (nc == 1)
+      if (version == "Rcpp") {
+        # TO DO.
+      } else if (nc == 1)
         Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
       else
         Fn <- altsqp.update.factors.multicore(X,Fy,Ly,xscol,control)
@@ -377,7 +389,9 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
       # UPDATE LOADINGS
       # ---------------
       # Update the loadings ("activations").
-      if (nc == 1)
+      if (version == "Rcpp") {
+        # TO DO.
+      } else if (nc == 1)
         Ln <- altsqp.update.loadings(X,Fy,Ly,xsrow,control)
       else
         Ln <- altsqp.update.loadings.multicore(X,Fy,Ly,xsrow,control)
@@ -390,8 +404,7 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest,
     # Compute the value of the objective (cost) function at the
     # extrapolated solution for the factors (F) and the
     # non-extrapolated solution for the loadings (L).
-    f <- cost(X,Ln,t(Fy),e)
-
+    f <- cost(X,Ln,t(Fy),e,version)
     if (beta == 0) {
 
       # No extrapolation is used, so use the basic coordinate-wise
