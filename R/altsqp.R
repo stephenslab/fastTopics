@@ -313,7 +313,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-48)\n")
+    cat("(fastTopics version 0.1-49)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -472,8 +472,9 @@ altsqp.update.factors <- function (X, F, L, xscol, control) {
   m  <- ncol(X)
   ls <- colSums(L)
   for (j in 1:m) {
-    F[j,] <- altsqp.update.em(L,X[,j],ls,xscol[j],F[j,],control$e)
-    F[j,] <- altsqp.update.sqp(L,X[,j],ls,xscol[j],F[j,],control)
+    i     <- which(X[,j] > 0)
+    F[j,] <- altsqp.update.em(L[i,],X[i,j],ls,xscol[j],F[j,],control$e)
+    F[j,] <- altsqp.update.sqp(L[i,],X[i,j],ls,xscol[j],F[j,],control)
   }
   return(F)
 }
@@ -483,8 +484,9 @@ altsqp.update.loadings <- function (X, F, L, xsrow, control) {
   n  <- nrow(X)
   fs <- colSums(F)
   for (i in 1:n) {
-    L[i,] <- altsqp.update.em(F,X[i,],fs,xsrow[i],L[i,],control$e)      
-    L[i,] <- altsqp.update.sqp(F,X[i,],fs,xsrow[i],L[i,],control)
+    j     <- which(X[i,] > 0)
+    L[i,] <- altsqp.update.em(F[j,],X[i,j],fs,xsrow[i],L[i,],control$e)      
+    L[i,] <- altsqp.update.sqp(F[j,],X[i,j],fs,xsrow[i],L[i,],control)
   }
   return(L)  
 }
@@ -518,32 +520,15 @@ altsqp.update.loadings.multicore <- function (X, F, L, xsrow, control) {
 }
 
 # Run one EM update for the alternating SQP method.
-altsqp.update.em <- function (B, w, bs, ws, y, e) {
-
-  # Remove any counts that are exactly zero.
-  i <- which(w > 0)
-  w <- w[i]
-  B <- B[i,]
-
-  # Run an EM update for the modified problem.
-  out <- mixem(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,e)
-
-  # Recover the solution to the unmodified problem.
-  return(out$x*ws/bs)
+altsqp.update.em <- function (B, w, bs, ws, x, e) {
+  y   <- ws/bs
+  out <- mixem(scale.cols(B,y),w/ws,x/y,1,e)
+  return(out$x*y)
 }
 
 # Run one SQP update for the alternating SQP method.
-altsqp.update.sqp <- function (B, w, bs, ws, y, control) {
-    
-  # Remove any counts that are exactly zero.
-  i <- which(w > 0)
-  w <- w[i]
-  B <- B[i,]
-
-  # Run an SQP update for the modified problem.
-  t   <- ws/bs
-  out <- mixsqp(scale.cols(B,t),w/ws,y/t,1,control)
-
-  # Recover the solution to the unmodified problem.
-  return(out$x*t)
+altsqp.update.sqp <- function (B, w, bs, ws, x, control) {
+  y   <- ws/bs
+  out <- mixsqp(scale.cols(B,y),w/ws,x/y,1,control)
+  return(out$x*y)
 }
