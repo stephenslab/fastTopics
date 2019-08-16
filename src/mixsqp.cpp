@@ -1,14 +1,13 @@
 #include "misc.h"
 #include "mixsqp.h"
-#include <RcppArmadillo.h>
 
 using namespace Rcpp;
 using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-void activesetqp(const mat& H, const vec& g, vec& y, int maxiter,
-		 double zerothresholdsearchdir, double tol);
+void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
+		  double zerothresholdsearchdir, double tol);
 void compute_activeset_searchdir (const mat& H, const vec& y, vec& p, mat& B);
 void backtracking_line_search (double f, const mat& L, const vec& w,
 			       const vec& g, const vec& x, const vec& p,
@@ -30,20 +29,38 @@ double compute_objective (const mat& L, const vec& w, const vec& x,
 // 
 // [[Rcpp::export]]
 arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
-		       const arma::vec& x0, double tol, double zerothreshold,
-		       double zerosearchdir, double suffdecr,
-		       double stepsizereduce, double minstepsize,
-		       const arma::vec& e, int numiter, int maxiteractiveset,
-		       bool verbose) {
+		       const arma::vec& x0, const arma::vec& e, 
+		       int numiter, List control, bool verbose) {
+
+  // Get the parameters controlling the behaviour of the SQP
+  // optimization algorithm.
+  mixsqp_control_params ctrl;
+  ctrl.activesetconvtol = control["activesetconvtol"];
+  ctrl.zerothreshold    = control["zerothreshold"];
+  ctrl.zerosearchdir    = control["zerosearchdir"];
+  ctrl.suffdecr         = control["suffdecr"];
+  ctrl.stepsizereduce   = control["stepsizereduce"];
+  ctrl.minstepsize      = control["minstepsize"];
+  ctrl.maxiteractiveset = control["maxiteractiveset"];
+
+  // Initialize the estimate of the solution.
+  vec x = x0;
+
+  // Iterate the SQP updates for a fixed number of iterations.
+  mixsqp(L,w,x,e,numiter,ctrl,verbose);
+  return x;
+}
+
+// This is the helper function for mixsqp_rcpp; it does most of the
+// actual work.
+void mixsqp (const mat& L, const vec& w, vec& x, const vec& e, int numiter, 
+	     mixsqp_control_params control, bool verbose) {
   
   // Get the number of rows (n) and columns (m) of the conditional
   // likelihood matrix.
   int n = L.n_rows;
   int m = L.n_cols;
 
-  // Initialize the solution.
-  vec x = x0;
-  
   // Scalars, vectors and matrices used in the computations below.
   double obj;
   uvec   i(m);
@@ -59,7 +76,7 @@ arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
   for (int iter = 0; iter < numiter; iter++) {
 
     // Zero any co-ordinates that are below the specified threshold.
-    i = find(x <= zerothreshold);
+    i = find(x <= control.zerothreshold);
     x(i).fill(0);
     
     // Compute the value of the objective at x.
@@ -78,12 +95,13 @@ arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
     // Solve the quadratic subproblem to obtain a search direction.
     ghat = g - H*x;
     y    = x;
-    activesetqp(H,ghat,y,maxiteractiveset,zerosearchdir,tol);
+    activesetqp(H,ghat,y,control.maxiteractiveset,control.zerosearchdir,
+		control.activesetconvtol);
     p = y - x;
     
     // Run backtracking line search.
-    backtracking_line_search(obj,L,w,g,x,p,e,suffdecr,stepsizereduce,
-			     minstepsize,y,u);
+    backtracking_line_search(obj,L,w,g,x,p,e,control.suffdecr,
+			     control.stepsizereduce,control.minstepsize,y,u);
     x = y;
   }
 
@@ -91,7 +109,6 @@ arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
     obj = compute_objective(L,w,x,e,u);
     Rprintf("%4d %+0.15f\n",numiter,obj);
   }
-  return x;
 }
 
 // This implements the active-set method from p. 472 of of Nocedal &

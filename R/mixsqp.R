@@ -1,23 +1,4 @@
 # Compute maximum-likelihood estimates of the mixture proportions in a
-# mixture model by iterating the EM updates for a fixed number of
-# iterations.
-mixem <- function (L, w, x0, numiter, e = 1e-15) {
-
-  # Get the initial estimate of the solution.
-  x <- x0
-
-  # Iterate the E and M steps.
-  n <- nrow(L)
-  e <- rep(e,n)
-  for (i in 1:numiter)
-    x <- mixem.update(L,w,x,e)
-
-  # Return (1) the estimate of the solution and (2) the value of the
-  # objective at this estimate.
-  return(list(x = x,value = mixobjective(L,w,x,e)))
-}
-
-# Compute maximum-likelihood estimates of the mixture proportions in a
 # mixture model by iterating the SQP updates for a fixed number of
 # 
 #' @importFrom utils modifyList
@@ -25,50 +6,35 @@ mixem <- function (L, w, x0, numiter, e = 1e-15) {
 #' 
 mixsqp <- function (L, w, x0, numiter, control = list(), verbose = FALSE) {
 
-  # Get the optimization settings.
-  control <- modifyList(mixsqp_control_default(),control,keep.null = TRUE)
-  e       <- control$e
-  
   # Get the number of rows (n) and columns (m) of the matrix L.
   n <- nrow(L)
   m <- ncol(L)
 
+  # Get the optimization settings.
+  control <- modifyList(mixsqp_control_default(),control,keep.null = TRUE)
+  e       <- control$e
+  
   # Run the updates implemented in C++.
   if (verbose)
-      cat("iter objective function\n")
-  e <- rep(e,n)
-  x <- drop(mixsqp_rcpp(L,w,x0,control$tol,control$zero.threshold,
-                        control$zero.searchdir,control$suffdecr,
-                        control$stepsizereduce,control$minstepsize,
-                        e,numiter,m + 1,verbose))
+    cat("iter objective function\n")
+  control$maxiteractiveset <- m + 1
+  x <- drop(mixsqp_rcpp(L,w,x0,rep(e,n),numiter,control,verbose))
   
   # Return (1) the estimate of the solution and (2) the value of the
   # objective at this estimate.
   return(list(x = x,value = mixobjective(L,w,x,e)))
 }
 
-# Perform a single EM update.
-mixem.update <- function (L, w, x, e) {
-
-  # Compute the n x m matrix of posterior mixture assignment
-  # probabilities (L is an n x m matrix). This is the "E step".
-  P <- scale.cols(L,x) + e
-  P <- P / rowSums(P)
-
-  # Update the mixture weights. This is the "M step".
-  return(drop(w %*% P))
-}
-
 # These are the default optimization settings used in the "mixsqp"
 # function.
 mixsqp_control_default <- function()
-  list(tol            = 1e-10,
-       zero.threshold = 1e-10,
-       zero.searchdir = 1e-15,
-       suffdecr       = 0.01,
-       stepsizereduce = 0.75,
-       minstepsize    = 1e-10,
-       e              = 1e-15)
+  list(activesetconvtol = 1e-10,
+       zerothreshold    = 1e-10,
+       zerosearchdir    = 1e-15,
+       suffdecr         = 0.01,
+       stepsizereduce   = 0.75,
+       minstepsize      = 1e-10,
+       e                = 1e-15)
 
 # Compute the value of the mix-SQP objective at x; arguments L and w
 # specify the objective, and e is a vector in which the entries can be

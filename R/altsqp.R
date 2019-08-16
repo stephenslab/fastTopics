@@ -313,7 +313,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-47)\n")
+    cat("(fastTopics version 0.1-48)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -541,8 +541,9 @@ altsqp.update.sqp <- function (B, w, bs, ws, y, control) {
   B <- B[i,]
 
   # Run an SQP update for the modified problem.
-  out <- mixsqp(scale.cols(B,ws/bs),w/ws,y*bs/ws,1,control)
+  t   <- ws/bs
+  out <- mixsqp(scale.cols(B,t),w/ws,y/t,1,control)
 
   # Recover the solution to the unmodified problem.
-  return(out$x*ws/bs)
+  return(out$x*t)
 }
