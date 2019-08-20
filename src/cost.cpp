@@ -11,16 +11,16 @@ using namespace arma;
 // log-likelihood after removing terms that do not depend on A or B.
 //
 // [[Rcpp::export]]
-double cost_rcpp (const arma::mat& X, const arma::mat& A, const arma::mat& B, 
-		  double e) {
+double cost_rcpp (const arma::mat& X, const arma::mat& A,
+		  const arma::mat& B, double e) {
   return cost(X,A,B,e);
 }
 
 // This is the helper function for cost_rcpp.
 double cost (const mat& X, const mat& A, const mat& B, double e) {
-  int    n = X.n_rows;
-  int    m = X.n_cols;
-  int    k = A.n_cols;
+  uint   n = X.n_rows;
+  uint   m = X.n_cols;
+  uint   k = A.n_cols;
   double f = 0;
 
   // Quantities used in the computations below.
@@ -29,11 +29,11 @@ double cost (const mat& X, const mat& A, const mat& B, double e) {
   vec b(k);
   
   // Repeat for each column of X.
-  for (int j = 0; j < m; j++) {
+  for (uint j = 0; j < m; j++) {
 
     // Get the jth column of X and the jth column of B.
-    copycol(X,j,x);
-    copycol(B,j,b);
+    x = X.col(j);
+    b = B.col(j);
 
     // This is equivalent to the following R code:
     //

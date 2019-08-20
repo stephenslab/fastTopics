@@ -8,7 +8,7 @@
 \alias{poisson2multinom}
 \title{Alternating SQP Method for Optimizing Topic Models and Non-negative Matrix Factorizations}
 \usage{
-altsqp(X, fit, numiter = 100, version = c("R", "Rcpp"),
+altsqp(X, fit, numiter = 100, version = c("Rcpp", "R"),
   control = list(), verbose = TRUE)
 
 altsqp_control_default()
@@ -200,7 +200,7 @@ fit1 <- suppressWarnings(
 
 # Run 60 coordinate-wise updates of the SQP method implemented in the
 # fastTopics package.
-fit2 <- altsqp(X,fit0,numiter = 60,verbose = FALSE)
+fit2 <- altsqp(X,fit0,numiter = 60,version = "R",verbose = FALSE)
 
 # Compare the Poisson log-likelihood at the two solutions; the
 # likelihood should be higher at the the altsqp solution.

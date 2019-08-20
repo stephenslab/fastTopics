@@ -183,7 +183,7 @@
 #'
 #' # Run 60 coordinate-wise updates of the SQP method implemented in the
 #' # fastTopics package.
-#' fit2 <- altsqp(X,fit0,numiter = 60,verbose = FALSE)
+#' fit2 <- altsqp(X,fit0,numiter = 60,version = "R",verbose = FALSE)
 #' 
 #' # Compare the Poisson log-likelihood at the two solutions; the
 #' # likelihood should be higher at the the altsqp solution.
@@ -218,7 +218,7 @@
 #' 
 #' @export
 #' 
-altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
+altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
                     control = list(), verbose = TRUE) {
 
   # Verify and process input matrix X. Each row and each column of the
@@ -278,6 +278,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
   
   # Get the optimization settings.
   control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
+  control$maxiteractiveset <- k + 1
   e       <- control$e
 
   # Compute the value of the objective (the negative Poisson
@@ -313,7 +314,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("R", "Rcpp"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-49)\n")
+    cat("(fastTopics version 0.1-50)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -375,9 +376,10 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       # UPDATE FACTORS
       # --------------
       # Update the factors ("basis vectors").
-      if (version == "Rcpp") {
-        # TO DO.
-      } else if (nc == 1)
+      if (version == "Rcpp")
+        Fn <- t(altsqp_update_factors_rcpp(X,t(Fy),Ly,xscol,colSums(Ly),
+                                           e,control))
+      else if (nc == 1)
         Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
       else
         Fn <- altsqp.update.factors.multicore(X,Fy,Ly,xscol,control)
@@ -389,9 +391,10 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       # UPDATE LOADINGS
       # ---------------
       # Update the loadings ("activations").
-      if (version == "Rcpp") {
-        # TO DO.
-      } else if (nc == 1)
+      if (version == "Rcpp")
+        Ln <- t(altsqp_update_loadings_rcpp(X,Fy,t(Ly),xsrow,colSums(Fy),
+                                            e,control))
+      else if (nc == 1)
         Ln <- altsqp.update.loadings(X,Fy,Ly,xsrow,control)
       else
         Ln <- altsqp.update.loadings.multicore(X,Fy,Ly,xsrow,control)
@@ -473,7 +476,7 @@ altsqp.update.factors <- function (X, F, L, xscol, control) {
   ls <- colSums(L)
   for (j in 1:m) {
     i     <- which(X[,j] > 0)
-    F[j,] <- altsqp.update.em(L[i,],X[i,j],ls,xscol[j],F[j,],control$e)
+  # F[j,] <- altsqp.update.em(L[i,],X[i,j],ls,xscol[j],F[j,],control$e)
     F[j,] <- altsqp.update.sqp(L[i,],X[i,j],ls,xscol[j],F[j,],control)
   }
   return(F)
@@ -485,7 +488,7 @@ altsqp.update.loadings <- function (X, F, L, xsrow, control) {
   fs <- colSums(F)
   for (i in 1:n) {
     j     <- which(X[i,] > 0)
-    L[i,] <- altsqp.update.em(F[j,],X[i,j],fs,xsrow[i],L[i,],control$e)      
+  # L[i,] <- altsqp.update.em(F[j,],X[i,j],fs,xsrow[i],L[i,],control$e)      
     L[i,] <- altsqp.update.sqp(F[j,],X[i,j],fs,xsrow[i],L[i,],control)
   }
   return(L)  

@@ -6,7 +6,7 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
+void activesetqp (const mat& H, const vec& g, vec& y, uint maxiter,
 		  double zerothresholdsearchdir, double tol);
 void compute_activeset_searchdir (const mat& H, const vec& y, vec& p, mat& B);
 void backtracking_line_search (double f, const mat& L, const vec& w,
@@ -30,36 +30,26 @@ double compute_objective (const mat& L, const vec& w, const vec& x,
 // [[Rcpp::export]]
 arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 		       const arma::vec& x0, const arma::vec& e, 
-		       int numiter, List control, bool verbose) {
-
-  // Get the parameters controlling the behaviour of the SQP
-  // optimization algorithm.
-  mixsqp_control_params ctrl;
-  ctrl.activesetconvtol = control["activesetconvtol"];
-  ctrl.zerothreshold    = control["zerothreshold"];
-  ctrl.zerosearchdir    = control["zerosearchdir"];
-  ctrl.suffdecr         = control["suffdecr"];
-  ctrl.stepsizereduce   = control["stepsizereduce"];
-  ctrl.minstepsize      = control["minstepsize"];
-  ctrl.maxiteractiveset = control["maxiteractiveset"];
+		       uint numiter, List control, bool verbose) {
 
   // Initialize the estimate of the solution.
   vec x = x0;
 
   // Iterate the SQP updates for a fixed number of iterations.
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
   mixsqp(L,w,x,e,numiter,ctrl,verbose);
   return x;
 }
 
 // This is the helper function for mixsqp_rcpp; it does most of the
 // actual work.
-void mixsqp (const mat& L, const vec& w, vec& x, const vec& e, int numiter, 
+void mixsqp (const mat& L, const vec& w, vec& x, const vec& e, uint numiter, 
 	     mixsqp_control_params control, bool verbose) {
   
   // Get the number of rows (n) and columns (m) of the conditional
   // likelihood matrix.
-  int n = L.n_rows;
-  int m = L.n_cols;
+  uint n = L.n_rows;
+  uint m = L.n_cols;
 
   // Scalars, vectors and matrices used in the computations below.
   double obj;
@@ -73,7 +63,7 @@ void mixsqp (const mat& L, const vec& w, vec& x, const vec& e, int numiter,
   vec    y(m);
   
   // Iterate the SQP updates for a fixed number of iterations.
-  for (int iter = 0; iter < numiter; iter++) {
+  for (uint iter = 0; iter < numiter; iter++) {
 
     // Zero any co-ordinates that are below the specified threshold.
     i = find(x <= control.zerothreshold);
@@ -86,11 +76,6 @@ void mixsqp (const mat& L, const vec& w, vec& x, const vec& e, int numiter,
 
     // Compute the gradient and Hessian.
     compute_grad(L,w,x,e,g,H,Z);
-    
-    // This is also a good point to check for a user interrupt; if the
-    // user requests an interrupt, then an exception is thrown and
-    // control is returned to the R console.
-    Rcpp::checkUserInterrupt();
     
     // Solve the quadratic subproblem to obtain a search direction.
     ghat = g - H*x;
@@ -111,11 +96,25 @@ void mixsqp (const mat& L, const vec& w, vec& x, const vec& e, int numiter,
   }
 }
 
+// Get the parameters controlling the behaviour of the SQP
+// optimization algorithm from the named elements in a list.
+mixsqp_control_params get_mixsqp_control_params (Rcpp::List control) {
+  mixsqp_control_params x;
+  x.activesetconvtol = control["activesetconvtol"];
+  x.zerothreshold    = control["zerothreshold"];
+  x.zerosearchdir    = control["zerosearchdir"];
+  x.suffdecr         = control["suffdecr"];
+  x.stepsizereduce   = control["stepsizereduce"];
+  x.minstepsize      = control["minstepsize"];
+  x.maxiteractiveset = control["maxiteractiveset"];
+  return x;
+}
+
 // This implements the active-set method from p. 472 of of Nocedal &
 // Wright, Numerical Optimization, 2nd ed, 2006.
-void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
+void activesetqp (const mat& H, const vec& g, vec& y, uint maxiter,
 		  double zerosearchdir, double tol) {
-  int    m = g.n_elem;
+  uint   m = g.n_elem;
   double a;
   int    k;
   vec    b(m);
@@ -134,7 +133,7 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
   uvec t = (y > 0);
   
   // Run active set method to solve the quadratic subproblem.
-  for (int iter = 0; iter < maxiter; iter++) {
+  for (uint iter = 0; iter < maxiter; iter++) {
 
     // Find the co-ordinates inside (j) and outside (i) the working
     // set.
@@ -213,7 +212,7 @@ void compute_activeset_searchdir (const mat& H, const vec& y, vec& p, mat& B) {
   double a0   = 1e-15;
   double amax = 1;
   double ainc = 10;
-  int    n    = y.n_elem;
+  uint   n    = y.n_elem;
   mat    I(n,n,fill::eye);
   mat    R(n,n);
 

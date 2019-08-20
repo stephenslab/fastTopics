@@ -1,3 +1,4 @@
+#include "misc.h"
 #include "mixsqp.h"
 #include <RcppArmadillo.h>
 
@@ -6,26 +7,142 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-// TO DO.
+void altsqp_update_sqp (mat& B, vec& w, const vec& bs, double ws, vec& x,
+			double e, mixsqp_control_params control);
 
 // FUNCTION DEFINITIONS
 // --------------------
-// TO DO: Describe here what this function does, and describe the
-// inputs and outputs.
+// This is a faster implementation of the R function altsqp.update.factors.
+//
+// The inputs and outputs differ slightly from the R function: X, an n
+// x m matrix, must not be sparse; F is the transpose of the argument
+// for the R function---an k x m matrix, in which F[j,] is the jth
+// factor; L remains the same (n x k matrix); xscol is also the same,
+// and must be equal to colSums(X); ls must be equal to colSums(L); e
+// is control$e; and "control" is the same as in the R function.
+//
+// The return value is the k x m matrix of updated factors.
 // 
 // [[Rcpp::export]]
-void altsqp_update_factors_rcpp (const arma::mat& X, arma::mat& F,
-				 const arma::mat& L, const arma::vec& xscol,
-				 const arma::vec& ls) {
-  // TO DO.
+arma::mat altsqp_update_factors_rcpp (const arma::mat& X,
+				      const arma::mat& F,
+				      const arma::mat& L,
+				      const arma::vec& xscol,
+				      const arma::vec& ls,
+				      double e, List control) {
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
+
+  // Initialize the return value.
+  uint k = F.n_rows;
+  uint m = F.n_cols;
+  mat Fnew(k,m);
+
+  // Repeat for each column of X (equivalently, for each column of F).
+  for (uint j = 0; j < m; j++) {
+    vec x = F.col(j);
+
+    // Get the mixsqp inputs: set B to L[i,], and set w to X[i,j],
+    // where i is the vector of indices such that X[i,j] > 0.
+    uvec i = find(X.col(j) > 0);
+    uint n = i.n_elem;
+    vec w(n);
+    mat B(n,k);
+    copycolelems(X,i,j,w);
+    B = L.rows(i);
+    
+    // Run an EM update.
+    // TO DO.
+
+    // Run an SQP update.
+    altsqp_update_sqp(B,w,ls,xscol(j),x,e,ctrl);
+      
+    // Store the updated factors.
+    Fnew.col(j) = x;
+
+    // This is also a good point to check for a user interrupt; if the
+    // user requests an interrupt, then an exception is thrown and
+    // control is returned to the R console.
+    Rcpp::checkUserInterrupt();
+  }
+
+  return Fnew;
 }
 
-// TO DO: Describe here what this function does, and describe the
-// inputs and outputs.
+// This is a faster implementation of the R function altsqp.update.loadings.
+//
+// The inputs and outputs differ slightly from the R function: X, an n
+// x m matrix, must not be sparse; F remains the same (m x k matrix);
+// L is the transpose of the argument for the R function---an k x n
+// matrix, in which L[j,] is the set of loadings corresponding to the
+// jth factor; xsrow is the same, and must be equal to rowSums(X); fs
+// must be equal to colSums(F); e is control$e; and "control" is the
+// same as in the R function.
+//
+// The return value is the k x n matrix of updated loadings.
 // 
 // [[Rcpp::export]]
-void altsqp_update_loadings_rcpp (const arma::mat& X, const arma::mat& F,
-				  arma::mat& L, const arma::vec& xsrow,
-				  const arma::vec& fs) {
-  // TO DO.
+arma::mat altsqp_update_loadings_rcpp (const arma::mat& X,
+				       const arma::mat& F,
+				       const arma::mat& L,
+				       const arma::vec& xsrow,
+				       const arma::vec& fs,
+				       double e, List control) {
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
+
+  // Initialize the return value.
+  uint k = L.n_rows;
+  uint n = L.n_cols;
+  mat Lnew(k,n);
+
+  // Repeat for each row of X (equivalently, for each column of L).
+  for (uint i = 0; i < n; i++) {
+    vec x = L.col(i);
+
+    // Get the mixsqp inputs: set B to F[j,], and set w to X[i,j],
+    // where j is the vector of indices such that X[i,j] > 0.
+    uvec j = find(X.row(i) > 0);
+    uint m = j.n_elem;
+    vec w(m);
+    mat B(m,k);
+    copyrowelems(X,i,j,w);
+    B = F.rows(j);
+
+    // Run an EM update.
+    // TO DO.
+
+    // Run an SQP update.
+    altsqp_update_sqp(B,w,fs,xsrow(i),x,e,ctrl);
+
+    // Store the updated loadings.
+    Lnew.col(i) = x;
+    
+    // This is also a good point to check for a user interrupt; if the
+    // user requests an interrupt, then an exception is thrown and
+    // control is returned to the R console.
+    Rcpp::checkUserInterrupt();
+  }
+
+  return Lnew;
+}
+
+// Run one SQP update on the modified problem, then recover the
+// solution to the unmodified problem.
+void altsqp_update_sqp (mat& B, vec& w, const vec& bs, double ws, vec& x,
+			double e, mixsqp_control_params control) {
+
+  // Compute the solution to the modified problem.
+  uint n = B.n_rows;
+  uint m = B.n_cols;
+  vec ev(n);
+  vec y(m);
+  ev.fill(e);
+  y.fill(ws);
+  y /= bs;
+  w /= ws;
+  x /= y;
+  scalecols(B,y);
+  mixsqp(B,w,x,ev,1,control,false);
+
+  // Recover the solution to the unmodified problem.
+  x %= y;
 }

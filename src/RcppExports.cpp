@@ -7,31 +7,37 @@
 using namespace Rcpp;
 
 // altsqp_update_factors_rcpp
-void altsqp_update_factors_rcpp(const arma::mat& X, arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls);
-RcppExport SEXP _fastTopics_altsqp_update_factors_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xscolSEXP, SEXP lsSEXP) {
+arma::mat altsqp_update_factors_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls, double e, List control);
+RcppExport SEXP _fastTopics_altsqp_update_factors_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xscolSEXP, SEXP lsSEXP, SEXP eSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type F(FSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type xscol(xscolSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type ls(lsSEXP);
-    altsqp_update_factors_rcpp(X, F, L, xscol, ls);
-    return R_NilValue;
-END_RCPP
-}
-// altsqp_update_loadings_rcpp
-void altsqp_update_loadings_rcpp(const arma::mat& X, const arma::mat& F, arma::mat& L, const arma::vec& xsrow, const arma::vec& fs);
-RcppExport SEXP _fastTopics_altsqp_update_loadings_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xsrowSEXP, SEXP fsSEXP) {
-BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type xscol(xscolSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type ls(lsSEXP);
+    Rcpp::traits::input_parameter< double >::type e(eSEXP);
+    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_rcpp(X, F, L, xscol, ls, e, control));
+    return rcpp_result_gen;
+END_RCPP
+}
+// altsqp_update_loadings_rcpp
+arma::mat altsqp_update_loadings_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xsrow, const arma::vec& fs, double e, List control);
+RcppExport SEXP _fastTopics_altsqp_update_loadings_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xsrowSEXP, SEXP fsSEXP, SEXP eSEXP, SEXP controlSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type xsrow(xsrowSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type fs(fsSEXP);
-    altsqp_update_loadings_rcpp(X, F, L, xsrow, fs);
-    return R_NilValue;
+    Rcpp::traits::input_parameter< double >::type e(eSEXP);
+    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(altsqp_update_loadings_rcpp(X, F, L, xsrow, fs, e, control));
+    return rcpp_result_gen;
 END_RCPP
 }
 // cost_rcpp
@@ -49,7 +55,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // mixsqp_rcpp
-arma::vec mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, const arma::vec& e, int numiter, List control, bool verbose);
+arma::vec mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, const arma::vec& e, uint numiter, List control, bool verbose);
 RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP eSEXP, SEXP numiterSEXP, SEXP controlSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -58,7 +64,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type e(eSEXP);
-    Rcpp::traits::input_parameter< int >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< List >::type control(controlSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, e, numiter, control, verbose));
@@ -67,8 +73,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fastTopics_altsqp_update_factors_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_rcpp, 5},
-    {"_fastTopics_altsqp_update_loadings_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_loadings_rcpp, 5},
+    {"_fastTopics_altsqp_update_factors_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_rcpp, 7},
+    {"_fastTopics_altsqp_update_loadings_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_loadings_rcpp, 7},
     {"_fastTopics_cost_rcpp", (DL_FUNC) &_fastTopics_cost_rcpp, 4},
     {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 7},
     {NULL, NULL, 0}

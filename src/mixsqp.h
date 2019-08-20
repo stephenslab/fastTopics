@@ -17,13 +17,15 @@ typedef struct {
   double suffdecr;
   double stepsizereduce;
   double minstepsize;
-  int    maxiteractiveset;
+  uint   maxiteractiveset;
 } mixsqp_control_params;
 
 // FUNCTION DECLARATIONS
 // ---------------------
+mixsqp_control_params get_mixsqp_control_params (Rcpp::List control);
+
 void mixsqp (const arma::mat& L, const arma::vec& w, arma::vec& x,
-	     const arma::vec& e, int numiter, mixsqp_control_params control,
+	     const arma::vec& e, uint numiter, mixsqp_control_params control,
 	     bool verbose);
 
 #endif
