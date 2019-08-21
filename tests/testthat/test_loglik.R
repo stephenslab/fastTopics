@@ -36,4 +36,10 @@ test_that("R and Rcpp versions of cost function return same result",{
   f1 <- cost(X,L,t(F),e,"R")
   f2 <- cost(X,L,t(F),e,"Rcpp")
   expect_equal(f1,f2)
+
+  # Next, check the calculations when X is sparse.
+  X  <- as(X,"dgCMatrix")
+  f1 <- cost(X,L,t(F),e,"R")
+  f2 <- cost(X,L,t(F),e,"Rcpp")
+  expect_equal(f1,f2)
 })

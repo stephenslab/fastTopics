@@ -13,6 +13,10 @@ cost_rcpp <- function(X, A, B, e) {
     .Call('_fastTopics_cost_rcpp', PACKAGE = 'fastTopics', X, A, B, e)
 }
 
+cost_sparse_rcpp <- function(X, A, B, e) {
+    .Call('_fastTopics_cost_sparse_rcpp', PACKAGE = 'fastTopics', X, A, B, e)
+}
+
 mixsqp_rcpp <- function(L, w, x0, e, numiter, control, verbose) {
     .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, e, numiter, control, verbose)
 }
