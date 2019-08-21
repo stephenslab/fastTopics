@@ -273,8 +273,6 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
 
   # Determine which implementation to use.
   version <- match.arg(version)
-  if (version == "Rcpp" & !is.matrix(X))
-    stop("version = \"Rcpp\" is not yet implemented for sparse matrices")
   
   # Get the optimization settings.
   control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
@@ -314,7 +312,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-52)\n")
+    cat("(fastTopics version 0.1-53)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -380,9 +378,9 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
         if (is.matrix(X))
           Fn <- t(altsqp_update_factors_rcpp(X,t(Fy),Ly,xscol,colSums(Ly),
                                              e,control))
-        else {
-          # TO DO: Implement altsqp_update_factors_sparse_rcpp.
-        }
+        else
+          Fn <- t(altsqp_update_factors_sparse_rcpp(X,t(Fy),Ly,xscol,
+                                                    colSums(Ly),e,control))
       } else if (nc == 1)
         Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
       else
@@ -399,9 +397,9 @@ altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
         if (is.matrix(X))
           Ln <- t(altsqp_update_loadings_rcpp(X,Fy,t(Ly),xsrow,colSums(Fy),
                                               e,control))
-        else {
-          # TO DO: Implement altsqp_update_loadings_sparse_rcpp.
-        }
+        else
+          Ln <- t(altsqp_update_loadings_sparse_rcpp(X,Fy,t(Ly),xsrow,
+                                                     colSums(Fy),e,control))
       } else if (nc == 1)
         Ln <- altsqp.update.loadings(X,Fy,Ly,xsrow,control)
       else

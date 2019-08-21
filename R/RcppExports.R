@@ -5,8 +5,16 @@ altsqp_update_factors_rcpp <- function(X, F, L, xscol, ls, e, control) {
     .Call('_fastTopics_altsqp_update_factors_rcpp', PACKAGE = 'fastTopics', X, F, L, xscol, ls, e, control)
 }
 
+altsqp_update_factors_sparse_rcpp <- function(X, F, L, xscol, ls, e, control) {
+    .Call('_fastTopics_altsqp_update_factors_sparse_rcpp', PACKAGE = 'fastTopics', X, F, L, xscol, ls, e, control)
+}
+
 altsqp_update_loadings_rcpp <- function(X, F, L, xsrow, fs, e, control) {
     .Call('_fastTopics_altsqp_update_loadings_rcpp', PACKAGE = 'fastTopics', X, F, L, xsrow, fs, e, control)
+}
+
+altsqp_update_loadings_sparse_rcpp <- function(X, F, L, xsrow, fs, e, control) {
+    .Call('_fastTopics_altsqp_update_loadings_sparse_rcpp', PACKAGE = 'fastTopics', X, F, L, xsrow, fs, e, control)
 }
 
 cost_rcpp <- function(X, A, B, e) {

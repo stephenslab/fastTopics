@@ -19,11 +19,17 @@ test_that("altsqp gives same result for sparse and dense matrix",{
 
   # Fit the non-negative matrix factorization to the sparse and dense
   # matrices, and check that the two solutions are the same.
-  capture.output(fit1 <- altsqp(X,fit0,numiter = 20))
-  capture.output(fit2 <- altsqp(Y,fit0,numiter = 20,version = "R"))
+  capture.output(fit1 <- altsqp(X,fit0,numiter = 20,version = "R"))
+  capture.output(fit2 <- altsqp(X,fit0,numiter = 20,version = "Rcpp"))
+  capture.output(fit3 <- altsqp(Y,fit0,numiter = 20,version = "R"))
+  capture.output(fit4 <- altsqp(Y,fit0,numiter = 20,version = "Rcpp"))
   fit1$progress       <- fit1$progress[1:4]
   fit2$progress       <- fit2$progress[1:4]
+  fit3$progress       <- fit3$progress[1:4]
+  fit4$progress       <- fit4$progress[1:4]
   expect_equal(fit1,fit2)
+  expect_equal(fit1,fit3)
+  expect_equal(fit1,fit4)
 })
 
 test_that(paste("Multicore version of altsqp gives same result as",
@@ -44,8 +50,9 @@ test_that(paste("Multicore version of altsqp gives same result as",
 
   # Fit the non-negative matrix factorization to the sparse and dense
   # matrices, and check that the two solutions are the same.
-  capture.output(fit1 <- altsqp(X,fit0,numiter = 10))
-  capture.output(fit2 <- altsqp(X,fit0,numiter = 10,control = list(nc = 2)))
+  capture.output(fit1 <- altsqp(X,fit0,numiter = 10,version = "R"))
+  capture.output(fit2 <- altsqp(X,fit0,numiter = 10,version = "R",
+                                control = list(nc = 2)))
   fit1$progress       <- fit1$progress[1:4]
   fit2$progress       <- fit2$progress[1:4]
   expect_equal(fit1,fit2)
@@ -74,7 +81,7 @@ test_that("altsqp gives a better solution than nnmf on a sparse matrix",{
    nnmf(as.matrix(X),k,init = list(W = fit0$L,H = t(fit0$F)),
         method = "scd",loss = "mkl",max.iter = 50,rel.tol = 0, 
         inner.max.iter = 4,verbose = 0))
- capture.output(fit2 <- altsqp(X,fit0,numiter = 50,version = "R"))
+ capture.output(fit2 <- altsqp(X,fit0,numiter = 50))
 
  # The altsqp solution should yield a higher likelihood than the nnmf
  # solution.
