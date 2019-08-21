@@ -1,4 +1,5 @@
 #include "misc.h"
+#include "mixem.h"
 #include "mixsqp.h"
 #include <RcppArmadillo.h>
 
@@ -7,8 +8,10 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-void altsqp_update_sqp (mat& B, vec& w, const vec& bs, double ws, vec& x,
-			double e, mixsqp_control_params control);
+vec  get_modified_problem_params (mat& B, vec& w, const vec& bs, double ws,
+				  vec& x);
+void altsqp_update_em_sqp (mat& B, vec& w, const vec& bs, double ws, vec& x,
+			   double e, mixsqp_control_params control);
 
 // FUNCTION DEFINITIONS
 // --------------------
@@ -50,11 +53,8 @@ arma::mat altsqp_update_factors_rcpp (const arma::mat& X,
     copycolelems(X,i,j,w);
     B = L.rows(i);
     
-    // Run an EM update.
-    // TO DO.
-
     // Run an SQP update.
-    altsqp_update_sqp(B,w,ls,xscol(j),x,e,ctrl);
+    altsqp_update_em_sqp(B,w,ls,xscol(j),x,e,ctrl);
       
     // Store the updated factors.
     Fnew.col(j) = x;
@@ -107,11 +107,8 @@ arma::mat altsqp_update_loadings_rcpp (const arma::mat& X,
     copyrowelems(X,i,j,w);
     B = F.rows(j);
 
-    // Run an EM update.
-    // TO DO.
-
-    // Run an SQP update.
-    altsqp_update_sqp(B,w,fs,xsrow(i),x,e,ctrl);
+    // Run one EM update and one SQP update.
+    altsqp_update_em_sqp(B,w,fs,xsrow(i),x,e,ctrl);
 
     // Store the updated loadings.
     Lnew.col(i) = x;
@@ -125,24 +122,33 @@ arma::mat altsqp_update_loadings_rcpp (const arma::mat& X,
   return Lnew;
 }
 
-// Run one SQP update on the modified problem, then recover the
-// solution to the unmodified problem.
-void altsqp_update_sqp (mat& B, vec& w, const vec& bs, double ws, vec& x,
-			double e, mixsqp_control_params control) {
+// Run one EM update and SQP update on the modified problem, then
+// recover the updated solution to the unmodified problem.
+void altsqp_update_em_sqp (mat& B, vec& w, const vec& bs, double ws, vec& x,
+			   double e, mixsqp_control_params control) {
 
-  // Compute the solution to the modified problem.
+  // Update the solution to the modified problem.
   uint n = B.n_rows;
-  uint m = B.n_cols;
-  vec ev(n);
-  vec y(m);
+  vec  y = get_modified_problem_params(B,w,bs,ws,x);
+  vec  ev(n);
   ev.fill(e);
+  mixem_update(B,w,x,ev);
+  mixsqp(B,w,x,ev,1,control,false);
+
+  // Recover the updated solution to the unmodified problem.
+  x %= y;
+}
+
+// Set up the modified problem solved using either EM or the mix-SQP
+// algorithm.
+vec get_modified_problem_params (mat& B, vec& w, const vec& bs,
+				 double ws, vec& x) {
+  uint m = B.n_cols;
+  vec y(m);
   y.fill(ws);
   y /= bs;
   w /= ws;
   x /= y;
   scalecols(B,y);
-  mixsqp(B,w,x,ev,1,control,false);
-
-  // Recover the solution to the unmodified problem.
-  x %= y;
+  return y;
 }

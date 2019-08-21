@@ -314,7 +314,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-50)\n")
+    cat("(fastTopics version 0.1-51)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -476,7 +476,7 @@ altsqp.update.factors <- function (X, F, L, xscol, control) {
   ls <- colSums(L)
   for (j in 1:m) {
     i     <- which(X[,j] > 0)
-  # F[j,] <- altsqp.update.em(L[i,],X[i,j],ls,xscol[j],F[j,],control$e)
+    F[j,] <- altsqp.update.em(L[i,],X[i,j],ls,xscol[j],F[j,],control$e)
     F[j,] <- altsqp.update.sqp(L[i,],X[i,j],ls,xscol[j],F[j,],control)
   }
   return(F)
@@ -488,7 +488,7 @@ altsqp.update.loadings <- function (X, F, L, xsrow, control) {
   fs <- colSums(F)
   for (i in 1:n) {
     j     <- which(X[i,] > 0)
-  # L[i,] <- altsqp.update.em(F[j,],X[i,j],fs,xsrow[i],L[i,],control$e)      
+    L[i,] <- altsqp.update.em(F[j,],X[i,j],fs,xsrow[i],L[i,],control$e)      
     L[i,] <- altsqp.update.sqp(F[j,],X[i,j],fs,xsrow[i],L[i,],control)
   }
   return(L)  
