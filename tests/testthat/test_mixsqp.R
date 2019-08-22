@@ -38,7 +38,6 @@ test_that("Verify mixsqp on tacks data",{
   fit1 <- mixem(L,w,x0,numiter = 10)
   capture.output(fit2 <- mixsqp(L,w,fit1$x,numiter = 30,verbose = TRUE))
 
-  # Verify the solutions.
-  expect_equal(fit2$value,f,tolerance = 1e-8)
-  expect_equal(fit2$x,tacks$x,tolerance = 1e-3)
+  # Verify the solution.
+  expect_equal(fit2$value,f,tolerance = 1e-6)
 })

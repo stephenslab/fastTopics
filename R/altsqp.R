@@ -317,7 +317,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-55)\n")
+    cat("(fastTopics version 0.1-56)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -386,11 +386,13 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
         else
           Fn <- t(altsqp_update_factors_sparse_rcpp(X,t(Fy),Ly,xscol,
                                                     colSums(Ly),e,control))
-      } else if (nc == 1)
-        Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
-      else
-        Fn <- altsqp.update.factors.multicore(X,Fy,Ly,xscol,control)
-
+      } else {
+        if (nc == 1)
+          Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
+        else
+          Fn <- altsqp.update.factors.multicore(X,Fy,Ly,xscol,control)
+       }
+      
       # Compute the extrapolated update for the factors. Note that
       # when beta = 0, Fy = Fn.
       Fy <- pmax(Fn + beta*(Fn - F),0)
@@ -405,11 +407,13 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
         else
           Ln <- t(altsqp_update_loadings_sparse_rcpp(Xt,Fy,t(Ly),xsrow,
                                                      colSums(Fy),e,control))
-      } else if (nc == 1)
-        Ln <- altsqp.update.loadings(Xt,Fy,Ly,xsrow,control)
-      else
-        Ln <- altsqp.update.loadings.multicore(Xt,Fy,Ly,xsrow,control)
-
+      } else {
+        if (nc == 1)
+          Ln <- altsqp.update.loadings(Xt,Fy,Ly,xsrow,control)
+        else
+          Ln <- altsqp.update.loadings.multicore(Xt,Fy,Ly,xsrow,control)
+      }
+      
       # Compute the extrapolated update for the loadings. Note that
       # when beta = 0, Ly = Ln.
       Ly <- pmax(Ln + beta*(Ln - L),0)
