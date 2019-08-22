@@ -46,8 +46,8 @@ arma::mat altsqp_update_factors_rcpp (const arma::mat& X,
 
     // Get the mixsqp inputs: set B to L[i,], and set w to X[i,j],
     // where i is the vector of indices such that X[i,j] > 0.
-    vec  w = nonzeros(X.col(j));
     uvec i = find(X.col(j) > 0);
+    vec  w = nonzeros(X.col(j));
     uint n = i.n_elem;
     mat  B(n,k);
     B = L.rows(i);
@@ -93,8 +93,8 @@ arma::mat altsqp_update_factors_sparse_rcpp (const arma::sp_mat& X,
     vec  w = nonzeros(X.col(j));
     uint n = w.n_elem;
     uvec i(n);
-    getnonzeroindicesincol(X,i,j);
     mat B(n,k);
+    getcolnonzeros(X,i,j);
     B = L.rows(i);
     
     // Run an SQP update.
@@ -114,14 +114,17 @@ arma::mat altsqp_update_factors_sparse_rcpp (const arma::sp_mat& X,
 
 // This is a faster implementation of the R function altsqp.update.loadings.
 //
-// The inputs and outputs differ slightly from the R function: X, an n
-// x m matrix, must not be sparse; F remains the same (m x k matrix);
+// The inputs and outputs differ slightly from the R function: X, an m
+// x n matrix, must not be sparse; F remains the same (m x k matrix);
 // L is the transpose of the argument for the R function---an k x n
 // matrix, in which L[j,] is the set of loadings corresponding to the
 // jth factor; xsrow is the same, and must be equal to rowSums(X); fs
 // must be equal to colSums(F); e is control$e; and "control" is the
 // same as in the R function.
 //
+// Importantly, the input X for this function is the *transpose* of
+// the X inputted to altsqp_update_factors_rcpp.
+// 
 // The return value is the k x n matrix of updated loadings.
 // 
 // [[Rcpp::export]]
@@ -142,12 +145,12 @@ arma::mat altsqp_update_loadings_rcpp (const arma::mat& X,
   for (uint i = 0; i < n; i++) {
     vec x = L.col(i);
 
-    // Get the mixsqp inputs: set B to F[j,], and set w to X[i,j],
-    // where j is the vector of indices such that X[i,j] > 0.
-    uvec j = find(X.row(i));
-    vec  w = nonzeros(X.row(i));
-    uint m = w.n_elem;
-    mat B(m,k);
+    // Get the mixsqp inputs: set B to F[j,], and set w to X[j,i],
+    // where i is the vector of indices such that X[j,i] > 0.
+    uvec j = find(X.col(i) > 0);
+    vec  w = nonzeros(X.col(i));
+    uint m = j.n_elem;
+    mat  B(m,k);
     B = F.rows(j);
 
     // Run one EM update and one SQP update.
@@ -186,12 +189,13 @@ arma::mat altsqp_update_loadings_sparse_rcpp (const arma::sp_mat& X,
   for (uint i = 0; i < n; i++) {
     vec x = L.col(i);
 
-    // Get the mixsqp inputs: set B to F[j,], and set w to X[i,j],
-    // where j is the vector of indices such that X[i,j] > 0.
-    uvec j = find(X.row(i));
-    vec  w = nonzeros(X.row(i));
+    // Get the mixsqp inputs: set B to F[j,], and set w to X[j,i],
+    // where j is the vector of indices such that X[j,i] > 0.
+    vec  w = nonzeros(X.col(i));
     uint m = w.n_elem;
+    uvec j(m);
     mat B(m,k);
+    getcolnonzeros(X,j,i);
     B = F.rows(j);
 
     // Run one EM update and one SQP update.

@@ -210,6 +210,7 @@
 #' 
 #' @importFrom Rcpp evalCpp
 #' @importFrom utils modifyList
+#' @importFrom Matrix t
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums
 #' @importFrom Matrix mean
@@ -316,7 +317,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-54)\n")
+    cat("(fastTopics version 0.1-55)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -398,16 +399,16 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       # ---------------
       # Update the loadings ("activations").
       if (version == "Rcpp") {
-        if (is.matrix(X))
-          Ln <- t(altsqp_update_loadings_rcpp(X,Fy,t(Ly),xsrow,colSums(Fy),
+        if (is.matrix(Xt))
+          Ln <- t(altsqp_update_loadings_rcpp(Xt,Fy,t(Ly),xsrow,colSums(Fy),
                                               e,control))
         else
-          Ln <- t(altsqp_update_loadings_sparse_rcpp(X,Fy,t(Ly),xsrow,
+          Ln <- t(altsqp_update_loadings_sparse_rcpp(Xt,Fy,t(Ly),xsrow,
                                                      colSums(Fy),e,control))
       } else if (nc == 1)
-        Ln <- altsqp.update.loadings(X,Fy,Ly,xsrow,control)
+        Ln <- altsqp.update.loadings(Xt,Fy,Ly,xsrow,control)
       else
-        Ln <- altsqp.update.loadings.multicore(X,Fy,Ly,xsrow,control)
+        Ln <- altsqp.update.loadings.multicore(Xt,Fy,Ly,xsrow,control)
 
       # Compute the extrapolated update for the loadings. Note that
       # when beta = 0, Ly = Ln.

@@ -14,11 +14,21 @@ double min (double a, double b) {
   return y;
 }
 
-// Get the indices of the nonzeros in the jth column of sparse matrix A.
+// Return the row indices of the nonzeros in the jth column of sparse
+// matrix A. This is the same as
 //
-//   i = find(A.col(j));
+//  i = find(A.col(j))
 //
-void getnonzeroindicesincol (const sp_mat& A, uvec& i, uint j) {
+// but this code does not compile in some versions of gcc, so I
+// re-implemented this code here. Vector i must already been
+// initialized with the proper length, e.g., by doing
+//
+//   vec  a = nonzeros(A.col(j));
+//   uint n = a.n_elem;
+//   uvec i(n);
+//   getcolnonzeros(A,i,j);
+//
+void getcolnonzeros (const sp_mat& A, uvec& i, uint j) {
   sp_mat::const_col_iterator ai = A.begin_col(j);
   sp_mat::const_col_iterator an = A.end_col(j);
   for (uint t = 0; ai != an; ++ai, ++t)
