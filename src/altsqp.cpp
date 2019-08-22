@@ -90,9 +90,10 @@ arma::mat altsqp_update_factors_sparse_rcpp (const arma::sp_mat& X,
 
     // Get the mixsqp inputs: set B to L[i,], and set w to X[i,j],
     // where i is the vector of indices such that X[i,j] > 0.
-    uvec i = find(X.col(j));
     vec  w = nonzeros(X.col(j));
     uint n = w.n_elem;
+    uvec i(n);
+    getnonzeroindicesincol(X,i,j);
     mat B(n,k);
     B = L.rows(i);
     

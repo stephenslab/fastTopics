@@ -14,6 +14,17 @@ double min (double a, double b) {
   return y;
 }
 
+// Get the indices of the nonzeros in the jth column of sparse matrix A.
+//
+//   i = find(A.col(j));
+//
+void getnonzeroindicesincol (const sp_mat& A, uvec& i, uint j) {
+  sp_mat::const_col_iterator ai = A.begin_col(j);
+  sp_mat::const_col_iterator an = A.end_col(j);
+  for (uint t = 0; ai != an; ++ai, ++t)
+    i(t) = ai.row();
+}
+
 // Add b[i] to each row A[i,].
 void addtorows (mat& A, const vec& b) {
   uint n = A.n_rows;

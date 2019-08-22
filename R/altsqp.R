@@ -284,6 +284,10 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   f     <- cost(X,L,t(F),e,version)
   fbest <- f
 
+  # Matrices in R are stored column-wise; to quickly access each row
+  # of the matrix, the transpose of X is also stored.
+  Xt <- t(X);
+  
   # Compute the sum of the elements in each row and each column of the
   # counts matrix.
   xsrow <- rowSums(X)
@@ -312,7 +316,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-53)\n")
+    cat("(fastTopics version 0.1-54)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -325,9 +329,9 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
 
   # Iteratively apply the EM and SQP updates using the R or Rcpp
   # implementation.
-  out <- altsqp_main_loop(X,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,xsrow,xscol,
-                          beta,betamax,numiter,version,control,progress,
-                          verbose)
+  out <- altsqp_main_loop(X,Xt,F,Fn,Fy,Fbest,L,Ln,Ly,Lbest,f,fbest,xsrow,
+                          xscol,beta,betamax,numiter,version,control,
+                          progress,verbose)
   Fbest    <- out$Fbest
   Lbest    <- out$Lbest
   fbest    <- out$fbest
@@ -344,7 +348,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
 }
 
 # This helper function implements the main alt-SQP loop.
-altsqp_main_loop <- function (X, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
+altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
                               fbest, xsrow, xscol, beta, betamax, numiter,
                               version, control, progress, verbose) {
     
@@ -488,14 +492,16 @@ altsqp.update.factors <- function (X, F, L, xscol, control) {
   return(F)
 }
 
-# Update all the loadings with the factors remaining fixed.
+# Update all the loadings with the factors remaining fixed. Note that
+# input argument X is the the *transpose* of the matrix inputted to
+# altsqp (an m x n matrix).
 altsqp.update.loadings <- function (X, F, L, xsrow, control) {
-  n  <- nrow(X)
+  n  <- ncol(X)
   fs <- colSums(F)
   for (i in 1:n) {
-    j     <- which(X[i,] > 0)
-    L[i,] <- altsqp.update.em(F[j,],X[i,j],fs,xsrow[i],L[i,],control$e)      
-    L[i,] <- altsqp.update.sqp(F[j,],X[i,j],fs,xsrow[i],L[i,],control)
+    j     <- which(X[,i] > 0)
+    L[i,] <- altsqp.update.em(F[j,],X[j,i],fs,xsrow[i],L[i,],control$e)      
+    L[i,] <- altsqp.update.sqp(F[j,],X[j,i],fs,xsrow[i],L[i,],control)
   }
   return(L)  
 }
@@ -515,13 +521,15 @@ altsqp.update.factors.multicore <- function (X, F, L, xscol, control) {
 }
 
 # This is the multithreaded version of altsqp.update.loadings,
-# implementing using mclapply from the parallel package.
+# implementing using mclapply from the parallel package. Note that
+# input argument X is the the *transpose* of the matrix inputted to
+# altsqp (an m x n matrix).
 altsqp.update.loadings.multicore <- function (X, F, L, xsrow, control) {
-  n    <- nrow(X)
+  n    <- ncol(X)
   nc   <- control$nc
   rows <- splitIndices(n,nc)
   L <- mclapply(rows,
-         function (i) altsqp.update.loadings(X[i,],F,L[i,],xsrow[i],control),
+         function (i) altsqp.update.loadings(X[,i],F,L[i,],xsrow[i],control),
            mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
   L <- do.call(rbind,L)
   L[unlist(rows),] <- L

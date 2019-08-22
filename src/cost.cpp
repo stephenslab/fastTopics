@@ -62,7 +62,7 @@ double cost_sparse (const sp_mat& X, const mat& A, const mat& B, double e) {
 
     // Initialize an iterator for the nonzero elements in the jth
     // column of X.
-    sp_mat::const_col_iterator xj  = X.begin_col(j);
+    sp_mat::const_col_iterator xj = X.begin_col(j);
     sp_mat::const_col_iterator xm = X.end_col(j);
 
     // This is equivalent to the following code in R:
