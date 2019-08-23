@@ -13,6 +13,16 @@ to do
 
 + Implement multithreaded Rcpp version of altsqp updates.
 
++ Profile memory usage for altsqp on a large, sparse matrix; memory
+  should be proportional to the number of nonzeros in the matrix.
+
++ Implement a short vignette using the droplet data (?).
+
++ Change the computation of max.diff so that it does not create an
+  n x m dense matrix.
+
++ Fix log.multinom so that it does not use tcrossprod.
+
 + Fill out "Quick Start" instructions in README.
 
 + Fill out @details for altsqp.

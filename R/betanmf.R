@@ -5,6 +5,9 @@
 # positive. This is adapted from the MATLAB code by D. Kitamura
 # (http://d-kitamura.net).
 betanmf <- function (X, A, B, numiter = 1000, e = 1e-15) {
+  if (!is.matrix(X))
+    stop(paste("Input argument \"X\" must be a matrix; see help(matrix) for",
+               "more information"))
   for (i in 1:numiter) {
 
     # Update the loadings ("activations").
