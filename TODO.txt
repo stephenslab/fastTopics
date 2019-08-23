@@ -26,8 +26,6 @@ to do
 + Add comments to betanmf function explaining that it is mainly used
   for testing altsqp implementation.
 
-+ Merge more-rcpp into master.
-
 + Fill out "Quick Start" instructions in README.
 
 + Fill out @details for altsqp.
