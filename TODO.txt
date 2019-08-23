@@ -1,6 +1,18 @@
 to do
 =====
 
++ Implement options "numem" and "numsqp" in altsqp.
+
++ Verify betanmf implementation in R against MATLAB implementation on
+  droplet data set.
+
++ Add test verifying that altsqp gives same result as betanmf when
+  numsqp = 0.
+
++ Learn about RcppParallel.
+
++ Implement multithreaded Rcpp version of altsqp updates.
+
 + Fill out "Quick Start" instructions in README.
 
 + Fill out @details for altsqp.
