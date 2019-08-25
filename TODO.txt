@@ -3,9 +3,6 @@ to do
 
 + Implement options "numem" and "numsqp" in altsqp.
 
-+ Verify betanmf implementation in R against MATLAB implementation on
-  droplet data set.
-
 + Add test verifying that altsqp gives same result as betanmf when
   numsqp = 0.
 
@@ -16,7 +13,9 @@ to do
 + Profile memory usage for altsqp on a large, sparse matrix; memory
   should be proportional to the number of nonzeros in the matrix.
 
-+ Implement a short vignette using the droplet data (?).
++ Document the droplet data set.
+
++ Implement a short vignette using the droplet data.
 
 + Change the computation of max.diff so that it does not create an
   n x m dense matrix.
