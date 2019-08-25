@@ -22,9 +22,6 @@ to do
 
 + Fix log.multinom so that it does not use tcrossprod.
 
-+ Add comments to betanmf function explaining that it is mainly used
-  for testing altsqp implementation.
-
 + Fill out "Quick Start" instructions in README.
 
 + Fill out @details for altsqp.

@@ -4,10 +4,14 @@
 # rules. All entries of initial estimates A and B should be
 # positive. This is adapted from the MATLAB code by D. Kitamura
 # (http://d-kitamura.net).
+#
+# This function is mainly intended for internal use---specifically, to
+# verify implementation of the alternating SQP algorithm.
+#
 betanmf <- function (X, A, B, numiter = 1000, e = 1e-15) {
   if (!is.matrix(X))
-    stop(paste("Input argument \"X\" must be a matrix; see help(matrix) for",
-               "more information"))
+    stop(paste("Input argument \"X\" must be a matrix; see help(matrix)",
+               "for more information"))
   for (i in 1:numiter) {
 
     # Update the loadings ("activations").
