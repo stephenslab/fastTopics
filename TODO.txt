@@ -1,17 +1,9 @@
 to do
 =====
 
-+ Implement options "numem" and "numsqp" in altsqp.
-
-+ Add test verifying that altsqp gives same result as betanmf when
-  numsqp = 0.
-
 + Learn about RcppParallel.
 
 + Implement multithreaded Rcpp version of altsqp updates.
-
-+ Profile memory usage for altsqp on a large, sparse matrix; memory
-  should be proportional to the number of nonzeros in the matrix.
 
 + Document the droplet data set.
 
@@ -21,6 +13,10 @@ to do
   n x m dense matrix.
 
 + Fix log.multinom so that it does not use tcrossprod.
+
++ Profile memory usage for altsqp on a large, (very) sparse matrix:
+  memory should be proportional to the number of nonzeros in the
+  matrix.
 
 + Fill out "Quick Start" instructions in README.
 

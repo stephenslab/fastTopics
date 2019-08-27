@@ -25,6 +25,13 @@
 #' \item{\code{nc}}{This determines the \code{mc.cores} argument in
 #'   calls to \code{\link[parallel]{mclapply}}.}
 #'
+#' \item{\code{numem}}{A non-negative number specifying the number of
+#'   EM (\emph{i.e.}, multiplicative) updates to run at each outer loop
+#'   iteration.}
+#'
+#' \item{\code{numsqp}}{A non-negative number specifying the number of
+#'   SQP updates to run at each outer loop iteration.}
+#' 
 #' \item{\code{extrapolate}}{The iteration at which extrapolation is
 #'   initiated. If \code{extrapolate > numiter}, extrapolation is not
 #'   used.}
@@ -316,8 +323,8 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
-    cat(sprintf("Running %d alternating SQP updates ",numiter))
-    cat("(fastTopics version 0.1-56)\n")
+    cat(sprintf("Running %d EM + SQP updates ",numiter))
+    cat("(fastTopics version 0.1-58)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -382,10 +389,10 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       if (version == "Rcpp") {
         if (is.matrix(X))
           Fn <- t(altsqp_update_factors_rcpp(X,t(Fy),Ly,xscol,colSums(Ly),
-                                             e,control))
+                    e,control$numem,control$numsqp,control))
         else
           Fn <- t(altsqp_update_factors_sparse_rcpp(X,t(Fy),Ly,xscol,
-                                                    colSums(Ly),e,control))
+                    colSums(Ly),e,control$numem,control$numsqp,control))
       } else {
         if (nc == 1)
           Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
@@ -403,10 +410,10 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       if (version == "Rcpp") {
         if (is.matrix(Xt))
           Ln <- t(altsqp_update_loadings_rcpp(Xt,Fy,t(Ly),xsrow,colSums(Fy),
-                                              e,control))
+                    e,control$numem,control$numsqp,control))
         else
           Ln <- t(altsqp_update_loadings_sparse_rcpp(Xt,Fy,t(Ly),xsrow,
-                                                     colSums(Fy),e,control))
+                    colSums(Fy),e,control$numem,control$numsqp,control))
       } else {
         if (nc == 1)
           Ln <- altsqp.update.loadings(Xt,Fy,Ly,xsrow,control)
@@ -482,17 +489,27 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
 #' 
 altsqp_control_default <- function()
   c(mixsqp_control_default(),
-    list(nc = 1,extrapolate = 10,beta.init = 0.5,beta.increase = 1.1,
-         beta.reduce = 0.75,betamax.increase = 1.05))
+    list(nc               = 1,
+         numem            = 1,
+         numsqp           = 1,
+         extrapolate      = 10,
+         beta.init        = 0.5,
+         beta.increase    = 1.1,
+         beta.reduce      = 0.75,
+         betamax.increase = 1.05))
 
 # Update all the factors with the loadings remaining fixed.
 altsqp.update.factors <- function (X, F, L, xscol, control) {
   m  <- ncol(X)
   ls <- colSums(L)
   for (j in 1:m) {
-    i     <- which(X[,j] > 0)
-    F[j,] <- altsqp.update.em(L[i,],X[i,j],ls,xscol[j],F[j,],control$e)
-    F[j,] <- altsqp.update.sqp(L[i,],X[i,j],ls,xscol[j],F[j,],control)
+    i <- which(X[,j] > 0)
+    if (control$numem > 0)
+      F[j,] <- altsqp.update.em(L[i,],X[i,j],ls,xscol[j],F[j,],
+                                control$e,control$numem)
+    if (control$numsqp > 0)
+      F[j,] <- altsqp.update.sqp(L[i,],X[i,j],ls,xscol[j],F[j,],
+                                 control$numsqp,control)
   }
   return(F)
 }
@@ -504,9 +521,13 @@ altsqp.update.loadings <- function (X, F, L, xsrow, control) {
   n  <- ncol(X)
   fs <- colSums(F)
   for (i in 1:n) {
-    j     <- which(X[,i] > 0)
-    L[i,] <- altsqp.update.em(F[j,],X[j,i],fs,xsrow[i],L[i,],control$e)      
-    L[i,] <- altsqp.update.sqp(F[j,],X[j,i],fs,xsrow[i],L[i,],control)
+    j <- which(X[,i] > 0)
+    if (control$numem > 0)
+      L[i,] <- altsqp.update.em(F[j,],X[j,i],fs,xsrow[i],L[i,],
+                                control$e,control$numem)
+    if (control$numsqp > 0)
+      L[i,] <- altsqp.update.sqp(F[j,],X[j,i],fs,xsrow[i],L[i,],
+                                 control$numsqp,control)
   }
   return(L)  
 }
@@ -542,15 +563,15 @@ altsqp.update.loadings.multicore <- function (X, F, L, xsrow, control) {
 }
 
 # Run one EM update for the alternating SQP method.
-altsqp.update.em <- function (B, w, bs, ws, x, e) {
+altsqp.update.em <- function (B, w, bs, ws, x, e, numiter) {
   y   <- ws/bs
-  out <- mixem(scale.cols(B,y),w/ws,x/y,1,e)
+  out <- mixem(scale.cols(B,y),w/ws,x/y,numiter,e)
   return(out$x*y)
 }
 
 # Run one SQP update for the alternating SQP method.
-altsqp.update.sqp <- function (B, w, bs, ws, x, control) {
+altsqp.update.sqp <- function (B, w, bs, ws, x, numiter, control) {
   y   <- ws/bs
-  out <- mixsqp(scale.cols(B,y),w/ws,x/y,1,control)
+  out <- mixsqp(scale.cols(B,y),w/ws,x/y,numiter,control)
   return(out$x*y)
 }

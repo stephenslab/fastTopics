@@ -14,13 +14,13 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-15) {
                "for more information"))
   for (i in 1:numiter) {
 
-    # Update the loadings ("activations").
-    A <- scale.cols(A * ((X / (A %*% B)) %*% t(B)),1/rowSums(B))
-    A <- pmax(A,e)
-    
     # Update the factors ("basis vectors").
     B <- B * (t(A) %*% (X / (A %*% B))) / colSums(A)
     B <- pmax(B,e)
+
+    # Update the loadings ("activations").
+    A <- scale.cols(A * ((X / (A %*% B)) %*% t(B)),1/rowSums(B))
+    A <- pmax(A,e)
   }
   return(list(A = A,B = B))
 }

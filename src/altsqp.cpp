@@ -11,7 +11,8 @@ using namespace arma;
 vec  get_modified_problem_params (mat& B, vec& w, const vec& bs, double ws,
 				  vec& x);
 void altsqp_update_em_sqp (mat& B, vec& w, const vec& bs, double ws, vec& x,
-			   double e, mixsqp_control_params control);
+			   double e, uint numem, uint numsqp,
+			   mixsqp_control_params control);
 
 // FUNCTION DEFINITIONS
 // --------------------
@@ -32,7 +33,8 @@ arma::mat altsqp_update_factors_rcpp (const arma::mat& X,
 				      const arma::mat& L,
 				      const arma::vec& xscol,
 				      const arma::vec& ls,
-				      double e, List control) {
+				      double e, double numem,
+				      double numsqp, List control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
 
   // Initialize the return value.
@@ -53,7 +55,7 @@ arma::mat altsqp_update_factors_rcpp (const arma::mat& X,
     B = L.rows(i);
     
     // Run an SQP update.
-    altsqp_update_em_sqp(B,w,ls,xscol(j),x,e,ctrl);
+    altsqp_update_em_sqp(B,w,ls,xscol(j),x,e,(uint) numem,(uint) numsqp,ctrl);
       
     // Store the updated factors.
     Fnew.col(j) = x;
@@ -76,7 +78,8 @@ arma::mat altsqp_update_factors_sparse_rcpp (const arma::sp_mat& X,
 					     const arma::mat& L,
 					     const arma::vec& xscol,
 					     const arma::vec& ls,
-					     double e, List control) {
+					     double e, double numem,
+					     double numsqp, List control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
 
   // Initialize the return value.
@@ -98,7 +101,7 @@ arma::mat altsqp_update_factors_sparse_rcpp (const arma::sp_mat& X,
     B = L.rows(i);
     
     // Run an SQP update.
-    altsqp_update_em_sqp(B,w,ls,xscol(j),x,e,ctrl);
+    altsqp_update_em_sqp(B,w,ls,xscol(j),x,e,(uint) numem,(uint) numsqp,ctrl);
       
     // Store the updated factors.
     Fnew.col(j) = x;
@@ -133,7 +136,8 @@ arma::mat altsqp_update_loadings_rcpp (const arma::mat& X,
 				       const arma::mat& L,
 				       const arma::vec& xsrow,
 				       const arma::vec& fs,
-				       double e, List control) {
+				       double e, double numem,
+				       double numsqp, List control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
 
   // Initialize the return value.
@@ -154,7 +158,7 @@ arma::mat altsqp_update_loadings_rcpp (const arma::mat& X,
     B = F.rows(j);
 
     // Run one EM update and one SQP update.
-    altsqp_update_em_sqp(B,w,fs,xsrow(i),x,e,ctrl);
+    altsqp_update_em_sqp(B,w,fs,xsrow(i),x,e,(uint) numem,(uint) numsqp,ctrl);
 
     // Store the updated loadings.
     Lnew.col(i) = x;
@@ -177,7 +181,8 @@ arma::mat altsqp_update_loadings_sparse_rcpp (const arma::sp_mat& X,
 					      const arma::mat& L,
 					      const arma::vec& xsrow,
 					      const arma::vec& fs,
-					      double e, List control) {
+					      double e, double numem,
+					      double numsqp, List control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
 
   // Initialize the return value.
@@ -199,7 +204,7 @@ arma::mat altsqp_update_loadings_sparse_rcpp (const arma::sp_mat& X,
     B = F.rows(j);
 
     // Run one EM update and one SQP update.
-    altsqp_update_em_sqp(B,w,fs,xsrow(i),x,e,ctrl);
+    altsqp_update_em_sqp(B,w,fs,xsrow(i),x,e,(uint) numem,(uint) numsqp,ctrl);
 
     // Store the updated loadings.
     Lnew.col(i) = x;
@@ -216,15 +221,18 @@ arma::mat altsqp_update_loadings_sparse_rcpp (const arma::sp_mat& X,
 // Run one EM update and SQP update on the modified problem, then
 // recover the updated solution to the unmodified problem.
 void altsqp_update_em_sqp (mat& B, vec& w, const vec& bs, double ws, vec& x,
-			   double e, mixsqp_control_params control) {
+			   double e, uint numem, uint numsqp,
+			   mixsqp_control_params control) {
 
   // Update the solution to the modified problem.
   uint n = B.n_rows;
   vec  y = get_modified_problem_params(B,w,bs,ws,x);
   vec  ev(n);
   ev.fill(e);
-  mixem_update(B,w,x,ev);
-  mixsqp(B,w,x,ev,1,control,false);
+  if (numem > 0)
+    mixem(B,w,x,ev,numem);
+  if (numsqp > 0)
+    mixsqp(B,w,x,ev,numsqp,control,false);
 
   // Recover the updated solution to the unmodified problem.
   x %= y;

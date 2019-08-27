@@ -91,3 +91,31 @@ test_that("altsqp gives a better solution than nnmf on a sparse matrix",{
  f2     <- loglik.poisson(X,fit2)
  expect_lt(f1,f2) 
 })
+
+test_that("altsqp gives the same result as betanmf when numsqp = 0",{
+
+  # Generate a 100 x 200 data matrix to factorize.
+  set.seed(1)
+  n <- 100
+  m <- 200
+  k <- 3
+  F <- matrix(0.75*runif(m*k),m,k)
+  L <- matrix(0.75*runif(n*k),n,k)
+  X <- matrix(rpois(n*m,L %*% t(F)),n,m)
+  
+  # Generate random initial estimates of the factors and loadings.
+  fit0 <- list(F = matrix(runif(m*k),m,k),
+               L = matrix(runif(n*k),n,k))
+
+  # Fit the non-negative matrix factorization using the multiplicative
+  # updates (betanmf) and using the alternating SQP updates.
+  fit1 <- betanmf(X,fit0$L,t(fit0$F),numiter = 10)
+  capture.output(fit2 <- altsqp(X,fit0,numiter = 10,version = "R",
+                                control = list(numsqp = 0,extrapolate = Inf)))
+  capture.output(fit3 <- altsqp(X,fit0,numiter = 10,version = "Rcpp",
+                                control = list(numsqp = 0,extrapolate = Inf)))
+  expect_equal(fit1$A,fit2$L)
+  expect_equal(fit1$B,t(fit2$F))
+  expect_equal(fit1$A,fit3$L)
+  expect_equal(fit1$B,t(fit3$F))
+})

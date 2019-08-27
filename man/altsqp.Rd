@@ -115,6 +115,13 @@ optimization algorithm settings (as they are defined by
 \item{\code{nc}}{This determines the \code{mc.cores} argument in
   calls to \code{\link[parallel]{mclapply}}.}
 
+\item{\code{numem}}{A non-negative number specifying the number of
+  EM (\emph{i.e.}, multiplicative) updates to run at each outer loop
+  iteration.}
+
+\item{\code{numsqp}}{A non-negative number specifying the number of
+  SQP updates to run at each outer loop iteration.}
+
 \item{\code{extrapolate}}{The iteration at which extrapolation is
   initiated. If \code{extrapolate > numiter}, extrapolation is not
   used.}
