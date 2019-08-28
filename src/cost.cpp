@@ -12,20 +12,21 @@ using namespace arma;
 //
 // [[Rcpp::export]]
 double cost_rcpp (const arma::mat& X, const arma::mat& A,
-		  const arma::mat& B, double e) {
-  return cost(X,A,B,e);
+		  const arma::mat& B, double e, bool poisson) {
+  return cost(X,A,B,e,poisson);
 }
 
 // This is the same as cost_rcpp, except that X must be sparse.
 //
 // [[Rcpp::export]]
 double cost_sparse_rcpp (const arma::sp_mat& X, const arma::mat& A,
-			 const arma::mat& B, double e) {
-  return cost_sparse(X,A,B,e);
+			 const arma::mat& B, double e, bool poisson) {
+  return cost_sparse(X,A,B,e,poisson);
 }
 
 // This is the helper function for cost_rcpp.
-double cost (const mat& X, const mat& A, const mat& B, double e) {
+double cost (const mat& X, const mat& A, const mat& B,
+	     double e, bool poisson) {
   uint   n = X.n_rows;
   uint   m = X.n_cols;
   double f = 0;
@@ -43,15 +44,17 @@ double cost (const mat& X, const mat& A, const mat& B, double e) {
     //   y = A %*% B[,j]
     //
     y  = A * B.col(j);
-    f += sum(y);
     f -= sum(X.col(j) % log(y + e));
+    if (poisson)
+      f += sum(y);
   }
   
   return f;
 }
 
 // Helper function for cost_sparse_rcpp.
-double cost_sparse (const sp_mat& X, const mat& A, const mat& B, double e) {
+double cost_sparse (const sp_mat& X, const mat& A, const mat& B,
+		    double e, bool poisson) {
   int    n = X.n_rows;
   int    m = X.n_cols;
   double f = 0;
@@ -74,7 +77,8 @@ double cost_sparse (const sp_mat& X, const mat& A, const mat& B, double e) {
     //   y = A %*% B[,j]
     //
     y  = A * B.col(j);
-    f += sum(y);
+    if (poisson)
+      f += sum(y);
     for(; xj != xm; ++xj)
       f -= (*xj) * log(y(xj.row()) + e);
   }

@@ -39,3 +39,8 @@ scale.cols <- function (A, b) {
   return(t(t(A) * b))
 }
 
+# trcrossprod(A,B) returns trace(t(A) %*% B), where A and B are
+# matrices with the same number of rows and column, and trace(X) =
+# sum(diag(X)).
+trcrossprod <- function (A, B)
+  sum(A * B)

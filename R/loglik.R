@@ -37,7 +37,7 @@ loglik.poisson <- function (X, fit, e = 1e-15) {
   
   # Compute the log-likelihood for the Poisson topic model after
   # removing terms that do not depend on L or F.
-  return(-cost(X,L,t(F),e))
+  return(-cost(X,L,t(F),e,TRUE))
 }
 
 #' @rdname altsqp
@@ -84,21 +84,24 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
   
   # Compute the log-likelihood for the multinomial topic model after
   # removing terms that do not depend on L or F.
-  sum(X * log(tcrossprod(L,F) + e))
+  return(-cost(X,L,t(F),e,FALSE))
 }
 
 # Compute the value of the cost function for non-negative matrix
 # factorization, in which matrix X is approximated by matrix AB = A*B.
 # This is equivalent to the negative Poisson log-likelihood after
 # removing terms that do not depend on A or B.
-cost <- function (X, A, B, e, version = c("Rcpp", "R")) {
+#
+# When poisson = FALSE, this returns the cost function corresponding
+# to the multinomial likelihood instead of the poisson likelihoood.
+cost <- function (X, A, B, e, poisson = TRUE, version = c("Rcpp", "R")) {
   version <- match.arg(version)
   if (version == "R") {
     AB <- A %*% B
-    f  <- sum(AB - X*log(AB + e))
+    f  <- sum(poisson*AB - X*log(AB + e))
   } else if (is.matrix(X))
-    f <- cost_rcpp(X,A,B,e)
+    f <- cost_rcpp(X,A,B,e,poisson)
   else
-    f <- cost_sparse_rcpp(X,A,B,e)
+    f <- cost_sparse_rcpp(X,A,B,e,poisson)
   return(f)
 }

@@ -289,7 +289,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
 
   # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
-  f     <- cost(X,L,t(F),e,version)
+  f     <- cost(X,L,t(F),e,version = version)
   fbest <- f
 
   # Matrices in R are stored column-wise; to quickly access each row
@@ -317,14 +317,14 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Set up the data structure to record the algorithm's progress.
   progress <- as.matrix(data.frame(iter      = 1:numiter,
                                    objective = 0,
-                                   max.diff  = 0,
+                                   mean.diff = 0,
                                    beta      = 0,
                                    timing    = 0))
   
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-58)\n")
+    cat("(fastTopics version 0.1-59)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -332,7 +332,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
       cat("Extrapolation is not active.\n")
     cat(sprintf("Data are %d x %d matrix with %0.1f%% nonzero proportion\n",
                 n,m,100*mean(X > 0)))
-    cat("iter objective (cost fn) max.diff    beta\n")
+    cat("iter objective (cost fn) mean.diff    beta\n")
   }
 
   # Iteratively apply the EM and SQP updates using the R or Rcpp
@@ -429,7 +429,7 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
     # Compute the value of the objective (cost) function at the
     # extrapolated solution for the factors (F) and the
     # non-extrapolated solution for the loadings (L).
-    f <- cost(X,Ln,t(Fy),e,version)
+    f <- cost(X,Ln,t(Fy),e,version = version)
     if (beta == 0) {
 
       # No extrapolation is used, so use the basic coordinate-wise
@@ -464,7 +464,7 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
     # using the extrapolated estimates of the factors (F) and the
     # non-extrapolated estimates of the loadings (L).
     if (f < fbest) {
-      d     <- max(abs(tcrossprod(Lbest,Fbest) - tcrossprod(Ln,Fy)))
+      d     <- mean((tcrossprod(Lbest,Fbest) - tcrossprod(Ln,Fy))^2)
       Fbest <- Fy
       Lbest <- Ln 
       fbest <- f
@@ -473,11 +473,11 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
 
     # Record the algorithm's progress.
     progress[iter,"objective"] <- fbest
-    progress[iter,"max.diff"]  <- d
+    progress[iter,"mean.diff"] <- d
     progress[iter,"beta"]      <- beta
     progress[iter,"timing"]    <- timing["elapsed"]
     if (verbose)
-      cat(sprintf("%4d %+0.12e %0.2e %0.1e\n",iter,fbest,d,beta))
+      cat(sprintf("%4d %+0.12e %0.3e %0.1e\n",iter,fbest,d,beta))
   }
 
   return(list(Fbest = Fbest,Lbest = Lbest,fbest = fbest,progress = progress))

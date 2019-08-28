@@ -17,12 +17,12 @@ altsqp_update_loadings_sparse_rcpp <- function(X, F, L, xsrow, fs, e, numem, num
     .Call('_fastTopics_altsqp_update_loadings_sparse_rcpp', PACKAGE = 'fastTopics', X, F, L, xsrow, fs, e, numem, numsqp, control)
 }
 
-cost_rcpp <- function(X, A, B, e) {
-    .Call('_fastTopics_cost_rcpp', PACKAGE = 'fastTopics', X, A, B, e)
+cost_rcpp <- function(X, A, B, e, poisson) {
+    .Call('_fastTopics_cost_rcpp', PACKAGE = 'fastTopics', X, A, B, e, poisson)
 }
 
-cost_sparse_rcpp <- function(X, A, B, e) {
-    .Call('_fastTopics_cost_sparse_rcpp', PACKAGE = 'fastTopics', X, A, B, e)
+cost_sparse_rcpp <- function(X, A, B, e, poisson) {
+    .Call('_fastTopics_cost_sparse_rcpp', PACKAGE = 'fastTopics', X, A, B, e, poisson)
 }
 
 mixsqp_rcpp <- function(L, w, x0, e, numiter, control, verbose) {

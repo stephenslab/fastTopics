@@ -83,8 +83,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // cost_rcpp
-double cost_rcpp(const arma::mat& X, const arma::mat& A, const arma::mat& B, double e);
-RcppExport SEXP _fastTopics_cost_rcpp(SEXP XSEXP, SEXP ASEXP, SEXP BSEXP, SEXP eSEXP) {
+double cost_rcpp(const arma::mat& X, const arma::mat& A, const arma::mat& B, double e, bool poisson);
+RcppExport SEXP _fastTopics_cost_rcpp(SEXP XSEXP, SEXP ASEXP, SEXP BSEXP, SEXP eSEXP, SEXP poissonSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -92,13 +92,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type B(BSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(cost_rcpp(X, A, B, e));
+    Rcpp::traits::input_parameter< bool >::type poisson(poissonSEXP);
+    rcpp_result_gen = Rcpp::wrap(cost_rcpp(X, A, B, e, poisson));
     return rcpp_result_gen;
 END_RCPP
 }
 // cost_sparse_rcpp
-double cost_sparse_rcpp(const arma::sp_mat& X, const arma::mat& A, const arma::mat& B, double e);
-RcppExport SEXP _fastTopics_cost_sparse_rcpp(SEXP XSEXP, SEXP ASEXP, SEXP BSEXP, SEXP eSEXP) {
+double cost_sparse_rcpp(const arma::sp_mat& X, const arma::mat& A, const arma::mat& B, double e, bool poisson);
+RcppExport SEXP _fastTopics_cost_sparse_rcpp(SEXP XSEXP, SEXP ASEXP, SEXP BSEXP, SEXP eSEXP, SEXP poissonSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -106,7 +107,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type B(BSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(cost_sparse_rcpp(X, A, B, e));
+    Rcpp::traits::input_parameter< bool >::type poisson(poissonSEXP);
+    rcpp_result_gen = Rcpp::wrap(cost_sparse_rcpp(X, A, B, e, poisson));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -133,8 +135,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_altsqp_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_sparse_rcpp, 9},
     {"_fastTopics_altsqp_update_loadings_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_loadings_rcpp, 9},
     {"_fastTopics_altsqp_update_loadings_sparse_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_loadings_sparse_rcpp, 9},
-    {"_fastTopics_cost_rcpp", (DL_FUNC) &_fastTopics_cost_rcpp, 4},
-    {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 4},
+    {"_fastTopics_cost_rcpp", (DL_FUNC) &_fastTopics_cost_rcpp, 5},
+    {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
     {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 7},
     {NULL, NULL, 0}
 };
