@@ -324,7 +324,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-60)\n")
+    cat("(fastTopics version 0.1-61)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -470,9 +470,9 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       #   mean((tcrossprod(Lbest,Fbest) - tcrossprod(Ln,Fy))^2)
       #
       # but done in a way that avoids computing a dense n x m matrix.
-      d     <- (trcrossprod(Fbest %*% t(Lbest) %*% Lbest,Fbest)
-               - 2*trcrossprod(Fbest %*% t(Lbest) %*% Ln,Fy)
-               + trcrossprod(Fy %*% t(Ln) %*% Ln,Fy))/(n*m)
+      d     <- (trcrossprod(Fbest %*% (t(Lbest) %*% Lbest),Fbest)
+               - 2*trcrossprod(Fbest %*% (t(Lbest) %*% Ln),Fy)
+               + trcrossprod(Fy %*% (t(Ln) %*% Ln),Fy))/(n*m)
       Fbest <- Fy
       Lbest <- Ln 
       fbest <- f

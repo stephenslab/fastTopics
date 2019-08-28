@@ -9,10 +9,6 @@ to do
 
 + Implement a short vignette using the droplet data.
 
-+ Profile memory usage for altsqp on a large, (very) sparse matrix:
-  memory should be proportional to the number of nonzeros in the
-  matrix.
-
 + Fill out "Quick Start" instructions in README.
 
 + Fill out @details for altsqp.
