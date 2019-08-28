@@ -9,9 +9,6 @@ to do
 
 + Implement a short vignette using the droplet data.
 
-+ Change the computation of max.diff so that it does not create an
-  n x m dense matrix.
-
 + Profile memory usage for altsqp on a large, (very) sparse matrix:
   memory should be proportional to the number of nonzeros in the
   matrix.
