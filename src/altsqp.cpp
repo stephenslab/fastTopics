@@ -1,9 +1,11 @@
 #include "misc.h"
 #include "mixem.h"
 #include "mixsqp.h"
+#include <RcppParallel.h>
 #include <RcppArmadillo.h>
 
 using namespace Rcpp;
+using namespace RcppParallel;
 using namespace arma;
 
 // FUNCTION DECLARATIONS
@@ -59,12 +61,42 @@ arma::mat altsqp_update_factors_rcpp (const arma::mat& X,
       
     // Store the updated factors.
     Fnew.col(j) = x;
-
-    // This is also a good point to check for a user interrupt; if the
-    // user requests an interrupt, then an exception is thrown and
-    // control is returned to the R console.
-    Rcpp::checkUserInterrupt();
   }
+
+  return Fnew;
+}
+
+// [[Rcpp::depends(RcppParallel)]]
+struct factorUpdater : public Worker {
+  double x;
+  
+  factorUpdater() : x(0) { };
+};
+
+// This is the same as altsqp_update_factors_rcpp, except that Intel
+// Threading Building Blocks (TBB) are used to update the factors in
+// parallel.
+//
+// [[Rcpp::export]]
+arma::mat altsqp_update_factors_rcpp_parallel (const arma::mat& X,
+					       const arma::mat& F,
+					       const arma::mat& L,
+					       const arma::vec& xscol,
+					       const arma::vec& ls,
+					       double e, double numem,
+					       double numsqp, List control) {
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
+
+  // Initialize the return value.
+  uint k = F.n_rows;
+  uint m = F.n_cols;
+  mat Fnew(k,m);
+  
+  // Create the worker.
+  // TO DO.
+     
+  // Update the factors with parallelFor
+  // TO DO.
 
   return Fnew;
 }
@@ -105,11 +137,6 @@ arma::mat altsqp_update_factors_sparse_rcpp (const arma::sp_mat& X,
       
     // Store the updated factors.
     Fnew.col(j) = x;
-
-    // This is also a good point to check for a user interrupt; if the
-    // user requests an interrupt, then an exception is thrown and
-    // control is returned to the R console.
-    Rcpp::checkUserInterrupt();
   }
 
   return Fnew;
@@ -162,11 +189,6 @@ arma::mat altsqp_update_loadings_rcpp (const arma::mat& X,
 
     // Store the updated loadings.
     Lnew.col(i) = x;
-    
-    // This is also a good point to check for a user interrupt; if the
-    // user requests an interrupt, then an exception is thrown and
-    // control is returned to the R console.
-    Rcpp::checkUserInterrupt();
   }
 
   return Lnew;
@@ -208,11 +230,6 @@ arma::mat altsqp_update_loadings_sparse_rcpp (const arma::sp_mat& X,
 
     // Store the updated loadings.
     Lnew.col(i) = x;
-    
-    // This is also a good point to check for a user interrupt; if the
-    // user requests an interrupt, then an exception is thrown and
-    // control is returned to the R console.
-    Rcpp::checkUserInterrupt();
   }
 
   return Lnew;

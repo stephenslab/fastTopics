@@ -25,6 +25,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// altsqp_update_factors_rcpp_parallel
+arma::mat altsqp_update_factors_rcpp_parallel(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls, double e, double numem, double numsqp, List control);
+RcppExport SEXP _fastTopics_altsqp_update_factors_rcpp_parallel(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xscolSEXP, SEXP lsSEXP, SEXP eSEXP, SEXP numemSEXP, SEXP numsqpSEXP, SEXP controlSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type xscol(xscolSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type ls(lsSEXP);
+    Rcpp::traits::input_parameter< double >::type e(eSEXP);
+    Rcpp::traits::input_parameter< double >::type numem(numemSEXP);
+    Rcpp::traits::input_parameter< double >::type numsqp(numsqpSEXP);
+    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_rcpp_parallel(X, F, L, xscol, ls, e, numem, numsqp, control));
+    return rcpp_result_gen;
+END_RCPP
+}
 // altsqp_update_factors_sparse_rcpp
 arma::mat altsqp_update_factors_sparse_rcpp(const arma::sp_mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls, double e, double numem, double numsqp, List control);
 RcppExport SEXP _fastTopics_altsqp_update_factors_sparse_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xscolSEXP, SEXP lsSEXP, SEXP eSEXP, SEXP numemSEXP, SEXP numsqpSEXP, SEXP controlSEXP) {
@@ -132,6 +151,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_altsqp_update_factors_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_rcpp, 9},
+    {"_fastTopics_altsqp_update_factors_rcpp_parallel", (DL_FUNC) &_fastTopics_altsqp_update_factors_rcpp_parallel, 9},
     {"_fastTopics_altsqp_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_sparse_rcpp, 9},
     {"_fastTopics_altsqp_update_loadings_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_loadings_rcpp, 9},
     {"_fastTopics_altsqp_update_loadings_sparse_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_loadings_sparse_rcpp, 9},

@@ -7,6 +7,8 @@ to do
 
 + Document the droplet data set.
 
++ Add -DARMA_NO_DEBUG to Makevars.
+
 + Fill out "Quick Start" instructions in README.
 
 + Fill out @details for altsqp.
