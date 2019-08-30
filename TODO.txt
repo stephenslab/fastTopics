@@ -1,13 +1,11 @@
 to do
 =====
 
-+ Learn about RcppParallel.
-
-+ Implement multithreaded Rcpp version of altsqp updates.
-
-+ Document the droplet data set.
++ Implement RcppParallel version of altsqp updates.
 
 + Implement a short vignette using the droplet data.
+
++ Document the droplet data set.
 
 + Fill out "Quick Start" instructions in README.
 
