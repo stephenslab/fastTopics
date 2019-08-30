@@ -66,11 +66,50 @@ arma::mat altsqp_update_factors_rcpp (const arma::mat& X,
   return Fnew;
 }
 
+// TO DO: Explain here what this struct is for.
+//
 // [[Rcpp::depends(RcppParallel)]]
-struct factorUpdater : public Worker {
-  double x;
-  
-  factorUpdater() : x(0) { };
+struct FactorUpdater : public Worker {
+  const mat& X;
+  const mat& F;
+  const mat& L;
+  const vec& xscol;
+  const vec& ls;
+  mat&   Fnew;
+  uint   numem;
+  uint   numsqp;
+  double e;
+  mixsqp_control_params control;
+
+  // This is used to create a FactorUpdater object.
+  FactorUpdater (const arma::mat& X, const arma::mat& F, const arma::mat& L,
+		 const arma::vec& xscol, const arma::vec& ls,
+		 arma::mat& Fnew, double e, uint numem, uint numsqp,
+		 mixsqp_control_params control) :
+    X(X), F(F), L(L), xscol(xscol), ls(ls), Fnew(Fnew), e(e), numem(numem),
+    numsqp(numsqp), control(control) { };
+
+  // This function updates the factors for a given range of columns.
+  void operator() (std::size_t begin, std::size_t end) {
+    uint k = F.n_rows;
+    for (std::size_t j = begin; j < end; j++) {
+      vec x = F.col(j);
+
+      // Get the mixsqp inputs: set B to L[i,], and set w to X[i,j],
+      // where i is the vector of indices such that X[i,j] > 0.
+      uvec i = find(X.col(j) > 0);
+      vec  w = nonzeros(X.col(j));
+      uint n = i.n_elem;
+      mat  B(n,k);
+      B = L.rows(i);
+    
+      // Run an SQP update.
+      altsqp_update_em_sqp(B,w,ls,xscol(j),x,e,numem,numsqp,control);
+      
+      // Store the updated factors.
+      Fnew.col(j) = x;
+    }
+  }
 };
 
 // This is the same as altsqp_update_factors_rcpp, except that Intel
@@ -93,11 +132,11 @@ arma::mat altsqp_update_factors_rcpp_parallel (const arma::mat& X,
   mat Fnew(k,m);
   
   // Create the worker.
-  // TO DO.
+  FactorUpdater worker(X,F,L,xscol,ls,Fnew,e,(uint) numem,(uint) numsqp,ctrl);
      
-  // Update the factors with parallelFor
-  // TO DO.
-
+  // Update the factors with parallelFor.
+  parallelFor(0,m,worker);
+  
   return Fnew;
 }
 

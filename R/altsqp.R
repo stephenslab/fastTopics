@@ -324,7 +324,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-62)\n")
+    cat("(fastTopics version 0.1-63)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -387,12 +387,21 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       # --------------
       # Update the factors ("basis vectors").
       if (version == "Rcpp") {
-        if (is.matrix(X))
-          Fn <- t(altsqp_update_factors_rcpp(X,t(Fy),Ly,xscol,colSums(Ly),
-                    e,control$numem,control$numsqp,control))
-        else
-          Fn <- t(altsqp_update_factors_sparse_rcpp(X,t(Fy),Ly,xscol,
-                    colSums(Ly),e,control$numem,control$numsqp,control))
+        if (nc == 1) {
+          if (is.matrix(X))
+            Fn <- t(altsqp_update_factors_rcpp(X,t(Fy),Ly,xscol,colSums(Ly),
+                      e,control$numem,control$numsqp,control))
+          else
+            Fn <- t(altsqp_update_factors_sparse_rcpp(X,t(Fy),Ly,xscol,
+                      colSums(Ly),e,control$numem,control$numsqp,control))
+        } else {
+          if (is.matrix(X))
+            Fn <- t(altsqp_update_factors_rcpp_parallel(X,t(Fy),Ly,xscol,
+                      colSums(Ly),e,control$numem,control$numsqp,control))
+          else {
+            # TO DO.
+          }
+        }
       } else {
         if (nc == 1)
           Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
