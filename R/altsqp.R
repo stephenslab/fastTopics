@@ -216,6 +216,7 @@
 #' @useDynLib fastTopics
 #' 
 #' @importFrom Rcpp evalCpp
+#' @importFrom RcppParallel RcppParallelLibs
 #' @importFrom utils modifyList
 #' @importFrom Matrix t
 #' @importFrom Matrix rowSums
@@ -324,7 +325,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-64)\n")
+    cat("(fastTopics version 0.1-65)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -359,7 +360,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
 altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
                               fbest, xsrow, xscol, beta, betamax, numiter,
                               version, control, progress, verbose) {
-    
+
   # Get the optimization settings.
   nc               <- control$nc
   extrapolate      <- control$extrapolate
@@ -481,7 +482,7 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       # but done in a way that avoids computing a dense n x m matrix.
       d     <- (trcrossprod(Fbest %*% (t(Lbest) %*% Lbest),Fbest)
                - 2*trcrossprod(Fbest %*% (t(Lbest) %*% Ln),Fy)
-               + trcrossprod(Fy %*% (t(Ln) %*% Ln),Fy))/(n*m)
+               + trcrossprod(Fy %*% (t(Ln) %*% Ln),Fy))/length(X)
       Fbest <- Fy
       Lbest <- Ln 
       fbest <- f

@@ -1,9 +1,17 @@
 to do
 =====
 
++ Redo Makevars and Makevars.win --- review package skeletons for
+  RcppArmadillo and RcppParallel.
+
++ Restructure C++ code to reduce code redundancy.
+
 + Implement RcppParallel version of altsqp updates.
 
-+ Add tests for RcppParallel version of altsqp updates.
++ Add tests for RcppParallel version of altsqp updates (for both
+  sparse and dense matrices).
+
++ Set up continuous integration (Travis CI, Appveyor, CircleCI).
 
 + Implement a short vignette using the droplet data.
 

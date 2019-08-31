@@ -43,6 +43,7 @@ test_that(paste("Multicore version of altsqp gives same result as",
   F <- matrix(0.75*runif(m*k),m,k)
   L <- matrix(0.75*runif(n*k),n,k)
   X <- matrix(rpois(n*m,L %*% t(F)),n,m)
+  Y <- as(X,"dgCMatrix")
 
   # Generate random initial estimates of the factors and loadings.
   fit0 <- list(F = matrix(runif(m*k),m,k),
@@ -53,9 +54,13 @@ test_that(paste("Multicore version of altsqp gives same result as",
   capture.output(fit1 <- altsqp(X,fit0,numiter = 10,version = "R"))
   capture.output(fit2 <- altsqp(X,fit0,numiter = 10,version = "R",
                                 control = list(nc = 2)))
+  capture.output(fit3 <- altsqp(X,fit0,numiter = 10,version = "Rcpp",
+                                control = list(nc = 2)))
   fit1$progress       <- fit1$progress[1:4]
   fit2$progress       <- fit2$progress[1:4]
+  fit3$progress       <- fit3$progress[1:4]
   expect_equal(fit1,fit2)
+  expect_equal(fit1,fit3)
 })
 
 test_that("altsqp gives a better solution than nnmf on a sparse matrix",{
