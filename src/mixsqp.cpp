@@ -1,7 +1,6 @@
 #include "misc.h"
 #include "mixsqp.h"
 
-using namespace Rcpp;
 using namespace arma;
 
 // FUNCTION DECLARATIONS
@@ -30,7 +29,7 @@ double compute_objective (const mat& L, const vec& w, const vec& x,
 // [[Rcpp::export]]
 arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 		       const arma::vec& x0, const arma::vec& e, 
-		       uint numiter, List control, bool verbose) {
+		       uint numiter, Rcpp::List control, bool verbose) {
 
   // Initialize the estimate of the solution.
   vec x = x0;

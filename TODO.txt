@@ -3,6 +3,8 @@ to do
 
 + Implement RcppParallel version of altsqp updates.
 
++ Add tests for RcppParallel version of altsqp updates.
+
 + Implement a short vignette using the droplet data.
 
 + Document the droplet data set.

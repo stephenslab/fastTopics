@@ -5,9 +5,6 @@
 
 // TYPE DEFINITIONS
 // ----------------
-
-// TYPE DEFINITIONS
-// ----------------
 // A list of parameters controlling behaviour of the SQP optimization
 // algorithm.
 typedef struct {

@@ -7,7 +7,7 @@
 using namespace Rcpp;
 
 // altsqp_update_factors_rcpp
-arma::mat altsqp_update_factors_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls, double e, double numem, double numsqp, List control);
+arma::mat altsqp_update_factors_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls, double e, double numem, double numsqp, Rcpp::List control);
 RcppExport SEXP _fastTopics_altsqp_update_factors_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xscolSEXP, SEXP lsSEXP, SEXP eSEXP, SEXP numemSEXP, SEXP numsqpSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -20,13 +20,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     Rcpp::traits::input_parameter< double >::type numem(numemSEXP);
     Rcpp::traits::input_parameter< double >::type numsqp(numsqpSEXP);
-    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type control(controlSEXP);
     rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_rcpp(X, F, L, xscol, ls, e, numem, numsqp, control));
     return rcpp_result_gen;
 END_RCPP
 }
 // altsqp_update_factors_rcpp_parallel
-arma::mat altsqp_update_factors_rcpp_parallel(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls, double e, double numem, double numsqp, List control);
+arma::mat altsqp_update_factors_rcpp_parallel(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls, double e, double numem, double numsqp, Rcpp::List control);
 RcppExport SEXP _fastTopics_altsqp_update_factors_rcpp_parallel(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xscolSEXP, SEXP lsSEXP, SEXP eSEXP, SEXP numemSEXP, SEXP numsqpSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -39,13 +39,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     Rcpp::traits::input_parameter< double >::type numem(numemSEXP);
     Rcpp::traits::input_parameter< double >::type numsqp(numsqpSEXP);
-    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type control(controlSEXP);
     rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_rcpp_parallel(X, F, L, xscol, ls, e, numem, numsqp, control));
     return rcpp_result_gen;
 END_RCPP
 }
 // altsqp_update_factors_sparse_rcpp
-arma::mat altsqp_update_factors_sparse_rcpp(const arma::sp_mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls, double e, double numem, double numsqp, List control);
+arma::mat altsqp_update_factors_sparse_rcpp(const arma::sp_mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xscol, const arma::vec& ls, double e, double numem, double numsqp, Rcpp::List control);
 RcppExport SEXP _fastTopics_altsqp_update_factors_sparse_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xscolSEXP, SEXP lsSEXP, SEXP eSEXP, SEXP numemSEXP, SEXP numsqpSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -58,13 +58,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     Rcpp::traits::input_parameter< double >::type numem(numemSEXP);
     Rcpp::traits::input_parameter< double >::type numsqp(numsqpSEXP);
-    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type control(controlSEXP);
     rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_sparse_rcpp(X, F, L, xscol, ls, e, numem, numsqp, control));
     return rcpp_result_gen;
 END_RCPP
 }
 // altsqp_update_loadings_rcpp
-arma::mat altsqp_update_loadings_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xsrow, const arma::vec& fs, double e, double numem, double numsqp, List control);
+arma::mat altsqp_update_loadings_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xsrow, const arma::vec& fs, double e, double numem, double numsqp, Rcpp::List control);
 RcppExport SEXP _fastTopics_altsqp_update_loadings_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xsrowSEXP, SEXP fsSEXP, SEXP eSEXP, SEXP numemSEXP, SEXP numsqpSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -77,13 +77,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     Rcpp::traits::input_parameter< double >::type numem(numemSEXP);
     Rcpp::traits::input_parameter< double >::type numsqp(numsqpSEXP);
-    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type control(controlSEXP);
     rcpp_result_gen = Rcpp::wrap(altsqp_update_loadings_rcpp(X, F, L, xsrow, fs, e, numem, numsqp, control));
     return rcpp_result_gen;
 END_RCPP
 }
 // altsqp_update_loadings_sparse_rcpp
-arma::mat altsqp_update_loadings_sparse_rcpp(const arma::sp_mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xsrow, const arma::vec& fs, double e, double numem, double numsqp, List control);
+arma::mat altsqp_update_loadings_sparse_rcpp(const arma::sp_mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& xsrow, const arma::vec& fs, double e, double numem, double numsqp, Rcpp::List control);
 RcppExport SEXP _fastTopics_altsqp_update_loadings_sparse_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP xsrowSEXP, SEXP fsSEXP, SEXP eSEXP, SEXP numemSEXP, SEXP numsqpSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -96,7 +96,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     Rcpp::traits::input_parameter< double >::type numem(numemSEXP);
     Rcpp::traits::input_parameter< double >::type numsqp(numsqpSEXP);
-    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type control(controlSEXP);
     rcpp_result_gen = Rcpp::wrap(altsqp_update_loadings_sparse_rcpp(X, F, L, xsrow, fs, e, numem, numsqp, control));
     return rcpp_result_gen;
 END_RCPP
@@ -132,7 +132,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // mixsqp_rcpp
-arma::vec mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, const arma::vec& e, uint numiter, List control, bool verbose);
+arma::vec mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, const arma::vec& e, uint numiter, Rcpp::List control, bool verbose);
 RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP eSEXP, SEXP numiterSEXP, SEXP controlSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -142,7 +142,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type e(eSEXP);
     Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type control(controlSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, e, numiter, control, verbose));
     return rcpp_result_gen;
