@@ -12,15 +12,58 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
 			       const vec& g, const vec& x, const vec& p,
 			       const vec& e, double suffdecr, double beta,
 			       double amin, vec& y, vec& u);
-void   compute_grad (const mat& L, const vec& w, const vec& x,const vec& e,
-		     vec& g, mat& H, mat& Z);
-void   feasible_stepsize (const vec& x, const vec& p, int& j, double& a);
-double init_hessian_correction (const mat& H, double a0);
-double compute_objective (const mat& L, const vec& w, const vec& x,
-			  const vec& e, vec& u);
 
 // FUNCTION DEFINITIONS
 // --------------------
+// Get the initial scalar multiplier for the identity matrix based on
+// examining the diagonal entries of the Hessian.
+inline double init_hessian_correction (const mat& H, double a0) {
+  double d  = H.diag().min();
+  double a;
+  if (d > a0)
+    a = 0;
+  else
+    a = a0 - d;
+  return a;
+}
+
+// Return the largest step size maintaining feasibility (x >= 0) for
+// the given the search direction (p).
+inline void feasible_stepsize (const vec& x, const vec& p, int& j, double& a) {
+  uvec i = find(p < 0);
+  a = 1;
+  j = -1;
+  if (!i.is_empty()) {
+    vec t = -x(i)/p(i);
+    j = t.index_min();
+    if (t(j) < 1)
+      a = t(j);
+    j = i(j);
+  }
+}
+
+// Compute the value of the objective at x; arguments L and w specify
+// the objective, and e is a vector in which the entries can be set to
+// small, positive numbers, or to zero. Input u stores an intermediate
+// result used in the calculation.
+inline double compute_objective (const mat& L, const vec& w, const vec& x,
+				 const vec& e, vec& u) {
+  u = L*x + e;
+  if (u.min() <= 0)
+    Rcpp::stop("Objective is -Inf");
+  return sum(x) - sum(w % log(u));
+}
+
+// Compute the gradient and Hessian of the objective at x.
+inline void compute_grad (const mat& L, const vec& w, const vec& x,
+			  const vec& e, vec& g, mat& H, mat& Z) {
+  vec u = L*x + e;
+  g = -trans(L)*(w/u) + 1;
+  Z = L;
+  Z.each_col() %= (sqrt(w)/u);
+  H = trans(Z) * Z;
+}
+
 // SQP algorithm for computing a maximum-likelihood estimate of a
 // mixture model. For more information, see the help and comments
 // accompanying the mixsqp R function and, in particular, see how
@@ -43,7 +86,7 @@ arma::vec mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 // This is the helper function for mixsqp_rcpp; it does most of the
 // actual work.
 void mixsqp (const mat& L, const vec& w, vec& x, const vec& e, uint numiter, 
-	     mixsqp_control_params control, bool verbose) {
+	     const mixsqp_control_params& control, bool verbose) {
   
   // Get the number of rows (n) and columns (m) of the conditional
   // likelihood matrix.
@@ -93,20 +136,6 @@ void mixsqp (const mat& L, const vec& w, vec& x, const vec& e, uint numiter,
     obj = compute_objective(L,w,x,e,u);
     Rprintf("%4d %+0.15f\n",numiter,obj);
   }
-}
-
-// Get the parameters controlling the behaviour of the SQP
-// optimization algorithm from the named elements in a list.
-mixsqp_control_params get_mixsqp_control_params (Rcpp::List control) {
-  mixsqp_control_params x;
-  x.activesetconvtol = control["activesetconvtol"];
-  x.zerothreshold    = control["zerothreshold"];
-  x.zerosearchdir    = control["zerosearchdir"];
-  x.suffdecr         = control["suffdecr"];
-  x.stepsizereduce   = control["stepsizereduce"];
-  x.minstepsize      = control["minstepsize"];
-  x.maxiteractiveset = control["maxiteractiveset"];
-  return x;
 }
 
 // This implements the active-set method from p. 472 of of Nocedal &
@@ -191,18 +220,6 @@ void activesetqp (const mat& H, const vec& g, vec& y, uint maxiter,
       y += a*p;
     }
   }
-}
-
-// Get the initial scalar multiplier for the identity matrix based on
-// examining the diagonal entries of the Hessian.
-double init_hessian_correction (const mat& H, double a0) {
-  double d  = H.diag().min();
-  double a;
-  if (d > a0)
-    a = 0;
-  else
-    a = a0 - d;
-  return a;
 }
 
 // This implements Algorithm 3.3, "Cholesky with added multiple of the
@@ -291,42 +308,5 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
       a *= beta;
     }
   }
-}
-
-// Return the largest step size maintaining feasibility (x >= 0) for
-// the given the search direction (p).
-void feasible_stepsize (const vec& x, const vec& p, int& j, double& a) {
-  uvec i = find(p < 0);
-  a = 1;
-  j = -1;
-  if (!i.is_empty()) {
-    vec t = -x(i)/p(i);
-    j = t.index_min();
-    if (t(j) < 1)
-      a = t(j);
-    j = i(j);
-  }
-}
-
-// Compute the value of the objective at x; arguments L and w specify
-// the objective, and e is a vector in which the entries can be set to
-// small, positive numbers, or to zero. Input u stores an intermediate
-// result used in the calculation.
-double compute_objective (const mat& L, const vec& w, const vec& x,
-			  const vec& e, vec& u) {
-  u = L*x + e;
-  if (u.min() <= 0)
-    Rcpp::stop("Objective is -Inf");
-  return sum(x) - sum(w % log(u));
-}
-
-// Compute the gradient and Hessian of the objective at x.
-void compute_grad (const mat& L, const vec& w, const vec& x,
-		  const vec& e, vec& g, mat& H, mat& Z) {
-  vec u = L*x + e;
-  g = -trans(L)*(w/u) + 1;
-  Z = L;
-  Z.each_col() %= (sqrt(w)/u);
-  H = trans(Z) * Z;
 }
 

@@ -4,16 +4,6 @@ using namespace arma;
 
 // FUNCTION DEFINITIONS
 // --------------------
-// Return a or b, which ever is smaller.
-double min (double a, double b) {
-  double y;
-  if (a < b)
-    y = a;
-  else
-    y = b;
-  return y;
-}
-
 // Return the row indices of the nonzeros in the jth column of sparse
 // matrix A. This is the same as
 //
