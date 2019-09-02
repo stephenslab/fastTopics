@@ -23,7 +23,8 @@
 #' \describe{
 #' 
 #' \item{\code{nc}}{This determines the \code{mc.cores} argument in
-#'   calls to \code{\link[parallel]{mclapply}}.}
+#'   calls to \code{\link[parallel]{mclapply}}. TO DO: Update this
+#'   description.}
 #'
 #' \item{\code{numem}}{A non-negative number specifying the number of
 #'   EM (\emph{i.e.}, multiplicative) updates to run at each outer loop
@@ -248,9 +249,10 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   verify.fit(fit)
   F <- fit$F
   L <- fit$L
+  rm(fit)
   
   # Verify and process input matrix F.
-  verify.matrix(fit$F)
+  verify.matrix(F)
   if (!is.matrix(F))
     F <- as.matrix(F)
   if (is.integer(F))
@@ -259,7 +261,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
     stop("Some entries of input matrix \"fit$F\" should be positive")
   
   # Verify and process input matrix L.
-  verify.matrix(fit$L)
+  verify.matrix(L)
   if (!is.matrix(L))
     L <- as.matrix(L)
   if (is.integer(L))
@@ -286,16 +288,15 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Get the optimization settings.
   control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
   control$maxiteractiveset <- k + 1
-  e       <- control$e
 
   # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
-  f     <- cost(X,L,t(F),e,version = version)
+  f     <- cost(X,L,t(F),control$e,version = version)
   fbest <- f
 
   # Matrices in R are stored column-wise; to quickly access each row
   # of the matrix, the transpose of X is also stored.
-  Xt <- t(X);
+  Xt <- t(X)
   
   # Compute the sum of the elements in each row and each column of the
   # counts matrix.
@@ -325,7 +326,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-66)\n")
+    cat("(fastTopics version 0.1-67)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -361,15 +362,6 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
                               fbest, xsrow, xscol, beta, betamax, numiter,
                               version, control, progress, verbose) {
 
-  # Get the optimization settings.
-  nc               <- control$nc
-  extrapolate      <- control$extrapolate
-  beta.init        <- control$beta.init
-  beta.increase    <- control$beta.increase
-  beta.reduce      <- control$beta.reduce
-  betamax.increase <- control$betamax.increase
-  e                <- control$e
-  
   # Iteratively apply the EM and SQP updates
   for (iter in 1:numiter) {
 
@@ -377,9 +369,9 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
     f0 <- f
 
     # When the time is right, initiate the extrapolation scheme.
-    if (beta == 0 & iter >= extrapolate) {
-      beta  <- beta.init
-      beta0 <- beta.init
+    if (beta == 0 & iter >= control$extrapolate) {
+      beta  <- control$beta.init
+      beta0 <- control$beta.init
     }
 
     timing <- system.time({
@@ -387,28 +379,7 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       # UPDATE FACTORS
       # --------------
       # Update the factors ("basis vectors").
-      if (version == "Rcpp") {
-        if (nc == 1) {
-          if (is.matrix(X))
-            Fn <- t(altsqp_update_factors_rcpp(X,t(Fy),Ly,xscol,colSums(Ly),
-                      e,control$numem,control$numsqp,control))
-          else
-            Fn <- t(altsqp_update_factors_sparse_rcpp(X,t(Fy),Ly,xscol,
-                      colSums(Ly),e,control$numem,control$numsqp,control))
-        } else {
-          if (is.matrix(X))
-            Fn <- t(altsqp_update_factors_rcpp_parallel(X,t(Fy),Ly,xscol,
-                      colSums(Ly),e,control$numem,control$numsqp,control))
-          else {
-            # TO DO.
-          }
-        }
-      } else {
-        if (nc == 1)
-          Fn <- altsqp.update.factors(X,Fy,Ly,xscol,control)
-        else
-          Fn <- altsqp.update.factors.multicore(X,Fy,Ly,xscol,control)
-       }
+      Fn <- altsqp.update.factors(X,Fy,Ly,xscol,version,control)
       
       # Compute the extrapolated update for the factors. Note that
       # when beta = 0, Fy = Fn.
@@ -417,19 +388,7 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       # UPDATE LOADINGS
       # ---------------
       # Update the loadings ("activations").
-      if (version == "Rcpp") {
-        if (is.matrix(Xt))
-          Ln <- t(altsqp_update_loadings_rcpp(Xt,Fy,t(Ly),xsrow,colSums(Fy),
-                    e,control$numem,control$numsqp,control))
-        else
-          Ln <- t(altsqp_update_loadings_sparse_rcpp(Xt,Fy,t(Ly),xsrow,
-                    colSums(Fy),e,control$numem,control$numsqp,control))
-      } else {
-        if (nc == 1)
-          Ln <- altsqp.update.loadings(Xt,Fy,Ly,xsrow,control)
-        else
-          Ln <- altsqp.update.loadings.multicore(Xt,Fy,Ly,xsrow,control)
-      }
+      Ln <- altsqp.update.loadings(Xt,Fy,Ly,xsrow,version,control)
       
       # Compute the extrapolated update for the loadings. Note that
       # when beta = 0, Ly = Ln.
@@ -439,7 +398,7 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
     # Compute the value of the objective (cost) function at the
     # extrapolated solution for the factors (F) and the
     # non-extrapolated solution for the loadings (L).
-    f <- cost(X,Ln,t(Fy),e,version = version)
+    f <- cost(X,Ln,t(Fy),control$e,version = version)
     if (beta == 0) {
 
       # No extrapolation is used, so use the basic coordinate-wise
@@ -457,16 +416,16 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
         Fy      <- F
         Ly      <- L
         betamax <- beta0
-        beta    <- beta.reduce*beta
+        beta    <- control$beta.reduce * beta
       } else {
         
         # The solution is improved; retain the basic co-ordinate ascent
         # update as well.
         F       <- Fn
         L       <- Ln
-        beta    <- min(betamax,beta.increase * beta)
+        beta    <- min(betamax,control$beta.increase * beta)
         beta0   <- beta
-        betamax <- min(0.99,betamax.increase * betamax)
+        betamax <- min(0.99,control$betamax.increase * betamax)
       }
     }        
 
@@ -479,7 +438,7 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       #
       #   mean((tcrossprod(Lbest,Fbest) - tcrossprod(Ln,Fy))^2)
       #
-      # but done in a way that avoids computing a dense n x m matrix.
+      # but is done in a way that avoids computing a dense n x m matrix.
       d     <- (trcrossprod(Fbest %*% (t(Lbest) %*% Lbest),Fbest)
                - 2*trcrossprod(Fbest %*% (t(Lbest) %*% Ln),Fy)
                + trcrossprod(Fy %*% (t(Ln) %*% Ln),Fy))/length(X)
@@ -517,7 +476,37 @@ altsqp_control_default <- function()
          betamax.increase = 1.05))
 
 # Update all the factors with the loadings remaining fixed.
-altsqp.update.factors <- function (X, F, L, xscol, control) {
+altsqp.update.factors <- function (X, F, L, xscol, version, control) {
+  nc     <- control$nc
+  e      <- control$e
+  numem  <- control$numem
+  numsqp <- control$numsqp
+  ls     <- colSums(L)
+  if (version == "Rcpp") {
+    if (nc > 1) {
+      if (is.matrix(X))
+        F <- t(altsqp_update_factors_rcpp_parallel(X,t(F),L,xscol,ls,e,numem,
+                                                   numsqp,control))
+      else
+        F<-t(altsqp_update_factors_rcpp_parallel_sparse(X,t(F),L,xscol,ls,e,
+                                                        numem,numsqp,control))
+    } else {
+      if (is.matrix(X))
+        F <- t(altsqp_update_factors_rcpp(X,t(F),L,xscol,ls,e,numem,numsqp,
+                                          control))
+      else
+        F <- t(altsqp_update_factors_sparse_rcpp(X,t(F),L,xscol,ls,e,numem,
+                                                 numsqp,control))
+    }
+  } else if (nc > 1)
+    F <- altsqp.update.factors.multicore(X,F,L,xscol,control)
+  else
+    F <- altsqp.update.factors.helper(X,F,L,xscol,control)
+  return(F)
+}
+
+# This is a helper function for altsqp.update.factors
+altsqp.update.factors.helper <- function (X, F, L, xscol, control) {
   m  <- ncol(X)
   ls <- colSums(L)
   for (j in 1:m) {
@@ -535,7 +524,28 @@ altsqp.update.factors <- function (X, F, L, xscol, control) {
 # Update all the loadings with the factors remaining fixed. Note that
 # input argument X is the the *transpose* of the matrix inputted to
 # altsqp (an m x n matrix).
-altsqp.update.loadings <- function (X, F, L, xsrow, control) {
+altsqp.update.loadings <- function (Xt, F, L, xsrow, version, control) {
+  nc     <- control$nc
+  e      <- control$e
+  numem  <- control$numem
+  numsqp <- control$numsqp
+  fs     <- colSums(F)
+  if (version == "Rcpp") {
+    if (is.matrix(Xt))
+      L <- t(altsqp_update_loadings_rcpp(Xt,F,t(L),xsrow,fs,e,numem,numsqp,
+                                         control))
+    else
+      L <- t(altsqp_update_loadings_sparse_rcpp(Xt,F,t(L),xsrow,fs,e,numem,
+                                                numsqp,control))
+  } else if (nc > 1)
+    L <- altsqp.update.loadings.multicore(Xt,F,L,xsrow,control)
+  else
+    L <- altsqp.update.loadings.helper(Xt,F,L,xsrow,control)
+  return(L)
+}
+
+# This is a helper function for altsqp.update.loadings.
+altsqp.update.loadings.helper <- function (X, F, L, xsrow, control) {
   n  <- ncol(X)
   fs <- colSums(F)
   for (i in 1:n) {
@@ -557,8 +567,9 @@ altsqp.update.factors.multicore <- function (X, F, L, xscol, control) {
   nc   <- control$nc
   cols <- splitIndices(m,nc)
   F <- mclapply(cols,
-         function (j) altsqp.update.factors(X[,j],F[j,],L,xscol[j],control),
-           mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
+                function (j) altsqp.update.factors.helper(X[,j],F[j,],L,
+                                                          xscol[j],control),
+                mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
   F <- do.call(rbind,F)
   F[unlist(cols),] <- F
   return(F)
@@ -573,8 +584,9 @@ altsqp.update.loadings.multicore <- function (X, F, L, xsrow, control) {
   nc   <- control$nc
   rows <- splitIndices(n,nc)
   L <- mclapply(rows,
-         function (i) altsqp.update.loadings(X[,i],F,L[i,],xsrow[i],control),
-           mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
+                function (i) altsqp.update.loadings.helper(X[,i],F,L[i,],
+                                                           xsrow[i],control),
+                mc.set.seed = FALSE,mc.allow.recursive = FALSE,mc.cores = nc)
   L <- do.call(rbind,L)
   L[unlist(rows),] <- L
   return(L)

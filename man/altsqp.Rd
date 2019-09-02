@@ -113,7 +113,8 @@ optimization algorithm settings (as they are defined by
 \describe{
 
 \item{\code{nc}}{This determines the \code{mc.cores} argument in
-  calls to \code{\link[parallel]{mclapply}}.}
+  calls to \code{\link[parallel]{mclapply}}. TO DO: Update this
+  description.}
 
 \item{\code{numem}}{A non-negative number specifying the number of
   EM (\emph{i.e.}, multiplicative) updates to run at each outer loop

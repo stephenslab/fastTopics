@@ -32,8 +32,8 @@ test_that("altsqp gives same result for sparse and dense matrix",{
   expect_equal(fit1,fit4)
 })
 
-test_that(paste("Multicore version of altsqp gives same result as",
-                "single-core version"),{
+test_that(paste("Multicore R + Rcpp versions of altsqp gives same result",
+                "as single-core version"),{
 
   # Generate a 100 x 200 data matrix to factorize.
   set.seed(1)
@@ -56,11 +56,15 @@ test_that(paste("Multicore version of altsqp gives same result as",
                                 control = list(nc = 2)))
   capture.output(fit3 <- altsqp(X,fit0,numiter = 10,version = "Rcpp",
                                 control = list(nc = 2)))
+  capture.output(fit4 <- altsqp(Y,fit0,numiter = 10,version = "Rcpp",
+                                control = list(nc = 2)))
   fit1$progress       <- fit1$progress[1:4]
   fit2$progress       <- fit2$progress[1:4]
   fit3$progress       <- fit3$progress[1:4]
+  fit4$progress       <- fit4$progress[1:4]
   expect_equal(fit1,fit2)
   expect_equal(fit1,fit3)
+  expect_equal(fit1,fit4)
 })
 
 test_that("altsqp gives a better solution than nnmf on a sparse matrix",{

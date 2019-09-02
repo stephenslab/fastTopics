@@ -4,6 +4,58 @@
 
 using namespace arma;
 
+// INLINE FUNCTION DEFINITIONS
+// ---------------------------
+// Performs a single loadings update (updates one column of the L matrix).
+inline void altsqp_update_loading (const mat& X, const mat& F, const mat& L,
+				   mat& Lnew, const vec& xsrow, const vec& fs,
+				   uint i, double e, uint numem, uint numsqp,
+				   const mixsqp_control_params& control) {
+  vec x = L.col(i);
+
+  // Get the mixsqp inputs: set B to F[j,], and set w to X[j,i],
+  // where i is the vector of indices such that X[j,i] > 0.
+  uvec j = find(X.col(i) > 0);
+  vec  w = nonzeros(X.col(i));
+  uint m = j.n_elem;
+  uint k = L.n_rows;
+  mat  B(m,k);
+  B = F.rows(j);
+
+  // Run the EM and SQP updates.
+  altsqp_update_em_sqp(B,w,fs,xsrow(i),x,e,numem,numsqp,control);
+
+  // Store the updated loadings.
+  Lnew.col(i) = x;
+}
+
+// Performs a single loadings update (updates one column of the L
+// matrix) when X is sparse.
+inline void altsqp_update_loading_sparse (const sp_mat& X, const mat& F,
+					  const mat& L, mat& Lnew,
+					  const vec& xsrow, const vec& fs,
+					  uint i, double e, uint numem,
+					  uint numsqp,
+					  const mixsqp_control_params&control){
+  vec x = L.col(i);
+
+  // Get the mixsqp inputs: set B to F[j,], and set w to X[j,i],
+  // where j is the vector of indices such that X[j,i] > 0.
+  vec  w = nonzeros(X.col(i));
+  uint m = w.n_elem;
+  uint k = L.n_rows;
+  uvec j(m);
+  mat B(m,k);
+  getcolnonzeros(X,j,i);
+  B = F.rows(j);
+
+  // Run the EM and SQP updates.
+  altsqp_update_em_sqp(B,w,fs,xsrow(i),x,e,numem,numsqp,control);
+
+  // Store the updated loadings.
+  Lnew.col(i) = x;
+}
+
 // This is a faster implementation of the R function altsqp.update.loadings.
 //
 // The inputs and outputs differ slightly from the R function: X, an m
@@ -35,23 +87,8 @@ arma::mat altsqp_update_loadings_rcpp (const arma::mat& X,
   mat Lnew(k,n);
 
   // Repeat for each row of X (equivalently, for each column of L).
-  for (uint i = 0; i < n; i++) {
-    vec x = L.col(i);
-
-    // Get the mixsqp inputs: set B to F[j,], and set w to X[j,i],
-    // where i is the vector of indices such that X[j,i] > 0.
-    uvec j = find(X.col(i) > 0);
-    vec  w = nonzeros(X.col(i));
-    uint m = j.n_elem;
-    mat  B(m,k);
-    B = F.rows(j);
-
-    // Run one EM update and one SQP update.
-    altsqp_update_em_sqp(B,w,fs,xsrow(i),x,e,(uint) numem,(uint) numsqp,ctrl);
-
-    // Store the updated loadings.
-    Lnew.col(i) = x;
-  }
+  for (uint i = 0; i < n; i++)
+    altsqp_update_loading(X,F,L,Lnew,xsrow,fs,i,e,numem,numsqp,ctrl);
 
   return Lnew;
 }
@@ -75,24 +112,8 @@ arma::mat altsqp_update_loadings_sparse_rcpp (const arma::sp_mat& X,
   mat Lnew(k,n);
 
   // Repeat for each row of X (equivalently, for each column of L).
-  for (uint i = 0; i < n; i++) {
-    vec x = L.col(i);
-
-    // Get the mixsqp inputs: set B to F[j,], and set w to X[j,i],
-    // where j is the vector of indices such that X[j,i] > 0.
-    vec  w = nonzeros(X.col(i));
-    uint m = w.n_elem;
-    uvec j(m);
-    mat B(m,k);
-    getcolnonzeros(X,j,i);
-    B = F.rows(j);
-
-    // Run one EM update and one SQP update.
-    altsqp_update_em_sqp(B,w,fs,xsrow(i),x,e,(uint) numem,(uint) numsqp,ctrl);
-
-    // Store the updated loadings.
-    Lnew.col(i) = x;
-  }
+  for (uint i = 0; i < n; i++)
+    altsqp_update_loading_sparse(X,F,L,Lnew,xsrow,fs,i,e,numem,numsqp,ctrl);
 
   return Lnew;
 }

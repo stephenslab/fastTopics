@@ -22,7 +22,7 @@ inline void altsqp_update_factor (const mat& X, const mat& F, const mat& L,
   mat  B(n,k);
   B = L.rows(i);
     
-  // Run an SQP update.
+  // Run the EM and SQP updates.
   altsqp_update_em_sqp(B,w,ls,xscol(j),x,e,numem,numsqp,control);
       
   // Store the updated factors.
@@ -49,7 +49,7 @@ inline void altsqp_update_factor_sparse (const sp_mat& X, const mat& F,
   getcolnonzeros(X,i,j);
   B = L.rows(i);
     
-  // Run an SQP update.
+  // Run the EM and SQP updates.
   altsqp_update_em_sqp(B,w,ls,xscol(j),x,e,numem,numsqp,control);
       
   // Store the updated factors.
@@ -86,6 +86,38 @@ struct FactorUpdater : public RcppParallel::Worker {
   void operator() (std::size_t begin, std::size_t end) {
     for (uint j = begin; j < end; j++)
       altsqp_update_factor(X,F,L,Fnew,xscol,ls,j,e,numem,numsqp,control);
+  }
+};
+
+// This class is used to implement multithreaded computation of the
+// factor updates in altsqp_update_factors_rcpp_parallel_sparse.
+//
+// [[Rcpp::depends(RcppParallel)]]
+struct FactorUpdaterSparse : public RcppParallel::Worker {
+  const sp_mat& X;
+  const mat& F;
+  const mat& L;
+  const vec& xscol;
+  const vec& ls;
+  mat&   Fnew;
+  uint   numem;
+  uint   numsqp;
+  double e;
+  mixsqp_control_params control;
+
+  // This is used to create a FactorUpdater object.
+  FactorUpdaterSparse (const arma::sp_mat& X, const arma::mat& F,
+		       const arma::mat& L, const arma::vec& xscol,
+		       const arma::vec& ls, arma::mat& Fnew, double e,
+		       uint numem, uint numsqp, mixsqp_control_params control):
+    X(X), F(F), L(L), xscol(xscol), ls(ls), Fnew(Fnew), numem(numem),
+    numsqp(numsqp), e(e), control(control) { };
+
+  // This function updates the factors for a given range of columns.
+  void operator() (std::size_t begin, std::size_t end) {
+    for (uint j = begin; j < end; j++)
+      altsqp_update_factor_sparse(X,F,L,Fnew,xscol,ls,j,e,
+				  numem,numsqp,control);
   }
 };
 
@@ -144,6 +176,36 @@ arma::mat altsqp_update_factors_rcpp_parallel (const arma::mat& X,
   
   // Create the worker.
   FactorUpdater worker(X,F,L,xscol,ls,Fnew,e,(uint) numem,(uint) numsqp,ctrl);
+     
+  // Update the factors with parallelFor.
+  parallelFor(0,m,worker);
+  
+  return Fnew;
+}
+
+// This is the same as altsqp_update_factors_rcpp, except that Intel
+// Threading Building Blocks (TBB) are used to update the factors in
+// parallel.
+//
+// [[Rcpp::export]]
+arma::mat altsqp_update_factors_rcpp_parallel_sparse (const arma::sp_mat& X,
+						      const arma::mat& F,
+						      const arma::mat& L,
+						      const arma::vec& xscol,
+						      const arma::vec& ls,
+						      double e, double numem,
+						      double numsqp,
+						      Rcpp::List control) {
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
+
+  // Initialize the return value.
+  uint k = F.n_rows;
+  uint m = F.n_cols;
+  mat Fnew(k,m);
+  
+  // Create the worker.
+  FactorUpdaterSparse worker(X,F,L,xscol,ls,Fnew,e,(uint) numem,
+			     (uint) numsqp,ctrl);
      
   // Update the factors with parallelFor.
   parallelFor(0,m,worker);
