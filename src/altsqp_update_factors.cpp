@@ -105,7 +105,7 @@ struct FactorUpdaterSparse : public RcppParallel::Worker {
   double e;
   mixsqp_control_params control;
 
-  // This is used to create a FactorUpdater object.
+  // This is used to create a FactorUpdaterSparse object.
   FactorUpdaterSparse (const arma::sp_mat& X, const arma::mat& F,
 		       const arma::mat& L, const arma::vec& xscol,
 		       const arma::vec& ls, arma::mat& Fnew, double e,
@@ -154,6 +154,32 @@ arma::mat altsqp_update_factors_rcpp (const arma::mat& X,
   return Fnew;
 }
 
+// This is the same as altsqp_update_factors_rcpp, except that input
+// argument X is a sparse matrix.
+//
+// [[Rcpp::export]]
+arma::mat altsqp_update_factors_sparse_rcpp (const arma::sp_mat& X,
+					     const arma::mat& F,
+					     const arma::mat& L,
+					     const arma::vec& xscol,
+					     const arma::vec& ls,
+					     double e, double numem,
+					     double numsqp,
+					     Rcpp::List control) {
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
+
+  // Initialize the return value.
+  uint k = F.n_rows;
+  uint m = F.n_cols;
+  mat Fnew(k,m);
+
+  // Repeat for each column of X (equivalently, for each column of F).
+  for (uint j = 0; j < m; j++)
+    altsqp_update_factor_sparse(X,F,L,Fnew,xscol,ls,j,e,numem,numsqp,ctrl);
+
+  return Fnew;
+}
+
 // This is the same as altsqp_update_factors_rcpp, except that Intel
 // Threading Building Blocks (TBB) are used to update the factors in
 // parallel.
@@ -183,9 +209,9 @@ arma::mat altsqp_update_factors_rcpp_parallel (const arma::mat& X,
   return Fnew;
 }
 
-// This is the same as altsqp_update_factors_rcpp, except that Intel
-// Threading Building Blocks (TBB) are used to update the factors in
-// parallel.
+// This is the same as altsqp_update_factors_rcpp_sparse, except that
+// Intel Threading Building Blocks (TBB) are used to update the
+// factors in parallel.
 //
 // [[Rcpp::export]]
 arma::mat altsqp_update_factors_rcpp_parallel_sparse (const arma::sp_mat& X,
@@ -210,31 +236,5 @@ arma::mat altsqp_update_factors_rcpp_parallel_sparse (const arma::sp_mat& X,
   // Update the factors with parallelFor.
   parallelFor(0,m,worker);
   
-  return Fnew;
-}
-
-// This is the same as altsqp_update_factors_rcpp, except that input
-// argument X is a sparse matrix.
-//
-// [[Rcpp::export]]
-arma::mat altsqp_update_factors_sparse_rcpp (const arma::sp_mat& X,
-					     const arma::mat& F,
-					     const arma::mat& L,
-					     const arma::vec& xscol,
-					     const arma::vec& ls,
-					     double e, double numem,
-					     double numsqp,
-					     Rcpp::List control) {
-  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
-
-  // Initialize the return value.
-  uint k = F.n_rows;
-  uint m = F.n_cols;
-  mat Fnew(k,m);
-
-  // Repeat for each column of X (equivalently, for each column of F).
-  for (uint j = 0; j < m; j++)
-    altsqp_update_factor_sparse(X,F,L,Fnew,xscol,ls,j,e,numem,numsqp,ctrl);
-
   return Fnew;
 }

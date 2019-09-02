@@ -326,7 +326,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-67)\n")
+    cat("(fastTopics version 0.1-68)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -505,7 +505,7 @@ altsqp.update.factors <- function (X, F, L, xscol, version, control) {
   return(F)
 }
 
-# This is a helper function for altsqp.update.factors
+# This is a helper function for altsqp.update.factors.
 altsqp.update.factors.helper <- function (X, F, L, xscol, control) {
   m  <- ncol(X)
   ls <- colSums(L)
@@ -531,12 +531,21 @@ altsqp.update.loadings <- function (Xt, F, L, xsrow, version, control) {
   numsqp <- control$numsqp
   fs     <- colSums(F)
   if (version == "Rcpp") {
-    if (is.matrix(Xt))
-      L <- t(altsqp_update_loadings_rcpp(Xt,F,t(L),xsrow,fs,e,numem,numsqp,
-                                         control))
-    else
-      L <- t(altsqp_update_loadings_sparse_rcpp(Xt,F,t(L),xsrow,fs,e,numem,
-                                                numsqp,control))
+    if (nc > 1) {
+      if (is.matrix(Xt))
+        L <- t(altsqp_update_loadings_rcpp_parallel(Xt,F,t(L),xsrow,fs,e,numem,
+                                                    numsqp,control))
+      else
+        L<-t(altsqp_update_loadings_rcpp_parallel_sparse(Xt,F,t(L),xsrow,fs,e,
+                                                         numem,numsqp,control))
+    } else {
+      if (is.matrix(Xt))
+        L <- t(altsqp_update_loadings_rcpp(Xt,F,t(L),xsrow,fs,e,numem,numsqp,
+                                           control))
+      else
+        L <- t(altsqp_update_loadings_sparse_rcpp(Xt,F,t(L),xsrow,fs,e,numem,
+                                                  numsqp,control))
+    }
   } else if (nc > 1)
     L <- altsqp.update.loadings.multicore(Xt,F,L,xsrow,control)
   else
