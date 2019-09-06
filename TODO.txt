@@ -5,8 +5,6 @@ to do
 
 + Update description of control$nc in roxygen2 docs.
 
-+ Test package on midway2.
-
 + Set up continuous integration (Travis CI, Appveyor, CircleCI).
 
 + Implement a short vignette using the droplet data.
