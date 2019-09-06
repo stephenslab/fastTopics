@@ -1,15 +1,11 @@
 to do
 =====
 
-+ Redo Makevars and Makevars.win --- review package skeletons for
-  RcppArmadillo and RcppParallel.
++ Save the droplet data in a more compressed form.
 
-+ Restructure C++ code to reduce code redundancy.
++ Update description of control$nc in roxygen2 docs.
 
-+ Implement RcppParallel version of altsqp updates.
-
-+ Add tests for RcppParallel version of altsqp updates (for both
-  sparse and dense matrices).
++ Test package on midway2.
 
 + Set up continuous integration (Travis CI, Appveyor, CircleCI).
 

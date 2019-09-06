@@ -218,6 +218,7 @@
 #' 
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
+#' @importFrom RcppParallel setThreadOptions
 #' @importFrom utils modifyList
 #' @importFrom Matrix t
 #' @importFrom Matrix rowSums
@@ -289,6 +290,13 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   control <- modifyList(altsqp_control_default(),control,keep.null = TRUE)
   control$maxiteractiveset <- k + 1
 
+  # If using RcppParallel, set the number of threads.
+  if (version == "Rcpp" & control$nc > 1) {
+    message(paste("Setting number of RcppParallel threads:",
+                  sprintf("setThreadOptions(numThreads = %d)",control$nc)))
+    setThreadOptions(numThreads = control$nc)
+  }
+  
   # Compute the value of the objective (the negative Poisson
   # log-likelihood) at the initial iterate.
   f     <- cost(X,L,t(F),control$e,version = version)
@@ -326,7 +334,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-68)\n")
+    cat("(fastTopics version 0.1-69)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -393,60 +401,60 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       # Compute the extrapolated update for the loadings. Note that
       # when beta = 0, Ly = Ln.
       Ly <- pmax(Ln + beta*(Ln - L),0)
-    })
 
-    # Compute the value of the objective (cost) function at the
-    # extrapolated solution for the factors (F) and the
-    # non-extrapolated solution for the loadings (L).
-    f <- cost(X,Ln,t(Fy),control$e,version = version)
-    if (beta == 0) {
+      # Compute the value of the objective (cost) function at the
+      # extrapolated solution for the factors (F) and the
+      # non-extrapolated solution for the loadings (L).
+      f <- cost(X,Ln,t(Fy),control$e,version = version)
+      if (beta == 0) {
 
-      # No extrapolation is used, so use the basic coordinate-wise
-      # updates for the factors and loadings.
-      F <- Fn
-      L <- Ln
-    } else {
-
-      # Update the extrapolation parameters following Algorithm 3 of
-      # Ang & Gillis (2019).
-      if (f > f0) {
-
-        # The solution did not improve, so restart the extrapolation
-        # scheme.
-        Fy      <- F
-        Ly      <- L
-        betamax <- beta0
-        beta    <- control$beta.reduce * beta
+        # No extrapolation is used, so use the basic coordinate-wise
+        # updates for the factors and loadings.
+        F <- Fn
+        L <- Ln
       } else {
+
+        # Update the extrapolation parameters following Algorithm 3 of
+        # Ang & Gillis (2019).
+        if (f > f0) {
+
+          # The solution did not improve, so restart the extrapolation
+          # scheme.
+          Fy      <- F
+          Ly      <- L
+          betamax <- beta0
+          beta    <- control$beta.reduce * beta
+        } else {
         
-        # The solution is improved; retain the basic co-ordinate ascent
-        # update as well.
-        F       <- Fn
-        L       <- Ln
-        beta    <- min(betamax,control$beta.increase * beta)
-        beta0   <- beta
-        betamax <- min(0.99,control$betamax.increase * betamax)
-      }
-    }        
+          # The solution is improved; retain the basic co-ordinate ascent
+          # update as well.
+          F       <- Fn
+          L       <- Ln
+          beta    <- min(betamax,control$beta.increase * beta)
+          beta0   <- beta
+          betamax <- min(0.99,control$betamax.increase * betamax)
+        }
+      }       
 
-    # If the solution is improved, update the current best solution
-    # using the extrapolated estimates of the factors (F) and the
-    # non-extrapolated estimates of the loadings (L).
-    if (f < fbest) {
+      # If the solution is improved, update the current best solution
+      # using the extrapolated estimates of the factors (F) and the
+      # non-extrapolated estimates of the loadings (L).
+      if (f < fbest) {
 
-      # This is equivalent to
-      #
-      #   mean((tcrossprod(Lbest,Fbest) - tcrossprod(Ln,Fy))^2)
-      #
-      # but is done in a way that avoids computing a dense n x m matrix.
-      d     <- (trcrossprod(Fbest %*% (t(Lbest) %*% Lbest),Fbest)
-               - 2*trcrossprod(Fbest %*% (t(Lbest) %*% Ln),Fy)
-               + trcrossprod(Fy %*% (t(Ln) %*% Ln),Fy))/length(X)
-      Fbest <- Fy
-      Lbest <- Ln 
-      fbest <- f
-    } else
-      d <- 0
+        # This is equivalent to
+        #
+        #   mean((tcrossprod(Lbest,Fbest) - tcrossprod(Ln,Fy))^2)
+        #
+        # but is done in a way that avoids computing a dense n x m matrix.
+        d     <- (trcrossprod(Fbest %*% (t(Lbest) %*% Lbest),Fbest)
+                 - 2*trcrossprod(Fbest %*% (t(Lbest) %*% Ln),Fy)
+                 + trcrossprod(Fy %*% (t(Ln) %*% Ln),Fy))/length(X)
+        Fbest <- Fy
+        Lbest <- Ln 
+        fbest <- f
+      } else
+        d <- 0
+    })
 
     # Record the algorithm's progress.
     progress[iter,"objective"] <- fbest
