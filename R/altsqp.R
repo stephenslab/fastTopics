@@ -334,7 +334,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-69)\n")
+    cat("(fastTopics version 0.1-70)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
