@@ -1,15 +1,15 @@
 to do
 =====
 
-+ Save the droplet data in a more compressed form.
++ Document the droplet data set.
+
++ Implement a short vignette using the droplet data.
+
++ Advertise fastTopics on Slack.
 
 + Update description of control$nc in roxygen2 docs.
 
 + Set up continuous integration (Travis CI, Appveyor, CircleCI).
-
-+ Implement a short vignette using the droplet data.
-
-+ Document the droplet data set.
 
 + Fill out "Quick Start" instructions in README.
 

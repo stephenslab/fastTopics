@@ -1,0 +1,163 @@
+---
+title: "Illustration of fastTopics applied to a single-cell RNA-seq data set"
+author: "Peter Carbonetto"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{fastTopics-intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE,results = "hold",comment = "#",
+                      fig.align = "center",eval = FALSE)
+```
+
+In this vignette, we illustrate the use of the alternating sequential
+quadratic programming (alt-SQP) algorithm implemented in the
+`fastTopics` package, and we compare its runtime and accuracy against
+an interior-point (IP) solver implemented by the [MOSEK][mosek]
+commercial software (it is called by the "KWDual" function in the
+[REBayes package][rebayes]).
+
+## Environment set-up
+
+Load the `fastTopics` package.
+
+```{r load-pkgs, eval=TRUE, message=FALSE}
+library(fastTopics)
+```
+
+Next, initialize the sequence of pseudorandom numbers.
+
+```{r set-seed, eval=TRUE}
+set.seed(1)
+```
+
+## Load the data set
+
+We begin with a small example to show how `mixsqp` works.
+
+```{r sim-data-small, eval=TRUE}
+L <- simulatemixdata(1000,20)$L
+dim(L)
+```
+
+This call to `simulatemixdata` created an $n \times m$ conditional
+likelihood matrix for a mixture of zero-centered normals, with $n =
+1000$ and $m = 20$. By default, `simulatemixdata` normalizes the rows
+of the likelihood matrix so that the maximum entry in each row is 1.
+
+## Fit mixture model
+
+Now we fit the mixture model using the SQP algorithm:
+
+```{r fit-model-mixsqp-small, eval=TRUE}
+fit.sqp <- mixsqp(L)
+```
+
+In this example, the SQP algorithm converged to a solution in a small
+number of iterations.
+
+By default, `mixsqp` outputs information on its progress. It begins by
+summarizing the optimization problem and the algorithm settings used.
+(Since we did not change these settings in the `mixsqp` call, all the
+settings shown here are the default settings.)
+
+After that, it outputs, at each iteration, information about the
+current solution, such as the value of the objective ("objective") and
+the number of nonzeros ("nnz").
+
+The "max(rdual)" column shows the quantity used to assess convergence.
+It reports the maximum value of the "dual residual"; the SQP solver
+terminates when the maximum dual residual is less than `conv.tol`,
+which by default is $10^{-8}$. In this example, we see that the dual
+residual shrinks rapidly toward zero.
+
+Another useful indicator of convergence is the "max.diff" column---it
+reports the maximum difference between the solution estimates at two
+successive iterations. We normally expect these differences to shrink
+as we approach the solution, which is precisely what we see in this
+example.
+
+This information is also provided in the return value, which we can
+use, for example, to create a plot of the objective value at each
+iteration of the SQP algorithm:
+
+```{r plot-sqp-progress, eval=TRUE, fig.height=5, fig.width=7}
+numiter <- nrow(fit.sqp$progress)
+plot(1:numiter,fit.sqp$progress$objective,type = "b",
+     pch = 20,lwd = 2,xlab = "SQP iteration",
+     ylab = "objective",xaxp = c(1,numiter,numiter - 1))
+```
+
+To assess the accuracy of the SQP solution, we can compare against the
+solution computed by the IP algorithm. (If you do not have the REBayes
+package installed, you can skip this step.)
+
+```{r fit-model-kwdual-small}
+fit.ip <- mixkwdual(L)
+```
+
+If you run the IP algorithm, you should see that the IP and SQP
+solutions achieve nearly the same objective value.
+
+```{r compare-solutions-smaller}
+cat(sprintf("Objective at SQP solution: %0.16f\n",fit.sqp$value,digits = 16))
+cat(sprintf("Objective at IP solution:  %0.16f\n",fit.ip$value,digits = 16))
+cat(sprintf("Difference in objectives:  %0.4e\n",fit.sqp$value - fit.ip$value))
+```
+
+## Comparing the SQP and IP solvers in a large data set
+
+We observed that the SQP and IP methods achieve nearly the same
+solution quality in the example above. Here, we explore the
+computational properties of the SQP and IP algorithms in a larger data
+set.
+
+As before, we compute the $n \times m$ likelihood matrix for a mixture
+of zero-centered normals. This time, we use a finer grid of $m = 100$
+normal densities, as well as many more samples.
+
+```{r sim-data-large, eval=TRUE}
+L <- simulatemixdata(1e5,100)$L
+dim(L)
+```
+
+Now we fit the model using the SQP algorithm:
+
+```{r fit-model-sqp-large, eval=TRUE}
+timing <- system.time(fit.sqp <- mixsqp(L))
+cat(sprintf("Computation took %0.2f seconds\n",timing["elapsed"]))
+```
+
+If you have the REBayes package, you can also run the IP method:
+
+```{r fit-model-ip-large}
+timing <- system.time(fit.ip  <- mixkwdual(L))
+cat(sprintf("Computation took %0.2f seconds\n",timing["elapsed"]))
+```
+
+If you run the IP algorithm, you should find that the SQP algorithm was
+considerably faster than the IP solver, and it converged to a solution
+with nearly the same objective value as the IP solution.
+
+```{r compare-solutions-large}
+cat(sprintf("Objective at SQP solution: %0.16f\n",fit.sqp$value,digits = 16))
+cat(sprintf("Objective at IP solution:  %0.16f\n",fit.ip$value,digits = 16))
+cat(sprintf("Difference in objectives:  %0.4e\n",fit.sqp$value - fit.ip$value))
+```
+
+## Session information
+
+This next code chunk gives information about the computing environment
+used to generate the results contained in this vignette, including the
+version of R and the packages used.
+
+```{r session-info, eval=TRUE}
+sessionInfo()
+```
+
+[mosek]: https://www.mosek.com
+[rebayes]: https://cran.r-project.org/package=REBayes
