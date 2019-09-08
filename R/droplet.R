@@ -21,7 +21,6 @@
 #' @examples
 #'
 #' # Describe example here.
-#' library(Matrix)
 #' data(droplet)
 #' # Add example here.
 #' 

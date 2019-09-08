@@ -7,8 +7,6 @@ to do
 
 + Advertise fastTopics on Slack.
 
-+ Update description of control$nc in roxygen2 docs.
-
 + Set up continuous integration (Travis CI, Appveyor, CircleCI).
 
 + Fill out "Quick Start" instructions in README.

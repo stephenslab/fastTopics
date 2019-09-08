@@ -8,12 +8,11 @@
 \format{\code{droplet} is a 7,193 x 17,133 sparse matrix.
 \emph{Add more details about data format here.}}
 \description{
-Add details about data set here.
+\emph{Add details about data set here.}
 }
 \examples{
 
 # Describe example here.
-library(Matrix)
 data(droplet)
 # Add example here.
 
