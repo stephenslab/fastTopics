@@ -12,6 +12,14 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-15) {
   if (!is.matrix(X))
     stop(paste("Input argument \"X\" must be a matrix; see help(matrix)",
                "for more information"))
+
+  # Re-scale the initial estimates of the factors and loadings so that
+  # they are on same scale on average. This is intended to improve
+  # numerical stability of the multiplicative updates.
+  r <- sqrt(mean(B)/mean(A))
+  A <- r*A
+  B <- B/r
+
   for (i in 1:numiter) {
 
     # Update the loadings ("activations").
@@ -22,5 +30,12 @@ betanmf <- function (X, A, B, numiter = 1000, e = 1e-15) {
     B <- B * (t(A) %*% (X / (A %*% B))) / colSums(A)
     B <- pmax(B,e)
   }
+
+  # Re-scale the final estimates of the factors and loadings so that
+  # they are on same scale on average.
+  r <- sqrt(mean(B)/mean(A))
+  A <- r*A
+  B <- B/r
+
   return(list(A = A,B = B))
 }

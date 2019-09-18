@@ -279,6 +279,13 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
     stop(paste("Dimensions of input arguments \"X\", \"fit$F\" and/or",
                "\"fit$L\ do not agree"))
 
+  # Re-scale the initial estimates of the factors and loadings so that
+  # they are on same scale on average. This is intended to improve
+  # numerical stability of the optimization.
+  r <- sqrt(mean(F)/mean(L))
+  L <- r*L
+  F <- F/r
+  
   # Get the number of rows (n) and columns (m) of X, and the rank of
   # the matrix factorization (k).
   n <- nrow(X)
@@ -336,7 +343,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-73)\n")
+    cat("(fastTopics version 0.1-74)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -457,6 +464,12 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       } else
         d <- 0
     })
+
+    # Re-scale the final estimates of the factors and loadings so that
+    # they are on same scale on average.
+    r     <- sqrt(mean(Fbest)/mean(Lbest))
+    Lbest <- r*Lbest
+    Fbest <- Fbest/r
 
     # Record the algorithm's progress.
     progress[iter,"objective"] <- fbest
