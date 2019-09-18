@@ -336,7 +336,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-72)\n")
+    cat("(fastTopics version 0.1-73)\n")
     if (control$extrapolate < Inf)
       cat(sprintf("Extrapolation begins at iteration %d\n",
                   control$extrapolate))
@@ -386,15 +386,6 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
 
     timing <- system.time({
 
-      # UPDATE FACTORS
-      # --------------
-      # Update the factors ("basis vectors").
-      Fn <- altsqp.update.factors(X,Fy,Ly,xscol,version,control)
-      
-      # Compute the extrapolated update for the factors. Note that
-      # when beta = 0, Fy = Fn.
-      Fy <- pmax(Fn + beta*(Fn - F),0)
-
       # UPDATE LOADINGS
       # ---------------
       # Update the loadings ("activations").
@@ -404,10 +395,19 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
       # when beta = 0, Ly = Ln.
       Ly <- pmax(Ln + beta*(Ln - L),0)
 
+      # UPDATE FACTORS
+      # --------------
+      # Update the factors ("basis vectors").
+      Fn <- altsqp.update.factors(X,Fy,Ly,xscol,version,control)
+      
+      # Compute the extrapolated update for the factors. Note that
+      # when beta = 0, Fy = Fn.
+      Fy <- pmax(Fn + beta*(Fn - F),0)
+
       # Compute the value of the objective (cost) function at the
-      # extrapolated solution for the factors (F) and the
-      # non-extrapolated solution for the loadings (L).
-      f <- cost(X,Ln,t(Fy),control$e,version = version)
+      # extrapolated solution for the loadings (L) and the
+      # non-extrapolated solution for the factors (F).
+      f <- cost(X,Ly,t(Fn),control$e,version = version)
       if (beta == 0) {
 
         # No extrapolation is used, so use the basic coordinate-wise
@@ -449,10 +449,10 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
         #
         # but is done in a way that avoids computing a dense n x m matrix.
         d     <- (trcrossprod(Fbest %*% (t(Lbest) %*% Lbest),Fbest)
-                 - 2*trcrossprod(Fbest %*% (t(Lbest) %*% Ln),Fy)
-                 + trcrossprod(Fy %*% (t(Ln) %*% Ln),Fy))/length(X)
-        Fbest <- Fy
-        Lbest <- Ln 
+                 - 2*trcrossprod(Fbest %*% (t(Lbest) %*% Ly),Fn)
+                 + trcrossprod(Fn %*% (t(Ly) %*% Ly),Fn))/length(X)
+        Fbest <- Fn
+        Lbest <- Ly 
         fbest <- f
       } else
         d <- 0
