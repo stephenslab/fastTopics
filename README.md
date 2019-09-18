@@ -15,13 +15,13 @@ under the terms of the [MIT license][mit-license].
 
 ## Quick Start
 
-To install the latest version of the fastTopics package from GitHub,
-use [devtools][devtools]:
+To install the latest version of the fastTopics package, first
+download or clone the repository from GitHub, then use
+[devtools][devtools]:
 
 ```R
 install.packages("devtools")
-library(devtools)
-install_github("stephenslab/fastTopics")
+devtools::install_local("fastTopics")
 ```
 
 This command should automatically install all required packages if
