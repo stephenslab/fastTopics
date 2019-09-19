@@ -182,18 +182,18 @@
 #' fit0 <- list(F = matrix(runif(m*k),m,k),
 #'              L = matrix(runif(n*k),n,k))
 #'
-#' # Run 60 iterations of the sequential coordinate-wise descent
+#' # Run 100 iterations of the sequential coordinate-wise descent
 #' # algorithm implemented in the NNLM package. Note that nnmf does not
 #' # accept a sparse matrix as input, so we need to provide it with a
 #' # dense matrix instead.
 #' fit1 <- suppressWarnings(
 #'   nnmf(as.matrix(X),k,init = list(W = fit0$L,H = t(fit0$F)),
-#'        method = "scd",loss = "mkl",max.iter = 60,rel.tol = 0, 
+#'        method = "scd",loss = "mkl",max.iter = 100,rel.tol = 0, 
 #'        inner.max.iter = 4,trace = 1,verbose = 0))
 #'
-#' # Run 60 coordinate-wise updates of the SQP method implemented in the
-#' # fastTopics package.
-#' fit2 <- altsqp(X,fit0,numiter = 60,version = "R",verbose = FALSE)
+#' # Run 100 coordinate-wise updates of the SQP method implemented in
+#' # the fastTopics package.
+#' fit2 <- altsqp(X,fit0,verbose = FALSE)
 #' 
 #' # Compare the Poisson log-likelihood at the two solutions; the
 #' # likelihood should be higher at the the altsqp solution.
@@ -302,7 +302,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # If using RcppParallel, set the number of threads.
   if (version == "Rcpp" & control$nc > 1) {
     message(paste("Setting number of RcppParallel threads:",
-                  sprintf("setThreadOptions(numThreads = %d)",control$nc)))
+                  sprintf("setThreadOptions_(numThreads = %d)",control$nc)))
     setThreadOptions(numThreads = control$nc)
   }
   
@@ -343,14 +343,33 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM + SQP updates ",numiter))
-    cat("(fastTopics version 0.1-74)\n")
-    if (control$extrapolate < Inf)
-      cat(sprintf("Extrapolation begins at iteration %d\n",
+    cat("(fastTopics version 0.1-75)\n")
+    if (control$extrapolate <= numiter)
+      cat(sprintf("Extrapolation begins at iteration %d.\n",
                   control$extrapolate))
     else
       cat("Extrapolation is not active.\n")
-    cat(sprintf("Data are %d x %d matrix with %0.1f%% nonzero proportion\n",
+    cat(sprintf("Data are %d x %d matrix with %0.1f%% nonzero proportion.\n",
                 n,m,100*mean(X > 0)))
+    cat("Optimization settings used:\n")
+    cat(sprintf(paste("  + numem:  %2d   + beta.init:        %0.2f",
+                      " + activesetconvtol: %0.2e\n"),
+                control$numem,control$beta.init,control$activesetconvtol))
+    cat(sprintf(paste("  + numsqp: %2d   + beta.increase:    %0.2f",
+                      " + suffdecr:         %0.2e\n"),
+                control$numsqp,control$beta.increase,control$suffdecr))
+    cat(sprintf(paste("  + e: %0.2e  + beta.reduce:      %0.2f",
+                      " + stepsizereduce:   %0.2e\n"),
+                control$e,control$beta.reduce,control$stepsizereduce))
+    cat(sprintf(paste("                 + betamax.increase: %0.2f",
+                      " + minstepsize:      %0.2e\n"),
+                control$betamax.increase,control$minstepsize))
+    cat(sprintf(paste("                                         ",
+                      " + zerothreshold:    %0.2e\n"),
+                control$zerothreshold))
+    cat(sprintf(paste("                                         ",
+                      " + zerosearchdir:    %0.2e\n"),
+                control$zerosearchdir))
     cat("iter objective (cost fn) mean.diff    beta\n")
   }
 
@@ -491,12 +510,12 @@ altsqp_control_default <- function()
   c(mixsqp_control_default(),
     list(nc               = 1,
          numem            = 1,
-         numsqp           = 1,
-         extrapolate      = 10,
+         numsqp           = 4,
+         extrapolate      = 50,
          beta.init        = 0.5,
-         beta.increase    = 1.1,
-         beta.reduce      = 0.75,
-         betamax.increase = 1.05))
+         beta.increase    = 1.2,
+         beta.reduce      = 0.8,
+         betamax.increase = 1.1))
 
 # Update all the factors with the loadings remaining fixed.
 altsqp.update.factors <- function (X, F, L, xscol, version, control) {
