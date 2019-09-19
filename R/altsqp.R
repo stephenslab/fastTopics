@@ -513,9 +513,9 @@ altsqp_control_default <- function()
          numsqp           = 4,
          extrapolate      = 50,
          beta.init        = 0.5,
-         beta.increase    = 1.2,
-         beta.reduce      = 0.8,
-         betamax.increase = 1.1))
+         beta.increase    = 1.1,
+         beta.reduce      = 0.75,
+         betamax.increase = 1.05))
 
 # Update all the factors with the loadings remaining fixed.
 altsqp.update.factors <- function (X, F, L, xscol, version, control) {
