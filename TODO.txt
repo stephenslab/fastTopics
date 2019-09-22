@@ -7,6 +7,8 @@ to do
   nnmf and altsqp with numsqp = 0. Illustrate its use on a broadwl
   node with 28 CPUs.
 
++ Make pkgdown site.
+
 + Set up continuous integration (Travis CI, Appveyor, CircleCI).
 
 + Fill out "Quick Start" instructions in README.
