@@ -3,13 +3,17 @@ to do
 
 + In altsqp roxygen2 docs, give advice on setting control parameters.
 
++ In altsqp, assess convergence by computing norm of the gradient (try
+  L0, L1 and L2 norms).
+
 + Implement a short vignette using the droplet data; compare against
   nnmf and altsqp with numsqp = 0. Illustrate its use on a broadwl
   node with 28 CPUs.
 
 + Make pkgdown site.
 
-+ Set up continuous integration (Travis CI, Appveyor, CircleCI).
++ Set up continuous integration (Travis CI, Appveyor, CircleCI) and
+  CodeCov.
 
 + Fill out "Quick Start" instructions in README.
 
