@@ -1,6 +1,22 @@
 to do
 =====
 
++ Re-name "altsqp" function to a more generic name such as
+  "fit_topics", so that we have functions "fit_topics" and
+  "fit_topics_control_default".
+
++ Add "model" argument to fit_topics, so that it can return the
+  parameters for either the Poisson or multinomial topic models.
+
++ Re-implement fit_topics using "internal" (yet well-documented)
+  functions "fit_topics_init" and "fit_topics_update" so that it is
+  easy to fit the model with a simple for-loop.
+
++ Implement additional option model = LDA to return parameters of LDA
+  model (in which case the "value" output is actually the ELBO). This
+  will be implemented by a separate function "poisson2lda" or
+  "multinomial2lda".
+
 + In altsqp, assess convergence by computing norm of the gradient (try
   L0, L1 and L2 norms).
 

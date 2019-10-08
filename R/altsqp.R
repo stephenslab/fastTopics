@@ -302,7 +302,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # If using RcppParallel, set the number of threads.
   if (version == "Rcpp" & control$nc > 1) {
     message(paste("Setting number of RcppParallel threads:",
-                  sprintf("setThreadOptions_(numThreads = %d)",control$nc)))
+                  sprintf("setThreadOptions(numThreads = %d)",control$nc)))
     setThreadOptions(numThreads = control$nc)
   }
   
@@ -342,7 +342,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
-    cat(sprintf("Running %d EM + SQP updates ",numiter))
+    cat(sprintf("Running %d EM/SQP updates ",numiter))
     cat("(fastTopics version 0.1-76)\n")
     if (control$extrapolate <= numiter)
       cat(sprintf("Extrapolation begins at iteration %d.\n",
