@@ -1,6 +1,10 @@
 to do
 =====
 
++ Implement a better scheme for normalizing the factors and loadings;
+  see "NMF is ill-posed" and Sec. 3.1.7 in the review paper by
+  N. Gillis.
+
 + Re-name "altsqp" function to a more generic name such as
   "fit_topics", so that we have functions "fit_topics" and
   "fit_topics_control_default".
