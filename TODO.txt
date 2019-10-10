@@ -1,6 +1,10 @@
 to do
 =====
 
++ Implement an option to periodically "reset" the extrapolation scheme.
+
++ Add "method" argument to "fit_topics".
+
 + Implement a better scheme for normalizing the factors and loadings;
   see "NMF is ill-posed" and Sec. 3.1.7 in the review paper by
   N. Gillis.
