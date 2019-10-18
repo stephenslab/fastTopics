@@ -183,7 +183,7 @@ void activesetqp (const mat& H, const vec& g, vec& y, uint maxiter,
     p(i) = ps;
       
     // Check that the search direction is close to zero.
-    if ((p.max() <= zerosearchdir) & (-p.min() <= zerosearchdir)) {
+    if ((p.max() <= zerosearchdir) && (-p.min() <= zerosearchdir)) {
         
       // If all the Lagrange multiplers in the working set (that is,
       // zeroed co-ordinates) are positive, or nearly positive, we
@@ -207,7 +207,7 @@ void activesetqp (const mat& H, const vec& g, vec& y, uint maxiter,
         
       // Define the step size.
       feasible_stepsize(y,p,k,a);
-      if (k >= 0 & a < 1) {
+      if (k >= 0 && a < 1) {
 	
         // A blocking constraint exists; find it, and add it to the
         // working set (but only if there are two or more non-zero
@@ -292,7 +292,7 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
       // Check whether the new candidate solution satisfies the
       // sufficient decrease condition, and remains feasible. If so,
       // accept this candidate solution.
-      if (y.min() >= 0 & fnew <= f + suffdecr*a*dot(p,g))
+      if (y.min() >= 0 && fnew <= f + suffdecr*a*dot(p,g))
         break;
 
       // If we cannot decrease the step size further, terminate the
