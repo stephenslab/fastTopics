@@ -30,6 +30,7 @@ example below,
 
 ```{r load-pkgs, message=FALSE}
 library(Matrix)
+library(NNLM)
 library(fastTopics)
 library(ggplot2)
 library(cowplot)
@@ -78,19 +79,48 @@ L <- matrix(runif(n*k),n,k)
 ```
 
 Let's now try running the multiplicative (EM) updates. These updates
-are very simple and fast, so we can run a lot of them.
+are very simple and fast, so we can a lot of updates in a relatively
+short amount of time. Note that this simple implementation of the
+multiplicative updates doesn't benefit from the fact that most of the
+counts are zero.
 
 ```{r run-betanmf}
-timing.em <- system.time(fit.em <- betanmf(as.matrix(droplet),L,t(F),
-                                           numiter = 20))
+timing.em <- system.time(
+  fit.em <- betanmf(as.matrix(droplet),L,t(F),numiter = 10)) # 100
 print(timing.em)
 ```
 
-Now we fit the mixture model using the SQP algorithm:
+Next, run the SQP method implemented by function `nnmf` from the NNLM
+package. This method also does not exploit the sparsity of the counts
+matrix.
 
-```{r fit-model-mixsqp-small, eval=FALSE}
-fit.sqp <- mixsqp(L)
+```{r run-nnmf}
+timing.nnmf <- system.time(
+  fit <- nnmf(as.matrix(droplet),k,init = list(W = L,H = t(F)),
+              method = "scd",loss = "mkl",rel.tol = 0,n.threads = 0,
+              max.iter = 10,inner.max.iter = 4,trace = 1,verbose = 2))
+print(timing.nnmf)
 ```
+
+Now try the SQP method from the fastTopics package. This
+implementation does exploit the sparsity of the data. Note that you
+may want to adjust the `nc` control parameter to match the number of
+cores (CPUs) on your computer.
+
+```{r run-altsqp}
+timing.altsqp <- system.time(
+  fit.altsqp <- altsqp(droplet,list(L = L,F = F),numiter = 10,
+                       control = list(extrapolate = 20,nc = 4)))
+print(timing.altsqp)
+```
+
+## Plot improvement in solution over time
+
+
+
+## Get topic memberships
+
+*Add text here.*
 
 In this example, the SQP algorithm converged to a solution in a small
 number of iterations.
