@@ -18,10 +18,8 @@ In this brief vignette, we illustrate the use of the alternating
 sequential quadratic programming ("alt-SQP") method implemented in the
 `fastTopics` package for fitting a non-negative matrix factorization
 to read count data from a single-cell RNA-seq experiment. We compare
-the runtime and accuracy of alt-SQP against two alternatives---the
-commonly used multiplicative update rules, which can be viewed as an
-EM algorithm, and another SQP method implemented in the
-[NNLM package][NNLM].
+the runtime and accuracy of alt-SQP against the commonly used
+multiplicative update rules, which can be viewed as an EM algorithm.
 
 ## Set up environment
 
@@ -30,7 +28,6 @@ example below,
 
 ```{r load-pkgs, message=FALSE}
 library(Matrix)
-library(NNLM)
 library(fastTopics)
 library(ggplot2)
 library(cowplot)
@@ -55,9 +52,9 @@ samples. The majority of the counts are zero.
 data(droplet)
 n <- nrow(droplet)
 m <- ncol(droplet)
-print(n)
-print(m)
-print(mean(droplet > 0))
+n
+m
+mean(droplet > 0)
 ```
 
 ## Fit non-negative matrix factorization
@@ -79,139 +76,64 @@ L <- matrix(runif(n*k),n,k)
 ```
 
 Let's now try running the multiplicative (EM) updates. These updates
-are very simple and fast, so we can a lot of updates in a relatively
-short amount of time. Note that this simple implementation of the
-multiplicative updates doesn't benefit from the fact that most of the
-counts are zero.
+are very simple and fast, so we can run a lot of updates in a
+relatively short amount of time. The EM algorithm is recovered by
+turning off the SQP updates in `altsqp`.
 
 ```{r run-betanmf}
-timing.em <- system.time(
-  fit.em <- betanmf(as.matrix(droplet),L,t(F),numiter = 10)) # 100
-print(timing.em)
+timing1 <- system.time(
+  fit1 <- altsqp(droplet,list(L = L,F = F),numiter = 20,
+                 control = list(numsqp = 0,nc = 4)))
+timing1
 ```
 
-Next, run the SQP method implemented by function `nnmf` from the NNLM
-package. This method also does not exploit the sparsity of the counts
-matrix.
-
-```{r run-nnmf}
-timing.nnmf <- system.time(
-  fit <- nnmf(as.matrix(droplet),k,init = list(W = L,H = t(F)),
-              method = "scd",loss = "mkl",rel.tol = 0,n.threads = 0,
-              max.iter = 10,inner.max.iter = 4,trace = 1,verbose = 2))
-print(timing.nnmf)
-```
-
-Now try the SQP method from the fastTopics package. This
-implementation does exploit the sparsity of the data. Note that you
+Now try the SQP method from the fastTopics package. Note that you
 may want to adjust the `nc` control parameter to match the number of
 cores (CPUs) on your computer.
 
 ```{r run-altsqp}
-timing.altsqp <- system.time(
-  fit.altsqp <- altsqp(droplet,list(L = L,F = F),numiter = 10,
-                       control = list(extrapolate = 20,nc = 4)))
-print(timing.altsqp)
+timing2 <- system.time(
+  fit2 <- altsqp(droplet,list(L = L,F = F),numiter = 10,
+                 control = list(extrapolate = 20,nc = 4)))
+timing2
+```
+
+*Add text here.*
+
+```{r evaluate-fits}
+print(loglik.poisson(droplet,fit1),digits = 16)
+print(loglik.poisson(droplet,fit2),digits = 16)
 ```
 
 ## Plot improvement in solution over time
 
+*Add text here.*
 
+```{r plot-results}
+fbest <- min(fit1$value,fit2$value) - 0.01
+pdat <- rbind(cbind(transform(fit1$progress,
+                              dist   = objective - fbest,
+                              timing = cumsum(timing)),
+                    data.frame(method = "EM")),
+			  cbind(transform(fit2$progress,
+					          dist   = objective - fbest,
+			   	              timing = cumsum(timing)),
+			        data.frame(method = "alt-SQP")))
+ggplot(pdat,aes(x = timing,y = dist,color = method)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(trans = "log10") +
+  labs(x = "runtime (s)",y = "distance to solution")
+```
 
 ## Get topic memberships
 
 *Add text here.*
 
-In this example, the SQP algorithm converged to a solution in a small
-number of iterations.
-
-By default, `mixsqp` outputs information on its progress. It begins by
-summarizing the optimization problem and the algorithm settings used.
-(Since we did not change these settings in the `mixsqp` call, all the
-settings shown here are the default settings.)
-
-After that, it outputs, at each iteration, information about the
-current solution, such as the value of the objective ("objective") and
-the number of nonzeros ("nnz").
-
-The "max(rdual)" column shows the quantity used to assess convergence.
-It reports the maximum value of the "dual residual"; the SQP solver
-terminates when the maximum dual residual is less than `conv.tol`,
-which by default is $10^{-8}$. In this example, we see that the dual
-residual shrinks rapidly toward zero.
-
-Another useful indicator of convergence is the "max.diff" column---it
-reports the maximum difference between the solution estimates at two
-successive iterations. We normally expect these differences to shrink
-as we approach the solution, which is precisely what we see in this
-example.
-
-This information is also provided in the return value, which we can
-use, for example, to create a plot of the objective value at each
-iteration of the SQP algorithm:
-
-```{r plot-sqp-progress, eval=FALSE, fig.height=5, fig.width=7}
-numiter <- nrow(fit.sqp$progress)
-plot(1:numiter,fit.sqp$progress$objective,type = "b",
-     pch = 20,lwd = 2,xlab = "SQP iteration",
-     ylab = "objective",xaxp = c(1,numiter,numiter - 1))
-```
-
-To assess the accuracy of the SQP solution, we can compare against the
-solution computed by the IP algorithm. (If you do not have the REBayes
-package installed, you can skip this step.)
-
-```{r fit-model-kwdual-small, eval=FALSE}
-fit.ip <- mixkwdual(L)
-```
-
-If you run the IP algorithm, you should see that the IP and SQP
-solutions achieve nearly the same objective value.
-
-```{r compare-solutions-smaller, eval=FALSE}
-cat(sprintf("Objective at SQP solution: %0.16f\n",fit.sqp$value,digits = 16))
-cat(sprintf("Objective at IP solution:  %0.16f\n",fit.ip$value,digits = 16))
-cat(sprintf("Difference in objectives:  %0.4e\n",fit.sqp$value - fit.ip$value))
-```
-
-## Comparing the SQP and IP solvers in a large data set
-
-We observed that the SQP and IP methods achieve nearly the same
-solution quality in the example above. Here, we explore the
-computational properties of the SQP and IP algorithms in a larger data
-set.
-
-As before, we compute the $n \times m$ likelihood matrix for a mixture
-of zero-centered normals. This time, we use a finer grid of $m = 100$
-normal densities, as well as many more samples.
-
-```{r sim-data-large, eval=FALSE}
-L <- simulatemixdata(1e5,100)$L
-dim(L)
-```
-
-Now we fit the model using the SQP algorithm:
-
-```{r fit-model-sqp-large, eval=FALSE}
-timing <- system.time(fit.sqp <- mixsqp(L))
-cat(sprintf("Computation took %0.2f seconds\n",timing["elapsed"]))
-```
-
-If you have the REBayes package, you can also run the IP method:
-
-```{r fit-model-ip-large, eval=FALSE}
-timing <- system.time(fit.ip  <- mixkwdual(L))
-cat(sprintf("Computation took %0.2f seconds\n",timing["elapsed"]))
-```
-
-If you run the IP algorithm, you should find that the SQP algorithm was
-considerably faster than the IP solver, and it converged to a solution
-with nearly the same objective value as the IP solution.
-
-```{r compare-solutions-large, eval=FALSE}
-cat(sprintf("Objective at SQP solution: %0.16f\n",fit.sqp$value,digits = 16))
-cat(sprintf("Objective at IP solution:  %0.16f\n",fit.ip$value,digits = 16))
-cat(sprintf("Difference in objectives:  %0.4e\n",fit.sqp$value - fit.ip$value))
+```{r get-multinom-fit}
+fit2 <- poisson2multinom(fit2)
+range(rowSums(fit2$L))
+range(colSums(fit2$F))
 ```
 
 ## Session information
@@ -221,8 +143,7 @@ to generate the results contained in this vignette, including the
 version of R and the packages used.
 
 ```{r session-info}
-print(sessionInfo())
+sessionInfo()
 ```
 
 [montoro-paper]: http://dx.doi.org/10.1038/s41586-018-0393-7
-[NNLM]: https://cran.r-project.org/package=NNLM
