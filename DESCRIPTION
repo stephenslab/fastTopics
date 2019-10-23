@@ -23,6 +23,8 @@ Imports:
 Suggests:
     methods,
     testthat,
+    knitr,
+    rmarkdown,
     NNLM,
     ggplot2,
     cowplot
@@ -32,4 +34,5 @@ LinkingTo:
     RcppArmadillo
 LazyData: true
 NeedsCompilation: yes
+VignetteBuilder: knitr
 RoxygenNote: 6.1.1
