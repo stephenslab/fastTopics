@@ -8,6 +8,10 @@
 # This function is mainly intended for internal use---specifically, to
 # verify implementation of the alternating SQP algorithm.
 #
+#' @keywords internal
+#' 
+#' @export
+#'
 betanmf <- function (X, A, B, numiter = 1000, e = 1e-15) {
   if (!is.matrix(X))
     stop(paste("Input argument \"X\" must be a matrix; see help(matrix)",

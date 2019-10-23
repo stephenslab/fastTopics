@@ -2,6 +2,7 @@
 
 export(altsqp)
 export(altsqp_control_default)
+export(betanmf)
 export(loglik.multinom)
 export(loglik.poisson)
 export(poisson2multinom)

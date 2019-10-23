@@ -1,6 +1,8 @@
 to do
 =====
 
++ Add roxygen2 documentation to "betanmf" function.
+
 + Implement an option to periodically "restart" the extrapolation
   scheme, as in the conjugate gradients method.
 

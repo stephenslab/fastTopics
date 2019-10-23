@@ -11,49 +11,84 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE,results = "hold",comment = "#",
-                      fig.align = "center",eval = FALSE)
+                      fig.align = "center",fig.height = 5,fig.width = 5)
 ```
 
-In this vignette, we illustrate the use of the alternating sequential
-quadratic programming (alt-SQP) algorithm implemented in the
-`fastTopics` package, and we compare its runtime and accuracy against
-an interior-point (IP) solver implemented by the [MOSEK][mosek]
-commercial software (it is called by the "KWDual" function in the
-[REBayes package][rebayes]).
+In this brief vignette, we illustrate the use of the alternating
+sequential quadratic programming ("alt-SQP") method implemented in the
+`fastTopics` package for fitting a non-negative matrix factorization
+to read count data from a single-cell RNA-seq experiment. We compare
+the runtime and accuracy of alt-SQP against two alternatives---the
+commonly used multiplicative update rules, which can be viewed as an
+EM algorithm, and another SQP method implemented in the
+[NNLM package][NNLM].
 
-## Environment set-up
+## Set up environment
 
-Load the `fastTopics` package.
+We begin with the initial setup steps: load the packages used in the
+example below,
 
-```{r load-pkgs, eval=TRUE, message=FALSE}
+```{r load-pkgs, message=FALSE}
+library(Matrix)
 library(fastTopics)
+library(ggplot2)
+library(cowplot)
 ```
 
-Next, initialize the sequence of pseudorandom numbers.
+and initialize the pseudorandom number generator,
 
-```{r set-seed, eval=TRUE}
+```{r set-seed}
 set.seed(1)
 ```
 
 ## Load the data set
 
-We begin with a small example to show how `mixsqp` works.
+Load the "droplet" read count data---these are gene expression
+profiles of trachea epithelial cells in C57BL/6 mice obtained using
+droplet-based 3' single-cell RNA-seq; see [Montoro *et al*
+(2018)][montoro-paper] for details. The counts matrix contains gene
+expression data (read counts) for 17,133 genes collected from 7,193
+samples. The majority of the counts are zero.
 
-```{r sim-data-small, eval=TRUE}
-L <- simulatemixdata(1000,20)$L
-dim(L)
+```{r load-data}
+data(droplet)
+n <- nrow(droplet)
+m <- ncol(droplet)
+print(n)
+print(m)
+print(mean(droplet > 0))
 ```
 
-This call to `simulatemixdata` created an $n \times m$ conditional
-likelihood matrix for a mixture of zero-centered normals, with $n =
-1000$ and $m = 20$. By default, `simulatemixdata` normalizes the rows
-of the likelihood matrix so that the maximum entry in each row is 1.
+## Fit non-negative matrix factorization
 
-## Fit mixture model
+This is the number of factors ("topics") in the non-negative matrix
+factorization. Montoro *et al* assigned 13 unique labels ("cell
+types"), so this is the number of topics factors we will use in our
+analysis.
+
+```{r init-k}
+k <- 13
+```
+
+Create a random initialization of the factors and loadings.
+
+```{r init-factors-and-loadings}
+F <- matrix(runif(m*k),m,k)
+L <- matrix(runif(n*k),n,k)
+```
+
+Let's now try running the multiplicative (EM) updates. These updates
+are very simple and fast, so we can run a lot of them.
+
+```{r run-betanmf}
+timing.em <- system.time(fit.em <- betanmf(as.matrix(droplet),L,t(F),
+                                           numiter = 20))
+print(timing.em)
+```
 
 Now we fit the mixture model using the SQP algorithm:
 
-```{r fit-model-mixsqp-small, eval=TRUE}
+```{r fit-model-mixsqp-small, eval=FALSE}
 fit.sqp <- mixsqp(L)
 ```
 
@@ -85,7 +120,7 @@ This information is also provided in the return value, which we can
 use, for example, to create a plot of the objective value at each
 iteration of the SQP algorithm:
 
-```{r plot-sqp-progress, eval=TRUE, fig.height=5, fig.width=7}
+```{r plot-sqp-progress, eval=FALSE, fig.height=5, fig.width=7}
 numiter <- nrow(fit.sqp$progress)
 plot(1:numiter,fit.sqp$progress$objective,type = "b",
      pch = 20,lwd = 2,xlab = "SQP iteration",
@@ -96,14 +131,14 @@ To assess the accuracy of the SQP solution, we can compare against the
 solution computed by the IP algorithm. (If you do not have the REBayes
 package installed, you can skip this step.)
 
-```{r fit-model-kwdual-small}
+```{r fit-model-kwdual-small, eval=FALSE}
 fit.ip <- mixkwdual(L)
 ```
 
 If you run the IP algorithm, you should see that the IP and SQP
 solutions achieve nearly the same objective value.
 
-```{r compare-solutions-smaller}
+```{r compare-solutions-smaller, eval=FALSE}
 cat(sprintf("Objective at SQP solution: %0.16f\n",fit.sqp$value,digits = 16))
 cat(sprintf("Objective at IP solution:  %0.16f\n",fit.ip$value,digits = 16))
 cat(sprintf("Difference in objectives:  %0.4e\n",fit.sqp$value - fit.ip$value))
@@ -120,21 +155,21 @@ As before, we compute the $n \times m$ likelihood matrix for a mixture
 of zero-centered normals. This time, we use a finer grid of $m = 100$
 normal densities, as well as many more samples.
 
-```{r sim-data-large, eval=TRUE}
+```{r sim-data-large, eval=FALSE}
 L <- simulatemixdata(1e5,100)$L
 dim(L)
 ```
 
 Now we fit the model using the SQP algorithm:
 
-```{r fit-model-sqp-large, eval=TRUE}
+```{r fit-model-sqp-large, eval=FALSE}
 timing <- system.time(fit.sqp <- mixsqp(L))
 cat(sprintf("Computation took %0.2f seconds\n",timing["elapsed"]))
 ```
 
 If you have the REBayes package, you can also run the IP method:
 
-```{r fit-model-ip-large}
+```{r fit-model-ip-large, eval=FALSE}
 timing <- system.time(fit.ip  <- mixkwdual(L))
 cat(sprintf("Computation took %0.2f seconds\n",timing["elapsed"]))
 ```
@@ -143,7 +178,7 @@ If you run the IP algorithm, you should find that the SQP algorithm was
 considerably faster than the IP solver, and it converged to a solution
 with nearly the same objective value as the IP solution.
 
-```{r compare-solutions-large}
+```{r compare-solutions-large, eval=FALSE}
 cat(sprintf("Objective at SQP solution: %0.16f\n",fit.sqp$value,digits = 16))
 cat(sprintf("Objective at IP solution:  %0.16f\n",fit.ip$value,digits = 16))
 cat(sprintf("Difference in objectives:  %0.4e\n",fit.sqp$value - fit.ip$value))
@@ -151,13 +186,13 @@ cat(sprintf("Difference in objectives:  %0.4e\n",fit.sqp$value - fit.ip$value))
 
 ## Session information
 
-This next code chunk gives information about the computing environment
-used to generate the results contained in this vignette, including the
+This code chunk gives information about the computing environment used
+to generate the results contained in this vignette, including the
 version of R and the packages used.
 
-```{r session-info, eval=TRUE}
-sessionInfo()
+```{r session-info}
+print(sessionInfo())
 ```
 
-[mosek]: https://www.mosek.com
-[rebayes]: https://cran.r-project.org/package=REBayes
+[montoro-paper]: http://dx.doi.org/10.1038/s41586-018-0393-7
+[NNLM]: https://cran.r-project.org/package=NNLM

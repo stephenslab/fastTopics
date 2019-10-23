@@ -199,18 +199,18 @@ nnzero(X)/(n*m)
 fit0 <- list(F = matrix(runif(m*k),m,k),
              L = matrix(runif(n*k),n,k))
 
-# Run 60 iterations of the sequential coordinate-wise descent
+# Run 100 iterations of the sequential coordinate-wise descent
 # algorithm implemented in the NNLM package. Note that nnmf does not
 # accept a sparse matrix as input, so we need to provide it with a
 # dense matrix instead.
 fit1 <- suppressWarnings(
   nnmf(as.matrix(X),k,init = list(W = fit0$L,H = t(fit0$F)),
-       method = "scd",loss = "mkl",max.iter = 60,rel.tol = 0, 
+       method = "scd",loss = "mkl",max.iter = 100,rel.tol = 0, 
        inner.max.iter = 4,trace = 1,verbose = 0))
 
-# Run 60 coordinate-wise updates of the SQP method implemented in the
-# fastTopics package.
-fit2 <- altsqp(X,fit0,numiter = 60,version = "R",verbose = FALSE)
+# Run 100 coordinate-wise updates of the SQP method implemented in
+# the fastTopics package.
+fit2 <- altsqp(X,fit0,verbose = FALSE)
 
 # Compare the Poisson log-likelihood at the two solutions; the
 # likelihood should be higher at the the altsqp solution.
