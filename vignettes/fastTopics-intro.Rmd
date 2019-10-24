@@ -11,7 +11,7 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE,results = "hold",comment = "#",
-                      fig.align = "center",fig.height = 5,fig.width = 5)
+                      fig.align = "center",fig.height = 4.5,fig.width = 6)
 ```
 
 In this brief vignette, we illustrate the use of the alternating
@@ -23,8 +23,8 @@ multiplicative update rules, which can be viewed as an EM algorithm.
 
 ## Set up environment
 
-We begin with the initial setup steps: load the packages used in the
-example below,
+We begin with the initial setup steps. First, load the packages used in
+the example below.
 
 ```{r load-pkgs, message=FALSE}
 library(Matrix)
@@ -33,7 +33,7 @@ library(ggplot2)
 library(cowplot)
 ```
 
-and initialize the pseudorandom number generator,
+Next, initialize the pseudorandom number generator.
 
 ```{r set-seed}
 set.seed(1)
@@ -76,26 +76,24 @@ L <- matrix(runif(n*k),n,k)
 ```
 
 Let's now try running the multiplicative (EM) updates. These updates
-are very simple and fast, so we can run a lot of updates in a
+are very simple and fast, so we can run a lot of theem in a
 relatively short amount of time. The EM algorithm is recovered by
 turning off the SQP updates in `altsqp`.
 
 ```{r run-betanmf}
 timing1 <- system.time(
-  fit1 <- altsqp(droplet,list(L = L,F = F),numiter = 20,
-                 control = list(numsqp = 0,nc = 4)))
-timing1
+  fit1 <- altsqp(droplet,list(L = L,F = F),numiter = 250,
+                 control = list(numsqp = 0,nc = 28)))
 ```
 
-Now try the SQP method from the fastTopics package. Note that you
-may want to adjust the `nc` control parameter to match the number of
-cores (CPUs) on your computer.
+Now try the SQP method from the fastTopics package. (You may want to
+adjust the `nc` control parameter to match the number of available
+cores on your computer.)
 
 ```{r run-altsqp}
 timing2 <- system.time(
-  fit2 <- altsqp(droplet,list(L = L,F = F),numiter = 10,
-                 control = list(extrapolate = 20,nc = 4)))
-timing2
+  fit2 <- altsqp(droplet,list(L = L,F = F),numiter = 40,
+                 control = list(extrapolate = 20,nc = 28)))
 ```
 
 *Add text here.*
@@ -126,9 +124,15 @@ ggplot(pdat,aes(x = timing,y = dist,color = method)) +
   labs(x = "runtime (s)",y = "distance to solution")
 ```
 
+*Add more text here.*
+
 ## Get topic memberships
 
-*Add text here.*
+The output of `altsqp` is a non-negative matrix factorization. By
+calling `poisson2multinom`, the `altsqp` can also be used to recover
+maximum-likelihood estimates of the topic probabilities ("loadings")
+and gene probabilities ("factors") for a topic model of gene
+expression.
 
 ```{r get-multinom-fit}
 fit2 <- poisson2multinom(fit2)
