@@ -25,9 +25,7 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
-    NNLM,
-    ggplot2,
-    cowplot
+    NNLM
 LinkingTo:
     Rcpp,
     RcppParallel,

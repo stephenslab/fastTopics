@@ -11,12 +11,12 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE,results = "hold",comment = "#",
-                      fig.align = "center",fig.height = 4.5,fig.width = 6)
+                      fig.align = "center",fig.height = 4,fig.width = 6)
 ```
 
 In this brief vignette, we illustrate the use of the alternating
-sequential quadratic programming ("alt-SQP") method implemented in the
-`fastTopics` package for fitting a non-negative matrix factorization
+sequential quadratic programming ("alt-SQP") method, implemented in the
+`fastTopics` package, for fitting a non-negative matrix factorization
 to read count data from a single-cell RNA-seq experiment. We compare
 the runtime and accuracy of alt-SQP against the commonly used
 multiplicative update rules, which can be viewed as an EM algorithm.
@@ -29,8 +29,6 @@ the example below.
 ```{r load-pkgs, message=FALSE}
 library(Matrix)
 library(fastTopics)
-library(ggplot2)
-library(cowplot)
 ```
 
 Next, initialize the pseudorandom number generator.
@@ -75,69 +73,66 @@ F <- matrix(runif(m*k),m,k)
 L <- matrix(runif(n*k),n,k)
 ```
 
-Let's now try running the multiplicative (EM) updates. These updates
-are very simple and fast, so we can run a lot of theem in a
-relatively short amount of time. The EM algorithm is recovered by
-turning off the SQP updates in `altsqp`.
+Let's now try running 500 multiplicative (EM) updates. These updates
+are very simple and fast, so we can run a lot of theem in a relatively
+short amount of time. The EM algorithm is recovered by turning off the
+SQP updates in `altsqp`. (You may want to adjust the `nc` control
+parameter to match the number of available cores on your computer.)
 
 ```{r run-betanmf}
-timing1 <- system.time(
-  fit1 <- altsqp(droplet,list(L = L,F = F),numiter = 250,
-                 control = list(numsqp = 0,nc = 28)))
+fit1 <- altsqp(droplet,list(L = L,F = F),numiter = 500,
+               control = list(numsqp = 0,extrapolate = Inf,nc = 4))
 ```
 
-Now try the SQP method from the fastTopics package. (You may want to
-adjust the `nc` control parameter to match the number of available
-cores on your computer.)
+Now try running 20 SQP updates (with extrapolation starting at
+iteration 20). Each SQP update is much slower than EM, but, as we will
+see, each SQP iteration makes much more progress toward a solution.
 
 ```{r run-altsqp}
-timing2 <- system.time(
-  fit2 <- altsqp(droplet,list(L = L,F = F),numiter = 40,
-                 control = list(extrapolate = 20,nc = 28)))
+fit2 <- altsqp(droplet,list(L = L,F = F),numiter = 40,
+               control = list(extrapolate = 20,nc = 4))
 ```
 
-*Add text here.*
+Indeed, the alt-SQP solution is much better (higher likelihood) than
+the EM solution:
 
 ```{r evaluate-fits}
 print(loglik.poisson(droplet,fit1),digits = 16)
 print(loglik.poisson(droplet,fit2),digits = 16)
 ```
 
-## Plot improvement in solution over time
+And it took less effort for alt-SQP to arrive at the better solution
+(these two numbers are the runtimes in seconds):
 
-*Add text here.*
-
-```{r plot-results}
-fbest <- min(fit1$value,fit2$value) - 0.01
-pdat <- rbind(cbind(transform(fit1$progress,
-                              dist   = objective - fbest,
-                              timing = cumsum(timing)),
-                    data.frame(method = "EM")),
-			  cbind(transform(fit2$progress,
-					          dist   = objective - fbest,
-			   	              timing = cumsum(timing)),
-			        data.frame(method = "alt-SQP")))
-ggplot(pdat,aes(x = timing,y = dist,color = method)) +
-  geom_line() +
-  geom_point() +
-  scale_y_continuous(trans = "log10") +
-  labs(x = "runtime (s)",y = "distance to solution")
+```{r compare-runtimes}
+sum(fit1$progress$timing)
+sum(fit2$progress$timing)
 ```
 
-*Add more text here.*
+In practice, you will want to run more SQP updates to get a better
+solution---this is only an illustration. In practice, somewhere
+between 100 and 200 iterations is good enough for solutions that
+nearly satisfy the KKT optimality conditions.
 
 ## Get topic memberships
 
 The output of `altsqp` is a non-negative matrix factorization. By
-calling `poisson2multinom`, the `altsqp` can also be used to recover
-maximum-likelihood estimates of the topic probabilities ("loadings")
-and gene probabilities ("factors") for a topic model of gene
-expression.
+calling `poisson2multinom`, we can recover a grade-of-membership
+model, in which the outputted `L` and `F` are maximum-likelihood
+estimates of the "loadings" (topic probabilities) and "factors" (gene
+probabilities).
 
 ```{r get-multinom-fit}
+fit1 <- poisson2multinom(fit1)
 fit2 <- poisson2multinom(fit2)
-range(rowSums(fit2$L))
-range(colSums(fit2$F))
+```
+
+If we measure the quality of the grade-of-membership (multinomial)
+model fits, the alt-SQP estimates again come out on top:
+
+```{r evaluate-multinom-fit}
+print(loglik.multinom(droplet,fit1),digits = 16)
+print(loglik.multinom(droplet,fit2),digits = 16)
 ```
 
 ## Session information
