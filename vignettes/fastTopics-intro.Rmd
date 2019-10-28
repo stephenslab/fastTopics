@@ -74,7 +74,7 @@ L <- matrix(runif(n*k),n,k)
 ```
 
 Let's now try running 500 multiplicative (EM) updates. These updates
-are very simple and fast, so we can run a lot of theem in a relatively
+are very simple and fast, so we can run a lot of them in a relatively
 short amount of time. The EM algorithm is recovered by turning off the
 SQP updates in `altsqp`. (You may want to adjust the `nc` control
 parameter to match the number of available cores on your computer.)
@@ -84,7 +84,7 @@ fit1 <- altsqp(droplet,list(L = L,F = F),numiter = 500,
                control = list(numsqp = 0,extrapolate = Inf,nc = 4))
 ```
 
-Now try running 20 SQP updates (with extrapolation starting at
+Now try running 40 SQP updates (with extrapolation starting at
 iteration 20). Each SQP update is much slower than EM, but, as we will
 see, each SQP iteration makes much more progress toward a solution.
 
