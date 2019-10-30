@@ -6,7 +6,8 @@ to do
 + Implement an option to periodically "restart" the extrapolation
   scheme, as in the conjugate gradients method.
 
-+ Add "method" argument to "fit_topics".
++ Add "method" argument to "fit_topics", with possible settings
+  "altsqp", "em", "mu" and "lda".
 
 + Implement a better scheme for normalizing the factors and loadings;
   see "NMF is ill-posed" and Sec. 3.1.7 in the review paper by
