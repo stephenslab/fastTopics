@@ -1,6 +1,10 @@
 to do
 =====
 
++ Add steps to fix initializations containing zeros that cause
+  problems for em, mu and lda algorithms. (And print warning when
+  fixing this.)
+
 + Add roxygen2 documentation to "betanmf" function.
 
 + Implement an option to periodically "restart" the extrapolation
