@@ -128,3 +128,31 @@ test_that("altsqp gives the same result as betanmf when numsqp = 0",{
   expect_equal(fit1$A,fit3$L)
   expect_equal(fit1$B,t(fit3$F))
 })
+
+test_that("altsqp \"escapes\" initial estimates that are zero",{
+
+  # Generate a 40 x 80 data matrix to factorize.
+  set.seed(1)
+  n <- 40
+  m <- 80
+  k <- 3
+  F <- matrix(2*runif(m*k),m,k)
+  L <- matrix(2*runif(n*k),n,k)
+  X <- matrix(rpois(n*m,tcrossprod(L,F)),n,m)
+
+  # Run SQP updates, in which factors and loadings are initialized to
+  # the "ground truth".
+  capture.output(fit1 <- altsqp(X,list(F = F,L = L)))
+
+  # Randomly set some of the entries of F and L to zero, and re-run the
+  # SQP updates. 
+  U <- matrix(as.numeric(runif(m*k) > 0.05),m,k)
+  V <- matrix(as.numeric(runif(n*k) > 0.05),n,k)
+  capture.output(fit2 <- altsqp(X,list(F = fit1$F * U,L = fit1$L * V)))
+
+  # Is roughly the same solution recovered?
+  expect_equal(with(fit1,tcrossprod(L,F)),
+               with(fit2,tcrossprod(L,F)),
+               tolerance = 1e-4)
+  expect_equal(fit1$value,fit2$value,tolerance = 1e-6)
+})
