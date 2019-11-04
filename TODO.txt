@@ -1,6 +1,12 @@
 to do
 =====
 
++ Provide option in altsqp to automatically determine number of
+  threads in multithreading.
+
++ Change message about "consider converting X to a sparse matrix" so
+  that it is only printed when X is fairly large.
+
 + Add steps to fix initializations containing zeros that cause
   problems for em, mu and lda algorithms. (And print warning when
   fixing this.)
