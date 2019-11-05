@@ -33,6 +33,10 @@ altsqp_update_loadings_rcpp_parallel_sparse <- function(X, F, L, xsrow, fs, e, n
     .Call('_fastTopics_altsqp_update_loadings_rcpp_parallel_sparse', PACKAGE = 'fastTopics', X, F, L, xsrow, fs, e, numem, numsqp, control)
 }
 
+ccd_rcpp <- function(V, W, H, WH, wht, vt, e) {
+    invisible(.Call('_fastTopics_ccd_rcpp', PACKAGE = 'fastTopics', V, W, H, WH, wht, vt, e))
+}
+
 cost_rcpp <- function(X, A, B, e, poisson) {
     .Call('_fastTopics_cost_rcpp', PACKAGE = 'fastTopics', X, A, B, e, poisson)
 }
