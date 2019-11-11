@@ -59,12 +59,13 @@ lda <- function (X, F, L, alpha = rep(1,ncol(F)), numiter = 1000) {
 # TO DO: Explain here what this function does, and how to use it.
 elbo.lda <- function (X, F, L, alpha) {
   n <- nrow(X)
-  f <- 0
+  f <- rep(0,n)
   for (i in 1:n) {
-    P <- scale.cols(F,exp(digamma(L[i,])))
-    P <- P / rowSums(P)
-    u <- digamma(L[i,]) - digamma(sum(L[i,]))
-    f <- f + (lgamma(sum(alpha)) - lgamma(sum(L[i,]))
+    L[i,] <- L[i,] * (sum(alpha) + sum(X[i,]))
+    P     <- scale.cols(F,exp(digamma(L[i,])))
+    P     <- P / rowSums(P)
+    u     <- digamma(L[i,]) - digamma(sum(L[i,]))
+    f[i]  <- (lgamma(sum(alpha)) - lgamma(sum(L[i,]))
               + sum(lgamma(L[i,])) - sum(lgamma(alpha))
               + sum((alpha - L[i,]) * u)
               + sum(X[i,] %*% (scale.cols(P,u) + P*log(F) - P*log(P))))
