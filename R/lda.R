@@ -17,7 +17,7 @@ lda <- function (X, F, L, alpha = rep(1,ncol(F)), numiter = 1000) {
   # it stores the value of the objective (the variational lower bound,
   # or "ELBO") at each iteration.
   value <- rep(0,numiter)
-  
+
   # Iterate the E and M steps.
   cat("iter --objective(ELBO)-- max.diff\n")
   for (iter in 1:numiter) {
@@ -42,7 +42,7 @@ lda <- function (X, F, L, alpha = rep(1,ncol(F)), numiter = 1000) {
     L <- alpha + N
 
     # Update the word probabilities (factors).
-    F <- scale.cols(M)
+    F <- scale.cols(M + 1e-6)
     
     # Compute the variational lower bound at the current solution.
     value[iter] <- elbo.lda(X,F,L,alpha)
@@ -59,13 +59,14 @@ lda <- function (X, F, L, alpha = rep(1,ncol(F)), numiter = 1000) {
 # TO DO: Explain here what this function does, and how to use it.
 elbo.lda <- function (X, F, L, alpha) {
   n <- nrow(X)
+  f <- 0
   for (i in 1:n) {
     P <- scale.cols(F,exp(digamma(L[i,])))
     P <- P / rowSums(P)
     u <- digamma(L[i,]) - digamma(sum(L[i,]))
     f <- f + (lgamma(sum(alpha)) - lgamma(sum(L[i,]))
               + sum(lgamma(L[i,])) - sum(lgamma(alpha))
-              + sum((alpha - 1) * u) - sum((L[i,] - 1) * u)
+              + sum((alpha - L[i,]) * u)
               + sum(X[i,] %*% (scale.cols(P,u) + P*log(F) - P*log(P))))
   }
   return(f)
