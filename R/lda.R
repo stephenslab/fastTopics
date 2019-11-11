@@ -45,7 +45,7 @@ lda <- function (X, F, L, alpha = rep(1,ncol(F)), numiter = 1000) {
     F <- scale.cols(M)
     
     # Compute the variational lower bound at the current solution.
-    value[iter] <- 0
+    value[iter] <- elbo.lda(X,F,L,alpha)
     cat(sprintf("%4d %+0.12e %0.2e\n",iter,value[iter],
                 max(max(abs(L - L0)),max(abs(F - F0)))))
   }
@@ -58,5 +58,15 @@ lda <- function (X, F, L, alpha = rep(1,ncol(F)), numiter = 1000) {
 
 # TO DO: Explain here what this function does, and how to use it.
 elbo.lda <- function (X, F, L, alpha) {
-  # TO DO.
+  n <- nrow(X)
+  for (i in 1:n) {
+    P <- scale.cols(F,exp(digamma(L[i,])))
+    P <- P / rowSums(P)
+    u <- digamma(L[i,]) - digamma(sum(L[i,]))
+    f <- f + (lgamma(sum(alpha)) - lgamma(sum(L[i,]))
+              + sum(lgamma(L[i,])) - sum(lgamma(alpha))
+              + sum((alpha - 1) * u) - sum((L[i,] - 1) * u)
+              + sum(X[i,] %*% (scale.cols(P,u) + P*log(F) - P*log(P))))
+  }
+  return(f)
 }
