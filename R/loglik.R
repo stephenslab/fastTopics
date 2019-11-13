@@ -1,8 +1,10 @@
+# 
+
 #' @rdname altsqp
 #' 
 #' @export
 #' 
-loglik.poisson <- function (X, fit, e = 1e-15) {
+loglik_poisson_topic_model <- function (X, fit, e = 1e-15) {
 
   # Verify and process input matrix X. 
   verify.matrix(X)
@@ -44,7 +46,7 @@ loglik.poisson <- function (X, fit, e = 1e-15) {
 #' 
 #' @export
 #' 
-loglik.multinom <- function (X, fit, e = 1e-15) {
+loglik_multinom_topic_model <- function (X, fit, e = 1e-15) {
 
   # Verify and process input matrix X.
   verify.matrix(X)
@@ -87,18 +89,71 @@ loglik.multinom <- function (X, fit, e = 1e-15) {
   return(-cost(X,L,t(F),e,FALSE))
 }
 
-# Compute the value of the cost function for non-negative matrix
-# factorization, in which matrix X is approximated by matrix AB = A*B.
-# This is equivalent to the negative Poisson log-likelihood after
-# removing terms that do not depend on A or B.
-#
-# When poisson = FALSE, this returns the cost function corresponding
-# to the multinomial likelihood instead of the poisson likelihoood.
-cost <- function (X, A, B, e, poisson = TRUE, version = c("Rcpp", "R")) {
-  version <- match.arg(version)
+#' @rdname loglik
+#' 
+#' @title Cost Function for Non-negative Matrix Factorization and
+#'   Topic Modeling
+#'
+#' @description Compute negative log-likelihoods for assessing
+#'   a topic model fit or quality of a non-negative matrix factorization,
+#'   in which matrix X is approximated by matrix product A * B.
+#'
+#'   This function is mainly used internally to quickly compute
+#'   log-likelihoods for model fits and objective values for
+#'   non-negative matrix factorization, and should not be used directly
+#'   unless you know what you are doing. In particular, very little
+#'   argument checking is performed; if you use this function, it is up
+#'   to you to make sure that you use it correctly.
+#'
+#' @param X The n x m matrix of counts or pseudocounts. It can be a
+#'   sparse matrix ("dgCMatrix" class) or dense matrix ("matrix" class).
+#'
+#' @param A The n x k matrix of loadings (also called "activations").
+#'   It should be a dense matrix; that is, a \code{is.matrix(A)} should
+#'   return \code{TRUE}.
+#'
+#' @param B The k x m matrix of factors (also called "basis vectors").
+#'   It should be a dense matrix; that is, a \code{is.matrix(B)} should
+#'   return \code{TRUE}.
+#'
+#' @param e A small, non-negative number that is added to the
+#'   terms inside the logarithms to sidestep computing logarithms of
+#'   zero. This prevents numerical problems at the cost of introducing a
+#'   small (and typically very small) inaccuracy in the computation.
+#'
+#' @param model If \code{model = "poisson"}, Poisson log-likelihoods
+#'   are returned; if \code{model = "multinom"}, multinomial
+#'   log-likelihoods are returned. See "Value" for details.
+#'
+#' @param const Add description here.
+#' 
+#' @param version If \code{version == "R"}, the computations are
+#'   performed entirely in R; if \code{version == "Rcpp"}, an Rcpp
+#'   implementation is used.  The R version is typically faster for
+#'   large, dense matrices, where the Rcpp version is typically faster
+#'   for large, sparse matrices.
+#'
+#' @return When \code{poisson = TRUE}, the return value is the 
+#'
+#' @seealso 
+#' 
+#' @export
+#'
+#' @keywords internal
+#' 
+cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
+                  const, version) {
+  model   <- match.arg(model)
+  poisson <- model == "poisson"
+  if (missing(version)) {
+    if (is.matrix(X))
+      version <- "R"
+    else
+      version <- "Rcpp"
+  }
   if (version == "R") {
     AB <- A %*% B
-    f  <- sum(poisson*AB - X*log(AB + e))
+    f  <- rowSums(poisson*AB - X*log(AB + e))
   } else if (is.matrix(X))
     f <- cost_rcpp(X,A,B,e,poisson)
   else

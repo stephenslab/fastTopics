@@ -1,6 +1,20 @@
 to do
 =====
 
++ Improve "cost" function:
+   - Add roxygen2 docs.
+   - Determine "version" based on whether X is sparse or dense.
+   - Calculate the poisson and multinomial constants, and provide option 
+     of pre-computing it.
+   - Compute negative log-likelihood for each document separately.
+   - Add tests.
+
++ Improve "poisson2multinom" function:
+
++ In file datasim.R, implement a function to simulate a data set from
+  the Poisson-based topic model. It should provide the option of
+  returning a dense or sparse matrix.
+
 + Make pkgdown site with latest version of pkgdown (for now do so
   without vignettes).
 

@@ -3,8 +3,8 @@
 \name{altsqp}
 \alias{altsqp}
 \alias{altsqp_control_default}
-\alias{loglik.poisson}
-\alias{loglik.multinom}
+\alias{loglik_poisson_topic_model}
+\alias{loglik_multinom_topic_model}
 \alias{poisson2multinom}
 \title{Alternating SQP Method for Optimizing Topic Models and Non-negative Matrix Factorizations}
 \usage{
@@ -13,9 +13,9 @@ altsqp(X, fit, numiter = 100, version = c("Rcpp", "R"),
 
 altsqp_control_default()
 
-loglik.poisson(X, fit, e = 1e-15)
+loglik_poisson_topic_model(X, fit, e = 1e-15)
 
-loglik.multinom(X, fit, e = 1e-15)
+loglik_multinom_topic_model(X, fit, e = 1e-15)
 
 poisson2multinom(fit)
 }
