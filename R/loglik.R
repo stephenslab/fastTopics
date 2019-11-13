@@ -176,8 +176,12 @@ cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
 # Compute the constant terms in the Poisson log-likelihoods. This is
 # used by the "cost" function, but can be also used elsewhere to
 # pre-compute these constants.
-loglik_poisson_const <- function (X)
-  apply(t(X),2,function (x) sum(lfactorial(x[x > 0])))
+loglik_poisson_const <- function (X) {
+  if (is.matrix(X))
+    return(rowSums(lfactorial(X)))
+  else
+    return(rowSums(apply.nonzeros(X,lfactorial)))
+}
 
 # Compute the constant terms in the multinomial log-likelihoods. This
 # is used by the "cost" function, but can be also used elsewhere to

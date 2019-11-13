@@ -14,12 +14,13 @@ License: MIT + file LICENSE
 SystemRequirements: GNU make
 Imports:
     utils,
+    methods,
+    stats,
     Matrix,
     Rcpp (>= 1.0.1),
     RcppParallel (>= 4.4.1),
     parallel
 Suggests:
-    methods,
     testthat,
     knitr,
     rmarkdown,

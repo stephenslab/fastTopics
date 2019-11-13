@@ -218,14 +218,10 @@
 #'
 #' @useDynLib fastTopics
 #' 
+#' @importFrom utils modifyList
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #' @importFrom RcppParallel setThreadOptions
-#' @importFrom utils modifyList
-#' @importFrom Matrix t
-#' @importFrom Matrix rowSums
-#' @importFrom Matrix colSums
-#' @importFrom Matrix mean
 #' @importFrom parallel splitIndices
 #' @importFrom parallel mclapply
 #' 

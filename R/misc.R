@@ -29,6 +29,12 @@ verify.fit <- function (x, arg.name = deparse(substitute(x))) {
   return(TRUE)
 }
 
+# Apply operation f to all nonzeros of a sparse matrix.
+apply.nonzeros <- function (X, f) {
+  d <- summary(X)
+  return(sparseMatrix(i = d$i,j = d$j,x = f(d$x),dims = dim(X)))
+}
+
 # scale.cols(A,b) scales each column A[,i] by b[i].
 #
 # scale.cols(A) scales each column of A so that the entries of each
