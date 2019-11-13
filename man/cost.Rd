@@ -29,9 +29,10 @@ inaccuracy in the computation.}
 are returned; if \code{model = "multinom"}, multinomial
 log-likelihoods are returned. See "Value" for details.}
 
-\item{const}{A precalculated number accounting for the terms in the
-log-likelihood that do not depend on either A or B. Typically this
-argument is not provided.}
+\item{const}{To avoid re-calculating terms in the log-likelihood
+that do not depend on either A or B, one may provide a value for
+this argument. Typically this argument is not provided, in which
+case the constant terms are calculated internally.}
 
 \item{version}{If \code{version == "R"}, the computations are
 performed entirely in R; if \code{version == "Rcpp"}, an Rcpp
