@@ -1,7 +1,7 @@
 # fastTopics
 
-R package implementing fast optimization algorithms for topic modeling
-and non-negative matrix factorization.
+R package implementing fast optimization algorithms for fitting topic
+models and non-negative matrix factorizations to count data.
 
 If you find a bug, or you have a question or feedback on this software,
 please post an [issue][issues].
@@ -15,9 +15,16 @@ under the terms of the [MIT license][mit-license].
 
 ## Quick Start
 
-To install the latest version of the fastTopics package, first
-download or clone the repository from GitHub, then use
-[devtools][devtools]:
+The fastTopics package is currently undergoing major re-development in
+the master branch, so it is recommended to install the version from
+the v0.1 branch. To do this, clone the repository from GitHub, switch
+to the v0.1 branch by running in the shell
+
+```bash
+git checkout v0.1
+```
+
+then use [devtools][devtools]:
 
 ```R
 install.packages("devtools")
@@ -27,10 +34,18 @@ devtools::install_local("fastTopics")
 This command should automatically install all required packages if
 they are not installed already.
 
+Alternatively, to install the latest (in-development) version of the
+fastTopics package, download or clone the repository from GitHub, then
+run:
+
+```R
+devtools::install_local("fastTopics")
+```
+
 Compiling this package from source will require a C++ compiler setup
-that is appropriate for the the R installed on your computer. For
-details, refer to the [CRAN documentation][cran]. For Mac computers,
-see [these notes][compiling-macos].
+that is appropriate for the version of R installed on your
+computer. For details, refer to the [CRAN documentation][cran]. For
+Mac computers, see [these notes][compiling-macos].
 
 ## Developer notes
 
