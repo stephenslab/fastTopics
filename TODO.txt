@@ -1,6 +1,9 @@
 to do
 =====
 
++ Make pkgdown site with latest version of pkgdown (for now do so
+  without vignettes).
+
 + Provide option in altsqp to automatically determine number of
   threads in multithreading.
 
@@ -51,10 +54,8 @@ to do
 + Implement a short vignette using the droplet data; compare against
   nnmf and altsqp with numsqp = 0.
 
-+ Make pkgdown site.
-
 + Set up continuous integration (Travis CI, Appveyor, CircleCI) and
-  CodeCov.
+  CodeCov. (Only do this after making the package public.)
 
 + Fill out "Quick Start" instructions in README.
 

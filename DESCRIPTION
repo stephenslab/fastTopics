@@ -9,9 +9,7 @@ Authors@R: person("Peter","Carbonetto",role=c("aut","cre"),
 URL: https://github.com/stephenslab/fastTopics
 BugReports: https://github.com/stephenslab/fastTopics/issues
 Depends: R (>= 3.3.0)
-Description: This is an R package in active development providing
-    scalable algorithms for optimizing topic models and non-negative
-    matrix factorizations.
+Description: Implements fast, scalable optimization algorithms for fitting topic models and non-negative factorizations to count data. The algorithms are particularly well suited to large, sparse data sets (that is, data containing a high proportion of zero counts), but the algorithms also work well on non-sparse data.
 License: MIT + file LICENSE
 SystemRequirements: GNU make
 Imports:
