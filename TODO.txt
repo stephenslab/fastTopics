@@ -7,6 +7,7 @@ to do
    - Calculate the poisson and multinomial constants, and provide option 
      of pre-computing it.
    - Compute negative log-likelihood for each document separately.
+   - Add examples.
    - Add tests.
 
 + Improve "poisson2multinom" function:
