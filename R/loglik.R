@@ -131,10 +131,10 @@ loglik_multinom_topic_model <- function (X, fit, e = 1e-15) {
 #'   Rcpp version makes much more efficient use of memory for large,
 #'   sparse matrices.
 #'
-#' @return The return value is a vector with one entry per row of
-#'   X. When \code{poisson = TRUE}, this vector contains the negative
-#'   Poisson log-likelihoods; when \code{poisson = FALSE}, this vector
-#'   contains the negative multinomial log-likelihoods.
+#' @return A numeric vector with one entry per row of X. When
+#' \code{poisson = TRUE}, this vector contains the negative Poisson
+#' log-likelihoods; when \code{poisson = FALSE}, this vector contains
+#' the negative multinomial log-likelihoods.
 #'
 #' @seealso 
 #'
@@ -155,12 +155,13 @@ cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
       version <- "Rcpp"
   }
 
-  # Compute the terms in the log-likelihoods that do not depend on A or B.
+  # When necessary, compute the terms in the log-likelihoods that do
+  # not depend on A or B.
   if (missing(const)) {
-   if (model == "poisson")
-     const <- loglik_poisson_const(X)
-   else
-     const <- loglik_multinom_const(X)
+    if (model == "poisson")
+      const <- loglik_poisson_const(X)
+    else
+      const <- loglik_multinom_const(X)
   }
 
   # Compute the terms in the log-likelihoods that depend on A or B.
@@ -179,13 +180,13 @@ cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
 # pre-compute these constants.
 loglik_poisson_const <- function (X) {
   if (is.matrix(X))
-    return(rowSums(lfactorial(X)))
+    return(rowSums(lgamma(X + 1)))
   else
-    return(rowSums(apply.nonzeros(X,lfactorial)))
+    return(rowSums(apply.nonzeros(X,function (x) lgamma(x + 1))))
 }
 
 # Compute the constant terms in the multinomial log-likelihoods. This
 # is used by the "cost" function, but can be also used elsewhere to
 # pre-compute these constants.
 loglik_multinom_const <- function (X)
-  rep(0,nrow(X))
+  loglik_poisson_const(X) - lgamma(rowSums(X) + 1)
