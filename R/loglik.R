@@ -120,7 +120,9 @@ loglik_multinom_topic_model <- function (X, fit, e = 1e-15) {
 #'   are returned; if \code{model = "multinom"}, multinomial
 #'   log-likelihoods are returned. See "Value" for details.
 #'
-#' @param const TO DO: Add description here.
+#' @param const A precalculated number accounting for the terms in the
+#'   log-likelihood that do not depend on either A or B. Typically this
+#'   argument is not provided.
 #' 
 #' @param version If \code{version == "R"}, the computations are
 #'   performed entirely in R; if \code{version == "Rcpp"}, an Rcpp
@@ -135,14 +137,14 @@ loglik_multinom_topic_model <- function (X, fit, e = 1e-15) {
 #'
 #' @seealso 
 #'
-#' @examples 
-#' 
 #' @export
 #'
 #' @keywords internal
 #' 
 cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
                   const = 0, version) {
+
+  # Check and process "model" and "version" input arguments.
   model   <- match.arg(model)
   poisson <- model == "poisson"
   if (missing(version)) {
@@ -151,6 +153,16 @@ cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
     else
       version <- "Rcpp"
   }
+
+  # Compute the terms in the log-likelihoods that do not depend on A or B.
+  if (missing(const)) {
+   if (model == "poisson")
+     const <- loglik_poisson_const(X)
+   else
+     const <- loglik_multinom_const(X)
+  }
+
+  # Compute the terms in the log-likelihoods that depend on A or B.
   if (version == "R") {
     AB <- A %*% B
     f  <- rowSums(poisson*AB - X*log(AB + e))
@@ -160,3 +172,15 @@ cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
     f <- cost_sparse_rcpp(X,A,B,e,poisson)
   return(f + const)
 }
+
+# Compute the constant terms in the Poisson log-likelihoods. This is
+# used by the "cost" function, but can be also used elsewhere to
+# pre-compute these constants.
+loglik_poisson_const <- function (X)
+  apply(t(X),2,function (x) sum(lfactorial(x[x > 0])))
+
+# Compute the constant terms in the multinomial log-likelihoods. This
+# is used by the "cost" function, but can be also used elsewhere to
+# pre-compute these constants.
+loglik_multinom_const <- function (X)
+  rep(0,nrow(X))

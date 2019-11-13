@@ -2,13 +2,9 @@ to do
 =====
 
 + Improve "cost" function:
-   - Add roxygen2 docs.
-   - Determine "version" based on whether X is sparse or dense.
-   - Calculate the poisson and multinomial constants, and provide option 
-     of pre-computing it.
-   - Compute negative log-likelihood for each document separately.
-   - Add examples.
-   - Add tests.
+   - Calculate the multinomial constants, and provide option of
+     pre-computing them.
+   - Fill out @seealso.
 
 + Improve "poisson2multinom" function:
 

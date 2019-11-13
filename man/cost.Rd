@@ -29,7 +29,9 @@ inaccuracy in the computation.}
 are returned; if \code{model = "multinom"}, multinomial
 log-likelihoods are returned. See "Value" for details.}
 
-\item{const}{TO DO: Add description here.}
+\item{const}{A precalculated number accounting for the terms in the
+log-likelihood that do not depend on either A or B. Typically this
+argument is not provided.}
 
 \item{version}{If \code{version == "R"}, the computations are
 performed entirely in R; if \code{version == "Rcpp"}, an Rcpp
@@ -53,9 +55,6 @@ Compute negative log-likelihoods for assessing
   be used directly unless you know what you are doing. In particular,
   very little argument checking is performed; if you use this
   function, it is up to you to make sure you use it correctly.
-}
-\examples{
-
 }
 \seealso{
 
