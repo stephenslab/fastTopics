@@ -1,6 +1,15 @@
 to do
 =====
 
++ In simulate_poisson_data, add row and columm names to X, L and F.
+
++ Extract row and column names from X and use these for L and F.
+
++ Get some ideas for S3 methods from prcomp, LDA and glmnet:
+    methods(class = "prcomp")
+    methods(class = "LDA")
+    methods(class = "glmnet")
+
 + Improve "cost" function:
    - Calculate the multinomial constants, and provide option of
      pre-computing them.

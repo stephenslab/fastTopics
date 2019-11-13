@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.2-4
+Version: 0.2-5
 Date: 2019-11-13
 Title: Fast Optimization Algorithms for Fitting Topic Models and Non-Negative Matrix Factorizations to Count Data
 Authors@R: person("Peter","Carbonetto",role=c("aut","cre"),

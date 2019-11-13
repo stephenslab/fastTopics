@@ -169,9 +169,9 @@ cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
     AB <- A %*% B
     f  <- rowSums(poisson*AB - X*log(AB + e))
   } else if (is.matrix(X))
-    f <- cost_rcpp(X,A,B,e,poisson)
+    f <- drop(cost_rcpp(X,A,B,e,poisson))
   else
-    f <- cost_sparse_rcpp(X,A,B,e,poisson)
+    f <- drop(cost_sparse_rcpp(X,A,B,e,poisson))
   return(f + const)
 }
 

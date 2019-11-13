@@ -36,19 +36,16 @@ arma::vec cost (const mat& X, const mat& A, const mat& B, double e,
 
     // This is equivalent to the following R code:
     //
-    //   sum(poisson*y - X[,j]*log(y + e))
+    //   f = f + poisson*y - X[,j]*log(y + e))
     //
     // where 
     // 
     //   y = A %*% B[,j]
     //
-
-    // *** TO DO: Fix this code ***
-    //
-    // y  = A * B.col(j);
-    // f -= sum(X.col(j) % log(y + e));
-    // if (poisson)
-    //   f += sum(y);
+    y  = A * B.col(j);
+    f -= X.col(j) % log(y + e);
+    if (poisson)
+      f += y;
   }
   
   return f;
@@ -59,11 +56,12 @@ arma::vec cost_sparse (const sp_mat& X, const mat& A, const mat& B,
 		       double e, bool poisson) {
   uint n = X.n_rows;
   uint m = X.n_cols;
+  uint i;
   vec  f(n,fill::zeros);
   vec  y(n);
   
   // Repeat for each column of X.
-  for (int j = 0; j < m; j++) {
+  for (uint j = 0; j < m; j++) {
 
     // Initialize an iterator for the nonzero elements in the jth
     // column of X.
@@ -72,20 +70,19 @@ arma::vec cost_sparse (const sp_mat& X, const mat& A, const mat& B,
 
     // This is equivalent to the following R code:
     //
-    //   sum(y - X[,j]*log(y + e))
+    //   f = f + poisson*y - X[,j]*log(y + e)
     //
     // where 
     // 
     //   y = A %*% B[,j]
     //
-
-    // *** TO DO: Fix this code ***
-    //
-    // y  = A * B.col(j);
-    // if (poisson)
-    //   f += sum(y);
-    // for(; xj != xm; ++xj)
-    //   f -= (*xj) * log(y(xj.row()) + e);
+    y = A * B.col(j);
+    for(; xj != xm; ++xj) {
+      i     = xj.row();
+      f(i) -= (*xj) * log(y(i) + e);
+    }
+    if (poisson)
+      f += y;
   }
   
   return f;

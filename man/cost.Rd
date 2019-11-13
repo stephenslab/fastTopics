@@ -41,10 +41,10 @@ Rcpp version makes much more efficient use of memory for large,
 sparse matrices.}
 }
 \value{
-The return value is a vector with one entry per row of
-  X. When \code{poisson = TRUE}, this vector contains the negative
-  Poisson log-likelihoods; when \code{poisson = FALSE}, this vector
-  contains the negative multinomial log-likelihoods.
+A numeric vector with one entry per row of X. When
+\code{poisson = TRUE}, this vector contains the negative Poisson
+log-likelihoods; when \code{poisson = FALSE}, this vector contains
+the negative multinomial log-likelihoods.
 }
 \description{
 Compute negative log-likelihoods for assessing
