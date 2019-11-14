@@ -1,4 +1,6 @@
-#' @rdname altsqp
+#' @rdname likelihood
+#'
+#' @title Compute Topic Model Likelihoods 
 #' 
 #' @export
 #' 
@@ -40,7 +42,7 @@ loglik_poisson_topic_model <- function (X, fit, e = 1e-15) {
   return(-cost(X,L,t(F),e,TRUE))
 }
 
-#' @rdname altsqp
+#' @rdname likelihood
 #' 
 #' @export
 #' 
@@ -103,9 +105,9 @@ loglik_multinom_topic_model <- function (X, fit, e = 1e-15) {
 #' @param X The n x m matrix of counts or pseudocounts. It can be a
 #'   sparse matrix ("dgCMatrix" class) or dense matrix ("matrix" class).
 #'
-#' @param A The n x k matrix of loadings (also called "activations").
-#'   It should be a dense matrix; that is, \code{is.matrix(A)} should
-#'   be \code{TRUE}.
+#' @param A The n x k matrix of loadings (also called "activations"),
+#'   where k is typically much smaller than n and m. A should be a
+#'   dense matrix; that is, \code{is.matrix(A)} should be \code{TRUE}.
 #'
 #' @param B The k x m matrix of factors (also called "basis vectors").
 #'   It should be a dense matrix; that is, \code{is.matrix(B)} should be
