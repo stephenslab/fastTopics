@@ -1,6 +1,7 @@
 \documentclass[final]{siamart171218}
 %\VignetteIndexEntry{Algorithms for NMF and topic modeling}
 %\VignettePackage{fastTopics}
+\usepackage{Sweave}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{bm}

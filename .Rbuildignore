@@ -1,5 +1,6 @@
 ^TODO\.txt$
 ^docs$
+^Sweave\.sty$
 ^algorithms\.aux$
 ^algorithms\.bbl$
 ^algorithms\.blg$
