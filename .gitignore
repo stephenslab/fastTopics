@@ -1,5 +1,14 @@
 src/*.o
 src/*.so
+vignettes/algorithms-003.pdf
+vignettes/algorithms.aux
+vignettes/algorithms.bbl
+vignettes/algorithms.blg
+vignettes/algorithms.log
+vignettes/algorithms.out
+vignettes/algorithms.pdf
+vignettes/algorithms.tex
+vignettes/algorithms.thm
 inst/derivations/fast-topics.aux
 inst/derivations/fast-topics.bbl
 inst/derivations/fast-topics.blg

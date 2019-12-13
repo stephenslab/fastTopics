@@ -63,12 +63,21 @@ R CMD check --as-cran fastTopics_0.2-7.tar.gz
 Note that these commands require that the dependencies have already
 been installed. See the [DESCRIPTION](DESCRIPTION) file for details.
 
-### Building the Sweave vignette.
+### Building the Sweave vignette and updating the Overleaf latex
+
+The vignette will be automatically built when the package is
+installed. To build it separately, change your working directory to
+the "vignettes" subdirectory, and run this R codee to generate the
+Latex from the Sweave document, then the PDF from the Latex:
 
 ```R
+setwd("vignettes")
 Sweave("algorithms.Rnw")
 tools::texi2pdf("algorithms.tex")
 ```
+
+Once the changes are committed, pushed to GitHub, and sync'ed to
+Overleaf, the Latex on Overleaf will also be updated.
 
 ### Updating the C++ source and documentation
 

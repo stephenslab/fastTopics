@@ -1,2 +1,11 @@
 ^TODO\.txt$
 ^docs$
+^algorithms\.aux$
+^algorithms\.bbl$
+^algorithms\.blg$
+^algorithms\.log$
+^algorithms\.out$
+^algorithms\.tex$
+^algorithms\.thm$
+^algorithms\.pdf$
+^algorithms*\.pdf$
