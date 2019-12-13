@@ -205,7 +205,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // mixsqp_rcpp
-arma::vec mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, const arma::vec& e, uint numiter, Rcpp::List control, bool verbose);
+arma::vec mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, const arma::vec& e, uint numiter, List control, bool verbose);
 RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP eSEXP, SEXP numiterSEXP, SEXP controlSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -215,7 +215,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type e(eSEXP);
     Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type control(controlSEXP);
+    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, e, numiter, control, verbose));
     return rcpp_result_gen;
