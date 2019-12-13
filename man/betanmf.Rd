@@ -7,8 +7,10 @@
 betanmf(X, F, L, numiter = 1000, e = 1e-15)
 }
 \arguments{
-\item{X}{The n x m matrix of counts. All entries of X should be
-non-negative.}
+\item{X}{The n x m matrix of counts; all entries of X should be
+non-negative. In particular, sparse matrices are not accommodated
+in this implementation; \code{is.matrix(X)} must give \code{TRUE},
+otherwise an error will be thrown.}
 
 \item{F}{This is the initial estimate of the factors (also called
 "basis vectors"). It should be an m x k matrix, where m is the
@@ -25,14 +27,17 @@ non-negative.}
 
 \item{e}{Describe e here.}
 }
+\value{
+Describe return value here.
+}
 \description{
-This function decomposes the input counts matrix X =
-  L*F' by nonnegative matrix factorization (NMF) based on the
-  "divergence" criterion; equivalently, it optimizes the likelihood
-  under a Poisson model of the data, X. It runs a specified number of
-  multiplicative updates to fit the L and F matrices. Note that the
-  multiplicative updates can also be derived---and hence
-  interpreted---as an EM algorithm.
+This function decomposes the input matrix X = L*F' by
+  nonnegative matrix factorization (NMF) based on the "divergence"
+  criterion; equivalently, it optimizes the likelihood under a
+  Poisson model of the count data, X. It runs a specified number of
+  multiplicative updates (MU) to fit the L and F matrices. Note that
+  the multiplicative updates can also be derived, and hence
+  interpreted, as an expectation maximization (EM) algorithm.
 }
 \details{
 This function is mainly for internal use, and should only
@@ -44,10 +49,18 @@ This function is mainly for internal use, and should only
   This implementation is adapted from the MATLAB code by Daichi
   Kitamura \url{http://d-kitamura.net}.
 }
+\examples{
+# Add example here.
+
+}
 \references{
-Lee, D. D. and Seung, H. S. (2001). Algorithms for
-  non-negative matrix factorization. In Advances in Neural
-  Information Processing Systems \bold{13}, 556–562.
+Gillis, N. and Glineur, F. (2012). Accelerated multiplicative
+  updates and hierarchical ALS algorithms for nonnegative matrix
+  factorization. \emph{Neural Computation} \code{24}, 1085–1105. 
+
+  Lee, D. D. and Seung, H. S. (2001). Algorithms for
+  non-negative matrix factorization. In \emph{Advances in Neural
+  Information Processing Systems} \bold{13}, 556–562.
 }
 \seealso{
 fit_topics

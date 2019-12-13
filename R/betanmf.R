@@ -1,17 +1,27 @@
 #
 # NOTES:
 #  + No convergence checks are performed.
-#  + Can be derived as an EM algorithm.
+#  + Individual updates are very simple, and fast.
+#  + But can be very slow to converge, particularly when X is sparse.
+#  + Add rescaling step---explain why this is done (refer to Theorem 1
+#    from Gillis & Glineur 2012).
+#  + Add "safeguard" to prevent factors or loadings from ever being
+#    exactly zero---explain why this is done.
+#  + 'MUUP' which uses multiplicative updates (this is the approach
+#     popularized by Lee and Seung but initially proposed in 
+#     Daube-Witherspoon, M. E., & Muehllehner, G. (1986). An iterative 
+#     image space reconstruction algorithm suitable for volume ECT. IEEE 
+#     Trans. Med. Imaging, 5.
 # 
 #' @title Multiplicative update rules for non-negative matrix factorization
 #'
-#' @description This function decomposes the input counts matrix X =
-#'   L*F' by nonnegative matrix factorization (NMF) based on the
-#'   "divergence" criterion; equivalently, it optimizes the likelihood
-#'   under a Poisson model of the data, X. It runs a specified number of
-#'   multiplicative updates to fit the L and F matrices. Note that the
-#'   multiplicative updates can also be derived---and hence
-#'   interpreted---as an EM algorithm.
+#' @description This function decomposes the input matrix X = L*F' by
+#'   nonnegative matrix factorization (NMF) based on the "divergence"
+#'   criterion; equivalently, it optimizes the likelihood under a
+#'   Poisson model of the count data, X. It runs a specified number of
+#'   multiplicative updates (MU) to fit the L and F matrices. Note that
+#'   the multiplicative updates can also be derived, and hence
+#'   interpreted, as an expectation maximization (EM) algorithm.
 #'
 #' @details This function is mainly for internal use, and should only
 #'   be called directly if you really know what you are doing. In
@@ -22,8 +32,10 @@
 #'   This implementation is adapted from the MATLAB code by Daichi
 #'   Kitamura \url{http://d-kitamura.net}.
 #'
-#' @param X The n x m matrix of counts. All entries of X should be
-#'   non-negative.
+#' @param X The n x m matrix of counts; all entries of X should be
+#'   non-negative. In particular, sparse matrices are not accommodated
+#'   in this implementation; \code{is.matrix(X)} must give \code{TRUE},
+#'   otherwise an error will be thrown.
 #'
 #' @param F This is the initial estimate of the factors (also called
 #'   "basis vectors"). It should be an m x k matrix, where m is the
@@ -31,20 +43,34 @@
 #'   factorization. All entries of F should be non-negative.
 #'
 #' @param L This is the initial estimate of the loadings (also called
-#'   "activations"). It should an n x k matrix, where 
+#'   "activations"). It should an n x k matrix, where n is the number of
+#'   rows of X, and k is the rank of the matrix factorization. All
+#'   entries of L should be non-negative.
 #'  
-#' @param numiter The number of multiplicative updates to run. It
-#'   should an n x k matrix, where n is the number of rows of X, and k
-#'   is the rank of the matrix factorization. All entries of L should be
-#'   non-negative.
-#'
-#' @param e Describe e here.
+#' @param numiter The number of multiplicative updates to run.
 #' 
-#' @references Lee, D. D. and Seung, H. S. (2001). Algorithms for
-#'   non-negative matrix factorization. In Advances in Neural
-#'   Information Processing Systems \bold{13}, 556–562.
+#' @param e A small positive constant used to safeguard the
+#'   multiplicative updates. The multiplicative updates are implemented
+#'   as \code{F <- pmax(F1,e)} and \code{L <- pmax(L1,e)}, where
+#'   \code{F1} and \code{L1} are the factors and loadings matrices
+#'   obtained by applying a single multiplicative update rule.
+#'
+#' @return A list containing the updated matrices F and L.
+#' 
+#' @references
+#'
+#'   Gillis, N. and Glineur, F. (2012). Accelerated multiplicative
+#'   updates and hierarchical ALS algorithms for nonnegative matrix
+#'   factorization. \emph{Neural Computation} \code{24}, 1085–1105. 
+#' 
+#'   Lee, D. D. and Seung, H. S. (2001). Algorithms for
+#'   non-negative matrix factorization. In \emph{Advances in Neural
+#'   Information Processing Systems} \bold{13}, 556–562.
 #'
 #' @seealso fit_topics
+#'
+#' @examples
+#' # Add example here.
 #' 
 #' @keywords internal
 #' 
@@ -59,14 +85,21 @@ betanmf <- function (X, F, L, numiter = 1000, e = 1e-15) {
     stop("Input arguments \"X\", \"F\" and \"L\" should be matrices; ",
          "see help(matrix) for more information")
 
+  # MAKE ALL ENTRIES POSITIVE
+  # -------------------------
+  # To prevent the multiplicative updates from getting "stuck", force
+  # the initial estimates to be positive.
+  F <- pmax(F,e)
+  L <- pmax(L,e)
+  
   # RESCALE INITIAL ESTIMATES
   # -------------------------
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
   # numerical stability of the multiplicative updates.
-  r <- sqrt(mean(B)/mean(A))
-  A <- r*A
-  B <- B/r
+  out <- rescale.factors(F,L)
+  F   <- out$F
+  L   <- out$L
 
   out <- betanmf_helper(X,L,t(F),numiter,e)
   return(list(F = t(out$B),L = out$A))

@@ -45,6 +45,15 @@ scale.cols <- function (A, b) {
   return(t(t(A) * b))
 }
 
+# Rescale the factors (F) and loadings (F) with the property that the
+# matrix reconstruction L*F' remains the same after rescaling;
+# specifically, rescale the columns of F and L so that, for each k,
+# column k of F has the same mean as column k of L.
+rescale.factors <- function (F, L) {
+  d <- sqrt(colMeans(L)/colMeans(F))
+  return(list(F = F/d,L = d*L))
+}
+
 # trcrossprod(A,B) returns trace(t(A) %*% B), where A and B are
 # matrices with the same number of rows and column, and trace(X) =
 # sum(diag(X)).
