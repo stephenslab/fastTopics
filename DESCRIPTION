@@ -1,11 +1,12 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.2-5
-Date: 2019-11-13
+Version: 0.2-7
+Date: 2019-12-13
 Title: Fast Optimization Algorithms for Fitting Topic Models and Non-Negative Matrix Factorizations to Count Data
-Authors@R: person("Peter","Carbonetto",role=c("aut","cre"),
- 	          email="peter.carbonetto@gmail.com")
+Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
+                    email="peter.carbonetto@gmail.com"),
+             person("Matthew","Stephens",role="aut"))
 URL: https://github.com/stephenslab/fastTopics
 BugReports: https://github.com/stephenslab/fastTopics/issues
 Depends: R (>= 3.3.0)
@@ -31,5 +32,4 @@ LinkingTo:
     RcppArmadillo
 LazyData: true
 NeedsCompilation: yes
-VignetteBuilder: knitr
 RoxygenNote: 6.1.1

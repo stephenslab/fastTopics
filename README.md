@@ -49,19 +49,26 @@ Mac computers, see [these notes][compiling-macos].
 
 ## Developer notes
 
-### Testing the package
+### Testing and installing the package
 
 To install and test the fastTopics R package, run the following
 commands in the shell:
 
 ```bash
 R CMD build fastTopics
-R CMD INSTALL fastTopics_0.2-5.tar.gz
-R CMD check --as-cran fastTopics_0.2-5.tar.gz
+R CMD INSTALL fastTopics_0.2-7.tar.gz
+R CMD check --as-cran fastTopics_0.2-7.tar.gz
 ```
 
 Note that these commands require that the dependencies have already
 been installed. See the [DESCRIPTION](DESCRIPTION) file for details.
+
+### Building the Sweave vignette.
+
+```R
+Sweave("algorithms.Rnw")
+tools::texi2pdf("algorithms.tex")
+```
 
 ### Updating the C++ source and documentation
 
