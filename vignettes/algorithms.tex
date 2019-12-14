@@ -1,3 +1,9 @@
+% To generate a PDF from this document, run the following code in R:
+%
+%   Sweave("algorithms.Rnw")
+%   tools::texi2pdf("algorithms.tex")
+%
+%
 \documentclass[final]{siamart171218}
 %\VignetteIndexEntry{Algorithms for NMF and topic modeling}
 %\VignettePackage{fastTopics}
@@ -21,17 +27,14 @@
 \section{Overview}
 
 This document details the development of efficient algorithms for
-solving the following optimization problem:
+minimizing 
 \begin{equation}
-\begin{array}{ll}
-\mbox{optimize}   & \\
-\mbox{subject to} & F \geq 0, L \geq 0,
-\end{array}
-\label{eq:problem}
+\ell(L,F) = \ldots
+\label{eq:loss}
 \end{equation}
-Here, $L$ is an $n \times k$ matrix. (In the discussion and
-derivations below, we assume $k \geq 2$---the special case of $k = 1$
-is treated in Appendix X.) 
+subject to all entries of the matrices $F$ and $L$ being
+non-negative. (In the discussion and derivations below, we assume $k
+\geq 2$---the special case of $k = 1$ is treated in Appendix X.)
 
 Note that we can only obtain a local minium.
 
@@ -44,14 +47,14 @@ parameters:
 x_{ij}       &\sim \mathrm{Poisson}(\lambda_{ij}) \\
 \lambda_{ij} &=
 \end{align*}
-The loss function to be minimized in \eqref{eq:problem} is precisely
-the negative log-likelihood for this Poisson model, with terms that do
-not depend on either $F$ or $L$ omitted from this expression.
+The loss function to be minimized \eqref{eq:loss} is precisely the
+negative log-likelihood for this Poisson model, with terms that do not
+depend on either $F$ or $L$ omitted from this expression.
 
 In addition to gaining mathematical insights into this problem, we
 also look closely at the computational aspects, and use these
 investigations to help us design efficient algorithms for
-solving \eqref{eq:problem}.
+solving \eqref{eq:loss}.
 
 \section{Connection to topic modeling}
 
