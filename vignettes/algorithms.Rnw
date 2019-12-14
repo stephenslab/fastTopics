@@ -24,7 +24,7 @@ This document details the development of efficient algorithms for
 solving the following optimization problem:
 \begin{equation}
 \begin{array}{ll}
-\mbox{optimize}   & 
+\mbox{minimize}   & \\
 \mbox{subject to} & F \geq 0, L \geq 0,
 \end{array}
 \label{eq:problem}
@@ -44,18 +44,28 @@ parameters:
 x_{ij}       &\sim \mathrm{Poisson}(\lambda_{ij}) \\
 \lambda_{ij} &=
 \end{align*}
-The loss function to be minimized in \label{eq:problem} is precisely
+The loss function to be minimized in \eqref{eq:problem} is precisely
 the negative log-likelihood for this Poisson model, with terms that do
 not depend on either $F$ or $L$ omitted from this expression.
 
 In addition to gaining mathematical insights into this problem, we
 also look closely at the computational aspects, and use these
 investigations to help us design efficient algorithms for
-solving \label{eq:problem}.
+solving \eqref{eq:problem}.
 
 \section{Connection to topic modeling}
 
 \section{An EM algorithm}
+
+{\em Text goes here.}
+
+\section{A stopping criterion}
+
+{\em Text goes here.}
+
+\section{EM, revisited}
+
+{\em Text goes here.}
 
 In this example we embed parts of the examples from the
 \texttt{kruskal.test} help page into a \LaTeX{} document:
@@ -79,6 +89,12 @@ library("graphics")
 \end{center}
 
 Here is a citation: \cite{lee-2001}.
+
+\appendix
+
+\section{The special case of $k = 1$}
+
+{\em Text goes here.}
 
 \bibliographystyle{siamplain}
 \bibliography{algorithms}
