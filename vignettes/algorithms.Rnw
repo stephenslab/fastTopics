@@ -8,14 +8,54 @@
 \setlength{\oddsidemargin}{0.65in}
 \setlength{\evensidemargin}{0.65in}
 
-\title{Algorithms for fitting topic models and non-negative matrix factorizations to count data}
-\author{Peter Carbonetto and Matthew Stephens\thanks{Department of Human Genetics and the Research Computing Center, University of Chicago, Chicago, IL}}
+\title{Algorithms for fitting topic models and non-negative matrix 
+  factorizations to count data}
+\author{Peter Carbonetto and Matthew Stephens\thanks{Department of 
+  Human Genetics and the Research Computing Center, University of 
+  Chicago, Chicago, IL}}
 
 \begin{document}
 
 \maketitle
 
-\section{Introduction}
+\section{Overview}
+
+This document details the development of efficient algorithms for
+solving the following optimization problem:
+\begin{equation}
+\begin{array}{ll}
+\mbox{optimize}   & 
+\mbox{subject to} & F \geq 0, L \geq 0,
+\end{array}
+\label{eq:problem}
+\end{equation}
+Here, $L$ is an $n \times k$ matrix. (In the discussion and
+derivations below, we assume $k \geq 2$---the special case of $k = 1$
+is treated in Appendix X.) 
+
+Note that we can only obtain a local minium.
+
+This optimization problem can be arrived at in several different
+ways. Perhaps the most straightforward and intuitive way is to start
+with a basic Poisson model of the count data, in which each Poisson
+rate $\lambda_{ij}$ is obtained as a simple linear combination of
+parameters:
+\begin{align*}
+x_{ij}       &\sim \mathrm{Poisson}(\lambda_{ij}) \\
+\lambda_{ij} &=
+\end{align*}
+The loss function to be minimized in \label{eq:problem} is precisely
+the negative log-likelihood for this Poisson model, with terms that do
+not depend on either $F$ or $L$ omitted from this expression.
+
+In addition to gaining mathematical insights into this problem, we
+also look closely at the computational aspects, and use these
+investigations to help us design efficient algorithms for
+solving \label{eq:problem}.
+
+\section{Connection to topic modeling}
+
+\section{An EM algorithm}
 
 In this example we embed parts of the examples from the
 \texttt{kruskal.test} help page into a \LaTeX{} document:
