@@ -26,8 +26,6 @@
 #'   stationary point of the objective, particularly when the data are
 #'   sparse.
 #'
-#'   
-#'
 #'   This function is mainly for internal use, and should only
 #'   be called directly if you really know what you are doing. In
 #'   particular, only minimal argument checking is performed; if you are
@@ -44,12 +42,12 @@
 #'
 #' @param F This is the initial estimate of the factors (also called
 #'   "basis vectors"). It should be an m x k matrix, where m is the
-#'   number of columns of X, and k is the rank of the matrix
+#'   number of columns of X, and k > 1 is the rank of the matrix
 #'   factorization. All entries of F should be non-negative.
 #'
 #' @param L This is the initial estimate of the loadings (also called
 #'   "activations"). It should an n x k matrix, where n is the number of
-#'   rows of X, and k is the rank of the matrix factorization. All
+#'   rows of X, and k > 1 is the rank of the matrix factorization. All
 #'   entries of L should be non-negative.
 #'  
 #' @param numiter The number of multiplicative updates to run.
@@ -83,13 +81,21 @@
 #'
 betanmf <- function (X, F, L, numiter = 1000, e = 1e-15) {
 
+  # Get the number of rows (n) and columns (m) of data matrix, and get
+  # the rank of the matrix factorization (k).
+  n <- nrow(X)
+  m <- ncol(X)
+  k <- ncol(F)
+    
   # CHECK INPUTS
   # ------------
   # Perfom some very basic checks of the inputs.
   if (!(is.matrix(X) & is.matrix(F) & is.matrix(L)))
     stop("Input arguments \"X\", \"F\" and \"L\" should be matrices; ",
          "see help(matrix) for more information")
-
+  if (k < 2)
+    stop("Rank of non-negative matrix factorization should be 2 or greater")
+  
   # To prevent the multiplicative updates from getting "stuck", force
   # the initial estimates to be positive.
   F <- pmax(F,e)

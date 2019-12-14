@@ -14,12 +14,12 @@ otherwise an error will be thrown.}
 
 \item{F}{This is the initial estimate of the factors (also called
 "basis vectors"). It should be an m x k matrix, where m is the
-number of columns of X, and k is the rank of the matrix
+number of columns of X, and k > 1 is the rank of the matrix
 factorization. All entries of F should be non-negative.}
 
 \item{L}{This is the initial estimate of the loadings (also called
 "activations"). It should an n x k matrix, where n is the number of
-rows of X, and k is the rank of the matrix factorization. All
+rows of X, and k > 1 is the rank of the matrix factorization. All
 entries of L should be non-negative.}
 
 \item{numiter}{The number of multiplicative updates to run.}
@@ -47,8 +47,6 @@ The multiplicative updates are very simple and
   fast. However, they can also be very slow to converge to a
   stationary point of the objective, particularly when the data are
   sparse.
-
-  
 
   This function is mainly for internal use, and should only
   be called directly if you really know what you are doing. In
