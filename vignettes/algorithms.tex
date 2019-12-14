@@ -41,15 +41,24 @@ Note that we can only obtain a local minium.
 This optimization problem can be arrived at in several different
 ways. Perhaps the most straightforward and intuitive way is to start
 with a basic Poisson model of the count data, in which each Poisson
-rate $\lambda_{ij}$ is obtained as a simple linear combination of
-parameters:
+rate $\lambda_{ij}$ is obtained as a simple linear combination:
 \begin{align*}
 x_{ij}       &\sim \mathrm{Poisson}(\lambda_{ij}) \\
 \lambda_{ij} &=
+\label{eq:pnmf}
 \end{align*}
-The loss function to be minimized \eqref{eq:loss} is precisely the
-negative log-likelihood for this Poisson model, with terms that do not
-depend on either $F$ or $L$ omitted from this expression.
+where $\mathrm{Poisson}(\lambda)$ denotes the Poisson distribution with
+mean $\lambda$. In matrix notation, this gives $\Lambda = LF^T$, which
+makes clear that we are representing the Poisson rates as a
+non-negative matrix factorization. The loss function to be minimized
+\eqref{eq:loss} is precisely the negative log-likelihood of the
+Poisson model (with terms that do not depend on either $F$ or $L$
+omitted from this expression), so solving \eqref{eq:loss} is
+equivalent to computing maximum-likelihood estimates (MLE) of $F$ and
+$L$ in model \eqref{eq:pnmf} . Hence, it is now common to refer to
+this as ``Poisson non-negative matrix
+factorization.''\footnote{Mention the alternative derivation as a
+  generalized divergence.}
 
 In addition to gaining mathematical insights into this problem, we
 also look closely at the computational aspects, and use these
@@ -57,6 +66,12 @@ investigations to help us design efficient algorithms for
 solving \eqref{eq:loss}.
 
 \section{Connection to topic modeling}
+
+By optimizing \eqref{eq:loss} subject to the non-negativity
+constraints, we are also optimizing a topic model [refs]. Here we make
+this connection clear.
+
+{\em Give R code here implementing this transformation.}
 
 \section{An EM algorithm}
 
