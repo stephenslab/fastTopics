@@ -4,6 +4,8 @@ to do
 + Add test to verify that multiplicative updates (betanmf) and EM
   updates give the exact same result.
 
++ Implement calculation of objective (Poisson likelihood) in betanmf.
+
 + Modify datasim using Abhishek's scheme.
 
 + In simulate_poisson_data, add row and columm names to X, L and F.

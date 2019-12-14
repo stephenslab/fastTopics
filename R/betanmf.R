@@ -3,8 +3,6 @@
 #  + No convergence checks are performed.
 #  + Individual updates are very simple, and fast.
 #  + But can be very slow to converge, particularly when X is sparse.
-#  + Add rescaling step---explain why this is done (refer to Theorem 1
-#    from Gillis & Glineur 2012).
 #  + Add "safeguard" to prevent factors or loadings from ever being
 #    exactly zero---explain why this is done.
 #  + 'MUUP' which uses multiplicative updates (this is the approach
@@ -23,7 +21,14 @@
 #'   the multiplicative updates can also be derived, and hence
 #'   interpreted, as an expectation maximization (EM) algorithm.
 #'
-#' @details This function is mainly for internal use, and should only
+#' @details The multiplicative updates are very simple and
+#'   fast. However, they can also be very slow to converge to a
+#'   stationary point of the objective, particularly when the data are
+#'   sparse.
+#'
+#'   
+#'
+#'   This function is mainly for internal use, and should only
 #'   be called directly if you really know what you are doing. In
 #'   particular, only minimal argument checking is performed; if you are
 #'   not careful, you will get poor results are errors that are
@@ -85,15 +90,11 @@ betanmf <- function (X, F, L, numiter = 1000, e = 1e-15) {
     stop("Input arguments \"X\", \"F\" and \"L\" should be matrices; ",
          "see help(matrix) for more information")
 
-  # MAKE ALL ENTRIES POSITIVE
-  # -------------------------
   # To prevent the multiplicative updates from getting "stuck", force
   # the initial estimates to be positive.
   F <- pmax(F,e)
   L <- pmax(L,e)
   
-  # RESCALE INITIAL ESTIMATES
-  # -------------------------
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
   # numerical stability of the multiplicative updates.
@@ -101,29 +102,35 @@ betanmf <- function (X, F, L, numiter = 1000, e = 1e-15) {
   F   <- out$F
   L   <- out$L
 
+  # Now run the multiplicative updates, and output the updated
+  # estimates of the factors and loadings.
   out <- betanmf_helper(X,L,t(F),numiter,e)
   return(list(F = t(out$B),L = out$A))
 }
 
 # This implements the core part of the betanmf function.
 betanmf_helper <- function (X, A, B, numiter, e) {
-
   for (i in 1:numiter) {
-
-    # Update the loadings ("activations").
-    A <- scale.cols(A * ((X / (A %*% B)) %*% t(B)),1/rowSums(B))
-    A <- pmax(A,e)
-
-    # Update the factors ("basis vectors").
-    B <- B * (t(A) %*% (X / (A %*% B))) / colSums(A)
-    B <- pmax(B,e)
+    out <- betanmf_update(X,A,B,e)
+    A   <- out$A
+    B   <- out$B
   }
-
-  # Re-scale the final estimates of the factors and loadings so that
-  # they are on same scale on average.
-  r <- sqrt(mean(B)/mean(A))
-  A <- r*A
-  B <- B/r
-
   return(list(A = A,B = B))
+}
+
+# Perform a single multiplicative update with safeguarding to promote
+# convergence, followed by rescaling.
+betanmf_update <- function (X, A, B, e) {
+    
+  # Update the loadings ("activations").
+  A <- scale.cols(A * tcrossprod(X / (A %*% B),B),1/rowSums(B))
+  A <- pmax(A,e)
+
+  # Update the factors ("basis vectors").
+  B <- B * crossprod(A,X / (A %*% B)) / colSums(A)
+  B <- pmax(B,e)
+
+  # Rescale the factors and loadings.
+  out <- rescale.factors(t(B),A)
+  return(list(A = out$L,B = t(out$F)))
 }

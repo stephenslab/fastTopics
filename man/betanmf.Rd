@@ -18,17 +18,20 @@ number of columns of X, and k is the rank of the matrix
 factorization. All entries of F should be non-negative.}
 
 \item{L}{This is the initial estimate of the loadings (also called
-"activations"). It should an n x k matrix, where}
+"activations"). It should an n x k matrix, where n is the number of
+rows of X, and k is the rank of the matrix factorization. All
+entries of L should be non-negative.}
 
-\item{numiter}{The number of multiplicative updates to run. It
-should an n x k matrix, where n is the number of rows of X, and k
-is the rank of the matrix factorization. All entries of L should be
-non-negative.}
+\item{numiter}{The number of multiplicative updates to run.}
 
-\item{e}{Describe e here.}
+\item{e}{A small positive constant used to safeguard the
+multiplicative updates. The multiplicative updates are implemented
+as \code{F <- pmax(F1,e)} and \code{L <- pmax(L1,e)}, where
+\code{F1} and \code{L1} are the factors and loadings matrices
+obtained by applying a single multiplicative update rule.}
 }
 \value{
-Describe return value here.
+A list containing the updated matrices F and L.
 }
 \description{
 This function decomposes the input matrix X = L*F' by
@@ -40,7 +43,14 @@ This function decomposes the input matrix X = L*F' by
   interpreted, as an expectation maximization (EM) algorithm.
 }
 \details{
-This function is mainly for internal use, and should only
+The multiplicative updates are very simple and
+  fast. However, they can also be very slow to converge to a
+  stationary point of the objective, particularly when the data are
+  sparse.
+
+  
+
+  This function is mainly for internal use, and should only
   be called directly if you really know what you are doing. In
   particular, only minimal argument checking is performed; if you are
   not careful, you will get poor results are errors that are
