@@ -24,46 +24,86 @@
 
 \maketitle
 
-\section{Overview}
+\section{Introduction}
 
-This document details the development of efficient algorithms for
-minimizing 
+In this document, we study the problem of finding two non-negative
+matrices, $F$ and $L$, minimizing the following loss function:
 \begin{equation}
-\ell(L,F) = \ldots
+\ell(L,F) = 
+-\sum_{i=1}^n \sum_{j=1}^m x_{ij} \log \lambda_{ij} + 
+\sum_{i=1}^n \sum_{j=1}^m \lambda_{ij},
 \label{eq:loss}
 \end{equation}
-subject to all entries of the matrices $F$ and $L$ being
-non-negative. (In the discussion and derivations below, we assume $k
-\geq 2$---the special case of $k = 1$ is treated in Appendix X.)
+where $\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk}$, and $X$, $L$ and
+$F$ are matrices of dimension $n \times m$, $n \times K$ and $m \times
+K$, respectively, with non-negative entries $x_{ij}, l_{ik}, f_{jk}$.
+(In the discussion and derivations below, $K$ is assumed to be 2 or
+greater---the special case of $K = 1$, which has a relatively simple
+solution, is treated in Appendix \ref{sec:k=1}.) Since \eqref{eq:loss}
+is not convex when $K \geq 2$, we seek only to find a local minimum.
 
-Note that we can only obtain a local minium.
+There are several ways to motivate minimizing \eqref{eq:loss}. One
+motivation begins by modeling the counts $x_{ij}$ using the Poisson
+distribution,
+\begin{equation}
+x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}),
+\label{eq:poisson}
+\end{equation}
+where $\mathrm{Poisson}(\lambda)$ denotes the Poisson distribution
+with mean (and variance) $\lambda$. Next, by setting each of the
+Poisson rates to be a simple linear combination, $\lambda_{ij} =
+\sum_{k=1}^K l_{ik} f_{jk}$, the loss function \eqref{eq:loss} is
+recovered as the negative log-likelihood of this model (with terms
+that do not depend on either $F$ or $L$ omitted from the
+expression). From this point-of-view, solving \eqref{eq:loss} is
+equivalent to maximum-likelihood estimation (MLE) of $F$ and $L$ for
+the Poisson model \eqref{eq:poisson}, and, hence, it is sometimes called
+``Poisson non-negative matrix factorization.''
 
-This optimization problem can be arrived at in several different
-ways. Perhaps the most straightforward and intuitive way is to start
-with a basic Poisson model of the count data, in which each Poisson
-rate $\lambda_{ij}$ is obtained as a simple linear combination:
-\begin{align*}
-x_{ij}       &\sim \mathrm{Poisson}(\lambda_{ij}) \\
-\lambda_{ij} &=
-\label{eq:pnmf}
-\end{align*}
-where $\mathrm{Poisson}(\lambda)$ denotes the Poisson distribution with
-mean $\lambda$. In matrix notation, this gives $\Lambda = LF^T$, which
-makes clear that we are representing the Poisson rates as a
-non-negative matrix factorization. The loss function to be minimized
-\eqref{eq:loss} is precisely the negative log-likelihood of the
-Poisson model (with terms that do not depend on either $F$ or $L$
-omitted from this expression), so solving \eqref{eq:loss} is
-equivalent to computing maximum-likelihood estimates (MLE) of $F$ and
-$L$ in model \eqref{eq:pnmf} . Hence, it is now common to refer to
-this as ``Poisson non-negative matrix
-factorization.''\footnote{Mention the alternative derivation as a
-  generalized divergence.}
+A second point-of-view provides additional intuition behind
+\eqref{eq:loss}. This loss function can be also viewed as measuring
+how well the low-rank factorization $LF^T$ approximates $X$; that is,
+choices of $L$ and $F$ that achieve lower values of $\ell(L,F)$
+reconstruct $X$ more accurately. The precise quality measure that
+yields \eqref{eq:loss} is a Bregman divergence $D_{\phi}(X, LF^T)$
+\cite{bregman-1967} with $\phi(x) = \sum_t x_t \log x_t$ as the choice
+of generating convex function [refs]. To draw an analogy to other
+matrix factorization methods such as principal components analysis
+(PCA) or factor analysis \cite{engelhardt-stephens-2010}, we refer to
+$L$ as the ``loadings'' matrix, and $F$ the ``factors'' matrix. (In
+other papers, $L$ and $F$ are called the ``activations'' and ``basis
+vectors,'' respectively).
 
-In addition to gaining mathematical insights into this problem, we
-also look closely at the computational aspects, and use these
-investigations to help us design efficient algorithms for
-solving \eqref{eq:loss}.
+Minizing \eqref{eq:loss} can also be motivated in a third way by
+connecting it to fitting topic models [refs]---we elaborate on this
+connection in the next section (``Connection to topic modeling'').
+
+As you can probably gather by these three motivations, the problem of
+minizing \eqref{eq:loss} is already very well-studied (e.g.,
+[refs]). However, we have a particular focus on developing efficient
+algorithms for count data sets that are large and sparse---by {\em
+  sparse}, we mean that most of the counts $x_{ij}$ are zero. It
+turns out that existing algorithms do not seem to accommodate large,
+sparse data sets very well. Here we will look closely at the
+computational properties of this optimization problem, and use these
+investigations to help us design efficient algorithms for solving
+\eqref{eq:loss} in the setting of large, sparse data sets.
+
+To illustrate why this matters, consider computing the loss function
+\eqref{eq:loss}. This is easy to implement in R:
+\begin{Schunk}
+\begin{Sinput}
+> # Code goes here.
+\end{Sinput}
+\end{Schunk}
+
+Also explain the difficulty of this optimization problem, and why this
+motivates us to revisit algorithms for efficiently solving this
+problem.  Despite the fact that this problem is well-studied, it turns
+out, as we will see, that existing solutions are inadequate for large,
+sparse data sets.
+
+
 
 \section{Connection to topic modeling}
 
@@ -77,7 +117,7 @@ this connection clear.
 
 {\em Text goes here.}
 
-\section{A stopping criterion}
+\section{Evaluating convergence}
 
 {\em Text goes here.}
 
@@ -110,14 +150,23 @@ boxplot of the data, using
 \end{Sinput}
 \end{Schunk}
 \begin{center} 
-\includegraphics{algorithms-003}
+\includegraphics{algorithms-004}
 \end{center}
 
 Here is a citation: \cite{lee-2001}.
 
+\subsection*{Acknowledgments}
+
+Thanks to Youngseok Kim, Abhishek Sarkar, Jason Willwersheid, Zihao
+Wang, Kushal Dey, Kevin Luo, Joyce Hsiao, Anthony Hung, Matthew
+Stephens, and many other members of the Stephens lab, former and past,
+for their valuable input. Also acknowledge the Research Computing
+Center.
+
 \appendix
 
 \section{The special case of $k = 1$}
+\label{sec:k=1}
 
 {\em Text goes here.}
 

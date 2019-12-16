@@ -1,8 +1,8 @@
 to do
 =====
 
-+ Find way to number equations in Sweave vignette as 1, 2, 3,
-  ... rather than 1.1, 1.2, 1.3, ...
++ Complete implementation (including roxygen2 docs and tests) for
+  functions computing objective or "loss" functions.
 
 + Derive and code up solution for case when k = 1.
 
