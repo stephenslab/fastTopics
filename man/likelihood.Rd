@@ -17,7 +17,8 @@ cost(X, A, B, e = 1e-15, family = c("poisson", "multinom"), version)
 }
 \arguments{
 \item{X}{The n x m matrix of counts or pseudocounts. It can be a
-sparse matrix ("dgCMatrix" class) or dense matrix ("matrix" class).}
+sparse matrix (class \code{"dgCMatrix"}) or dense matrix (class
+\code{"matrix"}).}
 
 \item{fit}{A list containing two dense, non-negative matrices,
 \code{fit$F} and \code{fit$L}. The former is an m x k matrix of
@@ -46,37 +47,32 @@ implementation is used. The R version is typically faster when
  whether \code{X} is dense or sparse.}
 }
 \value{
-A numeric vector with one entry per row of \code{X}. When
-  \code{poisson = TRUE}, this vector contains the negative Poisson
-  log-likelihoods; when \code{poisson = FALSE}, this vector contains
-  the negative multinomial log-likelihoods.
+A numeric vector with one entry per row of \code{X}.
 }
 \description{
-Compute negative log-likelihoods for assessing
-  a topic model fit or quality of a non-negative matrix factorization,
-  in which matrix X is approximated by matrix product A * B.
+Compute log-likelihoods and deviances for assessing
+  topic model fit or quality of a non-negative matrix factorization,
+  in which matrix X is approximated by the low-rank matrix product
+  L*F'.
 
-  This function is mainly used internally to quickly compute
-  log-likelihoods for model fits and objective values, and should not
-  be used directly unless you know what you are doing. In particular,
-  very little argument checking is performed; if you use this
-  function, it is up to you to make sure you use it correctly.
+  Function \code{cost} is mainly used internally to quickly compute
+  log-likelihoods and deviances, and should not be used directly
+  unless you know what you are doing. In particular, very little
+  argument checking is performed.
 }
 \examples{
 
-# Generate a 10 x 20 counts matrix.
+# Generate a small counts matrix.
 set.seed(1)
 out <- simulate_count_data(10,20,3)
 X   <- out$X
 fit <- out[c("F","L")]
 
-# Compute the Poisson log-likelihood and deviance.
-cat("log-likelikelihood =",sum(loglik_poisson_topic_model(X,fit)),"\\n")
-cat("deviance =",sum(deviance_poisson_topic_model(X,fit)),"\\n")
+# Compute the Poisson log-likelihoods and deviances.
+data.frame(loglik   = loglik_poisson_topic_model(X,fit),
+           deviance = deviance_poisson_topic_model(X,fit))
 
-# Compute the multinomial log-likelihood.
-fit <- poisson2multinom(fit)
-cat("multinomial log-likelihood =",sum(loglik_multinom_topic_model(X,fit)),
-    "\\n")
+# Compute multinomial log-likelihoods.
+loglik_multinom_topic_model(X,poisson2multinom(fit))
 
 }
