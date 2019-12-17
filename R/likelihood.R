@@ -151,7 +151,7 @@ loglik_topic_model_helper <- function (X, fit,
   else if (output.type == "loglik.multinom")
     f <- loglik_multinom_const(X) - cost(X,L,t(F),e,"multinom")
   else if (output.type == "deviance.poisson")
-    f <- deviance_poisson_const(X) + cost(X,L,t(F),e,"poisson")
+    f <- deviance_poisson_const(X) + 2*cost(X,L,t(F),e,"poisson")
   return(f)
 }
 
