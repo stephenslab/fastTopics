@@ -2,7 +2,7 @@ to do
 =====
 
 + Complete implementation (including roxygen2 docs and tests) for
-  functions computing objective or "loss" functions.
+  functions computing liklihoods, "loss" functions and deviances.
 
 + Derive and code up solution for case when k = 1.
 
@@ -10,8 +10,6 @@ to do
   updates give the exact same result.
 
 + Implement calculation of objective (Poisson likelihood) in betanmf.
-
-+ Modify datasim using Abhishek's scheme.
 
 + In simulate_poisson_data, add row and columm names to X, L and F.
 
