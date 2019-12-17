@@ -4,95 +4,30 @@
 #' 
 #' @export
 #' 
-loglik_poisson_topic_model <- function (X, fit, e = 1e-15) {
-
-  # Verify and process input matrix X. 
-  verify.matrix(X)
-  if (is.matrix(X) & is.integer(X))
-    storage.mode(X) <- "double"
-  
-  # Input argument "fit" should be a list with elements "F" and "L".
-  verify.fit(fit)
-  F <- fit$F
-  L <- fit$L
-
-  # Verify and process input matrix F.
-  verify.matrix(fit$F)
-  if (!is.matrix(F))
-    F <- as.matrix(F)
-  if (is.integer(F))
-    storage.mode(F) <- "double"
-
-  # Verify and process input matrix L.
-  verify.matrix(fit$L)
-  if (!is.matrix(L))
-    L <- as.matrix(L)
-  if (is.integer(L))
-    storage.mode(L) <- "double"
-
-  # Check that matrices X, F and L are compatible.
-  if (!(nrow(L) == nrow(X) &
-        nrow(F) == ncol(X) &
-        ncol(L) == ncol(F)))
-    stop("Dimensions of input arguments \"X\", \"fit$F\" and/or \"fit$L\" ",
-         "do not agree")
-  
-  # Compute the log-likelihood for the Poisson topic model after
-  # removing terms that do not depend on L or F.
-  return(-cost(X,L,t(F),e,TRUE))
-}
+loglik_poisson_topic_model <- function (X, fit, e = 1e-15)
+  loglik_topic_model_helper(X,fit,"loglik.pois",e)
 
 #' @rdname likelihood
 #' 
 #' @export
 #' 
-loglik_multinom_topic_model <- function (X, fit, e = 1e-15) {
+loglik_multinom_topic_model <- function (X, fit, e = 1e-15)
+  loglik_topic_model_helper(X,fit,"loglik.multinom",e)
 
-  # Verify and process input matrix X.
-  verify.matrix(X)
-  if (is.matrix(X) & is.integer(X))
-    storage.mode(X) <- "double"
-  
-  # Input argument "fit" should be a list with elements "F" and "L".
-  verify.fit(fit)
-  F <- fit$F
-  L <- fit$L
-
-  # Verify and process input matrix F.
-  verify.matrix(fit$F)
-  eps <- 2*.Machine$double.eps
-  if (any((colSums(F) - 1) > eps))
-    stop("Each column of input matrix \"fit$F\" should sum to 1")
-  if (!is.matrix(F))
-    F <- as.matrix(F)
-  if (is.integer(F))
-    storage.mode(F) <- "double"
-
-  # Verify and process input matrix L.
-  verify.matrix(fit$L)
-  if (any((rowSums(L) - 1) > eps))
-    stop("Each row of input matrix \"fit$L\" should sum to 1")
-  if (!is.matrix(L))
-    L <- as.matrix(L)
-  if (is.integer(L))
-    storage.mode(L) <- "double"
-
-  # Check that matrices X, F and L are compatible.
-  if (!(nrow(L) == nrow(X) &
-        nrow(F) == ncol(X) &
-        ncol(L) == ncol(F)))
-    stop(paste("Dimensions of input arguments \"X\", \"fit$F\" and/or",
-               "\"fit$L\ do not agree"))
-  
-  # Compute the log-likelihood for the multinomial topic model after
-  # removing terms that do not depend on L or F.
-  return(-cost(X,L,t(F),e,FALSE))
+#' @rdname likelihood
+#' 
+#' @export
+#' 
+deviance_poisson_topic_model <- function (X, fit, e = 1e-15) {
+  # TO DO.
 }
 
-#' @title Cost Function for Non-negative Matrix Factorization and
+#' @rdname likelihood
+#' 
+#' @description Loss Function for Non-negative Matrix Factorization and
 #'   Topic Modeling
 #'
-#' @description Compute negative log-likelihoods for assessing
+#' Compute negative log-likelihoods for assessing
 #'   a topic model fit or quality of a non-negative matrix factorization,
 #'   in which matrix X is approximated by matrix product A * B.
 #'
@@ -118,7 +53,7 @@ loglik_multinom_topic_model <- function (X, fit, e = 1e-15) {
 #'   numerical problems at the cost of introducing a very small
 #'   inaccuracy in the computation.
 #'
-#' @param model If \code{model = "poisson"}, Poisson log-likelihoods
+#' @param family If \code{model = "poisson"}, Poisson log-likelihoods
 #'   are returned; if \code{model = "multinom"}, multinomial
 #'   log-likelihoods are returned. See "Value" for details.
 #'
@@ -129,14 +64,14 @@ loglik_multinom_topic_model <- function (X, fit, e = 1e-15) {
 #' 
 #' @param version If \code{version == "R"}, the computations are
 #'   performed entirely in R; if \code{version == "Rcpp"}, an Rcpp
-#'   implementation is used.  The R version is typically faster, but the
-#'   Rcpp version makes much more efficient use of memory for large,
-#'   sparse matrices.
+#'   implementation is used. The R version is typically faster when
+#'   \code{X} is a dense matrix, whereas the Rcpp version is faster and
+#'   more memory-efficient when \code{X} is a large, sparse matrices.
 #'
-#' @return A numeric vector with one entry per row of X. When
-#' \code{poisson = TRUE}, this vector contains the negative Poisson
-#' log-likelihoods; when \code{poisson = FALSE}, this vector contains
-#' the negative multinomial log-likelihoods.
+#' @return A numeric vector with one entry per row of \code{X}. When
+#'   \code{poisson = TRUE}, this vector contains the negative Poisson
+#'   log-likelihoods; when \code{poisson = FALSE}, this vector contains
+#'   the negative multinomial log-likelihoods.
 #'
 #' @seealso 
 #'
@@ -144,11 +79,11 @@ loglik_multinom_topic_model <- function (X, fit, e = 1e-15) {
 #'
 #' @keywords internal
 #' 
-cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
-                  const = 0, version) {
+cost <- function (X, A, B, e = 1e-15, family = c("poisson","multinom"),
+                  const, version) {
 
   # Check and process "model" and "version" input arguments.
-  model   <- match.arg(model)
+  family  <- match.arg(family)
   poisson <- model == "poisson"
   if (missing(version)) {
     if (is.matrix(X))
@@ -157,10 +92,10 @@ cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
       version <- "Rcpp"
   }
 
-  # When necessary, compute the terms in the log-likelihoods that do
-  # not depend on A or B.
+  # When not provided, compute the terms in the log-likelihoods that
+  # do not depend on A or B.
   if (missing(const)) {
-    if (model == "poisson")
+    if (poisson)
       const <- loglik_poisson_const(X)
     else
       const <- loglik_multinom_const(X)
@@ -170,11 +105,72 @@ cost <- function (X, A, B, e = 1e-15, model = c("poisson", "multinom"),
   if (version == "R") {
     AB <- A %*% B
     f  <- rowSums(poisson*AB - X*log(AB + e))
-  } else if (is.matrix(X))
-    f <- drop(cost_rcpp(X,A,B,e,poisson))
-  else
-    f <- drop(cost_sparse_rcpp(X,A,B,e,poisson))
+  } else if (version == "Rcpp") {
+    if (is.matrix(X))
+      f <- drop(cost_rcpp(X,A,B,e,poisson))
+    else
+      f <- drop(cost_sparse_rcpp(X,A,B,e,poisson))
+  }
   return(f + const)
+}
+
+# This function provides the core implementation for the
+# loglik_poisson_topic_model, loglik_multinom_topic_model and
+# deviance_poisson_topic_model functions.
+loglik_topic_model_helper <-
+  function (X, fit,
+            output.type = c("loglik.pois","loglik.mult","dev.pois"), e) {
+
+  # Verify and process input "output.type".
+  output.type <- match.arg(output.type)
+      
+  # Verify and process input matrix X. 
+  verify.matrix(X)
+  if (is.matrix(X) & is.integer(X))
+    storage.mode(X) <- "double"
+  
+  # Input argument "fit" should be a list with elements "F" and "L".
+  verify.fit(fit)
+  F <- fit$F
+  L <- fit$L
+
+  # Verify and process input matrix F.
+  verify.matrix(fit$F)
+  if (!is.matrix(F))
+    F <- as.matrix(F)
+  if (is.integer(F))
+    storage.mode(F) <- "double"
+  if (output.type == "loglik.mult")
+    F <- normalize.cols(F)
+  
+  # Verify and process input matrix L.
+  verify.matrix(fit$L)
+  if (!is.matrix(L))
+    L <- as.matrix(L)
+  if (is.integer(L))
+    storage.mode(L) <- "double"
+  if (output.type == "loglik.mult")
+    L <- normalize.cols(L)
+
+  # Verify and process input matrix L.
+  if (any((rowSums(L) - 1) > eps))
+    stop("Each row of input matrix \"fit$L\" should sum to 1")
+  
+  # Check that matrices X, F and L are compatible.
+  if (!(nrow(L) == nrow(X) &
+        nrow(F) == ncol(X) &
+        ncol(L) == ncol(F)))
+    stop("Dimensions of input arguments \"X\", \"fit$F\" and/or \"fit$L\" ",
+         "do not agree")
+  
+  # Compute the log-likelihood or deviance for the topic model.
+  if (output.type == "loglik.pois")
+    return(-cost(X,L,t(F),e,TRUE))
+  else if (output.type == "loglik.mult")
+    return(-cost(X,L,t(F),e,FALSE))
+  else if (output.type == "dev.pois") {
+    # TO DO.
+  }
 }
 
 # Compute the constant terms in the Poisson log-likelihoods. This is
@@ -192,3 +188,4 @@ loglik_poisson_const <- function (X) {
 # pre-compute these constants.
 loglik_multinom_const <- function (X)
   loglik_poisson_const(X) - lgamma(rowSums(X) + 1)
+

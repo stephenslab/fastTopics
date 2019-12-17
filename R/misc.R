@@ -45,6 +45,14 @@ scale.cols <- function (A, b) {
   return(t(t(A) * b))
 }
 
+# Scale each row of A so that the entries of each row sum to 1.
+normalize.rows <- function (A)
+  A / rowSums(A)
+
+# Scale each column of A so that the entries of each column sum to 1.
+normalize.cols <- function (A)
+  t(t(A) / colSums(A))
+
 # Rescale the factors (F) and loadings (F) with the property that the
 # matrix reconstruction L*F' remains the same after rescaling;
 # specifically, rescale the columns of F and L so that, for each k,

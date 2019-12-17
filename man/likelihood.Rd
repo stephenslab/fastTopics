@@ -3,12 +3,72 @@
 \name{loglik_poisson_topic_model}
 \alias{loglik_poisson_topic_model}
 \alias{loglik_multinom_topic_model}
+\alias{deviance_poisson_topic_model}
+\alias{cost}
 \title{Compute Topic Model Likelihoods}
 \usage{
 loglik_poisson_topic_model(X, fit, e = 1e-15)
 
 loglik_multinom_topic_model(X, fit, e = 1e-15)
+
+deviance_poisson_topic_model(X, fit, e = 1e-15)
+
+cost(X, A, B, e = 1e-15, family = c("poisson", "multinom"), const,
+  version)
+}
+\arguments{
+\item{X}{The n x m matrix of counts or pseudocounts. It can be a
+sparse matrix ("dgCMatrix" class) or dense matrix ("matrix" class).}
+
+\item{e}{A small, non-negative number added to the terms inside the
+logarithms to avoid computing logarithms of zero. This prevents
+numerical problems at the cost of introducing a very small
+inaccuracy in the computation.}
+
+\item{A}{The n x k matrix of loadings (also called "activations"),
+where k is typically much smaller than n and m. A should be a
+dense matrix; that is, \code{is.matrix(A)} should be \code{TRUE}.}
+
+\item{B}{The k x m matrix of factors (also called "basis vectors").
+It should be a dense matrix; that is, \code{is.matrix(B)} should be
+\code{TRUE}.}
+
+\item{family}{If \code{model = "poisson"}, Poisson log-likelihoods
+are returned; if \code{model = "multinom"}, multinomial
+log-likelihoods are returned. See "Value" for details.}
+
+\item{const}{To avoid re-calculating terms in the log-likelihood
+that do not depend on either A or B, one may provide a value for
+this argument. Typically this argument is not provided, in which
+case the constant terms are calculated internally.}
+
+\item{version}{If \code{version == "R"}, the computations are
+performed entirely in R; if \code{version == "Rcpp"}, an Rcpp
+implementation is used. The R version is typically faster when
+\code{X} is a dense matrix, whereas the Rcpp version is faster and
+more memory-efficient when \code{X} is a large, sparse matrices.}
+}
+\value{
+A numeric vector with one entry per row of \code{X}. When
+  \code{poisson = TRUE}, this vector contains the negative Poisson
+  log-likelihoods; when \code{poisson = FALSE}, this vector contains
+  the negative multinomial log-likelihoods.
 }
 \description{
-Compute Topic Model Likelihoods
+Loss Function for Non-negative Matrix Factorization and
+  Topic Modeling
+
+Compute negative log-likelihoods for assessing
+  a topic model fit or quality of a non-negative matrix factorization,
+  in which matrix X is approximated by matrix product A * B.
+
+  This function is mainly used internally to quickly compute
+  log-likelihoods for model fits and objective values, and should not
+  be used directly unless you know what you are doing. In particular,
+  very little argument checking is performed; if you use this
+  function, it is up to you to make sure you use it correctly.
 }
+\seealso{
+
+}
+\keyword{internal}
