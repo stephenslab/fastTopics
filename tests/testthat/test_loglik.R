@@ -1,76 +1,71 @@
 context("loglik")
 
-test_that(paste("loglik.multinom gives correct value for sparse matrix",
-                "and for dense matrix"),{
+test_that(paste("R and Rcpp versions of cost function return same result",
+                "for sparse and dense matrix"),{
+
+  # Generate a data set.
   library(Matrix)
   set.seed(1)
-  e   <- 1e-15
-  A   <- matrix(runif(20),4,5) > 0.5
-  X   <- matrix(0:19,4,5) * A
-  fit <- list(F = matrix(0:9,5,2),
-              L = matrix(0:7,4,2))
-  fit <- poisson2multinom(fit)
+  out <- simulate_count_data(10,8,3)
+  X   <- out$X
+  F   <- out$F
+  L   <- out$L
+  Y   <- as(X,"dgCMatrix")
+
+  # Compute the loss function.
+  f1 <- cost(X,L,t(F),e,version = "R")
+  f2 <- cost(X,L,t(F),e,version = "Rcpp")
+  f3 <- cost(Y,L,t(F),e,version = "R")
+  f4 <- cost(Y,L,t(F),e,version = "Rcpp")
+  
+  # The cost function calculations should all give the same result.
+  expect_equal(f1,f2)
+  expect_equal(f1,f3)
+  expect_equal(f1,f4)
+})
+
+test_that(paste("loglik_poisson_topic_model gives correct result for",
+                "sparse and dense matrix"),{
+
+  # Generate a data set.
+  library(Matrix)
+  set.seed(1)
+  out <- simulate_count_data(10,8,3)
+  X   <- out$X
+  fit <- out[c("F","L")]
   Y   <- with(fit,tcrossprod(L,F))
-  f1  <- sum(X*log(Y + e))
-  f2  <- loglik.multinom(X,fit,e)
-  f3  <- loglik.multinom(as(X,"dgCMatrix"),fit,e)
+
+  # Compute the log-likelikhood.
+  f1 <- rowSums(dpois(X,Y,log = TRUE))
+  f2 <- loglik_poisson_topic_model(X,fit)
+  f3 <- loglik_poisson_topic_model(as(X,"dgCMatrix"),fit)
+  names(f1) <- rownames(X)
+
+  # The likelihood calculations should all be the same.
   expect_equal(f1,f2)
   expect_equal(f1,f3)
 })
 
-test_that("loglik.poisson gives correct value",{
-  e   <- 1e-15
-  X   <- matrix(0:19,4,5)
-  F   <- matrix(0:9,5,2)
-  L   <- matrix(0:7,4,2)
-  fit <- list(F = F,L = L)
-  Y   <- tcrossprod(L,F)
-  f1  <- sum(X*log(Y + e) - Y)
-  f2  <- loglik.poisson(X,fit,e)
-  expect_equal(f1,f2)
-})
+test_that(paste("loglik_multinom_topic_model gives correct result for",
+                "sparse and dense matrix"),{
 
-test_that("loglik.poisson gives same result for sparse and dense matrix",{
+  # Generate a data set.
   library(Matrix)
   set.seed(1)
-  A   <- matrix(runif(20),4,5) > 0.5
-  X   <- matrix(0:19,4,5) * A
-  Y   <- as(X,"dgCMatrix")
-  fit <- list(F = matrix(0:9,5,2),
-              L = matrix(0:7,4,2))
-  f1 <- loglik.poisson(X,fit)
-  f2 <- loglik.poisson(Y,fit)
-  expect_equal(f1,f2)
-})
+  out <- simulate_count_data(10,8,3)
+  X   <- out$X
+  fit <- poisson2multinom(out[c("F","L")])
+  Y   <- with(fit,tcrossprod(L,F))
 
-test_that("loglik.poisson gives same result for sparse and dense matrix",{
-  library(Matrix)
-  set.seed(1)
-  A   <- matrix(runif(20),4,5) > 0.5
-  X   <- matrix(0:19,4,5) * A
-  Y   <- as(X,"dgCMatrix")
-  fit <- list(F = matrix(0:9,5,2),
-              L = matrix(0:7,4,2))
-  fit <- poisson2multinom(fit)
-  f1  <- loglik.multinom(X,fit)
-  f2  <- loglik.multinom(Y,fit)
-  expect_equal(f1,f2)
-})
+  # Compute the log-likelikhood.
+  f1        <- rep(0,10)
+  names(f1) <- rownames(X)
+  for (i in 1:10)
+    f1[i] <- dmultinom(X[i,],prob = Y[i,],log = TRUE)
+  f2 <- loglik_multinom_topic_model(X,fit)
+  f3 <- loglik_multinom_topic_model(as(X,"dgCMatrix"),fit)
 
-test_that("R and Rcpp versions of cost function return same result",{
-  set.seed(1)
-  e  <- 1e-8
-  A  <- matrix(runif(20),4,5) > 0.5
-  X  <- matrix(0:19,4,5) * A
-  F  <- matrix(0:9,5,2)
-  L  <- matrix(0:7,4,2)
-  f1 <- cost(X,L,t(F),e,version = "R")
-  f2 <- cost(X,L,t(F),e,version = "Rcpp")
+  # The likelihood calculations should all be the same.
   expect_equal(f1,f2)
-
-  # Next, check the calculations when X is sparse.
-  X  <- as(X,"dgCMatrix")
-  f1 <- cost(X,L,t(F),e,version = "R")
-  f2 <- cost(X,L,t(F),e,version = "Rcpp")
-  expect_equal(f1,f2)
+  expect_equal(f1,f3)
 })

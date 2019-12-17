@@ -1,4 +1,8 @@
-#' @rdname altsqp
+#' @title Add title here.
+#'
+#' @description Add description here.
+#'
+#' @param fit Add description of "fit" here.
 #' 
 #' @export
 #' 

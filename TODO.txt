@@ -1,6 +1,8 @@
 to do
 =====
 
++ Fill out roxygen2 docs for poisson2multinom.
+
 + Complete implementation (including roxygen2 docs and tests) for
   functions computing liklihoods, "loss" functions and deviances.
 

@@ -96,6 +96,7 @@ cost <- function (X, A, B, e = 1e-15, family = c("poisson","multinom"),
     else
       f <- drop(cost_sparse_rcpp(X,A,B,e,poisson))
   }
+  names(f) <- rownames(X)
   return(f)
 }
 
@@ -146,11 +147,12 @@ loglik_topic_model_helper <- function (X, fit,
   
   # Compute the log-likelihood or deviance for the topic model.
   if (output.type == "loglik.poisson")
-    return(loglik_poisson_const(X) - cost(X,L,t(F),e,"poisson"))
+    f <- loglik_poisson_const(X) - cost(X,L,t(F),e,"poisson")
   else if (output.type == "loglik.multinom")
-    return(loglik_multinom_const(X) - cost(X,L,t(F),e,"multinom"))
+    f <- loglik_multinom_const(X) - cost(X,L,t(F),e,"multinom")
   else if (output.type == "deviance.poisson")
-    return(deviance_poisson_const(X) + cost(X,L,t(F),e,"poisson"))
+    f <- deviance_poisson_const(X) + cost(X,L,t(F),e,"poisson")
+  return(f)
 }
 
 # Compute the constant terms in the Poisson log-likelihoods.
