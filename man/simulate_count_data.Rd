@@ -4,12 +4,17 @@
 \alias{simulate_count_data}
 \title{Simulate count data}
 \usage{
-simulate_count_data(n, m, fmax = 1, lmax = 1, sparse = FALSE)
+simulate_count_data(n, m, k, fmax = 1, lmax = 1, sparse = FALSE)
 }
 \arguments{
-\item{n}{Number of rows in simulated count matrix.}
+\item{n}{Number of rows in simulated count matrix. The number of
+rows should be at least 2.}
 
-\item{m}{Number of columns in simulated count matrix.}
+\item{m}{Number of columns in simulated count matrix. The number of
+columns should be at least 2.}
+
+\item{k}{Number of factors used to determine Poisson rates. The
+number of factors should be 1 or more.}
 
 \item{fmax}{Factors are drawn uniformly at random between 0 and
 \code{fmax}.}
@@ -20,22 +25,23 @@ simulate_count_data(n, m, fmax = 1, lmax = 1, sparse = FALSE)
 \item{sparse}{If \code{sparse = TRUE}, convert the counts matrix to
 a sparse matrix in compressed, column-oriented format; see
 \code{\link[Matrix]{sparseMatrix}}.}
-
-\item{k}{Number of factors used to determine Poisson rates.}
 }
 \value{
-
+The return value is a list containing the data matrix
+  \code{X} and the factorization, \code{F} and \code{L}, used to
+  determine the Poisson rates.
 }
 \description{
-Simulate an n x m matrix X such that X[i,j] is Poisson
-with rate (mean) Y[i,j], such that Y = tcrossprod(L,F), L is an n x
-k matrix, and F is an m x k matrix. The entries of matrix L are
-drawn uniformly at random between 0 and lmax, and the entries of
-matrix F are drawn uniformly at random between 0 and fmax. The
-return value is a list containing the data matrix X, and the
-factors used to simulate the data, L and F. This function is mainly
-used internally to simulate small data sets for testing the package
-functions.
+Simulate a counts matrix \code{X} such that
+  \code{X[i,j]} is Poisson with rate (mean) \code{Y[i,j]}, where
+  \code{Y = tcrossprod(L,F)}, \code{L} is an n x k loadings
+  ("activations") matrix, and \code{F} is an m x k factors ("basis
+  vectors") matrix. The entries of matrix \code{L} are drawn
+  uniformly at random between 0 and \code{lmax}, and the entries of
+  matrix \code{F} are drawn uniformly at random between 0 and
+  \code{fmax}.
 
-Only minimal argument checking.
+  Note that only minimal argument checking is performed. This
+  function is mainly used to simulate small data sets for the examples
+  and package tests.
 }
