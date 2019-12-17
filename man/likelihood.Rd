@@ -13,8 +13,7 @@ loglik_multinom_topic_model(X, fit, e = 1e-15)
 
 deviance_poisson_topic_model(X, fit, e = 1e-15)
 
-cost(X, A, B, e = 1e-15, family = c("poisson", "multinom"), const,
-  version)
+cost(X, A, B, e = 1e-15, family = c("poisson", "multinom"), version)
 }
 \arguments{
 \item{X}{The n x m matrix of counts or pseudocounts. It can be a
@@ -36,11 +35,6 @@ It should be a dense matrix; that is, \code{is.matrix(B)} should be
 \item{family}{If \code{model = "poisson"}, Poisson log-likelihoods
 are returned; if \code{model = "multinom"}, multinomial
 log-likelihoods are returned. See "Value" for details.}
-
-\item{const}{To avoid re-calculating terms in the log-likelihood
-that do not depend on either A or B, one may provide a value for
-this argument. Typically this argument is not provided, in which
-case the constant terms are calculated internally.}
 
 \item{version}{If \code{version == "R"}, the computations are
 performed entirely in R; if \code{version == "Rcpp"}, an Rcpp
