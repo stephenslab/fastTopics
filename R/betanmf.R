@@ -11,7 +11,7 @@
 #     image space reconstruction algorithm suitable for volume ECT. IEEE 
 #     Trans. Med. Imaging, 5.
 # 
-#' @title Multiplicative update rules for non-negative matrix factorization
+#' @title Multiplicative Update Rules for Non-negative Matrix Factorization
 #'
 #' @description This function decomposes the input matrix X = L*F' by
 #'   nonnegative matrix factorization (NMF) based on the "divergence"

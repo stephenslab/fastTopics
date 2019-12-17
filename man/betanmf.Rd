@@ -2,7 +2,7 @@
 % Please edit documentation in R/betanmf.R
 \name{betanmf}
 \alias{betanmf}
-\title{Multiplicative update rules for non-negative matrix factorization}
+\title{Multiplicative Update Rules for Non-negative Matrix Factorization}
 \usage{
 betanmf(X, F, L, numiter = 1000, e = 1e-15)
 }

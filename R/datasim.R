@@ -1,4 +1,4 @@
-#' @title Simulate count data
+#' @title Simulate Count Data
 #'
 #' @description Simulate a counts matrix \code{X} such that
 #'   \code{X[i,j]} is Poisson with rate (mean) \code{Y[i,j]}, where

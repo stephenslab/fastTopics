@@ -2,7 +2,7 @@
 % Please edit documentation in R/datasim.R
 \name{simulate_count_data}
 \alias{simulate_count_data}
-\title{Simulate count data}
+\title{Simulate Count Data}
 \usage{
 simulate_count_data(n, m, k, fmax = 1, lmax = 1, sparse = FALSE)
 }

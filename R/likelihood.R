@@ -1,6 +1,67 @@
 #' @rdname likelihood
 #'
-#' @title Compute Topic Model Likelihoods 
+#' @title Topic Model Likelihoods and Deviances
+#'
+#' @description Compute negative log-likelihoods for assessing
+#'   a topic model fit or quality of a non-negative matrix factorization,
+#'   in which matrix X is approximated by matrix product A * B.
+#'
+#'   This function is mainly used internally to quickly compute
+#'   log-likelihoods for model fits and objective values, and should not
+#'   be used directly unless you know what you are doing. In particular,
+#'   very little argument checking is performed; if you use this
+#'   function, it is up to you to make sure you use it correctly.
+#'
+#' @param X The n x m matrix of counts or pseudocounts. It can be a
+#'   sparse matrix ("dgCMatrix" class) or dense matrix ("matrix" class).
+#'
+#' @param fit A list containing two dense, non-negative matrices,
+#'   \code{fit$F} and \code{fit$L}. The former is an m x k matrix of
+#'   factors, and the latter is an n x k matrix of loadings.
+#'
+#' @param A The n x k matrix of loadings. It should be a dense matrix.
+#'
+#' @param B The k x m matrix of factors. It should be a dense matrix.
+#'
+#' @param e A small, non-negative number added to the terms inside the
+#'   logarithms to avoid computing logarithms of zero. This prevents
+#'   numerical problems at the cost of introducing a very small
+#'   inaccuracy in the computation.
+#'
+#' @param family If \code{model = "poisson"}, the loss function
+#'   corresponding ot the Poisson topic model is computed; if
+#'   \code{model = "multinom"}, multinomial loss function values are
+#'   returned. See "Value" for details.
+#'
+#' @param version When \code{version == "R"}, the computations are
+#'   performed entirely in R; when \code{version == "Rcpp"}, an Rcpp
+#'  implementation is used. The R version is typically faster when
+#'   \code{X} is a dense matrix, whereas the Rcpp version is faster and
+#'   more memory-efficient when \code{X} is a large, sparse matrix. When
+#'   not specified, the most suitable version is called depending on
+#'   whether \code{X} is dense or sparse.
+#'
+#' @return A numeric vector with one entry per row of \code{X}. When
+#'   \code{poisson = TRUE}, this vector contains the negative Poisson
+#'   log-likelihoods; when \code{poisson = FALSE}, this vector contains
+#'   the negative multinomial log-likelihoods.
+#'
+#' @examples
+#'
+#' # Generate a 10 x 20 counts matrix.
+#' set.seed(1)
+#' out <- simulate_count_data(10,20,3)
+#' X   <- out$X
+#' fit <- out[c("F","L")]
+#' 
+#' # Compute the Poisson log-likelihood and deviance.
+#' cat("log-likelikelihood =",sum(loglik_poisson_topic_model(X,fit)),"\n")
+#' cat("deviance =",sum(deviance_poisson_topic_model(X,fit)),"\n")
+#' 
+#' # Compute the multinomial log-likelihood.
+#' fit <- poisson2multinom(fit)
+#' cat("multinomial log-likelihood =",sum(loglik_multinom_topic_model(X,fit)),
+#'     "\n")
 #' 
 #' @export
 #' 
@@ -23,56 +84,8 @@ deviance_poisson_topic_model <- function (X, fit, e = 1e-15)
 
 #' @rdname likelihood
 #' 
-#' @description Loss Function for Non-negative Matrix Factorization and
-#'   Topic Modeling
-#'
-#' Compute negative log-likelihoods for assessing
-#'   a topic model fit or quality of a non-negative matrix factorization,
-#'   in which matrix X is approximated by matrix product A * B.
-#'
-#'   This function is mainly used internally to quickly compute
-#'   log-likelihoods for model fits and objective values, and should not
-#'   be used directly unless you know what you are doing. In particular,
-#'   very little argument checking is performed; if you use this
-#'   function, it is up to you to make sure you use it correctly.
-#'
-#' @param X The n x m matrix of counts or pseudocounts. It can be a
-#'   sparse matrix ("dgCMatrix" class) or dense matrix ("matrix" class).
-#'
-#' @param A The n x k matrix of loadings (also called "activations"),
-#'   where k is typically much smaller than n and m. A should be a
-#'   dense matrix; that is, \code{is.matrix(A)} should be \code{TRUE}.
-#'
-#' @param B The k x m matrix of factors (also called "basis vectors").
-#'   It should be a dense matrix; that is, \code{is.matrix(B)} should be
-#'   \code{TRUE}.
-#'
-#' @param e A small, non-negative number added to the terms inside the
-#'   logarithms to avoid computing logarithms of zero. This prevents
-#'   numerical problems at the cost of introducing a very small
-#'   inaccuracy in the computation.
-#'
-#' @param family If \code{model = "poisson"}, Poisson log-likelihoods
-#'   are returned; if \code{model = "multinom"}, multinomial
-#'   log-likelihoods are returned. See "Value" for details.
-#'
-#' @param version If \code{version == "R"}, the computations are
-#'   performed entirely in R; if \code{version == "Rcpp"}, an Rcpp
-#'   implementation is used. The R version is typically faster when
-#'   \code{X} is a dense matrix, whereas the Rcpp version is faster and
-#'   more memory-efficient when \code{X} is a large, sparse matrices.
-#'
-#' @return A numeric vector with one entry per row of \code{X}. When
-#'   \code{poisson = TRUE}, this vector contains the negative Poisson
-#'   log-likelihoods; when \code{poisson = FALSE}, this vector contains
-#'   the negative multinomial log-likelihoods.
-#'
-#' @seealso 
-#'
 #' @export
 #'
-#' @keywords internal
-#' 
 cost <- function (X, A, B, e = 1e-15, family = c("poisson","multinom"),
                   version) {
 
