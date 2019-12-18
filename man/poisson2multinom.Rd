@@ -11,7 +11,7 @@ poisson2multinom(fit)
 \code{fit$F} and \code{fit$L}. The former is an m x k matrix of
 factors, and the latter is an n x k matrix of loadings. It does not
 make sense for a multinomial topic model to have less than two
-topics, so an error will be thrown when k < 2.}
+topics, so an error will be reported when k < 2.}
 }
 \value{
 The return value is the list \code{fit}, in which

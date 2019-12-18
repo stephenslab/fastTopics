@@ -52,7 +52,7 @@ A numeric vector with one entry per row of \code{X}.
 \description{
 Compute log-likelihoods and deviances for assessing
   topic model fit or quality of a non-negative matrix factorization,
-  in which matrix X is approximated by the low-rank matrix product
+  in which counts matrix X is modeled by the low-rank matrix product
   L*F'.
 
   Function \code{cost} is mainly used internally to quickly compute

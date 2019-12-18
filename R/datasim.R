@@ -19,8 +19,8 @@
 #' @param m Number of columns in simulated count matrix. The number of
 #'   columns should be at least 2.
 #'
-#' @param k Number of factors used to determine Poisson rates. The
-#'   number of factors should be 1 or more.
+#' @param k Number of factors, or "topics", used to determine Poisson
+#'   rates. The number of topics should be 1 or more.
 #'
 #' @param fmax Factors are drawn uniformly at random between 0 and
 #'   \code{fmax}.

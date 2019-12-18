@@ -13,8 +13,8 @@ rows should be at least 2.}
 \item{m}{Number of columns in simulated count matrix. The number of
 columns should be at least 2.}
 
-\item{k}{Number of factors used to determine Poisson rates. The
-number of factors should be 1 or more.}
+\item{k}{Number of factors, or "topics", used to determine Poisson
+rates. The number of topics should be 1 or more.}
 
 \item{fmax}{Factors are drawn uniformly at random between 0 and
 \code{fmax}.}

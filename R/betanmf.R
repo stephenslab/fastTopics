@@ -41,9 +41,10 @@
 #'   otherwise an error will be thrown.
 #'
 #' @param F0 This is the initial estimate of the factors (also called
-#'   "basis vectors"). It should be an m x k matrix, where m is the
+#'  "basis vectors"). It should be an m x k matrix, where m is the
 #'   number of columns of X, and k > 1 is the rank of the matrix
-#'   factorization. All entries of F should be non-negative.
+#'   factorization, or the number of topics. All entries of F should be
+#'   non-negative.
 #'
 #' @param L0 This is the initial estimate of the loadings (also called
 #'   "activations"). It should an n x k matrix, where n is the number of
