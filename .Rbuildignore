@@ -10,3 +10,5 @@
 ^algorithms\.thm$
 ^algorithms\.pdf$
 ^algorithms*\.pdf$
+^_pkgdown\.yml$
+^pkgdown$
