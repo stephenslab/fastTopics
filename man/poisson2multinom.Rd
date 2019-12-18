@@ -2,13 +2,25 @@
 % Please edit documentation in R/poisson2multinom.R
 \name{poisson2multinom}
 \alias{poisson2multinom}
-\title{Add title here.}
+\title{Get Multinomial Topic Model from Poisson Topic Model}
 \usage{
 poisson2multinom(fit)
 }
 \arguments{
-\item{fit}{Add description of "fit" here.}
+\item{fit}{A list containing two dense, non-negative matrices,
+\code{fit$F} and \code{fit$L}. The former is an m x k matrix of
+factors, and the latter is an n x k matrix of loadings.}
+}
+\value{
+The return value is the list \code{fit}, in which
+  \code{fit$F} and \code{fit$L} are the parameters of the multinomial
+  topic model; specifically, \code{fit$L[i,]} gives the topic
+  probabilities for sample or document i, and \code{fit$F[,k]} gives
+  the term probabilities for topic k. An additional vector
+  \code{fit$s} of length n is returned giving the document "sizes".
 }
 \description{
-Add description here.
+This function recovers parameter estimates of the
+  multinomial topic model given parameter estimates of the Poisson
+  topic model.
 }

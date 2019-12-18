@@ -1,8 +1,19 @@
-#' @title Add title here.
+#' @title Get Multinomial Topic Model from Poisson Topic Model
 #'
-#' @description Add description here.
+#' @description This function recovers parameter estimates of the
+#'   multinomial topic model given parameter estimates of the Poisson
+#'   topic model.
 #'
-#' @param fit Add description of "fit" here.
+#' @param fit A list containing two dense, non-negative matrices,
+#'   \code{fit$F} and \code{fit$L}. The former is an m x k matrix of
+#'   factors, and the latter is an n x k matrix of loadings.
+#'
+#' @return The return value is the list \code{fit}, in which
+#'   \code{fit$F} and \code{fit$L} are the parameters of the multinomial
+#'   topic model; specifically, \code{fit$L[i,]} gives the topic
+#'   probabilities for sample or document i, and \code{fit$F[,k]} gives
+#'   the term probabilities for topic k. An additional vector
+#'   \code{fit$s} of length n is returned giving the document "sizes".
 #' 
 #' @export
 #' 
@@ -37,11 +48,10 @@ poisson2multinom <- function (fit) {
   if (ncol(L) != ncol(F))
     stop("Dimensions of \"fit$F\" and \"fit$L\" do not agree")
   
-  # Convert the parameters---the factors F and the loadings L---for
-  # the Poisson model to the factors and loadings for the multinomial
-  # model. The return value "s" gives the Poisson rates for generating
-  # the "document" sizes.
-  L <- t(t(L) * colSums(F))
+  # Recover F and L for the multinomial model. Here, s gives the
+  # Poisson rates for generating the "document" sizes (the "size
+  # factors").
+  L <- scale.cols(L,colSums(F))
   s <- rowSums(L)
   L <- L / s
   F <- scale.cols(F)
