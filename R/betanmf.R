@@ -140,14 +140,16 @@ betanmf <- function (X, F0, L0, numiter = 1000, lowerbound = 1e-15,
   L   <- out$L
 
   # Set up the data structure to record the algorithm's progress.
-  progress <- as.matrix(data.frame(iter   = 1:numiter,
-                                   loglik = 0,
-                                   dev    = 0,
-                                   timing = 0))
+  progress <- as.matrix(data.frame(iter    = 1:numiter,
+                                   loglik  = 0,
+                                   dev     = 0,
+                                   delta.f = 0,
+                                   delta.l = 0,
+                                   timing  = 0))
   
   # Run the multiplicative updates.
   if (verbose)
-    cat("iter      log-likelihood            deviance\n")
+    cat("iter      log-likelihood            deviance max|F-F'| max|L-L'|\n")
   out <- betanmf_helper(X,L,t(F),lowerbound,e,progress,verbose)
 
   # Output the updated estimates of the factors and loadings, and ...
@@ -164,15 +166,20 @@ betanmf_helper <- function (X, A, B, lowerbound, e, progress, verbose) {
   dev.const    <- deviance_poisson_const(X)
   numiter      <- nrow(progress)
   for (i in 1:numiter) {
+    A0     <- A
+    B0     <- B
     timing <- system.time(out <- betanmf_update(X,A,B,lowerbound))
     A      <- out$A
     B      <- out$B
-    progress[i,"timing"] <- timing["elapsed"]
-    progress[i,"loglik"] <- sum(loglik.const - cost(X,A,B,e,"poisson"))
-    progress[i,"dev"]    <- sum(dev.const + 2*cost(X,A,B,e,"poisson"))
+    progress[i,"timing"]  <- timing["elapsed"]
+    progress[i,"loglik"]  <- sum(loglik.const - cost(X,A,B,e,"poisson"))
+    progress[i,"dev"]     <- sum(dev.const + 2*cost(X,A,B,e,"poisson"))
+    progress[i,"delta.f"] <- max(abs(B - B0))
+    progress[i,"delta.l"] <- max(abs(A - A0))
     if (verbose)
-      cat(sprintf("%4d %+0.12e %+0.12e\n",i,progress[i,"loglik"],
-                  progress[i,"dev"]))
+      cat(sprintf("%4d %+0.12e %+0.12e %0.3e %0.3e\n",
+                  i,progress[i,"loglik"],progress[i,"dev"],
+                  progress[i,"delta.f"],progress[i,"delta.l"]))
   }
   return(list(A = A,B = B,progress = as.data.frame(progress)))
 }
