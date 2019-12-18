@@ -1,19 +1,18 @@
 to do
 =====
 
-+ Fill out roxygen2 docs for poisson2multinom.
++ Make pkgdown site with latest version of pkgdown (for now do so
+  without vignettes).
 
-+ Complete implementation (including roxygen2 docs and tests) for
-  functions computing liklihoods, "loss" functions and deviances.
++ Add roxygen2 documentation to "betanmf" function.
 
 + Derive and code up solution for case when k = 1.
 
 + Add test to verify that multiplicative updates (betanmf) and EM
   updates give the exact same result.
 
-+ Implement calculation of objective (Poisson likelihood) in betanmf.
-
-+ In simulate_poisson_data, add row and columm names to X, L and F.
++ Implement calculation of objective (Poisson likelihood) and deviance
+  in betanmf.
 
 + Extract row and column names from X and use these for L and F.
 
@@ -21,20 +20,6 @@ to do
     methods(class = "prcomp")
     methods(class = "LDA")
     methods(class = "glmnet")
-
-+ Improve "cost" function:
-   - Calculate the multinomial constants, and provide option of
-     pre-computing them.
-   - Fill out @seealso.
-
-+ Improve "poisson2multinom" function:
-
-+ In file datasim.R, implement a function to simulate a data set from
-  the Poisson-based topic model. It should provide the option of
-  returning a dense or sparse matrix.
-
-+ Make pkgdown site with latest version of pkgdown (for now do so
-  without vignettes).
 
 + Provide option in altsqp to automatically determine number of
   threads in multithreading.
@@ -45,8 +30,6 @@ to do
 + Add steps to fix initializations containing zeros that cause
   problems for em, mu and lda algorithms. (And print warning when
   fixing this.)
-
-+ Add roxygen2 documentation to "betanmf" function.
 
 + Implement an option to periodically "restart" the extrapolation
   scheme, as in the conjugate gradients method.

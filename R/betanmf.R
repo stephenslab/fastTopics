@@ -40,12 +40,12 @@
 #'   in this implementation; \code{is.matrix(X)} must give \code{TRUE},
 #'   otherwise an error will be thrown.
 #'
-#' @param F This is the initial estimate of the factors (also called
+#' @param F0 This is the initial estimate of the factors (also called
 #'   "basis vectors"). It should be an m x k matrix, where m is the
 #'   number of columns of X, and k > 1 is the rank of the matrix
 #'   factorization. All entries of F should be non-negative.
 #'
-#' @param L This is the initial estimate of the loadings (also called
+#' @param L0 This is the initial estimate of the loadings (also called
 #'   "activations"). It should an n x k matrix, where n is the number of
 #'   rows of X, and k > 1 is the rank of the matrix factorization. All
 #'   entries of L should be non-negative.
@@ -58,6 +58,8 @@
 #'   \code{F1} and \code{L1} are the factors and loadings matrices
 #'   obtained by applying a single multiplicative update rule.
 #'
+#' @param verbose Describe "verbose" input argument here.
+#' 
 #' @return A list containing the updated matrices F and L.
 #' 
 #' @references
@@ -73,13 +75,14 @@
 #' @seealso fit_topics
 #'
 #' @examples
+#' 
 #' # Add example here.
 #' 
 #' @keywords internal
 #' 
 #' @export
 #'
-betanmf <- function (X, F, L, numiter = 1000, e = 1e-15) {
+betanmf <- function (X, F0, L0, numiter = 1000, e = 1e-15, verbose = TRUE) {
 
   # Get the number of rows (n) and columns (m) of data matrix, and get
   # the rank of the matrix factorization (k).
@@ -95,11 +98,14 @@ betanmf <- function (X, F, L, numiter = 1000, e = 1e-15) {
          "see help(matrix) for more information")
   if (k < 2)
     stop("Rank of non-negative matrix factorization should be 2 or greater")
-  
-  # To prevent the multiplicative updates from getting "stuck", force
-  # the initial estimates to be positive.
-  F <- pmax(F,e)
-  L <- pmax(L,e)
+
+  # INITIALIZE ESTIMATES
+  # --------------------
+  # Initialize the factors and loadings. To prevent the multiplicative
+  # updates from getting "stuck", force the initial estimates to be
+  # positive.
+  F <- pmax(F0,e)
+  L <- pmax(L0,e)
   
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
@@ -108,14 +114,19 @@ betanmf <- function (X, F, L, numiter = 1000, e = 1e-15) {
   F   <- out$F
   L   <- out$L
 
-  # Now run the multiplicative updates, and output the updated
-  # estimates of the factors and loadings.
-  out <- betanmf_helper(X,L,t(F),numiter,e)
-  return(list(F = t(out$B),L = out$A))
+  # Run the multiplicative updates.
+  out <- betanmf_helper(X,L,t(F),numiter,e,verbose)
+
+  # Output the updated estimates of the factors and loadings, and ...
+  F           <- t(out$B)
+  L           <- out$A
+  dimnames(F) <- dimnames(F0)
+  dimnames(L) <- dimnames(L0)
+  return(list(F = F,L = L,progress = progress)
 }
 
 # This implements the core part of the betanmf function.
-betanmf_helper <- function (X, A, B, numiter, e) {
+betanmf_helper <- function (X, A, B, numiter, e, verbose) {
   for (i in 1:numiter) {
     out <- betanmf_update(X,A,B,e)
     A   <- out$A
