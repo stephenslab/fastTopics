@@ -48,7 +48,8 @@ normalize.cols <- function (A)
 # column k of F has the same mean as column k of L.
 rescale.factors <- function (F, L) {
   d <- sqrt(colMeans(L)/colMeans(F))
-  return(list(F = F/d,L = d*L))
+  return(list(F = scale.cols(F,d),
+              L = scale.cols(L,1/d)))
 }
 
 # trcrossprod(A,B) returns trace(t(A) %*% B), where A and B are

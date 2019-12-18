@@ -4,7 +4,8 @@
 \alias{betanmf}
 \title{Multiplicative Update Rules for Non-negative Matrix Factorization}
 \usage{
-betanmf(X, F0, L0, numiter = 1000, e = 1e-15, verbose = TRUE)
+betanmf(X, F0, L0, numiter = 1000, lowerbound = 1e-15, e = 1e-15,
+  verbose = TRUE)
 }
 \arguments{
 \item{X}{The n x m matrix of counts; all entries of X should be
@@ -25,16 +26,22 @@ entries of L should be non-negative.}
 
 \item{numiter}{The number of multiplicative updates to run.}
 
-\item{e}{A small positive constant used to safeguard the
+\item{lowerbound}{A small positive constant used to safeguard the
 multiplicative updates. The multiplicative updates are implemented
-as \code{F <- pmax(F1,e)} and \code{L <- pmax(L1,e)}, where
-\code{F1} and \code{L1} are the factors and loadings matrices
-obtained by applying a single multiplicative update rule. Setting
-\code{e = 0} is allowed, but the multiplicative updates are not
-guaranteed to converge to a stationary point without this
-safeguard, and a warning will be given in this case.}
+as \code{F <- pmax(F1,lowerbound)} and \code{L <-
+pmax(L1,lowerbound)}, where \code{F1} and \code{L1} are the factors
+and loadings matrices obtained by applying a single multiplicative
+update rule. Setting \code{lowerbound = 0} is allowed, but the
+multiplicative updates are not guaranteed to converge to a
+stationary point without this safeguard, and a warning will be
+given in this case.}
 
-\item{verbose}{When \code{verbose = TRUE}, information aboutt the
+\item{e}{A small, non-negative number added to the terms inside the
+logarithms to avoid computing logarithms of zero. This prevents
+numerical problems at the cost of introducing a very small
+inaccuracy in the computation.}
+
+\item{verbose}{When \code{verbose = TRUE}, information about the
 algorithm's progress is printed to the console at every iteration.}
 }
 \value{
@@ -67,7 +74,18 @@ The multiplicative updates are very simple and
 }
 \examples{
 
-# Add example here.
+# Simulate a 100 x 200 data set.
+set.seed(1)
+X <- simulate_count_data(100,200,3)$X
+
+# Fit a Poisson topic model with k = 3 topics by running 200
+multiplicative updates.
+F0  <- matrix(runif(n*k),100,3)
+L0  <- matrix(runif(k*m),3,200)
+fit <- betanmf(X,F0,L0,200)
+
+# Plot the improvement in the solution over time.
+plot()
 
 }
 \references{

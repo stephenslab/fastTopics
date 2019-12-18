@@ -48,16 +48,22 @@
 #'  
 #' @param numiter The number of multiplicative updates to run.
 #' 
-#' @param e A small positive constant used to safeguard the
+#' @param lowerbound A small positive constant used to safeguard the
 #'   multiplicative updates. The multiplicative updates are implemented
-#'   as \code{F <- pmax(F1,e)} and \code{L <- pmax(L1,e)}, where
-#'   \code{F1} and \code{L1} are the factors and loadings matrices
-#'   obtained by applying a single multiplicative update rule. Setting
-#'   \code{e = 0} is allowed, but the multiplicative updates are not
-#'   guaranteed to converge to a stationary point without this
-#'   safeguard, and a warning will be given in this case.
+#'   as \code{F <- pmax(F1,lowerbound)} and \code{L <- pmax(L1,lowerbound)},
+#'   where \code{F1} and \code{L1} are the factors and loadings
+#'   matrices obtained by applying a single multiplicative update
+#'   rule. Setting \code{lowerbound = 0} is allowed, but the
+#'   multiplicative updates are not guaranteed to converge to a
+#'   stationary point without this safeguard, and a warning will be
+#'   given in this case.
 #'
-#' @param verbose When \code{verbose = TRUE}, information aboutt the
+#' @param e A small, non-negative number added to the terms inside the
+#'   logarithms to avoid computing logarithms of zero. This prevents
+#'   numerical problems at the cost of introducing a very small
+#'   inaccuracy in the computation.
+#' 
+#' @param verbose When \code{verbose = TRUE}, information about the
 #'   algorithm's progress is printed to the console at every iteration.
 #'
 #' @return A list containing updated estimates of the factors, F, and
@@ -77,13 +83,25 @@
 #'
 #' @examples
 #' 
-#' # Add example here.
+#' # Simulate a 100 x 200 data set.
+#' set.seed(1)
+#' X <- simulate_count_data(100,200,3)$X
+#'
+#' # Fit a Poisson topic model with k = 3 topics by running 200
+#' # multiplicative updates.
+#' F0  <- matrix(runif(n*k),100,3)
+#' L0  <- matrix(runif(k*m),3,200)
+#' fit <- betanmf(X,F0,L0,200)
+#'
+#' # Plot the improvement in the solution over time.
+#' plot()
 #' 
 #' @keywords internal
 #' 
 #' @export
 #'
-betanmf <- function (X, F0, L0, numiter = 1000, e = 1e-15, verbose = TRUE) {
+betanmf <- function (X, F0, L0, numiter = 1000, lowerbound = 1e-15,
+                     e = 1e-15, verbose = TRUE) {
 
   # CHECK INPUTS
   # ------------
@@ -100,19 +118,19 @@ betanmf <- function (X, F0, L0, numiter = 1000, e = 1e-15, verbose = TRUE) {
   if (k < 2)
     stop("Matrix factorization should have rank at least 2")
 
-  # Check input argument "e".
-  if (e < 0)
-    stop("Input argument \"e\" should be zero or a positive number")
-  if (e == 0)
-    warning("Multiplicative updates may not converge when e = 0")
+  # Check input argument "lowerbound".
+  if (lowerbound < 0)
+    stop("Input argument \"lowerbound\" should be zero or a positive number")
+  if (lowerbound == 0)
+    warning("Multiplicative updates may not converge when lowerbound = 0")
   
   # INITIALIZE ESTIMATES
   # --------------------
   # Initialize the estimates of the factors and loadings. To prevent
   # the multiplicative updates from getting "stuck", force the initial
   # estimates to be positive.
-  F <- pmax(F0,e)
-  L <- pmax(L0,e)
+  F <- pmax(F0,lowerbound)
+  L <- pmax(L0,lowerbound)
   
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
@@ -121,25 +139,42 @@ betanmf <- function (X, F0, L0, numiter = 1000, e = 1e-15, verbose = TRUE) {
   F   <- out$F
   L   <- out$L
 
+  # Set up the data structure to record the algorithm's progress.
+  progress <- as.matrix(data.frame(iter   = 1:numiter,
+                                   loglik = 0,
+                                   dev    = 0,
+                                   timing = 0))
+  
   # Run the multiplicative updates.
-  out <- betanmf_helper(X,L,t(F),numiter,e,verbose)
+  if (verbose)
+    cat("iter      log-likelihood            deviance\n")
+  out <- betanmf_helper(X,L,t(F),lowerbound,e,progress,verbose)
 
   # Output the updated estimates of the factors and loadings, and ...
   F           <- t(out$B)
   L           <- out$A
   dimnames(F) <- dimnames(F0)
   dimnames(L) <- dimnames(L0)
-  return(list(F = F,L = L,progress = progress))
+  return(list(F = F,L = L,progress = out$progress))
 }
 
 # This implements the core part of the betanmf function.
-betanmf_helper <- function (X, A, B, numiter, e, verbose) {
+betanmf_helper <- function (X, A, B, lowerbound, e, progress, verbose) {
+  loglik.const <- loglik_poisson_const(X)
+  dev.const    <- deviance_poisson_const(X)
+  numiter      <- nrow(progress)
   for (i in 1:numiter) {
-    out <- betanmf_update(X,A,B,e)
-    A   <- out$A
-    B   <- out$B
+    timing <- system.time(out <- betanmf_update(X,A,B,lowerbound))
+    A      <- out$A
+    B      <- out$B
+    progress[i,"timing"] <- timing["elapsed"]
+    progress[i,"loglik"] <- sum(loglik.const - cost(X,A,B,e,"poisson"))
+    progress[i,"dev"]    <- sum(dev.const + 2*cost(X,A,B,e,"poisson"))
+    if (verbose)
+      cat(sprintf("%4d %+0.12e %+0.12e\n",i,progress[i,"loglik"],
+                  progress[i,"dev"]))
   }
-  return(list(A = A,B = B))
+  return(list(A = A,B = B,progress = as.data.frame(progress)))
 }
 
 # Perform a single multiplicative update with safeguarding to promote
@@ -154,7 +189,8 @@ betanmf_update <- function (X, A, B, e) {
   B <- B * crossprod(A,X / (A %*% B)) / colSums(A)
   B <- pmax(B,e)
 
-  # Rescale the factors and loadings.
+  # Rescale the factors and loadings, then output the updated
+  # estimates.
   out <- rescale.factors(t(B),A)
   return(list(A = out$L,B = t(out$F)))
 }
