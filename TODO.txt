@@ -1,7 +1,9 @@
 to do
 =====
 
-+ In betanmf, monitor largest change in L and F separately.
++ Create an example 100 x 200 data set in the data/ directory, and
+  store a (local) solution, as well as the log-likelihood and deviance
+  at that solution; build on the betanmf example.
 
 + Make pkgdown site with latest version of pkgdown (for now do so
   without vignettes).
