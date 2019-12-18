@@ -50,7 +50,7 @@ poisson2multinom <- function (fit) {
   if (ncol(F) != ncol(L))
     stop("Dimensions of \"fit$F\" and \"fit$L\" do not agree")
   if (ncol(F) < 2)
-    stop("Input matrices \"fit$F\" and \"fit$L\" should have at least",
+    stop("Input matrices \"fit$F\" and \"fit$L\" should have at least ",
          "2 columns")
   
   # Recover F and L for the multinomial model. Here, s gives the

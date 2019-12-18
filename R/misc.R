@@ -31,7 +31,7 @@ apply.nonzeros <- function (X, f) {
 }
 
 # scale.cols(A,b) scales each column A[,i] by b[i].
-scale.cols <- function (A, b
+scale.cols <- function (A, b)
   t(t(A) * b)
 
 # Scale each row of A so that the entries of each row sum to 1.

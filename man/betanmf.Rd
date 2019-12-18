@@ -29,12 +29,17 @@ entries of L should be non-negative.}
 multiplicative updates. The multiplicative updates are implemented
 as \code{F <- pmax(F1,e)} and \code{L <- pmax(L1,e)}, where
 \code{F1} and \code{L1} are the factors and loadings matrices
-obtained by applying a single multiplicative update rule.}
+obtained by applying a single multiplicative update rule. Setting
+\code{e = 0} is allowed, but the multiplicative updates are not
+guaranteed to converge to a stationary point without this
+safeguard, and a warning will be given in this case.}
 
-\item{verbose}{Describe "verbose" input argument here.}
+\item{verbose}{When \code{verbose = TRUE}, information aboutt the
+algorithm's progress is printed to the console at every iteration.}
 }
 \value{
-A list containing the updated matrices F and L.
+A list containing updated estimates of the factors, F, and
+  loadings, L.
 }
 \description{
 This function decomposes the input matrix X = L*F' by

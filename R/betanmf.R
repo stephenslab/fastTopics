@@ -2,14 +2,9 @@
 # NOTES:
 #  + No convergence checks are performed.
 #  + Individual updates are very simple, and fast.
-#  + But can be very slow to converge, particularly when X is sparse.
 #  + Add "safeguard" to prevent factors or loadings from ever being
 #    exactly zero---explain why this is done.
-#  + 'MUUP' which uses multiplicative updates (this is the approach
-#     popularized by Lee and Seung but initially proposed in 
-#     Daube-Witherspoon, M. E., & Muehllehner, G. (1986). An iterative 
-#     image space reconstruction algorithm suitable for volume ECT. IEEE 
-#     Trans. Med. Imaging, 5.
+#  + Explain re-scaling step.
 # 
 #' @title Multiplicative Update Rules for Non-negative Matrix Factorization
 #'
@@ -57,11 +52,16 @@
 #'   multiplicative updates. The multiplicative updates are implemented
 #'   as \code{F <- pmax(F1,e)} and \code{L <- pmax(L1,e)}, where
 #'   \code{F1} and \code{L1} are the factors and loadings matrices
-#'   obtained by applying a single multiplicative update rule.
+#'   obtained by applying a single multiplicative update rule. Setting
+#'   \code{e = 0} is allowed, but the multiplicative updates are not
+#'   guaranteed to converge to a stationary point without this
+#'   safeguard, and a warning will be given in this case.
 #'
-#' @param verbose Describe "verbose" input argument here.
-#' 
-#' @return A list containing the updated matrices F and L.
+#' @param verbose When \code{verbose = TRUE}, information aboutt the
+#'   algorithm's progress is printed to the console at every iteration.
+#'
+#' @return A list containing updated estimates of the factors, F, and
+#'   loadings, L.
 #' 
 #' @references
 #'
@@ -85,26 +85,32 @@
 #'
 betanmf <- function (X, F0, L0, numiter = 1000, e = 1e-15, verbose = TRUE) {
 
+  # CHECK INPUTS
+  # ------------
+  # Perfom some very basic checks of the inputs.
+  if (!(is.matrix(X) & is.matrix(F0) & is.matrix(L0)))
+    stop("Input arguments \"X\", \"F0\" and \"L0\" should be matrices; ",
+         "see help(matrix) for more information")
+
   # Get the number of rows (n) and columns (m) of data matrix, and get
   # the rank of the matrix factorization (k).
   n <- nrow(X)
   m <- ncol(X)
-  k <- ncol(F)
-    
-  # CHECK INPUTS
-  # ------------
-  # Perfom some very basic checks of the inputs.
-  if (!(is.matrix(X) & is.matrix(F) & is.matrix(L)))
-    stop("Input arguments \"X\", \"F\" and \"L\" should be matrices; ",
-         "see help(matrix) for more information")
+  k <- ncol(F0)
   if (k < 2)
     stop("Matrix factorization should have rank at least 2")
 
+  # Check input argument "e".
+  if (e < 0)
+    stop("Input argument \"e\" should be zero or a positive number")
+  if (e == 0)
+    warning("Multiplicative updates may not converge when e = 0")
+  
   # INITIALIZE ESTIMATES
   # --------------------
-  # Initialize the factors and loadings. To prevent the multiplicative
-  # updates from getting "stuck", force the initial estimates to be
-  # positive.
+  # Initialize the estimates of the factors and loadings. To prevent
+  # the multiplicative updates from getting "stuck", force the initial
+  # estimates to be positive.
   F <- pmax(F0,e)
   L <- pmax(L0,e)
   

@@ -1,20 +1,12 @@
 to do
 =====
 
-+ Make sure poisson2multinom and functions in likelihood.R work with k = 1.
-
-+ Add warning to poisson2multinom when k = 1.
-
-+ Add testfor poisson2multinom when k = 1.
-
 + In betanmf, monitor largest change in L and F separately.
 
 + Make pkgdown site with latest version of pkgdown (for now do so
   without vignettes).
 
 + Add roxygen2 documentation to "betanmf" function.
-
-+ Derive and code up solution for case when k = 1.
 
 + Add test to verify that multiplicative updates (betanmf) and EM
   updates give the exact same result.
