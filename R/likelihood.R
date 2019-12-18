@@ -18,7 +18,7 @@
 #'
 #' @param fit A list containing two dense, non-negative matrices,
 #'   \code{fit$F} and \code{fit$L}. The former is an m x k matrix of
-#'   factors, and the latter is an n x k matrix of loadings.
+#'   factors, and the latter is an n x k matrix of loadings. 
 #'
 #' @param A The n x k matrix of loadings. It should be a dense matrix.
 #'
@@ -147,12 +147,15 @@ loglik_topic_model_helper <- function (X, fit,
   if (output.type == "loglik.multinom")
     L <- normalize.rows(L)
 
-  # Check that matrices X, F and L are compatible.
-  if (!(nrow(L) == nrow(X) &
-        nrow(F) == ncol(X) &
-        ncol(L) == ncol(F)))
-    stop("Dimensions of input arguments \"X\", \"fit$F\" and/or \"fit$L\" ",
+  # Check that matrices X, F and L are compatible, and that X is at
+  # least a 2 x 2 matrix.
+  n <- nrow(X)
+  m <- ncol(X)
+  if (!(nrow(L) == n & nrow(F) == m & ncol(L) == ncol(F)))
+    stop("Dimensions of input matrices \"X\", \"fit$F\" and/or \"fit$L\" ",
          "do not agree")
+  if (!(n > 1 & m > 1))
+    stop("Input matrix \"X\" should have at least 2 rows and 2 columns")
   
   # Compute the log-likelihood or deviance for the topic model.
   if (output.type == "loglik.poisson")

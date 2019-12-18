@@ -6,7 +6,9 @@
 #'
 #' @param fit A list containing two dense, non-negative matrices,
 #'   \code{fit$F} and \code{fit$L}. The former is an m x k matrix of
-#'   factors, and the latter is an n x k matrix of loadings.
+#'   factors, and the latter is an n x k matrix of loadings. It does not
+#'   make sense for a multinomial topic model to have less than two
+#'   topics, so an error will be thrown when k < 2.
 #'
 #' @return The return value is the list \code{fit}, in which
 #'   \code{fit$F} and \code{fit$L} are the parameters of the multinomial
@@ -44,9 +46,12 @@ poisson2multinom <- function (fit) {
   if (is.integer(L))
     storage.mode(L) <- "double"
   
-  # Check that matrices F and L are compatible.
-  if (ncol(L) != ncol(F))
+  # Check that matrices F and L are compatible, and that k > 1.
+  if (ncol(F) != ncol(L))
     stop("Dimensions of \"fit$F\" and \"fit$L\" do not agree")
+  if (ncol(F) < 2)
+    stop("Input matrices \"fit$F\" and \"fit$L\" should have at least",
+         "2 columns")
   
   # Recover F and L for the multinomial model. Here, s gives the
   # Poisson rates for generating the "document" sizes (the "size

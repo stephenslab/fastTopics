@@ -4,7 +4,7 @@
 \alias{betanmf}
 \title{Multiplicative Update Rules for Non-negative Matrix Factorization}
 \usage{
-betanmf(X, F, L, numiter = 1000, e = 1e-15)
+betanmf(X, F0, L0, numiter = 1000, e = 1e-15, verbose = TRUE)
 }
 \arguments{
 \item{X}{The n x m matrix of counts; all entries of X should be
@@ -12,12 +12,12 @@ non-negative. In particular, sparse matrices are not accommodated
 in this implementation; \code{is.matrix(X)} must give \code{TRUE},
 otherwise an error will be thrown.}
 
-\item{F}{This is the initial estimate of the factors (also called
+\item{F0}{This is the initial estimate of the factors (also called
 "basis vectors"). It should be an m x k matrix, where m is the
 number of columns of X, and k > 1 is the rank of the matrix
 factorization. All entries of F should be non-negative.}
 
-\item{L}{This is the initial estimate of the loadings (also called
+\item{L0}{This is the initial estimate of the loadings (also called
 "activations"). It should an n x k matrix, where n is the number of
 rows of X, and k > 1 is the rank of the matrix factorization. All
 entries of L should be non-negative.}
@@ -29,6 +29,8 @@ multiplicative updates. The multiplicative updates are implemented
 as \code{F <- pmax(F1,e)} and \code{L <- pmax(L1,e)}, where
 \code{F1} and \code{L1} are the factors and loadings matrices
 obtained by applying a single multiplicative update rule.}
+
+\item{verbose}{Describe "verbose" input argument here.}
 }
 \value{
 A list containing the updated matrices F and L.
@@ -58,6 +60,7 @@ The multiplicative updates are very simple and
   Kitamura \url{http://d-kitamura.net}.
 }
 \examples{
+
 # Add example here.
 
 }

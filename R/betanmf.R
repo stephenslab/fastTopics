@@ -97,7 +97,7 @@ betanmf <- function (X, F0, L0, numiter = 1000, e = 1e-15, verbose = TRUE) {
     stop("Input arguments \"X\", \"F\" and \"L\" should be matrices; ",
          "see help(matrix) for more information")
   if (k < 2)
-    stop("Rank of non-negative matrix factorization should be 2 or greater")
+    stop("Matrix factorization should have rank at least 2")
 
   # INITIALIZE ESTIMATES
   # --------------------
@@ -122,7 +122,7 @@ betanmf <- function (X, F0, L0, numiter = 1000, e = 1e-15, verbose = TRUE) {
   L           <- out$A
   dimnames(F) <- dimnames(F0)
   dimnames(L) <- dimnames(L0)
-  return(list(F = F,L = L,progress = progress)
+  return(list(F = F,L = L,progress = progress))
 }
 
 # This implements the core part of the betanmf function.
