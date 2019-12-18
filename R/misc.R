@@ -31,14 +31,8 @@ apply.nonzeros <- function (X, f) {
 }
 
 # scale.cols(A,b) scales each column A[,i] by b[i].
-#
-# scale.cols(A) scales each column of A so that the entries of each
-# column sum to 1; this is the same as scale.cols(A,1/colSums(A)).
-scale.cols <- function (A, b) {
-  if (missing(b))
-    b <- 1/colSums(A)
-  return(t(t(A) * b))
-}
+scale.cols <- function (A, b
+  t(t(A) * b)
 
 # Scale each row of A so that the entries of each row sum to 1.
 normalize.rows <- function (A)
@@ -62,3 +56,10 @@ rescale.factors <- function (F, L) {
 # sum(diag(X)).
 trcrossprod <- function (A, B)
   sum(A * B)
+
+# For the Poisson non-negative matrix factorization with rank = 1, the
+# maximum-likelihood estimate (MLE) has a closed-form (up to a scaling
+# factor); this function returns the MLE subject to the constraint
+# that mean(F) = mean(L).
+fit_topics_poisson_rank1 <- function (X)
+  list(F = matrix(colMeans(X)),L = matrix(rowMeans()))

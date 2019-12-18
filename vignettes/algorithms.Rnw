@@ -16,16 +16,14 @@
 
 \title{Algorithms for fitting topic models and non-negative matrix 
   factorizations to count data}
-\author{Peter Carbonetto and Matthew Stephens\thanks{Department of 
-  Human Genetics and the Research Computing Center, University of 
-  Chicago, Chicago, IL}}
+\author{Peter Carbonetto\thanks{Department of Human Genetics and the 
+  Research Computing Center, University of Chicago, Chicago, IL}}
 
 \begin{document}
 
 \maketitle
 
 \section{Introduction}
-
 In this document, we study the problem of finding two non-negative
 matrices, $F$ and $L$, minimizing the following loss function:
 \begin{equation}
@@ -39,7 +37,7 @@ $F$ are matrices of dimension $n \times m$, $n \times K$ and $m \times
 K$, respectively, with non-negative entries $x_{ij}, l_{ik}, f_{jk}$.
 (In the discussion and derivations below, $K$ is assumed to be 2 or
 greater---the special case of $K = 1$, which has a relatively simple
-solution, is treated in Appendix \ref{sec:k=1}.) Since \eqref{eq:loss}
+solution, is treated in Appendix \ref{sec:rank1}.) Since \eqref{eq:loss}
 is not convex when $K \geq 2$, we seek only to find a local minimum.
 
 There are several ways to motivate minimizing \eqref{eq:loss}. One
@@ -104,7 +102,6 @@ sparse data sets.
 
 
 \section{Connection to topic modeling}
-
 By optimizing \eqref{eq:loss} subject to the non-negativity
 constraints, we are also optimizing a topic model [refs]. Here we make
 this connection clear.
@@ -112,15 +109,12 @@ this connection clear.
 {\em Give R code here implementing this transformation.}
 
 \section{An EM algorithm}
-
 {\em Text goes here.}
 
 \section{Evaluating convergence}
-
 {\em Text goes here.}
 
 \section{EM, revisited}
-
 {\em Text goes here.}
 
 In this example we embed parts of the examples from the
@@ -156,10 +150,39 @@ Center.
 
 \appendix
 
-\section{The special case of $k = 1$}
-\label{sec:k=1}
-
-{\em Text goes here.}
+\section{The rank-one case}
+\label{sec:rank-1}
+In the special case of $k = 1$, the Poisson rates can be expressed as
+a simple outer product of two vectors,
+\begin{equation*}
+\Lambda = lf^T,  
+\end{equation*}
+where $l = (l_1, \ldots, l_n)^T$ and $f = (f_1, \ldots, f_m)^T$, and
+the loss function \eqref{eq:loss} simplifies to
+\begin{equation}
+\ell(L,F) = -\sum_{i=1}^n \sum_{j=1}^m x_{ij} \log(l_if_j)
+            + \sum_{i=1}^n \sum_{j=1}^m l_i f_j.
+\label{eq:loss-rank-1}
+\end{equation}
+Any choice of $l, f$ that minimizes \eqref{eq:loss-rank-1} must therefore
+be solution to the following system of equations:
+\begin{align*}
+f_j &= \frac{\sum_{i=1}^n x_{ij}}{\sum_{i=1}^n l_i}, 
+       \quad j = 1,\ldots,m, \\
+l_i &= \frac{\sum_{j=1}^m x_{ij}}{\sum_{j=1}^m f_j}, 
+       \quad i = 1,\ldots,n.
+\end{align*}
+Since the solution is only defined up to a scaling factor, we enforce
+the constraint that the mean of $f$ is the same as the mean of $l$,
+yielding the following very simple solution:
+\begin{align*}
+f_j &= \frac{1}{n} \sum_{i=1}^n x_{ij},
+       \quad j = 1,\ldots,m, \\
+l_i &= \frac{1}{m} \sum_{j=1}^m x_{ij},
+       \quad i = 1,\ldots,n.
+\end{align*}
+In other words, the MLE for the rank-one matrix factorization is
+recovered as the row and column means of $X$.
 
 \bibliographystyle{siamplain}
 \bibliography{algorithms}
