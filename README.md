@@ -63,6 +63,17 @@ R CMD check --as-cran fastTopics_0.2-22.tar.gz
 Note that these commands require that the dependencies have already
 been installed. See the [DESCRIPTION](DESCRIPTION) file for details.
 
+### Updating the pkgdown site
+
+Run this line of R code to build the website (make sure you have an
+Internet connection while running the code):
+
+```R
+pkgdown::build_site(mathjax = FALSE)
+```
+
+Version 1.1.0 of pkgdown was used.
+
 ### Building the Sweave vignette and updating the Overleaf latex
 
 The vignette will be automatically built when the package is

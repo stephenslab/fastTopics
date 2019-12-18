@@ -5,7 +5,8 @@
 #  + Add "safeguard" to prevent factors or loadings from ever being
 #    exactly zero---explain why this is done.
 #  + Explain re-scaling step.
-# 
+#
+
 #' @title Multiplicative Update Rules for Non-negative Matrix Factorization
 #'
 #' @description This function decomposes the input matrix X = L*F' by
@@ -98,8 +99,6 @@
 #' with(fit$progress,
 #'      plot(iter,dev - dev.min,type = "l",log = "y",
 #'           xlab = "iteration",ylab = "distance to solution"))
-#' 
-#' @keywords internal
 #' 
 #' @export
 #'

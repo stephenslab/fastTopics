@@ -5,18 +5,13 @@ to do
   store a (local) solution, as well as the log-likelihood and deviance
   at that solution; build on the betanmf example.
 
-+ Make pkgdown site with latest version of pkgdown (for now do so
-  without vignettes).
-
 + Add roxygen2 documentation to "betanmf" function.
 
 + Add test to verify that multiplicative updates (betanmf) and EM
   updates give the exact same result.
 
-+ Implement calculation of objective (Poisson likelihood) and deviance
-  in betanmf.
-
-+ Extract row and column names from X and use these for L and F.
++ In fit_topics, extract row and column names from X and use these for
+  L and F.
 
 + Get some ideas for S3 methods from prcomp, LDA and glmnet:
     methods(class = "prcomp")

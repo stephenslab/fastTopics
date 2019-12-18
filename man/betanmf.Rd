@@ -103,4 +103,3 @@ Gillis, N. and Glineur, F. (2012). Accelerated multiplicative
 \seealso{
 fit_topics
 }
-\keyword{internal}
