@@ -7,7 +7,7 @@
 #  + Explain re-scaling step.
 #
 
-#' @title Multiplicative Update Rules for Non-negative Matrix Factorization
+#' @title Multiplicative Update Rules for Poisson Non-negative Matrix Factorization
 #'
 #' @description This function decomposes the input matrix X = L*F' by
 #'   nonnegative matrix factorization (NMF) based on the "divergence"

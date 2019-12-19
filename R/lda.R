@@ -1,10 +1,5 @@
 # TO DO: Explain here briefly what this function does, and how to use
 # it.
-#
-#' @keywords internal
-#' 
-#' @export
-#'
 lda <- function (X, F, L, alpha = rep(1,ncol(F)), numiter = 1000) {
 
   # Get the number of rows (n) and columns (m) of X, and the number of

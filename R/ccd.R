@@ -1,7 +1,3 @@
-#' @keywords internal
-#'
-#' @export
-#' 
 ccd <- function (X, A, B, numiter = 100, e = 1e-15) {
 
   # This variable is used to keep track of the algorithm's progress;

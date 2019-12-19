@@ -223,8 +223,6 @@
 #' @importFrom parallel splitIndices
 #' @importFrom parallel mclapply
 #' 
-#' @export
-#' 
 altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
                     control = list(), verbose = TRUE) {
 
@@ -337,7 +335,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM/SQP updates ",numiter))
-    cat("(fastTopics version 0.2-22)\n")
+    cat("(fastTopics version 0.2-23)\n")
     if (control$extrapolate <= numiter)
       cat(sprintf("Extrapolation begins at iteration %d.\n",
                   control$extrapolate))
@@ -497,8 +495,6 @@ altsqp_main_loop <- function (X, Xt, F, Fn, Fy, Fbest, L, Ln, Ly, Lbest, f,
 }
 
 #' @rdname altsqp
-#' 
-#' @export
 #' 
 altsqp_control_default <- function()
   c(mixsqp_control_default(),
