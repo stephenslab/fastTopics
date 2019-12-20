@@ -1,13 +1,5 @@
-#
-# NOTES:
-#  + No convergence checks are performed.
-#  + Individual updates are very simple, and fast.
-#  + Add "safeguard" to prevent factors or loadings from ever being
-#    exactly zero---explain why this is done.
-#  + Explain re-scaling step.
-#
-
-#' @title Multiplicative Update Rules for Poisson Non-negative Matrix Factorization
+#' @title Multiplicative Update Rules for Poisson Non-negative Matrix
+#'   Factorization
 #'
 #' @description This function decomposes the input matrix X = L*F' by
 #'   nonnegative matrix factorization (NMF) based on the "divergence"
@@ -31,12 +23,19 @@
 #'   This implementation is adapted from the MATLAB code by Daichi
 #'   Kitamura \url{http://d-kitamura.net}.
 #'
+#'   The "safeguard" step preventing the factors and loadings from
+#'   exactly reaching zero is motivated by Theorem 1 of Gillis & Glineur
+#'   (2012).
+#' 
+#'   An additional re-scaling step is performed at each iteration to
+#'   promote numerical stability.
+#'
 #' @param X The n x m matrix of counts; all entries of X should be
-#'   non-negative. Note t hat sparse matrices are not accommodated
+#'   non-negative. Note that sparse matrices are not accommodated
 #'   in this implementation; \code{is.matrix(X)} must give \code{TRUE}.
 #'
 #' @param F0 This is the initial estimate of the factors (also called
-#'  "basis vectors"). It should be an m x k matrix, where m is the
+#'   "basis vectors"). It should be an m x k matrix, where m is the
 #'   number of columns of X, and k > 1 is the rank of the matrix
 #'   factorization, or the number of topics. All entries of F should be
 #'   non-negative.
@@ -65,7 +64,7 @@
 #' @param verbose When \code{verbose = TRUE}, information about the
 #'   algorithm's progress is printed to the console at each iteration.
 #'
-#' @return \code{altsqp} returns a list object with the following
+#' @return \code{betanmf} returns a list object with the following
 #' elements:
 #'
 #' \item{F}{A dense matrix containing estimates of the factors.}
@@ -92,7 +91,7 @@
 #'   non-negative matrix factorization. In \emph{Advances in Neural
 #'   Information Processing Systems} \bold{13}, 556–562.
 #'
-#' @seealso fit_topics
+#' @seealso \code{\link{pnmfem}}
 #'
 #' @examples
 #' 
@@ -122,8 +121,8 @@ betanmf <- function (X, F0, L0, numiter = 1000, minval = 1e-15,
   # ------------
   # Perfom some very basic checks of the inputs.
   if (!(is.matrix(X) & is.matrix(F0) & is.matrix(L0)))
-    stop("Input arguments \"X\", \"F0\" and \"L0\" should be matrices; ",
-         "see help(matrix) for more information")
+    stop("Input arguments \"X\", \"F0\" and \"L0\" should be numeric ",
+         "matrices; see help(matrix) for more information")
 
   # Get the number of rows (n) and columns (m) of data matrix, and get
   # the rank of the matrix factorization (k).
@@ -137,7 +136,7 @@ betanmf <- function (X, F0, L0, numiter = 1000, minval = 1e-15,
   if (minval < 0)
     stop("Input argument \"minval\" should be zero or a positive number")
   if (minval == 0)
-    warning("minval = 0; multiplicative updates may not converge")
+    warning("Multiplicative updates may not converge when \"minval\" is zero")
   
   # INITIALIZE ESTIMATES
   # --------------------
@@ -168,7 +167,7 @@ betanmf <- function (X, F0, L0, numiter = 1000, minval = 1e-15,
   out <- betanmf_helper(X,L,t(F),minval,e,progress,verbose)
 
   # Return a list containing (1) an estimate of the factors, (2) an
-  # estimate of the loadings, and (4) a data frame recording the
+  # estimate of the loadings, and (3) a data frame recording the
   # algorithm's progress at each iteration.
   F           <- t(out$B)
   L           <- out$A

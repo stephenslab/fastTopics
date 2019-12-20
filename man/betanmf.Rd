@@ -2,21 +2,22 @@
 % Please edit documentation in R/betanmf.R
 \name{betanmf}
 \alias{betanmf}
-\title{Multiplicative Update Rules for Poisson Non-negative Matrix Factorization}
+\title{Multiplicative Update Rules for Poisson Non-negative Matrix
+  Factorization}
 \usage{
 betanmf(X, F0, L0, numiter = 1000, minval = 1e-15, e = 1e-15,
   verbose = TRUE)
 }
 \arguments{
 \item{X}{The n x m matrix of counts; all entries of X should be
-non-negative. Note t hat sparse matrices are not accommodated
+non-negative. Note that sparse matrices are not accommodated
 in this implementation; \code{is.matrix(X)} must give \code{TRUE}.}
 
 \item{F0}{This is the initial estimate of the factors (also called
 "basis vectors"). It should be an m x k matrix, where m is the
- number of columns of X, and k > 1 is the rank of the matrix
- factorization, or the number of topics. All entries of F should be
- non-negative.}
+number of columns of X, and k > 1 is the rank of the matrix
+factorization, or the number of topics. All entries of F should be
+non-negative.}
 
 \item{L0}{This is the initial estimate of the loadings (also called
 "activations"). It should an n x k matrix, where n is the number of
@@ -43,7 +44,7 @@ inaccuracy in the computation.}
 algorithm's progress is printed to the console at each iteration.}
 }
 \value{
-\code{altsqp} returns a list object with the following
+\code{betanmf} returns a list object with the following
 elements:
 
 \item{F}{A dense matrix containing estimates of the factors.}
@@ -83,6 +84,13 @@ The multiplicative updates are very simple and
 
   This implementation is adapted from the MATLAB code by Daichi
   Kitamura \url{http://d-kitamura.net}.
+
+  The "safeguard" step preventing the factors and loadings from
+  exactly reaching zero is motivated by Theorem 1 of Gillis & Glineur
+  (2012).
+
+  An additional re-scaling step is performed at each iteration to
+  promote numerical stability.
 }
 \examples{
 
@@ -114,5 +122,5 @@ Gillis, N. and Glineur, F. (2012). Accelerated multiplicative
   Information Processing Systems} \bold{13}, 556–562.
 }
 \seealso{
-fit_topics
+\code{\link{pnmfem}}
 }
