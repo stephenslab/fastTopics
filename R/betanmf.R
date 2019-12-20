@@ -32,9 +32,8 @@
 #'   Kitamura \url{http://d-kitamura.net}.
 #'
 #' @param X The n x m matrix of counts; all entries of X should be
-#'   non-negative. In particular, sparse matrices are not accommodated
-#'   in this implementation; \code{is.matrix(X)} must give \code{TRUE},
-#'   otherwise an error will be thrown.
+#'   non-negative. Note t hat sparse matrices are not accommodated
+#'   in this implementation; \code{is.matrix(X)} must give \code{TRUE}.
 #'
 #' @param F0 This is the initial estimate of the factors (also called
 #'  "basis vectors"). It should be an m x k matrix, where m is the
@@ -49,15 +48,14 @@
 #'  
 #' @param numiter The number of multiplicative updates to run.
 #' 
-#' @param lowerbound A small positive constant used to safeguard the
+#' @param minval A small positive constant used to safeguard the
 #'   multiplicative updates. The multiplicative updates are implemented
-#'   as \code{F <- pmax(F1,lowerbound)} and \code{L <- pmax(L1,lowerbound)},
-#'   where \code{F1} and \code{L1} are the factors and loadings
-#'   matrices obtained by applying a single multiplicative update
-#'   rule. Setting \code{lowerbound = 0} is allowed, but the
-#'   multiplicative updates are not guaranteed to converge to a
-#'   stationary point without this safeguard, and a warning will be
-#'   given in this case.
+#'   as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
+#'   where \code{F1} and \code{L1} are the factors and loadings matrices
+#'   obtained by applying a single multiplicative update rule. Setting
+#'   \code{minval = 0} is allowed, but the multiplicative updates are
+#'   not guaranteed to converge to a stationary point without this
+#'   safeguard, and a warning will be given in this case.
 #'
 #' @param e A small, non-negative number added to the terms inside the
 #'   logarithms to avoid computing logarithms of zero. This prevents
@@ -65,10 +63,24 @@
 #'   inaccuracy in the computation.
 #' 
 #' @param verbose When \code{verbose = TRUE}, information about the
-#'   algorithm's progress is printed to the console at every iteration.
+#'   algorithm's progress is printed to the console at each iteration.
 #'
-#' @return A list containing updated estimates of the factors, F, and
-#'   loadings, L.
+#' @return \code{altsqp} returns a list object with the following
+#' elements:
+#'
+#' \item{F}{A dense matrix containing estimates of the factors.}
+#'
+#' \item{L}{A dense matrix containing estimates of the loadings.}
+#'
+#' \item{progress}{A data frame containing more detailed information
+#'   about the algorithm's progress. The data frame should have
+#'   \code{numiter} rows. The columns of the data frame are: "iter", the
+#'   iteration number; "loglik", the log-likelihood at the current
+#'   factor and loading estimates; "dev", the deviance at the current
+#'   factor and loading estimates; "delta.l", the largest change in the
+#'   factors matrix; "delta.f", the largest change in the loadings
+#'   matrix; and "timing", the elapsed time in seconds (based on
+#'   \code{\link{system.time}}).}
 #' 
 #' @references
 #'
@@ -85,6 +97,7 @@
 #' @examples
 #' 
 #' # Simulate a 100 x 200 data set.
+#' suppressWarnings(RNGversion("3.5.0"))
 #' set.seed(1)
 #' X <- simulate_count_data(100,200,3)$X
 #' 
@@ -102,7 +115,7 @@
 #' 
 #' @export
 #'
-betanmf <- function (X, F0, L0, numiter = 1000, lowerbound = 1e-15,
+betanmf <- function (X, F0, L0, numiter = 1000, minval = 1e-15,
                      e = 1e-15, verbose = TRUE) {
 
   # CHECK INPUTS
@@ -120,19 +133,19 @@ betanmf <- function (X, F0, L0, numiter = 1000, lowerbound = 1e-15,
   if (k < 2)
     stop("Matrix factorization should have rank at least 2")
 
-  # Check input argument "lowerbound".
-  if (lowerbound < 0)
-    stop("Input argument \"lowerbound\" should be zero or a positive number")
-  if (lowerbound == 0)
-    warning("Multiplicative updates may not converge when lowerbound = 0")
+  # Check input argument "minval".
+  if (minval < 0)
+    stop("Input argument \"minval\" should be zero or a positive number")
+  if (minval == 0)
+    warning("minval = 0; multiplicative updates may not converge")
   
   # INITIALIZE ESTIMATES
   # --------------------
   # Initialize the estimates of the factors and loadings. To prevent
   # the multiplicative updates from getting "stuck", force the initial
   # estimates to be positive.
-  F <- pmax(F0,lowerbound)
-  L <- pmax(L0,lowerbound)
+  F <- pmax(F0,minval)
+  L <- pmax(L0,minval)
   
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
@@ -152,9 +165,11 @@ betanmf <- function (X, F0, L0, numiter = 1000, lowerbound = 1e-15,
   # Run the multiplicative updates.
   if (verbose)
     cat("iter      log-likelihood            deviance max|F-F'| max|L-L'|\n")
-  out <- betanmf_helper(X,L,t(F),lowerbound,e,progress,verbose)
+  out <- betanmf_helper(X,L,t(F),minval,e,progress,verbose)
 
-  # Output the updated estimates of the factors and loadings, and ...
+  # Return a list containing (1) an estimate of the factors, (2) an
+  # estimate of the loadings, and (4) a data frame recording the
+  # algorithm's progress at each iteration.
   F           <- t(out$B)
   L           <- out$A
   dimnames(F) <- dimnames(F0)
@@ -163,14 +178,14 @@ betanmf <- function (X, F0, L0, numiter = 1000, lowerbound = 1e-15,
 }
 
 # This implements the core part of the betanmf function.
-betanmf_helper <- function (X, A, B, lowerbound, e, progress, verbose) {
+betanmf_helper <- function (X, A, B, minval, e, progress, verbose) {
   loglik.const <- loglik_poisson_const(X)
   dev.const    <- deviance_poisson_const(X)
   numiter      <- nrow(progress)
   for (i in 1:numiter) {
     A0     <- A
     B0     <- B
-    timing <- system.time(out <- betanmf_update(X,A,B,lowerbound))
+    timing <- system.time(out <- betanmf_update(X,A,B,minval))
     A      <- out$A
     B      <- out$B
     progress[i,"timing"]  <- timing["elapsed"]

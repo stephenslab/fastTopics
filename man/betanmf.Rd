@@ -4,14 +4,13 @@
 \alias{betanmf}
 \title{Multiplicative Update Rules for Poisson Non-negative Matrix Factorization}
 \usage{
-betanmf(X, F0, L0, numiter = 1000, lowerbound = 1e-15, e = 1e-15,
+betanmf(X, F0, L0, numiter = 1000, minval = 1e-15, e = 1e-15,
   verbose = TRUE)
 }
 \arguments{
 \item{X}{The n x m matrix of counts; all entries of X should be
-non-negative. In particular, sparse matrices are not accommodated
-in this implementation; \code{is.matrix(X)} must give \code{TRUE},
-otherwise an error will be thrown.}
+non-negative. Note t hat sparse matrices are not accommodated
+in this implementation; \code{is.matrix(X)} must give \code{TRUE}.}
 
 \item{F0}{This is the initial estimate of the factors (also called
 "basis vectors"). It should be an m x k matrix, where m is the
@@ -26,15 +25,14 @@ entries of L should be non-negative.}
 
 \item{numiter}{The number of multiplicative updates to run.}
 
-\item{lowerbound}{A small positive constant used to safeguard the
+\item{minval}{A small positive constant used to safeguard the
 multiplicative updates. The multiplicative updates are implemented
-as \code{F <- pmax(F1,lowerbound)} and \code{L <- pmax(L1,lowerbound)},
-where \code{F1} and \code{L1} are the factors and loadings
-matrices obtained by applying a single multiplicative update
-rule. Setting \code{lowerbound = 0} is allowed, but the
-multiplicative updates are not guaranteed to converge to a
-stationary point without this safeguard, and a warning will be
-given in this case.}
+as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
+where \code{F1} and \code{L1} are the factors and loadings matrices
+obtained by applying a single multiplicative update rule. Setting
+\code{minval = 0} is allowed, but the multiplicative updates are
+not guaranteed to converge to a stationary point without this
+safeguard, and a warning will be given in this case.}
 
 \item{e}{A small, non-negative number added to the terms inside the
 logarithms to avoid computing logarithms of zero. This prevents
@@ -42,11 +40,25 @@ numerical problems at the cost of introducing a very small
 inaccuracy in the computation.}
 
 \item{verbose}{When \code{verbose = TRUE}, information about the
-algorithm's progress is printed to the console at every iteration.}
+algorithm's progress is printed to the console at each iteration.}
 }
 \value{
-A list containing updated estimates of the factors, F, and
-  loadings, L.
+\code{altsqp} returns a list object with the following
+elements:
+
+\item{F}{A dense matrix containing estimates of the factors.}
+
+\item{L}{A dense matrix containing estimates of the loadings.}
+
+\item{progress}{A data frame containing more detailed information
+  about the algorithm's progress. The data frame should have
+  \code{numiter} rows. The columns of the data frame are: "iter", the
+  iteration number; "loglik", the log-likelihood at the current
+  factor and loading estimates; "dev", the deviance at the current
+  factor and loading estimates; "delta.l", the largest change in the
+  factors matrix; "delta.f", the largest change in the loadings
+  matrix; and "timing", the elapsed time in seconds (based on
+  \code{\link{system.time}}).}
 }
 \description{
 This function decomposes the input matrix X = L*F' by
@@ -75,6 +87,7 @@ The multiplicative updates are very simple and
 \examples{
 
 # Simulate a 100 x 200 data set.
+suppressWarnings(RNGversion("3.5.0"))
 set.seed(1)
 X <- simulate_count_data(100,200,3)$X
 
