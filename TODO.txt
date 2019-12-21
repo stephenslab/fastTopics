@@ -1,6 +1,9 @@
 to do
 =====
 
++ In pnmfem, handle special case when a row or column has exactly one
+  nonzero count.
+
 + Create an example 100 x 200 data set in the data/ directory, and
   store a (local) solution, as well as the log-likelihood and deviance
   at that solution; build on the betanmf example.

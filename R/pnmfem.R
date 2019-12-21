@@ -4,7 +4,7 @@
 #     betanmf), but computation is implemented differently.
 #
 
-#' #' @title Title goes here.
+#' @title Title goes here.
 #'
 #' @description Provide description here.
 #'
