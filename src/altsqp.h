@@ -35,8 +35,8 @@ inline void altsqp_update_em_sqp (arma::mat& B, arma::vec& w,
   arma::vec y = get_modified_problem_params(B,w,bs,ws,x);
   arma::vec ev(n);
   ev.fill(e);
-  if (numem > 0)
-    mixem(B,w,x,ev,numem);
+  // if (numem > 0)
+  //   mixem(B,w,x,ev,numem);
   if (numsqp > 0)
     mixsqp(B,w,x,ev,numsqp,control,false);
 

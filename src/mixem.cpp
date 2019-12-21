@@ -5,23 +5,41 @@ using namespace arma;
 
 // FUNCTION DEFINITIONS
 // --------------------
-// Perform several EM updates.
-void mixem (const mat& L, const vec& w, vec& x, const vec& e, uint numiter) {
+
+// This is mainly used to test the mixem C++ function.
+//
+// [[Rcpp::export]]
+arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
+		      const arma::vec& x0, uint numiter, double e) {
+  return mixem(L,w,x0,numiter,e);
+}
+
+// Compute maximum-likelihood estimates of the mixture proportions in
+// a mixture model by iterating the EM updates for a fixed number of
+// iterations.
+vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter, double e) {
+  vec  x = x0;
   uint n = L.n_rows;
   uint m = L.n_cols;
   mat  P(n,m);
-
+  
   // Iterate the E and M steps.
-  for (uint iter = 0; iter < numiter; iter++) {
+  for (uint i = 0; i < numiter; i++)
+    mixem_update(L,w,x,P,e);
   
-    // Compute the n x m matrix of posterior mixture assignment
-    // probabilities (L is an n x m matrix). This is the "E step".
-    P = L;
-    scalecols(P,x);
-    addtorows(P,e);
-    normalizerows(P);
+  return x;
+}
+
+// Perform a single EM update.
+void mixem_update (const mat& L, const vec& w, vec& x, mat& P, double e) {
+
+  // Compute the posterior mixture assignment probabilities. This is
+  // the "E step".
+  P = L;
+  scalecols(P,x);
+  P = P + e;
+  normalizerows(P);
   
-    // Update the mixture weights. This is the "M step".
-    x = trans(P) * w;
-  }
+  // Update the mixture weights. This is the "M step".
+  x = (trans(P) * w) / sum(w);
 }

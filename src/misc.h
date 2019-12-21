@@ -6,7 +6,6 @@
 // FUNCTION DECLARATIONS
 // ---------------------
 void   getcolnonzeros (const arma::sp_mat& A, arma::uvec& i, uint j);
-void   addtorows      (arma::mat& A, const arma::vec& a);
 void   scalecols      (arma::mat& A, const arma::vec& b);
 void   normalizerows  (arma::mat& A);
 

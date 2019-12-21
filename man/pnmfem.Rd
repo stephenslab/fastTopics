@@ -2,7 +2,7 @@
 % Please edit documentation in R/pnmfem.R
 \name{pnmfem}
 \alias{pnmfem}
-\title{#' @title Title goes here.}
+\title{Title goes here.}
 \usage{
 pnmfem(X, L0, F0, numiter = 1000, minval = 1e-15, e = 1e-15,
   verbose = TRUE)
