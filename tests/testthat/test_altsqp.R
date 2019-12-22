@@ -1,6 +1,7 @@
 context("altsqp")
 
 test_that("altsqp gives same result for sparse and dense matrix",{
+  skip("Temporarily not using test")
   library(Matrix)
 
   # Generate a 100 x 200 data matrix to factorize.
@@ -34,6 +35,7 @@ test_that("altsqp gives same result for sparse and dense matrix",{
 
 test_that(paste("Multicore R + Rcpp versions of altsqp gives same result",
                 "as single-core version"),{
+  skip("Temporarily not using test")
 
   # Generate a 100 x 200 data matrix to factorize.
   set.seed(1)
@@ -68,6 +70,7 @@ test_that(paste("Multicore R + Rcpp versions of altsqp gives same result",
 })
 
 test_that("altsqp gives a better solution than nnmf on a sparse matrix",{
+  skip("Temporarily not using test")
   library(Matrix)
   library(NNLM)
 
@@ -102,6 +105,7 @@ test_that("altsqp gives a better solution than nnmf on a sparse matrix",{
 })
 
 test_that("altsqp gives the same result as betanmf when numsqp = 0",{
+  skip("Temporarily not using test")
 
   # Generate a 100 x 200 data matrix to factorize.
   set.seed(1)
@@ -130,6 +134,7 @@ test_that("altsqp gives the same result as betanmf when numsqp = 0",{
 })
 
 test_that("altsqp \"escapes\" initial estimates that are zero",{
+  skip("Temporarily not using test")
 
   # Generate a 40 x 80 data matrix to factorize.
   set.seed(1)

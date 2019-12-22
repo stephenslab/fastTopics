@@ -45,8 +45,8 @@ cost_sparse_rcpp <- function(X, A, B, e, poisson) {
     .Call('_fastTopics_cost_sparse_rcpp', PACKAGE = 'fastTopics', X, A, B, e, poisson)
 }
 
-mixem_rcpp <- function(L, w, x0, numiter, e) {
-    .Call('_fastTopics_mixem_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter, e)
+mixem_rcpp <- function(L, w, x0, numiter) {
+    .Call('_fastTopics_mixem_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
 }
 
 mixsqp_rcpp <- function(L, w, x0, e, numiter, control, verbose) {

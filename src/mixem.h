@@ -6,9 +6,9 @@
 // FUNCTION DECLARATIONS
 // ---------------------
 arma::vec mixem (const arma::mat& L, const arma::vec& w, const arma::vec& x0,
-		 uint numiter, const double e);
+		 arma::mat& P, uint numiter);
 
 void mixem_update (const arma::mat& L, const arma::vec& w, arma::vec& x,
-		   arma::mat& P, double e);
+		   arma::mat& P);
   
 #endif

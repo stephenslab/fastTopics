@@ -1,7 +1,8 @@
 context("mixsqp")
 
 test_that("Verify mixsqp and mixem on 1000 x 10 matrix",{
-
+  skip("Temporarily not using test")
+  
   # Load the data.
   load("mixdata.RData")
   L <- mixdata$L
@@ -23,6 +24,7 @@ test_that("Verify mixsqp and mixem on 1000 x 10 matrix",{
 })
 
 test_that("Verify mixsqp on tacks data",{
+  skip("Temporarily not using test")
 
   # Load the data.
   load("tacks.RData")

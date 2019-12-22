@@ -10,34 +10,34 @@ using namespace arma;
 //
 // [[Rcpp::export]]
 arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
-		      const arma::vec& x0, uint numiter, double e) {
-  return mixem(L,w,x0,numiter,e);
+		      const arma::vec& x0, uint numiter) {
+  mat P = L;
+  return mixem(L,w,x0,P,numiter);
 }
 
-// Compute maximum-likelihood estimates of the mixture proportions in
-// a mixture model by iterating the EM updates for a fixed number of
-// iterations.
-vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter, double e) {
-  vec  x = x0;
-  uint n = L.n_rows;
-  uint m = L.n_cols;
-  mat  P(n,m);
-  
-  // Iterate the E and M steps.
+// Compute a maximum-likelihood estimate (MLE) of the mixture
+// proportions in the multinomial mixture model by iterating the EM
+// updates for a fixed number of iterations.
+// 
+// Input argument P is a matrix of the same dimension as L, and is
+// used to store the posterior mixture assignment probabilities.
+//
+vec mixem (const mat& L, const vec& w, const vec& x0, mat& P, uint numiter) {
+  vec x = x0;
   for (uint i = 0; i < numiter; i++)
-    mixem_update(L,w,x,P,e);
-  
+    mixem_update(L,w,x,P);
   return x;
 }
 
 // Perform a single EM update.
-void mixem_update (const mat& L, const vec& w, vec& x, mat& P, double e) {
+void mixem_update (const mat& L, const vec& w, vec& x, mat& P) {
+  double e = 1e-15;
 
   // Compute the posterior mixture assignment probabilities. This is
   // the "E step".
   P = L;
   scalecols(P,x);
-  P = P + e;
+  P += e;
   normalizerows(P);
   
   // Update the mixture weights. This is the "M step".
