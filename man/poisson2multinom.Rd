@@ -2,7 +2,8 @@
 % Please edit documentation in R/poisson2multinom.R
 \name{poisson2multinom}
 \alias{poisson2multinom}
-\title{Get Multinomial Topic Model from Poisson Non-Negative Matrix Factorization}
+\title{Get Multinomial Topic Model from Poisson Non-Negative Matrix
+  Factorization}
 \usage{
 poisson2multinom(fit)
 }

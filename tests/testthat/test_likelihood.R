@@ -28,8 +28,8 @@ test_that(paste("R and Rcpp versions of cost function return same result",
   }
 })
 
-test_that(paste("loglik_poisson_topic_model gives correct result for",
-                "sparse and dense matrix"),{
+test_that(paste("loglik_poisson_nmf gives correct result for sparse and",
+                "dense matrix"),{
   library(Matrix)
   set.seed(1)
 
@@ -44,8 +44,8 @@ test_that(paste("loglik_poisson_topic_model gives correct result for",
 
     # Compute the log-likelikhood.
     f1 <- rowSums(dpois(X,Y,log = TRUE))
-    f2 <- loglik_poisson_topic_model(X,fit)
-    f3 <- loglik_poisson_topic_model(as(X,"dgCMatrix"),fit)
+    f2 <- loglik_poisson_nmf(X,fit)
+    f3 <- loglik_poisson_nmf(as(X,"dgCMatrix"),fit)
     names(f1) <- rownames(X)
 
     # The likelihood calculations should all be the same.
@@ -82,8 +82,8 @@ test_that(paste("loglik_multinom_topic_model gives correct result for",
   }
 })
 
-test_that(paste("deviance_poisson_topic_model gives correct result for",
-                "sparse and dense matrix"),{
+test_that(paste("deviance_poisson_topic_nmf gives correct result for sparse",
+                "and dense matrix"),{
   library(Matrix)
   set.seed(1)
 
@@ -98,8 +98,8 @@ test_that(paste("deviance_poisson_topic_model gives correct result for",
 
     # Compute the deviances.
     d1 <- rowSums(stats::poisson()$dev.resids(X,Y,1))
-    d2 <- deviance_poisson_topic_model(X,fit)
-    d3 <- deviance_poisson_topic_model(as(X,"dgCMatrix"),fit)
+    d2 <- deviance_poisson_nmf(X,fit)
+    d3 <- deviance_poisson_nmf(as(X,"dgCMatrix"),fit)
 
     # The deviance calculations should all be the same.
     expect_equal(d1,d2)

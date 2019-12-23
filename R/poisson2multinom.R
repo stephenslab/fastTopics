@@ -1,4 +1,5 @@
-#' @title Get Multinomial Topic Model from Poisson Non-Negative Matrix Factorization
+#' @title Get Multinomial Topic Model from Poisson Non-Negative Matrix
+#'   Factorization
 #'
 #' @description This function recovers parameter estimates of the
 #'   multinomial topic model given parameter estimates for a Poisson
@@ -65,5 +66,26 @@ poisson2multinom <- function (fit) {
   fit$F <- F
   fit$L <- L
   fit$s <- s
+  class(fit) <- c("multinom_topic_model","list")
+  return(fit)
+}
+
+#' @title Get Poisson Non-Negative Matrix Factorization from Multinomial
+#'   Topic Model
+#'
+#' @description This function recovers parameter estimates of the
+#'   Poisson non-negative matrix factorization given parameter estimates
+#'   for a multinomial topic model.
+#'
+#' @param fit Describe the "fit" argument here.
+#'
+#' @param X Describe the "X" argument here.
+#'
+#' @return Describe the return value here.
+#'
+#' @export
+#'
+multinom2poisson <- function (fit, X) {
+  class(fit) <- c("poisson_nmf","list")
   return(fit)
 }
