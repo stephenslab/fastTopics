@@ -30,9 +30,9 @@
 #'   inaccuracy in the computation.
 #'
 #' @param family If \code{model = "poisson"}, the loss function
-#'   corresponding ot the Poisson topic model is computed; if
-#'   \code{model = "multinom"}, multinomial loss function values are
-#'   returned. See "Value" for details.
+#'   corresponding to the Poisson non-negative matrix factorization is
+#'   computed; if \code{model = "multinom"}, multinomial topic model
+#'   loss function values are returned. See "Value" for details.
 #'
 #' @param version When \code{version == "R"}, the computations are
 #'   performed entirely in R; when \code{version == "Rcpp"}, an Rcpp
@@ -53,30 +53,30 @@
 #' fit <- out[c("F","L")]
 #' 
 #' # Compute the Poisson log-likelihoods and deviances.
-#' data.frame(loglik   = loglik_poisson_topic_model(X,fit),
-#'            deviance = deviance_poisson_topic_model(X,fit))
+#' data.frame(loglik   = loglik_poisson_nmf(X,fit),
+#'            deviance = deviance_poisson_nmf(X,fit))
 #' 
 #' # Compute multinomial log-likelihoods.
 #' loglik_multinom_topic_model(X,poisson2multinom(fit))
 #' 
 #' @export
 #' 
-loglik_poisson_topic_model <- function (X, fit, e = 1e-15)
-  loglik_topic_model_helper(X,fit,"loglik.poisson",e)
+loglik_poisson_nmf <- function (X, fit, e = 1e-15)
+  loglik_helper(X,fit,"loglik.poisson",e)
 
 #' @rdname likelihood
 #' 
 #' @export
 #' 
 loglik_multinom_topic_model <- function (X, fit, e = 1e-15)
-  loglik_topic_model_helper(X,fit,"loglik.multinom",e)
+  loglik_helper(X,fit,"loglik.multinom",e)
 
 #' @rdname likelihood
 #' 
 #' @export
 #' 
-deviance_poisson_topic_model <- function (X, fit, e = 1e-15)
-  loglik_topic_model_helper(X,fit,"deviance.poisson",e)
+deviance_poisson_nmf <- function (X, fit, e = 1e-15)
+  loglik_helper(X,fit,"deviance.poisson",e)
 
 #' @rdname likelihood
 #' 
@@ -109,10 +109,9 @@ cost <- function (X, A, B, e = 1e-15, family = c("poisson","multinom"),
   return(f)
 }
 
-# This function provides the core implementation for the
-# loglik_poisson_topic_model, loglik_multinom_topic_model and
-# deviance_poisson_topic_model functions.
-loglik_topic_model_helper <- function (X, fit,
+# This function provides the core implementation for calculation of
+# log-likelihoods and deviances.
+loglik_helper <- function (X, fit,
   output.type = c("loglik.poisson","loglik.multinom","deviance.poisson"), e) {
 
   # Verify and process input "output.type".
@@ -157,7 +156,7 @@ loglik_topic_model_helper <- function (X, fit,
   if (!(n > 1 & m > 1))
     stop("Input matrix \"X\" should have at least 2 rows and 2 columns")
   
-  # Compute the log-likelihood or deviance for the topic model.
+  # Compute the log-likelihood or deviance.
   if (output.type == "loglik.poisson")
     f <- loglik_poisson_const(X) - cost(X,L,t(F),e,"poisson")
   else if (output.type == "loglik.multinom")

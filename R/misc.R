@@ -62,9 +62,9 @@ rescale.factors <- function (F, L) {
 trcrossprod <- function (A, B)
   sum(A * B)
 
-# For the Poisson non-negative matrix factorization with rank = 1, the
+# For a Poisson non-negative matrix factorization with rank = 1, the
 # maximum-likelihood estimate (MLE) has a closed-form (up to a scaling
 # factor); this function returns the MLE subject to the constraint
 # that mean(F) = mean(L).
-fit_topics_poisson_rank1 <- function (X)
+fit_pnmf_rank1 <- function (X)
   list(F = matrix(colMeans(X)),L = matrix(rowMeans()))

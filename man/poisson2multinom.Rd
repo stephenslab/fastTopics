@@ -2,7 +2,7 @@
 % Please edit documentation in R/poisson2multinom.R
 \name{poisson2multinom}
 \alias{poisson2multinom}
-\title{Get Multinomial Topic Model from Poisson Topic Model}
+\title{Get Multinomial Topic Model from Poisson Non-Negative Matrix Factorization}
 \usage{
 poisson2multinom(fit)
 }
@@ -23,6 +23,6 @@ The return value is the list \code{fit}, in which
 }
 \description{
 This function recovers parameter estimates of the
-  multinomial topic model given parameter estimates of the Poisson
-  topic model.
+  multinomial topic model given parameter estimates for a Poisson
+  non-negative matrix factorization.
 }

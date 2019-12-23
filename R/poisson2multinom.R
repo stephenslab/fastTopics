@@ -1,8 +1,8 @@
-#' @title Get Multinomial Topic Model from Poisson Topic Model
+#' @title Get Multinomial Topic Model from Poisson Non-Negative Matrix Factorization
 #'
 #' @description This function recovers parameter estimates of the
-#'   multinomial topic model given parameter estimates of the Poisson
-#'   topic model.
+#'   multinomial topic model given parameter estimates for a Poisson
+#'   non-negative matrix factorization.
 #'
 #' @param fit A list containing two dense, non-negative matrices,
 #'   \code{fit$F} and \code{fit$L}. The former is an m x k matrix of

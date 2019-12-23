@@ -1,5 +1,3 @@
-# TO DO: Explain here briefly what this function does, and how to use
-# it.
 lda <- function (X, F, L, alpha = rep(1,ncol(F)), numiter = 1000) {
 
   # Get the number of rows (n) and columns (m) of X, and the number of
@@ -51,7 +49,6 @@ lda <- function (X, F, L, alpha = rep(1,ncol(F)), numiter = 1000) {
   return(list(F = F,L = L,value = value))
 }
 
-# TO DO: Explain here what this function does, and how to use it.
 elbo.lda <- function (X, F, L, alpha) {
   n <- nrow(X)
   f <- rep(0,n)

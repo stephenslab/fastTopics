@@ -99,8 +99,8 @@ suppressWarnings(RNGversion("3.5.0"))
 set.seed(1)
 X <- simulate_count_data(100,200,3)$X
 
-# Fit a Poisson topic model with k = 3 topics by running 100
-# multiplicative updates.
+# Optimize a Poisson non-negative matrix factorization with k = 3
+# topics by running 100 multiplicative updates.
 F0  <- matrix(runif(600),200,3)
 L0  <- matrix(runif(300),100,3)
 fit <- betanmf(X,F0,L0,100)

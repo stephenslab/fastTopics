@@ -1,4 +1,4 @@
-#' @title Simulate Count Data from Poisson Topic Model
+#' @title Simulate Count Data from Poisson NMF Model
 #'
 #' @description Simulate a counts matrix \code{X} such that
 #'   \code{X[i,j]} is Poisson with rate (mean) \code{Y[i,j]}, where
