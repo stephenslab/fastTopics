@@ -16,7 +16,7 @@
 #'   topic model; specifically, \code{fit$L[i,]} gives the topic
 #'   probabilities for sample or document i, and \code{fit$F[,k]} gives
 #'   the term probabilities for topic k. An additional vector
-#'   \code{fit$s} of length n is returned giving the document "sizes".
+#'   \code{fit$s} of length n is returned giving the "document sizes".
 #' 
 #' @export
 #' 
@@ -48,8 +48,7 @@ poisson2multinom <- function (fit) {
          "2 columns")
   
   # Recover F and L for the multinomial model. Here, s gives the
-  # Poisson rates for generating the "document" sizes (the "size
-  # factors").
+  # Poisson rates for generating the "document sizes".
   L <- scale.cols(L,colSums(F))
   s <- rowSums(L)
   L <- L / s

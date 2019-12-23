@@ -8,12 +8,26 @@
 multinom2poisson(fit, X)
 }
 \arguments{
-\item{fit}{Describe the "fit" argument here.}
+\item{fit}{A list containing two dense, non-negative matrices,
+\code{fit$F} and \code{fit$L}. The former is an m x k matrix of
+factors, and the latter is an n x k matrix of loadings. It does not
+make sense for a multinomial topic model to have less than two
+topics, so an error will be reported when k < 2. An additional
+vector \code{fit$s} of length n specifing the "document sizes" may
+be provided. If this is not provided, the document sizes will need
+to be estimated from the data (see input argument \code{X}).}
 
-\item{X}{Describe the "X" argument here.}
+\item{X}{The n x m matrix of counts or pseudocounts. It can be a
+sparse matrix (class \code{"dgCMatrix"}) or dense matrix (class
+\code{"matrix"}). This only needs to be provided if the document
+sizes \code{fit$s} are not made available.}
 }
 \value{
-Describe the return value here.
+The return value is the list \code{fit}, in which matrices
+  \code{fit$F} and \code{fit$L} specify the factors and loadings in
+  the Poisson non-negative matrix factorization; specifically,
+  the counts matrix is modeled by the low-rank matrix product
+  \code{tcrossprod(fit$L,fit$F)}.
 }
 \description{
 This function recovers parameter estimates of the
