@@ -119,6 +119,13 @@ loglik_helper <- function (X, fit,
       
   # Verify and process inputs X and "fit". 
   verify.fit.and.count.matrix(X,fit)
+  if (inherits(fit,"poisson_nmf") & output.type == "loglik.multinom")
+    warning("Calculating multinomial likelihood for a Poisson non-negative ",
+            "matrix factorization")
+  else if (inherits(fit,"multinom_topic_model") &
+           output.type != "loglik.multinom")
+    warning("Calculating Poisson likelihood or deviance for a multinomial ",
+            "topic model")
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
   F <- fit$F
@@ -147,6 +154,9 @@ loglik_helper <- function (X, fit,
 }
 
 # Compute the constant terms in the Poisson log-likelihoods.
+#
+#' @importFrom Matrix rowSums
+#
 loglik_poisson_const <- function (X) {
   if (is.matrix(X))
     return(-rowSums(lgamma(X + 1)))
@@ -159,6 +169,9 @@ loglik_multinom_const <- function (X)
   lgamma(rowSums(X) + 1) + loglik_poisson_const(X)
 
 # Compute the constant terms in the Poisson devainces.
+#
+#' @importFrom Matrix rowSums
+#
 deviance_poisson_const <- function (X) {
   e <- .Machine$double.eps
   if (is.matrix(X))

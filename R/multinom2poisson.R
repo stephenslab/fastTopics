@@ -11,6 +11,9 @@
 #'
 #' @return Describe the return value here.
 #'
+#' @importFrom Matrix rowSums
+#' @importFrom Matrix colSums
+#' 
 #' @export
 #'
 multinom2poisson <- function (fit, X) {
@@ -45,14 +48,9 @@ multinom2poisson <- function (fit, X) {
     stop("Exactly one of \"X\" and \"fit$s\" should be specified")
   
   if (missing(X)) {
-
-    # Check the vector of "scale factors", s.
+      
+    # Process the "scale factors", s.
     s <- fit$s
-    # if (!(is.numeric(s) & length(s) == n))
-    #   stop("Input \"fit$s\" should be a numeric vector of length n")
-    # if (any(is.infinite(a)) | any(is.na(x)) | any(x <= 0))
-    #   stop("Numeric vector \"fit$s\" should contain only finite, ",
-    #        "non-missing and positive elements")        
     s <- as.double(s)
   } else {
 
@@ -61,19 +59,17 @@ multinom2poisson <- function (fit, X) {
     if (is.matrix(X) & is.integer(X))
       storage.mode(X) <- "double"
 
-    # Compute the "size factors", s, from the counts matrix, X.
-    # TO DO.
+    # Compute maximum-likelihood estimates of the "size factors", s,
+    # from the counts matrix, X.
+    s <- rowSums(X)
   }
 
   # Recover F and L for the Poisson non-negative matrix factorization.
-  # L <- scale.cols(L,colSums(F))
-  # s <- rowSums(L)
-  # L <- L / s
-  # F <- normalize.cols(F)
+  out <- rescale.factors(F,s*L)
   
   # Update the "fit" object, and return it.
-  fit$F <- F
-  fit$L <- L
+  fit$F <- out$F
+  fit$L <- out$L
   fit$s <- NULL
   class(fit) <- c("poisson_nmf","list")
   return(fit)
