@@ -1,8 +1,9 @@
 # Compute a maximum-likelihood estimate (MLE) of the mixture
 # proportions in the multinomial mixture model by iterating the EM
 # updates for a fixed number of iterations. This is mainly used for
-# testing the C++ implementation.
-mixem <- function (L, w, x0, numiter = 1) {
+# testing the C++ implementation. See the comments attached to the
+# "mixem" C++ function for an explanation of the inputs.
+mixem <- function (L, w, x0, numiter) {
   x <- x0
   for (i in 1:numiter)
     x <- mixem.update(L,w,x)
@@ -17,8 +18,8 @@ mixem.update <- function (L, w, x) {
   # Compute the posterior mixture assignment probabilities. This is
   # the "E step".
   P <- scale.cols(L,x)
-  P <- normalize.rows(P) + e
-  P <- P / rowSums(P)
+  P <- normalize.rows.by.max(P) + e
+  P <- normalize.rows(P)
 
   # Update the mixture weights. This is the "M step".
   w <- w/sum(w)

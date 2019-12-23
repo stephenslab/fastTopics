@@ -38,6 +38,10 @@ scale.cols <- function (A, b)
 normalize.rows <- function (A)
   A / rowSums(A)
 
+# Scale each row of A so that the large entry in each row is 1.
+normalize.rows.by.max <- function (A)
+  A / apply(A,1,max)
+
 # Scale each column of A so that the entries of each column sum to 1.
 normalize.cols <- function (A)
   t(t(A) / colSums(A))
