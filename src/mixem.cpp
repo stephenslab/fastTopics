@@ -10,8 +10,7 @@ using namespace arma;
 // [[Rcpp::export]]
 arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
 		      const arma::vec& x0, uint numiter) {
-  mat P = L;
-  return mixem(L,w,x0,P,numiter);
+  return mixem(L,w,x0,numiter);
 }
 
 // Compute a maximum-likelihood estimate (MLE) of the mixture
@@ -28,6 +27,11 @@ arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
 //
 // The return value is a vector of length m containing the updated
 // mixture proportions.
+vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
+  mat P = L;
+  return mixem(L,w,x0,P,numiter);
+}
+
 vec mixem (const mat& L, const vec& w, const vec& x0, mat& P, uint numiter) {
   vec x = x0;
   for (uint i = 0; i < numiter; i++)

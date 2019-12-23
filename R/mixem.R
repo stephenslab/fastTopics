@@ -10,8 +10,8 @@ mixem <- function (L, w, x0, numiter) {
   return(x)
 }
 
-# Perform a single EM update. This is mainly used for testing the C++
-# implementation.
+# Perform a single EM update for the multinomial mixture model. This
+# is mainly used for testing the C++ implementation.
 mixem.update <- function (L, w, x) {
   e <- 1e-15
   

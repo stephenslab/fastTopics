@@ -10,7 +10,7 @@ test_that("mixem and mixem_rcpp produce same result",{
   L <- matrix(runif(n*m),n,m)
   w <- rpois(n,L %*% x)
 
-  # Run the EM updates for the multinomial mixture model. The R and
+  # Run 100 EM updates for the multinomial mixture model. The R and
   # C++ implementations should give nearly the same result.
   x0 <- runif(m)
   x0 <- x0/sum(x0)
