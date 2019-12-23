@@ -56,8 +56,8 @@ commands in the shell:
 
 ```bash
 R CMD build fastTopics
-R CMD INSTALL fastTopics_0.2-28.tar.gz
-R CMD check --as-cran fastTopics_0.2-28.tar.gz
+R CMD INSTALL fastTopics_0.2-29.tar.gz
+R CMD check --as-cran fastTopics_0.2-29.tar.gz
 ```
 
 Note that these commands require that the dependencies have already
@@ -74,11 +74,10 @@ pkgdown::build_site(mathjax = FALSE)
 
 Version 1.1.0 of pkgdown was used.
 
-### Building the Sweave vignette and updating the Overleaf latex
+### Building the Sweave PDF
 
-The vignette will be automatically built when the package is
-installed. To build it separately, change your working directory to
-the "vignettes" subdirectory, and run this R codee to generate the
+To build the Sweave PDF, change your working directory to the
+`inst/derivations` subdirectory, and run this R code to generate the
 Latex from the Sweave document, then the PDF from the Latex:
 
 ```R

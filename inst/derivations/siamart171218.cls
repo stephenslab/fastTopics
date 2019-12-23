@@ -1618,10 +1618,10 @@ Vol.\ #3, No.\ #4, pp.\ #5
 
 %% >>tgk>> --- Removed Summer 2015 --- %back in Winter 2017---MSC
 %%
-\if@oneeqnum
-\else
-\numberwithin{equation}{section}
-\fi
+% \if@oneeqnum
+% \else
+% \numberwithin{equation}{section}
+% \fi
 
 \if@onetabnum
 \else
