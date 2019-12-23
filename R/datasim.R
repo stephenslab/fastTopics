@@ -45,15 +45,15 @@
 simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 
   # Check inputs.
-  if (n < 2)
+  if (!(is.scalar(n) & all(n >= 2)))
     stop("Input argument \"n\" should be 2 or more")
-  if (m < 2)
+  if (!(is.scalar(m) & all(m >= 2)))
     stop("Input argument \"m\" should be 2 or more")
-  if (k < 1)
+  if (!(is.scalar(k) & k >= 1))
     stop("Input argument \"k\" should be 1 or more")
-  if (fmax <= 0)
+  if (!(is.scalar(fmax) & fmax > 0))
     stop("Input argument \"fmax\" should be a positive number")
-  if (lmax <= 0)
+  if (!(is.scalar(lmax) & lmax > 0))
     stop("Input argument \"lmax\" should be a positive number")
   
   # Simulate the data.

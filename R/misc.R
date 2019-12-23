@@ -1,26 +1,67 @@
-# Verify that x is a minimally valid non-negative matrix.
-verify.matrix <- function (x, arg.name = deparse(substitute(x))) {
+# Return TRUE if x is a finite scalar with no missing entries.
+is.scalar <- function (x)
+  is.numeric(x) &
+  length(x) == 1 &
+  all(!is.na(x)) &
+  all(is.finite(x))
+
+# Verify that x is non-negative matrix.
+verify.nonnegative.matrix <- function (x, arg.name = deparse(substitute(x))) {
   arg.name <- sprintf("\"%s\"",arg.name)
   msg <- paste("Input argument",arg.name,"should be a non-negative,",
                "numeric matrix (a \"matrix\" or a \"dgCMatrix\"), and",
                "all entries should be finite and non-missing")
-  if (!((is.matrix(x) & is.numeric(x)) |
-        inherits(x,"dgCMatrix")))
+  if (!((is.matrix(x) & is.numeric(x)) | inherits(x,"dgCMatrix")))
     stop(msg)
   else if (any(x < 0) | any(is.infinite(x)) | any(is.na(x)))
     stop(msg)
   return(TRUE)
 }
 
-# Verify that x is a list with elements F and L.
-verify.fit <- function (x, arg.name = deparse(substitute(x))) {
+# Verify that x is a valid count matrix.
+verify.count.matrix <- function (x, arg.name = deparse(substitute(x))) {
+  verify.nonnegative.matrix(x,arg.name)
   arg.name <- sprintf("\"%s\"",arg.name)
-  msg <- paste("Input argument",arg.name,"should be a list containing",
-               "named elements \"F\" and \"L\"")
+  if (!(nrow(x) > 1 & ncol(x) > 1))
+    stop(paste("Input matrix",arg.name,"should have at least 2 rows",
+               "and 2 columns"))
+  return(TRUE)
+}
+
+# Verify that x is a valid topic model fit or non-negative matrix
+# factorization.
+verify.fit <- function (x, arg.name = deparse(substitute(x))) {
+  arg.name.F <- paste0(arg.name,"$F")
+  arg.name.L <- paste0(arg.name,"$L")
+  arg.name   <- sprintf("\"%s\"",arg.name)
+  msg        <- paste("Input argument",arg.name,"should be a list containing",
+                      "non-negative matrices \"F\" and \"L\"")
   if (!is.list(x))
     stop(msg)
   else if (!all(is.element(c("F","L"),names(x))))
     stop(msg)
+  verify.nonnegative.matrix(x$F,arg.name.F)
+  verify.nonnegative.matrix(x$L,arg.name.L)
+  if (ncol(x$F) != ncol(x$L))
+    stop(paste("Input matrices",arg.name.F,"and",arg.name.L,"should have",
+               "the same number of columns"))
+  return(TRUE)
+}
+
+# Verify that x is a valid count matrix and "fit" is a valid topic model
+# fit or non-negative matrix factorization.
+verify.fit.and.count.matrix <-
+    function (x, fit,
+              arg.name.x   = deparse(substitute(x)),
+              arg.name.fit = deparse(substitute(fit))) {
+  verify.count.matrix(x,arg.name.x)
+  verify.fit(fit,arg.name.fit)
+  arg.name.x <- sprintf("\"%s\"",arg.name.x)
+  arg.name.F <- sprintf("\"%s$F\"",arg.name.fit)
+  arg.name.L <- sprintf("\"%s$L\"",arg.name.fit)
+  if (!(nrow(fit$L) == nrow(x) & nrow(fit$F) == ncol(x)))
+    stop(paste("Dimensions of input matrices",arg.name.x,",",arg.name.F,
+               "and",arg.name.L,"do not agree"))
   return(TRUE)
 }
 
@@ -38,13 +79,13 @@ scale.cols <- function (A, b)
 normalize.rows <- function (A)
   A / rowSums(A)
 
-# Scale each row of A so that the large entry in each row is 1.
-normalize.rows.by.max <- function (A)
-  A / apply(A,1,max)
-
 # Scale each column of A so that the entries of each column sum to 1.
 normalize.cols <- function (A)
   t(t(A) / colSums(A))
+
+# Scale each row of A so that the large entry in each row is 1.
+normalize.rows.by.max <- function (A)
+  A / apply(A,1,max)
 
 # Rescale the factors (F) and loadings (F) with the property that the
 # matrix reconstruction L*F' remains the same after rescaling;
@@ -55,12 +96,6 @@ rescale.factors <- function (F, L) {
   return(list(F = scale.cols(F,d),
               L = scale.cols(L,1/d)))
 }
-
-# trcrossprod(A,B) returns trace(t(A) %*% B), where A and B are
-# matrices with the same number of rows and column, and trace(X) =
-# sum(diag(X)).
-trcrossprod <- function (A, B)
-  sum(A * B)
 
 # For a Poisson non-negative matrix factorization with rank = 1, the
 # maximum-likelihood estimate (MLE) has a closed-form (up to a scaling

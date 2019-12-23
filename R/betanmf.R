@@ -120,9 +120,9 @@ betanmf <- function (X, F0, L0, numiter = 1000, minval = 1e-15,
   # CHECK INPUTS
   # ------------
   # Perfom some very basic checks of the inputs.
-  if (!(is.matrix(X) & is.matrix(F0) & is.matrix(L0)))
-    stop("Input arguments \"X\", \"F0\" and \"L0\" should be numeric ",
-         "matrices; see help(matrix) for more information")
+  if (!(is.matrix(X) & is.matrix(F0) & is.matrix(L0) &
+        is.numeric(X) & is.matrix(F0) & is.matrix(L0)))
+    stop("Input arguments \"X\", \"F0\" and \"L0\" should be numeric matrices")
 
   # Get the number of rows (n) and columns (m) of data matrix, and get
   # the rank of the matrix factorization (k).
@@ -133,9 +133,9 @@ betanmf <- function (X, F0, L0, numiter = 1000, minval = 1e-15,
     stop("Matrix factorization should have rank at least 2")
 
   # Check input argument "minval".
-  if (minval < 0)
+  if (any(minval < 0))
     stop("Input argument \"minval\" should be zero or a positive number")
-  if (minval == 0)
+  if (any(minval == 0))
     warning("Multiplicative updates may not converge when \"minval\" is zero")
   
   # INITIALIZE ESTIMATES

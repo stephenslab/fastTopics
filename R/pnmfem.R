@@ -79,12 +79,11 @@ pnmfem <- function (X, L0, F0, numiter = 1000, minval = 1e-15,
   # CHECK INPUTS
   # ------------
   # Perfom some very basic checks of the inputs.
-  if (!(is.matrix(x) | inherits(x,"dgCMatrix")))
+  if (!((is.matrix(x) & is.numeric(x)) | inherits(x,"dgCMatrix")))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
-  if (!(is.matrix(F0) & is.matrix(L0)))
-    stop("Input arguments \"F0\" and \"L0\" should be numeric matrices; ",
-         "see help(matrix) for more information")
+  if (!(is.matrix(F0) & is.matrix(L0) & is.numeric(F0) & is.numeric(L0)))
+    stop("Input arguments \"F0\" and \"L0\" should be numeric matrices")
 
   # Get the number of rows (n) and columns (m) of data matrix, and get
   # the rank of the matrix factorization (k).
@@ -95,9 +94,9 @@ pnmfem <- function (X, L0, F0, numiter = 1000, minval = 1e-15,
     stop("Matrix factorization should have rank at least 2")
 
   # Check input argument "minval".
-  if (minval < 0)
+  if (any(minval < 0))
     stop("Input argument \"minval\" should be zero or a positive number")
-  if (minval == 0)
+  if (any(minval == 0))
     warning("EM updates may not converge when \"minval\" is zero")
   
   # INITIALIZE ESTIMATES

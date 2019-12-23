@@ -19,3 +19,15 @@ test_that("poisson2multinom correctly scales factors and loadings",{
   expect_equivalent(colSums(fit$F),c(1,1))
   expect_equivalent(rowSums(fit$L),c(1,1,1,1))
 })
+
+test_that("multinom2poisson recovers original Poisson NMF model fit",{
+  library(Matrix)
+  set.seed(1)
+  out <- simulate_count_data(100,200,3)
+  X    <- out$X
+  fit1 <- out[c("F","L")]
+  fit2 <- poisson2multinom(fit1)
+  fit3 <- multinom2poisson(fit2)
+  fit4 <- multinom2poisson(fit2[c("F","L")],X)
+  fit5 <- multinom2poisson(fit2[c("F","L")],as(X,"dgCMatrix"))
+})

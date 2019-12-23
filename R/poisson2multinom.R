@@ -22,34 +22,27 @@
 #' 
 poisson2multinom <- function (fit) {
 
-  # Input argument "fit" should be a list with elements "F" and "L".
+  # Verify input argument "fit".
   verify.fit(fit)
+  if (inherits(fit,"multinom_topic_model"))
+    stop("Input argument \"fit\" should not be a multinomial topic model")
   F <- fit$F
   L <- fit$L
-
-  # Verify and process input matrix F. Each column of F should have at
-  # least one positive entry.
-  verify.matrix(fit$F)
+  
+  # Verify and process input matrix F.
   if (any(colSums(F) <= 0))
     stop("Each column of \"fit$F\" should have at least one positive entry")
-  if (!is.matrix(F))
-    F <- as.matrix(F)
   if (is.integer(F))
     storage.mode(F) <- "double"
   
   # Verify and process input matrix L. Each row of L should have at
   # least one positive entry.
-  verify.matrix(fit$L)
   if (any(rowSums(L) <= 0))
     stop("Each row of \"fit$L\" should have at least one positive entry")
-  if (!is.matrix(L))
-    L <- as.matrix(L)
   if (is.integer(L))
     storage.mode(L) <- "double"
   
-  # Check that matrices F and L are compatible, and that k > 1.
-  if (ncol(F) != ncol(L))
-    stop("Dimensions of \"fit$F\" and \"fit$L\" do not agree")
+  # Check that k > 1.
   if (ncol(F) < 2)
     stop("Input matrices \"fit$F\" and \"fit$L\" should have at least ",
          "2 columns")
@@ -67,25 +60,5 @@ poisson2multinom <- function (fit) {
   fit$L <- L
   fit$s <- s
   class(fit) <- c("multinom_topic_model","list")
-  return(fit)
-}
-
-#' @title Get Poisson Non-Negative Matrix Factorization from Multinomial
-#'   Topic Model
-#'
-#' @description This function recovers parameter estimates of the
-#'   Poisson non-negative matrix factorization given parameter estimates
-#'   for a multinomial topic model.
-#'
-#' @param fit Describe the "fit" argument here.
-#'
-#' @param X Describe the "X" argument here.
-#'
-#' @return Describe the return value here.
-#'
-#' @export
-#'
-multinom2poisson <- function (fit, X) {
-  class(fit) <- c("poisson_nmf","list")
   return(fit)
 }

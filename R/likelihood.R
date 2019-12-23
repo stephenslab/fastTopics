@@ -117,45 +117,25 @@ loglik_helper <- function (X, fit,
   # Verify and process input "output.type".
   output.type <- match.arg(output.type)
       
-  # Verify and process input matrix X. 
-  verify.matrix(X)
+  # Verify and process inputs X and "fit". 
+  verify.fit.and.count.matrix(X,fit)
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
-  
-  # Input argument "fit" should be a list with elements "F" and "L".
-  verify.fit(fit)
   F <- fit$F
   L <- fit$L
 
-  # Verify and process input matrix F.
-  verify.matrix(fit$F)
-
-  if (!is.matrix(F))
-    F <- as.matrix(F)
+  # Process input matrix F.
   if (is.integer(F))
     storage.mode(F) <- "double"
   if (output.type == "loglik.multinom")
     F <- normalize.cols(F)
   
-  # Verify and process input matrix L.
-  verify.matrix(fit$L)
-  if (!is.matrix(L))
-    L <- as.matrix(L)
+  # Process input matrix L.
   if (is.integer(L))
     storage.mode(L) <- "double"
   if (output.type == "loglik.multinom")
     L <- normalize.rows(L)
 
-  # Check that matrices X, F and L are compatible, and that X is at
-  # least a 2 x 2 matrix.
-  n <- nrow(X)
-  m <- ncol(X)
-  if (!(nrow(L) == n & nrow(F) == m & ncol(L) == ncol(F)))
-    stop("Dimensions of input matrices \"X\", \"fit$F\" and/or \"fit$L\" ",
-         "do not agree")
-  if (!(n > 1 & m > 1))
-    stop("Input matrix \"X\" should have at least 2 rows and 2 columns")
-  
   # Compute the log-likelihood or deviance.
   if (output.type == "loglik.poisson")
     f <- loglik_poisson_const(X) - cost(X,L,t(F),e,"poisson")
