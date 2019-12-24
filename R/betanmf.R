@@ -1,15 +1,20 @@
-#' @title Multiplicative Update Rules for Poisson Non-negative Matrix
-#'   Factorization
+#' @title Multiplicative and EM Update Rules for Poisson Non-negative
+#'   Matrix Factorization
 #'
 #' @description This function decomposes the input matrix X = L*F' by
 #'   nonnegative matrix factorization (NMF) based on the "divergence"
 #'   criterion; equivalently, it optimizes the likelihood under a
 #'   Poisson model of the count data, X. It runs a specified number of
-#'   multiplicative updates (MU) to fit the L and F matrices. Note that
-#'   the multiplicative updates can also be derived, and hence
-#'   interpreted, as an expectation maximization (EM) algorithm.
+#'   multiplicative updates (MU) or expectation maximization (EM)
+#'   updates to fit the L and F matrices.
 #'
-#' @details The multiplicative updates are very simple and
+#'   Although the EM updates are mathematically equivalent to the
+#'   multiplicative updates, and therefore they share the same
+#'   convergence properties, the implementation of EM is quite
+#'   different; in particular, the EM updates are more suitable for
+#'   sparse counts matrices.
+#'
+#' @details The multiplicative and EM updates are very simple and
 #'   fast. However, they can also be very slow to converge to a
 #'   stationary point of the objective, particularly when the data are
 #'   sparse.
@@ -20,8 +25,8 @@
 #'   not careful, you will get poor results are errors that are
 #'   difficult to interpret.
 #'
-#'   This implementation is adapted from the MATLAB code by Daichi
-#'   Kitamura \url{http://d-kitamura.net}.
+#'   The implementation of the multiplicative updates is adapted from
+#'   the MATLAB code by Daichi Kitamura \url{http://d-kitamura.net}.
 #'
 #'   The "safeguard" step preventing the factors and loadings from
 #'   exactly reaching zero is motivated by Theorem 1 of Gillis & Glineur
@@ -29,6 +34,12 @@
 #' 
 #'   An additional re-scaling step is performed at each iteration to
 #'   promote numerical stability.
+#'
+#'   Since the multiplicative updates are implemented using standard
+#'   matrix operations, the speed is heavily dependent on the
+#'   BLAS/LAPACK numerical libraries used. In particular, using
+#'   optimized implementations such as OpenBLAS or Intel MKL can result
+#'   in much improved performance of the multiplcative updates.
 #'
 #' @param X The n x m matrix of counts; all entries of X should be
 #'   non-negative. Note that sparse matrices are not accommodated
@@ -44,8 +55,14 @@
 #'   "activations"). It should an n x k matrix, where n is the number of
 #'   rows of X, and k > 1 is the rank of the matrix factorization. All
 #'   entries of L should be non-negative.
-#'  
+#'
 #' @param numiter The number of multiplicative updates to run.
+#' 
+#' @param method When \code{method = "em"}, the EM updates will be
+#'   performed; when \code{method = "mu"}, the multiplicative updates
+#'   will be performed. The multiplicative updates are only implemented
+#'   for dense count matrices; if \code{method = "mu"} and \code{X} is a
+#'   sparse matrix, and error will be generated.
 #' 
 #' @param minval A small positive constant used to safeguard the
 #'   multiplicative updates. The multiplicative updates are implemented
@@ -102,9 +119,10 @@
 #' 
 #' # Optimize a Poisson non-negative matrix factorization with k = 3
 #' # topics by running 100 multiplicative updates.
-#' F0  <- matrix(runif(600),200,3)
-#' L0  <- matrix(runif(300),100,3)
-#' fit <- betanmf(X,F0,L0,100)
+#' F0   <- matrix(runif(600),200,3)
+#' L0   <- matrix(runif(300),100,3)
+#' fit1 <- betanmf(X,F0,L0,100,method = "mu")
+#' fit2 <- betanmf(x,F0,L0.100,method = "em")
 #' 
 #' # Plot the improvement in the solution over time.
 #' dev.min <- 19661.4155
@@ -114,16 +132,27 @@
 #' 
 #' @export
 #'
-betanmf <- function (X, F0, L0, numiter = 1000, minval = 1e-15,
-                     e = 1e-15, verbose = TRUE) {
+betanmf <- function (X, F0, L0, numiter = 1000, method = c("em", "mu"),
+                     minval = 1e-15, e = 1e-15, verbose = TRUE) {
 
   # CHECK INPUTS
   # ------------
   # Perfom some very basic checks of the inputs.
-  if (!(is.matrix(X) & is.matrix(F0) & is.matrix(L0) &
-        is.numeric(X) & is.matrix(F0) & is.matrix(L0)))
+  method <- match.arg(method)
+  if (!(is.numeric(X) & is.matrix(F0) & is.matrix(L0) &
+        is.numeric(F0) & is.numeric(L0)))
     stop("Input arguments \"X\", \"F0\" and \"L0\" should be numeric matrices")
-
+  if (method == "em") {
+    if (!(is.matrix(X) | inherits(X,"dgCMatrix")))
+      stop("Input argument \"X\" should be a numeric matrix ",
+           "(a \"matrix\" or a \"dgCMatrix\")")
+  } else if (method == "mu") {
+    if (!is.matrix(X))
+      stop("When method = \"mu\", input argument \"X\" should be a numeric ",
+           "matrix; that is, is.matrix(X) and is.numeric(X) should return ",
+           "TRUE")
+  }
+  
   # Get the number of rows (n) and columns (m) of data matrix, and get
   # the rank of the matrix factorization (k).
   n <- nrow(X)
@@ -164,7 +193,7 @@ betanmf <- function (X, F0, L0, numiter = 1000, minval = 1e-15,
   # Run the multiplicative updates.
   if (verbose)
     cat("iter      log-likelihood            deviance max|F-F'| max|L-L'|\n")
-  out <- betanmf_helper(X,L,t(F),minval,e,progress,verbose)
+  out <- betanmf_helper(X,F,L,method,minval,e,progress,verbose)
 
   # Return a list containing (1) an estimate of the factors, (2) an
   # estimate of the loadings, and (3) a data frame recording the
@@ -177,7 +206,7 @@ betanmf <- function (X, F0, L0, numiter = 1000, minval = 1e-15,
 }
 
 # This implements the core part of the betanmf function.
-betanmf_helper <- function (X, A, B, minval, e, progress, verbose) {
+betanmf_helper <- function (X, L, F, method, minval, e, progress, verbose) {
   loglik.const <- loglik_poisson_const(X)
   dev.const    <- deviance_poisson_const(X)
   numiter      <- nrow(progress)
@@ -190,14 +219,14 @@ betanmf_helper <- function (X, A, B, minval, e, progress, verbose) {
     progress[i,"timing"]  <- timing["elapsed"]
     progress[i,"loglik"]  <- sum(loglik.const - cost(X,A,B,e,"poisson"))
     progress[i,"dev"]     <- sum(dev.const + 2*cost(X,A,B,e,"poisson"))
-    progress[i,"delta.f"] <- max(abs(B - B0))
-    progress[i,"delta.l"] <- max(abs(A - A0))
+    progress[i,"delta.f"] <- max(abs(F - F0))
+    progress[i,"delta.l"] <- max(abs(L - L0))
     if (verbose)
       cat(sprintf("%4d %+0.12e %+0.12e %0.3e %0.3e\n",
                   i,progress[i,"loglik"],progress[i,"dev"],
                   progress[i,"delta.f"],progress[i,"delta.l"]))
   }
-  return(list(A = A,B = B,progress = as.data.frame(progress)))
+  return(list(F = F,L = L,progress = as.data.frame(progress)))
 }
 
 # Perform a single multiplicative update with safeguarding to promote

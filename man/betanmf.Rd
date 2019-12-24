@@ -2,11 +2,11 @@
 % Please edit documentation in R/betanmf.R
 \name{betanmf}
 \alias{betanmf}
-\title{Multiplicative Update Rules for Poisson Non-negative Matrix
-  Factorization}
+\title{Multiplicative and EM Update Rules for Poisson Non-negative
+  Matrix Factorization}
 \usage{
-betanmf(X, F0, L0, numiter = 1000, minval = 1e-15, e = 1e-15,
-  verbose = TRUE)
+betanmf(X, F0, L0, numiter = 1000, method = c("em", "mu"),
+  minval = 1e-15, e = 1e-15, verbose = TRUE)
 }
 \arguments{
 \item{X}{The n x m matrix of counts; all entries of X should be
@@ -25,6 +25,12 @@ rows of X, and k > 1 is the rank of the matrix factorization. All
 entries of L should be non-negative.}
 
 \item{numiter}{The number of multiplicative updates to run.}
+
+\item{method}{When \code{method = "em"}, the EM updates will be
+performed; when \code{method = "mu"}, the multiplicative updates
+will be performed. The multiplicative updates are only implemented
+for dense count matrices; if \code{method = "mu"} and \code{X} is a
+sparse matrix, and error will be generated.}
 
 \item{minval}{A small positive constant used to safeguard the
 multiplicative updates. The multiplicative updates are implemented
@@ -66,12 +72,17 @@ This function decomposes the input matrix X = L*F' by
   nonnegative matrix factorization (NMF) based on the "divergence"
   criterion; equivalently, it optimizes the likelihood under a
   Poisson model of the count data, X. It runs a specified number of
-  multiplicative updates (MU) to fit the L and F matrices. Note that
-  the multiplicative updates can also be derived, and hence
-  interpreted, as an expectation maximization (EM) algorithm.
+  multiplicative updates (MU) or expectation maximization (EM)
+  updates to fit the L and F matrices.
+
+  Although the EM updates are mathematically equivalent to the
+  multiplicative updates, and therefore they share the same
+  convergence properties, the implementation of EM is quite
+  different; in particular, the EM updates are more suitable for
+  sparse counts matrices.
 }
 \details{
-The multiplicative updates are very simple and
+The multiplicative and EM updates are very simple and
   fast. However, they can also be very slow to converge to a
   stationary point of the objective, particularly when the data are
   sparse.
@@ -82,8 +93,8 @@ The multiplicative updates are very simple and
   not careful, you will get poor results are errors that are
   difficult to interpret.
 
-  This implementation is adapted from the MATLAB code by Daichi
-  Kitamura \url{http://d-kitamura.net}.
+  The implementation of the multiplicative updates is adapted from
+  the MATLAB code by Daichi Kitamura \url{http://d-kitamura.net}.
 
   The "safeguard" step preventing the factors and loadings from
   exactly reaching zero is motivated by Theorem 1 of Gillis & Glineur
@@ -91,6 +102,12 @@ The multiplicative updates are very simple and
 
   An additional re-scaling step is performed at each iteration to
   promote numerical stability.
+
+  Since the multiplicative updates are implemented using standard
+  matrix operations, the speed is heavily dependent on the
+  BLAS/LAPACK numerical libraries used. In particular, using
+  optimized implementations such as OpenBLAS or Intel MKL can result
+  in much improved performance of the multiplcative updates.
 }
 \examples{
 
@@ -101,9 +118,10 @@ X <- simulate_count_data(100,200,3)$X
 
 # Optimize a Poisson non-negative matrix factorization with k = 3
 # topics by running 100 multiplicative updates.
-F0  <- matrix(runif(600),200,3)
-L0  <- matrix(runif(300),100,3)
-fit <- betanmf(X,F0,L0,100)
+F0   <- matrix(runif(600),200,3)
+L0   <- matrix(runif(300),100,3)
+fit1 <- betanmf(X,F0,L0,100,method = "mu")
+fit2 <- betanmf(x,F0,L0.100,method = "em")
 
 # Plot the improvement in the solution over time.
 dev.min <- 19661.4155
