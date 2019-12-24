@@ -27,9 +27,8 @@ void getcolnonzeros (const sp_mat& A, uvec& i, uint j) {
 
 // Scale each column A[,i] by b[i].
 void scalecols (mat& A, const vec& b) {
-  uint n = A.n_cols;
-  for (uint i = 0; i < n; i++)
-    A.col(i) *= b(i);
+  vec c = b;
+  A.each_row() %= c;
 }
 
 // Normalize each row of A so that the entries in each row sum to 1.
