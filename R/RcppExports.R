@@ -53,6 +53,10 @@ mixsqp_rcpp <- function(L, w, x0, e, numiter, control, verbose) {
     .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, e, numiter, control, verbose)
 }
 
+pnmfem_update_factors_rcpp <- function(X, F, L, numiter) {
+    .Call('_fastTopics_pnmfem_update_factors_rcpp', PACKAGE = 'fastTopics', X, F, L, numiter)
+}
+
 poismixem_rcpp <- function(L, w, x0, numiter) {
     .Call('_fastTopics_poismixem_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
 }
