@@ -140,13 +140,13 @@ pnmfem_helper <- function (X, F, L, minval, e, progress, verbose) {
 }
 
 # TO DO: Explain here what this function does, and how to use it.
-pnmfem_update_factors <- function (X, F, L, numiter, e) {
+pnmfem_update_factors <- function (X, F, L, numiter = 1, e = 1e-15) {
   F <- t(pnmfem_update_factors_rcpp(X,t(F),L,numiter))
   return(pmax(F,e))
 }
 
 # TO DO: Explain here what this function does, and how to use it.
-pnmfem_update_loadings <- function (X, F, L, numiter, e) {
+pnmfem_update_loadings <- function (X, F, L, numiter = 1, e = 1e-15) {
   L <- t(pnmfem_update_factors_rcpp(t(X),t(L),F,numiter))
   return(pmax(L,e))
 }
