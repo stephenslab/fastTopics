@@ -4,26 +4,22 @@
 # used for testing the C++ implementation. See the comments attached
 # to the "poismixem" C++ function for an explanation of the inputs.
 poismixem <- function (L, w, x0, numiter) {
-  x   <- x0
-  s   <- sum(w)
-  out <- p2m(L,x)
-  x   <- mixem(out$L,w,out$x,numiter)
-  return(m2p(L,x,s))
-}
+  x <- x0
 
-# Recover the mixture weights of the multinomial mixture model from
-# the mixture weights of the Poisson mixture model. The "scale factor"
-# (s) is also returned. This is mainly used for testing the C++
-# implementation.
-p2m <- function (L, x) {
+  # Recover the mixture weights of the multinomial mixture model from
+  # the mixture weights of the Poisson mixture model. Here, s is the
+  # "scale factor".
   s <- sum(L %*% x)
   u <- colSums(L)
-  return(list(L = normalize.cols(L),x = x*u/s,s = s))
+  L <- normalize.cols(L)
+  x <- x*u/s
+
+  # Perform one or more EM updates for the multinomial mixture model.
+  x <- mixem(L,w,x,numiter)
+
+  # Recover the mixture weights of the Poisson mixture model from the
+  # mixture weights of the multinomial mixture model.
+  s <- sum(w)
+  return(s*x/u)
 }
 
-# Recover the mixture weights of the Poisson mixture model from the
-# mixture weights of the multinomial mixture model, plus the "scale
-# factor" (s). This is mainly used for testing the C++
-# implementation.
-m2p <- function (L, x, s)
-  s*x/colSums(L)

@@ -4,7 +4,8 @@
 # testing the C++ implementation. See the comments attached to the
 # "mixem" C++ function for an explanation of the inputs.
 mixem <- function (L, w, x0, numiter) {
-  x <- x0
+  L <- normalize.cols(L)
+  x <- x0/sum(x0)
   for (i in 1:numiter)
     x <- mixem.update(L,w,x)
   return(x)
@@ -26,12 +27,3 @@ mixem.update <- function (L, w, x) {
   w <- w/sum(w)
   return(drop(w %*% P))
 }
-
-# Find the MLE for the special case when only one of the counts is
-# nonzero. Here, w should be a scalar and L should be a vector.
-mixture.one.nonzero <- function (L, w) {
-  x <- rep(0,length(L))
-  x[which.max(L)] <- 1
-  return(x)
-}
-

@@ -27,19 +27,29 @@ arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
 //
 // The return value is a vector of length m containing the updated
 // mixture proportions.
+//
+// Note that x and L need not be normalized; they will automatically
+// be normalized inside this function.
 vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
-  mat P = L;
-  return mixem(L,w,x0,P,numiter);
+  mat L1 = L;
+  mat P  = L;
+  vec x  = x0/sum(x0);
+  normalizecols(L1);
+  mixem(L1,w,x,P,numiter);
+  return x;
 }
 
-// Use this variant of mixem if you plan on calling mixem multiple
-// times with matrices of the same dimension. In that case, you can
-// reuse the P matrix.
-vec mixem (const mat& L, const vec& w, const vec& x0, mat& P, uint numiter) {
-  vec x = x0;
+// Use this variant of mixem if you plan on using the same L matrix
+// multiple times, or for calling mixem multiple times with matrices
+// of the same dimension. In the first case, you can reuse the L and P
+// matrices; in the latter case, you can reuse the P matrix.
+//
+// For the result to be valid, the matrix L should be normalized so
+// that each column sums to 1, and vector x should be normalized so
+// that the entries sum to 1.
+void mixem (const mat& L, const vec& w, vec& x, mat& P, uint numiter) {
   for (uint i = 0; i < numiter; i++)
     mixem_update(L,w,x,P);
-  return x;
 }
 
 // Perform a single EM update. See the mixem function for

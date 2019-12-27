@@ -12,7 +12,7 @@ using namespace arma;
 // process of performing the update, and should not be reused.
 inline void pnmfem_update_factor (const mat& X, mat& F, mat& L, mat& P, 
 				  uint j, double numiter) {
-  F.col(j) = poismixem(L,X.col(j),F.col(j),P,numiter);
+  // F.col(j) = poismixem(L,X.col(j),F.col(j),P,numiter);
 }
 
 // Perform an EM update for the factors matrix, F, in which the matrix
