@@ -43,15 +43,11 @@ vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 }
 
 // Use this variant of poismixem if you plan on calling poismixem
-// multiple times with the same matrix L. In this call,
-
-// NOTES:
-// 
-//   + Input u should contain the column sums u[i] = sum(L[,i]).
-//
-//   + The matrix L should be normalized so that each column sums to 1.
-//
-void poismixem (const mat& L, const vec& u, const vec& w, vec& x, mat& P, 
+// multiple times with the same matrix L. In this call, input u should
+// contain the column sums, u = colSums(L), in which L is the matrix
+// prior to normalization, and matrix L1 is the normalized version of
+// L in which each column sums to 1; that is, L1 = normalize.cols(L).
+void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P, 
 		uint numiter) {
 
   // Recover the mixture proportions of the multinomial mixture model
@@ -60,7 +56,7 @@ void poismixem (const mat& L, const vec& u, const vec& w, vec& x, mat& P,
   x /= sum(x);
 
   // Perform one or more EM updates for the multinomial mixture model.
-  mixem(L,w,x,P,numiter);
+  mixem(L1,w,x,P,numiter);
 
   // Recover the mixture weights of the Poisson mixture model from the
   // mixture weights of the multinomial mixture model.

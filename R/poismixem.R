@@ -23,3 +23,14 @@ poismixem <- function (L, w, x0, numiter) {
   return(s*x/u)
 }
 
+# Find the MLE for the special case when only one of the counts is
+# positive.
+poismix.one.nonzero <- function (L, w) {
+  i    <- which.max(w)
+  w    <- w[i]
+  y    <- w/colSums(L)
+  j    <- which.max(w %*% log(L[i,]*y) - colSums(L)*y)
+  x    <- rep(0,ncol(L))
+  x[j] <- y[j]
+  return(x)
+}

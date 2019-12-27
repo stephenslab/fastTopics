@@ -29,7 +29,7 @@ mixem.update <- function (L, w, x) {
 }
 
 # Find the MLE for the special case when only one of the counts is
-# nonzero.
+# positive.
 mixture.one.nonzero <- function (L, w) {
   x <- rep(0,ncol(L))
   x[which.max(w %*% L)] <- 1

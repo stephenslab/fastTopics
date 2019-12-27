@@ -18,7 +18,7 @@ test_that("mixem and mixem_rcpp produce same result",{
   expect_equal(x1,x2,tolerance = 1e-12)
 })
 
-test_that("mixem and mixem_rcpp work when sum(w > 0) = 1",{
+test_that("mixem and mixem_rcpp produce correct result when sum(w > 0) = 1",{
 
   # Generate the data set.
   set.seed(1)
@@ -30,7 +30,7 @@ test_that("mixem and mixem_rcpp work when sum(w > 0) = 1",{
   w[8] <- 2
 
   # Run 100 EM updates for the multinomial mixture model.
-  x0 <- runif(4)
+  x0 <- runif(m)
   x1 <- mixem(L,w,x0,100)
   x2 <- drop(mixem_rcpp(L,w,x0,100))
 

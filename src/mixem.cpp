@@ -31,9 +31,9 @@ arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
 // Note that x and L need not be normalized; they will automatically
 // be normalized inside this function.
 //
-// Also note that it does not make sense to use mixem when n < 2 or
-// when m < 2; supplying inputs with n = 1 or m = 1 will result in
-// nonsensical outputs.
+// Also note that it does not make sense to compute a MLE of the
+// mixture proportions when n < 2 and/or when m < 2; mixem will supply
+// a result in such cases, but the result will not be valid.
 vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
   mat L1 = L;
   mat P  = L;
