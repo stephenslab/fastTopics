@@ -30,6 +30,10 @@ arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
 //
 // Note that x and L need not be normalized; they will automatically
 // be normalized inside this function.
+//
+// Also note that it does not make sense to use mixem when n < 2 or
+// when m < 2; supplying inputs with n = 1 or m = 1 will result in
+// nonsensical outputs.
 vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
   mat L1 = L;
   mat P  = L;
@@ -44,9 +48,9 @@ vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 // of the same dimension. In the first case, you can reuse the L and P
 // matrices; in the latter case, you can reuse the P matrix.
 //
-// For the result to be valid, the matrix L should be normalized so
-// that each column sums to 1, and vector x should be normalized so
-// that the entries sum to 1.
+// For the result to be valid, the matrix L should be normalized
+// beforehand so that each column sums to 1, and vector x should be
+// normalized beforehand so that the entries sum to 1.
 void mixem (const mat& L, const vec& w, vec& x, mat& P, uint numiter) {
   for (uint i = 0; i < numiter; i++)
     mixem_update(L,w,x,P);

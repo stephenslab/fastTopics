@@ -27,3 +27,11 @@ mixem.update <- function (L, w, x) {
   w <- w/sum(w)
   return(drop(w %*% P))
 }
+
+# Find the MLE for the special case when only one of the counts is
+# nonzero.
+mixture.one.nonzero <- function (L, w) {
+  x <- rep(0,ncol(L))
+  x[which.max(w %*% L)] <- 1
+  return(x)
+}
