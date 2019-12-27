@@ -32,6 +32,9 @@ vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
   return mixem(L,w,x0,P,numiter);
 }
 
+// Use this variant of mixem if you plan on calling mixem multiple
+// times with matrices of the same dimension. In that case, you can
+// reuse the P matrix.
 vec mixem (const mat& L, const vec& w, const vec& x0, mat& P, uint numiter) {
   vec x = x0;
   for (uint i = 0; i < numiter; i++)
@@ -39,13 +42,14 @@ vec mixem (const mat& L, const vec& w, const vec& x0, mat& P, uint numiter) {
   return x;
 }
 
-// Perform a single EM update. See the comments attached to mixem for
+// Perform a single EM update. See the mixem function for
 // an explanation of the inputs.
 void mixem_update (const mat& L, const vec& w, vec& x, mat& P) {
   double e = 1e-15;
 
-  // Compute the posterior mixture assignment probabilities. This is
-  // the "E step".
+  // Compute the posterior mixture assignment probabilities. A small
+  // number is added to the posterior probabilities to prevent any
+  // divisions by zero. This is the "E step".
   P = L;
   scalecols(P,x);
   normalizerowsbymax(P);

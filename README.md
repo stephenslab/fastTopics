@@ -56,8 +56,8 @@ commands in the shell:
 
 ```bash
 R CMD build fastTopics
-R CMD INSTALL fastTopics_0.2-41.tar.gz
-R CMD check --as-cran fastTopics_0.2-41.tar.gz
+R CMD INSTALL fastTopics_0.2-42.tar.gz
+R CMD check --as-cran fastTopics_0.2-42.tar.gz
 ```
 
 Note that these commands require that the dependencies have already
@@ -81,7 +81,7 @@ To build the Sweave PDF, change your working directory to the
 Latex from the Sweave document, then the PDF from the Latex:
 
 ```R
-setwd("vignettes")
+setwd("inst/derivations")
 Sweave("algorithms.Rnw")
 tools::texi2pdf("algorithms.tex")
 ```
