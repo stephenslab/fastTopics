@@ -54,9 +54,9 @@ void m2p (double s, const vec& u, vec& x) {
 // The return value is a vector of length m containing the updated
 // mixture weights.
 vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
-  mat Lt = L;
+  mat L1 = L;
   mat P  = L;
-  return poismixem(Lt,w,x0,P,numiter);
+  return poismixem(L1,w,x0,P,numiter);
 }
 
 vec poismixem (mat& L, const vec& w, const vec& x0, mat& P, uint numiter) {

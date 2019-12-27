@@ -1,3 +1,9 @@
+# NOTES:
+#
+#   + EM updates are equivalent to multiplicative updates, but
+#     computation is implemented differently.
+#
+
 #' @title Multiplicative and EM Update Rules for Poisson Non-negative
 #'   Matrix Factorization
 #'
@@ -132,8 +138,9 @@
 #' 
 #' @export
 #'
-betanmf <- function (X, F0, L0, numiter = 1000, method = c("em", "mu"),
-                     minval = 1e-15, e = 1e-15, verbose = TRUE) {
+fit_poisson_nmf <- function (X, F0, L0, numiter = 100,
+                             update = c("em", "mu"), minval = 1e-15,
+                             e = 1e-15, verbose = TRUE) {
 
   # CHECK INPUTS
   # ------------
