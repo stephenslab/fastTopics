@@ -49,9 +49,11 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
     dev2[i]    <- sum(deviance_poisson_nmf(X,list(F = F2,L = L2)))
   }
 
-  # Run 20 EM updates a second time, this time with a sparse counts
-  # matrix.
+  # Store the counts as a sparse matrix.
   X <- as(X,"dgCMatrix")
+  
+  # Run 20 EM updates a second time, this time using the sparse counts
+  # matrix.
   F3      <- F
   L3      <- L
   loglik3 <- rep(0,n)
@@ -77,7 +79,9 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
   # decrease the deviance.
   expect_nondecreasing(loglik1)
   expect_nondecreasing(loglik2)
+  expect_nondecreasing(loglik3)
   expect_nonincreasing(dev1)
   expect_nonincreasing(dev2)
+  expect_nonincreasing(dev3)
 })
 
