@@ -49,6 +49,9 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
     dev2[i]    <- sum(deviance_poisson_nmf(X,list(F = F2,L = L2)))
   }
 
+  # Run 20 EM updates again, this time using multithreaded computations.
+  # TO DO.
+  
   # Store the counts as a sparse matrix.
   X <- as(X,"dgCMatrix")
   
