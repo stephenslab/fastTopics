@@ -1,5 +1,7 @@
 context("poisson2multinom")
 
+library(Matrix)
+
 test_that("poisson2multinom gives error when k = 1",{
   L   <- matrix(0:3,4,1)
   F   <- matrix(0:4,5,1)
@@ -21,7 +23,6 @@ test_that("poisson2multinom correctly scales factors and loadings",{
 })
 
 test_that("multinom2poisson recovers original Poisson NMF model fit",{
-  library(Matrix)
   set.seed(1)
   out  <- simulate_count_data(10,20,3)
   X    <- out$X

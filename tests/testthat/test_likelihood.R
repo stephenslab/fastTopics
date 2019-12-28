@@ -1,8 +1,9 @@
 context("likelihood")
 
+library(Matrix)
+
 test_that(paste("R and Rcpp versions of cost function return same result",
                 "for sparse and dense matrix"),{
-  library(Matrix)
   set.seed(1)
 
   # Repeat the tests for a few different choices of k.
@@ -30,7 +31,6 @@ test_that(paste("R and Rcpp versions of cost function return same result",
 
 test_that(paste("loglik_poisson_nmf gives correct result for sparse and",
                 "dense matrix"),{
-  library(Matrix)
   set.seed(1)
 
   # Repeat the tests for a few different choices of k.
@@ -56,7 +56,6 @@ test_that(paste("loglik_poisson_nmf gives correct result for sparse and",
 
 test_that(paste("loglik_multinom_topic_model gives correct result for",
                 "sparse and dense matrix"),{
-  library(Matrix)
   set.seed(1)
 
   # Repeat the tests for a few different choices of k.
@@ -84,7 +83,6 @@ test_that(paste("loglik_multinom_topic_model gives correct result for",
 
 test_that(paste("deviance_poisson_topic_nmf gives correct result for sparse",
                 "and dense matrix"),{
-  library(Matrix)
   set.seed(1)
 
   # Repeat the tests for a few different choices of k.

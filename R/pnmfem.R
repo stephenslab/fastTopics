@@ -12,7 +12,11 @@
 # of the updated loadings. A positive value of "e" promotes better
 # convergence of the multiplicative updates.
 pnmfem_update_factors <- function (X, F, L, numiter = 1, e = 1e-15) {
-  F <- t(pnmfem_update_factors_rcpp(X,t(F),L,numiter))
+  if (is.matrix(X))
+    F <- t(pnmfem_update_factors_rcpp(X,t(F),L,numiter))
+  else if (inherits(X,"dgCMatrix")) {
+    # TO DO.
+  }     
   return(pmax(F,e))
 }
 
@@ -30,6 +34,10 @@ pnmfem_update_factors <- function (X, F, L, numiter = 1, e = 1e-15) {
 # of the updated loadings. A positive value of "e" promotes better
 # convergence of the multiplicative updates.
 pnmfem_update_loadings <- function (X, F, L, numiter = 1, e = 1e-15) {
-  L <- t(pnmfem_update_factors_rcpp(t(X),t(L),F,numiter))
+  if (is.matrix(X))
+    L <- t(pnmfem_update_factors_rcpp(t(X),t(L),F,numiter))
+  else if (inherits(X,"dgCMatrix")) {
+    # TO DO.
+  }     
   return(pmax(L,e))
 }

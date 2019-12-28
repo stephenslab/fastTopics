@@ -1,9 +1,11 @@
 context("fit_poisson_nmf")
 
+library(Matrix)
+
 test_that(paste("betanmf and pnmfem updates produce same result, and",
                 "increase the likelihood"),{
-  
-  # Generate a 40 x 80 data matrix to factorize.
+                    
+  # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
   out <- simulate_count_data(80,100,3,lmax = 0.3,fmax = 0.3)
   X   <- out$X
@@ -47,17 +49,35 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
     dev2[i]    <- sum(deviance_poisson_nmf(X,list(F = F2,L = L2)))
   }
 
+  # Run 20 EM updates a second time, this time with a sparse counts
+  # matrix.
+  X <- as(X,"dgCMatrix")
+  F3      <- F
+  L3      <- L
+  loglik3 <- rep(0,n)
+  dev3    <- rep(0,n)
+  for (i in 1:n) {
+    F3         <- pnmfem_update_factors(X,F3,L3)
+    L3         <- pnmfem_update_loadings(X,F3,L3)
+    loglik3[i] <- sum(loglik_poisson_nmf(X,list(F = F3,L = L3)))
+    dev3[i]    <- sum(deviance_poisson_nmf(X,list(F = F3,L = L3)))
+  }
+  
   # The updated factors and loadings should be the same.
   expect_equivalent(F1,F2,tolerance = 1e-12)
+  expect_equivalent(F1,F3,tolerance = 1e-12)
   expect_equivalent(L1,L2,tolerance = 1e-12)
+  expect_equivalent(L1,L3,tolerance = 1e-12)
   expect_equal(loglik1,loglik2,tolerance = 1e-10)
+  expect_equal(loglik1,loglik3,tolerance = 1e-10)
   expect_equal(dev1,dev2,tolerance = 1e-10)
+  expect_equal(dev1,dev3,tolerance = 1e-10)
 
   # The updates should monotonically increase the likelihood and
   # decrease the deviance.
-  expect_equal(diff(loglik1) >= 0,rep(TRUE,n-1))
-  expect_equal(diff(loglik2) >= 0,rep(TRUE,n-1))
-  expect_equal(diff(dev1) <= 0,rep(TRUE,n-1))
-  expect_equal(diff(dev2) <= 0,rep(TRUE,n-1))
+  expect_nondecreasing(loglik1)
+  expect_nondecreasing(loglik2)
+  expect_nonincreasing(dev1)
+  expect_nonincreasing(dev2)
 })
 
