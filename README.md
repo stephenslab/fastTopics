@@ -56,8 +56,8 @@ commands in the shell:
 
 ```bash
 R CMD build fastTopics
-R CMD INSTALL fastTopics_0.2-50.tar.gz
-R CMD check --as-cran fastTopics_0.2-50.tar.gz
+R CMD INSTALL fastTopics_0.2-51.tar.gz
+R CMD check --as-cran fastTopics_0.2-51.tar.gz
 ```
 
 Note that these commands require that the dependencies have already

@@ -189,18 +189,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // ccd_update_loadings_rcpp
-void ccd_update_loadings_rcpp(const NumericMatrix& V, NumericMatrix& W, const NumericMatrix& H, NumericMatrix& WH, NumericVector& wht, NumericVector& vt, double e);
-RcppExport SEXP _fastTopics_ccd_update_loadings_rcpp(SEXP VSEXP, SEXP WSEXP, SEXP HSEXP, SEXP WHSEXP, SEXP whtSEXP, SEXP vtSEXP, SEXP eSEXP) {
+void ccd_update_loadings_rcpp(const NumericMatrix& V, NumericMatrix& W, const NumericMatrix& H, NumericMatrix& WH, double e);
+RcppExport SEXP _fastTopics_ccd_update_loadings_rcpp(SEXP VSEXP, SEXP WSEXP, SEXP HSEXP, SEXP WHSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericMatrix& >::type V(VSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type W(WSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type H(HSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type WH(WHSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type wht(whtSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type vt(vtSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    ccd_update_loadings_rcpp(V, W, H, WH, wht, vt, e);
+    ccd_update_loadings_rcpp(V, W, H, WH, e);
     return R_NilValue;
 END_RCPP
 }
@@ -347,7 +345,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_altsqp_update_loadings_rcpp_parallel_sparse", (DL_FUNC) &_fastTopics_altsqp_update_loadings_rcpp_parallel_sparse, 9},
     {"_fastTopics_ccd_rcpp", (DL_FUNC) &_fastTopics_ccd_rcpp, 7},
     {"_fastTopics_ccd_update_factors_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_rcpp, 5},
-    {"_fastTopics_ccd_update_loadings_rcpp", (DL_FUNC) &_fastTopics_ccd_update_loadings_rcpp, 7},
+    {"_fastTopics_ccd_update_loadings_rcpp", (DL_FUNC) &_fastTopics_ccd_update_loadings_rcpp, 5},
     {"_fastTopics_cost_rcpp", (DL_FUNC) &_fastTopics_cost_rcpp, 5},
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
     {"_fastTopics_mixem_rcpp", (DL_FUNC) &_fastTopics_mixem_rcpp, 4},
