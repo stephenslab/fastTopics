@@ -4,8 +4,8 @@
 # implemented differently.
 #
 # Inputs L and F should be dense matrices ("is.matrix" should return
-# TRUE), but X can be a dense matrix or a sparse matrix (a "matrix" or
-# a "dgCMatrix").
+# TRUE), but for X both dense matrices and sparse matrices are
+# supported ("matrix" and "dgCMatrix" classes).
 # 
 # Input "numiter" specifies the number of EM updates to perform. Input
 # argument "e" is a non-negative scalar specifying the minimum value
@@ -32,8 +32,8 @@ pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
 # implemented differently.
 #
 # Inputs L and F should be dense matrices ("is.matrix" should return
-# TRUE), but X can be a dense matrix or a sparse matrix (a "matrix" or
-# a "dgCMatrix").
+# TRUE), but for X both dense matrices and sparse matrices are
+# supported ("matrix" and "dgCMatrix" classes).
 # 
 # Input "numiter" specifies the number of EM updates to perform, and
 # input "nc" specifies the number of threads to use in the
