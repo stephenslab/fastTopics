@@ -1,20 +1,30 @@
-ccd <- function (X, A, B, numiter = 100, e = 1e-15) {
-
-  # This variable is used to keep track of the algorithm's progress;
-  # it stores the value of the cost function at each iteration.
-  value <- rep(0,numiter)
-
-  # Execute the CCD updates.
+# TO DO: Explain here what this function does, and how to use it.
+ccd_update_factors <- function (X, A, B, e = 1e-15) {
   A  <- t(A)
-  n  <- ncol(X)
+  B1 <- B
+  AB <- t(A) %*% B
+  ccd_update_factors_rcpp(X,A,B1,AB,e)
+  return(B1)
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+ccd_update_loadings <- function (X, A, B, e = 1e-15) {
+  m  <- ncol(X)
+  A  <- t(A)
   ab <- rep(0,m)
   v  <- rep(0,m)
-  for (i in 1:numiter) {
-    AB <- t(A) %*% B
-    ccd_rcpp(X,A,B,AB,ab,v,e)
-    value[i] <- cost(X,t(A),B,e)
-  }
-  A <- t(A)
-  
-  return(list(A = A,B = B,value = value))
+  AB <- t(A) %*% B
+  ccd_update_loadings_rcpp(X,A,B,AB,ab,v,e)
+  return(t(A))
+}
+
+ccd <- function (X, A, B, e = 1e-15) {
+  m  <- ncol(X)
+  A  <- t(A)
+  ab <- rep(0,m)
+  v  <- rep(0,m)
+  AB <- t(A) %*% B
+  ccd_rcpp(X,A,B,AB,ab,v,e)
+  A  <- t(A)
+  return(list(A = A,B = B))
 }

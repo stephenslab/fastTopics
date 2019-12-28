@@ -37,6 +37,14 @@ ccd_rcpp <- function(V, W, H, WH, wht, vt, e) {
     invisible(.Call('_fastTopics_ccd_rcpp', PACKAGE = 'fastTopics', V, W, H, WH, wht, vt, e))
 }
 
+ccd_update_factors_rcpp <- function(V, W, H, WH, e) {
+    invisible(.Call('_fastTopics_ccd_update_factors_rcpp', PACKAGE = 'fastTopics', V, W, H, WH, e))
+}
+
+ccd_update_loadings_rcpp <- function(V, W, H, WH, wht, vt, e) {
+    invisible(.Call('_fastTopics_ccd_update_loadings_rcpp', PACKAGE = 'fastTopics', V, W, H, WH, wht, vt, e))
+}
+
 cost_rcpp <- function(X, A, B, e, poisson) {
     .Call('_fastTopics_cost_rcpp', PACKAGE = 'fastTopics', X, A, B, e, poisson)
 }
