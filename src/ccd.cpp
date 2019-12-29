@@ -16,13 +16,14 @@ void ccd_update_factors (uint n, uint m, uint k, const double* V,
 // factors matrix (H). 
 //
 // The inputs are: V, the n x m data matrix; W, the loadings matrix,
-// stored as a k x n matrix; H, the k x m factors matrix; WH =
-// crossprod(W,H), an n x m matrix; and e, a non-negative scalar
-// determining the minimum value for the updated factors.
+// stored as a k x n matrix; H, the initial estimate of the k x m
+// factors matrix; WH = crossprod(W,H), an n x m matrix; and e, a
+// non-negative scalar specifying the minimum value of the updated
+// parameters. Note that inputs H and WH are both modified.
 //
-// This implementation is adapted from the C++
-// code developed by Cho-Jui Hsieh and Inderjit Dhillon, and available
-// for download at www.cs.utexas.edu/~cjhsieh/nmf.
+// This implementation is adapted from the C++ code developed by
+// Cho-Jui Hsieh and Inderjit Dhillon, which is available for download
+// at www.cs.utexas.edu/~cjhsieh/nmf.
 //
 // [[Rcpp::export]]
 void ccd_update_factors_rcpp (const NumericMatrix& V, const NumericMatrix& W, 

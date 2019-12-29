@@ -15,7 +15,7 @@ betanmf_update_loadings <- function (X, A, B, e = 1e-15) {
 # approximated by the matrix product A*B. Inputs X, A and B should not
 # be sparse matrices ("is.matrix" should return TRUE). Input argument
 # "e" is a non-negative scalar specifying the minimum value of the
-# updated loadings. A positive value of "e" promotes better
+# updated factors. A positive value of "e" promotes better
 # convergence of the multiplicative updates.
 betanmf_update_factors <- function (X, A, B, e = 1e-15) {
   B <- B * crossprod(A,X / (A %*% B)) / colSums(A)

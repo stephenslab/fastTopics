@@ -1,4 +1,5 @@
-#' @title Alternating SQP Method for Optimizing Topic Models and Non-negative Matrix Factorizations
+#' @title Alternating SQP Method for Optimizing Topic Models and
+#'   Non-negative Matrix Factorizations
 #' 
 #' @description Compute maximum-likelihood estimates for the Poisson
 #'   topic model with factors F and loadings L; equivalently, find a
@@ -335,7 +336,7 @@ altsqp <- function (X, fit, numiter = 100, version = c("Rcpp", "R"),
   # Print a brief summary of the analysis, if requested.
   if (verbose) {
     cat(sprintf("Running %d EM/SQP updates ",numiter))
-    cat("(fastTopics version 0.2-53)\n")
+    cat("(fastTopics version 0.2-54)\n")
     if (control$extrapolate <= numiter)
       cat(sprintf("Extrapolation begins at iteration %d.\n",
                   control$extrapolate))

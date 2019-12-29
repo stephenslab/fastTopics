@@ -3,7 +3,8 @@
 \name{altsqp}
 \alias{altsqp}
 \alias{altsqp_control_default}
-\title{Alternating SQP Method for Optimizing Topic Models and Non-negative Matrix Factorizations}
+\title{Alternating SQP Method for Optimizing Topic Models and
+  Non-negative Matrix Factorizations}
 \usage{
 altsqp(X, fit, numiter = 100, version = c("Rcpp", "R"),
   control = list(), verbose = TRUE)
