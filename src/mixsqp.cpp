@@ -284,7 +284,7 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
   else {
 
     // Set the initial step size.
-    double a = min(0.99,afeas);
+    double a = minimum(0.99,afeas);
     
     // Iteratively reduce the step size until either (1) we can't reduce
     // any more (because we have hit the minimum step size constraint),

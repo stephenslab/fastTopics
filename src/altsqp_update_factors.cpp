@@ -1,6 +1,6 @@
+#include <RcppParallel.h>
 #include "misc.h"
 #include "altsqp.h"
-#include <RcppParallel.h>
 
 using namespace arma;
 

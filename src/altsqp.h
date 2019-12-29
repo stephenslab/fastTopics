@@ -1,9 +1,9 @@
 #ifndef INCLUDE_ALTSQP
 #define INCLUDE_ALTSQP
 
+#include <RcppArmadillo.h>
 #include "mixem.h"
 #include "mixsqp.h"
-#include <RcppArmadillo.h>
 
 // FUNCTION DEFINITIONS
 // --------------------

@@ -4,7 +4,7 @@ library(Matrix)
 library(RcppParallel)
 
 test_that(paste("betanmf and pnmfem updates produce same result, and",
-                "increase the likelihood"),{
+                "monotonically increase the likelihood"),{
                     
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
@@ -28,12 +28,12 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
   expect_gt(sum(colSums(X > 0) == 1),0)
 
   # Run 20 multiplicative updates.
-  n       <- 20
+  numiter <- 20
   F1      <- F
   L1      <- L
-  loglik1 <- rep(0,n)
-  dev1    <- rep(0,n)
-  for (i in 1:n) {
+  loglik1 <- rep(0,numiter)
+  dev1    <- rep(0,numiter)
+  for (i in 1:numiter) {
     F1         <- t(betanmf_update_factors(X,L1,t(F1)))
     L1         <- betanmf_update_loadings(X,L1,t(F1))
     loglik1[i] <- sum(loglik_poisson_nmf(X,list(F = F1,L = L1)))
@@ -43,9 +43,9 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
   # Run 20 EM updates.
   F2      <- F
   L2      <- L
-  loglik2 <- rep(0,n)
-  dev2    <- rep(0,n)
-  for (i in 1:n) {
+  loglik2 <- rep(0,numiter)
+  dev2    <- rep(0,numiter)
+  for (i in 1:numiter) {
     F2         <- pnmfem_update_factors(X,F2,L2)
     L2         <- pnmfem_update_loadings(X,F2,L2)
     loglik2[i] <- sum(loglik_poisson_nmf(X,list(F = F2,L = L2)))
@@ -56,10 +56,10 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
   nc      <- 4
   F3      <- F
   L3      <- L
-  loglik3 <- rep(0,n)
-  dev3    <- rep(0,n)
+  loglik3 <- rep(0,numiter)
+  dev3    <- rep(0,numiter)
   setThreadOptions(numThreads = nc)
-  for (i in 1:n) {
+  for (i in 1:numiter) {
     F3         <- pnmfem_update_factors(X,F3,L3,nc = nc)
     L3         <- pnmfem_update_loadings(X,F3,L3,nc = nc)
     loglik3[i] <- sum(loglik_poisson_nmf(X,list(F = F3,L = L3)))
@@ -73,9 +73,9 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
   # matrix.
   F4      <- F
   L4      <- L
-  loglik4 <- rep(0,n)
-  dev4    <- rep(0,n)
-  for (i in 1:n) {
+  loglik4 <- rep(0,numiter)
+  dev4    <- rep(0,numiter)
+  for (i in 1:numiter) {
     F4         <- pnmfem_update_factors(X,F4,L4)
     L4         <- pnmfem_update_loadings(X,F4,L4)
     loglik4[i] <- sum(loglik_poisson_nmf(X,list(F = F4,L = L4)))
@@ -86,9 +86,9 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
   # and using multithreaded computations.
   F5      <- F
   L5      <- L
-  loglik5 <- rep(0,n)
-  dev5    <- rep(0,n)
-  for (i in 1:n) {
+  loglik5 <- rep(0,numiter)
+  dev5    <- rep(0,numiter)
+  for (i in 1:numiter) {
     F5         <- pnmfem_update_factors(X,F5,L5)
     L5         <- pnmfem_update_loadings(X,F5,L5)
     loglik5[i] <- sum(loglik_poisson_nmf(X,list(F = F5,L = L5)))
@@ -129,3 +129,37 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
   expect_equal(dev1,dev5,tolerance = 1e-10)
 })
 
+test_that("ccd updates produce monotonically increase the likelihood",{
+
+  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  n   <- 80
+  m   <- 100
+  out <- simulate_count_data(n,m,3,lmax = 0.3,fmax = 0.3)
+  X   <- out$X
+  F   <- out$F
+  L   <- out$L
+
+  # Remove rows and columns containing all zeros.
+  rows <- which(rowSums(X > 0) > 0)
+  cols <- which(colSums(X > 0) > 0)
+  X    <- X[rows,cols]
+  L    <- L[rows,]
+  F    <- F[cols,]
+    
+  # Run 20 cyclic-coordinate descent (CCD) updates.
+  numiter <- 20
+  loglik  <- rep(0,numiter)
+  dev     <- rep(0,numiter)
+  for (i in 1:numiter) {
+    F         <- t(ccd_update_factors(X,L,t(F)))
+    L         <- ccd_update_loadings(X,L,t(F))
+    loglik[i] <- sum(loglik_poisson_nmf(X,list(F = F,L = L)))
+    dev[i]    <- sum(deviance_poisson_nmf(X,list(F = F,L = L)))
+  }
+
+  # The CCD updates should monotonically increase the likelihood and
+  # decrease the deviance.
+  expect_nondecreasing(loglik)
+  expect_nonincreasing(dev)
+})
