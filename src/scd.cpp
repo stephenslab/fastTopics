@@ -11,6 +11,32 @@ void scd_update (mat& H, const mat& Wt, const mat& A, uint numiter, double e);
 void scd_kl_update (subview_col<double> Hj, const mat& Wt, const vec& Aj,
 		    const vec& sumw, uint numiter, double e);
 
+// CLASS DEFINITIONS
+// -----------------
+// This class is used to implement multithreaded computation of the
+// loadings updates in scd_update_factors_parallel_rcpp.
+//
+// [[Rcpp::depends(RcppParallel)]]
+struct scd_factor_updater : public RcppParallel::Worker {
+  const mat& A;
+  const mat& Wt;
+  mat&       H;
+  const vec& sumw;
+  uint       numiter;
+  double     e;
+
+  // This is used to create a scd_factor_updater object.
+  scd_factor_updater (const mat& A, const mat& Wt, mat& H, const vec& sumw, 
+		      uint numiter, double e) :
+    A(A), Wt(Wt), H(H), sumw(sumw), numiter(numiter), e(e) { };
+
+  // This function updates the factors for a given range of columns.
+  void operator() (std::size_t begin, std::size_t end) {
+    for (uint j = begin; j < end; j++)
+      scd_kl_update(H.col(j),Wt,A.col(j),sumw,numiter,e);
+  }
+};
+
 // FUNCTION DEFINITIONS
 // --------------------
 // Perform a sequential co-ordinate descent (SCD) update for the
@@ -35,11 +61,26 @@ arma::mat scd_update_factors_rcpp (const arma::mat& A, const arma::mat& Wt,
   return Hnew;
 }
 
+// This does the same thing as scd_update_factors_rcpp, except that
+// Intel Threading Building Blocks (TBB) are used to update the
+// loadings in parallel.
+//
+// [[Rcpp::export]]
+arma::mat scd_update_factors_parallel_rcpp (const arma::mat& A, 
+					    const arma::mat& Wt,
+					    const arma::mat& H, 
+					    uint numiter, double e) {
+  mat Hnew = H;
+  vec sumw = sum(Wt,1);
+  scd_factor_updater worker(A,Wt,Hnew,sumw,numiter,e);
+  parallelFor(0,A.n_cols,worker);
+  return Hnew;
+}
+
 // Iterate the SCD updates over all columns of H.
 void scd_update (mat& H, const mat& Wt, const mat& A, uint numiter, double e) {
-  uint m    = A.n_cols;
-  vec  sumw = sum(Wt,1);
-  for (uint j = 0; j < m; j++) 
+  vec sumw = sum(Wt,1);
+  for (uint j = 0; j < A.n_cols; j++) 
     scd_kl_update(H.col(j),Wt,A.col(j),sumw,numiter,e);
 }
 

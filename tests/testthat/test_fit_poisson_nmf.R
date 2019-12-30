@@ -117,15 +117,27 @@ test_that("scd updates monotonically increase the likelihood",{
   L   <- out$L
 
   # Run 20 sequential coordinate descent (SCD) updates.
-  fit <- iterate_updates(X,F,L,20,
+  numiter <- 20
+  fit1 <- iterate_updates(X,F,L,numiter,
                          function (X,F,L) t(scd_update_factors(X,L,t(F),4)),
                          function (X,F,L) scd_update_loadings(X,L,t(F),4),
                          factors_first = FALSE)
 
+  # Run 20 sequential coordinate descent (SCD) updates, this time
+  # using the multithreaded computations.
+  nc <- 4
+  setThreadOptions(numThreads = nc)
+  fit2 <- iterate_updates(X,F,L,numiter,
+            function (X,F,L) t(scd_update_factors(X,L,t(F),4,nc = nc)),
+            function (X,F,L) scd_update_loadings(X,L,t(F),4,nc = nc),
+            factors_first = FALSE)
+  
   # The SCD updates should monotonically increase the likelihood and
   # decrease the deviance.
-  expect_nondecreasing(fit$loglik)
-  expect_nonincreasing(fit$dev)
+  expect_nondecreasing(fit1$loglik)
+  expect_nondecreasing(fit2$loglik)
+  expect_nonincreasing(fit1$dev)
+  expect_nonincreasing(fit2$dev)
 })
 
 test_that("scd updates and nnmf from NNLM package produce same result",{
@@ -143,7 +155,7 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
   fit1 <- suppressWarnings(nnmf(X,k,init = list(W = L,H = t(F)),
                                 method = "scd",loss = "mkl",rel.tol = 0,
                                 max.iter = numiter,inner.max.iter = 4,
-                                trace = 1,verbose = 2))
+                                verbose = 0))
 
   # Run 20 sequential coordinate descent (SCD) updates.
   fit2 <- iterate_updates(X,F,L,numiter,
@@ -153,9 +165,16 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
 
   # Run 20 sequential coordinate descent (SCD) updates, this time
   # using the multithreaded computations.
-  # TO DO.
+  nc <- 4
+  setThreadOptions(numThreads = nc)
+  fit3 <- iterate_updates(X,F,L,numiter,
+            function (X,F,L) t(scd_update_factors(X,L,t(F),4,nc = nc)),
+            function (X,F,L) scd_update_loadings(X,L,t(F),4,nc = nc),
+            factors_first = FALSE)
   
   expect_equivalent(fit1$W,fit2$L,tolerance = 1e-12)
+  expect_equivalent(fit1$W,fit3$L,tolerance = 1e-12)
   expect_equivalent(t(fit1$H),fit2$F,tolerance = 1e-12)
+  expect_equivalent(t(fit1$H),fit3$F,tolerance = 1e-12)
 })
 
