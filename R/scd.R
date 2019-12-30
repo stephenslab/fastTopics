@@ -18,8 +18,5 @@ scd_update_loadings <- function (A, W, H, numiter = 1, e = 1e-15) {
 # Input "numiter" specifies the number of inner-loop iterations to
 # perform. Input argument "e" a non-negative scalar included in the
 # computations to prevent NaNs due to division by zero.
-scd_update_factors <- function (A, W, H, numiter = 1, e = 1e-15) {
-  W <- t(W)
-  H <- scd_update_loadings_rcpp(A,H,W,numiter,e)
-  return(H)
-}
+scd_update_factors <- function (A, W, H, numiter = 1, e = 1e-15)
+  scd_update_loadings_rcpp(A,H,t(W),numiter,e)
