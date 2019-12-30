@@ -1,3 +1,4 @@
+#include <RcppParallel.h>
 #include "misc.h"
 
 using namespace Rcpp;
@@ -8,15 +9,15 @@ using namespace arma;
 void scd_update (mat& H, const mat& Wt, const mat& A, uint numiter, double e);
 
 void scd_kl_update (subview_col<double> Hj, const mat& Wt, const vec& Aj,
-		    const vec& sumW, uint numiter, double e);
+		    const vec& sumw, uint numiter, double e);
 
 // FUNCTION DEFINITIONS
 // --------------------
 // Perform a sequential co-ordinate descent (SCD) update for the
-// loadings matrix (W).
+// factors matrix (H).
 //
 // The inputs are: A, the m x n matrix to be decomposed, in which A is
-// approximated as crossprod(H,W); W, the initial estimate of the k x
+// approximated as crossprod(H,Wt); Wt, the initial estimate of the k x
 // n loadings matrix; H, the k x m factors matrix; numiter, the number
 // of inner-loop iterations to perform; and e, a non-negative scalar
 // included in the computations to prevent NaNs due to division by zero.
@@ -26,12 +27,12 @@ void scd_kl_update (subview_col<double> Hj, const mat& Wt, const vec& Aj,
 // https://github.com/linxihui/NNLM.
 //
 // [[Rcpp::export]]
-arma::mat scd_update_loadings_rcpp (const arma::mat& A, const arma::mat& W,
-				    const arma::mat& H, uint numiter,
-				    double e) {
-  mat Wnew = W;
-  scd_update(Wnew,H,A,numiter,e);
-  return Wnew;
+arma::mat scd_update_factors_rcpp (const arma::mat& A, const arma::mat& Wt,
+				   const arma::mat& H, uint numiter,
+				   double e) {
+  mat Hnew = H;
+  scd_update(Hnew,Wt,A,numiter,e);
+  return Hnew;
 }
 
 // Iterate the SCD updates over all columns of H.
