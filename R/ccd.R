@@ -1,5 +1,5 @@
 # This function implements the cyclic co-ordinate descent (CCD) update
-# for the factors matrix (the "basic vectors"), B, in which the matrix
+# for the factors matrix (the "basis vectors"), B, in which the matrix
 # X is approximated by the matrix product A*B. Inputs X, A and B
 # should not be sparse matrices ("is.matrix" should return
 # TRUE). Input argument "e" is a non-negative scalar specifying the

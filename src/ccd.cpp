@@ -32,6 +32,7 @@ void ccd_update_factors_rcpp (const NumericMatrix& V, const NumericMatrix& W,
 		     H.begin(),WH.begin(),e);
 }
 
+// Iterate the CCD updates over all columns of H.
 void ccd_update_factors (uint n, uint m, uint k, const double* V,
 			 const double* W, double* H, double* WH, double e) {
   for (uint j = 0; j < m; j++)

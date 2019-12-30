@@ -73,3 +73,7 @@ poismixem_rcpp <- function(L, w, x0, numiter) {
     .Call('_fastTopics_poismixem_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
 }
 
+scd_update_loadings_rcpp <- function(A, W, H, numiter, e) {
+    .Call('_fastTopics_scd_update_loadings_rcpp', PACKAGE = 'fastTopics', A, W, H, numiter, e)
+}
+
