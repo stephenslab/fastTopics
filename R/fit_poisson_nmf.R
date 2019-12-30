@@ -136,6 +136,8 @@
 #'      plot(iter,dev - dev.min,type = "l",log = "y",
 #'           xlab = "iteration",ylab = "distance to solution"))
 #' 
+#' @useDynLib fastTopics
+#' 
 #' @export
 #'
 fit_poisson_nmf <- function (X, F0, L0, numiter = 100,

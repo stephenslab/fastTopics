@@ -8,19 +8,10 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
                     
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
-  n   <- 80
-  m   <- 100
-  out <- simulate_count_data(n,m,3,lmax = 0.3,fmax = 0.3)
+  out <- generate_test_data(80,100,3,0.3,0.3)
   X   <- out$X
   F   <- out$F
   L   <- out$L
-
-  # Remove rows and columns containing all zeros.
-  rows <- which(rowSums(X > 0) > 0)
-  cols <- which(colSums(X > 0) > 0)
-  X    <- X[rows,cols]
-  L    <- L[rows,]
-  F    <- F[cols,]
 
   # There should be at least one row and one column in the counts
   # matrix containing exactly one nonzero count.
@@ -29,137 +20,87 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
 
   # Run 20 multiplicative updates.
   numiter <- 20
-  F1      <- F
-  L1      <- L
-  loglik1 <- rep(0,numiter)
-  dev1    <- rep(0,numiter)
-  for (i in 1:numiter) {
-    F1         <- t(betanmf_update_factors(X,L1,t(F1)))
-    L1         <- betanmf_update_loadings(X,L1,t(F1))
-    loglik1[i] <- sum(loglik_poisson_nmf(X,list(F = F1,L = L1)))
-    dev1[i]    <- sum(deviance_poisson_nmf(X,list(F = F1,L = L1)))
-  }
+  fit1 <- iterate_updates(X,F,L,numiter,
+                          function (X,F,L) t(betanmf_update_factors(X,L,t(F))),
+                          function (X,F,L) betanmf_update_loadings(X,L,t(F)))
 
   # Run 20 EM updates.
-  F2      <- F
-  L2      <- L
-  loglik2 <- rep(0,numiter)
-  dev2    <- rep(0,numiter)
-  for (i in 1:numiter) {
-    F2         <- pnmfem_update_factors(X,F2,L2)
-    L2         <- pnmfem_update_loadings(X,F2,L2)
-    loglik2[i] <- sum(loglik_poisson_nmf(X,list(F = F2,L = L2)))
-    dev2[i]    <- sum(deviance_poisson_nmf(X,list(F = F2,L = L2)))
-  }
+  fit2 <- iterate_updates(X,F,L,numiter,
+                          function (X,F,L) pnmfem_update_factors(X,F,L),
+                          function (X,F,L) pnmfem_update_loadings(X,F,L))
 
   # Run 20 EM updates again, this time using multithreaded computations.
-  nc      <- 4
-  F3      <- F
-  L3      <- L
-  loglik3 <- rep(0,numiter)
-  dev3    <- rep(0,numiter)
+  nc <- 4
   setThreadOptions(numThreads = nc)
-  for (i in 1:numiter) {
-    F3         <- pnmfem_update_factors(X,F3,L3,nc = nc)
-    L3         <- pnmfem_update_loadings(X,F3,L3,nc = nc)
-    loglik3[i] <- sum(loglik_poisson_nmf(X,list(F = F3,L = L3)))
-    dev3[i]    <- sum(deviance_poisson_nmf(X,list(F = F3,L = L3)))
-  }
+  fit3 <- iterate_updates(X,F,L,numiter,
+                          function (X,F,L) pnmfem_update_factors(X,F,L,nc=nc),
+                          function (X,F,L) pnmfem_update_loadings(X,F,L,nc=nc))
   
   # Store the counts as a sparse matrix.
   X <- as(X,"dgCMatrix")
   
   # Run 20 EM updates a third time, this time using the sparse counts
   # matrix.
-  F4      <- F
-  L4      <- L
-  loglik4 <- rep(0,numiter)
-  dev4    <- rep(0,numiter)
-  for (i in 1:numiter) {
-    F4         <- pnmfem_update_factors(X,F4,L4)
-    L4         <- pnmfem_update_loadings(X,F4,L4)
-    loglik4[i] <- sum(loglik_poisson_nmf(X,list(F = F4,L = L4)))
-    dev4[i]    <- sum(deviance_poisson_nmf(X,list(F = F4,L = L4)))
-  }
+  fit4 <- iterate_updates(X,F,L,numiter,
+                          function (X,F,L) pnmfem_update_factors(X,F,L),
+                          function (X,F,L) pnmfem_update_loadings(X,F,L))
 
   # Run 20 EM updates one last time, using the sparse counts matrix,
   # and using multithreaded computations.
-  F5      <- F
-  L5      <- L
-  loglik5 <- rep(0,numiter)
-  dev5    <- rep(0,numiter)
-  for (i in 1:numiter) {
-    F5         <- pnmfem_update_factors(X,F5,L5)
-    L5         <- pnmfem_update_loadings(X,F5,L5)
-    loglik5[i] <- sum(loglik_poisson_nmf(X,list(F = F5,L = L5)))
-    dev5[i]    <- sum(deviance_poisson_nmf(X,list(F = F5,L = L5)))
-  }
+  fit5 <- iterate_updates(X,F,L,numiter,
+                          function (X,F,L) pnmfem_update_factors(X,F,L,nc=nc),
+                          function (X,F,L) pnmfem_update_loadings(X,F,L,nc=nc))
   
   # All the updates should monotonically increase the likelihood and
   # decrease the deviance.
-  expect_nondecreasing(loglik1)
-  expect_nondecreasing(loglik2)
-  expect_nondecreasing(loglik3)
-  expect_nondecreasing(loglik4)
-  expect_nondecreasing(loglik5)
-  expect_nonincreasing(dev1)
-  expect_nonincreasing(dev2)
-  expect_nonincreasing(dev3)
-  expect_nonincreasing(dev4)
-  expect_nonincreasing(dev5)
+  expect_nondecreasing(fit1$loglik)
+  expect_nondecreasing(fit2$loglik)
+  expect_nondecreasing(fit3$loglik)
+  expect_nondecreasing(fit4$loglik)
+  expect_nondecreasing(fit5$loglik)
+  expect_nonincreasing(fit1$dev)
+  expect_nonincreasing(fit2$dev)
+  expect_nonincreasing(fit3$dev)
+  expect_nonincreasing(fit4$dev)
+  expect_nonincreasing(fit5$dev)
   
   # The updated factors and loadings should all be the same.
-  expect_equivalent(F1,F2,tolerance = 1e-12)
-  expect_equivalent(F1,F3,tolerance = 1e-12)
-  expect_equivalent(F1,F4,tolerance = 1e-12)
-  expect_equivalent(F1,F5,tolerance = 1e-12)
-  expect_equivalent(L1,L2,tolerance = 1e-12)
-  expect_equivalent(L1,L3,tolerance = 1e-12)
-  expect_equivalent(L1,L4,tolerance = 1e-12)
-  expect_equivalent(L1,L5,tolerance = 1e-12)
+  expect_equivalent(fit1$F,fit2$F,tolerance = 1e-12)
+  expect_equivalent(fit1$F,fit3$F,tolerance = 1e-12)
+  expect_equivalent(fit1$F,fit4$F,tolerance = 1e-12)
+  expect_equivalent(fit1$F,fit5$F,tolerance = 1e-12)
+  expect_equivalent(fit1$L,fit2$L,tolerance = 1e-12)
+  expect_equivalent(fit1$L,fit3$L,tolerance = 1e-12)
+  expect_equivalent(fit1$L,fit4$L,tolerance = 1e-12)
+  expect_equivalent(fit1$L,fit5$L,tolerance = 1e-12)
 
   # The likelihoods and deviances should all be the same.
-  expect_equal(loglik1,loglik2,tolerance = 1e-10)
-  expect_equal(loglik1,loglik3,tolerance = 1e-10)
-  expect_equal(loglik1,loglik4,tolerance = 1e-10)
-  expect_equal(loglik1,loglik5,tolerance = 1e-10)
-  expect_equal(dev1,dev2,tolerance = 1e-10)
-  expect_equal(dev1,dev3,tolerance = 1e-10)
-  expect_equal(dev1,dev4,tolerance = 1e-10)
-  expect_equal(dev1,dev5,tolerance = 1e-10)
+  expect_equal(fit1$loglik,fit2$loglik,tolerance = 1e-10)
+  expect_equal(fit1$loglik,fit3$loglik,tolerance = 1e-10)
+  expect_equal(fit1$loglik,fit4$loglik,tolerance = 1e-10)
+  expect_equal(fit1$loglik,fit5$loglik,tolerance = 1e-10)
+  expect_equal(fit1$dev,fit2$dev,tolerance = 1e-10)
+  expect_equal(fit1$dev,fit3$dev,tolerance = 1e-10)
+  expect_equal(fit1$dev,fit4$dev,tolerance = 1e-10)
+  expect_equal(fit1$dev,fit5$dev,tolerance = 1e-10)
 })
 
 test_that("ccd updates produce monotonically increase the likelihood",{
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
-  n   <- 80
-  m   <- 100
-  out <- simulate_count_data(n,m,3,lmax = 0.3,fmax = 0.3)
+  out <- generate_test_data(80,100,3,0.3,0.3)
   X   <- out$X
   F   <- out$F
   L   <- out$L
 
-  # Remove rows and columns containing all zeros.
-  rows <- which(rowSums(X > 0) > 0)
-  cols <- which(colSums(X > 0) > 0)
-  X    <- X[rows,cols]
-  L    <- L[rows,]
-  F    <- F[cols,]
-    
   # Run 20 cyclic-coordinate descent (CCD) updates.
-  numiter <- 20
-  loglik  <- rep(0,numiter)
-  dev     <- rep(0,numiter)
-  for (i in 1:numiter) {
-    F         <- t(ccd_update_factors(X,L,t(F)))
-    L         <- ccd_update_loadings(X,L,t(F))
-    loglik[i] <- sum(loglik_poisson_nmf(X,list(F = F,L = L)))
-    dev[i]    <- sum(deviance_poisson_nmf(X,list(F = F,L = L)))
-  }
+  fit <- iterate_updates(X,F,L,20,
+                         function (X,F,L) t(ccd_update_factors(X,L,t(F))),
+                         function (X,F,L) ccd_update_loadings(X,L,t(F)))
 
   # The CCD updates should monotonically increase the likelihood and
   # decrease the deviance.
-  expect_nondecreasing(loglik)
-  expect_nonincreasing(dev)
+  expect_nondecreasing(fit$loglik)
+  expect_nonincreasing(fit$dev)
 })
