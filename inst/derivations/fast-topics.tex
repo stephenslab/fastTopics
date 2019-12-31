@@ -15,7 +15,7 @@
 
 \maketitle
 
-\section{Some derivations}
+\section{Problem statement}
 
 Given an $n \times p$ matrix of counts $X$ with entries $x_{ij} \geq
 0$, the aim is to fit a Poisson model of the counts,
@@ -48,13 +48,14 @@ that maximizes the log-likelihood \eqref{eq:poisson-log-likelihood};
 that is, we would like to solve
 \begin{equation}
 \begin{array}{ll}
-\mbox{minimize} & -\log p(x \,|\, F, L) \\
+\mbox{minimize} & \ell(F,L) \equiv -\log p(x \,|\, F, L) \\
 \mbox{subject to} & F \geq 0, L \geq 0.
 \end{array}
 \label{eq:problem}
 \end{equation}
-In the remainder, we derive an efficient approach to
-doing this.
+In the next section, we derive an efficient approach to doing this.
+
+\section{Block co-ordinate descent strategy}
 
 Our strategy for solving \eqref{eq:problem} is to alternate between
 solving for $F$ with $L$ fixed, and solving for $L$ with $F$
@@ -140,6 +141,42 @@ transformation of the variables, any iterate that leads to an
 improvement in the solution to the modified subproblem will produce an
 improvement in the solution to the original subproblem, and vice
 versa.
+
+\section{Karush-Kuhn-Tucker conditions}
+
+To assess the quality of a solution, here I derive the first-order
+Karush-Kuhn-Tucker (KKT) conditions for \eqref{eq:problem}. Written
+in matrix notation, they are
+\begin{align}
+\nabla_F \ell^{\star}(F,L,\Omega,\Gamma) &= 0 \label{eq:kkt-1} \\
+\nabla_L \ell^{\star}(F,L,\Omega,\Gamma) &= 0 \label{eq:kkt-2} \\
+\Omega \odot F &= 0 \label{eq:kkt-3} \\
+\Gamma \odot L &= 0 \label{eq:kkt-4}.
+\end{align}
+Here, I have introduced matrices of Lagrange multipliers $\Omega \geq
+0, \Gamma \geq 0$ associated with the non-negativity constraints $F
+\geq 0, L \geq 0$, $A \odot B$ is the Hadamard (elementwise) product
+of matrices $A$ and $B$, and $\ell^{\star}(F, L, \Omega, \Gamma)$ is the
+Lagrangian function:
+\begin{equation}
+\phi(F, L, \Omega, \Gamma) = \ell(F,L) 
+- \sum_{i=1}^n \sum_{k=1}^K \gamma_{ik} l_{ik}
+- \sum_{j=1}^m \sum_{k=1}^K \omega_{jk} f_{jk}.
+\end{equation}
+Applying conditions (\ref{eq:kkt-1}, \ref{eq:kkt-2}), we obtain
+\begin{align}
+\Omega &= (1 - A)^TL \\ 
+\Gamma &= (1 - A)F,
+\end{align}
+in which $A$ is defined to be the $n \times m$ matrix with entries
+$a_{ij} = x_{ij} / \lambda_{ij}$. Next, applying the complementary
+conditions (\ref{eq:kkt-3}, \ref{eq:kkt-4}) results in the following
+expressions for the residuals of the complementary conditions:
+\begin{align}
+r_F &= F(1 - A)^TL \\
+r_L &= L(1 - A)F.
+\end{align}
+These residuals should vanish near a minimizer of \eqref{eq:problem}.
 
 \bibliographystyle{siamplain}
 \bibliography{fast-topics}
