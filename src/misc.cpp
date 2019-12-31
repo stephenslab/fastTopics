@@ -4,6 +4,20 @@ using namespace arma;
 
 // FUNCTION DEFINITIONS
 // --------------------
+
+// This is used to implement x_over_tcrossprod.
+// 
+// [[Rcpp::export]]
+arma::vec x_over_crossprod_rcpp (const arma::vec& i, const arma::vec& j,
+				 const arma::vec& x, const arma::mat& A, 
+				 const arma::mat& B, double e) {
+  uint n = x.n_elem;
+  vec  y = x;
+  for (uint t = 0; t < n; t++)
+    y(t) /= (dot(A.col(i(t)),B.col(j(t))) + e);
+  return y;
+}
+
 // Return the row indices of the nonzeros in the jth column of sparse
 // matrix A. This is the same as
 //

@@ -38,6 +38,7 @@ iterate_updates <- function (X, F, L, numiter, update_factors,
                              update_loadings, factors_first = TRUE) {
   loglik <- rep(0,numiter)
   dev    <- rep(0,numiter)
+  res    <- rep(0,numiter)
   for (i in 1:numiter) {
     if (factors_first) {
       F <- update_factors(X,F,L)
@@ -48,6 +49,8 @@ iterate_updates <- function (X, F, L, numiter, update_factors,
     }
     loglik[i] <- sum(loglik_poisson_nmf(X,list(F = F,L = L)))
     dev[i]    <- sum(deviance_poisson_nmf(X,list(F = F,L = L)))
+    out       <- poisson_nmf_kkt(X,F,L)
+    res[i]    <- with(out,max(abs(rbind(F,L))))
   }
-  return(list(F = F,L = L,loglik = loglik,dev = dev))
+  return(list(F = F,L = L,loglik = loglik,dev = dev,res = res))
 }

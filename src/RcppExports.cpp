@@ -202,6 +202,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// x_over_crossprod_rcpp
+arma::vec x_over_crossprod_rcpp(const arma::vec& i, const arma::vec& j, const arma::vec& x, const arma::mat& A, const arma::mat& B, double e);
+RcppExport SEXP _fastTopics_x_over_crossprod_rcpp(SEXP iSEXP, SEXP jSEXP, SEXP xSEXP, SEXP ASEXP, SEXP BSEXP, SEXP eSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type i(iSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type j(jSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type B(BSEXP);
+    Rcpp::traits::input_parameter< double >::type e(eSEXP);
+    rcpp_result_gen = Rcpp::wrap(x_over_crossprod_rcpp(i, j, x, A, B, e));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mixem_rcpp
 arma::vec mixem_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter);
 RcppExport SEXP _fastTopics_mixem_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP) {
@@ -346,6 +362,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_ccd_update_factors_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_rcpp, 5},
     {"_fastTopics_cost_rcpp", (DL_FUNC) &_fastTopics_cost_rcpp, 5},
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
+    {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},
     {"_fastTopics_mixem_rcpp", (DL_FUNC) &_fastTopics_mixem_rcpp, 4},
     {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 7},
     {"_fastTopics_pnmfem_update_factors_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_rcpp, 4},

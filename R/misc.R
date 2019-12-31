@@ -7,6 +7,21 @@ apply.nonzeros <- function (X, f) {
   return(sparseMatrix(i = d$i,j = d$j,x = f(d$x),dims = dim(X)))
 }
 
+# Compute X/(crossprod(A,B) + e) efficiently when X is a sparse
+# matrix.
+#
+#' @importFrom Matrix sparseMatrix
+#' 
+x_over_tcrossprod <- function (X, A, B, e) {
+  d <- summary(X)
+  y <- drop(x_over_crossprod_rcpp(d$i - 1,d$j - 1,d$x,A,B,e))
+  return(sparseMatrix(i = d$i,j = d$j,x = y,dims = dim(X)))
+}
+
+# Return an m x n matrix rbind(x,...,x), in which length(x) = m.
+repmat <- function (x, n)
+  matrix(x,n,length(x),byrow = TRUE)
+
 # scale.cols(A,b) scales each column A[,i] by b[i].
 scale.cols <- function (A, b)
   t(t(A) * b)

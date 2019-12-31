@@ -104,3 +104,18 @@ test_that(paste("deviance_poisson_topic_nmf gives correct result for sparse",
     expect_equal(d1,d3)
   }
 })
+
+test_that("poisson_nmf_kkt gives same result for sparse and dense matrices",{
+
+  # Generate a data set.  
+  set.seed(1)
+  out <- simulate_count_data(10,8,3)
+  X   <- out$X
+  F   <- out$F
+  L   <- out$L
+
+  # Compute the KKT residuals, and check that they are the same.
+  out1 <- poisson_nmf_kkt(X,F,L)
+  out2 <- poisson_nmf_kkt(as(X,"dgCMatrix"),F,L)
+  expect_equal(out1,out2,tolerance = 1e-15)
+})

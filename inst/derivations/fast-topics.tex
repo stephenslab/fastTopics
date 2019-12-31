@@ -173,8 +173,8 @@ $a_{ij} = x_{ij} / \lambda_{ij}$. Next, applying the complementary
 conditions (\ref{eq:kkt-3}, \ref{eq:kkt-4}) results in the following
 expressions for the residuals of the complementary conditions:
 \begin{align}
-r_F &= F(1 - A)^TL \\
-r_L &= L(1 - A)F.
+r_F &= F \odot (1 - A)^TL \\
+r_L &= L \odot (1 - A)F.
 \end{align}
 These residuals should vanish near a minimizer of \eqref{eq:problem}.
 

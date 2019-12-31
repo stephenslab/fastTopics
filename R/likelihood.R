@@ -179,3 +179,19 @@ deviance_poisson_const <- function (X) {
   else
     return(2*rowSums(apply.nonzeros(X,function (x) x*(log(x) - 1))))
 }
+
+# Compute the residuals of the first-order Karush-Kuhn-Tucker (KKT)
+# conditions for Poisson non-negative matrix factorization at solution
+# estimate (F,L).
+poisson_nmf_kkt <- function (X, F, L, e = 1e-15) {
+  if (is.matrix(X)) {
+    A <- X/(tcrossprod(L,F) + e)
+    return(list(F = F*(t(1 - A) %*% L),
+                L = L*((1 - A) %*% F)))
+  } else {
+    A <- x_over_tcrossprod(X,t(L),t(F),e)
+    return(list(F = F*(repmat(colSums(L),ncol(X)) - as.matrix(t(A) %*% L)),
+                L = L*(repmat(colSums(F),nrow(X)) - as.matrix(A %*% F))))
+  }
+}
+

@@ -120,8 +120,7 @@ test_that("scd updates monotonically increase the likelihood",{
   numiter <- 20
   fit1 <- iterate_updates(X,F,L,numiter,
                          function (X,F,L) t(scd_update_factors(X,L,t(F),4)),
-                         function (X,F,L) scd_update_loadings(X,L,t(F),4),
-                         factors_first = FALSE)
+                         function (X,F,L) scd_update_loadings(X,L,t(F),4))
 
   # Run 20 sequential coordinate descent (SCD) updates, this time
   # using the multithreaded computations.
@@ -129,8 +128,7 @@ test_that("scd updates monotonically increase the likelihood",{
   setThreadOptions(numThreads = nc)
   fit2 <- iterate_updates(X,F,L,numiter,
             function (X,F,L) t(scd_update_factors(X,L,t(F),4,nc = nc)),
-            function (X,F,L) scd_update_loadings(X,L,t(F),4,nc = nc),
-            factors_first = FALSE)
+            function (X,F,L) scd_update_loadings(X,L,t(F),4,nc = nc))
   
   # The SCD updates should monotonically increase the likelihood and
   # decrease the deviance.
@@ -150,7 +148,7 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
   F   <- out$F
   L   <- out$L
 
-  # Run the SCD algorithm implemented in the NNLM package.
+  # Run the SCD algorithm as it is implemented in the NNLM package.
   numiter <- 20
   fit1 <- suppressWarnings(nnmf(X,k,init = list(W = L,H = t(F)),
                                 method = "scd",loss = "mkl",rel.tol = 0,
