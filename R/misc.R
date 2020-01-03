@@ -11,6 +11,7 @@ apply.nonzeros <- function (X, f) {
 # matrix.
 #
 #' @importFrom Matrix sparseMatrix
+#' @importFrom Rcpp evalCpp
 #' 
 x_over_tcrossprod <- function (X, A, B, e) {
   d <- summary(X)

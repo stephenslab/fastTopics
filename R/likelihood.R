@@ -79,6 +79,8 @@ deviance_poisson_nmf <- function (X, fit, e = 1e-15)
   loglik_helper(X,fit,"deviance.poisson",e)
 
 #' @rdname likelihood
+#'
+#' @importFrom Rcpp evalCpp
 #' 
 #' @export
 #'

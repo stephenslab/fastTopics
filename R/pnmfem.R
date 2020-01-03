@@ -11,6 +11,9 @@
 # argument "e" is a non-negative scalar specifying the minimum value
 # of the updated loadings. A positive value of "e" promotes better
 # convergence of the multiplicative updates.
+#
+#' @importFrom Rcpp evalCpp
+#'
 pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
   if (nc == 1) {
     if (is.matrix(X))
@@ -26,8 +29,8 @@ pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
   return(pmax(F,e))
 }
 
-# This function implements the EM updates for the factors matrix, F, in
-# which the matrix X is approximated by tcrossprod(L,F). The EM
+# This function implements the EM updates for the factors matrix, F,
+# in which the matrix X is approximated by tcrossprod(L,F). The EM
 # updates are equivalent to multiplicative updates, but computation is
 # implemented differently.
 #
@@ -41,6 +44,9 @@ pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
 # specifying the minimum value of the updated loadings. A positive
 # value of "e" promotes better convergence of the multiplicative
 # updates.
+#
+#' @importFrom Rcpp evalCpp
+#'
 pnmfem_update_loadings <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
   if (nc == 1) {
     if (is.matrix(X))

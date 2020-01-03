@@ -6,8 +6,14 @@
 \title{Alternating SQP Method for Optimizing Topic Models and
   Non-negative Matrix Factorizations}
 \usage{
-altsqp(X, fit, numiter = 100, version = c("Rcpp", "R"),
-  control = list(), verbose = TRUE)
+altsqp(
+  X,
+  fit,
+  numiter = 100,
+  version = c("Rcpp", "R"),
+  control = list(),
+  verbose = TRUE
+)
 
 altsqp_control_default()
 }

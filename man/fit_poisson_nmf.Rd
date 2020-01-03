@@ -5,8 +5,16 @@
 \title{Multiplicative and EM Update Rules for Poisson Non-negative
   Matrix Factorization}
 \usage{
-fit_poisson_nmf(X, F0, L0, numiter = 100, update = c("em", "mu"),
-  minval = 1e-15, e = 1e-15, verbose = TRUE)
+fit_poisson_nmf(
+  X,
+  F0,
+  L0,
+  numiter = 100,
+  update = c("em", "mu"),
+  minval = 1e-15,
+  e = 1e-15,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{X}{The n x m matrix of counts; all entries of X should be

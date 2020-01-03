@@ -1,12 +1,15 @@
 # This function implements the cyclic co-ordinate descent (CCD) update
 # for the factors matrix (the "basis vectors"), B, in which the matrix
 # X is approximated by the matrix product A*B. Inputs X, A and B
-# should not be sparse matrices ("is.matrix" should return
-# TRUE). Input argument "e" is a non-negative scalar specifying the
-# minimum value of the updated factors.
+# should not be sparse matrices ("is.matrix" should return TRUE).
+# Input argument "e" is a non-negative scalar specifying the minimum
+# value of the updated factors.
 #
 # Note that the call to ccd_update_factors_rcpp modifies inputs B1 and
 # AB.
+#
+#' @importFrom Rcpp evalCpp
+#'
 ccd_update_factors <- function (X, A, B, e = 1e-15) {
   A  <- t(A)
   AB <- crossprod(A,B)
@@ -18,12 +21,15 @@ ccd_update_factors <- function (X, A, B, e = 1e-15) {
 # This function implements the cyclic co-ordinate descent (CCD) update
 # for the loadings matrix (the "activations"), A, in which the matrix
 # X is approximated by the matrix product A*B. Inputs X, A and B
-# should not be sparse matrices ("is.matrix" should return
-# TRUE). Input argument "e" is a non-negative scalar specifying the
-# minimum value of the updated factors.
+# should not be sparse matrices ("is.matrix" should return TRUE).
+# Input argument "e" is a non-negative scalar specifying the minimum
+# value of the updated factors.
 #
 # Note that the call to ccd_update_factors_rcpp modifies inputs A and
 # AB.
+#
+#' @importFrom Rcpp evalCpp
+#'
 ccd_update_loadings <- function (X, A, B, e = 1e-15) {
   X  <- t(X)
   A  <- t(A)

@@ -5,6 +5,9 @@
 # Input "numiter" specifies the number of inner-loop iterations to
 # perform. Input argument "e" a non-negative scalar included in the
 # computations to prevent NaNs due to division by zero.
+#
+#' @importFrom Rcpp evalCpp
+#'
 scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-15) {
   W <- t(W)
   if (nc == 1)
@@ -21,6 +24,9 @@ scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-15) {
 # Input "numiter" specifies the number of inner-loop iterations to
 # perform. Input argument "e" a non-negative scalar included in the
 # computations to prevent NaNs due to division by zero.
+#
+#' @importFrom Rcpp evalCpp
+#'
 scd_update_loadings <- function (A, W, H, numiter = 1, nc = 1, e = 1e-15) {
   A <- t(A)
   W <- t(W)

@@ -1,5 +1,8 @@
 # Compute maximum-likelihood estimates of the mixture proportions in a
 # mixture model by iterating the SQP updates for a fixed number of
+# iterations. This is mainly used for testing the C++ implementation.
+# See the comments attached to the "mixem" C++ function for an
+# explanation of the inputs.
 # 
 #' @importFrom utils modifyList
 #' @importFrom Rcpp evalCpp
