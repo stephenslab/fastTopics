@@ -1,4 +1,4 @@
-context("mixem")
+context("poismix")
 
 test_that("poismixem and poismixem_rcpp produce same result",{
 

@@ -153,7 +153,7 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
   fit1 <- suppressWarnings(nnmf(X,k,init = list(W = L,H = t(F)),
                                 method = "scd",loss = "mkl",rel.tol = 0,
                                 max.iter = numiter,inner.max.iter = 4,
-                                verbose = 0))
+                                verbose = 0,inner.rel.tol = 0))
 
   # Run 20 sequential coordinate descent (SCD) updates.
   fit2 <- iterate_updates(X,F,L,numiter,

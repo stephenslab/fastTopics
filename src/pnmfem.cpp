@@ -1,6 +1,6 @@
 #include <RcppParallel.h>
 #include "misc.h"
-#include "poismixem.h"
+#include "poismix.h"
 
 using namespace arma;
 
