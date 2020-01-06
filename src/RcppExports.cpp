@@ -80,6 +80,41 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mixsqp_rcpp
+arma::vec mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, const arma::vec& e, uint numiter, List control, bool verbose);
+RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP eSEXP, SEXP numiterSEXP, SEXP controlSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type e(eSEXP);
+    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, e, numiter, control, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_nnmf
+Rcpp::List c_nnmf(const arma::mat& A, const unsigned int k, arma::mat W, arma::mat H, arma::umat Wm, arma::umat Hm, uint max_iter, uint inner_max_iter);
+RcppExport SEXP _fastTopics_c_nnmf(SEXP ASEXP, SEXP kSEXP, SEXP WSEXP, SEXP HSEXP, SEXP WmSEXP, SEXP HmSEXP, SEXP max_iterSEXP, SEXP inner_max_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const unsigned int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type W(WSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type H(HSEXP);
+    Rcpp::traits::input_parameter< arma::umat >::type Wm(WmSEXP);
+    Rcpp::traits::input_parameter< arma::umat >::type Hm(HmSEXP);
+    Rcpp::traits::input_parameter< uint >::type max_iter(max_iterSEXP);
+    Rcpp::traits::input_parameter< uint >::type inner_max_iter(inner_max_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_nnmf(A, k, W, H, Wm, Hm, max_iter, inner_max_iter));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pnmfem_update_factors_rcpp
 arma::mat pnmfem_update_factors_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, double numiter);
 RcppExport SEXP _fastTopics_pnmfem_update_factors_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP numiterSEXP) {
@@ -187,6 +222,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
     {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},
     {"_fastTopics_mixem_rcpp", (DL_FUNC) &_fastTopics_mixem_rcpp, 4},
+    {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 7},
+    {"_fastTopics_c_nnmf", (DL_FUNC) &_fastTopics_c_nnmf, 8},
     {"_fastTopics_pnmfem_update_factors_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_sparse_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_parallel_rcpp, 4},
