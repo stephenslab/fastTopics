@@ -97,20 +97,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// nnmf
-Rcpp::List nnmf(const arma::mat& A, const uint k, arma::mat W, arma::mat H, uint max_iter, uint inner_max_iter, double e);
-RcppExport SEXP _fastTopics_nnmf(SEXP ASEXP, SEXP kSEXP, SEXP WSEXP, SEXP HSEXP, SEXP max_iterSEXP, SEXP inner_max_iterSEXP, SEXP eSEXP) {
+// c_nnmf
+Rcpp::List c_nnmf(const arma::mat& A, const unsigned int k, arma::mat W, arma::mat H, uint max_iter, uint inner_max_iter);
+RcppExport SEXP _fastTopics_c_nnmf(SEXP ASEXP, SEXP kSEXP, SEXP WSEXP, SEXP HSEXP, SEXP max_iterSEXP, SEXP inner_max_iterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const uint >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const unsigned int >::type k(kSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type W(WSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type H(HSEXP);
     Rcpp::traits::input_parameter< uint >::type max_iter(max_iterSEXP);
     Rcpp::traits::input_parameter< uint >::type inner_max_iter(inner_max_iterSEXP);
-    Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(nnmf(A, k, W, H, max_iter, inner_max_iter, e));
+    rcpp_result_gen = Rcpp::wrap(c_nnmf(A, k, W, H, max_iter, inner_max_iter));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -222,7 +221,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},
     {"_fastTopics_mixem_rcpp", (DL_FUNC) &_fastTopics_mixem_rcpp, 4},
     {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 7},
-    {"_fastTopics_nnmf", (DL_FUNC) &_fastTopics_nnmf, 7},
+    {"_fastTopics_c_nnmf", (DL_FUNC) &_fastTopics_c_nnmf, 6},
     {"_fastTopics_pnmfem_update_factors_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_sparse_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_parallel_rcpp, 4},
