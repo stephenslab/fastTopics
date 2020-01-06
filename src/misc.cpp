@@ -4,9 +4,9 @@ using namespace arma;
 
 // FUNCTION DEFINITIONS
 // --------------------
-
 // This is used to implement x_over_tcrossprod.
 // 
+// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::vec x_over_crossprod_rcpp (const arma::vec& i, const arma::vec& j,
 				 const arma::vec& x, const arma::mat& A, 

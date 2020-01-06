@@ -35,8 +35,6 @@ inline vec pnmfem_update_factor_sparse (const sp_mat& X, const mat& F,
 // -----------------
 // This class is used to implement multithreaded computation of the
 // factor updates in pnmfem_update_factors_parallel_rcpp.
-//
-// [[Rcpp::depends(RcppParallel)]]
 struct pnmfem_factor_updater : public RcppParallel::Worker {
   const mat& X;
   const mat& F;
@@ -95,6 +93,7 @@ struct pnmfem_factor_updater_sparse : public RcppParallel::Worker {
 // implementation, and for speed, because the computation is performed
 // on the m columns of F, and the matrix is stored columnwise.
 //
+// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::mat pnmfem_update_factors_rcpp (const arma::mat& X, const arma::mat& F,
 				      const arma::mat& L, double numiter) {
@@ -131,6 +130,7 @@ arma::mat pnmfem_update_factors_sparse_rcpp (const arma::sp_mat& X,
 // Intel Threading Building Blocks (TBB) are used to update the
 // factors in parallel.
 //
+// [[Rcpp::depends(RcppParallel)]]
 // [[Rcpp::export]]
 arma::mat pnmfem_update_factors_parallel_rcpp (const arma::mat& X,
 					       const arma::mat& F,

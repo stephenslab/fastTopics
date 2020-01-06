@@ -7,6 +7,7 @@ using namespace arma;
 // --------------------
 // This is mainly used for testing the mixem C++ function.
 //
+// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
 		      const arma::vec& x0, uint numiter) {

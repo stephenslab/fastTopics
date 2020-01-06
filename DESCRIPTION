@@ -25,13 +25,15 @@ Imports:
     Matrix,
     Rcpp (>= 1.0.1),
     RcppParallel (>= 4.4.1),
-    mixsqp
+    mixsqp,
+    ggplot2
 Suggests:
     testthat,
     graphics,
     NNLM,
     REBayes,
-    Rmosek
+    Rmosek,
+    cowplot
 LinkingTo:
     Rcpp,
     RcppParallel,

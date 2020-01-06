@@ -1,8 +1,8 @@
 to do
 =====
 
-+ In pnmfem, handle special case when a row or column has exactly one
-  nonzero count.
++ Add info about rate of nonzeros in F and L to progress, and to
+  console output when verbose = TRUE.
 
 + Create an example 100 x 200 data set in the data/ directory, and
   store a (local) solution, as well as the log-likelihood and deviance

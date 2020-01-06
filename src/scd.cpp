@@ -15,8 +15,6 @@ void scd_kl_update (subview_col<double> Hj, const mat& Wt, const vec& Aj,
 // -----------------
 // This class is used to implement multithreaded computation of the
 // loadings updates in scd_update_factors_parallel_rcpp.
-//
-// [[Rcpp::depends(RcppParallel)]]
 struct scd_factor_updater : public RcppParallel::Worker {
   const mat& A;
   const mat& Wt;
@@ -52,6 +50,7 @@ struct scd_factor_updater : public RcppParallel::Worker {
 // Xihui Lin and Paul Boutros, which is available for download at
 // https://github.com/linxihui/NNLM.
 //
+// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::mat scd_update_factors_rcpp (const arma::mat& A, const arma::mat& Wt,
 				   const arma::mat& H, uint numiter,
@@ -65,6 +64,7 @@ arma::mat scd_update_factors_rcpp (const arma::mat& A, const arma::mat& Wt,
 // Intel Threading Building Blocks (TBB) are used to update the
 // loadings in parallel.
 //
+// [[Rcpp::depends(RcppParallel)]]
 // [[Rcpp::export]]
 arma::mat scd_update_factors_parallel_rcpp (const arma::mat& A, 
 					    const arma::mat& Wt,

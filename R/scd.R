@@ -8,7 +8,7 @@
 #
 #' @importFrom Rcpp evalCpp
 #'
-scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-15) {
+scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16) {
   W <- t(W)
   if (nc == 1)
     H <- scd_update_factors_rcpp(A,W,H,numiter,e)
@@ -27,7 +27,7 @@ scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-15) {
 #
 #' @importFrom Rcpp evalCpp
 #'
-scd_update_loadings <- function (A, W, H, numiter = 1, nc = 1, e = 1e-15) {
+scd_update_loadings <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16) {
   A <- t(A)
   W <- t(W)
   if (nc == 1)

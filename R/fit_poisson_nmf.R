@@ -3,6 +3,8 @@
 #   + EM updates are equivalent to multiplicative updates, but
 #     computation is implemented differently.
 #
+#   + method = "scd" is based on version 0.4-3 of the NNLM package.
+#
 
 #' @title Multiplicative and EM Update Rules for Poisson Non-negative
 #'   Matrix Factorization

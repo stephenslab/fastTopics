@@ -25,8 +25,8 @@ mixsqp_rcpp <- function(L, w, x0, e, numiter, control, verbose) {
     .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, e, numiter, control, verbose)
 }
 
-c_nnmf <- function(A, k, W, H, max_iter, inner_max_iter) {
-    .Call('_fastTopics_c_nnmf', PACKAGE = 'fastTopics', A, k, W, H, max_iter, inner_max_iter)
+nnmf <- function(A, k, W, H, max_iter, inner_max_iter, e) {
+    .Call('_fastTopics_nnmf', PACKAGE = 'fastTopics', A, k, W, H, max_iter, inner_max_iter, e)
 }
 
 pnmfem_update_factors_rcpp <- function(X, F, L, numiter) {

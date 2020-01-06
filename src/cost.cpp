@@ -9,6 +9,7 @@ using namespace arma;
 // quality of a non-negative matrix factorization, in which matrix X
 // is approximated by matrix product A * B.
 //
+// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::vec cost_rcpp (const arma::mat& X, const arma::mat& A,
 		     const arma::mat& B, double e, bool poisson) {

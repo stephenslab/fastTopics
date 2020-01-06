@@ -2,12 +2,15 @@
 #include "misc.h"
 #include "mixem.h"
 
+// [[Rcpp::depends(RcppArmadillo)]]
+
 using namespace arma;
 
 // FUNCTION DEFINITIONS
 // --------------------
 // This is mainly used for testing the poismixem C++ function.
 //
+// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::vec poismixem_rcpp (const arma::mat& L, const arma::vec& w,
 		      const arma::vec& x0, uint numiter) {
