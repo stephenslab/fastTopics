@@ -21,12 +21,8 @@ mixem_rcpp <- function(L, w, x0, numiter) {
     .Call('_fastTopics_mixem_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
 }
 
-mixsqp_rcpp <- function(L, w, x0, e, numiter, control, verbose) {
-    .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, e, numiter, control, verbose)
-}
-
-c_nnmf <- function(A, k, W, H, max_iter, inner_max_iter) {
-    .Call('_fastTopics_c_nnmf', PACKAGE = 'fastTopics', A, k, W, H, max_iter, inner_max_iter)
+mixsqp_rcpp <- function(L, w, x0, convtolactiveset, zerothresholdsolution, zerothresholdsearchdir, suffdecr, stepsizereduce, minstepsize, identitycontribincrease, eps, numitersqp, maxiteractiveset) {
+    .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, convtolactiveset, zerothresholdsolution, zerothresholdsearchdir, suffdecr, stepsizereduce, minstepsize, identitycontribincrease, eps, numitersqp, maxiteractiveset)
 }
 
 pnmfem_update_factors_rcpp <- function(X, F, L, numiter) {

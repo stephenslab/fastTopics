@@ -81,35 +81,25 @@ BEGIN_RCPP
 END_RCPP
 }
 // mixsqp_rcpp
-arma::vec mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, const arma::vec& e, uint numiter, List control, bool verbose);
-RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP eSEXP, SEXP numiterSEXP, SEXP controlSEXP, SEXP verboseSEXP) {
+List mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, double convtolactiveset, double zerothresholdsolution, double zerothresholdsearchdir, double suffdecr, double stepsizereduce, double minstepsize, double identitycontribincrease, const arma::vec& eps, int numitersqp, int maxiteractiveset);
+RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP convtolactivesetSEXP, SEXP zerothresholdsolutionSEXP, SEXP zerothresholdsearchdirSEXP, SEXP suffdecrSEXP, SEXP stepsizereduceSEXP, SEXP minstepsizeSEXP, SEXP identitycontribincreaseSEXP, SEXP epsSEXP, SEXP numitersqpSEXP, SEXP maxiteractivesetSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type e(eSEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
-    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, e, numiter, control, verbose));
-    return rcpp_result_gen;
-END_RCPP
-}
-// c_nnmf
-Rcpp::List c_nnmf(const arma::mat& A, const unsigned int k, arma::mat W, arma::mat H, uint max_iter, uint inner_max_iter);
-RcppExport SEXP _fastTopics_c_nnmf(SEXP ASEXP, SEXP kSEXP, SEXP WSEXP, SEXP HSEXP, SEXP max_iterSEXP, SEXP inner_max_iterSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const unsigned int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type W(WSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type H(HSEXP);
-    Rcpp::traits::input_parameter< uint >::type max_iter(max_iterSEXP);
-    Rcpp::traits::input_parameter< uint >::type inner_max_iter(inner_max_iterSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_nnmf(A, k, W, H, max_iter, inner_max_iter));
+    Rcpp::traits::input_parameter< double >::type convtolactiveset(convtolactivesetSEXP);
+    Rcpp::traits::input_parameter< double >::type zerothresholdsolution(zerothresholdsolutionSEXP);
+    Rcpp::traits::input_parameter< double >::type zerothresholdsearchdir(zerothresholdsearchdirSEXP);
+    Rcpp::traits::input_parameter< double >::type suffdecr(suffdecrSEXP);
+    Rcpp::traits::input_parameter< double >::type stepsizereduce(stepsizereduceSEXP);
+    Rcpp::traits::input_parameter< double >::type minstepsize(minstepsizeSEXP);
+    Rcpp::traits::input_parameter< double >::type identitycontribincrease(identitycontribincreaseSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< int >::type numitersqp(numitersqpSEXP);
+    Rcpp::traits::input_parameter< int >::type maxiteractiveset(maxiteractivesetSEXP);
+    rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, convtolactiveset, zerothresholdsolution, zerothresholdsearchdir, suffdecr, stepsizereduce, minstepsize, identitycontribincrease, eps, numitersqp, maxiteractiveset));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -220,8 +210,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
     {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},
     {"_fastTopics_mixem_rcpp", (DL_FUNC) &_fastTopics_mixem_rcpp, 4},
-    {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 7},
-    {"_fastTopics_c_nnmf", (DL_FUNC) &_fastTopics_c_nnmf, 6},
+    {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 13},
     {"_fastTopics_pnmfem_update_factors_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_sparse_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_parallel_rcpp, 4},
