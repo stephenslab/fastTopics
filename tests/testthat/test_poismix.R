@@ -4,17 +4,23 @@ test_that("poismixem and poismixem_rcpp produce same result",{
 
   # Generate small data set.
   set.seed(1)
-  out <- generate_poismix_data(100,c(1,2,0,0,0,8,0,0))
+  out <- generate_poismix_data(100,c(1,2,0,0,0,4,0,0))
   L   <- out$L
   w   <- out$w
   
   # Run 100 EM updates for the Poisson mixture model. The R and C++
   # implementations should give nearly the same result.
   numiter <- 100
+  L1 <- normalize.cols(L)
+  u  <- colSums(L)
   x0 <- runif(8)
   x1 <- poismixem(L,w,x0,numiter)
   x2 <- drop(poismixem_rcpp(L,w,x0,numiter))
+  x3 <- poismixem2_rcpp(L1,w,u,x0,numiter)
+  x4 <- poismixem2_rcpp(L1[i,],w[i],u,x0,numiter)
   expect_equal(x1,x2,tolerance = 1e-14)
+  expect_equal(x1,x3,tolerance = 1e-14)
+  expect_equal(x1,x4,tolerance = 1e-14)
 })
 
 test_that(paste("poismixem and poismixem_rcpp produce correct result",
@@ -38,8 +44,12 @@ test_that(paste("poismixem and poismixem_rcpp produce correct result",
 
   # Run 100 EM updates a second time, using the second C++ interface.
   L1 <- normalize.cols(L)
-  x3 <- drop(poismixem2_rcpp(L1[i,,drop = FALSE],w[i],colSums(L),x0,numiter))
-
+  u  <- colSums(L)
+  x  <- poismixem2_rcpp(L1,w,u,x0,numiter)
+  y  <- poismixem2_rcpp(L1[i,,drop = FALSE],w[i],u,x0,numiter)
+  x3 <- drop(x)
+  expect_equal(x,y,tolerance = 1e-15)
+  
   # The R and C++ implementations should give nearly the same result,
   # and should be very close to the exact solution obtained by calling
   # poismix.one.nonzero.

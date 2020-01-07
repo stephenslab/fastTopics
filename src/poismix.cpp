@@ -64,6 +64,16 @@ vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 // contain the column sums, u = colSums(L), in which L is the matrix
 // prior to normalization, and matrix L1 is the normalized version of
 // L in which each column sums to 1; that is, L1 = normalize.cols(L).
+//
+// Important note: L1 need only be supplied for the nonzero counts, w;
+// that is, x1 and x2 should be the same after running this R code:
+//
+//  L1 <- normalize.cols(L)
+//  u  <- colSums(L)
+//  i  <- which(w > 0)
+//  x2 <- poismixem2_rcpp(L1,w,u,x0,numiter)
+//  x3 <- poismixem2_rcpp(L1[i,,drop = FALSE],w[i],u,x0,numiter)
+//
 void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P, 
 		uint numiter) {
 
