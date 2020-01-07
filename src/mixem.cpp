@@ -50,8 +50,9 @@ vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 // matrices; in the latter case, you can reuse the P matrix.
 //
 // For the result to be valid, the matrix L should be normalized
-// beforehand so that each column sums to 1, and vector x should be
-// normalized beforehand so that the entries sum to 1.
+// beforehand so that each column sums to 1; P should be a matrix of
+// the same size as L; and vector x should be normalized beforehand
+// so that the entries sum to 1.
 void mixem (const mat& L, const vec& w, vec& x, mat& P, uint numiter) {
   for (uint i = 0; i < numiter; i++)
     mixem_update(L,w,x,P);

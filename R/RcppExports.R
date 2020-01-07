@@ -21,8 +21,8 @@ mixem_rcpp <- function(L, w, x0, numiter) {
     .Call('_fastTopics_mixem_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
 }
 
-mixsqp_rcpp <- function(L, w, x0, convtolactiveset, zerothresholdsolution, zerothresholdsearchdir, suffdecr, stepsizereduce, minstepsize, identitycontribincrease, eps, numitersqp, maxiteractiveset) {
-    .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, convtolactiveset, zerothresholdsolution, zerothresholdsearchdir, suffdecr, stepsizereduce, minstepsize, identitycontribincrease, eps, numitersqp, maxiteractiveset)
+mixsqp_rcpp <- function(L, w, x0, numiter) {
+    .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
 }
 
 pnmfem_update_factors_rcpp <- function(X, F, L, numiter) {
@@ -43,6 +43,10 @@ pnmfem_update_factors_sparse_parallel_rcpp <- function(X, F, L, numiter) {
 
 poismixem_rcpp <- function(L, w, x0, numiter) {
     .Call('_fastTopics_poismixem_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
+}
+
+poismixem2_rcpp <- function(L1, w, u, x0, numiter) {
+    .Call('_fastTopics_poismixem2_rcpp', PACKAGE = 'fastTopics', L1, w, u, x0, numiter)
 }
 
 scd_update_factors_rcpp <- function(A, Wt, H, numiter, e) {

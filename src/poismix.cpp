@@ -8,13 +8,27 @@ using namespace arma;
 
 // FUNCTION DEFINITIONS
 // --------------------
-// This is mainly used for testing the poismixem C++ function.
+// This is mainly used to test the first variant of the poismixem C++
+// function.
 //
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::vec poismixem_rcpp (const arma::mat& L, const arma::vec& w,
-		      const arma::vec& x0, uint numiter) {
+			  const arma::vec& x0, uint numiter) {
   return poismixem(L,w,x0,numiter);
+}
+
+// This is mainly used to test the second variant of the poismixem C++
+// function.
+//
+// [[Rcpp::export]]
+arma::vec poismixem2_rcpp (const arma::mat& L1, const arma::vec& w,
+			   const arma::vec& u, const arma::vec& x0,
+			   uint numiter) {
+  vec x = x0;
+  mat P = L1;
+  poismixem(L1,u,w,x,P,numiter);
+  return x;
 }
 
 // Compute a maximum-likelihood estimate (MLE) of the mixture weights

@@ -5,40 +5,27 @@
 
 // TYPE DEFINITIONS
 // ----------------
-// A list of parameters controlling behaviour of the SQP optimization
-// algorithm.
+// A list of parameters controlling behaviour of the mix-SQP algorithm.
 typedef struct {
-  double activesetconvtol;
-  double zerothreshold;
-  double zerosearchdir;
+  double convtolactiveset;
+  double zerothresholdsolution;
+  double zerothresholdsearchdir;
   double suffdecr;
   double stepsizereduce;
   double minstepsize;
+  double identitycontribincrease;
   uint   maxiteractiveset;
+  double e;
 } mixsqp_control_params;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-mixsqp_control_params get_mixsqp_control_params (Rcpp::List control);
+arma::vec mixsqp (const arma::mat& L, const arma::vec& w, const arma::vec& x0,
+		  uint numiter, const mixsqp_control_params& control,
+		  arma::vec& obj);
 
 void mixsqp (const arma::mat& L, const arma::vec& w, arma::vec& x,
-	     const arma::vec& e, uint numiter,
-	     const mixsqp_control_params& control, bool verbose);
-
-// FUNCTION DEFINITIONS
-// --------------------
-// Get the parameters controlling the behaviour of the SQP
-// optimization algorithm from the named elements in a list.
-inline mixsqp_control_params get_mixsqp_control_params (Rcpp::List control) {
-  mixsqp_control_params x;
-  x.activesetconvtol = control["activesetconvtol"];
-  x.zerothreshold    = control["zerothreshold"];
-  x.zerosearchdir    = control["zerosearchdir"];
-  x.suffdecr         = control["suffdecr"];
-  x.stepsizereduce   = control["stepsizereduce"];
-  x.minstepsize      = control["minstepsize"];
-  x.maxiteractiveset = control["maxiteractiveset"];
-  return x;
-}
+	     arma::mat& Z, arma::mat& H, uint numiter,
+	     const mixsqp_control_params& control, arma::vec& obj);
 
 #endif

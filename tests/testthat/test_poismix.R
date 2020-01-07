@@ -27,19 +27,25 @@ test_that(paste("poismixem and poismixem_rcpp produce correct result",
   x <- c(1,2,0,0)
   L <- matrix(runif(n*m),n,m)
   w <- rep(0,n)
-  w[8] <- 2
+  i <- 8
+  w[i] <- 2
 
   # Run 100 EM updates for the multinomial mixture model.
   numiter <- 100
   x0 <- runif(m)
   x1 <- poismixem(L,w,x0,numiter)
   x2 <- drop(poismixem_rcpp(L,w,x0,numiter))
-  
+
+  # Run 100 EM updates a second time, using the second C++ interface.
+  L1 <- normalize.cols(L)
+  x3 <- drop(poismixem2_rcpp(L1[i,,drop = FALSE],w[i],colSums(L),x0,numiter))
+
   # The R and C++ implementations should give nearly the same result,
   # and should be very close to the exact solution obtained by calling
   # poismix.one.nonzero.
-  x3 <- poismix.one.nonzero(L,w)
+  x4 <- poismix.one.nonzero(L,w)
   expect_equal(x1,x2,tolerance = 1e-14)
-  expect_equal(x1,x3,tolerance = 1e-14)
-  expect_equal(x2,x3,tolerance = 1e-14)
+  expect_equal(x1,x4,tolerance = 1e-14)
+  expect_equal(x2,x4,tolerance = 1e-14)
+  expect_equal(x3,x4,tolerance = 1e-14)
 })
