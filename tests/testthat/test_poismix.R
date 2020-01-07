@@ -13,11 +13,12 @@ test_that("poismixem and poismixem_rcpp produce same result",{
   numiter <- 100
   L1 <- normalize.cols(L)
   u  <- colSums(L)
+  i  <- which(w > 0)
   x0 <- runif(8)
   x1 <- poismixem(L,w,x0,numiter)
   x2 <- drop(poismixem_rcpp(L,w,x0,numiter))
-  x3 <- poismixem2_rcpp(L1,w,u,x0,numiter)
-  x4 <- poismixem2_rcpp(L1[i,],w[i],u,x0,numiter)
+  x3 <- drop(poismixem2_rcpp(L1,w,u,x0,numiter))
+  x4 <- drop(poismixem3_rcpp(L1,w[i],u,i-1,x0,numiter))
   expect_equal(x1,x2,tolerance = 1e-14)
   expect_equal(x1,x3,tolerance = 1e-14)
   expect_equal(x1,x4,tolerance = 1e-14)
@@ -42,11 +43,12 @@ test_that(paste("poismixem and poismixem_rcpp produce correct result",
   x1 <- poismixem(L,w,x0,numiter)
   x2 <- drop(poismixem_rcpp(L,w,x0,numiter))
 
-  # Run 100 EM updates a second time, using the second C++ interface.
+  # Run 100 EM updates another couple times, using the alternate C++
+  # interfaces.
   L1 <- normalize.cols(L)
   u  <- colSums(L)
   x  <- poismixem2_rcpp(L1,w,u,x0,numiter)
-  y  <- poismixem2_rcpp(L1[i,,drop = FALSE],w[i],u,x0,numiter)
+  y  <- poismixem3_rcpp(L1,w[i],u,i-1,x0,numiter)
   x3 <- drop(x)
   expect_equal(x,y,tolerance = 1e-15)
   

@@ -31,6 +31,18 @@ arma::vec poismixem2_rcpp (const arma::mat& L1, const arma::vec& w,
   return x;
 }
 
+// This is mainly used to test the third variant of the poismixem C++
+// function.
+//
+// [[Rcpp::export]]
+arma::vec poismixem3_rcpp (const arma::mat& L1, const arma::vec& w,
+			   const arma::vec& u, const arma::uvec& i,
+			   const arma::vec& x0, uint numiter) {
+  vec x = x0;
+  poismixem(L1,u,w,i,x,numiter);
+  return x;
+}
+
 // Compute a maximum-likelihood estimate (MLE) of the mixture weights
 // in a Poisson mixture model by iterating the multinomial mixture
 // model EM updates for a fixed number of iterations.
@@ -64,16 +76,6 @@ vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 // contain the column sums, u = colSums(L), in which L is the matrix
 // prior to normalization, and matrix L1 is the normalized version of
 // L in which each column sums to 1; that is, L1 = normalize.cols(L).
-//
-// Important note: L1 need only be supplied for the nonzero counts, w;
-// that is, x1 and x2 should be the same after running this R code:
-//
-//  L1 <- normalize.cols(L)
-//  u  <- colSums(L)
-//  i  <- which(w > 0)
-//  x2 <- poismixem2_rcpp(L1,w,u,x0,numiter)
-//  x3 <- poismixem2_rcpp(L1[i,,drop = FALSE],w[i],u,x0,numiter)
-//
 void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P, 
 		uint numiter) {
 
@@ -89,4 +91,23 @@ void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P,
   // mixture weights of the multinomial mixture model.
   x *= sum(w);
   x /= u;
+}
+
+// This third poismixem interface is similar to the second, except
+// that the indices of the nonzero counts are supplied in vector i,
+// and w must only contain the nonzero counts (vectors i and w should
+// be the same length).
+//
+// For example, x1 and x2 should be the same after running this R code:
+//
+//   i  <- which(w > 0)
+//   x1 <- poismixem2_rcpp(L1,w,u,x0,numiter)
+//   x2 <- poismixem3_rcpp(L1,w[i],u,i-1,x0,numiter)
+//
+void poismixem (const mat& L1, const vec& u, const vec& w, const uvec& i,
+		vec& x, uint numiter) {
+  uint n = i.n_elem;
+  uint k = x.n_elem;
+  mat  P(n,k);
+  poismixem(L1.rows(i),u,w,x,P,numiter);
 }

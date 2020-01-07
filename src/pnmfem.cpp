@@ -20,14 +20,12 @@ inline vec pnmfem_update_factor (const mat& X, const mat& F, const mat& L1,
 inline vec pnmfem_update_factor_sparse (const sp_mat& X, const mat& F,
 					const mat& L1, const vec& u, uint j,
 					uint numiter) {
-  uint k = F.n_rows;
-  vec  f = F.col(j);
   vec  x = nonzeros(X.col(j));
   uint n = x.n_elem;
+  vec  f = F.col(j);
   uvec i(n);
-  mat  P(n,k);
   getcolnonzeros(X,i,j);
-  poismixem(L1.rows(i),u,x,f,P,numiter);
+  poismixem(L1,u,x,i,f,numiter);
   return f;
 }
 
