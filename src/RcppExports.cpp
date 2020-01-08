@@ -81,8 +81,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // mixsqp_rcpp
-Rcpp::List mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter);
-RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP) {
+Rcpp::List mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter, const Rcpp::List control);
+RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -90,7 +90,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
-    rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, numiter));
+    Rcpp::traits::input_parameter< const Rcpp::List >::type control(controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, numiter, control));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -232,7 +233,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
     {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},
     {"_fastTopics_mixem_rcpp", (DL_FUNC) &_fastTopics_mixem_rcpp, 4},
-    {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 4},
+    {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 5},
     {"_fastTopics_pnmfem_update_factors_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_sparse_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_parallel_rcpp, 4},

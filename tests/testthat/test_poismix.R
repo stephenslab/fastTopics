@@ -11,10 +11,11 @@ test_that("poismixem and poismixem_rcpp produce same result",{
   # Run 100 EM updates for the Poisson mixture model. The R and C++
   # implementations should give nearly the same result.
   numiter <- 100
+  m  <- ncol(L)
   L1 <- normalize.cols(L)
   u  <- colSums(L)
   i  <- which(w > 0)
-  x0 <- runif(8)
+  x0 <- runif(m)
   x1 <- poismixem(L,w,x0,numiter)
   x2 <- drop(poismixem_rcpp(L,w,x0,numiter))
   x3 <- drop(poismixem2_rcpp(L1,w,u,x0,numiter))
@@ -30,8 +31,8 @@ test_that(paste("poismixem and poismixem_rcpp produce correct result",
   # Generate the data set.
   set.seed(1)
   n <- 10
-  m <- 4
   x <- c(1,2,0,0)
+  m <- length(x)
   L <- matrix(runif(n*m),n,m)
   w <- rep(0,n)
   i <- 8

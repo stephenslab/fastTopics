@@ -21,8 +21,8 @@ mixem_rcpp <- function(L, w, x0, numiter) {
     .Call('_fastTopics_mixem_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
 }
 
-mixsqp_rcpp <- function(L, w, x0, numiter) {
-    .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
+mixsqp_rcpp <- function(L, w, x0, numiter, control) {
+    .Call('_fastTopics_mixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter, control)
 }
 
 pnmfem_update_factors_rcpp <- function(X, F, L, numiter) {

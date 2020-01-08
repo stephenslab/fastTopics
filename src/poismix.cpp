@@ -111,3 +111,18 @@ void poismixem (const mat& L1, const vec& u, const vec& w, const uvec& i,
   mat  P(n,k);
   poismixem(L1.rows(i),u,w,x,P,numiter);
 }
+
+// Find the maximum-likelihood estimate (MLE) for the special case
+// when only one of the counts is positive.
+//
+// TO DO: Explain inputs and outputs.
+//
+void poismix_one_nonzero (const mat& L, const vec& u, double w, uint i,
+			  vec& x) {
+  vec y = w/u;
+  vec a = u*y;
+  uint j = 0;
+  x.fill(0);
+  // j = which.max(w %*% log(L[i,]*y) - u*y)
+  x(j) = y(j);
+}

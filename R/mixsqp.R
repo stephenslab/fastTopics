@@ -1,7 +1,7 @@
 # Compute maximum-likelihood estimates of the mixture proportions in a
 # mixture model by iterating the SQP updates for a fixed number of
 # iterations. This is mainly used for testing the C++ implementation.
-# See the comments attached to the "mixem" C++ function for an
+# See the comments attached to the "mixsqp" C++ function for an
 # explanation of the inputs.
 # 
 #' @importFrom utils modifyList
@@ -25,12 +25,3 @@ mixsqp <- function (L, w, x0, numiter, control = list(), verbose = FALSE) {
   return(x)
 }
 
-# Returns the default algorithm settings for mixsqp.
-mixsqp_control_default <- function()
-  list(activesetconvtol = 1e-10,
-       zerothreshold    = 1e-10,
-       zerosearchdir    = 1e-15,
-       suffdecr         = 0.01,
-       stepsizereduce   = 0.75,
-       minstepsize      = 1e-10,
-       e                = 1e-15)

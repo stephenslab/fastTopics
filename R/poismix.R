@@ -28,9 +28,9 @@ poismixem <- function (L, w, x0, numiter) {
 poismix.one.nonzero <- function (L, w) {
   i    <- which.max(w)
   w    <- w[i]
-  y    <- w/colSums(L)
-  j    <- which.max(w %*% log(L[i,]*y) - colSums(L)*y)
+  u    <- colSums(L)
+  j    <- which.max(log(L[i,]) - log(u))
   x    <- rep(0,ncol(L))
-  x[j] <- y[j]
+  x[j] <- w/u[j]
   return(x)
 }

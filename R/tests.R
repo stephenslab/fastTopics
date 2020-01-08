@@ -6,6 +6,15 @@ expect_nondecreasing <- function (x)
 expect_nonincreasing <- function (x)
   expect_equal(diff(x) <= 0,rep(TRUE,length(x) - 1))
 
+# The Rmosek package on CRAN will not work with REBayes. This function
+# is used for some of the tests to check whether the correct Rmosek
+# package (the one downloaded from mosek.com) is installed.
+skip_if_mixkwdual_doesnt_work <- function() {
+  skip_if_not_installed("REBayes")
+  skip_if_not_installed("Rmosek")
+  skip_if(!is.element("mosek_lptoprob",getNamespaceExports("Rmosek")))
+}
+
 # A short convenience function to quickly generate a data set used for
 # testing.
 generate_test_data <- function (n, m, k, lmax = 1, fmax = 1) {
@@ -54,3 +63,14 @@ iterate_updates <- function (X, F, L, numiter, update_factors,
   }
   return(list(F = F,L = L,loglik = loglik,dev = dev,res = res))
 }
+
+# mix-SQP optimization settings used in the tests.
+test_mixsqp_control <- list(convtolactiveset        = 1e-10,
+                            zerothresholdsolution   = 1e-8,
+                            zerothresholdsearchdir  = 1e-10,
+                            suffdecr                = 0.01,
+                            stepsizereduce          = 0.75,
+                            minstepsize             = 1e-8,
+                            identitycontribincrease = 10,
+                            maxiteractiveset        = 10,
+                            e                       = 1e-8)

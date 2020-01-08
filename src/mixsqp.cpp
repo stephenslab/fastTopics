@@ -20,14 +20,26 @@ void   backtracking_line_search (double f, const mat& L, const vec& w,
 
 // FUNCTION DEFINITIONS
 // --------------------
-// This is mainly used for testing the mixem C++ function.
+// This is mainly used for testing the mixsqp C++ function.
 // 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 Rcpp::List mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
-			const arma::vec& x0, uint numiter) {
-  vec obj(numiter);
-  return List::create(Named("x") = x0,Named("objective") = obj);
+			const arma::vec& x0, uint numiter,
+			const Rcpp::List control) {
+  mixsqp_control_params ctrl;
+  ctrl.convtolactiveset        = control["convtolactiveset"];
+  ctrl.zerothresholdsolution   = control["zerothresholdsolution"];
+  ctrl.zerothresholdsearchdir  = control["zerothresholdsearchdir"];
+  ctrl.suffdecr                = control["suffdecr"];
+  ctrl.stepsizereduce          = control["stepsizereduce"];
+  ctrl.minstepsize             = control["minstepsize"];
+  ctrl.identitycontribincrease = control["identitycontribincrease"];
+  ctrl.maxiteractiveset        = control["maxiteractiveset"];
+  ctrl.e                       = control["e"];
+  vec objective(numiter);
+  vec x = mixsqp(L,w,x0,numiter,ctrl,objective);
+  return List::create(Named("x") = x,Named("objective") = objective);
 }
 
 // Compute a maximum-likelihood estimate (MLE) of the mixture
@@ -45,11 +57,12 @@ Rcpp::List mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 // The return value is a vector of length m containing the updated
 // mixture proportions.
 //
-// Note that x and L need not be normalized; they will automatically
-// be normalized inside this function.
+// Note that L need not be normalized; it will automatically be
+// normalized inside this function. Input x0 also need not be
+// normalized.
 //
 // Also note that it does not make sense to compute a MLE of the
-// mixture proportions when n < 2 and/or when m < 2; mixem will supply
+// mixture proportions when n < 2 and/or when m < 2; mixsqp will supply
 // a result in such cases, but the result will not be valid.
 vec mixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
 	    const mixsqp_control_params& control, vec& obj) {
@@ -69,28 +82,28 @@ vec mixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
 // and H matrices; in the latter case, you can reuse the Z and H
 // matrices.
 //
-// For the result to be valid, the matrix L should be normalized
+// For the result to be valid, the matrix L1 should be normalized
 // beforehand so that each column sums to 1; Z should be a matrix of
-// the same size as L; and H should be an m x m matrix, where m is the
-// number of columns in L.
+// the same size as L1; and H should be an m x m matrix, where m is the
+// number of columns in L1.
 //
-// Note that, unlike mixem, vector x need not be normalized.
-void mixsqp (const mat& L, const vec& w, vec& x, mat& Z, mat& H, uint numiter,
-	     const mixsqp_control_params& control, vec& obj) {
+// Input x does not need to be normalized.
+void mixsqp (const mat& L1, const vec& w, vec& x, mat& Z, mat& H, uint numiter,
+	     const mixsqp_control_params& control, vec& objective) {
   double e = control.e;
-  
-  // Get the number columns of the data matrix.
-  int m = L.n_cols;
+  int    m = x.n_elem;
 
   // Initialize storage for matrices and vectors used in the
   // computations below.
+  uvec j(m);
   vec  g(m);
   vec  ghat(m);
-  uvec j(m);
   vec  y(m);
-  vec  d(m);
   vec  xnew(m);
       
+  // Normalize the "weights".
+  vec w1 = w/sum(w);
+  
   // Repeat until the convergence criterion is met, or until we reach
   // the maximum number of (outer loop) iterations.
   for (uint i = 0; i < numiter; i++) {
@@ -100,20 +113,20 @@ void mixsqp (const mat& L, const vec& w, vec& x, mat& Z, mat& H, uint numiter,
     x(j).fill(0);
     
     // Compute the value of the objective at x.
-    obj(i) = compute_objective(L,w,x,e);
+    objective(i) = compute_objective(L1,w1,x,e);
 
     // Compute the gradient and Hessian.
-    compute_grad(L,w,x,e,g,H,Z);
+    compute_grad(L1,w1,x,e,g,H,Z);
     
     // Solve the quadratic subproblem to obtain a search direction.
-    ghat   = g - H*x + 1;
+    ghat   = g - H*x;
     y      = x;
     activesetqp(H,ghat,y,control.maxiteractiveset,control.
 		zerothresholdsearchdir,control.convtolactiveset,
 		control.identitycontribincrease);
     
     // Run backtracking line search.
-    backtracking_line_search(obj(i),L,w,g,x,y,e,control.suffdecr,
+    backtracking_line_search(objective(i),L1,w1,g,x,y,e,control.suffdecr,
 			     control.stepsizereduce,control.minstepsize,
 			     xnew);
     
@@ -132,19 +145,19 @@ inline double min (double a, double b) {
   return y;
 }
 
-// Compute the value of the (unmodified) objective at x.
+// Compute the value of the ("modified") objective at x.
 double compute_objective (const mat& L, const vec& w, const vec& x, double e) {
   vec u = L*x + e;
   if (u.min() <= 0)
     stop("Objective is -Inf");
-  return -sum(w % log(u));
+  return sum(x) - sum(w % log(u));
 }
 
-// Compute the gradient and Hessian of the (unmodified) objective at x.
+// Compute the gradient and Hessian of the ("modified") objective at x.
 void compute_grad (const mat& L, const vec& w, const vec& x, const double e,
 		   vec& g, mat& H, mat& Z) {
   vec u = L*x + e;
-  g = -trans(L) * (w/u);
+  g = -trans(L) * (w/u) + 1;
   Z = L;
   Z.each_col() %= (sqrt(w)/u);
   H = trans(Z) * Z;
@@ -351,7 +364,7 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
       // sufficient decrease condition, and remains feasible. If so,
       // accept this candidate solution.
       if ((xnew.min() >= 0) &&
-  	 (fnew + sum(xnew) <= f + sum(x) + suffdecr*a*dot(y - x,g + 1)))
+  	 (fnew <= f + suffdecr*a*dot(y - x,g)))
         break;
     
       // If we cannot decrease the step size further, terminate the
