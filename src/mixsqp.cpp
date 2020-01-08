@@ -27,24 +27,30 @@ void   backtracking_line_search (double f, const mat& L, const vec& w,
 Rcpp::List mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 			const arma::vec& x0, uint numiter,
 			const Rcpp::List control) {
-  mixsqp_control_params ctrl;
-  ctrl.convtolactiveset        = control["convtolactiveset"];
-  ctrl.zerothresholdsolution   = control["zerothresholdsolution"];
-  ctrl.zerothresholdsearchdir  = control["zerothresholdsearchdir"];
-  ctrl.suffdecr                = control["suffdecr"];
-  ctrl.stepsizereduce          = control["stepsizereduce"];
-  ctrl.minstepsize             = control["minstepsize"];
-  ctrl.identitycontribincrease = control["identitycontribincrease"];
-  ctrl.maxiteractiveset        = control["maxiteractiveset"];
-  ctrl.e                       = control["e"];
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
   vec objective(numiter);
   vec x = mixsqp(L,w,x0,numiter,ctrl,objective);
   return List::create(Named("x") = x,Named("objective") = objective);
 }
 
+// Get the mix-SQP optimization settings from a named list in R.
+mixsqp_control_params get_mixsqp_control_params	(const Rcpp::List control) {
+  mixsqp_control_params out;
+  out.convtolactiveset        = control["convtolactiveset"];
+  out.zerothresholdsolution   = control["zerothresholdsolution"];
+  out.zerothresholdsearchdir  = control["zerothresholdsearchdir"];
+  out.suffdecr                = control["suffdecr"];
+  out.stepsizereduce          = control["stepsizereduce"];
+  out.minstepsize             = control["minstepsize"];
+  out.identitycontribincrease = control["identitycontribincrease"];
+  out.maxiteractiveset        = control["maxiteractiveset"];
+  out.e                       = control["e"];
+  return out;
+}
+
 // Compute a maximum-likelihood estimate (MLE) of the mixture
-// proportions in the multinomial mixture model by iterating the EM
-// updates for a fixed number of iterations.
+// proportions in the multinomial mixture model by iterating the
+// mix-SQP updates for a fixed number of iterations.
 //
 // Input argument L is an n x m matrix with non-negative entries;
 // input w is a vector of length n containing a non-negative "weight"
@@ -52,7 +58,7 @@ Rcpp::List mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 // estimate of the mixture proportions; input P is a matrix of the
 // same dimension as L, and is used to store the posterior mixture
 // assignment probabilities; and input "numiter" specifies the number
-// of EM updates to perform.
+// of mix-SQP updates to perform.
 //
 // The return value is a vector of length m containing the updated
 // mixture proportions.
@@ -65,14 +71,14 @@ Rcpp::List mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 // mixture proportions when n < 2 and/or when m < 2; mixsqp will supply
 // a result in such cases, but the result will not be valid.
 vec mixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
-	    const mixsqp_control_params& control, vec& obj) {
+	    const mixsqp_control_params& control, vec& objective) {
   int m  = L.n_cols;
   mat L1 = L;
   mat Z  = L;
   vec x  = x0;
   mat H(m,m);
   normalizecols(L1);
-  mixsqp(L1,w,x,Z,H,numiter,control,obj);
+  mixsqp(L1,w,x,Z,H,numiter,control,objective);
   return x;
 }
 
@@ -87,7 +93,7 @@ vec mixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
 // the same size as L1; and H should be an m x m matrix, where m is the
 // number of columns in L1.
 //
-// Input x does not need to be normalized.
+// Note that input x does not need to be normalized.
 void mixsqp (const mat& L1, const vec& w, vec& x, mat& Z, mat& H, uint numiter,
 	     const mixsqp_control_params& control, vec& objective) {
   double e = control.e;

@@ -45,6 +45,10 @@ poismixem_rcpp <- function(L, w, x0, numiter) {
     .Call('_fastTopics_poismixem_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter)
 }
 
+poismixsqp_rcpp <- function(L, w, x0, numiter, control) {
+    .Call('_fastTopics_poismixsqp_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter, control)
+}
+
 poismixem2_rcpp <- function(L1, w, u, x0, numiter) {
     .Call('_fastTopics_poismixem2_rcpp', PACKAGE = 'fastTopics', L1, w, u, x0, numiter)
 }

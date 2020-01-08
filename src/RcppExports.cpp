@@ -165,6 +165,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// poismixsqp_rcpp
+arma::vec poismixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter, const Rcpp::List control);
+RcppExport SEXP _fastTopics_poismixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List >::type control(controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(poismixsqp_rcpp(L, w, x0, numiter, control));
+    return rcpp_result_gen;
+END_RCPP
+}
 // poismixem2_rcpp
 arma::vec poismixem2_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::vec& x0, uint numiter);
 RcppExport SEXP _fastTopics_poismixem2_rcpp(SEXP L1SEXP, SEXP wSEXP, SEXP uSEXP, SEXP x0SEXP, SEXP numiterSEXP) {
@@ -239,6 +254,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_pnmfem_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_parallel_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_sparse_parallel_rcpp, 4},
     {"_fastTopics_poismixem_rcpp", (DL_FUNC) &_fastTopics_poismixem_rcpp, 4},
+    {"_fastTopics_poismixsqp_rcpp", (DL_FUNC) &_fastTopics_poismixsqp_rcpp, 5},
     {"_fastTopics_poismixem2_rcpp", (DL_FUNC) &_fastTopics_poismixem2_rcpp, 5},
     {"_fastTopics_poismixem3_rcpp", (DL_FUNC) &_fastTopics_poismixem3_rcpp, 6},
     {"_fastTopics_scd_update_factors_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_rcpp, 5},

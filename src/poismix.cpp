@@ -2,8 +2,6 @@
 #include "misc.h"
 #include "mixem.h"
 
-// [[Rcpp::depends(RcppArmadillo)]]
-
 using namespace arma;
 
 // FUNCTION DEFINITIONS
@@ -16,6 +14,18 @@ using namespace arma;
 arma::vec poismixem_rcpp (const arma::mat& L, const arma::vec& w,
 			  const arma::vec& x0, uint numiter) {
   return poismixem(L,w,x0,numiter);
+}
+
+// This is mainly used to test the first variant of the poismixsqp C++
+// function.
+//
+// [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::export]]
+arma::vec poismixsqp_rcpp (const arma::mat& L, const arma::vec& w,
+			   const arma::vec& x0, uint numiter,
+			   const Rcpp::List control) {
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
+  return poismixsqp(L,w,x0,numiter,ctrl);
 }
 
 // This is mainly used to test the second variant of the poismixem C++
@@ -71,6 +81,20 @@ vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
   return x;
 }
 
+// TO DO: Explain here what this function does, and how to use it.
+vec poismixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
+		const mixsqp_control_params& control) {
+  int m  = L.n_cols;
+  mat L1 = L;
+  mat Z  = L;
+  vec x  = x0;
+  vec u  = sum(L,0);
+  mat H(m,m);
+  normalizecols(L1);
+  poismixsqp(L1,u,w,x,Z,H,numiter,control);
+  return x;
+}
+
 // Use this variant of poismixem if you plan on calling poismixem
 // multiple times with the same matrix L. In this call, input u should
 // contain the column sums, u = colSums(L), in which L is the matrix
@@ -78,7 +102,8 @@ vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 // L in which each column sums to 1; that is, L1 = normalize.cols(L).
 void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P, 
 		uint numiter) {
-
+  double s = sum(w);
+  
   // Recover the mixture proportions of the multinomial mixture model
   // from the mixture weights of the Poisson mixture model. 
   x %= u;
@@ -89,8 +114,35 @@ void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P,
 
   // Recover the mixture weights of the Poisson mixture model from the
   // mixture weights of the multinomial mixture model.
-  x *= sum(w);
+  x *= s;
   x /= u;
+}
+
+// TO DO: Explain here what this function does, and how to use it.
+void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, mat& Z,
+		 mat& H, uint numiter, const mixsqp_control_params& control) {
+  uvec i = find(w > 0);
+  if (i.n_elem == 1) {
+
+    // Handle the special case when only one of the counts is nonzero.
+    // TO DO.
+  } else {
+    vec    objective(numiter);
+    double s = sum(w);
+
+    // Recover the mixture proportions of the multinomial mixture model
+    // from the mixture weights of the Poisson mixture model.
+    x %= u;
+    x /= s;
+
+    // Perform one or more SQP updates for the multinomial mixture model.
+    mixsqp(L1,w,x,Z,H,numiter,control,objective);
+
+    // Recover the mixture weights of the Poisson mixture model from the
+    // mixture weights of the multinomial mixture model.
+    x *= s;
+    x /= u;
+  }
 }
 
 // This third poismixem interface is similar to the second, except

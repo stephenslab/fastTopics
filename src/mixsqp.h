@@ -20,12 +20,14 @@ typedef struct {
 
 // FUNCTION DECLARATIONS
 // ---------------------
+mixsqp_control_params get_mixsqp_control_params	(const Rcpp::List control);
+  
 arma::vec mixsqp (const arma::mat& L, const arma::vec& w, const arma::vec& x0,
 		  uint numiter, const mixsqp_control_params& control,
-		  arma::vec& obj);
+		  arma::vec& objective);
 
 void mixsqp (const arma::mat& L1, const arma::vec& w, arma::vec& x,
 	     arma::mat& Z, arma::mat& H, uint numiter,
-	     const mixsqp_control_params& control, arma::vec& obj);
+	     const mixsqp_control_params& control, arma::vec& objective);
 
 #endif
