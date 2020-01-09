@@ -87,10 +87,10 @@ test_that(paste("poismixem and poismixem_rcpp produce correct result",
   # and should be very close to the exact solution obtained by calling
   # poismix.one.nonzero.
   x5 <- poismix.one.nonzero(L,w)
-  expect_equal(x1,x2,tolerance = 1e-14)
-  expect_equal(x1,x3,tolerance = 1e-14)
-  expect_equal(x1,x4,tolerance = 1e-14)
-  expect_equal(x1,x5,tolerance = 1e-14)
+  expect_equal(x1,x2,tolerance = 1e-12)
+  expect_equal(x1,x3,tolerance = 1e-12)
+  expect_equal(x1,x4,tolerance = 1e-12)
+  expect_equal(x1,x5,tolerance = 1e-12)
 })
 
 test_that("poismixsqp_rcpp produces correct result when sum(w > 0) = 1",{
@@ -104,10 +104,21 @@ test_that("poismixsqp_rcpp produces correct result when sum(w > 0) = 1",{
   i    <- 8
   w[i] <- 2
 
-  # Run 10 mix-SQP updates using the three poismixsqp C++ interfaces.
-  # TO DO.
+  # Run mix-SQP using the three poismixsqp C++ interfaces.
+  numiter <- 10
+  L1 <- normalize.cols(L)
+  u  <- colSums(L)
+  m  <- ncol(L)
+  x0 <- runif(m)
+  x2 <- drop(poismixsqp_rcpp(L,w,x0,numiter,test_mixsqp_control))
+  x3 <- drop(poismixsqp2_rcpp(L1,w,u,x0,numiter,test_mixsqp_control))
+  x4 <- drop(poismixsqp3_rcpp(L1,w[i],colSums(L),i-1,x0,numiter,
+                              test_mixsqp_control))
 
   # All the mix-SQP solutions should be nearly the same, and should be
   # very close to the exact solution obtained from poismix.one.nonzero.
-  # TO DO.
+  x1 <- poismix.one.nonzero(L,w)
+  expect_equal(x1,x2,tolerance = 1e-15)
+  expect_equal(x1,x3,tolerance = 1e-15)
+  expect_equal(x1,x4,tolerance = 1e-15)
 })

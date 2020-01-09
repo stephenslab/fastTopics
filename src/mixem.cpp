@@ -90,3 +90,13 @@ void mixem_update (const mat& L1, const vec& w, vec& x, mat& P) {
   // Update the mixture weights. This is the "M step".
   x = trans(P) * w1;
 }
+
+// Find the maximum-likelihood estimate (MLE) for the special case
+// when only one of the weights (w) is positive. Here, L1 should be
+// the column-normalized matrix, and i should be the index of the
+// nonzero weight.
+void mixture_one_nonzero (const mat& L1, uint i, vec& x) {
+  uint j = index_max(L1.row(i));
+  x.fill(0);
+  x(j) = 1;
+}

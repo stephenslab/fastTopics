@@ -168,8 +168,8 @@ void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, mat& Z,
   uvec i = find(w > 0);
   if (i.n_elem == 1) {
 
-    // Handle the special case when only one of the counts is nonzero.
-    // TO DO.
+    // Treat the special case when only one of the counts is nonzero.
+    poismix_one_nonzero(L1,u,w,i(0),x);
   } else {
     vec    objective(numiter);
     double s = sum(w);
@@ -232,16 +232,13 @@ void poismixsqp (const mat& L1, const vec& u, const vec& w, const uvec& i,
 }
 
 // Find the maximum-likelihood estimate (MLE) for the special case
-// when only one of the counts is positive.
-//
-// TO DO: Explain inputs and outputs.
-//
-void poismix_one_nonzero (const mat& L, const vec& u, double w, uint i,
-			  vec& x) {
-  // TO DO: Fix this code.
-  vec y = w/u;
-  vec a = u*y;
-  uint j = 0;
-  x.fill(0);
-  x(j) = y(j);
+// when only one of the counts is positive. Input argument w should be
+// a vector of counts (in which exactly one of these counts is
+// positive), and i should be the index of the nonzero count. See
+// above for an explanation of inputs L1 and u.
+void poismix_one_nonzero (const mat& L1, const vec& u, const vec& w, 
+			  uint i, vec& x) {
+  mixture_one_nonzero(L1,i,x);
+  uint j = max(x);
+  x(j)   = w(i)/u(j);
 }
