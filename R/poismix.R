@@ -23,17 +23,11 @@ poismixem <- function (L, w, x0, numiter) {
   return(s*x/u)
 }
 
-# Find the MLE for the special case when only one of the counts is
-# positive.
-#
-# TO DO: Fix this code.
-#
+# Find the maximum-likelihood estimate (MLE) for the special case when
+# only one of the counts is positive.
 poismix.one.nonzero <- function (L, w) {
-  i    <- which.max(w)
-  w    <- w[i]
-  u    <- colSums(L)
-  j    <- which.max(log(L[i,]) - log(u))
-  x    <- rep(0,ncol(L))
-  x[j] <- w/u[j]
+  x    <- mixture.one.nonzero(L,w)
+  j    <- which.max(x)
+  x[j] <- sum(w)/sum(L[,j])
   return(x)
 }

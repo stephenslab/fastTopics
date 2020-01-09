@@ -45,4 +45,5 @@ test_that("mixsqp_rcpp produces correct result when sum(w > 0) = 1",{
   out <- mixsqp_rcpp(L,w,x0,10,test_mixsqp_control)
   x2  <- drop(out$x)
   expect_equal(x1,x2,tolerance = 1e-6)
+  expect_nonincreasing(drop(out$objective))
 })

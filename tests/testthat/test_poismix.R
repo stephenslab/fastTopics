@@ -74,25 +74,23 @@ test_that(paste("poismixem and poismixem_rcpp produce correct result",
   m  <- ncol(L)
   x0 <- runif(m)
   x1 <- poismixem(L,w,x0,numiter)
-  x2 <- drop(poismixem_rcpp(L,w,x0,numiter))
 
-  # Run 100 EM updates another couple times, using the alternate C++
+  # Run 100 EM updates another a few times, using the different C++
   # interfaces.
   L1 <- normalize.cols(L)
   u  <- colSums(L)
-  x  <- poismixem2_rcpp(L1,w,u,x0,numiter)
-  y  <- poismixem3_rcpp(L1,w[i],u,i-1,x0,numiter)
-  x3 <- drop(x)
-  expect_equal(x,y,tolerance = 1e-15)
+  x2 <- drop(poismixem_rcpp(L,w,x0,numiter))
+  x3 <- drop(poismixem2_rcpp(L1,w,u,x0,numiter))
+  x4 <- drop(poismixem3_rcpp(L1,w[i],u,i-1,x0,numiter))
   
   # The R and C++ implementations should give nearly the same result,
   # and should be very close to the exact solution obtained by calling
   # poismix.one.nonzero.
-  x4 <- poismix.one.nonzero(L,w)
+  x5 <- poismix.one.nonzero(L,w)
   expect_equal(x1,x2,tolerance = 1e-14)
+  expect_equal(x1,x3,tolerance = 1e-14)
   expect_equal(x1,x4,tolerance = 1e-14)
-  expect_equal(x2,x4,tolerance = 1e-14)
-  expect_equal(x3,x4,tolerance = 1e-14)
+  expect_equal(x1,x5,tolerance = 1e-14)
 })
 
 test_that("poismixsqp_rcpp produces correct result when sum(w > 0) = 1",{
@@ -106,7 +104,7 @@ test_that("poismixsqp_rcpp produces correct result when sum(w > 0) = 1",{
   i    <- 8
   w[i] <- 2
 
-  # Run 10 mix-SQP updates using all three poismixsqp C++ interfaces.
+  # Run 10 mix-SQP updates using the three poismixsqp C++ interfaces.
   # TO DO.
 
   # All the mix-SQP solutions should be nearly the same, and should be

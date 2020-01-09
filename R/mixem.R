@@ -29,13 +29,11 @@ mixem.update <- function (L1, w, x) {
   return(drop(w %*% P))
 }
 
-# Find the MLE for the special case when only one of the counts is
-# positive.
+# Find the maximum-likelihood estimate (MLE) for the special case when
+# only one of the counts is positive.
 mixture.one.nonzero <- function (L, w) {
-  L1   <- normalize.cols(L)
-  m    <- ncol(L)
-  x    <- rep(0,m)
-  j    <- which.max(w %*% L1)
+  j    <- which.max(w %*% log(normalize.cols(L)))
+  x    <- rep(0,ncol(L))
   x[j] <- 1
   return(x)
 }
