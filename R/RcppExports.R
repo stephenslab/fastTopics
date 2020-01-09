@@ -53,8 +53,16 @@ poismixem2_rcpp <- function(L1, w, u, x0, numiter) {
     .Call('_fastTopics_poismixem2_rcpp', PACKAGE = 'fastTopics', L1, w, u, x0, numiter)
 }
 
+poismixsqp2_rcpp <- function(L1, w, u, x0, numiter, control) {
+    .Call('_fastTopics_poismixsqp2_rcpp', PACKAGE = 'fastTopics', L1, w, u, x0, numiter, control)
+}
+
 poismixem3_rcpp <- function(L1, w, u, i, x0, numiter) {
     .Call('_fastTopics_poismixem3_rcpp', PACKAGE = 'fastTopics', L1, w, u, i, x0, numiter)
+}
+
+poismixsqp3_rcpp <- function(L1, w, u, i, x0, numiter, control) {
+    .Call('_fastTopics_poismixsqp3_rcpp', PACKAGE = 'fastTopics', L1, w, u, i, x0, numiter, control)
 }
 
 scd_update_factors_rcpp <- function(A, Wt, H, numiter, e) {

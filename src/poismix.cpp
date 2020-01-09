@@ -17,7 +17,7 @@ arma::vec poismixem_rcpp (const arma::mat& L, const arma::vec& w,
 }
 
 // This is mainly used to test the first variant of the poismixsqp C++
-// function.
+// interface.
 //
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
@@ -29,7 +29,7 @@ arma::vec poismixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 }
 
 // This is mainly used to test the second variant of the poismixem C++
-// function.
+// interface.
 //
 // [[Rcpp::export]]
 arma::vec poismixem2_rcpp (const arma::mat& L1, const arma::vec& w,
@@ -41,8 +41,24 @@ arma::vec poismixem2_rcpp (const arma::mat& L1, const arma::vec& w,
   return x;
 }
 
+// This is mainly used to test the second variant of the poismixsqp C++
+// interface.
+//
+// [[Rcpp::export]]
+arma::vec poismixsqp2_rcpp (const arma::mat& L1, const arma::vec& w,
+			    const arma::vec& u, const arma::vec& x0,
+			    uint numiter, const Rcpp::List control) {
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
+  uint m = L1.n_cols;
+  vec  x = x0;
+  mat  Z = L1;
+  mat  H(m,m);
+  poismixsqp(L1,u,w,x,Z,H,numiter,ctrl);
+  return x;
+}
+
 // This is mainly used to test the third variant of the poismixem C++
-// function.
+// interface.
 //
 // [[Rcpp::export]]
 arma::vec poismixem3_rcpp (const arma::mat& L1, const arma::vec& w,
@@ -53,6 +69,22 @@ arma::vec poismixem3_rcpp (const arma::mat& L1, const arma::vec& w,
   return x;
 }
 
+// This is mainly used to test the third variant of the poismixsqp C++
+// interface.
+//
+// [[Rcpp::export]]
+arma::vec poismixsqp3_rcpp (const arma::mat& L1, const arma::vec& w,
+			    const arma::vec& u, const arma::uvec& i,
+			    const arma::vec& x0, uint numiter,
+			    const Rcpp::List control) {
+  mixsqp_control_params ctrl = get_mixsqp_control_params(control);
+  uint m = L1.n_cols;
+  vec  x = x0;
+  mat  H(m,m);
+  poismixsqp(L1,u,w,i,x,H,numiter,ctrl);
+  return x;
+}
+
 // Compute a maximum-likelihood estimate (MLE) of the mixture weights
 // in a Poisson mixture model by iterating the multinomial mixture
 // model EM updates for a fixed number of iterations.
@@ -60,14 +92,8 @@ arma::vec poismixem3_rcpp (const arma::mat& L1, const arma::vec& w,
 // Input argument L is an n x m matrix with non-negative entries;
 // input w is a vector of length n containing a count or "pseudocount"
 // associated with each row of L; input argument x0 is the initial
-// estimate of the mixture weights; input P is a matrix of the same
-// dimension as L, and is used to store the posterior mixture
-// assignment probabilities computed in the E-step; and input
-// "numiter" specifies the number of EM updates to perform.
-//
-// Note that the second variant of "poismixem" modifies the L matrix;
-// in particular, it normalizes the columns of L so that each column
-// sums to 1.
+// estimate of the mixture weights; and input "numiter" specifies the
+// number of EM updates to perform.
 //
 // The return value is a vector of length m containing the updated
 // mixture weights.
@@ -81,7 +107,18 @@ vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
   return x;
 }
 
-// TO DO: Explain here what this function does, and how to use it.
+// Compute a maximum-likelihood estimate (MLE) of the mixture weights
+// in a Poisson mixture model by iterating the mix-SQP updates for a
+// fixed number of iterations.
+//
+// Input argument L is an n x m matrix with non-negative entries;
+// input w is a vector of length n containing a count or "pseudocount"
+// associated with each row of L; input argument x0 is the initial
+// estimate of the mixture weights; and input "numiter" specifies the
+// number of dmix-SQPM updates to perform.
+//
+// The return value is a vector of length m containing the updated
+// mixture weights.
 vec poismixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
 		const mixsqp_control_params& control) {
   int m  = L.n_cols;
@@ -96,10 +133,11 @@ vec poismixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
 }
 
 // Use this variant of poismixem if you plan on calling poismixem
-// multiple times with the same matrix L. In this call, input u should
+// multiple times with the same matrix, L. In this call, input u should
 // contain the column sums, u = colSums(L), in which L is the matrix
 // prior to normalization, and matrix L1 is the normalized version of
 // L in which each column sums to 1; that is, L1 = normalize.cols(L).
+// Input P should be a matrix of the same size as L1.
 void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P, 
 		uint numiter) {
   double s = sum(w);
@@ -118,7 +156,13 @@ void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P,
   x /= u;
 }
 
-// TO DO: Explain here what this function does, and how to use it.
+// Use this variant of poismixsqp if you plan on calling poismixsqp
+// multiple times with the same matrix, L. In this call, input u should
+// contain the column sums, u = colSums(L), in which L is the matrix
+// prior to normalization, and matrix L1 is the normalized version of
+// L in which each column sums to 1; that is, L1 = normalize.cols(L).
+// Input Z should be a matrix of the same size as L1, and H should be
+// an m x m matrix, where m is the number of columns in L.
 void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, mat& Z,
 		 mat& H, uint numiter, const mixsqp_control_params& control) {
   uvec i = find(w > 0);
@@ -150,7 +194,8 @@ void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, mat& Z,
 // and w must only contain the nonzero counts (vectors i and w should
 // be the same length).
 //
-// For example, x1 and x2 should be the same after running this R code:
+// To illustrate, in this example x1 and x2 should be the same after
+// running this R code:
 //
 //   i  <- which(w > 0)
 //   x1 <- poismixem2_rcpp(L1,w,u,x0,numiter)
@@ -159,9 +204,31 @@ void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, mat& Z,
 void poismixem (const mat& L1, const vec& u, const vec& w, const uvec& i,
 		vec& x, uint numiter) {
   uint n = i.n_elem;
-  uint k = x.n_elem;
-  mat  P(n,k);
+  uint m = x.n_elem;
+  mat  P(n,m);
   poismixem(L1.rows(i),u,w,x,P,numiter);
+}
+
+// The third poismixsqp interface is similar to the second, except
+// that the indices of the nonzero counts are supplied in vector i,
+// and w must only contain the nonzero counts (i and w should be the
+// same length).
+//
+// To illustrate, in this example x1 and x2 should be the same after
+// running this R code:
+//
+//   i  <- which(w > 0)
+//   x1 <- poismixsqp2_rcpp(L1,w,u,x0,numiter,control)
+//   x2 <- poismixsqp3_rcpp(L1,w[i],u,i-1,x0,numiter,control)
+//
+void poismixsqp (const mat& L1, const vec& u, const vec& w, const uvec& i,
+		 vec& x, mat& H, uint numiter,
+		 const mixsqp_control_params& control) {
+  uint n = i.n_elem;
+  uint m = x.n_elem;
+  mat  Z(n,m);
+  vec  objective(numiter);
+  poismixsqp(L1.rows(i),u,w,x,Z,H,numiter,control);
 }
 
 // Find the maximum-likelihood estimate (MLE) for the special case
@@ -171,10 +238,10 @@ void poismixem (const mat& L1, const vec& u, const vec& w, const uvec& i,
 //
 void poismix_one_nonzero (const mat& L, const vec& u, double w, uint i,
 			  vec& x) {
+  // TO DO: Fix this code.
   vec y = w/u;
   vec a = u*y;
   uint j = 0;
   x.fill(0);
-  // j = which.max(w %*% log(L[i,]*y) - u*y)
   x(j) = y(j);
 }

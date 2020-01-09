@@ -25,6 +25,9 @@ poismixem <- function (L, w, x0, numiter) {
 
 # Find the MLE for the special case when only one of the counts is
 # positive.
+#
+# TO DO: Fix this code.
+#
 poismix.one.nonzero <- function (L, w) {
   i    <- which.max(w)
   w    <- w[i]

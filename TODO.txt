@@ -1,6 +1,8 @@
 to do
 =====
 
++ Update the pkgdown site using the latest version of pkgdown.
+
 + Add info about rate of nonzeros in F and L to progress, and to
   console output when verbose = TRUE.
 

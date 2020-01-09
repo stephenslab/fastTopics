@@ -22,4 +22,8 @@ void poismixsqp (const arma::mat& L1, const arma::vec& u, const arma::vec& w,
 void poismixem (const arma::mat& L1, const arma::vec& u, const arma::vec& w,
 		const arma::uvec& i, arma::vec& x, uint numiter);
 
+void poismixsqp (const arma::mat& L1, const arma::vec& u, const arma::vec& w,
+		 const arma::uvec& i, arma::vec& x, arma::mat& H, uint numiter,
+		 const mixsqp_control_params& control);
+
 #endif
