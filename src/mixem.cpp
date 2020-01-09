@@ -60,6 +60,11 @@ vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 //
 // Note that x need not be normalized; it will automatically be
 // normalized inside this function.
+//
+// Also note that in this mixem variant, L1 and w do not need to
+// contain all the data; any rows of L1 associated with zero weights
+// have no effect, so only the vector of nonzero weights w, and the
+// rows of L1 associated with those weights, need to be supplied.
 void mixem (const mat& L1, const vec& w, vec& x, mat& P, uint numiter) {
   for (uint i = 0; i < numiter; i++)
     mixem_update(L1,w,x,P);

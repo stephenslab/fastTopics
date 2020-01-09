@@ -138,6 +138,12 @@ vec poismixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
 // prior to normalization, and matrix L1 is the normalized version of
 // L in which each column sums to 1; that is, L1 = normalize.cols(L).
 // Input P should be a matrix of the same size as L1.
+//
+// Note that in this variant of poismixem, L1 and w do not need to
+// contain all the data; once u is correctly calculated, any rows of
+// L1 associated with zero weights have no effect, so only the vector
+// of nonzero weights w, and the rows of L1 associated with those
+// weights, need to be supplied.
 void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P, 
 		uint numiter) {
   double s = sum(w);
@@ -163,6 +169,12 @@ void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P,
 // L in which each column sums to 1; that is, L1 = normalize.cols(L).
 // Input Z should be a matrix of the same size as L1, and H should be
 // an m x m matrix, where m is the number of columns in L.
+//
+// Note that in this variant of poismixem, L1 and w do not need to
+// contain all the data; once u is correctly calculated, any rows of
+// L1 associated with zero weights have no effect, so only the vector
+// of nonzero weights w, and the rows of L1 associated with those
+// weights, need to be supplied.
 void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, mat& Z,
 		 mat& H, uint numiter, const mixsqp_control_params& control) {
   uvec i = find(w > 0);
@@ -191,7 +203,7 @@ void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, mat& Z,
 
 // This third poismixem interface is similar to the second, except
 // that the indices of the nonzero counts are supplied in vector i,
-// and w must only contain the nonzero counts (vectors i and w should
+// and w must contain only the nonzero counts (vectors i and w should
 // be the same length).
 //
 // To illustrate, in this example x1 and x2 should be the same after
@@ -211,7 +223,7 @@ void poismixem (const mat& L1, const vec& u, const vec& w, const uvec& i,
 
 // The third poismixsqp interface is similar to the second, except
 // that the indices of the nonzero counts are supplied in vector i,
-// and w must only contain the nonzero counts (i and w should be the
+// and w must contain only the nonzero counts (i and w should be the
 // same length).
 //
 // To illustrate, in this example x1 and x2 should be the same after
