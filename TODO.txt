@@ -4,7 +4,9 @@ to do
 + Update the pkgdown site using the latest version of pkgdown.
 
 + Add info about rate of nonzeros in F and L to progress, and to
-  console output when verbose = TRUE.
+  console output when verbose = TRUE. (Nonzeros are determined
+  according to some prespecified threshold in the "control" input
+  argument.)
 
 + Create an example 100 x 200 data set in the data/ directory, and
   store a (local) solution, as well as the log-likelihood and deviance

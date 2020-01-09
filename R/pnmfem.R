@@ -13,6 +13,7 @@
 # convergence of the multiplicative updates.
 #
 #' @importFrom Rcpp evalCpp
+#' @importFrom RcppParallel RcppParallelLibs
 #'
 pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
   if (nc == 1) {
@@ -46,6 +47,7 @@ pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
 # updates.
 #
 #' @importFrom Rcpp evalCpp
+#' @importFrom RcppParallel RcppParallelLibs
 #'
 pnmfem_update_loadings <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
   if (nc == 1) {
