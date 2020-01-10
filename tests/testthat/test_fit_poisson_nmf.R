@@ -224,4 +224,49 @@ test_that(paste("altsqp updates with dense and sparse matrices produce the",
 test_that(paste("All Poisson NMF updates recover same solution when",
                 "F, L are initialized close to a stationary point"),{
 
+  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  out <- generate_test_data(80,100,3)
+  X   <- out$X
+  F   <- out$F
+  L   <- out$L
+
+  # Get a good initial estimate by running 50 iterations of the CCD
+  # algorithm.
+  fit0 <- iterate_updates(X,F,L,50,
+                          function (X,F,L) t(ccd_update_factors(X,L,t(F))),
+                          function (X,F,L) ccd_update_loadings(X,L,t(F)))
+  F0   <- fit0$F
+  L0   <- fit0$L
+
+  # Now improve the fit by running 100 iterations of the CCD, SCD and
+  # alt-SQP algorithms.
+  numiter <- 100
+  fit1 <- iterate_updates(X,F0,L0,numiter,
+                          function (X,F,L) t(ccd_update_factors(X,L,t(F))),
+                          function (X,F,L) ccd_update_loadings(X,L,t(F)))
+  fit2 <- iterate_updates(X,F0,L0,numiter,
+                          function (X,F,L) t(scd_update_factors(X,L,t(F),4)),
+                          function (X,F,L) scd_update_loadings(X,L,t(F),4))
+  fit3 <- iterate_updates(X,F0,L0,numiter,
+                          function (X,F,L) altsqp_update_factors(X,F,L,4),
+                          function (X,F,L) altsqp_update_loadings(X,F,L,4))
+
+  # All three solution estimates should have nearly the same
+  # likelihood and deviance.
+  expect_equal(max(fit1$loglik),max(fit2$loglik),tolerance = 1e-8)
+  expect_equal(max(fit1$loglik),max(fit3$loglik),tolerance = 1e-8)
+  expect_equal(min(fit1$dev),min(fit2$dev),tolerance = 1e-7)
+  expect_equal(min(fit1$dev),min(fit3$dev),tolerance = 1e-7)
+  
+  # All three algorithms should arrive at nearly the same solution.
+  fit1 <- with(fit1,rescale.factors(F,L))
+  fit2 <- with(fit2,rescale.factors(F,L))
+  fit3 <- with(fit3,rescale.factors(F,L))
+  expect_equivalent(fit1$F,fit2$F,tolerance = 1e-3)
+  expect_equivalent(fit1$L,fit2$L,tolerance = 1e-3)
+  expect_equivalent(fit1$F,fit3$F,tolerance = 1e-3)
+  expect_equivalent(fit1$L,fit3$L,tolerance = 1e-3)
+  expect_equivalent(fit2$F,fit3$F,tolerance = 1e-3)
+  expect_equivalent(fit2$L,fit3$L,tolerance = 1e-3)
 })
