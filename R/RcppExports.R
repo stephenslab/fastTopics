@@ -9,6 +9,14 @@ altsqp_update_factors_sparse_rcpp <- function(X, F, L, numiter, control) {
     .Call('_fastTopics_altsqp_update_factors_sparse_rcpp', PACKAGE = 'fastTopics', X, F, L, numiter, control)
 }
 
+altsqp_update_factors_parallel_rcpp <- function(X, F, L, numiter, control) {
+    .Call('_fastTopics_altsqp_update_factors_parallel_rcpp', PACKAGE = 'fastTopics', X, F, L, numiter, control)
+}
+
+altsqp_update_factors_sparse_parallel_rcpp <- function(X, F, L, numiter, control) {
+    .Call('_fastTopics_altsqp_update_factors_sparse_parallel_rcpp', PACKAGE = 'fastTopics', X, F, L, numiter, control)
+}
+
 ccd_update_factors_rcpp <- function(V, W, H, WH, e) {
     invisible(.Call('_fastTopics_ccd_update_factors_rcpp', PACKAGE = 'fastTopics', V, W, H, WH, e))
 }

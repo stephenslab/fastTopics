@@ -14,10 +14,18 @@
 #'
 altsqp_update_factors <- function (X, F, L, numiter = 1,
                                    control = altsqp_control_default()) {
-  if (is.matrix(X))
-    F <- t(altsqp_update_factors_rcpp(X,t(F),L,numiter,control))
-  else if (inherits(X,"dgCMatrix"))
-    F <- t(altsqp_update_factors_sparse_rcpp(X,t(F),L,numiter,control))
+  if (control$nc == 1) {
+    if (is.matrix(X))
+      F <- t(altsqp_update_factors_rcpp(X,t(F),L,numiter,control))
+    else if (inherits(X,"dgCMatrix"))
+      F <- t(altsqp_update_factors_sparse_rcpp(X,t(F),L,numiter,control))
+  } else if (control$nc > 1) {
+    if (is.matrix(X))
+      F <- t(altsqp_update_factors_parallel_rcpp(X,t(F),L,numiter,control))
+    else if (inherits(X,"dgCMatrix"))
+      F <- t(altsqp_update_factors_sparse_parallel_rcpp(X,t(F),L,numiter,
+                                                        control))
+  }
   return(F)
 }
 
@@ -37,13 +45,21 @@ altsqp_update_factors <- function (X, F, L, numiter = 1,
 #'
 altsqp_update_loadings <- function (X, F, L, numiter = 1,
                                     control = altsqp_control_default()) {
-  if (is.matrix(X))
-    L <- t(altsqp_update_factors_rcpp(t(X),t(L),F,numiter,control))
-  else if (inherits(X,"dgCMatrix"))
-    L <- t(altsqp_update_factors_sparse_rcpp(t(X),t(L),F,numiter,control))
+  if (control$nc == 1) {
+    if (is.matrix(X))
+      L <- t(altsqp_update_factors_rcpp(t(X),t(L),F,numiter,control))
+    else if (inherits(X,"dgCMatrix"))
+      L <- t(altsqp_update_factors_sparse_rcpp(t(X),t(L),F,numiter,control))
+  } else if (control$nc > 1) {
+    if (is.matrix(X))
+      L <- t(altsqp_update_factors_parallel_rcpp(t(X),t(L),F,numiter,control))
+    else if (inherits(X,"dgCMatrix"))
+      L <- t(altsqp_update_factors_sparse_parallel_rcpp(t(X),t(L),F,numiter,
+                                                        control))
+  }
   return(L)
 }
 
 # These are the default settings used for running the alt-SQP updates.
 altsqp_control_default <- function()
-  mixsqp_control_default()
+  c(list(nc = 1),mixsqp_control_default())

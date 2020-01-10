@@ -20,7 +20,7 @@ typedef struct {
 
 // FUNCTION DECLARATIONS
 // ---------------------
-mixsqp_control_params get_mixsqp_control_params	(const Rcpp::List control);
+mixsqp_control_params get_mixsqp_control_params	(const Rcpp::List& control);
   
 arma::vec mixsqp (const arma::mat& L, const arma::vec& w, const arma::vec& x0,
 		  uint numiter, const mixsqp_control_params& control,

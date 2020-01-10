@@ -23,7 +23,7 @@ arma::vec poismixem_rcpp (const arma::mat& L, const arma::vec& w,
 // [[Rcpp::export]]
 arma::vec poismixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 			   const arma::vec& x0, uint numiter,
-			   const Rcpp::List control) {
+			   const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
   return poismixsqp(L,w,x0,numiter,ctrl);
 }
@@ -47,7 +47,7 @@ arma::vec poismixem2_rcpp (const arma::mat& L1, const arma::vec& w,
 // [[Rcpp::export]]
 arma::vec poismixsqp2_rcpp (const arma::mat& L1, const arma::vec& w,
 			    const arma::vec& u, const arma::vec& x0,
-			    uint numiter, const Rcpp::List control) {
+			    uint numiter, const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
   uint m = L1.n_cols;
   vec  x = x0;
@@ -76,7 +76,7 @@ arma::vec poismixem3_rcpp (const arma::mat& L1, const arma::vec& w,
 arma::vec poismixsqp3_rcpp (const arma::mat& L1, const arma::vec& w,
 			    const arma::vec& u, const arma::uvec& i,
 			    const arma::vec& x0, uint numiter,
-			    const Rcpp::List control) {
+			    const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
   uint m = L1.n_cols;
   vec  x = x0;

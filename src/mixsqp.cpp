@@ -26,7 +26,7 @@ void   backtracking_line_search (double f, const mat& L, const vec& w,
 // [[Rcpp::export]]
 Rcpp::List mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 			const arma::vec& x0, uint numiter,
-			const Rcpp::List control) {
+			const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
   vec objective(numiter);
   vec x = mixsqp(L,w,x0,numiter,ctrl,objective);
@@ -34,7 +34,7 @@ Rcpp::List mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 }
 
 // Get the mix-SQP optimization settings from a named list in R.
-mixsqp_control_params get_mixsqp_control_params	(const Rcpp::List control) {
+mixsqp_control_params get_mixsqp_control_params	(const Rcpp::List& control) {
   mixsqp_control_params out;
   out.convtolactiveset        = control["convtol.activeset"];
   out.zerothresholdsolution   = control["zero.threshold.solution"];
