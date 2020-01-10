@@ -7,7 +7,7 @@ using namespace arma;
 // INLINE FUNCTION DEFINITIONS
 // ---------------------------
 // Perform one or several EM updates for a single column of the k x m
-// factors matrix, F.
+// factors matrix, F, when X is a dense matrix.
 inline vec pnmfem_update_factor (const mat& X, const mat& F, const mat& L1,
 				 const vec& u, mat& P, uint j, uint numiter) {
   vec f = F.col(j);
@@ -16,7 +16,7 @@ inline vec pnmfem_update_factor (const mat& X, const mat& F, const mat& L1,
 }
 
 // Perform one or several EM updates for a single column of the k x m
-// factors matrix, F.
+// factors matrix, F, when X is a sparse matrix.
 inline vec pnmfem_update_factor_sparse (const sp_mat& X, const mat& F,
 					const mat& L1, const vec& u, uint j,
 					uint numiter) {

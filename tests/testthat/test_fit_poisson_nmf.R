@@ -170,7 +170,9 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
   expect_equivalent(t(fit1$H),fit3$F,tolerance = 1e-12)
 })
 
-test_that("altsqp updates monotonically increase the likelihood",{
+test_that(paste("altsqp updates with dense and sparse matrices produce the",
+                "same result, and monotonically increase the likelihood",
+                "in all cases"),{
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
@@ -185,10 +187,22 @@ test_that("altsqp updates monotonically increase the likelihood",{
                           function (X,F,L) altsqp_update_factors(X,F,L,4),
                           function (X,F,L) altsqp_update_loadings(X,F,L,4))
 
+  # Redo the alt-SQP updates with sparse X.
+  fit2 <- iterate_updates(as(X,"dgCMatrix"),F,L,numiter,
+                          function (X,F,L) altsqp_update_factors(X,F,L,4),
+                          function (X,F,L) altsqp_update_loadings(X,F,L,4))
+  
+  # The updated factors and loadings should be nearly the same in all
+  # cases.
+  expect_equivalent(fit1$F,fit2$F,tolerance = 1e-8)
+  expect_equivalent(fit1$L,fit2$L,tolerance = 1e-8)
+  
   # The alt-SQP updates should monotonically increase the likelihood
   # and decrease the deviance.
   expect_nondecreasing(fit1$loglik)
+  expect_nondecreasing(fit2$loglik)
   expect_nonincreasing(fit1$dev)
+  expect_nonincreasing(fit2$dev)
 })
 
 test_that(paste("All Poisson NMF updates recover same solution when",

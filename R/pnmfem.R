@@ -1,9 +1,9 @@
-# This function implements the EM updates for the loadings matrix, L,
+# This function implements the EM updates for the factors matrix, F,
 # in which the matrix X is approximated by tcrossprod(L,F). The EM
 # updates are equivalent to multiplicative updates, but computation is
 # implemented differently.
 #
-# Inputs L and F should be dense matrices ("is.matrix" should return
+# Inputs F and L should be dense matrices ("is.matrix" should return
 # TRUE), but for X both dense matrices and sparse matrices are
 # supported ("matrix" and "dgCMatrix" classes).
 # 
@@ -30,12 +30,12 @@ pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
   return(pmax(F,e))
 }
 
-# This function implements the EM updates for the factors matrix, F,
+# This function implements the EM updates for the loadings matrix, L,
 # in which the matrix X is approximated by tcrossprod(L,F). The EM
 # updates are equivalent to multiplicative updates, but computation is
 # implemented differently.
 #
-# Inputs L and F should be dense matrices ("is.matrix" should return
+# Inputs F and L should be dense matrices ("is.matrix" should return
 # TRUE), but for X both dense matrices and sparse matrices are
 # supported ("matrix" and "dgCMatrix" classes).
 # 
