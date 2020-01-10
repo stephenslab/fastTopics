@@ -251,6 +251,6 @@ void poismixsqp (const mat& L1, const vec& u, const vec& w, const uvec& i,
 void poismix_one_nonzero (const mat& L1, const vec& u, const vec& w, 
 			  uint i, vec& x) {
   mixture_one_nonzero(L1,i,x);
-  uint j = max(x);
+  uint j = index_max(x);
   x(j)   = w(i)/u(j);
 }
