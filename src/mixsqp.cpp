@@ -36,15 +36,15 @@ Rcpp::List mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 // Get the mix-SQP optimization settings from a named list in R.
 mixsqp_control_params get_mixsqp_control_params	(const Rcpp::List control) {
   mixsqp_control_params out;
-  out.convtolactiveset        = control["convtolactiveset"];
-  out.zerothresholdsolution   = control["zerothresholdsolution"];
-  out.zerothresholdsearchdir  = control["zerothresholdsearchdir"];
-  out.suffdecr                = control["suffdecr"];
+  out.convtolactiveset        = control["convtol.activeset"];
+  out.zerothresholdsolution   = control["zero.threshold.solution"];
+  out.zerothresholdsearchdir  = control["zero.threshold.searchdir"];
+  out.suffdecr                = control["suffdecr.linesearch"];
   out.stepsizereduce          = control["stepsizereduce"];
   out.minstepsize             = control["minstepsize"];
-  out.identitycontribincrease = control["identitycontribincrease"];
-  out.maxiteractiveset        = control["maxiteractiveset"];
-  out.e                       = control["e"];
+  out.identitycontribincrease = control["identity.contrib.increase"];
+  out.maxiteractiveset        = control["maxiter.activeset"];
+  out.e                       = control["eps"];
   return out;
 }
 

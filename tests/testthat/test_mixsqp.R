@@ -13,7 +13,7 @@ test_that("mixsqp_rcpp and KWDual produce same result",{
   # that the solution doesn't change much.
   m   <- ncol(L)
   x0  <- runif(m)
-  out <- mixsqp_rcpp(L,w,x0,10,test_mixsqp_control)
+  out <- mixsqp_rcpp(L,w,x0,10,mixsqp_control_default())
   x1  <- drop(out$x)
   x2  <- mixem(L,w,x1,100)
   expect_equal(x1,x2,tolerance = 1e-6)
@@ -42,7 +42,7 @@ test_that("mixsqp_rcpp produces correct result when sum(w > 0) = 1",{
   m   <- ncol(L)
   x0  <- runif(m)
   x1  <- mixture.one.nonzero(L,w)
-  out <- mixsqp_rcpp(L,w,x0,10,test_mixsqp_control)
+  out <- mixsqp_rcpp(L,w,x0,10,mixsqp_control_default())
   x2  <- drop(out$x)
   expect_equal(x1,x2,tolerance = 1e-6)
   expect_nonincreasing(drop(out$objective))

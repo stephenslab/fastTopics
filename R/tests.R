@@ -16,8 +16,8 @@ skip_if_mixkwdual_doesnt_work <- function() {
 }
 
 # A short convenience function to quickly generate a data set used for
-# testing.
-generate_test_data <- function (n, m, k, lmax = 1, fmax = 1) {
+# testing the Poisson NMF optimization methods.
+generate_test_data <- function (n, m, k, lmax = 0.5, fmax = 0.5) {
     
   # Generate count data to factorize.
   out <- simulate_count_data(n,m,k,lmax,fmax)
@@ -25,12 +25,33 @@ generate_test_data <- function (n, m, k, lmax = 1, fmax = 1) {
   F   <- out$F
   L   <- out$L
 
-  # Remove any rows and columns that are entirely zeros.
+  # Remove any rows that are entirely zeros.
   rows <- which(rowSums(X > 0) > 0)
-  cols <- which(colSums(X > 0) > 0)
-  X    <- X[rows,cols]
+  X    <- X[rows,]
   L    <- L[rows,]
+
+  # Choose a row with the least number of nonzero counts, and set all
+  # the counts to zero except the largest one.
+  i <- which.min(rowSums(X > 0))
+  j <- which.max(X[i,])
+  X[i,-j] <- 0
+
+  # Remove any columns that are entirely zeros.
+  cols <- which(colSums(X > 0) > 0)
+  X    <- X[,cols]
   F    <- F[cols,]
+  
+  # Choose a column with the least number of nonzero counts, and set
+  # all the counts to zero except the largest one.
+  j <- which.min(colSums(X > 0))
+  i <- which.max(X[,j])
+  X[-i,j] <- 0
+  
+  # Remove any rows that are entirely zeros.
+  rows <- which(rowSums(X > 0) > 0)
+  X    <- X[rows,]
+  L    <- L[rows,]
+
   return(list(X = X,F = F,L = L))
 }
 
@@ -63,14 +84,3 @@ iterate_updates <- function (X, F, L, numiter, update_factors,
   }
   return(list(F = F,L = L,loglik = loglik,dev = dev,res = res))
 }
-
-# mix-SQP optimization settings used in the tests.
-test_mixsqp_control <- list(convtolactiveset        = 1e-10,
-                            zerothresholdsolution   = 1e-8,
-                            zerothresholdsearchdir  = 1e-10,
-                            suffdecr                = 0.01,
-                            stepsizereduce          = 0.75,
-                            minstepsize             = 1e-8,
-                            identitycontribincrease = 10,
-                            maxiteractiveset        = 10,
-                            e                       = 1e-8)

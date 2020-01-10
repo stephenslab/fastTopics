@@ -9,15 +9,10 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
                     
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
-  out <- generate_test_data(80,100,3,0.3,0.3)
+  out <- generate_test_data(80,100,3)
   X   <- out$X
   F   <- out$F
   L   <- out$L
-
-  # There should be at least one row and one column in the counts
-  # matrix containing exactly one nonzero count.
-  expect_gt(sum(rowSums(X > 0) == 1),0)
-  expect_gt(sum(colSums(X > 0) == 1),0)
 
   # Run 20 multiplicative updates.
   numiter <- 20
@@ -90,7 +85,7 @@ test_that("ccd updates monotonically increase the likelihood",{
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
-  out <- generate_test_data(80,100,3,0.3,0.3)
+  out <- generate_test_data(80,100,3)
   X   <- out$X
   F   <- out$F
   L   <- out$L
@@ -110,8 +105,7 @@ test_that("scd updates monotonically increase the likelihood",{
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
-  k   <- 3
-  out <- generate_test_data(80,100,k,0.3,0.3)
+  out <- generate_test_data(80,100,3)
   X   <- out$X
   F   <- out$F
   L   <- out$L
@@ -143,7 +137,7 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
   k   <- 3
-  out <- generate_test_data(80,100,k,0.3,0.3)
+  out <- generate_test_data(80,100,k)
   X   <- out$X
   F   <- out$F
   L   <- out$L
@@ -176,3 +170,28 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
   expect_equivalent(t(fit1$H),fit3$F,tolerance = 1e-12)
 })
 
+test_that("altsqp updates monotonically increase the likelihood",{
+
+  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  out <- generate_test_data(80,100,3)
+  X   <- out$X
+  F   <- out$F
+  L   <- out$L
+
+  # Run 20 sequential alternating SQP (alt-SQP) updates.
+  numiter <- 20
+  fit1 <- iterate_updates(X,F,L,numiter,
+                          function (X,F,L) altsqp_update_factors(X,F,L,4),
+                          function (X,F,L) altsqp_update_loadings(X,F,L,4))
+
+  # The alt-SQP updates should monotonically increase the likelihood
+  # and decrease the deviance.
+  expect_nondecreasing(fit1$loglik)
+  expect_nonincreasing(fit1$dev)
+})
+
+test_that(paste("All Poisson NMF updates recover same solution when",
+                "provided with a good initialization"),{
+
+})

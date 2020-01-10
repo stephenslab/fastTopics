@@ -44,10 +44,10 @@ test_that("poismixem and poismixisqp produce give nearly the same solution",{
   L1 <- normalize.cols(L)
   u  <- colSums(L)
   i  <- which(w > 0)
-  x2 <- drop(poismixsqp_rcpp(L,w,x0,numiter,test_mixsqp_control))
-  x3 <- drop(poismixsqp2_rcpp(L1,w,u,x0,numiter,test_mixsqp_control))
+  x2 <- drop(poismixsqp_rcpp(L,w,x0,numiter,mixsqp_control_default()))
+  x3 <- drop(poismixsqp2_rcpp(L1,w,u,x0,numiter,mixsqp_control_default()))
   x4 <- drop(poismixsqp3_rcpp(L1,w[i],colSums(L),i-1,x0,numiter,
-                              test_mixsqp_control))
+                              mixsqp_control_default()))
 
   # The three poismixsqp C++ interfaces should give nearly the same
   # result, and the mix-SQP solution should be nearly the same as the
@@ -110,10 +110,10 @@ test_that("poismixsqp_rcpp produces correct result when sum(w > 0) = 1",{
   u  <- colSums(L)
   m  <- ncol(L)
   x0 <- runif(m)
-  x2 <- drop(poismixsqp_rcpp(L,w,x0,numiter,test_mixsqp_control))
-  x3 <- drop(poismixsqp2_rcpp(L1,w,u,x0,numiter,test_mixsqp_control))
+  x2 <- drop(poismixsqp_rcpp(L,w,x0,numiter,mixsqp_control_default()))
+  x3 <- drop(poismixsqp2_rcpp(L1,w,u,x0,numiter,mixsqp_control_default()))
   x4 <- drop(poismixsqp3_rcpp(L1,w[i],colSums(L),i-1,x0,numiter,
-                              test_mixsqp_control))
+                              mixsqp_control_default()))
 
   # All the mix-SQP solutions should be nearly the same, and should be
   # very close to the exact solution obtained from poismix.one.nonzero.

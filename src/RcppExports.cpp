@@ -6,6 +6,35 @@
 
 using namespace Rcpp;
 
+// altsqp_update_factors_rcpp
+arma::mat altsqp_update_factors_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, double numiter, const Rcpp::List control);
+RcppExport SEXP _fastTopics_altsqp_update_factors_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP numiterSEXP, SEXP controlSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< double >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List >::type control(controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_rcpp(X, F, L, numiter, control));
+    return rcpp_result_gen;
+END_RCPP
+}
+// altsqp_update_factors_sparse_rcpp
+arma::mat altsqp_update_factors_sparse_rcpp(const arma::sp_mat& X, const arma::mat& F, const arma::mat& L, double numiter);
+RcppExport SEXP _fastTopics_altsqp_update_factors_sparse_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP numiterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< double >::type numiter(numiterSEXP);
+    rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_sparse_rcpp(X, F, L, numiter));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ccd_update_factors_rcpp
 void ccd_update_factors_rcpp(const NumericMatrix& V, const NumericMatrix& W, NumericMatrix& H, NumericMatrix& WH, double e);
 RcppExport SEXP _fastTopics_ccd_update_factors_rcpp(SEXP VSEXP, SEXP WSEXP, SEXP HSEXP, SEXP WHSEXP, SEXP eSEXP) {
@@ -276,6 +305,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_fastTopics_altsqp_update_factors_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_rcpp, 5},
+    {"_fastTopics_altsqp_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_sparse_rcpp, 4},
     {"_fastTopics_ccd_update_factors_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_rcpp, 5},
     {"_fastTopics_cost_rcpp", (DL_FUNC) &_fastTopics_cost_rcpp, 5},
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
