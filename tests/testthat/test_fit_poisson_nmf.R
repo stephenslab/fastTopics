@@ -83,7 +83,7 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
 
 test_that(paste("ccd and scd updates produce the same result, and",
                 "monotonically increase the likelihood, when initialized",
-                "\"close enough\" to the solution"),{
+                "\"close enough\" to a stationary point"),{
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
@@ -138,6 +138,40 @@ test_that(paste("ccd and scd updates produce the same result, and",
   expect_equal(fit2$loglik,fit3$loglik,tolerance = 1e-15,scale = 1)
   expect_equal(fit1$dev,fit2$dev,tolerance = 1e-6,scale = 1)
   expect_equal(fit2$dev,fit3$dev,tolerance = 1e-15,scale = 1)
+})
+
+test_that(paste("When initialized \"close enough\" to a stationary point, the",
+                "SCD, CCD and alt-SQP updates recover the same solution"),{
+
+                  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  out <- generate_test_data(80,100,3)
+  X   <- out$X
+  F   <- out$F
+  L   <- out$L
+
+  # First find a reasonably good initialization using the SCD updates.
+  fit0 <- iterate_updates(X,F,L,40,
+                          function (X,F,L) t(scd_update_factors(X,L,t(F))),
+                          function (X,F,L) scd_update_loadings(X,L,t(F)))
+
+  # Run 300 updates of the CCD, SCD and alt-SQP algorithms.
+  numiter <- 300
+  fit1 <- iterate_updates(X,F0,L0,numiter,
+                          function (X,F,L) t(ccd_update_factors(X,L,t(F))),
+                          function (X,F,L) ccd_update_loadings(X,L,t(F)))
+  fit2 <- iterate_updates(X,F0,L0,numiter,
+                          function (X,F,L) t(scd_update_factors(X,L,t(F),2)),
+                          function (X,F,L) scd_update_loadings(X,L,t(F),2))
+  fit3 <- iterate_updates(X,F0,L0,numiter,
+                          function (X,F,L) altsqp_update_factors(X,F,L,4),
+                          function (X,F,L) altsqp_update_loadings(X,F,L,4))
+
+  # Check that all three algorithms recover the same solution.
+  expect_equal(min(fit1$dev),min(fit2$dev),tolerance = 1e-8,scale = 1)
+  expect_equal(min(fit1$dev),min(fit3$dev),tolerance = 1e-8,scale = 1)
+  expect_equal(max(fit1$loglik),max(fit2$loglik),tolerance = 1e-8,scale = 1)
+  expect_equal(max(fit1$loglik),max(fit3$loglik),tolerance = 1e-8,scale = 1)
 })
 
 test_that("scd updates and nnmf from NNLM package produce same result",{
