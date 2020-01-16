@@ -143,7 +143,7 @@ test_that(paste("ccd and scd updates produce the same result, and",
 test_that(paste("When initialized \"close enough\" to a stationary point, the",
                 "SCD, CCD and alt-SQP updates recover the same solution"),{
 
-                  # Generate a 80 x 100 data matrix to factorize.
+  # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
   out <- generate_test_data(80,100,3)
   X   <- out$X
