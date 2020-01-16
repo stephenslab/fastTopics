@@ -14,7 +14,7 @@ test_that("mixem and mixem_rcpp produce same result",{
   x0 <- runif(m)
   x1 <- mixem(L,w,x0,100)
   x2 <- drop(mixem_rcpp(L,w,x0,100))
-  expect_equal(x1,x2,tolerance = 1e-12)
+  expect_equal(x1,x2,tolerance = 1e-12,scale = 1)
 })
 
 test_that("mixem and mixem_rcpp produce correct result when sum(w > 0) = 1",{
@@ -35,6 +35,6 @@ test_that("mixem and mixem_rcpp produce correct result when sum(w > 0) = 1",{
   x2 <- drop(mixem_rcpp(L,w,x0,20))
 
   # The solution should not change much after running the EM updates.
-  expect_equal(x0,x1,tolerance = 1e-12)
-  expect_equal(x0,x2,tolerance = 1e-12)
+  expect_equal(x0,x1,tolerance = 1e-12,scale = 1)
+  expect_equal(x0,x2,tolerance = 1e-12,scale = 1)
 })

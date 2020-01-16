@@ -16,7 +16,7 @@ test_that("mixsqp_rcpp and KWDual produce same result",{
   out <- mixsqp_rcpp(L,w,x0,10,mixsqp_control_default())
   x1  <- drop(out$x)
   x2  <- mixem(L,w,x1,100)
-  expect_equal(x1,x2,tolerance = 1e-6)
+  expect_equal(x1,x2,tolerance = 1e-6,scale = 1)
 
   # The mix-SQP updates should monotonically increase the objective
   # function.
@@ -25,7 +25,7 @@ test_that("mixsqp_rcpp and KWDual produce same result",{
   # mix-SQP and KWDual (MOSEK) should give nearly the same solution.
   skip_if_mixkwdual_doesnt_work()
   x3 <- REBayes::KWDual(normalize.cols(L),rep(1,m),w/sum(w))$f
-  expect_equal(x1,x3,tolerance = 1e-4)
+  expect_equal(x1,x3,tolerance = 1e-4,scale = 1)
 })
 
 test_that("mixsqp_rcpp produces correct result when sum(w > 0) = 1",{
@@ -44,6 +44,6 @@ test_that("mixsqp_rcpp produces correct result when sum(w > 0) = 1",{
   x1  <- mixture.one.nonzero(L,w)
   out <- mixsqp_rcpp(L,w,x0,10,mixsqp_control_default())
   x2  <- drop(out$x)
-  expect_equal(x1,x2,tolerance = 1e-6)
+  expect_equal(x1,x2,tolerance = 1e-6,scale = 1)
   expect_nonincreasing(drop(out$objective))
 })

@@ -21,9 +21,9 @@ test_that("poismixem and poismixem_rcpp produce same result",{
   x2 <- drop(poismixem_rcpp(L,w,x0,numiter))
   x3 <- drop(poismixem2_rcpp(L1,w,u,x0,numiter))
   x4 <- drop(poismixem3_rcpp(L1,w[i],u,i-1,x0,numiter))
-  expect_equal(x1,x2,tolerance = 1e-14)
-  expect_equal(x1,x3,tolerance = 1e-14)
-  expect_equal(x1,x4,tolerance = 1e-14)
+  expect_equal(x1,x2,tolerance = 1e-14,scale = 1)
+  expect_equal(x1,x3,tolerance = 1e-14,scale = 1)
+  expect_equal(x1,x4,tolerance = 1e-14,scale = 1)
 })
 
 test_that("poismixem and poismixisqp produce give nearly the same solution",{
@@ -52,9 +52,9 @@ test_that("poismixem and poismixisqp produce give nearly the same solution",{
   # The three poismixsqp C++ interfaces should give nearly the same
   # result, and the mix-SQP solution should be nearly the same as the
   # EM solution after running a very large number of EM updates.
-  expect_equal(x1,x2,tolerance = 1e-5)
-  expect_equal(x2,x3,tolerance = 1e-15)
-  expect_equal(x2,x4,tolerance = 1e-15)
+  expect_equal(x1,x2,tolerance = 1e-5,scale = 1)
+  expect_equal(x2,x3,tolerance = 1e-15,scale = 1)
+  expect_equal(x2,x4,tolerance = 1e-15,scale = 1)
 })
 
 test_that(paste("poismixem and poismixem_rcpp produce correct result",
@@ -87,10 +87,10 @@ test_that(paste("poismixem and poismixem_rcpp produce correct result",
   # and should be very close to the exact solution obtained by calling
   # poismix.one.nonzero.
   x5 <- poismix.one.nonzero(L,w)
-  expect_equal(x1,x2,tolerance = 1e-12)
-  expect_equal(x1,x3,tolerance = 1e-12)
-  expect_equal(x1,x4,tolerance = 1e-12)
-  expect_equal(x1,x5,tolerance = 1e-12)
+  expect_equal(x1,x2,tolerance = 1e-12,scale = 1)
+  expect_equal(x1,x3,tolerance = 1e-12,scale = 1)
+  expect_equal(x1,x4,tolerance = 1e-12,scale = 1)
+  expect_equal(x1,x5,tolerance = 1e-12,scale = 1)
 })
 
 test_that("poismixsqp_rcpp produces correct result when sum(w > 0) = 1",{
@@ -118,7 +118,7 @@ test_that("poismixsqp_rcpp produces correct result when sum(w > 0) = 1",{
   # All the mix-SQP solutions should be nearly the same, and should be
   # very close to the exact solution obtained from poismix.one.nonzero.
   x1 <- poismix.one.nonzero(L,w)
-  expect_equal(x1,x2,tolerance = 1e-15)
-  expect_equal(x1,x3,tolerance = 1e-15)
-  expect_equal(x1,x4,tolerance = 1e-15)
+  expect_equal(x1,x2,tolerance = 1e-15,scale = 1)
+  expect_equal(x1,x3,tolerance = 1e-15,scale = 1)
+  expect_equal(x1,x4,tolerance = 1e-15,scale = 1)
 })

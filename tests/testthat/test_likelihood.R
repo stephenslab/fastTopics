@@ -117,5 +117,5 @@ test_that("poisson_nmf_kkt gives same result for sparse and dense matrices",{
   # Compute the KKT residuals, and check that they are the same.
   out1 <- poisson_nmf_kkt(X,F,L)
   out2 <- poisson_nmf_kkt(as(X,"dgCMatrix"),F,L)
-  expect_equal(out1,out2,tolerance = 1e-15)
+  expect_equal(out1,out2,tolerance = 1e-15,scale = 1)
 })
