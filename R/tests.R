@@ -64,18 +64,22 @@ generate_poismix_data <- function (n, x) {
 }
 
 # Iterate the given updates for the factors (F) and loadings (L) matrices.
-iterate_updates <- function (X, F, L, numiter, update_factors,
-                             update_loadings, factors_first = TRUE) {
+iterate_updates <- function (X, F, L, numiter, update_factors = NULL,
+                             update_loadings = NULL, factors_first = TRUE) {
   loglik <- rep(0,numiter)
   dev    <- rep(0,numiter)
   res    <- rep(0,numiter)
   for (i in 1:numiter) {
     if (factors_first) {
-      F <- update_factors(X,F,L)
-      L <- update_loadings(X,F,L)
+      if (!is.null(update_factors))
+        F <- update_factors(X,F,L)
+      if (!is.null(update_loadings))
+        L <- update_loadings(X,F,L)
     } else {
-      L <- update_loadings(X,F,L)
-      F <- update_factors(X,F,L)
+      if (!is.null(update_loadings))
+        L <- update_loadings(X,F,L)
+      if (!is.null(update_factors))
+        F <- update_factors(X,F,L)
     }
     loglik[i] <- sum(loglik_poisson_nmf(X,list(F = F,L = L)))
     dev[i]    <- sum(deviance_poisson_nmf(X,list(F = F,L = L)))
