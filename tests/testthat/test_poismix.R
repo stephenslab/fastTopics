@@ -26,7 +26,7 @@ test_that("poismixem and poismixem_rcpp produce same result",{
   expect_equal(x1,x4,tolerance = 1e-14,scale = 1)
 })
 
-test_that("poismixem and poismixisqp produce give nearly the same solution",{
+test_that("poismixem and poismixsqp produce give nearly the same solution",{
 
   # Generate small data set.
   set.seed(1)

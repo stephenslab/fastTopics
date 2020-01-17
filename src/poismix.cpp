@@ -4,6 +4,40 @@
 
 using namespace arma;
 
+// INLINE FUNCTION DEFINITIONS
+// ---------------------------
+// Compute the first-order (g) and second-order (h) partial
+// derivatives of the loss function (i.e., the negative Poisson
+// log-likelihood) with respect to the jth mixture weight, x[j],
+// where: input argument l = L[,j] is the jth column of the n x m data
+// matrix, L; input w is a vector of length n containing a count or
+// "pseudocount" associated with each row of L; x is the initial
+// estimate of the mixture weights; and Lx = L*x. Input argument u is
+// a vector storing an intermediate result of the same size as w.
+//
+// This is used by scd_kl_update.
+//
+inline void compute_grad_kl (const vec& l, const vec& w, const vec& x,
+			     const vec& Lx, uint i, double& g, double& h,
+			     vec& r, double e) {
+  r = l/(Lx + e);
+  h = dot(w,square(r));
+  g = dot(w,r) - sum(l) + h*x(i);
+}
+
+// Given the first-order (g) and second-order (h) partial derivatives
+// of the loss function (negative Poisson log-likelihood), compute the
+// updated value of the mixture weight x[j] suitably projected so that
+// it is non-negative.
+//
+// This is used by scd_kl_update.
+//
+inline double project_iterate_kl (double g, double h, double e) {
+  double x = g/(h + e);
+  x = maximum(x,0);
+  return x;
+}
+
 // FUNCTION DEFINITIONS
 // --------------------
 // This is mainly used to test the first variant of the poismixem C++
@@ -85,6 +119,14 @@ arma::vec poismixsqp3_rcpp (const arma::mat& L1, const arma::vec& w,
   return x;
 }
 
+// This is mainly used to test C++ function scd_kl_update.
+//
+// [[Rcpp::export]]
+arma::vec scd_kl_update_rcpp (const arma::mat& L,const arma::vec& w, 
+			      const arma::vec& x0, uint numiter, double e) {
+  return scd_kl_update(L,w,x0,numiter,e);
+}
+
 // Compute a maximum-likelihood estimate (MLE) of the mixture weights
 // in a Poisson mixture model by iterating the multinomial mixture
 // model EM updates for a fixed number of iterations.
@@ -115,7 +157,7 @@ vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 // input w is a vector of length n containing a count or "pseudocount"
 // associated with each row of L; input argument x0 is the initial
 // estimate of the mixture weights; and input "numiter" specifies the
-// number of dmix-SQPM updates to perform.
+// number of mix-SQP updates to perform.
 //
 // The return value is a vector of length m containing the updated
 // mixture weights.
@@ -241,6 +283,44 @@ void poismixsqp (const mat& L1, const vec& u, const vec& w, const uvec& i,
   mat  Z(n,m);
   vec  objective(numiter);
   poismixsqp(L1.rows(i),u,w,x,Z,H,numiter,control);
+}
+
+// Compute a maximum-likelihood estimate (MLE) of the mixture weights
+// in a Poisson mixture model by iterating coordinate-wise updates for
+// a fixed number of iterations.
+//
+// Input argument L is an n x m matrix with non-negative entries;
+// input w is a vector of length n containing a count or "pseudocount"
+// associated with each row of L; input argument x0 is the initial
+// estimate of the mixture weights; and input "numiter" specifies the
+// number of updates (full passes) to perform.
+//
+// The return value is a vector of length m containing the updated
+// mixture weights.
+//  
+// This function implements the core part of the sequential
+// co-ordinate descent (SCD) algorithm. This C++ code is adapted from
+// the code by Xihui Lin and Paul Boutros, which is available for
+// download at https://github.com/linxihui/NNLM.
+vec scd_kl_update (const mat& L, const vec& w, const vec& x0,
+		   uint numiter, double e) {
+  uint   n  = L.n_rows;
+  uint   m  = L.n_cols;
+  vec    x  = x0;
+  vec    Lx = L * x;
+  vec    l(n);
+  vec    r(n);
+  double h, g, xj, xjnew;
+  for (uint iter = 0; iter < numiter; iter++)
+    for (uint j = 0; j < m; j++) {
+      l = L.col(j);
+      compute_grad_kl(l,w,x,Lx,j,g,h,r,e);
+      xj    = x(j);
+      xjnew = project_iterate_kl(g,h,e);
+      Lx   += (xjnew - xj) * l;
+      x(j)  = xjnew;
+    }
+  return x;
 }
 
 // Find the maximum-likelihood estimate (MLE) for the special case
