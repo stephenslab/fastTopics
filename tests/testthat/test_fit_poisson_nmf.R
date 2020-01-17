@@ -154,7 +154,9 @@ test_that(paste("When initialized \"close enough\" to a stationary point, the",
   fit0 <- iterate_updates(X,F,L,40,
                           function (X,F,L) t(scd_update_factors(X,L,t(F))),
                           function (X,F,L) scd_update_loadings(X,L,t(F)))
-
+  F0 <- fit0$F
+  L0 <- fit0$L
+  
   # Run 300 updates of the CCD, SCD and alt-SQP algorithms.
   numiter <- 300
   fit1 <- iterate_updates(X,F0,L0,numiter,

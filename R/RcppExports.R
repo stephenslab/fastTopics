@@ -81,11 +81,15 @@ poismixsqp3_rcpp <- function(L1, w, u, i, x0, numiter, control) {
     .Call('_fastTopics_poismixsqp3_rcpp', PACKAGE = 'fastTopics', L1, w, u, i, x0, numiter, control)
 }
 
-scd_update_factors_rcpp <- function(A, Wt, H, numiter, e) {
-    .Call('_fastTopics_scd_update_factors_rcpp', PACKAGE = 'fastTopics', A, Wt, H, numiter, e)
+scd_update_factors_rcpp <- function(A, W, H, numiter, e) {
+    .Call('_fastTopics_scd_update_factors_rcpp', PACKAGE = 'fastTopics', A, W, H, numiter, e)
 }
 
-scd_update_factors_parallel_rcpp <- function(A, Wt, H, numiter, e) {
-    .Call('_fastTopics_scd_update_factors_parallel_rcpp', PACKAGE = 'fastTopics', A, Wt, H, numiter, e)
+scd_update_factors_sparse_rcpp <- function(A, W, H, numiter, e) {
+    .Call('_fastTopics_scd_update_factors_sparse_rcpp', PACKAGE = 'fastTopics', A, W, H, numiter, e)
+}
+
+scd_update_factors_parallel_rcpp <- function(A, W, H, numiter, e) {
+    .Call('_fastTopics_scd_update_factors_parallel_rcpp', PACKAGE = 'fastTopics', A, W, H, numiter, e)
 }
 
