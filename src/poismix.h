@@ -29,6 +29,10 @@ void poismixsqp (const arma::mat& L1, const arma::vec& u, const arma::vec& w,
 arma::vec scd_kl_update (const arma::mat& L, const arma::vec& w,
 			 const arma::vec& x0, uint numiter, double e);
 
+arma::vec scd_kl_update_sparse (const arma::mat& L, const arma::vec& w,
+				const arma::uvec& i, const arma::vec& x0,
+				uint numiter, double e);
+
 void poismix_one_nonzero (const arma::mat& L1, const arma::vec& u, 
 			  const arma::vec& w, uint i, arma::vec& x);
 

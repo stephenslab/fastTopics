@@ -63,3 +63,24 @@ void normalizerowsbymax (mat& A) {
   A.each_col() /= b;
 }
 
+// Return sum(a*b[i]).
+double dot_sparse_b (const vec& a, const vec& b, const uvec& i) {
+  uint   n = i.n_elem;
+  double x = 0;
+  for (uint t = 0; t < n; t++) {
+    x += a(i(t)) * b(t);
+  }
+  return x;
+}
+
+// Return sum(a^2*b[i]).
+double dot_square_sparse_b (const vec& a, const vec& b, const uvec& i) {
+  uint   n = i.n_elem;
+  double aj;
+  double x = 0;
+  for (uint t = 0; t < n; t++) {
+    aj = a(i(t));
+    x += aj * aj * b(t);
+  }
+  return x;
+}

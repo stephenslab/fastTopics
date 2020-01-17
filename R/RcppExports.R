@@ -85,6 +85,10 @@ scd_kl_update_rcpp <- function(L, w, x0, numiter, e) {
     .Call('_fastTopics_scd_kl_update_rcpp', PACKAGE = 'fastTopics', L, w, x0, numiter, e)
 }
 
+scd_kl_update_sparse_rcpp <- function(L, w, i, x0, numiter, e) {
+    .Call('_fastTopics_scd_kl_update_sparse_rcpp', PACKAGE = 'fastTopics', L, w, i, x0, numiter, e)
+}
+
 scd_update_factors_rcpp <- function(A, W, H, numiter, e) {
     .Call('_fastTopics_scd_update_factors_rcpp', PACKAGE = 'fastTopics', A, W, H, numiter, e)
 }
