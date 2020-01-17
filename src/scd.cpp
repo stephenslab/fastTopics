@@ -30,13 +30,8 @@ struct scd_factor_updater : public RcppParallel::Worker {
 
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    uint k = H.n_rows;
-    vec  h(k);
-    for (uint j = begin; j < end; j++) {
-      h = H.col(j);
-      scd_kl_update(A.col(j),W,h,numiter,e);
-      H.col(j) = h;
-    }
+    for (uint j = begin; j < end; j++)
+      H.col(j) = scd_kl_update(W,A.col(j),H.col(j),numiter,e);
   }
 };
 
