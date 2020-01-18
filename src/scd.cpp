@@ -9,8 +9,8 @@ using namespace arma;
 // ---------------------
 void scd_update (const mat& A, const mat& W, mat& H, uint numiter, double e);
 
-void scd_update_sparse (mat& H, const mat& Wt, const sp_mat& A, uint numiter,
-			double e);
+void scd_update_sparse (const sp_mat& A, const mat& W, mat& H,
+			uint numiter, double e);
 
 // CLASS DEFINITIONS
 // -----------------
@@ -61,7 +61,8 @@ arma::mat scd_update_factors_rcpp (const arma::mat& A, const arma::mat& W,
   return Hnew;
 }
 
-// TO DO: Explain here what this function does, and how to use it.
+// Perform sequential co-ordinate descent (SCD) updates for the
+// factors matrix (H) when the data matrix (A) is sparse.
 //
 // [[Rcpp::export]]
 arma::mat scd_update_factors_sparse_rcpp (const arma::sp_mat& A,
@@ -69,7 +70,7 @@ arma::mat scd_update_factors_sparse_rcpp (const arma::sp_mat& A,
 					  const arma::mat& H,
 					  uint numiter, double e) {
   mat Hnew = H;
-  scd_update_sparse(Hnew,W,A,numiter,e);
+  scd_update_sparse(A,W,Hnew,numiter,e);
   return Hnew;
 }
 
@@ -97,13 +98,17 @@ void scd_update (const mat& A, const mat& W, mat& H, uint numiter, double e) {
     H.col(j) = scd_kl_update(W,A.col(j),H.col(j),numiter,e);
 }
 
-// TO DO: Explain here what this function does, and how to use it.
-void scd_update_sparse (mat& H, const mat& W, const sp_mat& A,
+// This is the same as scd_update, except that the count data are
+// stored as a sparse matrix.
+void scd_update_sparse (const sp_mat& A, const mat& W, mat& H,
 			uint numiter, double e) {
-  // TO DO.
+  uint m = H.n_cols;
+  for (uint j = 0; j < m; j++) {
+    vec  a = nonzeros(A.col(j));
+    uint n = a.n_elem;
+    uvec i(n);
+    getcolnonzeros(A,i,j);
+    H.col(j) = scd_kl_update_sparse(W,a,i,H.col(j),numiter,e);
+  }
 }
 
-// TO DO: Explain here what this function does, and how to use it.
-void scd_kl_update_sparse (uint numiter, double e) {
-  // TO DO.
-}
