@@ -35,6 +35,32 @@ struct scd_factor_updater : public RcppParallel::Worker {
   }
 };
 
+// This class is used to implement multithreaded computation of the
+// loadings updates in scd_update_factors_sparse_parallel_rcpp.
+struct scd_factor_updater_sparse : public RcppParallel::Worker {
+  const sp_mat& A;
+  const mat&    W;
+  mat&          H;
+  uint          numiter;
+  double        e;
+
+  // This is used to create a scd_factor_updater object.
+  scd_factor_updater_sparse (const sp_mat& A, const mat& W, mat& H,
+			     uint numiter, double e) :
+    A(A), W(W), H(H), numiter(numiter), e(e) { };
+
+  // This function updates the factors for a given range of columns.
+  void operator() (std::size_t begin, std::size_t end) {
+    for (uint j = begin; j < end; j++) {
+      vec  a = nonzeros(A.col(j));
+      uint n = a.n_elem;
+      uvec i(n);
+      getcolnonzeros(A,i,j);
+      H.col(j) = scd_kl_update_sparse(W,a,i,H.col(j),numiter,e);
+    }
+  }
+};
+
 // FUNCTION DEFINITIONS
 // --------------------
 // Perform sequential co-ordinate descent (SCD) updates for the
@@ -86,6 +112,21 @@ arma::mat scd_update_factors_parallel_rcpp (const arma::mat& A,
 					    uint numiter, double e) {
   mat Hnew = H;
   scd_factor_updater worker(A,W,Hnew,numiter,e);
+  parallelFor(0,H.n_cols,worker);
+  return Hnew;
+}
+
+// This does the same thing as scd_update_factors_sparse_rcpp, except
+// that Intel Threading Building Blocks (TBB) are used to update the
+// loadings in parallel.
+//
+// [[Rcpp::export]]
+arma::mat scd_update_factors_sparse_parallel_rcpp (const arma::sp_mat& A, 
+						   const arma::mat& W,
+						   const arma::mat& H, 
+						   uint numiter, double e) {
+  mat Hnew = H;
+  scd_factor_updater_sparse worker(A,W,Hnew,numiter,e);
   parallelFor(0,H.n_cols,worker);
   return Hnew;
 }

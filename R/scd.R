@@ -15,7 +15,10 @@ scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16) {
     else if (inherits(A,"dgCMatrix"))
       H <- scd_update_factors_sparse_rcpp(A,W,H,numiter,e)
   } else if (nc > 1) {
-    H <- scd_update_factors_parallel_rcpp(A,W,H,numiter,e)
+    if (is.matrix(A))
+      H <- scd_update_factors_parallel_rcpp(A,W,H,numiter,e)
+    else if (inherits(A,"dgCMatrix"))
+      H <- scd_update_factors_sparse_parallel_rcpp(A,W,H,numiter,e)
   }  
   return(H)
 }
@@ -40,7 +43,10 @@ scd_update_loadings <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16) {
     else if (inherits(A,"dgCMatrix"))
       W <- scd_update_factors_sparse_rcpp(A,H,W,numiter,e)
   } else if (nc > 1) {
-    W <- scd_update_factors_parallel_rcpp(A,H,W,numiter,e)
+    if (is.matrix(A))
+      W <- scd_update_factors_parallel_rcpp(A,H,W,numiter,e)
+    else if (inherits(A,"dgCMatrix"))
+      W <- scd_update_factors_sparse_parallel_rcpp(A,H,W,numiter,e)
   }
   return(t(W))
 }

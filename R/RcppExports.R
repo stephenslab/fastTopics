@@ -101,3 +101,7 @@ scd_update_factors_parallel_rcpp <- function(A, W, H, numiter, e) {
     .Call('_fastTopics_scd_update_factors_parallel_rcpp', PACKAGE = 'fastTopics', A, W, H, numiter, e)
 }
 
+scd_update_factors_sparse_parallel_rcpp <- function(A, W, H, numiter, e) {
+    .Call('_fastTopics_scd_update_factors_sparse_parallel_rcpp', PACKAGE = 'fastTopics', A, W, H, numiter, e)
+}
+
