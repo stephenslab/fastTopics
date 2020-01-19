@@ -33,6 +33,9 @@ arma::vec scd_kl_update_sparse (const arma::mat& L, const arma::vec& w,
 				const arma::uvec& i, const arma::vec& x0,
 				uint numiter, double e);
 
+void ccd_kl_update (uint m, uint k, double* wt, double* wht,
+		    const double* vt, const double* H, double e);
+
 void poismix_one_nonzero (const arma::mat& L1, const arma::vec& u, 
 			  const arma::vec& w, uint i, arma::vec& x);
 

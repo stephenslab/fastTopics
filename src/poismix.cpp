@@ -133,7 +133,7 @@ arma::vec poismixsqp3_rcpp (const arma::mat& L1, const arma::vec& w,
 // This is mainly used to test C++ function scd_kl_update.
 //
 // [[Rcpp::export]]
-arma::vec scd_kl_update_rcpp (const arma::mat& L,const arma::vec& w, 
+arma::vec scd_kl_update_rcpp (const arma::mat& L, const arma::vec& w, 
 			      const arma::vec& x0, uint numiter, double e) {
   return scd_kl_update(L,w,x0,numiter,e);
 }
@@ -141,10 +141,27 @@ arma::vec scd_kl_update_rcpp (const arma::mat& L,const arma::vec& w,
 // This is mainly used to test C++ function scd_kl_update_sparse.
 //
 // [[Rcpp::export]]
-arma::vec scd_kl_update_sparse_rcpp (const arma::mat& L,const arma::vec& w, 
+arma::vec scd_kl_update_sparse_rcpp (const arma::mat& L, const arma::vec& w, 
 				     const arma::uvec& i, const arma::vec& x0,
 				     uint numiter, double e) {
   return scd_kl_update_sparse(L,w,i,x0,numiter,e);
+}
+
+// NOTES:
+//  + L is is a m x n matrix.
+//  + w is a vector of length n.
+//  + x is a vector of length m; it will be updated.
+//  + Lx = L' * x, and will be updated.
+//
+// This is mainly used to test C++ function ccd_kl_update.
+//
+// [[Rcpp::export]]
+void ccd_kl_update_rcpp (const Rcpp::NumericMatrix& L,
+			 const Rcpp::NumericVector& w,
+			 Rcpp::NumericVector& Lx,
+			 Rcpp::NumericVector& x,
+			 double e) {
+  ccd_kl_update(L.ncol(),L.nrow(),x.begin(),Lx.begin(),w.begin(),L.begin(),e);
 }
 
 // Compute a maximum-likelihood estimate (MLE) of the mixture weights
@@ -365,6 +382,29 @@ vec scd_kl_update_sparse (const mat& L, const vec& w, const uvec& i,
       x(j)  = xjnew;
     }
   return x;
+}
+
+// Implements the core part of the cyclic co-ordinate descent (CCD)
+// updates.
+void ccd_kl_update (uint m, uint k, double* wt, double* wht,
+		    const double* vt, const double* H, double e) {
+  double d, g, h, t, w0, w1;
+  for (uint i = 0; i < k; i++) {
+    g = 0;
+    h = 0;
+    for (uint j = 0, hi = i; j < m; j++, hi += k) {
+      t  = vt[j]/(wht[j] + e);
+      g += H[hi]*(1 - t);
+      h += H[hi]*H[hi]*t/(wht[j] + e);
+    }
+    w0    = wt[i];
+    w1    = wt[i] - g/h + e;
+    w1    = maximum(w1,e);
+    d     = w1 - w0;
+    wt[i] = w1;
+    for (uint j = 0; j < m; j++)
+      wht[j] += d * H[j*k + i];
+  }
 }
 
 // Find the maximum-likelihood estimate (MLE) for the special case
