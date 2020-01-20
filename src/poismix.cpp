@@ -151,8 +151,11 @@ arma::vec scd_kl_update_sparse_rcpp (const arma::mat& L, const arma::vec& w,
 //
 // [[Rcpp::export]]
 arma::vec ccd_kl_update_rcpp (const arma::mat& L, const arma::vec& w,
-			      const arma::vec& x0, double e) {
-  return ccd_kl_update(L,w,x0,e);
+			      const arma::vec& x0, uint numiter, double e) {
+  vec x = x0;
+  for (int iter = 0; iter < numiter; iter++)
+    x = ccd_kl_update(L,w,x,e);
+  return x;
 }
 
 // Compute a maximum-likelihood estimate (MLE) of the mixture weights
@@ -375,12 +378,12 @@ vec scd_kl_update_sparse (const mat& L, const vec& w, const uvec& i,
   return x;
 }
 
-// NOTES:
+// Implements a single iteration of the cyclic co-ordinate descent (CCD)
+// algorithm. See scd_kl_update for an explanation of the inputs.
 //
-//   [Add notes here.]
-//
-// Implements the core part of the cyclic co-ordinate descent (CCD)
-// updates.
+// This implementation is adapted from the C++ code developed by
+// Cho-Jui Hsieh and Inderjit Dhillon, which is available for download
+// at www.cs.utexas.edu/~cjhsieh/nmf.
 vec ccd_kl_update (const mat& L, const vec& w, const vec& x0, double e) {
   uint   n  = L.n_rows;
   uint   m  = L.n_cols;
@@ -406,28 +409,6 @@ vec ccd_kl_update (const mat& L, const vec& w, const vec& x0, double e) {
   }
 
   return x;
-}
-
-void ccd_kl_update_old (uint n, uint k, double* x, double* Lx,
-			const double* w, const double* L, double e) {
-  double d, g, h, t;
-  double x0, x1;
-  for (uint i = 0; i < k; i++) {
-    g = 0;
-    h = 0;
-    for (uint j = 0, hi = i; j < n; j++, hi += k) {
-      t  = w[j]/(Lx[j] + e);
-      g += L[hi]*(1 - t);
-      h += L[hi]*L[hi]*t/(Lx[j] + e);
-    }
-    x0   = x[i];
-    x1   = x[i] - g/h + e;
-    x1   = maximum(x1,e);
-    d    = x1 - x0;
-    x[i] = x1;
-    for (uint j = 0; j < n; j++)
-      Lx[j] += d * L[j*k + i];
-  }
 }
 
 // Find the maximum-likelihood estimate (MLE) for the special case

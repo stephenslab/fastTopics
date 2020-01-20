@@ -57,9 +57,7 @@ test_that(paste("poismixem, poismixsqp, scd_kl_update and ccd_kl_update",
   x6 <- drop(scd_kl_update_sparse_rcpp(L,w[i],i-1,x0,numiter,1e-15))
 
   # Run 100 cyclic coordinate descent (CCD) updates.
-  x7 <- x0
-  for (iter in 1:numiter)
-    x7 <- drop(ccd_kl_update_rcpp(L,w,x7,1e-15))
+  x7 <- drop(ccd_kl_update_rcpp(L,w,x0,numiter,1e-15))
   
   # The three poismixsqp C++ interfaces should give nearly the same
   # result, and the mix-SQP solution should be nearly the same as the

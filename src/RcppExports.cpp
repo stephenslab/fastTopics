@@ -336,16 +336,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // ccd_kl_update_rcpp
-arma::vec ccd_kl_update_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, double e);
-RcppExport SEXP _fastTopics_ccd_kl_update_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP eSEXP) {
+arma::vec ccd_kl_update_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter, double e);
+RcppExport SEXP _fastTopics_ccd_kl_update_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(ccd_kl_update_rcpp(L, w, x0, e));
+    rcpp_result_gen = Rcpp::wrap(ccd_kl_update_rcpp(L, w, x0, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -433,7 +434,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_poismixsqp3_rcpp", (DL_FUNC) &_fastTopics_poismixsqp3_rcpp, 7},
     {"_fastTopics_scd_kl_update_rcpp", (DL_FUNC) &_fastTopics_scd_kl_update_rcpp, 5},
     {"_fastTopics_scd_kl_update_sparse_rcpp", (DL_FUNC) &_fastTopics_scd_kl_update_sparse_rcpp, 6},
-    {"_fastTopics_ccd_kl_update_rcpp", (DL_FUNC) &_fastTopics_ccd_kl_update_rcpp, 4},
+    {"_fastTopics_ccd_kl_update_rcpp", (DL_FUNC) &_fastTopics_ccd_kl_update_rcpp, 5},
     {"_fastTopics_scd_update_factors_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_rcpp, 5},
     {"_fastTopics_scd_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_sparse_rcpp, 5},
     {"_fastTopics_scd_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_parallel_rcpp, 5},
