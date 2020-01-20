@@ -17,20 +17,20 @@ using namespace arma;
 //
 // This is used by scd_kl_update.
 //
-inline void compute_grad_kl (const vec& l, const vec& w, const vec& Lx,
-			     double x, double& g, double& h, vec& r,
-			     double e) {
+inline void compute_grad_scd (const vec& l, const vec& w, const vec& Lx,
+			      double x, double& g, double& h, vec& r,
+			      double e) {
   r = l/(Lx + e);
   h = dot(square(r),w);
   g = dot(r,w) - sum(l) + h*x;
 }
 
-// This is the same as compute_grad_kl, except that the indices of the
+// This is the same as compute_grad_scd, except that the indices of the
 // nonzero counts are supplied in vector i, and w must contain (i and
 // w should be the same length).
-inline void compute_grad_kl_sparse (const vec& l, const vec& w, const uvec& i,
-				    double x, const vec& Lx, double& g,
-				    double& h, vec& r, double e) {
+inline void compute_grad_scd_sparse (const vec& l, const vec& w, const uvec& i,
+				     double x, const vec& Lx, double& g,
+				     double& h, vec& r, double e) {
   r = l/(Lx + e);
   h = dot_square_sparse_b(r,w,i);
   g = dot_sparse_b(r,w,i) - sum(l) + h*x;
@@ -43,7 +43,7 @@ inline void compute_grad_kl_sparse (const vec& l, const vec& w, const uvec& i,
 //
 // This is used by scd_kl_update.
 //
-inline double project_iterate_kl (double g, double h, double e) {
+inline double project_iterate_scd (double g, double h, double e) {
   double x = g/(h + e);
   x = maximum(x,0);
   return x;
@@ -147,21 +147,12 @@ arma::vec scd_kl_update_sparse_rcpp (const arma::mat& L, const arma::vec& w,
   return scd_kl_update_sparse(L,w,i,x0,numiter,e);
 }
 
-// NOTES:
-//  + L is is a m x n matrix.
-//  + w is a vector of length n.
-//  + x is a vector of length m; it will be updated.
-//  + Lx = L' * x, and will be updated.
-//
 // This is mainly used to test C++ function ccd_kl_update.
 //
 // [[Rcpp::export]]
-void ccd_kl_update_rcpp (const Rcpp::NumericMatrix& L,
-			 const Rcpp::NumericVector& w,
-			 Rcpp::NumericVector& Lx,
-			 Rcpp::NumericVector& x,
-			 double e) {
-  ccd_kl_update(L.ncol(),L.nrow(),x.begin(),Lx.begin(),w.begin(),L.begin(),e);
+arma::vec ccd_kl_update_rcpp (const arma::mat& L, const arma::vec& w,
+			      const arma::vec& x0, double e) {
+  return ccd_kl_update(L,w,x0,e);
 }
 
 // Compute a maximum-likelihood estimate (MLE) of the mixture weights
@@ -352,8 +343,8 @@ vec scd_kl_update (const mat& L, const vec& w, const vec& x0,
     for (uint j = 0; j < m; j++) {
       l     = L.col(j);
       xj    = x(j);
-      compute_grad_kl(l,w,Lx,xj,g,h,r,e);
-      xjnew = project_iterate_kl(g,h,e);
+      compute_grad_scd(l,w,Lx,xj,g,h,r,e);
+      xjnew = project_iterate_scd(g,h,e);
       Lx   += (xjnew - xj) * l;
       x(j)  = xjnew;
     }
@@ -376,8 +367,8 @@ vec scd_kl_update_sparse (const mat& L, const vec& w, const uvec& i,
     for (uint j = 0; j < m; j++) {
       l     = L.col(j);
       xj    = x(j);
-      compute_grad_kl_sparse(l,w,i,xj,Lx,g,h,r,e);
-      xjnew = project_iterate_kl(g,h,e);
+      compute_grad_scd_sparse(l,w,i,xj,Lx,g,h,r,e);
+      xjnew = project_iterate_scd(g,h,e);
       Lx   += (xjnew - xj) * l;
       x(j)  = xjnew;
     }
@@ -390,8 +381,35 @@ vec scd_kl_update_sparse (const mat& L, const vec& w, const uvec& i,
 //
 // Implements the core part of the cyclic co-ordinate descent (CCD)
 // updates.
-void ccd_kl_update (uint n, uint k, double* x, double* Lx,
-		    const double* w, const double* L, double e) {
+vec ccd_kl_update (const mat& L, const vec& w, const vec& x0, double e) {
+  uint   n  = L.n_rows;
+  uint   m  = L.n_cols;
+  vec    x  = x0;
+  vec    Lx = L * x;
+  vec    l(n);
+  double g, h, t;
+  double xj, xjnew;
+  for (uint j = 0; j < m; j++) {
+    l  = L.col(j);
+    xj = x(j);
+    g = 0;
+    h = 0;
+    for (uint i = 0; i < n; i++) {
+      t  = w(i)/(Lx(i) + e);
+      g += l(i)*(1 - t);
+      h += l(i)*l(i)*t/(Lx(i) + e);
+    }
+    xjnew = xj - g/h + e;
+    xjnew = maximum(xjnew,e);
+    Lx   += (xjnew - xj) * l;
+    x(j)  = xjnew;
+  }
+
+  return x;
+}
+
+void ccd_kl_update_old (uint n, uint k, double* x, double* Lx,
+			const double* w, const double* L, double e) {
   double d, g, h, t;
   double x0, x1;
   for (uint i = 0; i < k; i++) {

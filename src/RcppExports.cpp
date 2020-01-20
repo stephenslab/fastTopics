@@ -336,17 +336,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // ccd_kl_update_rcpp
-void ccd_kl_update_rcpp(const Rcpp::NumericMatrix& L, const Rcpp::NumericVector& w, Rcpp::NumericVector& Lx, Rcpp::NumericVector& x, double e);
-RcppExport SEXP _fastTopics_ccd_kl_update_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP LxSEXP, SEXP xSEXP, SEXP eSEXP) {
+arma::vec ccd_kl_update_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, double e);
+RcppExport SEXP _fastTopics_ccd_kl_update_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP eSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type L(LSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type w(wSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type Lx(LxSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    ccd_kl_update_rcpp(L, w, Lx, x, e);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(ccd_kl_update_rcpp(L, w, x0, e));
+    return rcpp_result_gen;
 END_RCPP
 }
 // scd_update_factors_rcpp
@@ -433,7 +433,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_poismixsqp3_rcpp", (DL_FUNC) &_fastTopics_poismixsqp3_rcpp, 7},
     {"_fastTopics_scd_kl_update_rcpp", (DL_FUNC) &_fastTopics_scd_kl_update_rcpp, 5},
     {"_fastTopics_scd_kl_update_sparse_rcpp", (DL_FUNC) &_fastTopics_scd_kl_update_sparse_rcpp, 6},
-    {"_fastTopics_ccd_kl_update_rcpp", (DL_FUNC) &_fastTopics_ccd_kl_update_rcpp, 5},
+    {"_fastTopics_ccd_kl_update_rcpp", (DL_FUNC) &_fastTopics_ccd_kl_update_rcpp, 4},
     {"_fastTopics_scd_update_factors_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_rcpp, 5},
     {"_fastTopics_scd_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_sparse_rcpp, 5},
     {"_fastTopics_scd_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_parallel_rcpp, 5},
