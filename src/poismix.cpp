@@ -384,26 +384,31 @@ vec scd_kl_update_sparse (const mat& L, const vec& w, const uvec& i,
   return x;
 }
 
+// NOTES:
+//
+//   [Add notes here.]
+//
 // Implements the core part of the cyclic co-ordinate descent (CCD)
 // updates.
-void ccd_kl_update (uint m, uint k, double* wt, double* wht,
-		    const double* vt, const double* H, double e) {
-  double d, g, h, t, w0, w1;
+void ccd_kl_update (uint n, uint k, double* x, double* Lx,
+		    const double* w, const double* L, double e) {
+  double d, g, h, t;
+  double x0, x1;
   for (uint i = 0; i < k; i++) {
     g = 0;
     h = 0;
-    for (uint j = 0, hi = i; j < m; j++, hi += k) {
-      t  = vt[j]/(wht[j] + e);
-      g += H[hi]*(1 - t);
-      h += H[hi]*H[hi]*t/(wht[j] + e);
+    for (uint j = 0, hi = i; j < n; j++, hi += k) {
+      t  = w[j]/(Lx[j] + e);
+      g += L[hi]*(1 - t);
+      h += L[hi]*L[hi]*t/(Lx[j] + e);
     }
-    w0    = wt[i];
-    w1    = wt[i] - g/h + e;
-    w1    = maximum(w1,e);
-    d     = w1 - w0;
-    wt[i] = w1;
-    for (uint j = 0; j < m; j++)
-      wht[j] += d * H[j*k + i];
+    x0   = x[i];
+    x1   = x[i] - g/h + e;
+    x1   = maximum(x1,e);
+    d    = x1 - x0;
+    x[i] = x1;
+    for (uint j = 0; j < n; j++)
+      Lx[j] += d * L[j*k + i];
   }
 }
 

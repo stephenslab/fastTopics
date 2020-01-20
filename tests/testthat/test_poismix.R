@@ -26,8 +26,8 @@ test_that("poismixem and poismixem_rcpp produce same result",{
   expect_equal(x1,x4,tolerance = 1e-14,scale = 1)
 })
 
-test_that(paste("poismixem, poismixsqp and scd_kl_update give nearly the",
-                "same solution"),{
+test_that(paste("poismixem, poismixsqp, scd_kl_update and ccd_kl_update",
+                "give nearly the same solution"),{
 
   # Generate small data set.
   set.seed(1)
@@ -50,10 +50,18 @@ test_that(paste("poismixem, poismixsqp and scd_kl_update give nearly the",
   x4 <- drop(poismixsqp3_rcpp(L1,w[i],colSums(L),i-1,x0,numiter,
                               mixsqp_control_default()))
 
-  # Run 100 coordinate descent updates using both C++ interfaces.
+  # Run 100 sequentiaal coordinate descent (SCD) updates using both
+  # C++ interfaces.
   numiter <- 100
   x5 <- drop(scd_kl_update_rcpp(L,w,x0,numiter,1e-15))
   x6 <- drop(scd_kl_update_sparse_rcpp(L,w[i],i-1,x0,numiter,1e-15))
+
+  # Run 100 cyclic coordinate descent (CCD) updates.
+  x7 <- x0 + 0
+  for (iter in 1:numiter) {
+    Lx <- drop(L %*% x7)
+    ccd_kl_update_rcpp(t(L),w,Lx,x7,1e-15)
+  }
   
   # The three poismixsqp C++ interfaces should give nearly the same
   # result, and the mix-SQP solution should be nearly the same as the
@@ -65,6 +73,7 @@ test_that(paste("poismixem, poismixsqp and scd_kl_update give nearly the",
   expect_equal(x2,x4,tolerance = 1e-15,scale = 1)
   expect_equal(x2,x5,tolerance = 1e-5,scale = 1)
   expect_equal(x5,x6,tolerance = 1e-14,scale = 1)
+  expect_equal(x2,x7,tolerance = 1e-5,scale = 1)
 })
 
 test_that(paste("poismixem and poismixem_rcpp produce correct result",
