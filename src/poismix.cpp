@@ -44,9 +44,11 @@ inline double project_iterate_scd (double g, double h, double e) {
   return x;
 }
 
-// TO DO: Explain here what this function does, and how to use it.
-
-// This is used by ccd_kl_update.
+// Compute the first-order (g) and second-order (h) partial
+// derivatives of the loss function (i.e., the negative Poisson
+// log-likelihood) with respect to the jth mixture weight, x[j]. See
+// compute_grad_scd for an explanation of the inputs. This is used by
+// ccd_kl_update.
 inline void compute_grad_ccd (const vec& l, const vec& w, const vec& Lx,
 			      double x, double& g, double& h, double e) {
   uint   n = l.n_elem;
