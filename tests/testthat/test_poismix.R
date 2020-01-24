@@ -50,26 +50,30 @@ test_that(paste("poismixem, poismixsqp, scd_kl_update and ccd_kl_update",
   x4 <- drop(poismixsqp3_rcpp(L1,w[i],colSums(L),i-1,x0,numiter,
                               mixsqp_control_default()))
 
-  # Run 100 sequentiaal coordinate descent (SCD) updates using both
+  # Run 100 sequentiaal coordinate descent (SCD) updates, using both
   # C++ interfaces.
   numiter <- 100
   x5 <- drop(scd_kl_update_rcpp(L,w,x0,numiter,1e-15))
   x6 <- drop(scd_kl_update_sparse_rcpp(L,w[i],i-1,x0,numiter,1e-15))
 
-  # Run 100 cyclic coordinate descent (CCD) updates.
+  # Run 100 cyclic coordinate descent (CCD) updates, using both C++
+  # interfaces.
   x7 <- drop(ccd_kl_update_rcpp(L,w,x0,numiter,1e-15))
+  x8 <- drop(ccd_kl_update2_rcpp(L[i,],u,w[i],x0,numiter,1e-15))
   
   # The three poismixsqp C++ interfaces should give nearly the same
   # result, and the mix-SQP solution should be nearly the same as the
   # EM solution after running a very large number of EM updates.
-  # Additionally, the coordinatewise updates should recover
-  # nearly the same solution as mix-SQP.
+  # Additionally, the coordinatewise updates should recover nearly the
+  # same solution as mix-SQP, and should give the same results whether
+  # the "dense" or "sparse" updates are used.
   expect_equal(x1,x2,tolerance = 1e-5,scale = 1)
   expect_equal(x2,x3,tolerance = 1e-15,scale = 1)
   expect_equal(x2,x4,tolerance = 1e-15,scale = 1)
   expect_equal(x2,x5,tolerance = 1e-5,scale = 1)
   expect_equal(x5,x6,tolerance = 1e-14,scale = 1)
   expect_equal(x2,x7,tolerance = 1e-5,scale = 1)
+  expect_equal(x7,x8,tolerance = 1e-14,scale = 1)
 })
 
 test_that(paste("poismixem and poismixem_rcpp produce correct result",
