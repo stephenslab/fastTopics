@@ -6,6 +6,19 @@ using namespace arma;
 
 // INLINE FUNCTION DEFINITIONS
 // ---------------------------
+// This is the same as compute_grad_scd (see below), except that u =
+// sum(L[,j]), w must contain only the nonzero values, and vectors l
+// and Lx should contain only the entries associated with these
+// nonzero values (vectors l, w and Lx should be the same
+// length). This is used by scd_kl_update.
+inline void compute_grad_scd_sparse (const vec& l, const vec& w, const vec& Lx,
+				     double u, double x, double& g, double& h,
+				     vec& r, double e) {
+  r = l/(Lx + e);
+  h = dot(square(r),w);
+  g = dot(r,w) - u + h*x;
+}
+
 // Compute the first-order (g) and second-order (h) partial
 // derivatives of the loss function (i.e., the negative Poisson
 // log-likelihood) with respect to the jth mixture weight, x[j],
@@ -18,27 +31,13 @@ using namespace arma;
 inline void compute_grad_scd (const vec& l, const vec& w, const vec& Lx,
 			      double x, double& g, double& h, vec& r,
 			      double e) {
-  r = l/(Lx + e);
-  h = dot(square(r),w);
-  g = dot(r,w) - sum(l) + h*x;
-}
-
-// This is the same as compute_grad_scd, except that the indices of
-// the nonzero counts are supplied in vector i, and w must contain the
-// nonzero values (i and w should be the same length). This is used by
-// scd_kl_update_sparse.
-inline void compute_grad_scd_sparse (const vec& l, const vec& w, const uvec& i,
-				     const vec& Lx, double x, double& g,
-				     double& h, vec& r, double e) {
-  r = l/(Lx + e);
-  h = dot_square_sparse_b(r,w,i);
-  g = dot_sparse_b(r,w,i) - sum(l) + h*x;
+  compute_grad_scd_sparse(l,w,Lx,sum(l),x,g,h,r,e);
 }
 
 // Given the first-order (g) and second-order (h) partial derivatives
 // of the loss function (negative Poisson log-likelihood), compute the
 // SCD update of the mixture weight, x[j]. This is used by
-// scd_kl_update and scd_kl_update_sparse.
+// scd_kl_update.
 inline double project_iterate_scd (double g, double h, double e) {
   double x = g/(h + e);
   x = maximum(x,0);
@@ -69,8 +68,8 @@ inline void compute_grad_ccd (const vec& l, const vec& w, const vec& Lx,
 // (vectors l, w and Lx should be the same length). This is used by
 // ccd_kl_update.
 inline void compute_grad_ccd_sparse (const vec& l, const vec& w, const vec& Lx,
-				     double u, double x, double& g,
-				     double& h, double e) {
+				     double u, double x, double& g, double& h,
+				     double e) {
   uint   n = w.n_elem;
   double t;
   g = u;
@@ -181,13 +180,14 @@ arma::vec scd_kl_update_rcpp (const arma::mat& L, const arma::vec& w,
   return scd_kl_update(L,w,x0,numiter,e);
 }
 
-// This is mainly used to test C++ function scd_kl_update_sparse.
+// This is mainly used to test the second variant of the C++ function
+// scd_kl_update.
 //
 // [[Rcpp::export]]
-arma::vec scd_kl_update_sparse_rcpp (const arma::mat& L, const arma::vec& w, 
-				     const arma::uvec& i, const arma::vec& x0,
-				     uint numiter, double e) {
-  return scd_kl_update_sparse(L,w,i,x0,numiter,e);
+arma::vec scd_kl_update2_rcpp (const arma::mat& L, const arma::vec& u,
+			       const arma::vec& w, const arma::vec& x0,
+			       uint numiter, double e) {
+  return scd_kl_update(L,u,w,x0,numiter,e);
 }
 
 // This is mainly used to test the first variant of the C++ function
@@ -411,12 +411,14 @@ vec scd_kl_update (const mat& L, const vec& w, const vec& x0,
   return x;
 }
 
-// This is the same as scd_kl_update, except that the indices of the
-// nonzero counts are supplied in vector i, and w must contain the
-// nonzero values (i and w should be the same length).
-vec scd_kl_update_sparse (const mat& L, const vec& w, const uvec& i,
-			  const vec& x0, uint numiter, double e) {
-  uint   n  = L.n_rows;
+// In this alternative implementation of the SCD updates, w must
+// contain only the nonzero counts, and L must contain only the rows
+// of the matrix associated with the nonzero counts (vectors i and w
+// should be the same length, and the number of rows in L should be
+// the same as the lengths of vectors i and w).
+vec scd_kl_update (const mat& L, const vec& u, const vec& w,
+		   const vec& x0, uint numiter, double e) {
+  uint   n  = w.n_elem;
   uint   m  = L.n_cols;
   vec    x  = x0;
   vec    Lx = L * x;
@@ -427,7 +429,7 @@ vec scd_kl_update_sparse (const mat& L, const vec& w, const uvec& i,
     for (uint j = 0; j < m; j++) {
       l     = L.col(j);
       xj    = x(j);
-      compute_grad_scd_sparse(l,w,i,Lx,xj,g,h,r,e);
+      compute_grad_scd_sparse(l,w,Lx,u(j),xj,g,h,r,e);
       xjnew = project_iterate_scd(g,h,e);
       Lx   += (xjnew - xj) * l;
       x(j)  = xjnew;

@@ -56,7 +56,7 @@ struct scd_factor_updater_sparse : public RcppParallel::Worker {
       uint n = a.n_elem;
       uvec i(n);
       getcolnonzeros(A,i,j);
-      H.col(j) = scd_kl_update_sparse(W,a,i,H.col(j),numiter,e);
+      // H.col(j) = scd_kl_update_sparse(W,a,i,H.col(j),numiter,e);
     }
   }
 };
@@ -149,7 +149,7 @@ void scd_update_sparse (const sp_mat& A, const mat& W, mat& H,
     uint n = a.n_elem;
     uvec i(n);
     getcolnonzeros(A,i,j);
-    H.col(j) = scd_kl_update_sparse(W,a,i,H.col(j),numiter,e);
+    // H.col(j) = scd_kl_update_sparse(W,a,i,H.col(j),numiter,e);
   }
 }
 

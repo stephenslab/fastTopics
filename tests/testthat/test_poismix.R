@@ -50,11 +50,11 @@ test_that(paste("poismixem, poismixsqp, scd_kl_update and ccd_kl_update",
   x4 <- drop(poismixsqp3_rcpp(L1,w[i],colSums(L),i-1,x0,numiter,
                               mixsqp_control_default()))
 
-  # Run 100 sequentiaal coordinate descent (SCD) updates, using both
+  # Run 100 sequential coordinate descent (SCD) updates, using both
   # C++ interfaces.
   numiter <- 100
   x5 <- drop(scd_kl_update_rcpp(L,w,x0,numiter,1e-15))
-  x6 <- drop(scd_kl_update_sparse_rcpp(L,w[i],i-1,x0,numiter,1e-15))
+  x6 <- drop(scd_kl_update2_rcpp(L[i,],u,w[i],x0,numiter,1e-15))
 
   # Run 100 cyclic coordinate descent (CCD) updates, using both C++
   # interfaces.
