@@ -67,17 +67,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // ccd_update_factors_rcpp
-void ccd_update_factors_rcpp(const NumericMatrix& V, const NumericMatrix& W, NumericMatrix& H, NumericMatrix& WH, double e);
-RcppExport SEXP _fastTopics_ccd_update_factors_rcpp(SEXP VSEXP, SEXP WSEXP, SEXP HSEXP, SEXP WHSEXP, SEXP eSEXP) {
+arma::mat ccd_update_factors_rcpp(const arma::mat& V, const arma::mat& W, arma::mat& H, double e);
+RcppExport SEXP _fastTopics_ccd_update_factors_rcpp(SEXP VSEXP, SEXP WSEXP, SEXP HSEXP, SEXP eSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type V(VSEXP);
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type W(WSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type H(HSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type WH(WHSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type V(VSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type H(HSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    ccd_update_factors_rcpp(V, W, H, WH, e);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(ccd_update_factors_rcpp(V, W, H, e));
+    return rcpp_result_gen;
 END_RCPP
 }
 // cost_rcpp
@@ -432,7 +432,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_altsqp_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_sparse_rcpp, 5},
     {"_fastTopics_altsqp_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_parallel_rcpp, 5},
     {"_fastTopics_altsqp_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_sparse_parallel_rcpp, 5},
-    {"_fastTopics_ccd_update_factors_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_rcpp, 5},
+    {"_fastTopics_ccd_update_factors_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_rcpp, 4},
     {"_fastTopics_cost_rcpp", (DL_FUNC) &_fastTopics_cost_rcpp, 5},
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
     {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},

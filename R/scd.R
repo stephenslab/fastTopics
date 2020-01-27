@@ -1,9 +1,9 @@
 # This function implements a sequential co-ordinate descent (SCD)
 # update for the factors matrix (the "basis vectors"), H, in which the
-# matrix A is approximated by the matrix product W*H. Inputs A, W and
-# H should not be sparse matrices ("is.matrix" should return TRUE).
-# Input "numiter" specifies the number of inner-loop iterations to
-# perform. Input argument "e" a non-negative scalar included in the
+# matrix A is approximated by the matrix product W*H. Inputs W and H
+# should be dense matrices ("is.matrix" should return TRUE). Input
+# "numiter" specifies the number of inner-loop iterations to perform.
+# Input argument "e" a non-negative scalar included in the
 # computations to prevent NaNs due to division by zero.
 #
 #' @importFrom Rcpp evalCpp
@@ -25,10 +25,10 @@ scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16) {
 
 # This function implements a sequential co-ordinate descent (SCD)
 # update for the loadings matrix (the "activations"), W, in which the
-# matrix A is approximated by the matrix product W*H. Inputs A, W and
-# H should not be sparse matrices ("is.matrix" should return TRUE).
-# Input "numiter" specifies the number of inner-loop iterations to
-# perform. Input argument "e" a non-negative scalar included in the
+# matrix A is approximated by the matrix product W*H. Inputs W and H
+# should be deense matrices ("is.matrix" should return TRUE). Input
+# "numiter" specifies the number of inner-loop iterations to perform.
+# Input argument "e" a non-negative scalar included in the
 # computations to prevent NaNs due to division by zero.
 #
 #' @importFrom Rcpp evalCpp
