@@ -64,24 +64,22 @@ struct scd_factor_updater : public RcppParallel::Worker {
 struct scd_factor_updater_sparse : public RcppParallel::Worker {
   const sp_mat& A;
   const mat&    W;
+  vec           sumw;
   mat&          H;
   uint          numiter;
   double        e;
 
-  // This is used to create a scd_factor_updater object.
+  // This is used to create a scd_factor_updater_sparse object.
   scd_factor_updater_sparse (const sp_mat& A, const mat& W, mat& H,
 			     uint numiter, double e) :
-    A(A), W(W), H(H), numiter(numiter), e(e) { };
+    A(A), W(W), sumw(W.n_cols), H(H), numiter(numiter), e(e) {
+    sumw = sum(W,0);
+  };
 
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    for (uint j = begin; j < end; j++) {
-      vec  a = nonzeros(A.col(j));
-      uint n = a.n_elem;
-      uvec i(n);
-      getcolnonzeros(A,i,j);
-      // H.col(j) = scd_kl_update_sparse(W,a,i,H.col(j),numiter,e);
-    }
+    for (uint j = begin; j < end; j++)
+      scd_update_factor_sparse(A,W,sumw,H,j,numiter,e);
   }
 };
 
@@ -173,4 +171,3 @@ void scd_update_factors_sparse (const sp_mat& A, const mat& W, mat& H,
   for (uint j = 0; j < m; j++)
     scd_update_factor_sparse(A,W,sumw,H,j,numiter,e);
 }
-
