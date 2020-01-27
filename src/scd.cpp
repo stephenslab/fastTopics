@@ -7,10 +7,11 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-void scd_update (const mat& A, const mat& W, mat& H, uint numiter, double e);
+void scd_update_factors (const mat& A, const mat& W, mat& H, uint numiter,
+			 double e);
 
-void scd_update_sparse (const sp_mat& A, const mat& W, mat& H,
-			uint numiter, double e);
+void scd_update_factors_sparse (const sp_mat& A, const mat& W, mat& H,
+				uint numiter, double e);
 
 // CLASS DEFINITIONS
 // -----------------
@@ -30,8 +31,9 @@ struct scd_factor_updater : public RcppParallel::Worker {
 
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    for (uint j = begin; j < end; j++)
-      H.col(j) = scd_kl_update(W,A.col(j),H.col(j),numiter,e);
+    for (uint j = begin; j < end; j++) {
+      // H.col(j) = scd_update_sparse(W,A.col(j),H.col(j),numiter,e);
+    }
   }
 };
 
@@ -83,7 +85,7 @@ arma::mat scd_update_factors_rcpp (const arma::mat& A, const arma::mat& W,
 				   const arma::mat& H, uint numiter,
 				   double e) {
   mat Hnew = H;
-  scd_update(A,W,Hnew,numiter,e);
+  scd_update_factors(A,W,Hnew,numiter,e);
   return Hnew;
 }
 
@@ -96,7 +98,7 @@ arma::mat scd_update_factors_sparse_rcpp (const arma::sp_mat& A,
 					  const arma::mat& H,
 					  uint numiter, double e) {
   mat Hnew = H;
-  scd_update_sparse(A,W,Hnew,numiter,e);
+  scd_update_factors_sparse(A,W,Hnew,numiter,e);
   return Hnew;
 }
 
@@ -133,7 +135,8 @@ arma::mat scd_update_factors_sparse_parallel_rcpp (const arma::sp_mat& A,
 
 // Iterate the SCD updates over all columns of H, in which A is
 // approximated by the matrix product W*H.
-void scd_update (const mat& A, const mat& W, mat& H, uint numiter, double e) {
+void scd_update_factors (const mat& A, const mat& W, mat& H, uint numiter,
+			 double e) {
   uint m = H.n_cols;
   for (uint j = 0; j < m; j++)
     H.col(j) = scd_kl_update(W,A.col(j),H.col(j),numiter,e);
@@ -141,8 +144,8 @@ void scd_update (const mat& A, const mat& W, mat& H, uint numiter, double e) {
 
 // This is the same as scd_update, except that the count data are
 // stored as a sparse matrix.
-void scd_update_sparse (const sp_mat& A, const mat& W, mat& H,
-			uint numiter, double e) {
+void scd_update_factors_sparse (const sp_mat& A, const mat& W, mat& H,
+				uint numiter, double e) {
   uint m = H.n_cols;
   for (uint j = 0; j < m; j++) {
     vec  a = nonzeros(A.col(j));

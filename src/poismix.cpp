@@ -172,7 +172,8 @@ arma::vec poismixsqp3_rcpp (const arma::mat& L1, const arma::vec& w,
   return x;
 }
 
-// This is mainly used to test C++ function scd_kl_update.
+// This is mainly used to test the first variant of the C++ function
+// scd_kl_update.
 //
 // [[Rcpp::export]]
 arma::vec scd_kl_update_rcpp (const arma::mat& L, const arma::vec& w, 
