@@ -128,6 +128,12 @@ test_that(paste("ccd and scd updates produce the same result, and",
   fit5 <- iterate_updates(as(X,"dgCMatrix"),F0,L0,numiter,
             function (X,F,L) t(scd_update_factors(X,L,t(F),nc = nc)),
             function (X,F,L) scd_update_loadings(X,L,t(F),nc = nc))
+
+  # Redo the CCD updates with a sparse matrix, with and without
+  # multithreading.
+  fit6 <- iterate_updates(as(X,"dgCMatrix"),F0,L0,numiter,
+                          function (X,F,L) t(ccd_update_factors(X,L,t(F))),
+                          function (X,F,L) ccd_update_loadings(X,L,t(F)))
   
   # All the updates should monotonically increase the likelihood and
   # decrease the deviance.
@@ -136,28 +142,34 @@ test_that(paste("ccd and scd updates produce the same result, and",
   expect_nondecreasing(fit3$loglik)
   expect_nondecreasing(fit4$loglik)
   expect_nondecreasing(fit5$loglik)
+  expect_nondecreasing(fit6$loglik)
   expect_nonincreasing(fit1$dev)
   expect_nonincreasing(fit2$dev)
   expect_nonincreasing(fit3$dev)
   expect_nonincreasing(fit4$dev)
   expect_nonincreasing(fit5$dev)
+  expect_nonincreasing(fit6$dev)
 
   # The updated factors and loadings should be nearly the same.
   expect_equal(fit1$F,fit2$F,tolerance = 1e-8,scale = 1)
-  expect_equal(fit1$L,fit2$L,tolerance = 1e-8,scale = 1)
+  expect_equal(fit1$F,fit6$F,tolerance = 1e-15,scale = 1)
   expect_equal(fit2$F,fit3$F,tolerance = 1e-15,scale = 1)
-  expect_equal(fit2$L,fit3$L,tolerance = 1e-15,scale = 1)
   expect_equal(fit2$F,fit4$F,tolerance = 1e-15,scale = 1)
-  expect_equal(fit2$L,fit4$L,tolerance = 1e-15,scale = 1)
   expect_equal(fit2$F,fit5$F,tolerance = 1e-15,scale = 1)
+  expect_equal(fit1$L,fit2$L,tolerance = 1e-8,scale = 1)
+  expect_equal(fit1$L,fit6$L,tolerance = 1e-15,scale = 1)
+  expect_equal(fit2$L,fit3$L,tolerance = 1e-15,scale = 1)
+  expect_equal(fit2$L,fit4$L,tolerance = 1e-15,scale = 1)
   expect_equal(fit2$L,fit5$L,tolerance = 1e-15,scale = 1)
   
   # The likelihoods and deviances should be nearly the same.
   expect_equal(fit1$loglik,fit2$loglik,tolerance = 1e-6,scale = 1)
+  expect_equal(fit1$loglik,fit6$loglik,tolerance = 1e-12,scale = 1)
   expect_equal(fit2$loglik,fit3$loglik,tolerance = 1e-12,scale = 1)
   expect_equal(fit2$loglik,fit4$loglik,tolerance = 1e-12,scale = 1)
   expect_equal(fit2$loglik,fit5$loglik,tolerance = 1e-12,scale = 1)
   expect_equal(fit1$dev,fit2$dev,tolerance = 1e-6,scale = 1)
+  expect_equal(fit1$dev,fit6$dev,tolerance = 1e-11,scale = 1)
   expect_equal(fit2$dev,fit3$dev,tolerance = 1e-12,scale = 1)
   expect_equal(fit2$dev,fit4$dev,tolerance = 1e-12,scale = 1)
   expect_equal(fit2$dev,fit5$dev,tolerance = 1e-12,scale = 1)
