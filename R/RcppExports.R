@@ -25,6 +25,14 @@ ccd_update_factors_sparse_rcpp <- function(V, W, H, e) {
     .Call('_fastTopics_ccd_update_factors_sparse_rcpp', PACKAGE = 'fastTopics', V, W, H, e)
 }
 
+ccd_update_factors_parallel_rcpp <- function(V, W, H, e) {
+    .Call('_fastTopics_ccd_update_factors_parallel_rcpp', PACKAGE = 'fastTopics', V, W, H, e)
+}
+
+ccd_update_factors_sparse_parallel_rcpp <- function(V, W, H, e) {
+    .Call('_fastTopics_ccd_update_factors_sparse_parallel_rcpp', PACKAGE = 'fastTopics', V, W, H, e)
+}
+
 cost_rcpp <- function(X, A, B, e, poisson) {
     .Call('_fastTopics_cost_rcpp', PACKAGE = 'fastTopics', X, A, B, e, poisson)
 }

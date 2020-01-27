@@ -94,6 +94,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ccd_update_factors_parallel_rcpp
+arma::mat ccd_update_factors_parallel_rcpp(const arma::mat& V, const arma::mat& W, const arma::mat& H, double e);
+RcppExport SEXP _fastTopics_ccd_update_factors_parallel_rcpp(SEXP VSEXP, SEXP WSEXP, SEXP HSEXP, SEXP eSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type V(VSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
+    Rcpp::traits::input_parameter< double >::type e(eSEXP);
+    rcpp_result_gen = Rcpp::wrap(ccd_update_factors_parallel_rcpp(V, W, H, e));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ccd_update_factors_sparse_parallel_rcpp
+arma::mat ccd_update_factors_sparse_parallel_rcpp(const arma::sp_mat& V, const arma::mat& W, const arma::mat& H, double e);
+RcppExport SEXP _fastTopics_ccd_update_factors_sparse_parallel_rcpp(SEXP VSEXP, SEXP WSEXP, SEXP HSEXP, SEXP eSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type V(VSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
+    Rcpp::traits::input_parameter< double >::type e(eSEXP);
+    rcpp_result_gen = Rcpp::wrap(ccd_update_factors_sparse_parallel_rcpp(V, W, H, e));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cost_rcpp
 arma::vec cost_rcpp(const arma::mat& X, const arma::mat& A, const arma::mat& B, double e, bool poisson);
 RcppExport SEXP _fastTopics_cost_rcpp(SEXP XSEXP, SEXP ASEXP, SEXP BSEXP, SEXP eSEXP, SEXP poissonSEXP) {
@@ -448,6 +476,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_altsqp_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_sparse_parallel_rcpp, 5},
     {"_fastTopics_ccd_update_factors_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_rcpp, 4},
     {"_fastTopics_ccd_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_sparse_rcpp, 4},
+    {"_fastTopics_ccd_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_parallel_rcpp, 4},
+    {"_fastTopics_ccd_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_sparse_parallel_rcpp, 4},
     {"_fastTopics_cost_rcpp", (DL_FUNC) &_fastTopics_cost_rcpp, 5},
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
     {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},
