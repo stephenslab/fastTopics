@@ -224,7 +224,7 @@ betanmf_main_loop <- function (X, L, F, method, minval, e, progress, verbose) {
   for (i in 1:numiter) {
     F0     <- F
     L0     <- L
-    timing <- system.time(out <- betanmf_update(X,A,B,minval))
+    timing <- system.time(out <- betanmf_update(X,A,B,minval),gcFirst = FALSE)
     A      <- out$A
     B      <- out$B
     progress[i,"timing"]  <- timing["elapsed"]

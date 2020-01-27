@@ -13,6 +13,29 @@ void scd_update_factors (const mat& A, const mat& W, mat& H, uint numiter,
 void scd_update_factors_sparse (const sp_mat& A, const mat& W, mat& H,
 				uint numiter, double e);
 
+// INLINE FUNCTION DEFINITIONS
+// ---------------------------
+// Perform one or more SCD updates for a single column of H, in which
+// A is approximated by the matrix product W*H.
+inline void scd_update_factor (const mat& A, const mat& W, mat& H,
+			       uint j, uint numiter, double e) {
+  H.col(j) = scd_kl_update(W,A.col(j),H.col(j),numiter,e);
+}
+
+// Perform one or more SCD updates for a single column of H, in which
+// A is approximated by the matrix product W*H, and A is a sparse
+// matrix. Here, "sumw" should contain the precomputed column sums of
+// W; that is, sumw = colSums(W).
+inline void scd_update_factor_sparse (const sp_mat& A, const mat& W,
+				      const vec& sumw, mat& H, uint j,
+				      uint numiter, double e) {
+  vec  a = nonzeros(A.col(j));
+  uint n = a.n_elem;
+  uvec i(n);
+  getcolnonzeros(A,i,j);
+  H.col(j) = scd_kl_update(W.rows(i),sumw,a,H.col(j),numiter,e);
+}
+
 // CLASS DEFINITIONS
 // -----------------
 // This class is used to implement multithreaded computation of the
@@ -134,24 +157,20 @@ arma::mat scd_update_factors_sparse_parallel_rcpp (const arma::sp_mat& A,
 
 // Iterate the SCD updates over all columns of H, in which A is
 // approximated by the matrix product W*H.
-void scd_update_factors (const mat& A, const mat& W, mat& H, uint numiter,
-			 double e) {
+void scd_update_factors (const mat& A, const mat& W, mat& H,
+			 uint numiter, double e) {
   uint m = H.n_cols;
   for (uint j = 0; j < m; j++)
-    H.col(j) = scd_kl_update(W,A.col(j),H.col(j),numiter,e);
+    scd_update_factor(A,W,H,j,numiter,e);
 }
 
-// This is the same as scd_update, except that the count data are
+// This is the same as scd_update_factors, except that the count data are
 // stored as a sparse matrix.
 void scd_update_factors_sparse (const sp_mat& A, const mat& W, mat& H,
 				uint numiter, double e) {
-  uint m = H.n_cols;
-  for (uint j = 0; j < m; j++) {
-    vec  a = nonzeros(A.col(j));
-    uint n = a.n_elem;
-    uvec i(n);
-    getcolnonzeros(A,i,j);
-    // H.col(j) = scd_kl_update_sparse(W,a,i,H.col(j),numiter,e);
-  }
+  uint m    = H.n_cols;
+  vec  sumw = sum(W,0);
+  for (uint j = 0; j < m; j++)
+    scd_update_factor_sparse(A,W,sumw,H,j,numiter,e);
 }
 

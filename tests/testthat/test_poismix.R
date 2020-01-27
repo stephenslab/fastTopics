@@ -47,7 +47,7 @@ test_that(paste("poismixem, poismixsqp, scd_kl_update and ccd_kl_update",
   i  <- which(w > 0)
   x2 <- drop(poismixsqp_rcpp(L,w,x0,numiter,mixsqp_control_default()))
   x3 <- drop(poismixsqp2_rcpp(L1,w,u,x0,numiter,mixsqp_control_default()))
-  x4 <- drop(poismixsqp3_rcpp(L1,w[i],colSums(L),i-1,x0,numiter,
+  x4 <- drop(poismixsqp3_rcpp(L1,w[i],u,i-1,x0,numiter,
                               mixsqp_control_default()))
 
   # Run 100 sequential coordinate descent (SCD) updates, using both
@@ -131,7 +131,7 @@ test_that("poismixsqp_rcpp produces correct result when sum(w > 0) = 1",{
   x0 <- runif(m)
   x2 <- drop(poismixsqp_rcpp(L,w,x0,numiter,mixsqp_control_default()))
   x3 <- drop(poismixsqp2_rcpp(L1,w,u,x0,numiter,mixsqp_control_default()))
-  x4 <- drop(poismixsqp3_rcpp(L1,w[i],colSums(L),i-1,x0,numiter,
+  x4 <- drop(poismixsqp3_rcpp(L1,w[i],u,i-1,x0,numiter,
                               mixsqp_control_default()))
 
   # All the mix-SQP solutions should be nearly the same, and should be
