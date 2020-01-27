@@ -58,6 +58,5 @@ poisson2multinom <- function (fit) {
   fit$F <- F
   fit$L <- L
   fit$s <- s
-  class(fit) <- c("multinom_topic_model","list")
   return(fit)
 }
