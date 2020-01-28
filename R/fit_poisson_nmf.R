@@ -142,9 +142,9 @@
 #' 
 #' @export
 #'
-fit_poisson_nmf <- function (X, F0, L0, numiter = 100,
-                             update = c("em", "mu"), minval = 1e-15,
-                             e = 1e-15, verbose = TRUE) {
+fit_poisson_nmf <- function (X, fit0, numiter = 100,
+                             method = c("em", "mu"), 
+                             control = list(), verbose = TRUE) {
 
   # CHECK INPUTS
   # ------------
