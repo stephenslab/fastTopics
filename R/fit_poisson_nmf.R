@@ -53,17 +53,6 @@
 #'   non-negative. Note that sparse matrices are not accommodated
 #'   in this implementation; \code{is.matrix(X)} must give \code{TRUE}.
 #'
-#' @param F0 This is the initial estimate of the factors (also called
-#'   "basis vectors"). It should be an m x k matrix, where m is the
-#'   number of columns of X, and k > 1 is the rank of the matrix
-#'   factorization, or the number of topics. All entries of F should be
-#'   non-negative.
-#'
-#' @param L0 This is the initial estimate of the loadings (also called
-#'   "activations"). It should an n x k matrix, where n is the number of
-#'   rows of X, and k > 1 is the rank of the matrix factorization. All
-#'   entries of L should be non-negative.
-#'
 #' @param numiter The number of multiplicative updates to run.
 #' 
 #' @param method When \code{method = "em"}, the EM updates will be
@@ -142,12 +131,12 @@
 #' 
 #' @export
 #'
-fit_poisson_nmf <- function (X, fit0, numiter = 100,
-                             method = c("em", "mu"), 
+fit_poisson_nmf <- function (X, fit = init_poisson_nmf(), numiter = 100,
+                             method = c("altsqp","scd","ccd","em","mu"), 
                              control = list(), verbose = TRUE) {
 
-  # CHECK INPUTS
-  # ------------
+  # CHECK & PROCESS INPUTS
+  # ----------------------
   # Perfom some very basic checks of the inputs.
   method <- match.arg(method)
   if (!(is.numeric(X) & is.matrix(F0) & is.matrix(L0) &
@@ -164,8 +153,8 @@ fit_poisson_nmf <- function (X, fit0, numiter = 100,
            "TRUE")
   }
   
-  # Get the number of rows (n) and columns (m) of data matrix, and get
-  # the rank of the matrix factorization (k).
+  # Get the number of rows (n) and columns (m) of the data matrix, and
+  # get the rank of the matrix factorization (k).
   n <- nrow(X)
   m <- ncol(X)
   k <- ncol(F0)
@@ -180,12 +169,6 @@ fit_poisson_nmf <- function (X, fit0, numiter = 100,
   
   # INITIALIZE ESTIMATES
   # --------------------
-  # Initialize the estimates of the factors and loadings. To prevent
-  # the multiplicative updates from getting "stuck", force the initial
-  # estimates to be positive.
-  F <- pmax(F0,minval)
-  L <- pmax(L0,minval)
-  
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
   # numerical stability of the multiplicative updates.
@@ -193,6 +176,12 @@ fit_poisson_nmf <- function (X, fit0, numiter = 100,
   F   <- out$F
   L   <- out$L
 
+  # Initialize the estimates of the factors and loadings. To prevent
+  # the multiplicative updates from getting "stuck", force the initial
+  # estimates to be positive.
+  F <- pmax(F0,minval)
+  L <- pmax(L0,minval)
+  
   # Set up the data structure to record the algorithm's progress.
   progress <- as.matrix(data.frame(iter    = 1:numiter,
                                    loglik  = 0,
@@ -213,11 +202,75 @@ fit_poisson_nmf <- function (X, fit0, numiter = 100,
   L           <- out$A
   dimnames(F) <- dimnames(F0)
   dimnames(L) <- dimnames(L0)
-  return(list(F = F,L = L,progress = out$progress))
+  out         <- list(F = F,L = L,progress = out$progress)
+  class(out)  <- c("poisson_nmf_fit","list")
+  return(out)
+}
+
+#' @rdname fit_poisson_nmf
+#'
+#' @param F This is the initial estimate of the factors (also called
+#'   "basis vectors"). It should be an m x k matrix, where m is the
+#'   number of columns of X, and k > 1 is the rank of the matrix
+#'   factorization, or the number of topics. All entries of F should be
+#'   non-negative.
+#'
+#' @param L This is the initial estimate of the loadings (also called
+#'   "activations"). It should an n x k matrix, where n is the number of
+#'   rows of X, and k > 1 is the rank of the matrix factorization. All
+#'   entries of L should be non-negative.
+#'
+#' @param k Describe input argument k here.
+#' 
+#' @return An object capturing the state of the optimization.
+#' 
+#' @importFrom stats runif
+#' 
+#' @export
+#' 
+init_poisson_nmf <- function (X, F, L, k) {
+
+  # Get the number of rows (n) and columns (m) of the data matrix,
+  n <- nrow(X)
+  m <- ncol(X)
+
+  # Check input X.
+  if (!(is.numeric(X) & (is.matrix(X) | inherits(X,"dgCMatrix"))))
+    stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
+         "a \"dgCMatrix\")")
+
+  # Only one of k and (F,L) should be provided.
+  if (!(missing(k) & (!missing(F) & !missing(L)) |
+       (!missing(k) & (missing(F) & missing(L)))))
+    stop("Provide a rank, k, or an initialization, (F, L), but not both")
+  if (missing(k))
+    k <- ncol(F)
+  
+  # If the factor matrix is not provided, initialize the entries
+  # uniformly at random.
+  if (missing(F)) {
+    F           <- matrix(runif(m*k),m,k)
+    rownames(F) <- colnames(X)
+    colnames(F) <- paste0("k",1:k)
+  }
+    
+  # If the loading matrix is not provided, initialize the entries
+  # uniformly at random.
+  if (missing(L)) {
+    L           <- matrix(runif(n*k),n,k)
+    rownames(L) <- rownames(X)
+    colnames(L) <- paste0("k",1:k)
+  }
+
+  # Return a list containing (1) the initial estimate of the factors,
+  # and (2) the initial estimate of the loadings.
+  fit        <- list(F = F,L = L)
+  class(fit) <- c("poisson_nmf_fit","list")
+  return(fit)
 }
 
 # This implements the core part of the betanmf function.
-betanmf_main_loop <- function (X, L, F, method, minval, e, progress, verbose) {
+betanmf_main_loop <- function (X, F, L, method, minval, e, progress, verbose) {
   loglik.const <- loglik_poisson_const(X)
   dev.const    <- deviance_poisson_const(X)
   numiter      <- nrow(progress)
@@ -240,21 +293,9 @@ betanmf_main_loop <- function (X, L, F, method, minval, e, progress, verbose) {
   return(list(F = F,L = L,progress = as.data.frame(progress)))
 }
 
-# Perform a single multiplicative update with safeguarding to promote
-# convergence, followed by rescaling.
-betanmf_update <- function (X, A, B, e) {
-    
-  # Update the loadings ("activations").
-  A <- scale.cols(A * tcrossprod(X / (A %*% B),B),1/rowSums(B))
-  A <- pmax(A,e)
-
-  # Update the factors ("basis vectors").
-  B <- B * crossprod(A,X / (A %*% B)) / colSums(A)
-  B <- pmax(B,e)
-
-  # Rescale the factors and loadings, then output the updated
-  # estimates.
-  out <- rescale.factors(t(B),A)
-  return(list(A = out$L,B = t(out$F)))
-}
-
+#' @rdname fit_poisson_nmf
+#'
+#' @export
+#' 
+fit_poisson_nmf_control_default <- function()
+  list()

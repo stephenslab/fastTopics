@@ -2,37 +2,52 @@
 % Please edit documentation in R/fit_poisson_nmf.R
 \name{fit_poisson_nmf}
 \alias{fit_poisson_nmf}
+\alias{init_poisson_nmf}
+\alias{fit_poisson_nmf_control_default}
 \title{Multiplicative and EM Update Rules for Poisson Non-negative
   Matrix Factorization}
 \usage{
 fit_poisson_nmf(
   X,
-  F0,
-  L0,
+  fit = init_poisson_nmf(),
   numiter = 100,
-  update = c("em", "mu"),
-  minval = 1e-15,
-  e = 1e-15,
+  method = c("altsqp", "scd", "ccd", "em", "mu"),
+  control = list(),
   verbose = TRUE
 )
+
+init_poisson_nmf(X, F, L, k)
+
+fit_poisson_nmf_control_default()
 }
 \arguments{
 \item{X}{The n x m matrix of counts; all entries of X should be
 non-negative. Note that sparse matrices are not accommodated
 in this implementation; \code{is.matrix(X)} must give \code{TRUE}.}
 
-\item{F0}{This is the initial estimate of the factors (also called
+\item{numiter}{The number of multiplicative updates to run.}
+
+\item{method}{When \code{method = "em"}, the EM updates will be
+performed; when \code{method = "mu"}, the multiplicative updates
+will be performed. The multiplicative updates are only implemented
+for dense count matrices; if \code{method = "mu"} and \code{X} is a
+sparse matrix, and error will be generated.}
+
+\item{verbose}{When \code{verbose = TRUE}, information about the
+algorithm's progress is printed to the console at each iteration.}
+
+\item{F}{This is the initial estimate of the factors (also called
 "basis vectors"). It should be an m x k matrix, where m is the
 number of columns of X, and k > 1 is the rank of the matrix
 factorization, or the number of topics. All entries of F should be
 non-negative.}
 
-\item{L0}{This is the initial estimate of the loadings (also called
+\item{L}{This is the initial estimate of the loadings (also called
 "activations"). It should an n x k matrix, where n is the number of
 rows of X, and k > 1 is the rank of the matrix factorization. All
 entries of L should be non-negative.}
 
-\item{numiter}{The number of multiplicative updates to run.}
+\item{k}{Describe input argument k here.}
 
 \item{minval}{A small positive constant used to safeguard the
 multiplicative updates. The multiplicative updates are implemented
@@ -47,15 +62,6 @@ safeguard, and a warning will be given in this case.}
 logarithms to avoid computing logarithms of zero. This prevents
 numerical problems at the cost of introducing a very small
 inaccuracy in the computation.}
-
-\item{verbose}{When \code{verbose = TRUE}, information about the
-algorithm's progress is printed to the console at each iteration.}
-
-\item{method}{When \code{method = "em"}, the EM updates will be
-performed; when \code{method = "mu"}, the multiplicative updates
-will be performed. The multiplicative updates are only implemented
-for dense count matrices; if \code{method = "mu"} and \code{X} is a
-sparse matrix, and error will be generated.}
 }
 \value{
 \code{betanmf} returns a list object with the following
@@ -74,6 +80,8 @@ elements:
   factors matrix; "delta.f", the largest change in the loadings
   matrix; and "timing", the elapsed time in seconds (based on
   \code{\link{system.time}}).}
+
+An object capturing the state of the optimization.
 }
 \description{
 This function decomposes the input matrix X = L*F' by
