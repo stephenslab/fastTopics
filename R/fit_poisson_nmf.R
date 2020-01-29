@@ -50,14 +50,15 @@
 #'   in much improved performance of the multiplcative updates.
 #'
 #' @param X The n x m matrix of counts; all entries of X should be
-#'   non-negative. Note that sparse matrices are not accommodated
-#'   in this implementation; \code{is.matrix(X)} must give \code{TRUE}.
+#'   non-negative. It can be a sparse matrix (class \code{"dgCMatrix"})
+#'   or dense matrix (class \code{"matrix"}), with some exceptions (see
+#'   "Details").
 #'
-#' @param k This argument specifies the rank for a random
-#'   initialization of the factors and loadings. (The matrix entries are
-#'   initialized uniformly at random.) This should only be specified if
-#'   the initial estimates (\code{fit} or \code{F, L}) aren't already
-#'   provided.
+#' @param k An integer 2 or greater giving the matrix rank for a
+#'   random initialization of the factors and loadings. (They are
+#'   initialized uniformly at random.) This argument should only be
+#'   specified if the initial estimates (\code{fit} or \code{F, L})
+#'   aren't already provided.
 #' 
 #' @param numiter The number of multiplicative updates to run.
 #' 
@@ -84,12 +85,14 @@
 #' @param verbose When \code{verbose = TRUE}, information about the
 #'   algorithm's progress is printed to the console at each iteration.
 #'
-#' @return \code{betanmf} returns a list object with the following
-#' elements:
+#' @return Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}
+#' return an object capturing the optimization algorithm state (for
+#' \code{init_poisson_nmf}, this is the initial state). It is a list
+#' with the following elements:
 #'
-#' \item{F}{A dense matrix containing estimates of the factors.}
+#' \item{F}{A matrix containing the factor estimates.}
 #'
-#' \item{L}{A dense matrix containing estimates of the loadings.}
+#' \item{L}{A matrix containing estimates of the loadings.}
 #'
 #' \item{progress}{A data frame containing more detailed information
 #'   about the algorithm's progress. The data frame should have
@@ -234,22 +237,15 @@ fit_poisson_nmf <- function (X, k, fit, numiter = 100,
 #'   an m x k matrix, where m is the number of columns in the counts
 #'   matrix X, and k > 1 is the rank of the matrix factorization, or,
 #'   equivalently, the number of topics. All entries of F should be
-#'   non-negative. If not provided, input argument \code{k} should be
-#'   given.
+#'   non-negative. When not provided, input argument \code{k} should be
+#'   specified.
 #'
 #' @param L An optional argument giving the initial estimate of the
 #'   loadings (also sometimes called the "activations"). It should an n
 #'   x k matrix, where n is the number of rows in the counts matrix X,
 #'   and k > 1 is the rank of the matrix factorization. All entries of L
-#'   should be non-negative. If not provided, input argument \code{k}
-#'   should be given.
-#'
-#' @return An object capturing the initial state of the optimization
-#' algorithm. It is a list with the following elements:
-#'
-#' \item{F}{A matrix containing initial estimates of the factors.}
-#'
-#' \item{L}{A matrix containing initial estimates of the loadings.}
+#'   should be non-negative. When not provided, input argument \code{k}
+#'   should be specified.
 #'
 #' @importFrom stats runif
 #' 

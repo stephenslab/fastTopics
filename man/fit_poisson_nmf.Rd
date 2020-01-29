@@ -23,14 +23,15 @@ fit_poisson_nmf_control_default()
 }
 \arguments{
 \item{X}{The n x m matrix of counts; all entries of X should be
-non-negative. Note that sparse matrices are not accommodated
-in this implementation; \code{is.matrix(X)} must give \code{TRUE}.}
+non-negative. It can be a sparse matrix (class \code{"dgCMatrix"})
+or dense matrix (class \code{"matrix"}), with some exceptions (see
+"Details").}
 
-\item{k}{This argument specifies the rank for a random
-initialization of the factors and loadings. (The matrix entries are
-initialized uniformly at random.) This should only be specified if
-the initial estimates (\code{fit} or \code{F, L}) aren't already
-provided.}
+\item{k}{An integer 2 or greater giving the matrix rank for a
+random initialization of the factors and loadings. (They are
+initialized uniformly at random.) This argument should only be
+specified if the initial estimates (\code{fit} or \code{F, L})
+aren't already provided.}
 
 \item{numiter}{The number of multiplicative updates to run.}
 
@@ -48,15 +49,15 @@ factors (also sometimes called the "basis vectors"). It should be
 an m x k matrix, where m is the number of columns in the counts
 matrix X, and k > 1 is the rank of the matrix factorization, or,
 equivalently, the number of topics. All entries of F should be
-non-negative. If not provided, input argument \code{k} should be
-given.}
+non-negative. When not provided, input argument \code{k} should be
+specified.}
 
 \item{L}{An optional argument giving the initial estimate of the
 loadings (also sometimes called the "activations"). It should an n
 x k matrix, where n is the number of rows in the counts matrix X,
 and k > 1 is the rank of the matrix factorization. All entries of L
-should be non-negative. If not provided, input argument \code{k}
-should be given.}
+should be non-negative. When not provided, input argument \code{k}
+should be specified.}
 
 \item{minval}{A small positive constant used to safeguard the
 multiplicative updates. The multiplicative updates are implemented
@@ -73,12 +74,14 @@ numerical problems at the cost of introducing a very small
 inaccuracy in the computation.}
 }
 \value{
-\code{betanmf} returns a list object with the following
-elements:
+Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}
+return an object capturing the optimization algorithm state (for
+\code{init_poisson_nmf}, this is the initial state). It is a list
+with the following elements:
 
-\item{F}{A dense matrix containing estimates of the factors.}
+\item{F}{A matrix containing the factor estimates.}
 
-\item{L}{A dense matrix containing estimates of the loadings.}
+\item{L}{A matrix containing estimates of the loadings.}
 
 \item{progress}{A data frame containing more detailed information
   about the algorithm's progress. The data frame should have
@@ -89,13 +92,6 @@ elements:
   factors matrix; "delta.f", the largest change in the loadings
   matrix; and "timing", the elapsed time in seconds (based on
   \code{\link{system.time}}).}
-
-An object capturing the initial state of the optimization
-algorithm. It is a list with the following elements:
-
-\item{F}{A matrix containing initial estimates of the factors.}
-
-\item{L}{A matrix containing initial estimates of the loadings.}
 }
 \description{
 This function decomposes the input matrix X = L*F' by
