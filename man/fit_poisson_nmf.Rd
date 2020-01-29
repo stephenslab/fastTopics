@@ -9,7 +9,8 @@
 \usage{
 fit_poisson_nmf(
   X,
-  fit = init_poisson_nmf(),
+  k,
+  fit,
   numiter = 100,
   method = c("altsqp", "scd", "ccd", "em", "mu"),
   control = list(),
@@ -25,6 +26,12 @@ fit_poisson_nmf_control_default()
 non-negative. Note that sparse matrices are not accommodated
 in this implementation; \code{is.matrix(X)} must give \code{TRUE}.}
 
+\item{k}{This argument specifies the rank for a random
+initialization of the factors and loadings. (The matrix entries are
+initialized uniformly at random.) This should only be specified if
+the initial estimates (\code{fit} or \code{F, L}) aren't already
+provided.}
+
 \item{numiter}{The number of multiplicative updates to run.}
 
 \item{method}{When \code{method = "em"}, the EM updates will be
@@ -36,18 +43,20 @@ sparse matrix, and error will be generated.}
 \item{verbose}{When \code{verbose = TRUE}, information about the
 algorithm's progress is printed to the console at each iteration.}
 
-\item{F}{This is the initial estimate of the factors (also called
-"basis vectors"). It should be an m x k matrix, where m is the
-number of columns of X, and k > 1 is the rank of the matrix
-factorization, or the number of topics. All entries of F should be
-non-negative.}
+\item{F}{An optional argument giving is the initial estimate of the
+factors (also sometimes called the "basis vectors"). It should be
+an m x k matrix, where m is the number of columns in the counts
+matrix X, and k > 1 is the rank of the matrix factorization, or,
+equivalently, the number of topics. All entries of F should be
+non-negative. If not provided, input argument \code{k} should be
+given.}
 
-\item{L}{This is the initial estimate of the loadings (also called
-"activations"). It should an n x k matrix, where n is the number of
-rows of X, and k > 1 is the rank of the matrix factorization. All
-entries of L should be non-negative.}
-
-\item{k}{Describe input argument k here.}
+\item{L}{An optional argument giving the initial estimate of the
+loadings (also sometimes called the "activations"). It should an n
+x k matrix, where n is the number of rows in the counts matrix X,
+and k > 1 is the rank of the matrix factorization. All entries of L
+should be non-negative. If not provided, input argument \code{k}
+should be given.}
 
 \item{minval}{A small positive constant used to safeguard the
 multiplicative updates. The multiplicative updates are implemented
@@ -81,7 +90,12 @@ elements:
   matrix; and "timing", the elapsed time in seconds (based on
   \code{\link{system.time}}).}
 
-An object capturing the state of the optimization.
+An object capturing the initial state of the optimization
+algorithm. It is a list with the following elements:
+
+\item{F}{A matrix containing initial estimates of the factors.}
+
+\item{L}{A matrix containing initial estimates of the loadings.}
 }
 \description{
 This function decomposes the input matrix X = L*F' by

@@ -53,6 +53,12 @@
 #'   non-negative. Note that sparse matrices are not accommodated
 #'   in this implementation; \code{is.matrix(X)} must give \code{TRUE}.
 #'
+#' @param k This argument specifies the rank for a random
+#'   initialization of the factors and loadings. (The matrix entries are
+#'   initialized uniformly at random.) This should only be specified if
+#'   the initial estimates (\code{fit} or \code{F, L}) aren't already
+#'   provided.
+#' 
 #' @param numiter The number of multiplicative updates to run.
 #' 
 #' @param method When \code{method = "em"}, the EM updates will be
@@ -131,12 +137,31 @@
 #' 
 #' @export
 #'
-fit_poisson_nmf <- function (X, fit = init_poisson_nmf(), numiter = 100,
+fit_poisson_nmf <- function (X, k, fit, numiter = 100,
                              method = c("altsqp","scd","ccd","em","mu"), 
                              control = list(), verbose = TRUE) {
 
   # CHECK & PROCESS INPUTS
   # ----------------------
+  # Check input X.
+  if (!(is.numeric(X) & (is.matrix(X) | inherits(X,"dgCMatrix"))))
+    stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
+         "a \"dgCMatrix\")")
+
+  # Get the number of rows (n) and columns (m) of the data matrix,
+  n <- nrow(X)
+  m <- ncol(X)
+
+  # Only one of "k" and "fit" should be provided. If argument "k" is
+  # given, generate a random initialization of the factors and
+  # loadings.
+  if (!(missing(k) & !missing(fit) | (!missing(k) & missing(fit))))
+    stop("Provide a rank, \"k\", or an initialization, \"fit\", but not both")
+  if (!missing(k))
+    fit <- init_poisson_nmf(X,k = k)
+  
+  return(fit)
+  
   # Perfom some very basic checks of the inputs.
   method <- match.arg(method)
   if (!(is.numeric(X) & is.matrix(F0) & is.matrix(L0) &
@@ -152,15 +177,10 @@ fit_poisson_nmf <- function (X, fit = init_poisson_nmf(), numiter = 100,
            "matrix; that is, is.matrix(X) and is.numeric(X) should return ",
            "TRUE")
   }
-  
-  # Get the number of rows (n) and columns (m) of the data matrix, and
-  # get the rank of the matrix factorization (k).
-  n <- nrow(X)
-  m <- ncol(X)
-  k <- ncol(F0)
-  if (k < 2)
-    stop("Matrix factorization should have rank at least 2")
 
+  if (missing(k))
+    k <- ncol(fit$F)
+  
   # Check input argument "minval".
   if (any(minval < 0))
     stop("Input argument \"minval\" should be zero or a positive number")
@@ -209,35 +229,42 @@ fit_poisson_nmf <- function (X, fit = init_poisson_nmf(), numiter = 100,
 
 #' @rdname fit_poisson_nmf
 #'
-#' @param F This is the initial estimate of the factors (also called
-#'   "basis vectors"). It should be an m x k matrix, where m is the
-#'   number of columns of X, and k > 1 is the rank of the matrix
-#'   factorization, or the number of topics. All entries of F should be
-#'   non-negative.
+#' @param F An optional argument giving is the initial estimate of the
+#'   factors (also sometimes called the "basis vectors"). It should be
+#'   an m x k matrix, where m is the number of columns in the counts
+#'   matrix X, and k > 1 is the rank of the matrix factorization, or,
+#'   equivalently, the number of topics. All entries of F should be
+#'   non-negative. If not provided, input argument \code{k} should be
+#'   given.
 #'
-#' @param L This is the initial estimate of the loadings (also called
-#'   "activations"). It should an n x k matrix, where n is the number of
-#'   rows of X, and k > 1 is the rank of the matrix factorization. All
-#'   entries of L should be non-negative.
+#' @param L An optional argument giving the initial estimate of the
+#'   loadings (also sometimes called the "activations"). It should an n
+#'   x k matrix, where n is the number of rows in the counts matrix X,
+#'   and k > 1 is the rank of the matrix factorization. All entries of L
+#'   should be non-negative. If not provided, input argument \code{k}
+#'   should be given.
 #'
-#' @param k Describe input argument k here.
-#' 
-#' @return An object capturing the state of the optimization.
-#' 
+#' @return An object capturing the initial state of the optimization
+#' algorithm. It is a list with the following elements:
+#'
+#' \item{F}{A matrix containing initial estimates of the factors.}
+#'
+#' \item{L}{A matrix containing initial estimates of the loadings.}
+#'
 #' @importFrom stats runif
 #' 
 #' @export
 #' 
 init_poisson_nmf <- function (X, F, L, k) {
 
-  # Get the number of rows (n) and columns (m) of the data matrix,
-  n <- nrow(X)
-  m <- ncol(X)
-
   # Check input X.
   if (!(is.numeric(X) & (is.matrix(X) | inherits(X,"dgCMatrix"))))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
+
+  # Get the number of rows (n) and columns (m) of the data matrix,
+  n <- nrow(X)
+  m <- ncol(X)
 
   # Only one of k and (F,L) should be provided.
   if (!(missing(k) & (!missing(F) & !missing(L)) |
@@ -245,7 +272,9 @@ init_poisson_nmf <- function (X, F, L, k) {
     stop("Provide a rank, k, or an initialization, (F, L), but not both")
   if (missing(k))
     k <- ncol(F)
-  
+  if (k < 2)
+    stop("Matrix factorization rank should be 2 or greater")
+
   # If the factor matrix is not provided, initialize the entries
   # uniformly at random.
   if (missing(F)) {
