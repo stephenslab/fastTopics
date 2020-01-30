@@ -55,7 +55,7 @@
 #'   or dense matrix (class \code{"matrix"}), with some exceptions (see
 #'   "Details").
 #'
-#' @param fit Describe input argument "fit" here.
+#' @param fit0 Describe input argument "fit" here.
 #'  
 #' @param k An integer 2 or greater giving the matrix rank for a
 #'   random initialization of the factors and loadings. (They are
@@ -145,7 +145,7 @@
 #' 
 #' @export
 #'
-fit_poisson_nmf <- function (X, k, fit, numiter = 100,
+fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                              method = c("altsqp","scd","ccd","em","mu"), 
                              control = list(), verbose = TRUE) {
 
@@ -155,7 +155,7 @@ fit_poisson_nmf <- function (X, k, fit, numiter = 100,
   if (!(is.numeric(X) & (is.matrix(X) | is.sparse.matrix(X))))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
-  if (is.matrix(X) & length(X) > 1e6 & mean(X > 0) < 0.1 & method != "mu")
+  if (is.matrix(X) & length(X) > 1e4 & mean(X > 0) < 0.1 & any(method != "mu"))
     message(paste("Input matrix \"X\" has less than 10% nonzero entries;",
                   "consider converting \"X\" to a sparse matrix to reduce",
                   "computational effort"))
@@ -164,20 +164,21 @@ fit_poisson_nmf <- function (X, k, fit, numiter = 100,
   n <- nrow(X)
   m <- ncol(X)
 
-  # Only one of "k" and "fit" should be provided. If argument "k" is
+  # Only one of "k" and "fit0" should be provided. If argument "k" is
   # given, generate a random initialization of the factors and
   # loadings.
-  if (!(missing(k) & !missing(fit) | (!missing(k) & missing(fit))))
-    stop("Provide a rank, \"k\", or an initialization, \"fit\", but not both")
-  if (!missing(k))
-    fit <- init_poisson_nmf(X,k = k)
-  k <- ncol(fit$F)
+  if (!(missing(k) & !missing(fit0) | (!missing(k) & missing(fit0))))
+    stop("Provide a rank, \"k\", or an initialization, \"fit0\", but not both")
+  if (missing(fit0))
+    fit0 <- init_poisson_nmf(X,k = k)
+  k <- ncol(fit0$F)
 
-  # Check input argument "fit".
-  if (!(is.list(fit) & inherits(fit,"poisson_nmf_fit")))
-    stop("Input argument \"fit\" should be an object of class ",
+  # Check input argument "fit0".
+  if (!(is.list(fit0) & inherits(fit0,"poisson_nmf_fit")))
+    stop("Input argument \"fit0\" should be an object of class ",
          "\"poisson_nmf_fit\", such as an output of init_poisson_nmf")
   if (!(is.matrix(F) & is.numeric(F)))
+  fit <- fit0
     
   # Check input argument "numiter".
   if (any(numiter < 1))
@@ -214,21 +215,21 @@ fit_poisson_nmf <- function (X, k, fit, numiter = 100,
   # Initialize the estimates of the factors and loadings. To prevent
   # the multiplicative updates from getting "stuck", force the initial
   # estimates to be positive.
-  F <- pmax(F0,minval)
-  L <- pmax(L0,minval)
+  F <- pmax(F,minval)
+  L <- pmax(L,minval)
   
   # Set up the data structure to record the algorithm's progress.
-  progress <- as.matrix(data.frame(iter    = 1:numiter,
-                                   loglik  = 0,
-                                   dev     = 0,
-                                   delta.f = 0,
-                                   delta.l = 0,
-                                   timing  = 0))
+  # progress <- as.matrix(data.frame(iter    = 1:numiter,
+  #                                  loglik  = 0,
+  #                                  dev     = 0,
+  #                                  delta.f = 0,
+  #                                  delta.l = 0,
+  #                                  timing  = 0))
   
   # Run the multiplicative updates.
-  if (verbose)
-    cat("iter      log-likelihood            deviance max|F-F'| max|L-L'|\n")
-  out <- betanmf_helper(X,F,L,method,minval,e,progress,verbose)
+  # if (verbose)
+  #   cat("iter      log-likelihood            deviance max|F-F'| max|L-L'|\n")
+  # out <- betanmf_helper(X,F,L,method,minval,e,progress,verbose)
 
   # Return a list containing (1) an estimate of the factors, (2) an
   # estimate of the loadings, and (3) a data frame recording the
