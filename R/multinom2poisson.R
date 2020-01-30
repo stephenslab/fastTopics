@@ -33,9 +33,6 @@ multinom2poisson <- function (fit, X) {
 
   # Verify input argument "fit".
   verify.fit(fit)
-  if (inherits(fit,"poisson_nmf"))
-    stop("Input argument \"fit\" should not be a Poisson non-negative ",
-         "matrix factorization")
   F <- fit$F
   L <- fit$L
   
@@ -84,6 +81,5 @@ multinom2poisson <- function (fit, X) {
   fit$F <- out$F
   fit$L <- out$L
   fit$s <- NULL
-  class(fit) <- c("poisson_nmf","list")
   return(fit)
 }

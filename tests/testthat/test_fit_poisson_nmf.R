@@ -280,7 +280,7 @@ test_that(paste("altsqp updates with dense and sparse matrices produce the",
                           function (X,F,L) altsqp_update_loadings(X,F,L,4))
 
   # Redo the alt-SQP updates using multithreaded computations.
-  control    <- altsqp_control_default()
+  control    <- fit_poisson_nmf_control_default()
   control$nc <- 4
   setThreadOptions(numThreads = control$nc)
   fit3 <- iterate_updates(X,F,L,numiter,

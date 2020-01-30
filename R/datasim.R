@@ -37,7 +37,6 @@
 #'   determine the Poisson rates.
 #'
 #' @importFrom methods as
-#' @importFrom stats runif
 #' @importFrom stats rpois
 #'
 #' @export
@@ -49,16 +48,16 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
     stop("Input argument \"n\" should be 2 or more")
   if (!(is.scalar(m) & all(m >= 2)))
     stop("Input argument \"m\" should be 2 or more")
-  if (!(is.scalar(k) & k >= 1))
+  if (!(is.scalar(k) & all(k >= 1)))
     stop("Input argument \"k\" should be 1 or more")
-  if (!(is.scalar(fmax) & fmax > 0))
+  if (!(is.scalar(fmax) & all(fmax > 0)))
     stop("Input argument \"fmax\" should be a positive number")
-  if (!(is.scalar(lmax) & lmax > 0))
+  if (!(is.scalar(lmax) & all(lmax > 0)))
     stop("Input argument \"lmax\" should be a positive number")
   
   # Simulate the data.
-  F <- matrix(runif(m*k,0,fmax),m,k)
-  L <- matrix(runif(n*k,0,lmax),n,k)
+  F <- rand(m,k,0,fmax)
+  L <- rand(n,k,0,lmax)
   X <- matrix(rpois(n*m,tcrossprod(L,F)),n,m)
   if (sparse)
     X <- as(X,"dgCMatrix")

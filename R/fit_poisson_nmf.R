@@ -146,11 +146,13 @@ fit_poisson_nmf <- function (X, k, fit, numiter = 100,
 
   # CHECK & PROCESS INPUTS
   # ----------------------
-  # Check input X.
-  if (!(is.numeric(X) & (is.matrix(X) | inherits(X,"dgCMatrix"))))
+  # Check input argument "X".
+  if (!(is.numeric(X) & (is.matrix(X) | is.sparse.matrix(X))))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
 
+  # TO DO: Add warning when matrix is large and sparse.
+  
   # Get the number of rows (n) and columns (m) of the data matrix,
   n <- nrow(X)
   m <- ncol(X)
@@ -162,16 +164,23 @@ fit_poisson_nmf <- function (X, k, fit, numiter = 100,
     stop("Provide a rank, \"k\", or an initialization, \"fit\", but not both")
   if (!missing(k))
     fit <- init_poisson_nmf(X,k = k)
+
+  # Check input argument "fit".
+  # TO DO.
+  
+  # Check and process input argument "method".
+  method <- match.arg(method)
+  if (method == "mu" & is.sparse.matrix(X))
+    stop("")
+  
+  # Check and progress the optimization settings.
+  # TO DO.
   
   return(fit)
-  
+
   # Perfom some very basic checks of the inputs.
-  method <- match.arg(method)
-  if (!(is.numeric(X) & is.matrix(F0) & is.matrix(L0) &
-        is.numeric(F0) & is.numeric(L0)))
-    stop("Input arguments \"X\", \"F0\" and \"L0\" should be numeric matrices")
   if (method == "em") {
-    if (!(is.matrix(X) | inherits(X,"dgCMatrix")))
+    if (!(is.matrix(X) | is.sparse.matrix(X)))
       stop("Input argument \"X\" should be a numeric matrix ",
            "(a \"matrix\" or a \"dgCMatrix\")")
   } else if (method == "mu") {
@@ -247,14 +256,12 @@ fit_poisson_nmf <- function (X, k, fit, numiter = 100,
 #'   should be non-negative. When not provided, input argument \code{k}
 #'   should be specified.
 #'
-#' @importFrom stats runif
-#' 
 #' @export
 #' 
 init_poisson_nmf <- function (X, F, L, k) {
 
   # Check input X.
-  if (!(is.numeric(X) & (is.matrix(X) | inherits(X,"dgCMatrix"))))
+  if (!(is.numeric(X) & (is.matrix(X) | is.sparse.matrix(X))))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
 
@@ -268,24 +275,28 @@ init_poisson_nmf <- function (X, F, L, k) {
     stop("Provide a rank, k, or an initialization, (F, L), but not both")
   if (missing(k))
     k <- ncol(F)
-  if (k < 2)
-    stop("Matrix factorization rank should be 2 or greater")
+  if (!(is.numeric(k) & length(k == 1) & all(k >= 2)))
+    stop("Matrix factorization rank \"k\" should be 2 or greater")
 
   # If the factor matrix is not provided, initialize the entries
   # uniformly at random.
   if (missing(F)) {
-    F           <- matrix(runif(m*k),m,k)
+    F           <- rand(m,k)
     rownames(F) <- colnames(X)
     colnames(F) <- paste0("k",1:k)
-  }
+  } else if (!(is.matrix(F) & is.numeric(F)))
+    stop("Input argument \"F\" should be a numeric matrix (is.matrix(F) ",
+         "should return TRUE)")
     
   # If the loading matrix is not provided, initialize the entries
   # uniformly at random.
   if (missing(L)) {
-    L           <- matrix(runif(n*k),n,k)
+    L           <- rand(n,k)
     rownames(L) <- rownames(X)
     colnames(L) <- paste0("k",1:k)
-  }
+  } else if (!(is.matrix(L) & is.numeric(L)))
+    stop("Input argument \"L\" should be a numeric matrix (is.matrix(L) ",
+         "should return TRUE)")
 
   # Return a list containing (1) the initial estimate of the factors,
   # and (2) the initial estimate of the loadings.
@@ -323,4 +334,4 @@ betanmf_main_loop <- function (X, F, L, method, minval, e, progress, verbose) {
 #' @export
 #' 
 fit_poisson_nmf_control_default <- function()
-  list()
+  c(list(nc = 1),mixsqp_control_default())

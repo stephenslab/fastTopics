@@ -1,3 +1,8 @@
+# Return true if x is a compressed, sparse, column-oriented numeric
+# matrix.
+is.sparse.matrix <- function (x)
+  inherits(x,"dgCMatrix")
+
 # Apply operation f to all nonzeros of a sparse matrix.
 #
 #' @importFrom Matrix sparseMatrix
@@ -61,6 +66,13 @@ rescale.factors <- function (F, L) {
               L = scale.cols(L,1/d)))
 }
 
+# This does the same thing as the "rand" function in MATLAB.
+#
+#' @importFrom stats runif
+#'
+rand <- function (n, m, min = 0, max = 1) 
+  matrix(runif(n*m,min,max),n,m)
+
 # For a Poisson non-negative matrix factorization with rank = 1, the
 # maximum-likelihood estimate (MLE) has a closed-form (up to a scaling
 # factor); this function returns the MLE subject to the constraint
@@ -70,4 +82,5 @@ rescale.factors <- function (F, L) {
 #' @importFrom Matrix colMeans
 #'
 fit_pnmf_rank1 <- function (X)
-  list(F = matrix(colMeans(X)),L = matrix(rowMeans(X)))
+  list(F = matrix(colMeans(X)),
+       L = matrix(rowMeans(X)))

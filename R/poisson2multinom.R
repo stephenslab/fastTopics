@@ -24,8 +24,6 @@ poisson2multinom <- function (fit) {
 
   # Verify input argument "fit".
   verify.fit(fit)
-  if (inherits(fit,"multinom_topic_model"))
-    stop("Input argument \"fit\" should not be a multinomial topic model")
   F <- fit$F
   L <- fit$L
   

@@ -58,7 +58,7 @@ generate_test_data <- function (n, m, k, lmax = 0.5, fmax = 0.5) {
 # Generate data for testing the fitting of the Poisson mixture model.
 generate_poismix_data <- function (n, x) {
   m <- length(x)
-  L <- matrix(runif(n*m),n,m)
+  L <- rand(n,m)
   w <- rpois(n,L %*% x)
   return(list(L = L,w = w))
 }
@@ -83,8 +83,7 @@ iterate_updates <- function (X, F, L, numiter, update_factors = NULL,
     }
     loglik[i] <- sum(loglik_poisson_nmf(X,list(F = F,L = L)))
     dev[i]    <- sum(deviance_poisson_nmf(X,list(F = F,L = L)))
-    out       <- poisson_nmf_kkt(X,F,L)
-    res[i]    <- with(out,max(abs(rbind(F,L))))
+    res[i]    <- with(poisson_nmf_kkt(X,F,L),max(abs(rbind(F,L))))
   }
   return(list(F = F,L = L,loglik = loglik,dev = dev,res = res))
 }

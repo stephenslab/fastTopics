@@ -16,7 +16,7 @@ verify.nonnegative.matrix <- function (x, arg.name = deparse(substitute(x))) {
   msg <- paste("Input argument",arg.name,"should be a non-negative,",
                "numeric matrix (a \"matrix\" or a \"dgCMatrix\"), and",
                "all entries should be finite and non-missing")
-  if (!((is.matrix(x) & is.numeric(x)) | inherits(x,"dgCMatrix")))
+  if (!((is.matrix(x) & is.numeric(x)) | is.sparse.matrix(x)))
     stop(msg)
   else if (any(x < 0) | any(is.infinite(x)) | any(is.na(x)))
     stop(msg)

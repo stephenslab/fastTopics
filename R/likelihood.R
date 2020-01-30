@@ -121,13 +121,6 @@ loglik_helper <- function (X, fit,
       
   # Verify and process inputs X and "fit". 
   verify.fit.and.count.matrix(X,fit)
-  if (inherits(fit,"poisson_nmf") & output.type == "loglik.multinom")
-    warning("Calculating multinomial likelihood for a Poisson non-negative ",
-            "matrix factorization")
-  else if (inherits(fit,"multinom_topic_model") &
-           output.type != "loglik.multinom")
-    warning("Calculating Poisson likelihood or deviance for a multinomial ",
-            "topic model")
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
   F <- fit$F
