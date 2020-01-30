@@ -142,7 +142,11 @@
 #'           xlab = "iteration",ylab = "distance to solution"))
 #' 
 #' @useDynLib fastTopics
-#' 
+#'
+#' @importFrom utils modifyList
+#' @importFrom RcppParallel setThreadOptions
+#' @importFrom RcppParallel defaultNumThreads
+#'
 #' @export
 #'
 fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
@@ -193,30 +197,34 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   }
   
   # Check and process the optimization settings.
-  # TO DO.
-  
-  return(fit)
+  control <- modifyList(fit_poisson_nmf_control_default(),
+                        control,keep.null = TRUE)
+  if ((method == "mu" | method == "em") & any(control$minval == 0))
+    warning("EM and multiplicative updates may not converge when minval = 0")
+  if (is.na(control$nc)) {
+    setThreadOptions()
+    control$nc <- defaultNumThreads()
+  } else
+    setThreadOptions(numThreads = control$nc)
+  if (control$nc > 1)
+    message(sprintf("Setting number of RcppParallel threads to %d",control$nc))
 
-  # Check input argument "minval".
-  if (any(minval < 0))
-    stop("Input argument \"minval\" should be zero or a positive number")
-  if (any(minval == 0))
-    warning("Multiplicative updates may not converge when \"minval\" is zero")
-  
   # INITIALIZE ESTIMATES
   # --------------------
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
   # numerical stability of the multiplicative updates.
-  out <- rescale.factors(F,L)
-  F   <- out$F
-  L   <- out$L
+  out   <- rescale.factors(fit$F,fit$L)
+  fit$F <- out$F
+  fit$L <- out$L
 
   # Initialize the estimates of the factors and loadings. To prevent
   # the multiplicative updates from getting "stuck", force the initial
   # estimates to be positive.
-  F <- pmax(F,minval)
-  L <- pmax(L,minval)
+  fit$F <- pmax(fit$F,control$minval)
+  fit$L <- pmax(fit$L,control$minval)
+  
+  return(fit)
   
   # Set up the data structure to record the algorithm's progress.
   # progress <- as.matrix(data.frame(iter    = 1:numiter,
@@ -338,4 +346,9 @@ betanmf_main_loop <- function (X, F, L, method, minval, e, progress, verbose) {
 #' @export
 #' 
 fit_poisson_nmf_control_default <- function()
-  c(list(nc = 1),mixsqp_control_default())
+  c(list(num.updates = 4,
+         minval      = 1e-15,
+         e           = 1e-15,
+         nc          = as.integer(NA)),
+    mixsqp_control_default())
+    

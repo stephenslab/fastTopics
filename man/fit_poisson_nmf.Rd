@@ -9,7 +9,7 @@
 fit_poisson_nmf(
   X,
   k,
-  fit,
+  fit0,
   numiter = 100,
   method = c("altsqp", "scd", "ccd", "em", "mu"),
   control = list(),
@@ -32,7 +32,7 @@ initialized uniformly at random.) This argument should only be
 specified if the initial estimates (\code{fit} or \code{F, L})
 aren't already provided.}
 
-\item{fit}{Describe input argument "fit" here.}
+\item{fit0}{Describe input argument "fit" here.}
 
 \item{numiter}{The number of multiplicative updates to run.}
 
