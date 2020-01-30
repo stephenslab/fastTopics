@@ -4,8 +4,7 @@
 \alias{fit_poisson_nmf}
 \alias{init_poisson_nmf}
 \alias{fit_poisson_nmf_control_default}
-\title{Multiplicative and EM Update Rules for Poisson Non-negative
-  Matrix Factorization}
+\title{Fit or Re-fit Poisson Non-negative Matrix Factorization}
 \usage{
 fit_poisson_nmf(
   X,
@@ -33,6 +32,8 @@ initialized uniformly at random.) This argument should only be
 specified if the initial estimates (\code{fit} or \code{F, L})
 aren't already provided.}
 
+\item{fit}{Describe input argument "fit" here.}
+
 \item{numiter}{The number of multiplicative updates to run.}
 
 \item{method}{When \code{method = "em"}, the EM updates will be
@@ -40,6 +41,8 @@ performed; when \code{method = "mu"}, the multiplicative updates
 will be performed. The multiplicative updates are only implemented
 for dense count matrices; if \code{method = "mu"} and \code{X} is a
 sparse matrix, and error will be generated.}
+
+\item{control}{Describe input argument "control" here.}
 
 \item{verbose}{When \code{verbose = TRUE}, information about the
 algorithm's progress is printed to the console at each iteration.}

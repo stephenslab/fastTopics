@@ -5,9 +5,10 @@
 #
 #   + method = "scd" is based on version 0.4-3 of the NNLM package.
 #
+#   + method = "ccd" is based on MATLAB code by ...
+#
 
-#' @title Multiplicative and EM Update Rules for Poisson Non-negative
-#'   Matrix Factorization
+#' @title Fit or Re-fit Poisson Non-negative Matrix Factorization
 #'
 #' @description This function decomposes the input matrix X = L*F' by
 #'   nonnegative matrix factorization (NMF) based on the "divergence"
@@ -54,6 +55,8 @@
 #'   or dense matrix (class \code{"matrix"}), with some exceptions (see
 #'   "Details").
 #'
+#' @param fit Describe input argument "fit" here.
+#'  
 #' @param k An integer 2 or greater giving the matrix rank for a
 #'   random initialization of the factors and loadings. (They are
 #'   initialized uniformly at random.) This argument should only be
@@ -67,6 +70,8 @@
 #'   will be performed. The multiplicative updates are only implemented
 #'   for dense count matrices; if \code{method = "mu"} and \code{X} is a
 #'   sparse matrix, and error will be generated.
+#'
+#' @param control Describe input argument "control" here.
 #' 
 #' @param minval A small positive constant used to safeguard the
 #'   multiplicative updates. The multiplicative updates are implemented
@@ -150,8 +155,10 @@ fit_poisson_nmf <- function (X, k, fit, numiter = 100,
   if (!(is.numeric(X) & (is.matrix(X) | is.sparse.matrix(X))))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
-
-  # TO DO: Add warning when matrix is large and sparse.
+  if (is.matrix(X) & length(X) > 1e6 & mean(X > 0) < 0.1 & method != "mu")
+    message(paste("Input matrix \"X\" has less than 10% nonzero entries;",
+                  "consider converting \"X\" to a sparse matrix to reduce",
+                  "computational effort"))
   
   # Get the number of rows (n) and columns (m) of the data matrix,
   n <- nrow(X)
@@ -164,35 +171,31 @@ fit_poisson_nmf <- function (X, k, fit, numiter = 100,
     stop("Provide a rank, \"k\", or an initialization, \"fit\", but not both")
   if (!missing(k))
     fit <- init_poisson_nmf(X,k = k)
+  k <- ncol(fit$F)
 
   # Check input argument "fit".
-  # TO DO.
-  
+  if (!(is.list(fit) & inherits(fit,"poisson_nmf_fit")))
+    stop("Input argument \"fit\" should be an object of class ",
+         "\"poisson_nmf_fit\", such as an output of init_poisson_nmf")
+  if (!(is.matrix(F) & is.numeric(F)))
+    
+  # Check input argument "numiter".
+  if (any(numiter < 1))
+    stop("Input argument \"numiter\" must be 1 or greater")
+      
   # Check and process input argument "method".
   method <- match.arg(method)
-  if (method == "mu" & is.sparse.matrix(X))
-    stop("")
+  if (method == "mu" & is.sparse.matrix(X)) {
+    warning("method = \"mu\" is not implemented for sparse counts matrices; ",
+            "attempting to convert \"X\" to a dense matrix")
+    X <- as.matrix(X)
+  }
   
-  # Check and progress the optimization settings.
+  # Check and process the optimization settings.
   # TO DO.
   
   return(fit)
 
-  # Perfom some very basic checks of the inputs.
-  if (method == "em") {
-    if (!(is.matrix(X) | is.sparse.matrix(X)))
-      stop("Input argument \"X\" should be a numeric matrix ",
-           "(a \"matrix\" or a \"dgCMatrix\")")
-  } else if (method == "mu") {
-    if (!is.matrix(X))
-      stop("When method = \"mu\", input argument \"X\" should be a numeric ",
-           "matrix; that is, is.matrix(X) and is.numeric(X) should return ",
-           "TRUE")
-  }
-
-  if (missing(k))
-    k <- ncol(fit$F)
-  
   # Check input argument "minval".
   if (any(minval < 0))
     stop("Input argument \"minval\" should be zero or a positive number")
@@ -275,7 +278,7 @@ init_poisson_nmf <- function (X, F, L, k) {
     stop("Provide a rank, k, or an initialization, (F, L), but not both")
   if (missing(k))
     k <- ncol(F)
-  if (!(is.numeric(k) & length(k == 1) & all(k >= 2)))
+  if (any(k < 2))
     stop("Matrix factorization rank \"k\" should be 2 or greater")
 
   # If the factor matrix is not provided, initialize the entries
