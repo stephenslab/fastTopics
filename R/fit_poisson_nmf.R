@@ -237,7 +237,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # Return a list containing (1) the new estimates of the factors, (2)
   # the new estimates of the loadings, and (3) a data frame recording
   # the algorithm's progress at each iteration.
-  fit$progress    <- rbind(fit0$progress,fit$progress))
+  fit$progress    <- rbind(fit0$progress,fit$progress)
   dimnames(fit$F) <- dimnames(fit0$F)
   dimnames(fit$L) <- dimnames(fit0$L)
   class(fit)      <- c("poisson_nmf_fit","list")
@@ -326,11 +326,14 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                                        delta.l = 0,
                                        timing  = 0))
   for (i in 1:numiter) {
-    F0  <- F
-    L0  <- L
-    t1  <- proc.time()
-    fit <- update_poisson_nmf(X,fit,method,control)
-    t2  <- proc.time()
+    F0 <- F
+    L0 <- L
+    t1 <- proc.time()
+    if (control$extrapolate)
+      fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
+    else
+      fit <- update_poisson_nmf(X,fit,method,control)
+    t2 <- proc.time()
     progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
     progress[i,"loglik"]  <- sum(loglik.const - cost(X,fit$L,t(fit$F),
                                                      control$e,"poisson"))
@@ -382,14 +385,20 @@ update_poisson_nmf <- function (X, fit, method, control) {
   return(fit)
 }
 
+# TO DO: Implement this function
+update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
+
+}
+
 #' @rdname fit_poisson_nmf
 #'
 #' @export
 #' 
 fit_poisson_nmf_control_default <- function()
-  c(list(numiter = 4,
-         minval  = 1e-15,
-         e       = 1e-15,
-         nc     < = as.integer(NA)),
+  c(list(extrapolate = FALSE,
+         numiter     = 4,
+         minval      = 1e-15,
+         e           = 1e-15,
+         nc          = as.integer(NA)),
     mixsqp_control_default())
     
