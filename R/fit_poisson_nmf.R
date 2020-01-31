@@ -209,6 +209,10 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   if (control$nc > 1)
     message(sprintf("Setting number of RcppParallel threads to %d",control$nc))
 
+  # Print a brief summary of the optimization settings, if requested.
+  if (verbose) {
+  }
+  
   # INITIALIZE ESTIMATES
   # --------------------
   # Re-scale the initial estimates of the factors and loadings so that
@@ -219,36 +223,25 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   fit$L <- out$L
 
   # Initialize the estimates of the factors and loadings. To prevent
-  # the multiplicative updates from getting "stuck", force the initial
-  # estimates to be positive.
+  # the updates from getting "stuck", force the initial estimates to
+  # be positive.
   fit$F <- pmax(fit$F,control$minval)
   fit$L <- pmax(fit$L,control$minval)
-  
-  return(fit)
-  
-  # Set up the data structure to record the algorithm's progress.
-  # progress <- as.matrix(data.frame(iter    = 1:numiter,
-  #                                  loglik  = 0,
-  #                                  dev     = 0,
-  #                                  delta.f = 0,
-  #                                  delta.l = 0,
-  #                                  timing  = 0))
-  
-  # Run the multiplicative updates.
-  # if (verbose)
-  #   cat("iter      log-likelihood            deviance max|F-F'| max|L-L'|\n")
-  # out <- betanmf_helper(X,F,L,method,minval,e,progress,verbose)
 
-  # Return a list containing (1) an estimate of the factors, (2) an
-  # estimate of the loadings, and (3) a data frame recording the
-  # algorithm's progress at each iteration.
-  F           <- t(out$B)
-  L           <- out$A
-  dimnames(F) <- dimnames(F0)
-  dimnames(L) <- dimnames(L0)
-  out         <- list(F = F,L = L,progress = out$progress)
-  class(out)  <- c("poisson_nmf_fit","list")
-  return(out)
+  # RUN UPDATES
+  # -----------
+  if (verbose)
+    cat("iter      log-likelihood            deviance max|F-F'| max|L-L'|\n")
+  fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,verbose)
+
+  # Return a list containing (1) the new estimates of the factors, (2)
+  # the new estimates of the loadings, and (3) a data frame recording
+  # the algorithm's progress at each iteration.
+  fit$progress    <- rbind(fit0$progress,fit$progress))
+  dimnames(fit$F) <- dimnames(fit0$F)
+  dimnames(fit$L) <- dimnames(fit0$L)
+  class(fit)      <- c("poisson_nmf_fit","list")
+  return(fit)
 }
 
 #' @rdname fit_poisson_nmf
@@ -310,29 +303,41 @@ init_poisson_nmf <- function (X, F, L, k) {
     stop("Input argument \"L\" should be a numeric matrix (is.matrix(L) ",
          "should return TRUE)")
 
-  # Return a list containing (1) the initial estimate of the factors,
-  # and (2) the initial estimate of the loadings.
-  fit        <- list(F = F,L = L)
+  progress <- as.data.frame(matrix(0,0,7))
+  names(progress) <- c("iter","loglik","dev","delta.f","delta.l","timing")
+  
+  # Return a list containing (1) an initial estimate of the factors,
+  # (2) an initial estimate of the loadings, and a placeholder data
+  # frame for keeping track of the algorithm's progress over time.
+  fit <- list(F = F,L = L,progress = progress)
   class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
 }
 
-# This implements the core part of the betanmf function.
-betanmf_main_loop <- function (X, F, L, method, minval, e, progress, verbose) {
+# This implements the core part of fit_poisson_nmf.
+fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
+                                       verbose) {
   loglik.const <- loglik_poisson_const(X)
   dev.const    <- deviance_poisson_const(X)
-  numiter      <- nrow(progress)
+  progress     <- as.matrix(data.frame(iter    = 1:numiter,
+                                       loglik  = 0,
+                                       dev     = 0,
+                                       delta.f = 0,
+                                       delta.l = 0,
+                                       timing  = 0))
   for (i in 1:numiter) {
-    F0     <- F
-    L0     <- L
-    timing <- system.time(out <- betanmf_update(X,A,B,minval),gcFirst = FALSE)
-    A      <- out$A
-    B      <- out$B
-    progress[i,"timing"]  <- timing["elapsed"]
-    progress[i,"loglik"]  <- sum(loglik.const - cost(X,A,B,e,"poisson"))
-    progress[i,"dev"]     <- sum(dev.const + 2*cost(X,A,B,e,"poisson"))
-    progress[i,"delta.f"] <- max(abs(F - F0))
-    progress[i,"delta.l"] <- max(abs(L - L0))
+    F0  <- F
+    L0  <- L
+    t1  <- proc.time()
+    fit <- update_poisson_nmf(X,fit,method,control)
+    t2  <- proc.time()
+    progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
+    progress[i,"loglik"]  <- sum(loglik.const - cost(X,fit$L,t(fit$F),
+                                                     control$e,"poisson"))
+    progress[i,"dev"]     <- sum(dev.const + 2*cost(X,fit$L,t(fit$F),
+                                                    control$e,"poisson"))
+    progress[i,"delta.f"] <- max(abs(fit$F - fit$F0))
+    progress[i,"delta.l"] <- max(abs(fit$L - fit$L0))
     if (verbose)
       cat(sprintf("%4d %+0.12e %+0.12e %0.3e %0.3e\n",
                   i,progress[i,"loglik"],progress[i,"dev"],
@@ -341,14 +346,50 @@ betanmf_main_loop <- function (X, F, L, method, minval, e, progress, verbose) {
   return(list(F = F,L = L,progress = as.data.frame(progress)))
 }
 
+# This implements a single update of the factors and loadings.
+update_poisson_nmf <- function (X, fit, method, control) {
+
+  # Update the loadings ("activations") then the factors ("basis vectors").
+  if (method == "mu") {
+    fit$L <- betanmf_update_loadings(X,fit$L,t(fit$F))
+    fit$F <- t(betanmf_update_factors(X,fit$L,t(fit$F)))
+  } else if (method == "em") {
+    fit$L <- pnmfem_update_loadings(X,F,L,control$numiter,control$nc)
+    fit$F <- pnmfem_update_factors(X,F,L,control$numiter,control$nc)      
+  } else if (method == "ccd") {
+    fit$L <- ccd_update_loadings(X,L,t(F),control$nc,control$e)
+    fit$F <- t(ccd_update_factors(X,L,t(F),control$nc,control$e))
+  } else if (method == "scd") {
+    fit$L <- scd_update_loadings(X,L,t(F),control$numiter,control$nc,control$e)
+    fit$F <- t(scd_update_factors(X,L,t(F),control$numiter,control$nc,
+                                  control$e))
+  } else if (method == "altsqp") {
+    fit$L <- altsqp_update_loadings(X,F,L,control$numiter,control)
+    fit$F <- altsqp_update_factors(X,F,L,control$numiter,control)
+  }
+  
+  # Force the factors and loadings to be non-negative, or positive;
+  # the latter can promote better convergence for some algorithms.
+  fit$F <- pmax(fit$F,control$minval)
+  fit$L <- pmax(fit$L,control$minval)
+    
+  # Re-scale the factors and loadings.
+  out   <- rescale.factors(fit$F,fit$L)
+  fit$F <- out$F
+  fit$L <- out$L
+
+  # Output the updated "fit".
+  return(fit)
+}
+
 #' @rdname fit_poisson_nmf
 #'
 #' @export
 #' 
 fit_poisson_nmf_control_default <- function()
-  c(list(num.updates = 4,
-         minval      = 1e-15,
-         e           = 1e-15,
-         nc          = as.integer(NA)),
+  c(list(numiter = 4,
+         minval  = 1e-15,
+         e       = 1e-15,
+         nc     < = as.integer(NA)),
     mixsqp_control_default())
     

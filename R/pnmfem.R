@@ -12,7 +12,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
-pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
+pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1) {
   if (nc == 1) {
     if (is.matrix(X))
       F <- t(pnmfem_update_factors_rcpp(X,t(F),L,numiter))
@@ -24,7 +24,7 @@ pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
     else if (is.sparse.matrix(X))
       F <- t(pnmfem_update_factors_sparse_parallel_rcpp(X,t(F),L,numiter))
   }
-  return(pmax(F,e))
+  return(F)
 }
 
 # This function implements the EM updates for the loadings matrix, L,
@@ -43,7 +43,7 @@ pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
-pnmfem_update_loadings <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
+pnmfem_update_loadings <- function (X, F, L, numiter = 1, nc = 1) {
   if (nc == 1) {
     if (is.matrix(X))
       L <- t(pnmfem_update_factors_rcpp(t(X),t(L),F,numiter))
@@ -55,5 +55,5 @@ pnmfem_update_loadings <- function (X, F, L, numiter = 1, nc = 1, e = 1e-15) {
     else if (is.sparse.matrix(X))
       L <- t(pnmfem_update_factors_sparse_parallel_rcpp(t(X),t(L),F,numiter))
   }
-  return(pmax(L,e))
+  return(L)
 }
