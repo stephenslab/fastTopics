@@ -231,7 +231,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # RUN UPDATES
   # -----------
   if (verbose)
-    cat("iter      log-likelihood            deviance max|F-F'| max|L-L'|\n")
+    cat("iter      log-likelihood            deviance res(KKT) max|F-F'|",
+        "max|L-L'|\n")
   fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,verbose)
 
   # Return a list containing (1) the new estimates of the factors, (2)
@@ -305,13 +306,15 @@ init_poisson_nmf <- function (X, F, L, k) {
 
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
-  progress        <- as.data.frame(matrix(0,0,6))
-  names(progress) <- c("iter","loglik","dev","delta.f","delta.l","timing")
+  progress        <- as.data.frame(matrix(0,0,7))
+  names(progress) <- c("iter","loglik","dev","res","delta.f","delta.l",
+                       "timing")
   
   # Return a list containing (1) an initial estimate of the factors,
-  # (2) an initial estimate of the loadings, and (3) the initial data
-  # frame for keeping track of the algorithm's progress over time.
-  fit <- list(F = F,L = L,progress = progress)
+  # (2) an initial estimate of the loadings, (3) the last completed
+  # iteration, and (4) the initial data frame for keeping track
+  # of the algorithm's progress over time.
+  fit <- list(F = F,L = L,iter = 0,progress = progress)
   class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
 }
@@ -319,33 +322,35 @@ init_poisson_nmf <- function (X, F, L, k) {
 # This implements the core part of fit_poisson_nmf.
 fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                                        verbose) {
-  loglik.const <- loglik_poisson_const(X)
-  dev.const    <- deviance_poisson_const(X)
-  progress     <- as.matrix(data.frame(iter    = 1:numiter,
-                                       loglik  = 0,
-                                       dev     = 0,
-                                       delta.f = 0,
-                                       delta.l = 0,
-                                       timing  = 0))
+  loglik.const    <- loglik_poisson_const(X)
+  dev.const       <- deviance_poisson_const(X)
+  progress        <- as.data.frame(matrix(0,numiter,7))
+  names(progress) <- c("iter","loglik","dev","res","delta.f","delta.l",
+                       "timing")
   for (i in 1:numiter) {
-    fit0 <- fit
-    t1 <- proc.time()
+    fit0     <- fit
+    fit$iter <- fit$iter + 1
+    t1       <- proc.time()
     if (control$extrapolate)
       fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
     else
       fit <- update_poisson_nmf(X,fit,method,control)
     t2 <- proc.time()
-    progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
+    progress[i,"iter"]    <- fit$iter
     progress[i,"loglik"]  <- sum(loglik.const - cost(X,fit$L,t(fit$F),
                                                      control$e,"poisson"))
     progress[i,"dev"]     <- sum(dev.const + 2*cost(X,fit$L,t(fit$F),
                                                     control$e,"poisson"))
+    progress[i,"res"]     <- with(poisson_nmf_kkt(X,fit$F,fit$L),
+                                  max(abs(rbind(F,L))))
     progress[i,"delta.f"] <- max(abs(fit$F - fit0$F))
     progress[i,"delta.l"] <- max(abs(fit$L - fit0$L))
+    progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
     if (verbose)
-      cat(sprintf("%4d %+0.12e %+0.12e %0.3e %0.3e\n",
+      cat(sprintf("%4d %+0.12e %+0.12e %0.2e %0.3e %0.3e\n",
                   i,progress[i,"loglik"],progress[i,"dev"],
-                  progress[i,"delta.f"],progress[i,"delta.l"]))
+                  progress[i,"res"],progress[i,"delta.f"],
+                  progress[i,"delta.l"]))
   }
   fit$progress <- progress
   return(fit)
