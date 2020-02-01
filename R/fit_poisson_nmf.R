@@ -150,7 +150,7 @@
 #' @export
 #'
 fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
-                             method = c("altsqp","scd","ccd","em","mu"), 
+                             method = c("em","altsqp","scd","ccd","mu"), 
                              control = list(), verbose = TRUE) {
 
   # CHECK & PROCESS INPUTS
@@ -181,7 +181,6 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   if (!(is.list(fit0) & inherits(fit0,"poisson_nmf_fit")))
     stop("Input argument \"fit0\" should be an object of class ",
          "\"poisson_nmf_fit\", such as an output of init_poisson_nmf")
-  if (!(is.matrix(F) & is.numeric(F)))
   fit <- fit0
     
   # Check input argument "numiter".
@@ -207,10 +206,11 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   } else
     setThreadOptions(numThreads = control$nc)
   if (control$nc > 1)
-    message(sprintf("Setting number of RcppParallel threads to %d",control$nc))
+    message(sprintf("Using %d RcppParallel threads.",control$nc))
 
-  # Print a brief summary of the optimization settings, if requested.
+  # Give an overview of the optimization settings.
   if (verbose) {
+    # TO DO.
   }
   
   # INITIALIZE ESTIMATES
@@ -303,11 +303,13 @@ init_poisson_nmf <- function (X, F, L, k) {
     stop("Input argument \"L\" should be a numeric matrix (is.matrix(L) ",
          "should return TRUE)")
 
-  progress <- as.data.frame(matrix(0,0,7))
+  # Initialize the data frame for keeping track of the algorithm's
+  # progress over time.
+  progress        <- as.data.frame(matrix(0,0,6))
   names(progress) <- c("iter","loglik","dev","delta.f","delta.l","timing")
   
   # Return a list containing (1) an initial estimate of the factors,
-  # (2) an initial estimate of the loadings, and a placeholder data
+  # (2) an initial estimate of the loadings, and (3) the initial data
   # frame for keeping track of the algorithm's progress over time.
   fit <- list(F = F,L = L,progress = progress)
   class(fit) <- c("poisson_nmf_fit","list")
@@ -326,8 +328,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                                        delta.l = 0,
                                        timing  = 0))
   for (i in 1:numiter) {
-    F0 <- F
-    L0 <- L
+    fit0 <- fit
     t1 <- proc.time()
     if (control$extrapolate)
       fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
@@ -339,14 +340,15 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                                                      control$e,"poisson"))
     progress[i,"dev"]     <- sum(dev.const + 2*cost(X,fit$L,t(fit$F),
                                                     control$e,"poisson"))
-    progress[i,"delta.f"] <- max(abs(fit$F - fit$F0))
-    progress[i,"delta.l"] <- max(abs(fit$L - fit$L0))
+    progress[i,"delta.f"] <- max(abs(fit$F - fit0$F))
+    progress[i,"delta.l"] <- max(abs(fit$L - fit0$L))
     if (verbose)
       cat(sprintf("%4d %+0.12e %+0.12e %0.3e %0.3e\n",
                   i,progress[i,"loglik"],progress[i,"dev"],
                   progress[i,"delta.f"],progress[i,"delta.l"]))
   }
-  return(list(F = F,L = L,progress = as.data.frame(progress)))
+  fit$progress <- progress
+  return(fit)
 }
 
 # This implements a single update of the factors and loadings.
@@ -357,18 +359,19 @@ update_poisson_nmf <- function (X, fit, method, control) {
     fit$L <- betanmf_update_loadings(X,fit$L,t(fit$F))
     fit$F <- t(betanmf_update_factors(X,fit$L,t(fit$F)))
   } else if (method == "em") {
-    fit$L <- pnmfem_update_loadings(X,F,L,control$numiter,control$nc)
-    fit$F <- pnmfem_update_factors(X,F,L,control$numiter,control$nc)      
+    fit$L <- pnmfem_update_loadings(X,fit$F,fit$L,control$numiter,control$nc)
+    fit$F <- pnmfem_update_factors(X,fit$F,fit$L,control$numiter,control$nc)
   } else if (method == "ccd") {
-    fit$L <- ccd_update_loadings(X,L,t(F),control$nc,control$e)
-    fit$F <- t(ccd_update_factors(X,L,t(F),control$nc,control$e))
+    fit$L <- ccd_update_loadings(X,fit$L,t(fit$F),control$nc,control$e)
+    fit$F <- t(ccd_update_factors(X,fit$L,t(fit$F),control$nc,control$e))
   } else if (method == "scd") {
-    fit$L <- scd_update_loadings(X,L,t(F),control$numiter,control$nc,control$e)
-    fit$F <- t(scd_update_factors(X,L,t(F),control$numiter,control$nc,
+    fit$L <- scd_update_loadings(X,fit$L,t(fit$F),control$numiter,control$nc,
+                                 control$e)
+    fit$F <- t(scd_update_factors(X,fit$L,t(fit$F),control$numiter,control$nc,
                                   control$e))
   } else if (method == "altsqp") {
-    fit$L <- altsqp_update_loadings(X,F,L,control$numiter,control)
-    fit$F <- altsqp_update_factors(X,F,L,control$numiter,control)
+    fit$L <- altsqp_update_loadings(X,fit$F,fit$L,control$numiter,control)
+    fit$F <- altsqp_update_factors(X,fit$F,fit$L,control$numiter,control)
   }
   
   # Force the factors and loadings to be non-negative, or positive;
@@ -385,7 +388,7 @@ update_poisson_nmf <- function (X, fit, method, control) {
   return(fit)
 }
 
-# TO DO: Implement this function
+# TO DO: Implement this function.
 update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
 
 }

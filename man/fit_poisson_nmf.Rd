@@ -11,7 +11,7 @@ fit_poisson_nmf(
   k,
   fit0,
   numiter = 100,
-  method = c("altsqp", "scd", "ccd", "em", "mu"),
+  method = c("em", "altsqp", "scd", "ccd", "mu"),
   control = list(),
   verbose = TRUE
 )
