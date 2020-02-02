@@ -156,7 +156,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # CHECK & PROCESS INPUTS
   # ----------------------
   # Check input argument "X".
-  if (!(is.numeric(X) & (is.matrix(X) | is.sparse.matrix(X))))
+  if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
   if (is.matrix(X) & length(X) > 1e4 & mean(X > 0) < 0.1 & any(method != "mu"))
@@ -267,7 +267,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 init_poisson_nmf <- function (X, F, L, k) {
 
   # Check input X.
-  if (!(is.numeric(X) & (is.matrix(X) | is.sparse.matrix(X))))
+  if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
 
@@ -306,15 +306,13 @@ init_poisson_nmf <- function (X, F, L, k) {
 
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
-  progress        <- as.data.frame(matrix(0,0,7))
-  names(progress) <- c("iter","loglik","dev","res","delta.f","delta.l",
-                       "timing")
+  progress        <- as.data.frame(matrix(0,0,6))
+  names(progress) <- c("loglik","dev","res","delta.f","delta.l","timing")
   
   # Return a list containing (1) an initial estimate of the factors,
-  # (2) an initial estimate of the loadings, (3) the last completed
-  # iteration, and (4) the initial data frame for keeping track
-  # of the algorithm's progress over time.
-  fit <- list(F = F,L = L,iter = 0,progress = progress)
+  # (2) an initial estimate of the loadings, and (3) the initial data
+  # frame for keeping track of the algorithm's progress over time.
+  fit <- list(F = F,L = L,progress = progress)
   class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
 }
@@ -324,19 +322,16 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                                        verbose) {
   loglik.const    <- loglik_poisson_const(X)
   dev.const       <- deviance_poisson_const(X)
-  progress        <- as.data.frame(matrix(0,numiter,7))
-  names(progress) <- c("iter","loglik","dev","res","delta.f","delta.l",
-                       "timing")
+  progress        <- as.data.frame(matrix(0,numiter,6))
+  names(progress) <- c("loglik","dev","res","delta.f","delta.l","timing")
   for (i in 1:numiter) {
-    fit0     <- fit
-    fit$iter <- fit$iter + 1
-    t1       <- proc.time()
+    fit0 <- fit
+    t1   <- proc.time()
     if (control$extrapolate)
       fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
     else
       fit <- update_poisson_nmf(X,fit,method,control)
     t2 <- proc.time()
-    progress[i,"iter"]    <- fit$iter
     progress[i,"loglik"]  <- sum(loglik.const - cost(X,fit$L,t(fit$F),
                                                      control$e,"poisson"))
     progress[i,"dev"]     <- sum(dev.const + 2*cost(X,fit$L,t(fit$F),

@@ -1,6 +1,8 @@
 to do
 =====
 
++ Implement plot_progress_poisson_nmf.
+
 + Implement fit_poisson_nmf, first without extrapolation.
 
 + Update the pkgdown site using the latest version of pkgdown.
