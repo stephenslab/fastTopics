@@ -26,7 +26,8 @@ Imports:
     Rcpp (>= 1.0.1),
     RcppParallel (>= 4.4.1),
     mixsqp,
-    ggplot2
+    ggplot2,
+    cowplot
 Suggests:
     testthat,
     graphics,
