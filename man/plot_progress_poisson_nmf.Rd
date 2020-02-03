@@ -4,7 +4,17 @@
 \alias{plot_progress_poisson_nmf}
 \title{Add title here.}
 \usage{
-plot_progress_poisson_nmf(fits, color, linetype, size, e = 0.01)
+plot_progress_poisson_nmf(
+  fits,
+  color = rep(c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00",
+    "#CC79A7"), length.out = length(fits)),
+  linetype = rep("solid", length(fits)),
+  linesize = rep(0.75, length(fits)),
+  shape = rep(20, length(fits)),
+  ptsize = 1,
+  e = 0.01,
+  theme = theme_cowplot(font_size = 12)
+)
 }
 \arguments{
 \item{fits}{Describe "fits" input argument here.}
@@ -13,7 +23,15 @@ plot_progress_poisson_nmf(fits, color, linetype, size, e = 0.01)
 
 \item{linetype}{Describe "linetype" input argument here.}
 
+\item{linesize}{Describe "linesize" input argument here.}
+
+\item{shape}{Describe "shape" input argument here.}
+
+\item{ptsize}{Describe "ptsize" input argument here.}
+
 \item{e}{Describe "e" input argument here.}
+
+\item{theme}{Describe "theme" input argument here.}
 }
 \value{
 Describe return value here.

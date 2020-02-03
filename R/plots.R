@@ -13,7 +13,15 @@
 #'
 #' @param linetype Describe "linetype" input argument here.
 #'
+#' @param linesize Describe "linesize" input argument here.
+#'
+#' @param shape Describe "shape" input argument here.
+#' 
+#' @param ptsize Describe "ptsize" input argument here.
+#' 
 #' @param e Describe "e" input argument here.
+#'
+#' @param theme Describe "theme" input argument here.
 #'
 #' @return Describe return value here.
 #'
@@ -22,12 +30,29 @@
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
 #' @importFrom ggplot2 geom_line
+#' @importFrom ggplot2 geom_point
 #' @importFrom ggplot2 scale_y_continuous
+#' @importFrom ggplot2 scale_color_manual
+#' @importFrom ggplot2 scale_linetype_manual
+#' @importFrom ggplot2 scale_size_manual
+#' @importFrom ggplot2 scale_shape_manual
+#' @importFrom ggplot2 labs
+#' @importFrom cowplot plot_grid
 #' @importFrom cowplot theme_cowplot
 #' 
 #' @export
 #' 
-plot_progress_poisson_nmf <- function (fits, color, linetype, size, e = 0.01) {
+plot_progress_poisson_nmf <-
+  function (fits,
+            color    = rep(c("#E69F00","#56B4E9","#009E73","#F0E442",
+                             "#0072B2","#D55E00","#CC79A7"),
+                           length.out = length(fits)),
+            linetype = rep("solid",length(fits)),
+            linesize = rep(0.75,length(fits)),
+            shape    = rep(20,length(fits)),
+            ptsize   = 2,
+            e        = 0.01,
+            theme    = function() theme_cowplot(font_size = 12)) {
 
   # Check input "fits".
   if (!(is.list(fits) & !is.null(names(fits))))
@@ -38,7 +63,7 @@ plot_progress_poisson_nmf <- function (fits, color, linetype, size, e = 0.01) {
   if (!all(nchar(names(fits)) > 0))
     stop("All names for elements of \"fit\" should be non-empty")
   
-  # Prepare the data for plotting.
+  # Prepare the data for the plots.
   n      <- length(fits)
   labels <- names(fits)
   pdat    <- NULL
@@ -56,10 +81,21 @@ plot_progress_poisson_nmf <- function (fits, color, linetype, size, e = 0.01) {
 
   # Create the plot showing the improvement in the log-likelihood over
   # time.
-  p1 <- ggplot(pdat,aes_string(x = "timing",y = "loglik",color = "method")) +
-    geom_line(size = 1) +
+  p1 <- ggplot(pdat,aes_string(x = "timing",y = "loglik",color = "method",
+                               linetype = "method",size = "method")) +
+    geom_line() +
+    geom_point(data = subset(pdat,iter %% 10 == 1),
+               mapping = aes_string(x = "timing",y = "loglik",
+                                    color = "method",shape = "method"),
+               size = ptsize,inherit.aes = FALSE) +
     scale_y_continuous(trans = "log10") +
-    theme_cowplot()
+    scale_color_manual(values = color) +
+    scale_linetype_manual(values = linetype) +
+    scale_size_manual(values = linesize) +
+    scale_shape_manual(values = shape) +
+    labs(x = "runtime (s)",
+         y = "distance from best loglik") +
+    theme()
 
   # Create the plot showing the improvement in the deviance over time.
   # TO DO.
