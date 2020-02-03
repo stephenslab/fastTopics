@@ -34,5 +34,5 @@ mixsqp_control_default <- function()
        stepsizereduce            = 0.75,
        minstepsize               = 1e-8,
        identity.contrib.increase = 10,
-       eps                       = 1e-8,
+       eps                       = 1e-15,
        maxiter.activeset         = 20)

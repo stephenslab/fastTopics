@@ -6,18 +6,21 @@
 \usage{
 plot_progress_poisson_nmf(
   fits,
+  plot.dev = FALSE,
   color = rep(c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00",
     "#CC79A7"), length.out = length(fits)),
   linetype = rep("solid", length(fits)),
   linesize = rep(0.75, length(fits)),
   shape = rep(20, length(fits)),
-  ptsize = 1,
+  ptsize = 2,
   e = 0.01,
-  theme = theme_cowplot(font_size = 12)
+  theme = function() theme_cowplot(font_size = 12)
 )
 }
 \arguments{
 \item{fits}{Describe "fits" input argument here.}
+
+\item{plot.dev}{Describe "plot.dev" input argument here.}
 
 \item{color}{Describe "color" input argument here.}
 

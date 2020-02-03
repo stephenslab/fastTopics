@@ -333,9 +333,9 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
       fit <- update_poisson_nmf(X,fit,method,control)
     t2 <- proc.time()
     progress[i,"loglik"]  <- sum(loglik.const - cost(X,fit$L,t(fit$F),
-                                                     control$e,"poisson"))
+                                                     control$eps,"poisson"))
     progress[i,"dev"]     <- sum(dev.const + 2*cost(X,fit$L,t(fit$F),
-                                                    control$e,"poisson"))
+                                                    control$eps,"poisson"))
     progress[i,"res"]     <- with(poisson_nmf_kkt(X,fit$F,fit$L),
                                   max(abs(rbind(F,L))))
     progress[i,"delta.f"] <- max(abs(fit$F - fit0$F))
@@ -362,13 +362,13 @@ update_poisson_nmf <- function (X, fit, method, control) {
     fit$L <- pnmfem_update_loadings(X,fit$F,fit$L,control$numiter,control$nc)
     fit$F <- pnmfem_update_factors(X,fit$F,fit$L,control$numiter,control$nc)
   } else if (method == "ccd") {
-    fit$L <- ccd_update_loadings(X,fit$L,t(fit$F),control$nc,control$e)
-    fit$F <- t(ccd_update_factors(X,fit$L,t(fit$F),control$nc,control$e))
+    fit$L <- ccd_update_loadings(X,fit$L,t(fit$F),control$nc,control$eps)
+    fit$F <- t(ccd_update_factors(X,fit$L,t(fit$F),control$nc,control$eps))
   } else if (method == "scd") {
     fit$L <- scd_update_loadings(X,fit$L,t(fit$F),control$numiter,control$nc,
-                                 control$e)
+                                 control$eps)
     fit$F <- t(scd_update_factors(X,fit$L,t(fit$F),control$numiter,control$nc,
-                                  control$e))
+                                  control$eps))
   } else if (method == "altsqp") {
     fit$L <- altsqp_update_loadings(X,fit$F,fit$L,control$numiter,control)
     fit$F <- altsqp_update_factors(X,fit$F,fit$L,control$numiter,control)
@@ -401,7 +401,6 @@ fit_poisson_nmf_control_default <- function()
   c(list(extrapolate = FALSE,
          numiter     = 4,
          minval      = 1e-15,
-         e           = 1e-15,
          nc          = as.integer(NA)),
     mixsqp_control_default())
     

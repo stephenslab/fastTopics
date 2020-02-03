@@ -9,6 +9,8 @@
 #'
 #' @param fits Describe "fits" input argument here.
 #'
+#' @param plot.dev Describe "plot.dev" input argument here.
+#' 
 #' @param color Describe "color" input argument here.
 #'
 #' @param linetype Describe "linetype" input argument here.
@@ -44,6 +46,7 @@
 #' 
 plot_progress_poisson_nmf <-
   function (fits,
+            plot.dev = FALSE,
             color    = rep(c("#E69F00","#56B4E9","#009E73","#F0E442",
                              "#0072B2","#D55E00","#CC79A7"),
                            length.out = length(fits)),
@@ -76,17 +79,20 @@ plot_progress_poisson_nmf <-
   pdat <- transform(pdat,
                     method = factor(method,labels),
                     loglik = max(loglik) - loglik + e,
-                    dev    = dev - min(dev) + e,
-                    delta  = pmax(delta.f,delta.l))
+                    dev    = dev - min(dev) + e)
 
-  # Create the plot showing the improvement in the log-likelihood over
-  # time.
-  p1 <- ggplot(pdat,aes_string(x = "timing",y = "loglik",color = "method",
+  # Create the plot showing the improvement in the log-likelihood (or
+  # deviance) over time.
+  if (plot.dev)
+    y <- "dev"
+  else
+    y <- "loglik"
+  p1 <- ggplot(pdat,aes_string(x = "timing",y = y,color = "method",
                                linetype = "method",size = "method")) +
     geom_line() +
     geom_point(data = subset(pdat,iter %% 10 == 1),
-               mapping = aes_string(x = "timing",y = "loglik",
-                                    color = "method",shape = "method"),
+               mapping = aes_string(x = "timing",y = y,color = "method",
+                                    shape = "method"),
                size = ptsize,inherit.aes = FALSE) +
     scale_y_continuous(trans = "log10") +
     scale_color_manual(values = color) +
@@ -94,16 +100,25 @@ plot_progress_poisson_nmf <-
     scale_size_manual(values = linesize) +
     scale_shape_manual(values = shape) +
     labs(x = "runtime (s)",
-         y = "distance from best loglik") +
+         y = paste("distance from best",y)) +
     theme()
 
-  # Create the plot showing the improvement in the deviance over time.
-  # TO DO.
-
   # Create the plot showing the evolution in the KKT residual over time.
-  # TO DO.
+  p2 <- ggplot(pdat,aes_string(x = "timing",y = "res",color = "method",
+                               linetype = "method",size = "method")) +
+    geom_line() +
+    geom_point(data = subset(pdat,iter %% 10 == 1),
+               mapping = aes_string(x = "timing",y = "res",color = "method",
+                                    shape = "method"),
+               size = ptsize,inherit.aes = FALSE) +
+    scale_y_continuous(trans = "log10") +
+    scale_color_manual(values = color) +
+    scale_linetype_manual(values = linetype) +
+    scale_size_manual(values = linesize) +
+    scale_shape_manual(values = shape) +
+    labs(x = "runtime (s)",
+         y = "KKT residual") +
+    theme()
 
-  # Create the plot showing the maximum change in the factors and
-  # loadings over time.
-  return(p1)
+  return(plot_grid(p1,p2,labels = c("A","B")))
 }
