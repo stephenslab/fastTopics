@@ -10,6 +10,8 @@
 #' @param fits Describe "fits" input argument here.
 #'
 #' @param plot.dev Describe "plot.dev" input argument here.
+#'
+#' @param add.point.every Describe "add.point.every" input argument here.
 #' 
 #' @param color Describe "color" input argument here.
 #'
@@ -47,6 +49,7 @@
 plot_progress_poisson_nmf <-
   function (fits,
             plot.dev = FALSE,
+            add.point.every = 20,
             color    = rep(c("#E69F00","#56B4E9","#009E73","#F0E442",
                              "#0072B2","#D55E00","#CC79A7"),
                            length.out = length(fits)),
@@ -90,7 +93,7 @@ plot_progress_poisson_nmf <-
   p1 <- ggplot(pdat,aes_string(x = "timing",y = y,color = "method",
                                linetype = "method",size = "method")) +
     geom_line() +
-    geom_point(data = subset(pdat,iter %% 10 == 1),
+    geom_point(data = subset(pdat,iter %% add.point.every == 1),
                mapping = aes_string(x = "timing",y = y,color = "method",
                                     shape = "method"),
                size = ptsize,inherit.aes = FALSE) +
@@ -107,7 +110,7 @@ plot_progress_poisson_nmf <-
   p2 <- ggplot(pdat,aes_string(x = "timing",y = "res",color = "method",
                                linetype = "method",size = "method")) +
     geom_line() +
-    geom_point(data = subset(pdat,iter %% 10 == 1),
+    geom_point(data = subset(pdat,iter %% add.point.every == 1),
                mapping = aes_string(x = "timing",y = "res",color = "method",
                                     shape = "method"),
                size = ptsize,inherit.aes = FALSE) +
