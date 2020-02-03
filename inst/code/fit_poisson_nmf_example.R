@@ -6,7 +6,7 @@ F   <- out$F
 L   <- out$L
 
 # Run 20 EM updates to find a good initialization.
-fit0 <- fit_poisson_nmf(X,k = 3,numiter = 20,verbose = FALSE)
+fit0 <- fit_poisson_nmf(X,k = 3,numiter = 50,verbose = FALSE)
 
 # COMPARE DIFFERENT METHODS
 # -------------------------
@@ -41,4 +41,3 @@ plot_progress_poisson_nmf(list(em = fit.em,mu = fit.mu,ccd = fit.ccd,scd = fit.s
 # COMPARE WITH VS. WITHOUT EXTRAPOLATION
 # --------------------------------------
 # TO DO.
-

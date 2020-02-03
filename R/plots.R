@@ -123,5 +123,5 @@ plot_progress_poisson_nmf <-
          y = "KKT residual") +
     theme()
 
-  return(plot_grid(p1,p2,labels = c("A","B")))
+  return(plot_grid(p1,p2))
 }
