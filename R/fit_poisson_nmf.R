@@ -163,6 +163,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     message(paste("Input matrix \"X\" has less than 10% nonzero entries;",
                   "consider converting \"X\" to a sparse matrix to reduce",
                   "computational effort"))
+  if (is.matrix(X) & is.integer(X))
+    storage.mode(X) <- "double"
   
   # Get the number of rows (n) and columns (m) of the data matrix,
   n <- nrow(X)
@@ -293,6 +295,8 @@ init_poisson_nmf <- function (X, F, L, k) {
   } else if (!(is.matrix(F) & is.numeric(F)))
     stop("Input argument \"F\" should be a numeric matrix (is.matrix(F) ",
          "should return TRUE)")
+  if (is.integer(F))
+    storage.mode(F) <- "double"
     
   # If the loading matrix is not provided, initialize the entries
   # uniformly at random.
@@ -303,6 +307,8 @@ init_poisson_nmf <- function (X, F, L, k) {
   } else if (!(is.matrix(L) & is.numeric(L)))
     stop("Input argument \"L\" should be a numeric matrix (is.matrix(L) ",
          "should return TRUE)")
+  if (is.integer(L))
+    storage.mode(L) <- "double"
 
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.

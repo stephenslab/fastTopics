@@ -13,6 +13,8 @@
 altsqp_update_factors <-
   function (X, F, L,
             numiter = 1, control = fit_poisson_nmf_control_default()) {
+  if (is.na(control$nc))
+    control$nc <- 1
   if (control$nc == 1) {
     if (is.matrix(X))
       F <- t(altsqp_update_factors_rcpp(X,t(F),L,numiter,control))
@@ -43,6 +45,8 @@ altsqp_update_factors <-
 altsqp_update_loadings <-
   function (X, F, L,
             numiter = 1, control = fit_poisson_nmf_control_default()) {
+  if (is.na(control$nc))
+    control$nc <- 1
   if (control$nc == 1) {
     if (is.matrix(X))
       L <- t(altsqp_update_factors_rcpp(t(X),t(L),F,numiter,control))

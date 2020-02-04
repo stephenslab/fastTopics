@@ -59,7 +59,7 @@ generate_test_data <- function (n, m, k, lmax = 0.5, fmax = 0.5) {
 generate_poismix_data <- function (n, x) {
   m <- length(x)
   L <- rand(n,m)
-  w <- rpois(n,L %*% x)
+  w <- as.double(rpois(n,L %*% x))
   return(list(L = L,w = w))
 }
 

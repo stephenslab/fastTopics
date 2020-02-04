@@ -58,7 +58,7 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
   # Simulate the data.
   F <- rand(m,k,0,fmax)
   L <- rand(n,k,0,lmax)
-  X <- matrix(rpois(n*m,tcrossprod(L,F)),n,m)
+  X <- matrix(as.double(rpois(n*m,tcrossprod(L,F))),n,m)
   if (sparse)
     X <- as(X,"dgCMatrix")
 
