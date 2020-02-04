@@ -338,10 +338,9 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     else
       fit <- update_poisson_nmf(X,fit,method,control)
     t2 <- proc.time()
-    progress[i,"loglik"]  <- sum(loglik.const - cost(X,fit$L,t(fit$F),
-                                                     control$eps,"poisson"))
-    progress[i,"dev"]     <- sum(dev.const + 2*cost(X,fit$L,t(fit$F),
-                                                    control$eps,"poisson"))
+    u  <- cost(X,fit$L,t(fit$F),control$eps,"poisson")
+    progress[i,"loglik"]  <- sum(loglik.const - u)
+    progress[i,"dev"]     <- sum(dev.const + 2*u)
     progress[i,"res"]     <- with(poisson_nmf_kkt(X,fit$F,fit$L),
                                   max(abs(rbind(F,L))))
     progress[i,"delta.f"] <- max(abs(fit$F - fit0$F))
@@ -357,46 +356,111 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
   return(fit)
 }
 
+# TO DO: Give a more detailed explanation of the inputs and outputs;
+# in particular, what changes in "fit".
+#
 # This implements a single update of the factors and loadings.
 update_poisson_nmf <- function (X, fit, method, control) {
 
-  # Update the loadings ("activations") then the factors ("basis vectors").
-  if (method == "mu") {
-    fit$L <- betanmf_update_loadings(X,fit$L,t(fit$F))
-    fit$F <- t(betanmf_update_factors(X,fit$L,t(fit$F)))
-  } else if (method == "em") {
-    fit$L <- pnmfem_update_loadings(X,fit$F,fit$L,control$numiter,control$nc)
-    fit$F <- pnmfem_update_factors(X,fit$F,fit$L,control$numiter,control$nc)
-  } else if (method == "ccd") {
-    fit$L <- ccd_update_loadings(X,fit$L,t(fit$F),control$nc,control$eps)
-    fit$F <- t(ccd_update_factors(X,fit$L,t(fit$F),control$nc,control$eps))
-  } else if (method == "scd") {
-    fit$L <- scd_update_loadings(X,fit$L,t(fit$F),control$numiter,control$nc,
-                                 control$eps)
-    fit$F <- t(scd_update_factors(X,fit$L,t(fit$F),control$numiter,control$nc,
-                                  control$eps))
-  } else if (method == "altsqp") {
-    fit$L <- altsqp_update_loadings(X,fit$F,fit$L,control$numiter,control)
-    fit$F <- altsqp_update_factors(X,fit$F,fit$L,control$numiter,control)
+  # Store the value of the objective (loss) function at the current
+  # iterate.
+  loss0 <- fit$loss
+    
+  # Compute the extrapolated update for the loadings ("activations").
+  # Note that when beta = 0, Ly = Ln.
+  fit$Ln <- pmax(update_loadings_poisson_nmf(X,fit,method,control),
+                 control$minval)
+  fit$Ly <- pmax(with(fit,Ln + beta*(Ln - L)),control$minval)
+
+  # Compute the extrapolated update for the factors ("basis
+  # vectors"). Note that when beta = 0, Fy = Fn.
+  fit$Fn <- pmax(update_factors_poisson_nmf(X,fit,method,control),
+                 control$minval)
+  fit$Fy <- pmax(with(fit,Fn + beta*(Fn - F)),control$minval)
+
+  # Compute the value of the objective (loss) function at the
+  # extrapolated solution for the loadings (Ly) and the
+  # non-extrapolated solution for the factors (Fn).
+  fit$loss <- sum(cost(X,fit$Ly,t(fit$Fn),control$eps))
+  if (fit$beta == 0) {
+
+    # When beta = 0, extrapolation is not used, and the extrapolation
+    # parameters are not updated; use the basic coordinate-wise
+    # updates for the factors and loadings.
+    fit$F <- fit$Fn
+    fit$L <- fit$Ln
+  } else {
+
+    # Update the extrapolation parameters following Algorithm 3 of
+    # Ang & Gillis (2019).
+    if (fit$loss > loss0) {
+
+      # The solution did not improve, so restart the extrapolation
+      # scheme.
+      fit$Fy      <- fit$F
+      fit$Ly      <- fit$L
+      fit$betamax <- fit$beta0
+      fit$beta    <- control$beta.reduce * fit$beta
+    } else {
+        
+      # The solution improved; retain the basic co-ordinate ascent
+      # update as well.
+      fit$F       <- fit$Fn
+      fit$L       <- fit$Ln
+      fit$beta    <- min(fit$betamax,control$beta.increase * fit$beta)
+      fit$beta0   <- fit$beta
+      fit$betamax <- min(0.99,control$betamax.increase * fit$betamax)
+    }
   }
   
-  # Force the factors and loadings to be non-negative, or positive;
-  # the latter can promote better convergence for some algorithms.
-  fit$F <- pmax(fit$F,control$minval)
-  fit$L <- pmax(fit$L,control$minval)
-    
-  # Re-scale the factors and loadings.
-  out   <- rescale.factors(fit$F,fit$L)
-  fit$F <- out$F
-  fit$L <- out$L
+  # If the solution is improved, update the current best solution
+  # using the non-extrapolated estimates of the factors (Fn) and the
+  # extrapolated estimates of the loadings (Ly).
+  if (fit$loss < fit$loss.best) {
+    fit$Fbest     <- fit$Fn
+    fit$Lbest     <- fit$Ly 
+    fit$loss.best <- loss
 
+    # Re-scale the factors and loadings.
+    out       <- rescale.factors(fit$Fbest,fit$Lbest)
+    fit$Fbest <- out$F
+    fit$Lbest <- out$L
+  }
+           
   # Output the updated "fit".
   return(fit)
 }
 
-# TO DO: Implement this function.
-update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
-
+# TO DO: Explain here what this function does, and how to use it.
+update_factors_poisson_nmf <- function (X, fit, method, control) {
+  if (method == "mu")
+    F <- t(betanmf_update_factors(X,fit$L,t(fit$F)))
+  else if (method == "em")
+    F <- pnmfem_update_factors(X,fit$F,fit$L,control$numiter,control$nc)
+  else if (method == "ccd")
+    F <- t(ccd_update_factors(X,fit$L,t(fit$F),control$nc,control$eps))
+  else if (method == "scd")
+    F <- t(scd_update_factors(X,fit$L,t(fit$F),control$numiter,control$nc,
+                              control$eps))
+  else if (method == "altsqp")
+    F <- altsqp_update_factors(X,fit$F,fit$L,control$numiter,control)
+  return(F)
+}
+  
+# TO DO: Explain here what this function does, and how to use it.
+update_loadings_poisson_nmf <- function (X, fit, method, control) {
+  if (method == "mu")
+    L <- betanmf_update_loadings(X,fit$L,t(fit$F))
+  else if (method == "em")
+    L <- pnmfem_update_loadings(X,fit$F,fit$L,control$numiter,control$nc)
+  else if (method == "ccd")
+    L <- ccd_update_loadings(X,fit$L,t(fit$F),control$nc,control$eps)
+  else if (method == "scd")
+    L <- scd_update_loadings(X,fit$L,t(fit$F),control$numiter,control$nc,
+                                 control$eps)
+  else if (method == "altsqp")
+    L <- altsqp_update_loadings(X,fit$F,fit$L,control$numiter,control)
+  return(L)
 }
 
 #' @rdname fit_poisson_nmf
