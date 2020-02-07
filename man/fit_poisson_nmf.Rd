@@ -16,7 +16,15 @@ fit_poisson_nmf(
   verbose = TRUE
 )
 
-init_poisson_nmf(X, F, L, k, beta = 0.5, betamax = 0.99)
+init_poisson_nmf(
+  X,
+  F,
+  L,
+  k,
+  beta = 0.5,
+  betamax = 0.99,
+  e = fit_poisson_nmf_control_default()$eps
+)
 
 fit_poisson_nmf_control_default()
 }
@@ -69,6 +77,11 @@ should be specified.}
 extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 of Ang & Gillis (2019).}
 
+\item{e}{A small, non-negative number added to the terms inside the
+logarithms to avoid computing logarithms of zero. This prevents
+numerical problems at the cost of introducing a very small
+inaccuracy in the computation.}
+
 \item{minval}{A small positive constant used to safeguard the
 multiplicative updates. The multiplicative updates are implemented
 as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
@@ -77,11 +90,6 @@ obtained by applying a single multiplicative update rule. Setting
 \code{minval = 0} is allowed, but the multiplicative updates are
 not guaranteed to converge to a stationary point without this
 safeguard, and a warning will be given in this case.}
-
-\item{e}{A small, non-negative number added to the terms inside the
-logarithms to avoid computing logarithms of zero. This prevents
-numerical problems at the cost of introducing a very small
-inaccuracy in the computation.}
 }
 \value{
 Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}
@@ -94,12 +102,30 @@ with the following elements:
 \item{L}{A matrix containing estimates of the loadings.}
 
 \item{Fy}{A matrix containing the extrapolated factor estimates. If
-  the extrapolation scheme is not used, \code{F} and \code{Fy} are
-  the same.}
+  the extrapolation scheme is not used, \code{F} and \code{Fy} will
+  be the same.}
 
-\item{Ly}{A matrix containig the extrapolated estimates of the
-  loadings. If extrapolation is not used, \code{L} and \code{Ly} are
-  the same.}
+\item{Ly}{A matrix containing the extrapolated estimates of the
+  loadings. If extrapolation is not used, \code{L} and \code{Ly} will
+  be the same.}
+
+\item{Fbest}{A matrix containing the current best estimates of the
+  factors. If extrapolation is not used, \code{F} and \code{Fbest}
+  will be the same.}
+
+\item{Lbest}{A matrix containing the current best estimates of the
+  loadings. If extrapolation is not used, \code{L} and \code{Lbest}
+  will be the same.}
+
+\item{loss}{Value of objective ("loss") function computed at the
+  extrapolated solution for the loadings (\code{Ly}) and the
+  non-extrapolated solution for the factors (\code{F}). This is used
+  internally to implement the extrapolated updates.}
+
+\item{lossbest}{Value of the objective ("loss" function computed at
+  the current best estimates of the factors and loadings
+  (\code{Fbest} and \code{Lbest}. If extrapolation is not used,
+  \code{loss} and \code{lossbest} will be the same.}
 
 \item{progress}{A data frame containing more detailed information
   about the algorithm's progress. The data frame should have

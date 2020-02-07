@@ -38,6 +38,16 @@ plot_progress_poisson_nmf(list(em = fit.em,ccd = fit.ccd,scd = fit.scd,altsqp = 
                           linetype = rep(c("solid","twodash"),each = 4),
                           linesize = rep(0.5,9))
 
-# COMPARE WITH VS. WITHOUT EXTRAPOLATION
+# COMPARE WITH AND WITHOUT EXTRAPOLATION
 # --------------------------------------
-# TO DO.
+fit.mu3     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 999,method = "mu",
+                               control = list(extrapolate = TRUE),verbose = FALSE)
+fit.em3     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 750,method = "em",
+                               control = list(extrapolate = TRUE),verbose = FALSE)
+fit.ccd3    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "ccd",
+                               control = list(extrapolate = TRUE),verbose = FALSE)
+fit.scd3    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 200,method = "scd",
+                               control = list(extrapolate = TRUE),verbose = FALSE)
+fit.altsqp3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 150,method = "altsqp",
+                               control = list(extrapolate = TRUE),verbose = FALSE)
+
