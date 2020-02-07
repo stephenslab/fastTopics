@@ -350,8 +350,9 @@ init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99,
 
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
-  progress        <- as.data.frame(matrix(0,0,8))
-  names(progress) <- c("loglik","dev","res","delta.f","delta.l","beta","betamax","timing")
+  progress        <- as.data.frame(matrix(0,0,9))
+  names(progress) <- c("loglik","dev","res","delta.f","delta.l","extrapolate",
+                       "beta","betamax","timing")
   
   # Return a list containing: F, an initial estimate of the factors;
   # L, an initial estimate of the loadings; Fy and Ly, the
@@ -388,8 +389,9 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
   # loop below.
   loglik.const    <- loglik_poisson_const(X)
   dev.const       <- deviance_poisson_const(X)
-  progress        <- as.data.frame(matrix(0,numiter,8))
-  names(progress) <- c("loglik","dev","res","delta.f","delta.l","beta","betamax","timing")
+  progress        <- as.data.frame(matrix(0,numiter,9))
+  names(progress) <- c("loglik","dev","res","delta.f","delta.l","extrapolate",
+                       "beta","betamax","timing")
 
   # Iterate the updates of the factors and loadings.
   for (i in 1:numiter) {
@@ -397,7 +399,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     t1   <- proc.time()
 
     # Update the factors and loadings.
-    if (control$extrapolate)
+    extrapolate <- with(control,extrapolate & (i %% extrapolate.reset != 0))
+    if (extrapolate)
       fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
     else
       fit <- update_poisson_nmf(X,fit,method,control)
@@ -415,14 +418,15 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                                   max(abs(rbind(F,L))))
     progress[i,"delta.f"] <- max(abs(fit$Fbest - fit0$Fbest))
     progress[i,"delta.l"] <- max(abs(fit$Lbest - fit0$Lbest))
+    progress[i,"extrapolate"] <- extrapolate
     progress[i,"beta"]    <- fit$beta
     progress[i,"betamax"] <- fit$betamax
     progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
     if (verbose)
       cat(sprintf("%4d %+0.10e %+0.10e %0.2e %0.3e %0.3e %0.2f %0.2f\n",
                   i,progress[i,"loglik"],progress[i,"dev"],progress[i,"res"],
-                  progress[i,"delta.f"],progress[i,"delta.l"],progress[i,"beta"],
-                  progress[i,"betamax"]))
+                  progress[i,"delta.f"],progress[i,"delta.l"],
+                  extrapolate * progress[i,"beta"],progress[i,"betamax"]))
   }
 
   # Output the updated "fit".
@@ -580,12 +584,13 @@ update_loadings_poisson_nmf <- function (X, F, L, method, control) {
 #' @export
 #' 
 fit_poisson_nmf_control_default <- function()
-  c(list(numiter          = 4,
-         minval           = 1e-15,
-         nc               = as.integer(NA),
-         extrapolate      = FALSE,
-         beta.increase    = 1.1,
-         beta.reduce      = 0.75,
-         betamax.increase = 1.05),
+  c(list(numiter           = 4,
+         minval            = 1e-15,
+         nc                = as.integer(NA),
+         extrapolate       = FALSE,
+         extrapolate.reset = 20,
+         beta.increase     = 1.1,
+         beta.reduce       = 0.75,
+         betamax.increase   = 1.05),
     mixsqp_control_default())
     
