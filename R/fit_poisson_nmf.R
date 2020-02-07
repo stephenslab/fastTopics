@@ -99,6 +99,14 @@
 #'
 #' \item{L}{A matrix containing estimates of the loadings.}
 #'
+#' \item{Fy}{A matrix containing the extrapolated factor estimates. If
+#'   the extrapolation scheme is not used, \code{F} and \code{Fy} are
+#'   the same.}
+#'
+#' \item{Ly}{A matrix containig the extrapolated estimates of the
+#'   loadings. If extrapolation is not used, \code{L} and \code{Ly} are
+#'   the same.}
+#' 
 #' \item{progress}{A data frame containing more detailed information
 #'   about the algorithm's progress. The data frame should have
 #'   \code{numiter} rows. The columns of the data frame are: "iter", the
@@ -264,9 +272,16 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #'   should be non-negative. When not provided, input argument \code{k}
 #'   should be specified.
 #'
+#' @param beta Initial setting of the extrapolation parameter. This is
+#'   \eqn{beta} in Algorithm 3 of Ang & Gillis (2019).
+#'
+#' @param betamax Initial setting for the upper bound on the
+#'   extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
+#'   of Ang & Gillis (2019).
+#' 
 #' @export
 #' 
-init_poisson_nmf <- function (X, F, L, k) {
+init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99) {
 
   # Check input X.
   if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
@@ -315,10 +330,22 @@ init_poisson_nmf <- function (X, F, L, k) {
   progress        <- as.data.frame(matrix(0,0,6))
   names(progress) <- c("loglik","dev","res","delta.f","delta.l","timing")
   
-  # Return a list containing (1) an initial estimate of the factors,
-  # (2) an initial estimate of the loadings, and (3) the initial data
-  # frame for keeping track of the algorithm's progress over time.
-  fit <- list(F = F,L = L,progress = progress)
+  # Return a list containing: F, an initial estimate of the factors;
+  # L, an initial estimate of the loadings; Fy, the extrapolated
+  # estimate of the factors, which initially is always the same as F;
+  # Ly, the extrapolated estimate of the loadings, which initially is
+  # always the same as L; beta, beta0 and betamax, the initial
+  # settings of the extrapolation parameters; and "progress", the
+  # initial data frame for keeping track of the algorithm's progress
+  # over time.
+  fit <- list(F        = F,
+              L        = L,
+              Fy       = F,
+              Ly       = L,
+              beta     = beta,
+              beta0    = beta,
+              betamax  = betamax,
+              progress = progress)
   class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
 }

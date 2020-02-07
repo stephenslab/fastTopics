@@ -16,7 +16,7 @@ fit_poisson_nmf(
   verbose = TRUE
 )
 
-init_poisson_nmf(X, F, L, k)
+init_poisson_nmf(X, F, L, k, beta = 0.5, betamax = 0.99)
 
 fit_poisson_nmf_control_default()
 }
@@ -62,6 +62,13 @@ and k > 1 is the rank of the matrix factorization. All entries of L
 should be non-negative. When not provided, input argument \code{k}
 should be specified.}
 
+\item{beta}{Initial setting of the extrapolation parameter. This is
+\eqn{beta} in Algorithm 3 of Ang & Gillis (2019).}
+
+\item{betamax}{Initial setting for the upper bound on the
+extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
+of Ang & Gillis (2019).}
+
 \item{minval}{A small positive constant used to safeguard the
 multiplicative updates. The multiplicative updates are implemented
 as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
@@ -85,6 +92,14 @@ with the following elements:
 \item{F}{A matrix containing the factor estimates.}
 
 \item{L}{A matrix containing estimates of the loadings.}
+
+\item{Fy}{A matrix containing the extrapolated factor estimates. If
+  the extrapolation scheme is not used, \code{F} and \code{Fy} are
+  the same.}
+
+\item{Ly}{A matrix containig the extrapolated estimates of the
+  loadings. If extrapolation is not used, \code{L} and \code{Ly} are
+  the same.}
 
 \item{progress}{A data frame containing more detailed information
   about the algorithm's progress. The data frame should have
