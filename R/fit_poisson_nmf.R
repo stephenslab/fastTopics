@@ -383,11 +383,43 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
   return(fit)
 }
 
-# TO DO: Give a more detailed explanation of the inputs and outputs;
-# in particular, what changes in "fit".
-#
-# This implements a single update of the factors and loadings.
+# This implements a single (non-extrapolated) update of the factors
+# and loadings. The output is the updated "fit". Note that, because no
+# extrapolation scheme is used, the extrapolated and non-extrapolated
+# estimates are the same in the return value; that is, fit$Fy is the
+# same as fit$F, and fit$Ly is the same as fit$L.
 update_poisson_nmf <- function (X, fit, method, control) {
+
+  # Update the loadings ("activations"). The factors are forced to be
+  # non-negative, or positive; the latter can promote better
+  # convergence for some algorithms.
+  L <- update_loadings_poisson_nmf(X,fit$F,fit$L,method,control)
+  L <- pmax(L,control$minval)
+
+  # Update the factors ("basis vectors"). The loadings are forced to
+  # be non-negative, or positive; the latter can promote better
+  # convergence for some algorithms.
+  F <- update_factors_poisson_nmf(X,fit$F,fit$L,method,control)
+
+  # Re-scale the factors and loadings.
+  out   <- rescale.factors(fit$F,fit$L)
+  fit$F <- out$F
+  fit$L <- out$L
+
+  # The extrapolated estimates are the same as the non-extrapolated
+  # estimates.
+  fit$Fy <- fit$F
+  fit$Ly <- fit$L
+
+  # Output the updated "fit".
+  return(fit)
+}
+
+# TO DO: Give a more detailed explanation of the inputs and outputs;
+# in particular, explain what changes in "fit", and what does not.
+#
+# This implements an extrapolated update of the factors and loadings.
+update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
 
   # Store the value of the objective (loss) function at the current
   # iterate.
@@ -458,35 +490,33 @@ update_poisson_nmf <- function (X, fit, method, control) {
   return(fit)
 }
 
-# TO DO: Explain here what this function does, and how to use it.
-update_factors_poisson_nmf <- function (X, fit, method, control) {
+# Implements a single update of the factors matrix.
+update_factors_poisson_nmf <- function (X, F, L, method, control) {
   if (method == "mu")
-    F <- t(betanmf_update_factors(X,fit$L,t(fit$F)))
+    F <- t(betanmf_update_factors(X,L,t(F)))
   else if (method == "em")
-    F <- pnmfem_update_factors(X,fit$F,fit$L,control$numiter,control$nc)
+    F <- pnmfem_update_factors(X,F,L,control$numiter,control$nc)
   else if (method == "ccd")
-    F <- t(ccd_update_factors(X,fit$L,t(fit$F),control$nc,control$eps))
+    F <- t(ccd_update_factors(X,L,t(),control$nc,control$eps))
   else if (method == "scd")
-    F <- t(scd_update_factors(X,fit$L,t(fit$F),control$numiter,control$nc,
-                              control$eps))
+    F <- t(scd_update_factors(X,L,t(F),control$numiter,control$nc,control$eps))
   else if (method == "altsqp")
-    F <- altsqp_update_factors(X,fit$F,fit$L,control$numiter,control)
+    F <- altsqp_update_factors(X,F,L,control$numiter,control)
   return(F)
 }
   
-# TO DO: Explain here what this function does, and how to use it.
-update_loadings_poisson_nmf <- function (X, fit, method, control) {
+# Implements a single update of the loadings matrix.
+update_loadings_poisson_nmf <- function (X, F, L, method, control) {
   if (method == "mu")
-    L <- betanmf_update_loadings(X,fit$L,t(fit$F))
+    L <- betanmf_update_loadings(X,L,t(F))
   else if (method == "em")
-    L <- pnmfem_update_loadings(X,fit$F,fit$L,control$numiter,control$nc)
+    L <- pnmfem_update_loadings(X,F,L,control$numiter,control$nc)
   else if (method == "ccd")
-    L <- ccd_update_loadings(X,fit$L,t(fit$F),control$nc,control$eps)
+    L <- ccd_update_loadings(X,L,t(fit$F),control$nc,control$eps)
   else if (method == "scd")
-    L <- scd_update_loadings(X,fit$L,t(fit$F),control$numiter,control$nc,
-                                 control$eps)
+    L <- scd_update_loadings(X,L,t(F),control$numiter,control$nc,control$eps)
   else if (method == "altsqp")
-    L <- altsqp_update_loadings(X,fit$F,fit$L,control$numiter,control)
+    L <- altsqp_update_loadings(X,F,L,control$numiter,control)
   return(L)
 }
 
