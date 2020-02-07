@@ -82,11 +82,6 @@
 #'   not guaranteed to converge to a stationary point without this
 #'   safeguard, and a warning will be given in this case.
 #'
-#' @param e A small, non-negative number added to the terms inside the
-#'   logarithms to avoid computing logarithms of zero. This prevents
-#'   numerical problems at the cost of introducing a very small
-#'   inaccuracy in the computation.
-#' 
 #' @param verbose When \code{verbose = TRUE}, information about the
 #'   algorithm's progress is printed to the console at each iteration.
 #'
@@ -103,9 +98,14 @@
 #'   the extrapolation scheme is not used, \code{F} and \code{Fy} are
 #'   the same.}
 #'
-#' \item{Ly}{A matrix containig the extrapolated estimates of the
+#' \item{Ly}{A matrix containing the extrapolated estimates of the
 #'   loadings. If extrapolation is not used, \code{L} and \code{Ly} are
 #'   the same.}
+#'
+#' \item{loss}{Value of objective ("loss") function computed at the
+#'   extrapolated solution for the loadings (\code{Ly}) and the
+#'   non-extrapolated solution for the factors (\code{F}). This is used
+#'   internally to implement the extrapolated updates.
 #' 
 #' \item{progress}{A data frame containing more detailed information
 #'   about the algorithm's progress. The data frame should have
@@ -278,10 +278,17 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #' @param betamax Initial setting for the upper bound on the
 #'   extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 #'   of Ang & Gillis (2019).
+#'
+#' @param e A small, non-negative number added to the terms inside the
+#'   logarithms to avoid computing logarithms of zero. This prevents
+#'   numerical problems at the cost of introducing a very small
+#'   inaccuracy in the computation.
 #' 
 #' @export
 #' 
-init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99) {
+init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99,
+                              e = fit_poisson_nmf_control_default()$eps)
+) {
 
   # Check input X.
   if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
@@ -325,6 +332,10 @@ init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99) {
   if (is.integer(L))
     storage.mode(L) <- "double"
 
+  # Compute the value of the objective ("loss") function at the
+  # initial estimates of the factors and loading.
+  loss <- sum(cost(X,L,t(F),e))
+
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
   progress        <- as.data.frame(matrix(0,0,6))
@@ -334,14 +345,16 @@ init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99) {
   # L, an initial estimate of the loadings; Fy, the extrapolated
   # estimate of the factors, which initially is always the same as F;
   # Ly, the extrapolated estimate of the loadings, which initially is
-  # always the same as L; beta, beta0 and betamax, the initial
-  # settings of the extrapolation parameters; and "progress", the
-  # initial data frame for keeping track of the algorithm's progress
-  # over time.
+  # always the same as L; "loss", the value of the objective or loss
+  # function at the initial estimates of the factors and loadings;
+  # beta, beta0 and betamax, the initial settings of the extrapolation
+  # parameters; and "progress", the initial data frame for keeping
+  # track of the algorithm's progress over time.
   fit <- list(F        = F,
               L        = L,
               Fy       = F,
               Ly       = L,
+              loss     = loss,
               beta     = beta,
               beta0    = beta,
               betamax  = betamax,
@@ -353,19 +366,30 @@ init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99) {
 # This implements the core part of fit_poisson_nmf.
 fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                                        verbose) {
+
+  # Pre-compute quaantities and set up data structures used in the
+  # loop below.
   loglik.const    <- loglik_poisson_const(X)
   dev.const       <- deviance_poisson_const(X)
   progress        <- as.data.frame(matrix(0,numiter,6))
   names(progress) <- c("loglik","dev","res","delta.f","delta.l","timing")
+
+  # Iterate the updates of the factors and loadings.
   for (i in 1:numiter) {
     fit0 <- fit
     t1   <- proc.time()
+
+    # Update the factors and loadings.
     if (control$extrapolate)
       fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
     else
       fit <- update_poisson_nmf(X,fit,method,control)
     t2 <- proc.time()
-    u  <- cost(X,fit$L,t(fit$F),control$eps,"poisson")
+
+    # Update the "progress" data frame with the log-likelihood,
+    # deviance, and other quantities, and report the algorithm's
+    # progress to the console if requested.
+    u <- cost(X,fit$L,t(fit$F),control$eps,"poisson")
     progress[i,"loglik"]  <- sum(loglik.const - u)
     progress[i,"dev"]     <- sum(dev.const + 2*u)
     progress[i,"res"]     <- with(poisson_nmf_kkt(X,fit$F,fit$L),
@@ -379,6 +403,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                   progress[i,"res"],progress[i,"delta.f"],
                   progress[i,"delta.l"]))
   }
+
+  # Output the updated "fit".
   fit$progress <- progress
   return(fit)
 }
@@ -387,7 +413,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
 # and loadings. The output is the updated "fit". Note that, because no
 # extrapolation scheme is used, the extrapolated and non-extrapolated
 # estimates are the same in the return value; that is, fit$Fy is the
-# same as fit$F, and fit$Ly is the same as fit$L.
+# same as fit$F, and fit$Ly is the same as fit$L. The value of the
+# loss function ("loss") is also updated.
 update_poisson_nmf <- function (X, fit, method, control) {
 
   # Update the loadings ("activations"). The factors are forced to be
@@ -411,6 +438,10 @@ update_poisson_nmf <- function (X, fit, method, control) {
   fit$Fy <- fit$F
   fit$Ly <- fit$L
 
+  # Compute the value of the objective ("loss") function at the updated
+  # estimates.
+  fit$loss <- sum(cost(X,fit$L,t(fit$F),control$eps))
+
   # Output the updated "fit".
   return(fit)
 }
@@ -424,18 +455,18 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
   # Store the value of the objective (loss) function at the current
   # iterate.
   loss0 <- fit$loss
-    
+
   # Compute the extrapolated update for the loadings ("activations").
   # Note that when beta = 0, Ly = Ln.
-  fit$Ln <- pmax(update_loadings_poisson_nmf(X,fit,method,control),
-                 control$minval)
-  fit$Ly <- pmax(with(fit,Ln + beta*(Ln - L)),control$minval)
+  Ln     <- update_loadings_poisson_nmf(X,fit$Fy,fit$Ly,method,control)
+  Ln     <- pmax(Ln,control$minval)
+  fit$Ly <- pmax(Ln + beta*(Ln - fit$L),control$minval)
 
-  # Compute the extrapolated update for the factors ("basis
-  # vectors"). Note that when beta = 0, Fy = Fn.
-  fit$Fn <- pmax(update_factors_poisson_nmf(X,fit,method,control),
-                 control$minval)
-  fit$Fy <- pmax(with(fit,Fn + beta*(Fn - F)),control$minval)
+  # Compute the extrapolated update for the factors ("basis vectors").
+  # Note that when beta = 0, Fy = Fn.
+  Fn     <- update_factors_poisson_nmf(X,fit$Fy,fit$LL,method,control)
+  Fn     <- pmax(Fn,control$minval)
+  fit$Fy <- pmax(Fn + beta*(Fn - fit$F),control$minval)
 
   # Compute the value of the objective (loss) function at the
   # extrapolated solution for the loadings (Ly) and the
