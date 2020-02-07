@@ -254,8 +254,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # RUN UPDATES
   # -----------
   if (verbose)
-    cat("iter      log-likelihood            deviance res(KKT) max|F-F'|",
-        "max|L-L'|\n")
+    cat("iter    log-likelihood          deviance res(KKT) max|F-F'|",
+        "max|L-L'| beta bmax\n")
   fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,verbose)
 
   # Return a list containing (1) the new estimates of the factors, (2)
@@ -350,8 +350,8 @@ init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99,
 
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
-  progress        <- as.data.frame(matrix(0,0,6))
-  names(progress) <- c("loglik","dev","res","delta.f","delta.l","timing")
+  progress        <- as.data.frame(matrix(0,0,8))
+  names(progress) <- c("loglik","dev","res","delta.f","delta.l","beta","betamax","timing")
   
   # Return a list containing: F, an initial estimate of the factors;
   # L, an initial estimate of the loadings; Fy and Ly, the
@@ -388,8 +388,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
   # loop below.
   loglik.const    <- loglik_poisson_const(X)
   dev.const       <- deviance_poisson_const(X)
-  progress        <- as.data.frame(matrix(0,numiter,6))
-  names(progress) <- c("loglik","dev","res","delta.f","delta.l","timing")
+  progress        <- as.data.frame(matrix(0,numiter,8))
+  names(progress) <- c("loglik","dev","res","delta.f","delta.l","beta","betamax","timing")
 
   # Iterate the updates of the factors and loadings.
   for (i in 1:numiter) {
@@ -415,12 +415,14 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                                   max(abs(rbind(F,L))))
     progress[i,"delta.f"] <- max(abs(fit$Fbest - fit0$Fbest))
     progress[i,"delta.l"] <- max(abs(fit$Lbest - fit0$Lbest))
+    progress[i,"beta"]    <- fit$beta
+    progress[i,"betamax"] <- fit$betamax
     progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
     if (verbose)
-      cat(sprintf("%4d %+0.12e %+0.12e %0.2e %0.3e %0.3e\n",
-                  i,progress[i,"loglik"],progress[i,"dev"],
-                  progress[i,"res"],progress[i,"delta.f"],
-                  progress[i,"delta.l"]))
+      cat(sprintf("%4d %+0.10e %+0.10e %0.2e %0.3e %0.3e %0.2f %0.2f\n",
+                  i,progress[i,"loglik"],progress[i,"dev"],progress[i,"res"],
+                  progress[i,"delta.f"],progress[i,"delta.l"],progress[i,"beta"],
+                  progress[i,"betamax"]))
   }
 
   # Output the updated "fit".
