@@ -1,3 +1,5 @@
+library(ggplot2)
+
 # Simulate a 80 x 100 data set.
 set.seed(1)
 out <- generate_test_data(80,100,3)
@@ -18,7 +20,10 @@ fit.altsqp <- fit_poisson_nmf(X,fit0 = fit0,numiter = 150,method = "altsqp",verb
 
 # Plot improvement in solution over time.
 clrs <- c("royalblue","skyblue","tomato","orange","magenta")
-plot_progress_poisson_nmf(list(mu = fit.mu,em = fit.em,ccd = fit.ccd,scd = fit.scd,
+plot_progress_poisson_nmf(list(mu  = fit.mu,
+                               em  = fit.em,
+                               ccd = fit.ccd,
+                               scd = fit.scd,
                                altsqp = fit.altsqp),
                           color = clrs)
 
@@ -30,20 +35,21 @@ fit.ccd2    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,method = "ccd",verbos
 fit.scd2    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 200,method = "scd",verbose = FALSE)
 fit.altsqp2 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 150,method = "altsqp",verbose = FALSE)
 
-plot_progress_poisson_nmf(list(em = fit.em,ccd = fit.ccd,scd = fit.scd,altsqp = fit.altsqp,
-                               em.sp = fit.em2,ccd.sp = fit.ccd2,scd.sp = fit.scd2,
+plot_progress_poisson_nmf(list(em        = fit.em,
+                               ccd       = fit.ccd,
+                               scd       = fit.scd,
+                               altsqp    = fit.altsqp,
+                               em.sp     = fit.em2,
+                               ccd.sp    = fit.ccd2,
+                               scd.sp    = fit.scd2,
                                altsqp.sp = fit.altsqp2),
                           add.point.every = Inf,
                           color = rep(clrs[-1],times = 2),
                           linetype = rep(c("solid","twodash"),each = 4),
-                          linesize = rep(0.5,9))
+                          linesize = rep(0.5,8))
 
 # COMPARE WITH AND WITHOUT EXTRAPOLATION
 # --------------------------------------
-fit.mu3     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 999,method = "mu",
-                               control = list(extrapolate = TRUE),verbose = FALSE)
-fit.em3     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 750,method = "em",
-                               control = list(extrapolate = TRUE),verbose = FALSE)
 fit.ccd3    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "ccd",
                                control = list(extrapolate = TRUE),verbose = FALSE)
 fit.scd3    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 200,method = "scd",
@@ -51,3 +57,13 @@ fit.scd3    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 200,method = "scd",
 fit.altsqp3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 150,method = "altsqp",
                                control = list(extrapolate = TRUE),verbose = FALSE)
 
+plot_progress_poisson_nmf(list(ccd       = fit.ccd,
+                               scd       = fit.scd,
+                               altsqp    = fit.altsqp,
+                               ccd.ex    = fit.ccd3,
+                               scd.ex    = fit.scd3,
+                               altsqp.ex = fit.altsqp3),
+                          add.point.every = 25,
+                          color = rep(clrs[3:5],times = 2),
+                          linetype = rep(c("solid","twodash"),each = 3),
+                          linesize = rep(0.5,6))

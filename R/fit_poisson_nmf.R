@@ -405,14 +405,16 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     
     # Update the "progress" data frame with the log-likelihood,
     # deviance, and other quantities, and report the algorithm's
-    # progress to the console if requested.
-    u <- cost(X,fit$L,t(fit$F),control$eps,"poisson")
+    # progress to the console if requested. In all cases, the "current
+    # best" estimates of the factors and loadings are used to report
+    # progress.
+    u <- cost(X,fit$Lbest,t(fit$Fbest),control$eps,"poisson")
     progress[i,"loglik"]  <- sum(loglik.const - u)
     progress[i,"dev"]     <- sum(dev.const + 2*u)
-    progress[i,"res"]     <- with(poisson_nmf_kkt(X,fit$F,fit$L),
+    progress[i,"res"]     <- with(poisson_nmf_kkt(X,fit$Fbest,fit$Lbest),
                                   max(abs(rbind(F,L))))
-    progress[i,"delta.f"] <- max(abs(fit$F - fit0$F))
-    progress[i,"delta.l"] <- max(abs(fit$L - fit0$L))
+    progress[i,"delta.f"] <- max(abs(fit$Fbest - fit0$Fbest))
+    progress[i,"delta.l"] <- max(abs(fit$Lbest - fit0$Lbest))
     progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
     if (verbose)
       cat(sprintf("%4d %+0.12e %+0.12e %0.2e %0.3e %0.3e\n",
@@ -492,22 +494,21 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
   # Compute the value of the objective (loss) function at the
   # extrapolated solution for the loadings (Ly) and the
   # non-extrapolated solution for the factors (Fn).
-  fit$loss <- sum(cost(X,fit$Ly,t(fit$Fn),control$eps))
+  fit$loss <- sum(cost(X,fit$Ly,t(Fn),control$eps))
   if (fit$beta == 0) {
 
     # When beta = 0, extrapolation is not used, and the extrapolation
     # parameters are not updated; use the basic coordinate-wise
     # updates for the factors and loadings.
-    fit$F <- fit$Fn
-    fit$L <- fit$Ln
+    fit$F <- Fn
+    fit$L <- Ln
   } else {
 
     # Update the extrapolation parameters following Algorithm 3 of
     # Ang & Gillis (2019).
     if (fit$loss > loss0) {
 
-      # The solution did not improve, so restart the extrapolation
-      # scheme.
+      # The solution did not improve, so restart the extrapolation.
       fit$Fy      <- fit$F
       fit$Ly      <- fit$L
       fit$betamax <- fit$beta0
@@ -516,21 +517,21 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
         
       # The solution improved; retain the basic co-ordinate ascent
       # update as well.
-      fit$F       <- fit$Fn
-      fit$L       <- fit$Ln
+      fit$F       <- Fn
+      fit$L       <- Ln
       fit$beta    <- min(fit$betamax,control$beta.increase * fit$beta)
       fit$beta0   <- fit$beta
       fit$betamax <- min(0.99,control$betamax.increase * fit$betamax)
     }
   }
   
-  # If the solution is improved, update the current best solution
+  # If the solution is improved, update the current best estimates
   # using the non-extrapolated estimates of the factors (Fn) and the
   # extrapolated estimates of the loadings (Ly).
-  if (fit$loss < fit$loss.best) {
-    fit$Fbest     <- fit$Fn
-    fit$Lbest     <- fit$Ly 
-    fit$loss.best <- loss
+  if (fit$loss < fit$lossbest) {
+    fit$Fbest    <- Fn
+    fit$Lbest    <- fit$Ly 
+    fit$lossbest <- fit$loss
 
     # Re-scale the factors and loadings.
     out       <- rescale.factors(fit$Fbest,fit$Lbest)
@@ -577,9 +578,12 @@ update_loadings_poisson_nmf <- function (X, F, L, method, control) {
 #' @export
 #' 
 fit_poisson_nmf_control_default <- function()
-  c(list(extrapolate = FALSE,
-         numiter     = 4,
-         minval      = 1e-15,
-         nc          = as.integer(NA)),
+  c(list(numiter          = 4,
+         minval           = 1e-15,
+         nc               = as.integer(NA),
+         extrapolate      = FALSE,
+         beta.increase    = 1.1,
+         beta.reduce      = 0.75,
+         betamax.increase = 1.05),
     mixsqp_control_default())
     
