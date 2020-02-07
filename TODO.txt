@@ -1,10 +1,6 @@
 to do
 =====
 
-+ Implement plot_progress_poisson_nmf.
-
-+ Implement fit_poisson_nmf, first without extrapolation.
-
 + Update the pkgdown site using the latest version of pkgdown.
 
 + Add info about rate of nonzeros in F and L to progress, and to
@@ -12,38 +8,12 @@ to do
   according to some prespecified threshold in the "control" input
   argument.)
 
-+ Create an example 100 x 200 data set in the data/ directory, and
-  store a (local) solution, as well as the log-likelihood and deviance
-  at that solution; build on the betanmf example.
-
 + Add roxygen2 documentation to "fit_poisson_nmf" function.
-
-+ In fit_topics, extract row and column names from X and use these for
-  L and F.
-
-+ Provide option in fit_poisson_nmf to automatically determine number
-  of threads in multithreading.
-
-+ Change message about "consider converting X to a sparse matrix" so
-  that it is only printed when X is fairly large.
-
-+ Add steps to fix initializations containing zeros that cause
-  problems for em, mu and lda algorithms. (And print warning when
-  fixing this.)
-
-+ Implement an option to periodically "restart" the extrapolation
-  scheme, as in the conjugate gradients method.
-
-+ Add "model" argument to fit_topics, so that it can return the
-  parameters for either the Poisson or multinomial topic models.
 
 + Make the droplet data set smaller so that it can be used in a
   vignette.
 
 + In altsqp roxygen2 docs, give advice on setting control parameters.
-
-+ Implement a short vignette using the droplet data; compare against
-  nnmf and altsqp with numsqp = 0.
 
 + Set up continuous integration (Travis CI, Appveyor, CircleCI) and
   CodeCov. (Only do this after making the package public.)

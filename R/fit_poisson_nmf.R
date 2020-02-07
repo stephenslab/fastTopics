@@ -258,13 +258,15 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
         "max|L-L'| beta bmax\n")
   fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,verbose)
 
-  # Return a list containing (1) the new estimates of the factors, (2)
-  # the new estimates of the loadings, and (3) a data frame recording
-  # the algorithm's progress at each iteration.
-  fit$progress    <- rbind(fit0$progress,fit$progress)
-  dimnames(fit$F) <- dimnames(fit0$F)
-  dimnames(fit$L) <- dimnames(fit0$L)
-  class(fit)      <- c("poisson_nmf_fit","list")
+  # Output the updated "fit".
+  fit$progress        <- rbind(fit0$progress,fit$progress)
+  dimnames(fit$F)     <- dimnames(fit0$F)
+  dimnames(fit$L)     <- dimnames(fit0$L)
+  dimnames(fit$Fy)    <- dimnames(fit0$Fy)
+  dimnames(fit$Ly)    <- dimnames(fit0$Ly)
+  dimnames(fit$Fbest) <- dimnames(fit0$Fbest)
+  dimnames(fit$Lbest) <- dimnames(fit0$Lbest)
+  class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
 }
 

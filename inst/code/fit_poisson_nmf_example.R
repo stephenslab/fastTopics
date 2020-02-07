@@ -66,5 +66,5 @@ p3 <- plot_progress_poisson_nmf(list(ccd       = fit.ccd,
                                 color    = clrs,
                                 linesize = rep(c(0.5,0.75),each = 3))
 
-# fit <- fit_poisson_nmf(X,fit0 = fit0,numiter = 50,method = "altsqp",
-#                        control = list(extrapolate = TRUE))
+fit <- fit_poisson_nmf(X,fit0 = fit0,numiter = 50,method = "altsqp",
+                       control = list(extrapolate = TRUE))
