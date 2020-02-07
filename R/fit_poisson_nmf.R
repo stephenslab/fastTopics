@@ -287,8 +287,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #' @export
 #' 
 init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99,
-                              e = fit_poisson_nmf_control_default()$eps)
-) {
+                              e = fit_poisson_nmf_control_default()$eps) {
 
   # Check input X.
   if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
@@ -385,7 +384,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     else
       fit <- update_poisson_nmf(X,fit,method,control)
     t2 <- proc.time()
-
+    
     # Update the "progress" data frame with the log-likelihood,
     # deviance, and other quantities, and report the algorithm's
     # progress to the console if requested.
@@ -420,13 +419,13 @@ update_poisson_nmf <- function (X, fit, method, control) {
   # Update the loadings ("activations"). The factors are forced to be
   # non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
-  L <- update_loadings_poisson_nmf(X,fit$F,fit$L,method,control)
-  L <- pmax(L,control$minval)
+  fit$L <- update_loadings_poisson_nmf(X,fit$F,fit$L,method,control)
+  fit$L <- pmax(fit$L,control$minval)
 
   # Update the factors ("basis vectors"). The loadings are forced to
   # be non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
-  F <- update_factors_poisson_nmf(X,fit$F,fit$L,method,control)
+  fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,method,control)
 
   # Re-scale the factors and loadings.
   out   <- rescale.factors(fit$F,fit$L)
@@ -528,7 +527,7 @@ update_factors_poisson_nmf <- function (X, F, L, method, control) {
   else if (method == "em")
     F <- pnmfem_update_factors(X,F,L,control$numiter,control$nc)
   else if (method == "ccd")
-    F <- t(ccd_update_factors(X,L,t(),control$nc,control$eps))
+    F <- t(ccd_update_factors(X,L,t(F),control$nc,control$eps))
   else if (method == "scd")
     F <- t(scd_update_factors(X,L,t(F),control$numiter,control$nc,control$eps))
   else if (method == "altsqp")
@@ -543,7 +542,7 @@ update_loadings_poisson_nmf <- function (X, F, L, method, control) {
   else if (method == "em")
     L <- pnmfem_update_loadings(X,F,L,control$numiter,control$nc)
   else if (method == "ccd")
-    L <- ccd_update_loadings(X,L,t(fit$F),control$nc,control$eps)
+    L <- ccd_update_loadings(X,L,t(F),control$nc,control$eps)
   else if (method == "scd")
     L <- scd_update_loadings(X,L,t(F),control$numiter,control$nc,control$eps)
   else if (method == "altsqp")

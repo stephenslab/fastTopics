@@ -30,12 +30,11 @@ fit.ccd2    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,method = "ccd",verbos
 fit.scd2    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 200,method = "scd",verbose = FALSE)
 fit.altsqp2 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 150,method = "altsqp",verbose = FALSE)
 
-clrs <- clrs[-1]
 plot_progress_poisson_nmf(list(em = fit.em,ccd = fit.ccd,scd = fit.scd,altsqp = fit.altsqp,
                                em.sp = fit.em2,ccd.sp = fit.ccd2,scd.sp = fit.scd2,
                                altsqp.sp = fit.altsqp2),
                           add.point.every = Inf,
-                          color = rep(clrs,times = 2),
+                          color = rep(clrs[-1],times = 2),
                           linetype = rep(c("solid","twodash"),each = 4),
                           linesize = rep(0.5,9))
 
