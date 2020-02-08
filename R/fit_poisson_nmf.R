@@ -140,27 +140,54 @@
 #'   non-negative matrix factorization. In \emph{Advances in Neural
 #'   Information Processing Systems} \bold{13}, 556–562.
 #'
-#' @seealso \code{\link{pnmfem}}
-#'
 #' @examples
-#' 
-#' # Simulate a 100 x 200 data set.
-#' suppressWarnings(RNGversion("3.5.0"))
+#' # Simulate a 80 x 100 data set.
+#' library(Matrix)
 #' set.seed(1)
-#' X <- simulate_count_data(100,200,3)$X
-#' 
-#' # Optimize a Poisson non-negative matrix factorization with k = 3
-#' # topics by running 100 multiplicative updates.
-#' F0   <- matrix(runif(600),200,3)
-#' L0   <- matrix(runif(300),100,3)
-#' fit1 <- betanmf(X,F0,L0,100,method = "mu")
-#' fit2 <- betanmf(x,F0,L0.100,method = "em")
-#' 
-#' # Plot the improvement in the solution over time.
-#' dev.min <- 19661.4155
-#' with(fit$progress,
-#'      plot(iter,dev - dev.min,type = "l",log = "y",
-#'           xlab = "iteration",ylab = "distance to solution"))
+#' X <- simulate_count_data(80,100,3)$X
+#'
+#' # Run 50 EM updates to find a good initialization.
+#' fit0 <- fit_poisson_nmf(X,k = 3,numiter = 50)
+#'
+#' # The fit_poisson_nmf interface implements 5 different algorithms 
+#' # for optimizing a Poisson non-negative matrix factorization. Let's
+#' # compare their runtime and abiliity to identify a good "fit".
+#' fit.mu     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 500,method = "mu")
+#' fit.em     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,method = "em")
+#' fit.ccd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "ccd")
+#' fit.scd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 200,method = "scd")
+#' fit.altsqp <- fit_poisson_nmf(X,fit0 = fit0,numiter = 100,method = "altsqp")
+#'
+#' clrs <- c("royalblue","skyblue","tomato","orange","magenta")
+#' plot_progress_poisson_nmf(list(mu      = fit.mu,
+#'                                em     = fit.em,
+#'                                ccd    = fit.ccd,
+#'                                scd    = fit.scd,
+#'                                altsqp = fit.altsqp),
+#'                           color = clrs)
+#'
+#' # All optimization algorithms other than the multiplicative updates
+#' # can handle sparse matrices as well as dense ones.
+#' Y <- as(X,"dgCMatrix")
+#' fit.em2     <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 500,method = "em")
+#' fit.ccd2    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,method = "ccd")
+#' fit.scd2    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 200,method = "scd")
+#' fit.altsqp2 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 150,method="altsqp")
+#'
+#' plot_progress_poisson_nmf(list(em        = fit.em,
+#'                                ccd       = fit.ccd,
+#'                                scd       = fit.scd,
+#'                                altsqp    = fit.altsqp,
+#'                                em.sp     = fit.em2,
+#'                                ccd.sp    = fit.ccd2,
+#'                                scd.sp    = fit.scd2,
+#'                                altsqp.sp = fit.altsqp2),
+#'                           add.point.every = Inf,
+#'                           color    = rep(clrs[-1],times = 2),
+#'                           linetype = rep(c("solid","twodash"),each = 4)
+#'
+#' # The "extrapolated" updates can sometimes produce much better fits.
+#' # TO DO.
 #' 
 #' @useDynLib fastTopics
 #'

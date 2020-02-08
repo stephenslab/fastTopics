@@ -120,7 +120,7 @@ plot_progress_poisson_nmf <-
     scale_size_manual(values = linesize) +
     scale_shape_manual(values = shape) +
     labs(x = "runtime (s)",
-         y = "KKT residual") +
+         y = "max KKT residual") +
     theme()
 
   return(plot_grid(p1,p2))
