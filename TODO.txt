@@ -3,11 +3,6 @@ to do
 
 + Update the pkgdown site using the latest version of pkgdown.
 
-+ Add info about rate of nonzeros in F and L to progress, and to
-  console output when verbose = TRUE. (Nonzeros are determined
-  according to some prespecified threshold in the "control" input
-  argument.)
-
 + Add roxygen2 documentation to "fit_poisson_nmf" function.
 
 + Make the droplet data set smaller so that it can be used in a
