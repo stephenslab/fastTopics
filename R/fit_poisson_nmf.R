@@ -233,7 +233,20 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 
   # Give an overview of the optimization settings.
   if (verbose) {
-    # TO DO.
+    cat(sprintf("Fitting rank-%d Poisson NMF to %d x %d %s matrix.\n",k,n,m,
+                ifelse(is.matrix(X),"dense","sparse")))
+    if (method == "mu")
+      method.text <- "multiplicative"
+    else if (method == "em")
+      method.text <- "EM"
+    else if (method == "scd")
+      method.text <- "sequential co-ordinate descent (SCD)"
+    else if (method == "ccd")
+      method.text <- "cyclic co-ordinate descent (CCD)"
+    else if (method == "altsqp")
+      method.text <- "alternating SQP (alt-SQP)"
+    cat(sprintf("Running %d %s updates, %s extrapolation (fastTopics 0.2-128).\n",
+                numiter,method.text,ifelse(control$extrapolate,"with","without")))
   }
   
   # INITIALIZE ESTIMATES
@@ -254,7 +267,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # RUN UPDATES
   # -----------
   if (verbose)
-    cat("iter log-likelihood       deviance res(KKT)",
+    cat("iter log-likelihood      deviance res(KKT)",
         "max|F-F'| max|L-L'| nz(F) nz(L) beta\n")
   fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,verbose)
 
@@ -427,7 +440,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     progress[i,"betamax"] <- fit$betamax
     progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
     if (verbose)
-      cat(sprintf("%4d %+0.7e %+0.7e %0.2e %0.3e %0.3e %0.3f %0.3f %0.2f\n",
+      cat(sprintf("%4d %+0.7e %+0.6e %0.2e %0.3e %0.3e %0.3f %0.3f %0.2f\n",
                   i,progress[i,"loglik"],progress[i,"dev"],progress[i,"res"],
                   progress[i,"delta.f"],progress[i,"delta.l"],
                   progress[i,"nonzeros.f"],progress[i,"nonzeros.l"],
