@@ -3,13 +3,13 @@ to do
 
 + Fill out "Quick Start" instructions in README.
 
-+ Update the pkgdown site using the latest version of pkgdown.
-
 + Add roxygen2 documentation to "fit_poisson_nmf" function.
 
 + Fill out @details for fit_poisson_nmf.
 
 + In roxygen2 docs, give advice on setting control parameters.
+
++ Update the pkgdown site.
 
 + Set up continuous integration (Travis CI, Appveyor, CircleCI) and
   CodeCov. (Only do this after making the package public.)
