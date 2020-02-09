@@ -272,8 +272,9 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "cyclic co-ordinate descent (CCD)"
     else if (method == "altsqp")
       method.text <- "alternating SQP (alt-SQP)"
-    cat(sprintf("Running %d %s updates, %s extrapolation (fastTopics 0.2-128).\n",
-                numiter,method.text,ifelse(control$extrapolate,"with","without")))
+    cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
+        method.text,ifelse(control$extrapolate,"with","without")))
+    cat("(fastTopics 0.2-132).\n")
   }
   
   # INITIALIZE ESTIMATES

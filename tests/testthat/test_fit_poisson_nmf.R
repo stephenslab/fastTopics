@@ -4,6 +4,16 @@ library(Matrix)
 library(RcppParallel)
 library(NNLM)
 
+test_that("Version number in fit_poisson_nmf with verbose = TRUE is correct",{
+  set.seed(1)
+  X   <- generate_test_data(20,40,3)$X
+  out <- capture.output(fit_poisson_nmf(X,k = 3))
+  x   <- unlist(strsplit(out[2],"(",fixed = TRUE))[2]
+  x   <- unlist(strsplit(x,")"))[1]
+  expect_equal(paste("fastTopics",packageDescription("fastTopics")$Version),x)
+})
+
+
 test_that(paste("betanmf and pnmfem updates produce same result, and",
                 "monotonically increase the likelihood"),{
                     
