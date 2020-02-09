@@ -6,8 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization — poisson2multinom • fastTopics</title>
+<title>Get Poisson Non-Negative Matrix Factorization from Multinomial
+  Topic Model — multinom2poisson • fastTopics</title>
 
 
 <!-- jquery -->
@@ -36,11 +36,11 @@
 
 
 
-<meta property="og:title" content="Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization — poisson2multinom" />
+<meta property="og:title" content="Get Poisson Non-Negative Matrix Factorization from Multinomial
+  Topic Model — multinom2poisson" />
 <meta property="og:description" content="This function recovers parameter estimates of the
-  multinomial topic model given parameter estimates for a Poisson
-  non-negative matrix factorization." />
+  Poisson non-negative matrix factorization given parameter estimates
+  for a multinomial topic model." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -103,19 +103,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization</h1>
-    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/poisson2multinom.R'><code>R/poisson2multinom.R</code></a></small>
-    <div class="hidden name"><code>poisson2multinom.Rd</code></div>
+    <h1>Get Poisson Non-Negative Matrix Factorization from Multinomial
+  Topic Model</h1>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/multinom2poisson.R'><code>R/multinom2poisson.R</code></a></small>
+    <div class="hidden name"><code>multinom2poisson.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>This function recovers parameter estimates of the
-  multinomial topic model given parameter estimates for a Poisson
-  non-negative matrix factorization.</p>
+  Poisson non-negative matrix factorization given parameter estimates
+  for a multinomial topic model.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>poisson2multinom</span>(<span class='no'>fit</span>)</pre>
+    <pre class="usage"><span class='fu'>multinom2poisson</span>(<span class='no'>fit</span>, <span class='no'>X</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -126,18 +126,27 @@
 <code>fit$F</code> and <code>fit$L</code>. The former is an m x k matrix of
 factors, and the latter is an n x k matrix of loadings. It does not
 make sense for a multinomial topic model to have less than two
-topics, so an error will be reported when k &lt; 2.</p></td>
+topics, so an error will be reported when k &lt; 2. An additional
+vector <code>fit$s</code> of length n specifing the "document sizes" may
+be provided. If this is not provided, the document sizes will need
+to be estimated from the data (see input argument <code>X</code>).</p></td>
+    </tr>
+    <tr>
+      <th>X</th>
+      <td><p>The n x m matrix of counts or pseudocounts. It can be a
+sparse matrix (class <code>"dgCMatrix"</code>) or dense matrix (class
+<code>"matrix"</code>). This only needs to be provided if the document
+sizes <code>fit$s</code> are not made available.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The return value is the list <code>fit</code>, in which
-  <code>fit$F</code> and <code>fit$L</code> are the parameters of the multinomial
-  topic model; specifically, <code>fit$L[i,]</code> gives the topic
-  probabilities for sample or document i, and <code>fit$F[,k]</code> gives
-  the term probabilities for topic k. An additional vector
-  <code>fit$s</code> of length n is returned giving the "document sizes".</p>
+    <p>The return value is the list <code>fit</code>, in which matrices
+  <code>fit$F</code> and <code>fit$L</code> specify the factors and loadings in
+  the Poisson non-negative matrix factorization; specifically,
+  the counts matrix is modeled by the low-rank matrix product
+  <code><a href='https://rdrr.io/r/base/crossprod.html'>tcrossprod(fit$L,fit$F)</a></code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

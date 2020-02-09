@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization — poisson2multinom • fastTopics</title>
+<title>Add title here. — plot_progress_poisson_nmf • fastTopics</title>
 
 
 <!-- jquery -->
@@ -36,11 +35,8 @@
 
 
 
-<meta property="og:title" content="Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization — poisson2multinom" />
-<meta property="og:description" content="This function recovers parameter estimates of the
-  multinomial topic model given parameter estimates for a Poisson
-  non-negative matrix factorization." />
+<meta property="og:title" content="Add title here. — plot_progress_poisson_nmf" />
+<meta property="og:description" content="Add description here." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -103,41 +99,80 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization</h1>
-    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/poisson2multinom.R'><code>R/poisson2multinom.R</code></a></small>
-    <div class="hidden name"><code>poisson2multinom.Rd</code></div>
+    <h1>Add title here.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
+    <div class="hidden name"><code>plot_progress_poisson_nmf.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function recovers parameter estimates of the
-  multinomial topic model given parameter estimates for a Poisson
-  non-negative matrix factorization.</p>
+    <p>Add description here.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>poisson2multinom</span>(<span class='no'>fit</span>)</pre>
+    <pre class="usage"><span class='fu'>plot_progress_poisson_nmf</span>(
+  <span class='no'>fits</span>,
+  <span class='kw'>plot.dev</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>add.point.every</span> <span class='kw'>=</span> <span class='fl'>20</span>,
+  <span class='kw'>color</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"#E69F00"</span>, <span class='st'>"#56B4E9"</span>, <span class='st'>"#009E73"</span>, <span class='st'>"#F0E442"</span>, <span class='st'>"#0072B2"</span>, <span class='st'>"#D55E00"</span>,
+    <span class='st'>"#CC79A7"</span>), <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>fits</span>)),
+  <span class='kw'>linetype</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='st'>"solid"</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>fits</span>)),
+  <span class='kw'>linesize</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.75</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>fits</span>)),
+  <span class='kw'>shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>20</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>fits</span>)),
+  <span class='kw'>ptsize</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>0.01</span>,
+  <span class='kw'>theme</span> <span class='kw'>=</span> <span class='kw'>function</span>() <span class='fu'>theme_cowplot</span>(<span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>12</span>)
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>fit</th>
-      <td><p>A list containing two dense, non-negative matrices,
-<code>fit$F</code> and <code>fit$L</code>. The former is an m x k matrix of
-factors, and the latter is an n x k matrix of loadings. It does not
-make sense for a multinomial topic model to have less than two
-topics, so an error will be reported when k &lt; 2.</p></td>
+      <th>fits</th>
+      <td><p>Describe "fits" input argument here.</p></td>
+    </tr>
+    <tr>
+      <th>plot.dev</th>
+      <td><p>Describe "plot.dev" input argument here.</p></td>
+    </tr>
+    <tr>
+      <th>add.point.every</th>
+      <td><p>Describe "add.point.every" input argument here.</p></td>
+    </tr>
+    <tr>
+      <th>color</th>
+      <td><p>Describe "color" input argument here.</p></td>
+    </tr>
+    <tr>
+      <th>linetype</th>
+      <td><p>Describe "linetype" input argument here.</p></td>
+    </tr>
+    <tr>
+      <th>linesize</th>
+      <td><p>Describe "linesize" input argument here.</p></td>
+    </tr>
+    <tr>
+      <th>shape</th>
+      <td><p>Describe "shape" input argument here.</p></td>
+    </tr>
+    <tr>
+      <th>ptsize</th>
+      <td><p>Describe "ptsize" input argument here.</p></td>
+    </tr>
+    <tr>
+      <th>e</th>
+      <td><p>Describe "e" input argument here.</p></td>
+    </tr>
+    <tr>
+      <th>theme</th>
+      <td><p>Describe "theme" input argument here.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The return value is the list <code>fit</code>, in which
-  <code>fit$F</code> and <code>fit$L</code> are the parameters of the multinomial
-  topic model; specifically, <code>fit$L[i,]</code> gives the topic
-  probabilities for sample or document i, and <code>fit$F[,k]</code> gives
-  the term probabilities for topic k. An additional vector
-  <code>fit$s</code> of length n is returned giving the "document sizes".</p>
+    <p>Describe return value here.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -145,6 +180,7 @@ topics, so an error will be reported when k &lt; 2.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>
