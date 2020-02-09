@@ -8,7 +8,7 @@ please post an [issue][issues].
 
 ## License
 
-Copyright (c) 2019, Peter Carbonetto and Matthew Stephens.
+Copyright (c) 2019-2020, Peter Carbonetto and Matthew Stephens.
 
 All source code and software in this repository are made available
 under the terms of the [MIT license][mit-license].
@@ -56,45 +56,12 @@ commands in the shell:
 
 ```bash
 R CMD build fastTopics
-R CMD INSTALL fastTopics_0.2-132.tar.gz
-R CMD check --as-cran fastTopics_0.2-132.tar.gz
+R CMD INSTALL fastTopics_0.2-133.tar.gz
+R CMD check --as-cran fastTopics_0.2-133.tar.gz
 ```
 
 Note that these commands require that the dependencies have already
 been installed. See the [DESCRIPTION](DESCRIPTION) file for details.
-
-### Updating the pkgdown site
-
-Run this line of R code to build the website (make sure you have an
-Internet connection while running the code):
-
-```R
-pkgdown::build_site(mathjax = FALSE)
-```
-
-Version 1.1.0 of pkgdown was used.
-
-### Building the Sweave PDF
-
-To build the Sweave PDF, change your working directory to the
-`inst/derivations` subdirectory, and run this R code to generate the
-Latex from the Sweave document, then the PDF from the Latex:
-
-```R
-setwd("inst/derivations")
-Sweave("algorithms.Rnw")
-tools::texi2pdf("algorithms.tex")
-```
-
-Once the changes are committed, pushed to GitHub, and sync'ed to
-Overleaf, the Latex on Overleaf will also be updated.
-
-### Updating the C++ source and documentation
-
-When any changes are made to [roxygen2][roxygen2] markup or to the C++
-code in the `src` directory, simply run `devtools::document()` to 
-update the [RcppExports.cpp](src/RcppExports.cpp), the NAMESPACE file,
-and the package documentation files in the `man` directory.
 
 ## Credits
 

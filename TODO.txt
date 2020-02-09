@@ -1,18 +1,16 @@
 to do
 =====
 
++ Fill out "Quick Start" instructions in README.
+
 + Update the pkgdown site using the latest version of pkgdown.
 
 + Add roxygen2 documentation to "fit_poisson_nmf" function.
 
-+ Make the droplet data set smaller so that it can be used in a
-  vignette.
++ Fill out @details for fit_poisson_nmf.
 
-+ In altsqp roxygen2 docs, give advice on setting control parameters.
++ In roxygen2 docs, give advice on setting control parameters.
 
 + Set up continuous integration (Travis CI, Appveyor, CircleCI) and
   CodeCov. (Only do this after making the package public.)
 
-+ Fill out "Quick Start" instructions in README.
-
-+ Fill out @details for altsqp.

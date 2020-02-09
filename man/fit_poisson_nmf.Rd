@@ -185,20 +185,25 @@ library(Matrix)
 set.seed(1)
 X <- simulate_count_data(80,100,3)$X
 
-# Run 50 EM updates to find a good initialization.
-fit0 <- fit_poisson_nmf(X,k = 3,numiter = 50)
+# Run 20 EM updates to find a good initialization.
+fit0 <- fit_poisson_nmf(X,k = 3,numiter = 20,verbose = FALSE)
 
 # The fit_poisson_nmf interface implements 5 different algorithms 
 # for optimizing a Poisson non-negative matrix factorization. Let's
 # compare their runtime and abiliity to identify a good "fit".
-fit.mu     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 500,method = "mu")
-fit.em     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,method = "em")
-fit.ccd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "ccd")
-fit.scd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 200,method = "scd")
-fit.altsqp <- fit_poisson_nmf(X,fit0 = fit0,numiter = 100,method = "altsqp")
+fit.mu     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
+                              method = "mu",verbose = FALSE)
+fit.em     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
+                              method = "em",verbose = FALSE)
+fit.ccd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
+                              method = "ccd",verbose = FALSE)
+fit.scd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
+                              method = "scd",verbose = FALSE)
+fit.altsqp <- fit_poisson_nmf(X,fit0 = fit0,numiter = 200,
+                              method = "altsqp",verbose = FALSE)
 
-clrs <- c("royalblue","skyblue","tomato","orange","magenta")
-plot_progress_poisson_nmf(list(mu      = fit.mu,
+clrs <- c("royalblue","skyblue","firebrick","orange","darkmagenta")
+plot_progress_poisson_nmf(list(mu     = fit.mu,
                                em     = fit.em,
                                ccd    = fit.ccd,
                                scd    = fit.scd,
@@ -208,24 +213,45 @@ plot_progress_poisson_nmf(list(mu      = fit.mu,
 # All optimization algorithms other than the multiplicative updates
 # can handle sparse matrices as well as dense ones.
 Y <- as(X,"dgCMatrix")
-fit.em2     <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 500,method = "em")
-fit.ccd2    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,method = "ccd")
-fit.scd2    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 200,method = "scd")
-fit.altsqp2 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 150,method="altsqp")
+fit.em.sp     <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 400,
+                                 method = "em",verbose = FALSE)
+fit.ccd.sp    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
+                                 method = "ccd",verbose = FALSE)
+fit.scd.sp    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
+                                 method = "scd",verbose = FALSE)
+fit.altsqp.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 200,
+                                 method = "altsqp",verbose = FALSE)
 
 plot_progress_poisson_nmf(list(em        = fit.em,
                                ccd       = fit.ccd,
                                scd       = fit.scd,
                                altsqp    = fit.altsqp,
-                               em.sp     = fit.em2,
-                               ccd.sp    = fit.ccd2,
-                               scd.sp    = fit.scd2,
-                               altsqp.sp = fit.altsqp2),
-                          add.point.every = Inf,
-                          color    = rep(clrs[-1],times = 2),
-                          linetype = rep(c("solid","twodash"),each = 4))
+                               em.sp     = fit.em.sp,
+                               ccd.sp    = fit.ccd.sp,
+                               scd.sp    = fit.scd.sp,
+                               altsqp.sp = fit.altsqp.sp),
+                          color = rep(clrs[-1],times = 2),
+                          shape = rep(c(20,18),each = 4))
 
-# Using the "extrapolated" updates can sometimes yield much better fits.
+# The "extrapolated" updates can sometimes produce much better fits.
+fit.ccd.ex <-
+  fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "ccd",
+                  control = list(extrapolate = TRUE),verbose = FALSE)
+fit.scd.ex <-
+  fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "scd",
+                  control = list(extrapolate = TRUE),verbose = FALSE)
+fit.altsqp.ex <-
+  fit_poisson_nmf(X,fit0 = fit0,numiter = 200,method = "altsqp",
+                  control = list(extrapolate = TRUE),verbose = FALSE)
+
+plot_progress_poisson_nmf(list(ccd       = fit.ccd,
+                               scd       = fit.scd,
+                               altsqp    = fit.altsqp,
+                               ccd.ex    = fit.ccd.ex,
+                               scd.ex    = fit.scd.ex,
+                               altsqp.ex = fit.altsqp.ex),
+                               color = rep(clrs[3:5],times = 2),
+                               shape = rep(c(20,18),each = 3))
 
 }
 \references{
