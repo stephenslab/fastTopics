@@ -48,8 +48,7 @@ devtools::install_local("fastTopics")
 
 Compiling this package from source will require a C++ compiler setup
 that is appropriate for the version of R installed on your
-computer. For details, refer to the [CRAN documentation][cran]. For
-Mac computers, see [these notes][compiling-macos].
+computer. For details, refer to the [CRAN documentation][cran].
 
 ## Developer notes
 
@@ -77,7 +76,7 @@ the [University of Chicago][uchicago], with guidance from
 [issues]: https://github.com/stephenslab/fastTopics/issues
 [peter]: https://pcarbo.github.io
 [matthew]: http://stephenslab.uchicago.edu
-[roxygen2]: https://cran.r-project.org/package=roxygen2
+[uchicago]: https://www.uchicago.edu
 [devtools]: https://github.com/r-lib/devtools
 [cran]: https://cran.r-project.org
-[compiling-macos]: https://pcarbo.github.io/pcarbo/r-macos.html
+
