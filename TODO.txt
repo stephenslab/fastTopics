@@ -3,8 +3,6 @@ to do
 
 + Set up CircleCI.
 
-+ Set up CodeCov.
-
 + Add tests for extrapolated updates.
 
 + Add roxygen2 documentation to "fit_poisson_nmf" function.
