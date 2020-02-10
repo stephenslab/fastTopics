@@ -102,21 +102,24 @@ test_that(paste("ccd and scd updates produce the same result, and",
   # First find a reasonably good initialization using the SCD updates.
   capture.output(
     fit0 <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F = out$F,L = out$L),
-                            numiter = 10,method = "scd"))
+              numiter = 10,method = "scd",control = list(nc = 1)))
   
   # Run 20 cyclic co-ordinate descent (CCD) updates.
   numiter <- 20
   capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"),
+                            control = list(nc = 1))
 
   # Run 20 sequential coordinate descent (SCD) updates.
   capture.output(
-    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd"))
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
+                            control = list(nc = 1)))
 
   # Redo the SCD updates with a sparse matrix.
   Y <- as(X,"dgCMatrix")
   capture.output(
-    fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd"))
+      fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd",
+                              control = list(nc = 1)))
   
   # Run 20 sequential coordinate descent (SCD) updates using the
   # multithreaded computations.
@@ -134,7 +137,8 @@ test_that(paste("ccd and scd updates produce the same result, and",
   # Redo the CCD updates with a sparse matrix, with and without
   # multithreading.
   capture.output(
-    fit6 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "ccd"))
+    fit6 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "ccd",
+                            control = list(nc = 1)))
   capture.output(
     fit7 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
                             control = list(nc = nc)))
@@ -208,33 +212,32 @@ test_that(paste("When initialized \"close enough\" to a stationary point, the",
   set.seed(1)
   out <- generate_test_data(80,100,3)
   X   <- out$X
-  F   <- out$F
-  L   <- out$L
 
   # First find a reasonably good initialization using the SCD updates.
-  fit0 <- iterate_updates(X,F,L,40,
-                          function (X,F,L) t(scd_update_factors(X,L,t(F))),
-                          function (X,F,L) scd_update_loadings(X,L,t(F)))
-  F0 <- fit0$F
-  L0 <- fit0$L
+  capture.output(
+    fit0 <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F = out$F,L = out$L),
+              numiter = 40,method = "scd"))
   
   # Run 300 updates of the CCD, SCD and alt-SQP algorithms.
   numiter <- 300
-  fit1 <- iterate_updates(X,F0,L0,numiter,
-                          function (X,F,L) t(ccd_update_factors(X,L,t(F))),
-                          function (X,F,L) ccd_update_loadings(X,L,t(F)))
-  fit2 <- iterate_updates(X,F0,L0,numiter,
-                          function (X,F,L) t(scd_update_factors(X,L,t(F),2)),
-                          function (X,F,L) scd_update_loadings(X,L,t(F),2))
-  fit3 <- iterate_updates(X,F0,L0,numiter,
-                          function (X,F,L) altsqp_update_factors(X,F,L,4),
-                          function (X,F,L) altsqp_update_loadings(X,F,L,4))
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
+                            control = list(numiter = 2)))
+  capture.output(
+    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
+                            control = list(numiter = 4)))
 
   # Check that all three algorithms recover the same solution.
-  expect_equal(min(fit1$dev),min(fit2$dev),tolerance = 1e-8,scale = 1)
-  expect_equal(min(fit1$dev),min(fit3$dev),tolerance = 1e-8,scale = 1)
-  expect_equal(max(fit1$loglik),max(fit2$loglik),tolerance = 1e-8,scale = 1)
-  expect_equal(max(fit1$loglik),max(fit3$loglik),tolerance = 1e-8,scale = 1)
+  expect_equal(min(fit1$progress$dev),min(fit2$progress$dev),
+               tolerance = 1e-8,scale = 1)
+  expect_equal(min(fit1$progress$dev),min(fit3$progress$dev),
+               tolerance = 1e-8,scale = 1)
+  expect_equal(max(fit1$progress$loglik),max(fit2$progress$loglik),
+               tolerance = 1e-8,scale = 1)
+  expect_equal(max(fit1$progress$loglik),max(fit3$progress$loglik),
+               tolerance = 1e-8,scale = 1)
 })
 
 test_that("scd updates and nnmf from NNLM package produce same result",{
@@ -278,25 +281,24 @@ test_that(paste("altsqp updates with dense and sparse matrices produce the",
 
   # Run 20 sequential alternating SQP (alt-SQP) updates.
   numiter <- 20
-  fit1 <- iterate_updates(X,F,L,numiter,
-                          function (X,F,L) altsqp_update_factors(X,F,L,4),
-                          function (X,F,L) altsqp_update_loadings(X,F,L,4))
+  fit0    <- init_poisson_nmf(X,F = out$F,L = out$L)
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
+                            control = list(nc = 1,numiter = 4)))
 
   # Redo the alt-SQP updates with sparse X.
-  fit2 <- iterate_updates(as(X,"dgCMatrix"),F,L,numiter,
-                          function (X,F,L) altsqp_update_factors(X,F,L,4),
-                          function (X,F,L) altsqp_update_loadings(X,F,L,4))
+  Y <- as(X,"dgCMatrix")
+  capture.output(
+    fit2 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "altsqp",
+                            control = list(nc = 1,numiter = 4)))
 
   # Redo the alt-SQP updates using multithreaded computations.
-  control    <- fit_poisson_nmf_control_default()
-  control$nc <- 4
-  setThreadOptions(numThreads = control$nc)
-  fit3 <- iterate_updates(X,F,L,numiter,
-            function (X,F,L) altsqp_update_factors(X,F,L,4,control),
-            function (X,F,L) altsqp_update_loadings(X,F,L,4,control))
-  fit4 <- iterate_updates(as(X,"dgCMatrix"),F,L,numiter,
-            function (X,F,L) altsqp_update_factors(X,F,L,4,control),
-            function (X,F,L) altsqp_update_loadings(X,F,L,4,control))
+  capture.output(
+    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,
+              method = "altsqp",control = list(nc = 4,numiter = 4)))
+  capture.output(
+    fit4 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,
+                            method = "altsqp",control = list(nc = 4,numiter = 4)))
   
   # The updated factors and loadings should be nearly the same in all
   # cases.
@@ -307,14 +309,14 @@ test_that(paste("altsqp updates with dense and sparse matrices produce the",
   
   # The alt-SQP updates should monotonically increase the likelihood
   # and decrease the deviance.
-  expect_nondecreasing(fit1$loglik)
-  expect_nondecreasing(fit2$loglik)
-  expect_nondecreasing(fit3$loglik)
-  expect_nondecreasing(fit4$loglik)
-  expect_nonincreasing(fit1$dev)
-  expect_nonincreasing(fit2$dev)
-  expect_nonincreasing(fit3$dev)
-  expect_nonincreasing(fit4$dev)
+  expect_nondecreasing(fit1$progress$loglik)
+  expect_nondecreasing(fit2$progress$loglik)
+  expect_nondecreasing(fit3$progress$loglik)
+  expect_nondecreasing(fit4$progress$loglik)
+  expect_nonincreasing(fit1$progress$dev)
+  expect_nonincreasing(fit2$progress$dev)
+  expect_nonincreasing(fit3$progress$dev)
+  expect_nonincreasing(fit4$progress$dev)
 })
 
 test_that(paste("All Poisson NMF updates recover same solution when",
@@ -324,36 +326,35 @@ test_that(paste("All Poisson NMF updates recover same solution when",
   set.seed(1)
   out <- generate_test_data(80,100,3)
   X   <- out$X
-  F   <- out$F
-  L   <- out$L
 
   # Get a good initial estimate by running 50 iterations of the CCD
   # algorithm.
-  fit0 <- iterate_updates(X,F,L,50,
-                          function (X,F,L) t(ccd_update_factors(X,L,t(F))),
-                          function (X,F,L) ccd_update_loadings(X,L,t(F)))
-  F0   <- fit0$F
-  L0   <- fit0$L
+  capture.output(
+    fit0 <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F = out$F,L = out$L),
+                            numiter = 50,method = "ccd"))
 
   # Now improve the fit by running 100 iterations of the CCD, SCD and
   # alt-SQP algorithms.
   numiter <- 100
-  fit1 <- iterate_updates(X,F0,L0,numiter,
-                          function (X,F,L) t(ccd_update_factors(X,L,t(F))),
-                          function (X,F,L) ccd_update_loadings(X,L,t(F)))
-  fit2 <- iterate_updates(X,F0,L0,numiter,
-                          function (X,F,L) t(scd_update_factors(X,L,t(F),4)),
-                          function (X,F,L) scd_update_loadings(X,L,t(F),4))
-  fit3 <- iterate_updates(X,F0,L0,numiter,
-                          function (X,F,L) altsqp_update_factors(X,F,L,4),
-                          function (X,F,L) altsqp_update_loadings(X,F,L,4))
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
+                           control = list(numiter = 4)))
+  capture.output(
+    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
+                            control = list(numiter = 4)))
 
   # All three solution estimates should have nearly the same likelihood
   # and deviance.
-  expect_equal(max(fit1$loglik),max(fit2$loglik),tolerance = 1e-4,scale = 1)
-  expect_equal(max(fit1$loglik),max(fit3$loglik),tolerance = 1e-4,scale = 1)
-  expect_equal(min(fit1$dev),min(fit2$dev),tolerance = 1e-4,scale = 1)
-  expect_equal(min(fit1$dev),min(fit3$dev),tolerance = 1e-4,scale = 1)
+  expect_equal(max(fit1$progress$loglik),max(fit2$progress$loglik),
+               tolerance = 1e-4,scale = 1)
+  expect_equal(max(fit1$progress$loglik),max(fit3$progress$loglik),
+               tolerance = 1e-4,scale = 1)
+  expect_equal(min(fit1$progress$dev),min(fit2$progress$dev),
+               tolerance = 1e-4,scale = 1)
+  expect_equal(min(fit1$progress$dev),min(fit3$progress$dev),
+               tolerance = 1e-4,scale = 1)
   
   # All three algorithms should arrive at nearly the same solution.
   fit1 <- with(fit1,rescale.factors(F,L))
