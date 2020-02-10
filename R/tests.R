@@ -1,14 +1,21 @@
 # Used to check that x is a vector in which x[i+1] >= x[i] for all i.
+#
+#' @importFrom testthat expect_equal
 expect_nondecreasing <- function (x)
   expect_equal(diff(x) >= 0,rep(TRUE,length(x) - 1))
 
 # Used to check that x is a vector in which x[i+1] <= x[i] for all i.
+#
+#' @importFrom testthat expect_equal
 expect_nonincreasing <- function (x)
   expect_equal(diff(x) <= 0,rep(TRUE,length(x) - 1))
 
 # The Rmosek package on CRAN will not work with REBayes. This function
 # is used for some of the tests to check whether the correct Rmosek
 # package (the one downloaded from mosek.com) is installed.
+#
+#' @importFrom testthat skip_if_not_installed
+#' @importFrom testthat skip_if
 skip_if_mixkwdual_doesnt_work <- function() {
   skip_if_not_installed("REBayes")
   skip_if_not_installed("Rmosek")

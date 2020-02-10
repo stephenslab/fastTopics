@@ -19,7 +19,7 @@ mixsqp <- function (L, w, x0, numiter, control = list(), verbose = FALSE) {
   
   # Run the updates implemented in C++.
   control$maxiteractiveset <- m + 1
-  x <- drop(mixsqp_rcpp(L,w,x0,rep(e,n),numiter,control,verbose))
+  x <- drop(mixsqp_rcpp(L,w,x0,numiter,control)$x)
   
   # Return the updated estimate of the mixture weights.
   return(x)

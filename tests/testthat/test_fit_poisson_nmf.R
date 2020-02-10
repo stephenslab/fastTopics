@@ -1,9 +1,5 @@
 context("fit_poisson_nmf")
 
-library(Matrix)
-library(RcppParallel)
-library(NNLM)
-
 test_that("Version number in fit_poisson_nmf with verbose = TRUE is correct",{
   set.seed(1)
   X   <- generate_test_data(20,40,3)$X
@@ -251,6 +247,7 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
   L   <- out$L
 
   # Run the SCD algorithm as it is implemented in the NNLM package.
+  skip_if_not_installed("NNLM")
   numiter <- 20
   fit1 <- suppressWarnings(NNLM::nnmf(X,k,init = list(W = L,H = t(F)),
                                       method = "scd",loss = "mkl",rel.tol = -1,

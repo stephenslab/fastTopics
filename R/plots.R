@@ -74,15 +74,14 @@ plot_progress_poisson_nmf <-
   labels <- names(fits)
   pdat    <- NULL
   for (i in 1:n) {
-    d    <- fits[[i]]$progress
-    d    <- cbind(data.frame(method = labels[i],iter = 1:nrow(d)),d)
-    d    <- transform(d,timing = cumsum(timing))    
-    pdat <- rbind(pdat,d)
+    d        <- fits[[i]]$progress
+    d        <- cbind(data.frame("method" = labels[i],"iter" = 1:nrow(d)),d)
+    d$timing <- cumsum(d$timing)
+    pdat     <- rbind(pdat,d)
   }
-  pdat <- transform(pdat,
-                    method = factor(method,labels),
-                    loglik = max(loglik) - loglik + e,
-                    dev    = dev - min(dev) + e)
+  pdat$method <- factor(pdat$method,labels)
+  pdat$loglik <- max(pdat$loglik) - pdat$loglik + e
+  pdat$dev    <- pdat$dev - min(pdat$dev) + e
 
   # Create the plot showing the improvement in the log-likelihood (or
   # deviance) over time.

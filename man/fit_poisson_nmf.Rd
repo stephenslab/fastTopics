@@ -81,15 +81,6 @@ of Ang & Gillis (2019).}
 logarithms to avoid computing logarithms of zero. This prevents
 numerical problems at the cost of introducing a very small
 inaccuracy in the computation.}
-
-\item{minval}{A small positive constant used to safeguard the
-multiplicative updates. The multiplicative updates are implemented
-as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
-where \code{F1} and \code{L1} are the factors and loadings matrices
-obtained by applying a single multiplicative update rule. Setting
-\code{minval = 0} is allowed, but the multiplicative updates are
-not guaranteed to converge to a stationary point without this
-safeguard, and a warning will be given in this case.}
 }
 \value{
 Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}

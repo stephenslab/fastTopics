@@ -7,6 +7,15 @@
 #
 #   + method = "ccd" is based on MATLAB code by ...
 #
+#   + "minval" is a small positive constant used to safeguard the
+#     multiplicative updates. The multiplicative updates are implemented
+#     as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
+#     where \code{F1} and \code{L1} are the factors and loadings
+#     matrices obtained by applying a single multiplicative update
+#     rule. Setting \code{minval = 0} is allowed, but the multiplicative
+#     updates are not guaranteed to converge to a stationary point
+#     without this safeguard, and a warning will be given in this case.
+#
 
 #' @title Fit or Re-fit Poisson Non-negative Matrix Factorization
 #'
@@ -73,15 +82,6 @@
 #'
 #' @param control Describe input argument "control" here.
 #' 
-#' @param minval A small positive constant used to safeguard the
-#'   multiplicative updates. The multiplicative updates are implemented
-#'   as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
-#'   where \code{F1} and \code{L1} are the factors and loadings matrices
-#'   obtained by applying a single multiplicative update rule. Setting
-#'   \code{minval = 0} is allowed, but the multiplicative updates are
-#'   not guaranteed to converge to a stationary point without this
-#'   safeguard, and a warning will be given in this case.
-#'
 #' @param verbose When \code{verbose = TRUE}, information about the
 #'   algorithm's progress is printed to the console at each iteration.
 #'

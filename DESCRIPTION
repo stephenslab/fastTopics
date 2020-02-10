@@ -26,9 +26,9 @@ Imports:
     Rcpp (>= 1.0.1),
     RcppParallel (>= 4.4.1),
     ggplot2,
-    cowplot
+    cowplot,
+    testthat
 Suggests:
-    testthat,
     graphics,
     NNLM,
     REBayes,
