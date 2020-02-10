@@ -50,22 +50,6 @@ Compiling this package from source will require a C++ compiler setup
 that is appropriate for the version of R installed on your
 computer. For details, refer to the [CRAN documentation][cran].
 
-## Developer notes
-
-### Testing and installing the package
-
-To install and test the fastTopics R package, run the following
-commands in the shell:
-
-```bash
-R CMD build fastTopics
-R CMD INSTALL fastTopics_0.2-139.tar.gz
-R CMD check --as-cran fastTopics_0.2-139.tar.gz
-```
-
-Note that these commands require that the dependencies have already
-been installed. See the [DESCRIPTION](DESCRIPTION) file for details.
-
 ## Credits
 
 The fastTopics R package was developed by [Peter Carbonetto][peter] at
