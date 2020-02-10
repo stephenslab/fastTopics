@@ -1,12 +1,11 @@
 to do
 =====
 
-+ Set up continuous integration (Travis CI, Appveyor, CircleCI) and
-  CodeCov.
++ Set up CircleCI.
+
++ Set up CodeCov.
 
 + Add tests for extrapolated updates.
-
-+ Fill out "Quick Start" instructions in README.
 
 + Add roxygen2 documentation to "fit_poisson_nmf" function.
 
