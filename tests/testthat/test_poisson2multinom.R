@@ -1,7 +1,5 @@
 context("poisson2multinom")
 
-library(Matrix)
-
 test_that("poisson2multinom gives error when k = 1",{
   L   <- matrix(0:3,4,1)
   F   <- matrix(0:4,5,1)

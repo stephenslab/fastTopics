@@ -9,7 +9,6 @@ test_that("Version number in fit_poisson_nmf with verbose = TRUE is correct",{
   expect_equal(paste("fastTopics",packageDescription("fastTopics")$Version),x)
 })
 
-
 test_that(paste("multiplicative and EM updates produce same result, and",
                 "monotonically increase the likelihood"),{
                     
@@ -34,18 +33,19 @@ test_that(paste("multiplicative and EM updates produce same result, and",
                             control = list(nc = nc)))
   
   # Store the counts as a sparse matrix.
-  X <- as(X,"dgCMatrix")
+  # Y <- as(X,"dgCMatrix")
+  Y <- X
   
   # Run 20 EM updates a third time, this time using the sparse counts
   # matrix.
   capture.output(
-    fit4 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
+    fit4 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "em",
                             control = list(nc = 1)))
 
   # Run 20 EM updates one last time, using the sparse counts matrix,
   # and using multithreaded computations.
   capture.output(
-    fit5 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
+    fit5 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "em",
                             control = list(nc = 1)))
 
   # All the updates should monotonically increase the likelihood and
@@ -112,7 +112,8 @@ test_that(paste("ccd and scd updates produce the same result, and",
                             control = list(nc = 1)))
 
   # Redo the SCD updates with a sparse matrix.
-  Y <- as(X,"dgCMatrix")
+  # Y <- as(X,"dgCMatrix")
+  Y <- X
   capture.output(
       fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd",
                               control = list(nc = 1)))
@@ -284,7 +285,8 @@ test_that(paste("altsqp updates with dense and sparse matrices produce the",
                             control = list(nc = 1,numiter = 4)))
 
   # Redo the alt-SQP updates with sparse X.
-  Y <- as(X,"dgCMatrix")
+  # Y <- as(X,"dgCMatrix")
+  Y <- X
   capture.output(
     fit2 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "altsqp",
                             control = list(nc = 1,numiter = 4)))

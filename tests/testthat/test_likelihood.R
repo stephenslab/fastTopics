@@ -1,7 +1,5 @@
 context("likelihood")
 
-library(Matrix)
-
 test_that(paste("R and Rcpp versions of cost function return same result",
                 "for sparse and dense matrix"),{
   set.seed(1)

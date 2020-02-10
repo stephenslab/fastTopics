@@ -36,6 +36,7 @@
 #'   \code{X} and the factorization, \code{F} and \code{L}, used to
 #'   determine the Poisson rates.
 #'
+#' @import Matrix
 #' @importFrom methods as
 #' @importFrom stats rpois
 #'
