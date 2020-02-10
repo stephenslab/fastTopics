@@ -4,7 +4,7 @@ to do
 + Set up continuous integration (Travis CI, Appveyor, CircleCI) and
   CodeCov.
 
-+ Add fit_poisson_nmf to the tests.
++ Add tests for extrapolated updates.
 
 + Fill out "Quick Start" instructions in README.
 
