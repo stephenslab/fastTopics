@@ -1,8 +1,8 @@
 # fastTopics
 
 [![Travis Build Status](https://travis-ci.org/stephenslab/fastTopics.svg?branch=master)](https://travis-ci.org/stephenslab/fastTopics)
-[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/224272mhk5fadgmt?svg=true)](https://ci.appveyor.com/project/pcarbo/fastTopics)
-[![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/fastTopics)
+[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/224272mhk5fadgmt?svg=true)](https://ci.appveyor.com/project/pcarbo/fasttopics)
+[![codecov](https://codecov.io/gh/stephenslab/fasttopics/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/fasttopics)
 
 R package implementing fast optimization algorithms for fitting topic
 models and non-negative matrix factorizations to count data.
@@ -19,36 +19,29 @@ under the terms of the [MIT license][mit-license].
 
 ## Quick Start
 
-The fastTopics package is currently undergoing major re-development in
-the master branch, so it is recommended to install the version from
-the v0.1 branch. To do this, clone the repository from GitHub, switch
-to the v0.1 branch by running in the shell
-
-```bash
-git checkout v0.1
-```
-
-then use [devtools][devtools]:
+Install fastTopics using [devtools][devtools]:
 
 ```R
-install.packages("devtools")
-devtools::install_local("fastTopics")
+devtools::install_github("stephenslab/fastTopics")
 ```
 
-This command should automatically install all required packages if
-they are not installed already.
-
-Alternatively, to install the latest (in-development) version of the
-fastTopics package, download or clone the repository from GitHub, then
-run:
-
-```R
-devtools::install_local("fastTopics")
-```
-
-Compiling this package from source will require a C++ compiler setup
+Note that installing the package will require a C++ compiler setup
 that is appropriate for the version of R installed on your
 computer. For details, refer to the [CRAN documentation][cran].
+
+Once you have installed the package, load the package in R:
+
+```R
+library(fastTopics)
+```
+
+Next, work through the `fit_poisson_nmf` example, which illustrates
+the use of `fit_poisson_nmf` for fitting a non-negative matrix
+factorization to a small (80 x 100) counts matrix:
+
+```R
+example("fit_poisson_nmf")
+```
 
 ## Credits
 
