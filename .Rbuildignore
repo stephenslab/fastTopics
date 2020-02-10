@@ -1,14 +1,5 @@
 ^TODO\.txt$
 ^docs$
-^Sweave\.sty$
-^algorithms\.aux$
-^algorithms\.bbl$
-^algorithms\.blg$
-^algorithms\.log$
-^algorithms\.out$
-^algorithms\.tex$
-^algorithms\.thm$
-^algorithms\.pdf$
-^algorithms*\.pdf$
 ^_pkgdown\.yml$
-^pkgdown$
+^\.travis\.yml$
+^appveyor\.yml$
