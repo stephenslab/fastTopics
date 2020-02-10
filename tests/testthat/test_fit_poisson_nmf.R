@@ -14,61 +14,56 @@ test_that("Version number in fit_poisson_nmf with verbose = TRUE is correct",{
 })
 
 
-test_that(paste("betanmf and pnmfem updates produce same result, and",
+test_that(paste("multiplicative and EM updates produce same result, and",
                 "monotonically increase the likelihood"),{
                     
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
-  out <- generate_test_data(80,100,3)
-  X   <- out$X
-  F   <- out$F
-  L   <- out$L
+  out  <- generate_test_data(80,100,3)
+  X    <- out$X
+  fit0 <- init_poisson_nmf(X,F = out$F,L = out$L)
 
-  # Run 20 multiplicative updates.
+  # Run 20 multiplicative updates and 20 EM updates.
   numiter <- 20
-  fit1 <- iterate_updates(X,F,L,numiter,
-                          function (X,F,L) t(betanmf_update_factors(X,L,t(F))),
-                          function (X,F,L) betanmf_update_loadings(X,L,t(F)))
-
-  # Run 20 EM updates.
-  fit2 <- iterate_updates(X,F,L,numiter,
-                          function (X,F,L) pnmfem_update_factors(X,F,L),
-                          function (X,F,L) pnmfem_update_loadings(X,F,L))
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
+                            control = list(nc = 1)))
 
   # Run 20 EM updates again, this time using multithreaded computations.
   nc <- 4
-  setThreadOptions(numThreads = nc)
-  fit3 <- iterate_updates(X,F,L,numiter,
-                          function (X,F,L) pnmfem_update_factors(X,F,L,nc=nc),
-                          function (X,F,L) pnmfem_update_loadings(X,F,L,nc=nc))
+  capture.output(
+    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
+                            control = list(nc = nc)))
   
   # Store the counts as a sparse matrix.
   X <- as(X,"dgCMatrix")
   
   # Run 20 EM updates a third time, this time using the sparse counts
   # matrix.
-  fit4 <- iterate_updates(X,F,L,numiter,
-                          function (X,F,L) pnmfem_update_factors(X,F,L),
-                          function (X,F,L) pnmfem_update_loadings(X,F,L))
+  capture.output(
+    fit4 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
+                            control = list(nc = 1)))
 
   # Run 20 EM updates one last time, using the sparse counts matrix,
   # and using multithreaded computations.
-  fit5 <- iterate_updates(X,F,L,numiter,
-                          function (X,F,L) pnmfem_update_factors(X,F,L,nc=nc),
-                          function (X,F,L) pnmfem_update_loadings(X,F,L,nc=nc))
-  
+  capture.output(
+    fit5 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
+                            control = list(nc = 1)))
+
   # All the updates should monotonically increase the likelihood and
   # decrease the deviance.
-  expect_nondecreasing(fit1$loglik)
-  expect_nondecreasing(fit2$loglik)
-  expect_nondecreasing(fit3$loglik)
-  expect_nondecreasing(fit4$loglik)
-  expect_nondecreasing(fit5$loglik)
-  expect_nonincreasing(fit1$dev)
-  expect_nonincreasing(fit2$dev)
-  expect_nonincreasing(fit3$dev)
-  expect_nonincreasing(fit4$dev)
-  expect_nonincreasing(fit5$dev)
+  expect_nondecreasing(fit1$progress$loglik)
+  expect_nondecreasing(fit2$progress$loglik)
+  expect_nondecreasing(fit3$progress$loglik)
+  expect_nondecreasing(fit4$progress$loglik)
+  expect_nondecreasing(fit5$progress$loglik)
+  expect_nonincreasing(fit1$progress$dev)
+  expect_nonincreasing(fit2$progress$dev)
+  expect_nonincreasing(fit3$progress$dev)
+  expect_nonincreasing(fit4$progress$dev)
+  expect_nonincreasing(fit5$progress$dev)
   
   # The updated factors and loadings should all be the same.
   expect_equivalent(fit1$F,fit2$F,tolerance = 1e-12,scale = 1)
@@ -81,14 +76,18 @@ test_that(paste("betanmf and pnmfem updates produce same result, and",
   expect_equivalent(fit1$L,fit5$L,tolerance = 1e-12,scale = 1)
 
   # The likelihoods and deviances should all be the same.
-  expect_equal(fit1$loglik,fit2$loglik,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$loglik,fit3$loglik,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$loglik,fit4$loglik,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$loglik,fit5$loglik,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$dev,fit2$dev,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$dev,fit3$dev,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$dev,fit4$dev,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$dev,fit5$dev,tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$loglik,fit2$progress$loglik,
+               tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$loglik,fit3$progress$loglik,
+               tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$loglik,fit4$progress$loglik,
+               tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$loglik,fit5$progress$loglik,
+               tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$dev,fit2$progress$dev,tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$dev,fit3$progress$dev,tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$dev,fit4$progress$dev,tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$dev,fit5$progress$dev,tolerance = 1e-10,scale = 1)
 })
 
 test_that(paste("ccd and scd updates produce the same result, and",

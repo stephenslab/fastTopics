@@ -1,6 +1,11 @@
 to do
 =====
 
++ Set up continuous integration (Travis CI, Appveyor, CircleCI) and
+  CodeCov.
+
++ Add fit_poisson_nmf to the tests.
+
 + Fill out "Quick Start" instructions in README.
 
 + Add roxygen2 documentation to "fit_poisson_nmf" function.
@@ -10,7 +15,4 @@ to do
 + In roxygen2 docs, give advice on setting control parameters.
 
 + Update the pkgdown site.
-
-+ Set up continuous integration (Travis CI, Appveyor, CircleCI) and
-  CodeCov. (Only do this after making the package public.)
 
