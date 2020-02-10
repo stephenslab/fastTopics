@@ -27,13 +27,13 @@ arma::vec cost_sparse_rcpp (const arma::sp_mat& X, const arma::mat& A,
 // This is the helper function for cost_rcpp.
 arma::vec cost (const mat& X, const mat& A, const mat& B, double e, 
              bool poisson) {
-  uint n = X.n_rows;
-  uint m = X.n_cols;
+  unsigned int n = X.n_rows;
+  unsigned int m = X.n_cols;
   vec  f(n,fill::zeros);
   vec  y(n);
   
   // Repeat for each column of X.
-  for (uint j = 0; j < m; j++) {
+  for (unsigned int j = 0; j < m; j++) {
 
     // This is equivalent to the following R code:
     //
@@ -55,14 +55,14 @@ arma::vec cost (const mat& X, const mat& A, const mat& B, double e,
 // Helper function for cost_sparse_rcpp.
 arma::vec cost_sparse (const sp_mat& X, const mat& A, const mat& B,
 		       double e, bool poisson) {
-  uint n = X.n_rows;
-  uint m = X.n_cols;
-  uint i;
+  unsigned int n = X.n_rows;
+  unsigned int m = X.n_cols;
+  unsigned int i;
   vec  f(n,fill::zeros);
   vec  y(n);
   
   // Repeat for each column of X.
-  for (uint j = 0; j < m; j++) {
+  for (unsigned int j = 0; j < m; j++) {
 
     // Initialize an iterator for the nonzero elements in the jth
     // column of X.

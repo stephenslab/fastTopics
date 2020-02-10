@@ -51,11 +51,11 @@ inline double project_iterate_scd (double g, double h, double e) {
 // ccd_kl_update.
 inline void compute_grad_ccd (const vec& l, const vec& w, const vec& Lx,
 			      double x, double& g, double& h, double e) {
-  uint   n = l.n_elem;
-  double t;
+  unsigned int n = l.n_elem;
+  double       t;
   g = 0;
   h = 0;
-  for (uint i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     t  = w(i)/(Lx(i) + e);
     g += l(i)*(1 - t);
     h += l(i)*l(i)*t/(Lx(i) + e);
@@ -70,11 +70,11 @@ inline void compute_grad_ccd (const vec& l, const vec& w, const vec& Lx,
 inline void compute_grad_ccd_sparse (const vec& l, const vec& w, const vec& Lx,
 				     double u, double x, double& g, double& h,
 				     double e) {
-  uint   n = w.n_elem;
-  double t;
+  unsigned int n = w.n_elem;
+  double       t;
   g = u;
   h = 0;
-  for (uint i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     t  = w(i)/(Lx(i) + e);
     g -= l(i)*t;
     h += l(i)*l(i)*t/(Lx(i) + e);
@@ -99,7 +99,7 @@ inline double project_iterate_ccd (double x, double g, double h, double e) {
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::vec poismixem_rcpp (const arma::mat& L, const arma::vec& w,
-			  const arma::vec& x0, uint numiter) {
+			  const arma::vec& x0, unsigned int numiter) {
   return poismixem(L,w,x0,numiter);
 }
 
@@ -109,7 +109,7 @@ arma::vec poismixem_rcpp (const arma::mat& L, const arma::vec& w,
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::vec poismixsqp_rcpp (const arma::mat& L, const arma::vec& w,
-			   const arma::vec& x0, uint numiter,
+			   const arma::vec& x0, unsigned int numiter,
 			   const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
   return poismixsqp(L,w,x0,numiter,ctrl);
@@ -121,7 +121,7 @@ arma::vec poismixsqp_rcpp (const arma::mat& L, const arma::vec& w,
 // [[Rcpp::export]]
 arma::vec poismixem2_rcpp (const arma::mat& L1, const arma::vec& w,
 			   const arma::vec& u, const arma::vec& x0,
-			   uint numiter) {
+			   unsigned int numiter) {
   vec x = x0;
   mat P = L1;
   poismixem(L1,u,w,x,P,numiter);
@@ -134,9 +134,9 @@ arma::vec poismixem2_rcpp (const arma::mat& L1, const arma::vec& w,
 // [[Rcpp::export]]
 arma::vec poismixsqp2_rcpp (const arma::mat& L1, const arma::vec& w,
 			    const arma::vec& u, const arma::vec& x0,
-			    uint numiter, const Rcpp::List& control) {
+			    unsigned int numiter, const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
-  uint m = L1.n_cols;
+  unsigned int m = L1.n_cols;
   vec  x = x0;
   mat  Z = L1;
   mat  H(m,m);
@@ -150,7 +150,7 @@ arma::vec poismixsqp2_rcpp (const arma::mat& L1, const arma::vec& w,
 // [[Rcpp::export]]
 arma::vec poismixem3_rcpp (const arma::mat& L1, const arma::vec& w,
 			   const arma::vec& u, const arma::uvec& i,
-			   const arma::vec& x0, uint numiter) {
+			   const arma::vec& x0, unsigned int numiter) {
   vec x = x0;
   poismixem(L1,u,w,i,x,numiter);
   return x;
@@ -162,10 +162,10 @@ arma::vec poismixem3_rcpp (const arma::mat& L1, const arma::vec& w,
 // [[Rcpp::export]]
 arma::vec poismixsqp3_rcpp (const arma::mat& L1, const arma::vec& w,
 			    const arma::vec& u, const arma::uvec& i,
-			    const arma::vec& x0, uint numiter,
+			    const arma::vec& x0, unsigned int numiter,
 			    const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
-  uint m = L1.n_cols;
+  unsigned int m = L1.n_cols;
   vec  x = x0;
   mat  H(m,m);
   poismixsqp(L1,u,w,i,x,H,numiter,ctrl);
@@ -177,7 +177,7 @@ arma::vec poismixsqp3_rcpp (const arma::mat& L1, const arma::vec& w,
 //
 // [[Rcpp::export]]
 arma::vec scd_kl_update_rcpp (const arma::mat& L, const arma::vec& w, 
-			      const arma::vec& x0, uint numiter, double e) {
+			      const arma::vec& x0, unsigned int numiter, double e) {
   return scd_kl_update(L,w,x0,numiter,e);
 }
 
@@ -187,7 +187,7 @@ arma::vec scd_kl_update_rcpp (const arma::mat& L, const arma::vec& w,
 // [[Rcpp::export]]
 arma::vec scd_kl_update2_rcpp (const arma::mat& L, const arma::vec& u,
 			       const arma::vec& w, const arma::vec& x0,
-			       uint numiter, double e) {
+			       unsigned int numiter, double e) {
   return scd_kl_update(L,u,w,x0,numiter,e);
 }
 
@@ -196,7 +196,8 @@ arma::vec scd_kl_update2_rcpp (const arma::mat& L, const arma::vec& u,
 //
 // [[Rcpp::export]]
 arma::vec ccd_kl_update_rcpp (const arma::mat& L, const arma::vec& w,
-			      const arma::vec& x0, uint numiter, double e) {
+			      const arma::vec& x0, unsigned int numiter, 
+			      double e) {
   vec x = x0;
   for (int iter = 0; iter < numiter; iter++)
     x = ccd_kl_update(L,w,x,e);
@@ -209,7 +210,7 @@ arma::vec ccd_kl_update_rcpp (const arma::mat& L, const arma::vec& w,
 // [[Rcpp::export]]
 arma::vec ccd_kl_update2_rcpp (const arma::mat& L, const arma::vec& u,
 			       const arma::vec& w, const arma::vec& x0,
-			       uint numiter, double e) {
+			       unsigned int numiter, double e) {
   vec x = x0;
   for (int iter = 0; iter < numiter; iter++) 
     x = ccd_kl_update(L,u,w,x,e);
@@ -228,7 +229,8 @@ arma::vec ccd_kl_update2_rcpp (const arma::mat& L, const arma::vec& u,
 //
 // The return value is a vector of length m containing the updated
 // mixture weights.
-vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
+vec poismixem (const mat& L, const vec& w, const vec& x0, 
+	       unsigned int numiter) {
   mat L1 = L;
   mat P  = L;
   vec u  = sum(L,0);
@@ -250,8 +252,8 @@ vec poismixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 //
 // The return value is a vector of length m containing the updated
 // mixture weights.
-vec poismixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
-		const mixsqp_control_params& control) {
+vec poismixsqp (const mat& L, const vec& w, const vec& x0, 
+		unsigned int numiter, const mixsqp_control_params& control) {
   int m  = L.n_cols;
   mat L1 = L;
   mat Z  = L;
@@ -276,7 +278,7 @@ vec poismixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
 // of nonzero weights w, and the rows of L1 associated with those
 // weights, need to be supplied.
 void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P, 
-		uint numiter) {
+		unsigned int numiter) {
   double s = sum(w);
   
   // Recover the mixture proportions of the multinomial mixture model
@@ -306,8 +308,9 @@ void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P,
 // L1 associated with zero weights have no effect, so only the vector
 // of nonzero weights w, and the rows of L1 associated with those
 // weights, need to be supplied.
-void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, mat& Z,
-		 mat& H, uint numiter, const mixsqp_control_params& control) {
+void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, 
+		 mat& Z, mat& H, unsigned int numiter, 
+		 const mixsqp_control_params& control) {
   uvec i = find(w > 0);
   if (i.n_elem == 1) {
 
@@ -345,9 +348,9 @@ void poismixsqp (const mat& L1, const vec& u, const vec& w, vec& x, mat& Z,
 //   x2 <- poismixem3_rcpp(L1,w[i],u,i-1,x0,numiter)
 //
 void poismixem (const mat& L1, const vec& u, const vec& w, const uvec& i,
-		vec& x, uint numiter) {
-  uint n = i.n_elem;
-  uint m = x.n_elem;
+		vec& x, unsigned int numiter) {
+  unsigned int n = i.n_elem;
+  unsigned int m = x.n_elem;
   mat  P(n,m);
   poismixem(L1.rows(i),u,w,x,P,numiter);
 }
@@ -365,10 +368,10 @@ void poismixem (const mat& L1, const vec& u, const vec& w, const uvec& i,
 //   x2 <- poismixsqp3_rcpp(L1,w[i],u,i-1,x0,numiter,control)
 //
 void poismixsqp (const mat& L1, const vec& u, const vec& w, const uvec& i,
-		 vec& x, mat& H, uint numiter,
+		 vec& x, mat& H, unsigned int numiter,
 		 const mixsqp_control_params& control) {
-  uint n = i.n_elem;
-  uint m = x.n_elem;
+  unsigned int n = i.n_elem;
+  unsigned int m = x.n_elem;
   mat  Z(n,m);
   vec  objective(numiter);
   poismixsqp(L1.rows(i),u,w,x,Z,H,numiter,control);
@@ -392,16 +395,16 @@ void poismixsqp (const mat& L1, const vec& u, const vec& w, const uvec& i,
 // the code by Xihui Lin and Paul Boutros, which is available for
 // download at https://github.com/linxihui/NNLM.
 vec scd_kl_update (const mat& L, const vec& w, const vec& x0,
-		   uint numiter, double e) {
-  uint   n  = L.n_rows;
-  uint   m  = L.n_cols;
+		   unsigned int numiter, double e) {
+  unsigned int n = L.n_rows;
+  unsigned int m = L.n_cols;
   vec    x  = x0;
   vec    Lx = L * x;
   vec    l(n);
   vec    r(n);
   double h, g, xj, xjnew;
-  for (uint iter = 0; iter < numiter; iter++)
-    for (uint j = 0; j < m; j++) {
+  for (unsigned int iter = 0; iter < numiter; iter++)
+    for (unsigned int j = 0; j < m; j++) {
       l     = L.col(j);
       xj    = x(j);
       compute_grad_scd(l,w,Lx,xj,g,h,r,e);
@@ -418,16 +421,16 @@ vec scd_kl_update (const mat& L, const vec& w, const vec& x0,
 // should be the same length, and the number of rows in L should be
 // the same as the lengths of vectors i and w).
 vec scd_kl_update (const mat& L, const vec& u, const vec& w,
-		   const vec& x0, uint numiter, double e) {
-  uint   n  = w.n_elem;
-  uint   m  = L.n_cols;
+		   const vec& x0, unsigned int numiter, double e) {
+  unsigned int n = w.n_elem;
+  unsigned int m = L.n_cols;
   vec    x  = x0;
   vec    Lx = L * x;
   vec    l(n);
   vec    r(n);
   double h, g, xj, xjnew;
-  for (uint iter = 0; iter < numiter; iter++)
-    for (uint j = 0; j < m; j++) {
+  for (unsigned int iter = 0; iter < numiter; iter++)
+    for (unsigned int j = 0; j < m; j++) {
       l     = L.col(j);
       xj    = x(j);
       compute_grad_scd_sparse(l,w,Lx,u(j),xj,g,h,r,e);
@@ -445,13 +448,13 @@ vec scd_kl_update (const mat& L, const vec& u, const vec& w,
 // Cho-Jui Hsieh and Inderjit Dhillon, which is available for download
 // at www.cs.utexas.edu/~cjhsieh/nmf.
 vec ccd_kl_update (const mat& L, const vec& w, const vec& x0, double e) {
-  uint   n  = L.n_rows;
-  uint   m  = L.n_cols;
+  unsigned int n = L.n_rows;
+  unsigned int m = L.n_cols;
   vec    x  = x0;
   vec    Lx = L * x;
   vec    l(n);
   double g, h, xj, xjnew;
-  for (uint j = 0; j < m; j++) {
+  for (unsigned int j = 0; j < m; j++) {
     l     = L.col(j);
     xj    = x(j);
     compute_grad_ccd(l,w,Lx,xj,g,h,e);
@@ -470,13 +473,13 @@ vec ccd_kl_update (const mat& L, const vec& w, const vec& x0, double e) {
 // the same as the lengths of vectors i and w).
 vec ccd_kl_update (const mat& L, const vec& u, const vec& w,
 		   const vec& x0, double e) {
-  uint   n  = w.n_elem;
-  uint   m  = L.n_cols;
+  unsigned int n = w.n_elem;
+  unsigned int m = L.n_cols;
   vec    x  = x0;
   vec    Lx = L * x;
   vec    l(n);
   double h, g, xj, xjnew;
-  for (uint j = 0; j < m; j++) {
+  for (unsigned int j = 0; j < m; j++) {
     l     = L.col(j);
     xj    = x(j);
     compute_grad_ccd_sparse(l,w,Lx,u(j),xj,g,h,e);
@@ -493,8 +496,8 @@ vec ccd_kl_update (const mat& L, const vec& u, const vec& w,
 // positive), and i should be the index of the nonzero count. See
 // above for an explanation of inputs L1 and u.
 void poismix_one_nonzero (const mat& L1, const vec& u, const vec& w, 
-			  uint i, vec& x) {
+			  unsigned int i, vec& x) {
   mixture_one_nonzero(L1,i,x);
-  uint j = index_max(x);
+  unsigned int j = index_max(x);
   x(j)   = w(i)/u(j);
 }

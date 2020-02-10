@@ -169,7 +169,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // mixem_rcpp
-arma::vec mixem_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter);
+arma::vec mixem_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, unsigned int numiter);
 RcppExport SEXP _fastTopics_mixem_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -177,13 +177,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     rcpp_result_gen = Rcpp::wrap(mixem_rcpp(L, w, x0, numiter));
     return rcpp_result_gen;
 END_RCPP
 }
 // mixsqp_rcpp
-Rcpp::List mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter, const Rcpp::List& control);
+Rcpp::List mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, unsigned int numiter, const Rcpp::List& control);
 RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -191,7 +191,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
     rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, numiter, control));
     return rcpp_result_gen;
@@ -254,7 +254,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // poismixem_rcpp
-arma::vec poismixem_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter);
+arma::vec poismixem_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, unsigned int numiter);
 RcppExport SEXP _fastTopics_poismixem_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -262,13 +262,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     rcpp_result_gen = Rcpp::wrap(poismixem_rcpp(L, w, x0, numiter));
     return rcpp_result_gen;
 END_RCPP
 }
 // poismixsqp_rcpp
-arma::vec poismixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter, const Rcpp::List& control);
+arma::vec poismixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, unsigned int numiter, const Rcpp::List& control);
 RcppExport SEXP _fastTopics_poismixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -276,14 +276,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
     rcpp_result_gen = Rcpp::wrap(poismixsqp_rcpp(L, w, x0, numiter, control));
     return rcpp_result_gen;
 END_RCPP
 }
 // poismixem2_rcpp
-arma::vec poismixem2_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::vec& x0, uint numiter);
+arma::vec poismixem2_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::vec& x0, unsigned int numiter);
 RcppExport SEXP _fastTopics_poismixem2_rcpp(SEXP L1SEXP, SEXP wSEXP, SEXP uSEXP, SEXP x0SEXP, SEXP numiterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -292,13 +292,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     rcpp_result_gen = Rcpp::wrap(poismixem2_rcpp(L1, w, u, x0, numiter));
     return rcpp_result_gen;
 END_RCPP
 }
 // poismixsqp2_rcpp
-arma::vec poismixsqp2_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::vec& x0, uint numiter, const Rcpp::List& control);
+arma::vec poismixsqp2_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::vec& x0, unsigned int numiter, const Rcpp::List& control);
 RcppExport SEXP _fastTopics_poismixsqp2_rcpp(SEXP L1SEXP, SEXP wSEXP, SEXP uSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -307,14 +307,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
     rcpp_result_gen = Rcpp::wrap(poismixsqp2_rcpp(L1, w, u, x0, numiter, control));
     return rcpp_result_gen;
 END_RCPP
 }
 // poismixem3_rcpp
-arma::vec poismixem3_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::uvec& i, const arma::vec& x0, uint numiter);
+arma::vec poismixem3_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::uvec& i, const arma::vec& x0, unsigned int numiter);
 RcppExport SEXP _fastTopics_poismixem3_rcpp(SEXP L1SEXP, SEXP wSEXP, SEXP uSEXP, SEXP iSEXP, SEXP x0SEXP, SEXP numiterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -324,13 +324,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< const arma::uvec& >::type i(iSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     rcpp_result_gen = Rcpp::wrap(poismixem3_rcpp(L1, w, u, i, x0, numiter));
     return rcpp_result_gen;
 END_RCPP
 }
 // poismixsqp3_rcpp
-arma::vec poismixsqp3_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::uvec& i, const arma::vec& x0, uint numiter, const Rcpp::List& control);
+arma::vec poismixsqp3_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::uvec& i, const arma::vec& x0, unsigned int numiter, const Rcpp::List& control);
 RcppExport SEXP _fastTopics_poismixsqp3_rcpp(SEXP L1SEXP, SEXP wSEXP, SEXP uSEXP, SEXP iSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -340,14 +340,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< const arma::uvec& >::type i(iSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
     rcpp_result_gen = Rcpp::wrap(poismixsqp3_rcpp(L1, w, u, i, x0, numiter, control));
     return rcpp_result_gen;
 END_RCPP
 }
 // scd_kl_update_rcpp
-arma::vec scd_kl_update_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter, double e);
+arma::vec scd_kl_update_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, unsigned int numiter, double e);
 RcppExport SEXP _fastTopics_scd_kl_update_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -355,14 +355,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     rcpp_result_gen = Rcpp::wrap(scd_kl_update_rcpp(L, w, x0, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // scd_kl_update2_rcpp
-arma::vec scd_kl_update2_rcpp(const arma::mat& L, const arma::vec& u, const arma::vec& w, const arma::vec& x0, uint numiter, double e);
+arma::vec scd_kl_update2_rcpp(const arma::mat& L, const arma::vec& u, const arma::vec& w, const arma::vec& x0, unsigned int numiter, double e);
 RcppExport SEXP _fastTopics_scd_kl_update2_rcpp(SEXP LSEXP, SEXP uSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -371,14 +371,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     rcpp_result_gen = Rcpp::wrap(scd_kl_update2_rcpp(L, u, w, x0, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // ccd_kl_update_rcpp
-arma::vec ccd_kl_update_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, uint numiter, double e);
+arma::vec ccd_kl_update_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, unsigned int numiter, double e);
 RcppExport SEXP _fastTopics_ccd_kl_update_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -386,14 +386,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     rcpp_result_gen = Rcpp::wrap(ccd_kl_update_rcpp(L, w, x0, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // ccd_kl_update2_rcpp
-arma::vec ccd_kl_update2_rcpp(const arma::mat& L, const arma::vec& u, const arma::vec& w, const arma::vec& x0, uint numiter, double e);
+arma::vec ccd_kl_update2_rcpp(const arma::mat& L, const arma::vec& u, const arma::vec& w, const arma::vec& x0, unsigned int numiter, double e);
 RcppExport SEXP _fastTopics_ccd_kl_update2_rcpp(SEXP LSEXP, SEXP uSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -402,14 +402,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     rcpp_result_gen = Rcpp::wrap(ccd_kl_update2_rcpp(L, u, w, x0, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // scd_update_factors_rcpp
-arma::mat scd_update_factors_rcpp(const arma::mat& A, const arma::mat& W, const arma::mat& H, uint numiter, double e);
+arma::mat scd_update_factors_rcpp(const arma::mat& A, const arma::mat& W, const arma::mat& H, unsigned int numiter, double e);
 RcppExport SEXP _fastTopics_scd_update_factors_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -417,14 +417,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     rcpp_result_gen = Rcpp::wrap(scd_update_factors_rcpp(A, W, H, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // scd_update_factors_sparse_rcpp
-arma::mat scd_update_factors_sparse_rcpp(const arma::sp_mat& A, const arma::mat& W, const arma::mat& H, uint numiter, double e);
+arma::mat scd_update_factors_sparse_rcpp(const arma::sp_mat& A, const arma::mat& W, const arma::mat& H, unsigned int numiter, double e);
 RcppExport SEXP _fastTopics_scd_update_factors_sparse_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -432,14 +432,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::sp_mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     rcpp_result_gen = Rcpp::wrap(scd_update_factors_sparse_rcpp(A, W, H, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // scd_update_factors_parallel_rcpp
-arma::mat scd_update_factors_parallel_rcpp(const arma::mat& A, const arma::mat& W, const arma::mat& H, uint numiter, double e);
+arma::mat scd_update_factors_parallel_rcpp(const arma::mat& A, const arma::mat& W, const arma::mat& H, unsigned int numiter, double e);
 RcppExport SEXP _fastTopics_scd_update_factors_parallel_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -447,14 +447,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     rcpp_result_gen = Rcpp::wrap(scd_update_factors_parallel_rcpp(A, W, H, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // scd_update_factors_sparse_parallel_rcpp
-arma::mat scd_update_factors_sparse_parallel_rcpp(const arma::sp_mat& A, const arma::mat& W, const arma::mat& H, uint numiter, double e);
+arma::mat scd_update_factors_sparse_parallel_rcpp(const arma::sp_mat& A, const arma::mat& W, const arma::mat& H, unsigned int numiter, double e);
 RcppExport SEXP _fastTopics_scd_update_factors_sparse_parallel_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -462,7 +462,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::sp_mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
-    Rcpp::traits::input_parameter< uint >::type numiter(numiterSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     rcpp_result_gen = Rcpp::wrap(scd_update_factors_sparse_parallel_rcpp(A, W, H, numiter, e));
     return rcpp_result_gen;

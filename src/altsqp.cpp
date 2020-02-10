@@ -9,8 +9,8 @@ using namespace arma;
 // Perform one or more alt-SQP updates for a single column of the k x m
 // factors matrix, F, when X is a dense matrix.
 inline vec altsqp_update_factor (const mat& X, const mat& F, const mat& L1,
-				 const vec& u, mat& Z, mat& H, uint j,
-				 uint numiter,
+				 const vec& u, mat& Z, mat& H, unsigned int j,
+				 unsigned int numiter,
 				 const mixsqp_control_params& control) {
   vec f = F.col(j);
   poismixsqp(L1,u,X.col(j),f,Z,H,numiter,control);
@@ -21,12 +21,12 @@ inline vec altsqp_update_factor (const mat& X, const mat& F, const mat& L1,
 // factors matrix, F, when X is a sparse matrix.
 inline vec altsqp_update_factor_sparse (const sp_mat& X, const mat& F,
 					const mat& L1, const vec& u, mat& H,
-					uint j, uint numiter,
+					unsigned int j, unsigned int numiter,
 					const mixsqp_control_params& control) {
-  vec  x = nonzeros(X.col(j));
-  uint n = x.n_elem;
-  vec  f = F.col(j);
-  uvec i(n);
+  vec          x = nonzeros(X.col(j));
+  unsigned int n = x.n_elem;
+  vec          f = F.col(j);
+  uvec         i(n);
   getcolnonzeros(X,i,j);
   poismixsqp(L1,u,x,i,f,H,numiter,control);
   return f;
@@ -37,17 +37,18 @@ inline vec altsqp_update_factor_sparse (const sp_mat& X, const mat& F,
 // This class is used to implement multithreaded computation of the
 // factor updates in altsqp_update_factors_parallel_rcpp.
 struct altsqp_factor_updater : public RcppParallel::Worker {
-  const mat& X;
-  const mat& F;
-  mat        L1;
-  vec        u;
-  mat&       Fnew;
-  uint       numiter;
+  const mat&   X;
+  const mat&   F;
+  mat          L1;
+  vec          u;
+  mat&         Fnew;
+  unsigned int numiter;
   const mixsqp_control_params& control;
 
   // This is used to create a altsqp_factor_updater object.
-  altsqp_factor_updater (const mat& X, const mat& F, const mat& L, mat& Fnew, 
-			 uint numiter, const mixsqp_control_params& control) :
+  altsqp_factor_updater (const mat& X, const mat& F, const mat& L, 
+			 mat& Fnew, unsigned int numiter, 
+			 const mixsqp_control_params& control) :
     X(X), F(F), L1(L), u(L.n_cols), Fnew(Fnew), numiter(numiter), 
     control(control) { 
     u = sum(L,0);
@@ -56,10 +57,10 @@ struct altsqp_factor_updater : public RcppParallel::Worker {
 
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    uint m = X.n_cols;
-    mat  Z = L1;
-    mat  H(m,m);
-    for (uint j = begin; j < end; j++)
+    unsigned int m = X.n_cols;
+    mat Z = L1;
+    mat H(m,m);
+    for (unsigned int j = begin; j < end; j++)
       Fnew.col(j) = altsqp_update_factor(X,F,L1,u,Z,H,j,numiter,control);
   }
 };
@@ -72,12 +73,12 @@ struct altsqp_factor_updater_sparse : public RcppParallel::Worker {
   mat           L1;
   vec           u;
   mat&          Fnew;
-  uint          numiter;
+  unsigned int  numiter;
   const mixsqp_control_params& control;
 
   // This is used to create a altsqp_factor_updater object.
   altsqp_factor_updater_sparse (const sp_mat& X, const mat& F, const mat& L, 
-				mat& Fnew, uint numiter,
+				mat& Fnew, unsigned int numiter,
 				const mixsqp_control_params& control) :
     X(X), F(F), L1(L), u(L.n_cols), Fnew(Fnew), numiter(numiter), 
     control(control) { 
@@ -87,9 +88,9 @@ struct altsqp_factor_updater_sparse : public RcppParallel::Worker {
 
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    uint m = X.n_cols;
-    mat  H(m,m);
-    for (uint j = begin; j < end; j++)
+    unsigned int m = X.n_cols;
+    mat H(m,m);
+    for (unsigned int j = begin; j < end; j++)
       Fnew.col(j) = altsqp_update_factor_sparse(X,F,L1,u,H,j,numiter,control);
   }
 };
@@ -112,14 +113,14 @@ arma::mat altsqp_update_factors_rcpp (const arma::mat& X, const arma::mat& F,
 				      const arma::mat& L, double numiter,
 				      const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
-  uint m    = X.n_cols;
+  unsigned int m = X.n_cols;
   vec  u    = sum(L,0);
   mat  L1   = L;
   mat  Z    = L;
   mat  Fnew = F;
   mat  H(m,m);
   normalizecols(L1);
-  for (uint j = 0; j < m; j++)
+  for (unsigned int j = 0; j < m; j++)
     Fnew.col(j) = altsqp_update_factor(X,F,L1,u,Z,H,j,numiter,ctrl);
   return Fnew;
 }
@@ -134,14 +135,14 @@ arma::mat altsqp_update_factors_sparse_rcpp (const arma::sp_mat& X,
 					     double numiter,
 					     const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
-  uint m    = X.n_cols;
+  unsigned int m = X.n_cols;
   vec  u    = sum(L,0);
   mat  L1   = L;
   mat  Z    = L;
   mat  Fnew = F;
   mat  H(m,m);
   normalizecols(L1);
-  for (uint j = 0; j < m; j++)
+  for (unsigned int j = 0; j < m; j++)
     Fnew.col(j) = altsqp_update_factor_sparse(X,F,L1,u,H,j,numiter,ctrl);
   return Fnew;
 }

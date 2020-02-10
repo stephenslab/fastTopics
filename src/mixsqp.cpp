@@ -25,7 +25,7 @@ void   backtracking_line_search (double f, const mat& L, const vec& w,
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 Rcpp::List mixsqp_rcpp (const arma::mat& L, const arma::vec& w,
-			const arma::vec& x0, uint numiter,
+			const arma::vec& x0, unsigned int numiter,
 			const Rcpp::List& control) {
   mixsqp_control_params ctrl = get_mixsqp_control_params(control);
   vec objective(numiter);
@@ -70,7 +70,7 @@ mixsqp_control_params get_mixsqp_control_params	(const Rcpp::List& control) {
 // Also note that it does not make sense to compute a MLE of the
 // mixture proportions when n < 2 and/or when m < 2; mixsqp will supply
 // a result in such cases, but the result will not be valid.
-vec mixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
+vec mixsqp (const mat& L, const vec& w, const vec& x0, unsigned int numiter,
 	    const mixsqp_control_params& control, vec& objective) {
   int m  = L.n_cols;
   mat L1 = L;
@@ -94,8 +94,9 @@ vec mixsqp (const mat& L, const vec& w, const vec& x0, uint numiter,
 // number of columns in L1.
 //
 // Note that input x does not need to be normalized.
-void mixsqp (const mat& L1, const vec& w, vec& x, mat& Z, mat& H, uint numiter,
-	     const mixsqp_control_params& control, vec& objective) {
+void mixsqp (const mat& L1, const vec& w, vec& x, mat& Z, mat& H, 
+	     unsigned int numiter, const mixsqp_control_params& control, 
+	     vec& objective) {
   double e = control.e;
   int    m = x.n_elem;
 
@@ -112,7 +113,7 @@ void mixsqp (const mat& L1, const vec& w, vec& x, mat& Z, mat& H, uint numiter,
   
   // Repeat until the convergence criterion is met, or until we reach
   // the maximum number of (outer loop) iterations.
-  for (uint i = 0; i < numiter; i++) {
+  for (unsigned int i = 0; i < numiter; i++) {
 
     // Zero any co-ordinates that are below the specified threshold.
     j = find(x <= control.zerothresholdsolution);

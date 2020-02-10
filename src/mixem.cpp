@@ -15,7 +15,7 @@ void mixem_update (const arma::mat& L1, const arma::vec& w,
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
-		      const arma::vec& x0, uint numiter) {
+		      const arma::vec& x0, unsigned int numiter) {
   return mixem(L,w,x0,numiter);
 }
 
@@ -40,7 +40,7 @@ arma::vec mixem_rcpp (const arma::mat& L, const arma::vec& w,
 // Also note that it does not make sense to compute a MLE of the
 // mixture proportions when n < 2 and/or when m < 2; mixem will supply
 // a result in such cases, but the result will not be valid.
-vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
+vec mixem (const mat& L, const vec& w, const vec& x0, unsigned int numiter) {
   mat L1 = L;
   mat P  = L;
   vec x  = x0;
@@ -65,8 +65,9 @@ vec mixem (const mat& L, const vec& w, const vec& x0, uint numiter) {
 // contain all the data; any rows of L1 associated with zero weights
 // have no effect, so only the vector of nonzero weights w, and the
 // rows of L1 associated with those weights, need to be supplied.
-void mixem (const mat& L1, const vec& w, vec& x, mat& P, uint numiter) {
-  for (uint i = 0; i < numiter; i++)
+void mixem (const mat& L1, const vec& w, vec& x, mat& P, 
+            unsigned int numiter) {
+  for (unsigned int i = 0; i < numiter; i++)
     mixem_update(L1,w,x,P);
 }
 
@@ -100,8 +101,8 @@ void mixem_update (const mat& L1, const vec& w, vec& x, mat& P) {
 // when only one of the weights (w) is positive. Here, L1 should be
 // the column-normalized matrix, and i should be the index of the
 // nonzero weight.
-void mixture_one_nonzero (const mat& L1, uint i, vec& x) {
-  uint j = index_max(L1.row(i));
+void mixture_one_nonzero (const mat& L1, unsigned int i, vec& x) {
+  unsigned int j = index_max(L1.row(i));
   x.fill(0);
   x(j) = 1;
 }

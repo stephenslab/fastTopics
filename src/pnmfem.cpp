@@ -9,7 +9,8 @@ using namespace arma;
 // Perform one or several EM updates for a single column of the k x m
 // factors matrix, F, when X is a dense matrix.
 inline vec pnmfem_update_factor (const mat& X, const mat& F, const mat& L1,
-				 const vec& u, mat& P, uint j, uint numiter) {
+				 const vec& u, mat& P, unsigned int j, 
+				 unsigned int numiter) {
   vec f = F.col(j);
   poismixem(L1,u,X.col(j),f,P,numiter);
   return f;
@@ -18,12 +19,12 @@ inline vec pnmfem_update_factor (const mat& X, const mat& F, const mat& L1,
 // Perform one or several EM updates for a single column of the k x m
 // factors matrix, F, when X is a sparse matrix.
 inline vec pnmfem_update_factor_sparse (const sp_mat& X, const mat& F,
-					const mat& L1, const vec& u, uint j,
-					uint numiter) {
-  vec  x = nonzeros(X.col(j));
-  uint n = x.n_elem;
-  vec  f = F.col(j);
-  uvec i(n);
+					const mat& L1, const vec& u, 
+					unsigned int j, unsigned int numiter) {
+  vec          x = nonzeros(X.col(j));
+  unsigned int n = x.n_elem;
+  vec          f = F.col(j);
+  uvec         i(n);
   getcolnonzeros(X,i,j);
   poismixem(L1,u,x,i,f,numiter);
   return f;
@@ -34,16 +35,16 @@ inline vec pnmfem_update_factor_sparse (const sp_mat& X, const mat& F,
 // This class is used to implement multithreaded computation of the
 // factor updates in pnmfem_update_factors_parallel_rcpp.
 struct pnmfem_factor_updater : public RcppParallel::Worker {
-  const mat& X;
-  const mat& F;
-  mat        L1;
-  vec        u;
-  mat&       Fnew;
-  uint       numiter;
+  const mat&   X;
+  const mat&   F;
+  mat          L1;
+  vec          u;
+  mat&         Fnew;
+  unsigned int numiter;
 
   // This is used to create a pnmfem_factor_updater object.
   pnmfem_factor_updater (const mat& X, const mat& F, const mat& L, 
-			 mat& Fnew, uint numiter) :
+			 mat& Fnew, unsigned int numiter) :
     X(X), F(F), L1(L), u(L.n_cols), Fnew(Fnew), numiter(numiter) { 
     u = sum(L,0);
     normalizecols(L1);
@@ -52,7 +53,7 @@ struct pnmfem_factor_updater : public RcppParallel::Worker {
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
     mat P = L1;
-    for (uint j = begin; j < end; j++)
+    for (unsigned int j = begin; j < end; j++)
       Fnew.col(j) = pnmfem_update_factor(X,F,L1,u,P,j,numiter);
   }
 };
@@ -65,18 +66,18 @@ struct pnmfem_factor_updater_sparse : public RcppParallel::Worker {
   mat           L1;
   vec           u;
   mat&          Fnew;
-  uint          numiter;
+  unsigned int  numiter;
 
   // This is used to create a pnmfem_factor_updater object.
   pnmfem_factor_updater_sparse (const sp_mat& X, const mat& F, const mat& L, 
-				mat& Fnew, uint numiter) :
+				mat& Fnew, unsigned int numiter) :
     X(X), F(F), L1(L), u(L.n_cols), Fnew(Fnew), numiter(numiter) {
     u = sum(L,0);
     normalizecols(L1);
   };
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    for (uint j = begin; j < end; j++)
+    for (unsigned int j = begin; j < end; j++)
       Fnew.col(j) = pnmfem_update_factor_sparse(X,F,L1,u,j,numiter);
   }
 };
@@ -97,13 +98,13 @@ struct pnmfem_factor_updater_sparse : public RcppParallel::Worker {
 // [[Rcpp::export]]
 arma::mat pnmfem_update_factors_rcpp (const arma::mat& X, const arma::mat& F,
 				      const arma::mat& L, double numiter) {
-  uint m    = X.n_cols;
+  unsigned int m = X.n_cols;
   vec  u    = sum(L,0);
   mat  L1   = L;
   mat  P    = L;
   mat  Fnew = F;
   normalizecols(L1);
-  for (uint j = 0; j < m; j++)
+  for (unsigned int j = 0; j < m; j++)
     Fnew.col(j) = pnmfem_update_factor(X,F,L1,u,P,j,numiter);
   return Fnew;
 }
@@ -116,12 +117,12 @@ arma::mat pnmfem_update_factors_sparse_rcpp (const arma::sp_mat& X,
 					     const arma::mat& F,
 					     const arma::mat& L,
 					     double numiter) {
-  uint m    = X.n_cols;
+  unsigned int m = X.n_cols;
   vec  u    = sum(L,0);
   mat  L1   = L;
   mat  Fnew = F;
   normalizecols(L1);
-  for (uint j = 0; j < m; j++)
+  for (unsigned int j = 0; j < m; j++)
     Fnew.col(j) = pnmfem_update_factor_sparse(X,F,L1,u,j,numiter);
   return Fnew;
 }

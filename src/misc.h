@@ -8,7 +8,7 @@
 
 // FUNCTION DECLARATIONS
 // ---------------------
-void getcolnonzeros     (const arma::sp_mat& A, arma::uvec& i, uint j);
+void getcolnonzeros     (const arma::sp_mat& A, arma::uvec& i, unsigned int j);
 void scalecols          (arma::mat& A, const arma::vec& b);
 void normalizerows      (arma::mat& A);
 void normalizecols      (arma::mat& A);

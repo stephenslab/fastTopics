@@ -17,7 +17,7 @@ void ccd_update_factors_sparse (const sp_mat& V, const mat& W, mat& H,
 // Perform a CCD update for a single column of H, in which V is
 // approximated by the matrix product W*H.
 inline void ccd_update_factor (const mat& V, const mat& W, mat& H,
-			       uint j, double e) {
+			       unsigned int j, double e) {
   H.col(j) = ccd_kl_update(W,V.col(j),H.col(j),e);
 }
 
@@ -26,11 +26,11 @@ inline void ccd_update_factor (const mat& V, const mat& W, mat& H,
 // Here, "sumw" should contain the precomputed column sums of W; that
 // is, sumw = colSums(W).
 inline void ccd_update_factor_sparse (const sp_mat& V, const mat& W,
-				      const vec& sumw, mat& H, uint j,
-				      double e) {
-  vec  v = nonzeros(V.col(j));
-  uint n = v.n_elem;
-  uvec i(n);
+				      const vec& sumw, mat& H, 
+				      unsigned int j, double e) {
+  vec          v = nonzeros(V.col(j));
+  unsigned int n = v.n_elem;
+  uvec         i(n);
   getcolnonzeros(V,i,j);
   H.col(j) = ccd_kl_update(W.rows(i),sumw,v,H.col(j),e);
 }
@@ -51,7 +51,7 @@ struct ccd_factor_updater : public RcppParallel::Worker {
 
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    for (uint j = begin; j < end; j++)
+    for (unsigned int j = begin; j < end; j++)
       ccd_update_factor(V,W,H,j,e);
   }
 };
@@ -73,7 +73,7 @@ struct ccd_factor_updater_sparse : public RcppParallel::Worker {
 
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    for (uint j = begin; j < end; j++)
+    for (unsigned int j = begin; j < end; j++)
       ccd_update_factor_sparse(V,W,sumw,H,j,e);
   }
 };
@@ -146,8 +146,8 @@ arma::mat ccd_update_factors_sparse_parallel_rcpp (const arma::sp_mat& V,
 // Iterate the CCD updates over all columns of H, in which V is
 // approximated by the matrix product W*H.
 void ccd_update_factors (const mat& V, const mat& W, mat& H, double e) {
-  uint m = H.n_cols;
-  for (uint j = 0; j < m; j++)
+  unsigned int m = H.n_cols;
+  for (unsigned int j = 0; j < m; j++)
     ccd_update_factor(V,W,H,j,e);
 }
 
@@ -155,8 +155,8 @@ void ccd_update_factors (const mat& V, const mat& W, mat& H, double e) {
 // stored as a sparse matrix.
 void ccd_update_factors_sparse (const sp_mat& V, const mat& W, mat& H,
 				double e) {
-  uint m    = H.n_cols;
-  vec  sumw = sum(W,0);
-  for (uint j = 0; j < m; j++)
+  unsigned int m = H.n_cols;
+  vec sumw = sum(W,0);
+  for (unsigned int j = 0; j < m; j++)
     ccd_update_factor_sparse(V,W,sumw,H,j,e);
 }

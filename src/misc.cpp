@@ -11,9 +11,9 @@ using namespace arma;
 arma::vec x_over_crossprod_rcpp (const arma::vec& i, const arma::vec& j,
 				 const arma::vec& x, const arma::mat& A, 
 				 const arma::mat& B, double e) {
-  uint n = x.n_elem;
-  vec  y = x;
-  for (uint t = 0; t < n; t++)
+  unsigned int n = x.n_elem;
+  vec          y = x;
+  for (unsigned int t = 0; t < n; t++)
     y(t) /= (dot(A.col(i(t)),B.col(j(t))) + e);
   return y;
 }
@@ -27,15 +27,15 @@ arma::vec x_over_crossprod_rcpp (const arma::vec& i, const arma::vec& j,
 // re-implemented this code here. Vector i must already been
 // initialized with the proper length, e.g., by doing
 //
-//   vec  a = nonzeros(A.col(j));
-//   uint n = a.n_elem;
+//   vec a = nonzeros(A.col(j));
+//   unsigned int n = a.n_elem;
 //   uvec i(n);
 //   getcolnonzeros(A,i,j);
 //
-void getcolnonzeros (const sp_mat& A, uvec& i, uint j) {
+void getcolnonzeros (const sp_mat& A, uvec& i, unsigned int j) {
   sp_mat::const_col_iterator ai = A.begin_col(j);
   sp_mat::const_col_iterator an = A.end_col(j);
-  for (uint t = 0; ai != an; ++ai, ++t)
+  for (unsigned int t = 0; ai != an; ++ai, ++t)
     i(t) = ai.row();
 }
 
