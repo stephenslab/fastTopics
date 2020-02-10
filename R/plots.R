@@ -89,10 +89,11 @@ plot_progress_poisson_nmf <-
     y <- "dev"
   else
     y <- "loglik"
-  p1 <- ggplot(pdat,aes_string(x = "timing",y = y,color = "method",
-                               linetype = "method",size = "method")) +
+  rows <- which(pdat$iter %% add.point.every == 1)
+  p1   <- ggplot(pdat,aes_string(x = "timing",y = y,color = "method",
+                                 linetype = "method",size = "method")) +
     geom_line() +
-    geom_point(data = subset(pdat,iter %% add.point.every == 1),
+    geom_point(data = pdat[rows,],
                mapping = aes_string(x = "timing",y = y,color = "method",
                                     shape = "method"),
                size = ptsize,inherit.aes = FALSE) +
@@ -109,7 +110,7 @@ plot_progress_poisson_nmf <-
   p2 <- ggplot(pdat,aes_string(x = "timing",y = "res",color = "method",
                                linetype = "method",size = "method")) +
     geom_line() +
-    geom_point(data = subset(pdat,iter %% add.point.every == 1),
+    geom_point(data = pdat[rows,],
                mapping = aes_string(x = "timing",y = "res",color = "method",
                                     shape = "method"),
                size = ptsize,inherit.aes = FALSE) +

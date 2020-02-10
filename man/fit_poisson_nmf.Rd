@@ -241,8 +241,10 @@ plot_progress_poisson_nmf(list(ccd       = fit.ccd,
                                ccd.ex    = fit.ccd.ex,
                                scd.ex    = fit.scd.ex,
                                altsqp.ex = fit.altsqp.ex),
-                               color = rep(clrs[3:5],times = 2),
-                               shape = rep(c(20,18),each = 3))
+                               color     = rep(clrs[3:5],times = 2),
+                               shape     = rep(c(1,19),each = 3),
+                               linesize  = rep(c(0.5),times = 6),
+                               ptsize    = 1.25)
 
 }
 \references{

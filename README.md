@@ -2,7 +2,7 @@
 
 [![Travis Build Status](https://travis-ci.org/stephenslab/fastTopics.svg?branch=master)](https://travis-ci.org/stephenslab/fastTopics)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/224272mhk5fadgmt?svg=true)](https://ci.appveyor.com/project/pcarbo/fasttopics)
-[![codecov](https://codecov.io/gh/stephenslab/fasttopics/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/fasttopics)
+[![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/fastTopics)
 
 R package implementing fast optimization algorithms for fitting topic
 models and non-negative matrix factorizations to count data.
