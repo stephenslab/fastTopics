@@ -98,76 +98,68 @@ test_that(paste("ccd and scd updates produce the same result, and",
   set.seed(1)
   out <- generate_test_data(80,100,3)
   X   <- out$X
-  F   <- out$F
-  L   <- out$L
 
   # First find a reasonably good initialization using the SCD updates.
-  fit0 <- iterate_updates(X,F,L,10,
-                          function (X,F,L) t(scd_update_factors(X,L,t(F))),
-                          function (X,F,L) scd_update_loadings(X,L,t(F)))
-  F0   <- fit0$F
-  L0   <- fit0$L
+  capture.output(
+    fit0 <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F = out$F,L = out$L),
+                            numiter = 10,method = "scd"))
   
   # Run 20 cyclic co-ordinate descent (CCD) updates.
   numiter <- 20
-  fit1 <- iterate_updates(X,F0,L0,numiter,
-                          function (X,F,L) t(ccd_update_factors(X,L,t(F))),
-                          function (X,F,L) ccd_update_loadings(X,L,t(F)))
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
 
   # Run 20 sequential coordinate descent (SCD) updates.
-  fit2 <- iterate_updates(X,F0,L0,numiter,
-                          function (X,F,L) t(scd_update_factors(X,L,t(F))),
-                          function (X,F,L) scd_update_loadings(X,L,t(F)))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd"))
 
   # Redo the SCD updates with a sparse matrix.
-  fit3 <- iterate_updates(as(X,"dgCMatrix"),F0,L0,numiter,
-                          function (X,F,L) t(scd_update_factors(X,L,t(F))),
-                          function (X,F,L) scd_update_loadings(X,L,t(F)))
+  Y <- as(X,"dgCMatrix")
+  capture.output(
+    fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd"))
   
   # Run 20 sequential coordinate descent (SCD) updates using the
   # multithreaded computations.
   nc <- 4
-  setThreadOptions(numThreads = nc)
-  fit4 <- iterate_updates(X,F0,L0,numiter,
-            function (X,F,L) t(scd_update_factors(X,L,t(F),nc = nc)),
-            function (X,F,L) scd_update_loadings(X,L,t(F),nc = nc))
+  capture.output(
+    fit4 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
+                            control = list(nc = nc)))
 
   # Redo the SCD updates one more time with a sparse matrix and
   # multithreaded computations.
-  fit5 <- iterate_updates(as(X,"dgCMatrix"),F0,L0,numiter,
-            function (X,F,L) t(scd_update_factors(X,L,t(F),nc = nc)),
-            function (X,F,L) scd_update_loadings(X,L,t(F),nc = nc))
+  capture.output(
+    fit5 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd",
+                            control = list(nc = nc)))
 
   # Redo the CCD updates with a sparse matrix, with and without
   # multithreading.
-  fit6 <- iterate_updates(as(X,"dgCMatrix"),F0,L0,numiter,
-                          function (X,F,L) t(ccd_update_factors(X,L,t(F))),
-                          function (X,F,L) ccd_update_loadings(X,L,t(F)))
-  fit7 <- iterate_updates(X,F0,L0,numiter,
-            function (X,F,L) t(ccd_update_factors(X,L,t(F),nc = nc)),
-            function (X,F,L) ccd_update_loadings(X,L,t(F),nc = nc))
-  fit8 <- iterate_updates(as(X,"dgCMatrix"),F0,L0,numiter,
-            function (X,F,L) t(ccd_update_factors(X,L,t(F),nc = nc)),
-            function (X,F,L) ccd_update_loadings(X,L,t(F),nc = nc))
+  capture.output(
+    fit6 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "ccd"))
+  capture.output(
+    fit7 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
+                            control = list(nc = nc)))
+  capture.output(
+    fit8 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "ccd",
+                            control = list(nc = nc)))
   
   # All the updates should monotonically increase the likelihood and
   # decrease the deviance.
-  expect_nondecreasing(fit1$loglik)
-  expect_nondecreasing(fit2$loglik)
-  expect_nondecreasing(fit3$loglik)
-  expect_nondecreasing(fit4$loglik)
-  expect_nondecreasing(fit5$loglik)
-  expect_nondecreasing(fit6$loglik)
-  expect_nondecreasing(fit7$loglik)
-  expect_nondecreasing(fit8$loglik)
-  expect_nonincreasing(fit1$dev)
-  expect_nonincreasing(fit2$dev)
-  expect_nonincreasing(fit3$dev)
-  expect_nonincreasing(fit4$dev)
-  expect_nonincreasing(fit5$dev)
-  expect_nonincreasing(fit6$dev)
-  expect_nonincreasing(fit7$dev)
-  expect_nonincreasing(fit8$dev)
+  expect_nondecreasing(fit1$progress$loglik)
+  expect_nondecreasing(fit2$progress$loglik)
+  expect_nondecreasing(fit3$progress$loglik)
+  expect_nondecreasing(fit4$progress$loglik)
+  expect_nondecreasing(fit5$progress$loglik)
+  expect_nondecreasing(fit6$progress$loglik)
+  expect_nondecreasing(fit7$progress$loglik)
+  expect_nondecreasing(fit8$progress$loglik)
+  expect_nonincreasing(fit1$progress$dev)
+  expect_nonincreasing(fit2$progress$dev)
+  expect_nonincreasing(fit3$progress$dev)
+  expect_nonincreasing(fit4$progress$dev)
+  expect_nonincreasing(fit5$progress$dev)
+  expect_nonincreasing(fit6$progress$dev)
+  expect_nonincreasing(fit7$progress$dev)
+  expect_nonincreasing(fit8$progress$dev)
 
   # The updated factors and loadings should be nearly the same.
   expect_equal(fit1$F,fit2$F,tolerance = 1e-8,scale = 1)
@@ -186,20 +178,27 @@ test_that(paste("ccd and scd updates produce the same result, and",
   expect_equal(fit2$L,fit5$L,tolerance = 1e-15,scale = 1)
   
   # The likelihoods and deviances should be nearly the same.
-  expect_equal(fit1$loglik,fit2$loglik,tolerance = 1e-6,scale = 1)
-  expect_equal(fit1$loglik,fit6$loglik,tolerance = 1e-12,scale = 1)
-  expect_equal(fit1$loglik,fit7$loglik,tolerance = 1e-12,scale = 1)
-  expect_equal(fit1$loglik,fit8$loglik,tolerance = 1e-12,scale = 1)
-  expect_equal(fit2$loglik,fit3$loglik,tolerance = 1e-12,scale = 1)
-  expect_equal(fit2$loglik,fit4$loglik,tolerance = 1e-12,scale = 1)
-  expect_equal(fit2$loglik,fit5$loglik,tolerance = 1e-12,scale = 1)
-  expect_equal(fit1$dev,fit2$dev,tolerance = 1e-6,scale = 1)
-  expect_equal(fit1$dev,fit6$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit1$dev,fit7$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit1$dev,fit8$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit2$dev,fit3$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit2$dev,fit4$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit2$dev,fit5$dev,tolerance = 1e-11,scale = 1)
+  expect_equal(fit1$progress$loglik,fit2$progress$loglik,
+               tolerance = 1e-6,scale = 1)
+  expect_equal(fit1$progress$loglik,fit6$progress$loglik,
+               tolerance = 1e-12,scale = 1)
+  expect_equal(fit1$progress$loglik,fit7$progress$loglik,
+               tolerance = 1e-12,scale = 1)
+  expect_equal(fit1$progress$loglik,fit8$progress$loglik,
+               tolerance = 1e-12,scale = 1)
+  expect_equal(fit2$progress$loglik,fit3$progress$loglik,
+               tolerance = 1e-12,scale = 1)
+  expect_equal(fit2$progress$loglik,fit5$progress$loglik,
+               tolerance = 1e-12,scale = 1)
+  expect_equal(fit2$progress$loglik,fit4$progress$loglik,
+               tolerance = 1e-12,scale = 1)
+  expect_equal(fit1$progress$dev,fit2$progress$dev,tolerance = 1e-6,scale = 1)
+  expect_equal(fit1$progress$dev,fit6$progress$dev,tolerance = 1e-11,scale = 1)
+  expect_equal(fit1$progress$dev,fit7$progress$dev,tolerance = 1e-11,scale = 1)
+  expect_equal(fit1$progress$dev,fit8$progress$dev,tolerance = 1e-11,scale = 1)
+  expect_equal(fit2$progress$dev,fit3$progress$dev,tolerance = 1e-11,scale = 1)
+  expect_equal(fit2$progress$dev,fit4$progress$dev,tolerance = 1e-11,scale = 1)
+  expect_equal(fit2$progress$dev,fit5$progress$dev,tolerance = 1e-11,scale = 1)
 })
 
 test_that(paste("When initialized \"close enough\" to a stationary point, the",
