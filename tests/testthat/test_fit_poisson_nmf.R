@@ -432,4 +432,70 @@ test_that(paste("Extrapolated updates achieve solutions that are as good",
 
 test_that("Re-fitting yields same result as one call to fit_poisson_nmf",{
 
+  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  k    <- 3
+  out  <- generate_test_data(80,100,k)
+  X    <- out$X
+
+  # Run 20 multiplicative updates.
+  fit0 <- init_poisson_nmf(X,k = k)
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "mu"))
+
+  # Run 10 multiplicative updates, then "re-fit" the model by running
+  # another 10 multiplicative updates.
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "mu"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "mu"))
+
+  # The two "fits" should be exactly the same (other than the timing).
+  fit1$progress$timing <- NULL
+  fit2$progress$timing <- NULL
+  expect_equal(fit1,fit2)
+
+  # Repeat this test for the EM updates.
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "em"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "em"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "em"))
+  fit1$progress$timing <- NULL
+  fit2$progress$timing <- NULL
+  expect_equal(fit1,fit2)
+
+  # Repeat this test for the CCD updates.
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "ccd"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "ccd"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "ccd"))
+  fit1$progress$timing <- NULL
+  fit2$progress$timing <- NULL
+  expect_equal(fit1,fit2)
+
+  # Repeat this test for the SCD updates.
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "scd"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "scd"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "scd"))
+  fit1$progress$timing <- NULL
+  fit2$progress$timing <- NULL
+  expect_equal(fit1,fit2)
+
+  # Repeat this test for the alt-SQP updates.
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "altsqp"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "altsqp"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "altsqp"))
+  fit1$progress$timing <- NULL
+  fit2$progress$timing <- NULL
+  expect_equal(fit1,fit2)
 })
