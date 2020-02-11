@@ -33,8 +33,7 @@ test_that(paste("multiplicative and EM updates produce same result, and",
                             control = list(nc = nc)))
   
   # Store the counts as a sparse matrix.
-  # Y <- as(X,"dgCMatrix")
-  Y <- X
+  Y <- as(X,"dgCMatrix")
   
   # Run 20 EM updates a third time, this time using the sparse counts
   # matrix.
@@ -112,8 +111,7 @@ test_that(paste("ccd and scd updates produce the same result, and",
                             control = list(nc = 1)))
 
   # Redo the SCD updates with a sparse matrix.
-  # Y <- as(X,"dgCMatrix")
-  Y <- X
+  Y <- as(X,"dgCMatrix")
   capture.output(
       fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd",
                               control = list(nc = 1)))
@@ -285,8 +283,7 @@ test_that(paste("altsqp updates with dense and sparse matrices produce the",
                             control = list(nc = 1,numiter = 4)))
 
   # Redo the alt-SQP updates with sparse X.
-  # Y <- as(X,"dgCMatrix")
-  Y <- X
+  Y <- as(X,"dgCMatrix")
   capture.output(
     fit2 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "altsqp",
                             control = list(nc = 1,numiter = 4)))
