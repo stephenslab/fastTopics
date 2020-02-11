@@ -293,8 +293,8 @@ test_that(paste("altsqp updates with dense and sparse matrices produce the",
     fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,
               method = "altsqp",control = list(nc = 4,numiter = 4)))
   capture.output(
-    fit4 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,
-                            method = "altsqp",control = list(nc = 4,numiter = 4)))
+    fit4 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "altsqp",
+                            control = list(nc = 4,numiter = 4)))
   
   # The updated factors and loadings should be nearly the same in all
   # cases.
@@ -362,4 +362,74 @@ test_that(paste("All Poisson NMF updates recover same solution when",
   expect_equivalent(fit1$L,fit3$L,tolerance = 1e-3,scale = 1)
   expect_equivalent(fit2$F,fit3$F,tolerance = 1e-3,scale = 1)
   expect_equivalent(fit2$L,fit3$L,tolerance = 1e-3,scale = 1)
+})
+
+test_that(paste("Extrapolated updates achieve solutions that are as good",
+                "or better than the un-extrapolated updates, at least when",
+                "initialized close to a stationary point"),{
+
+  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  out <- generate_test_data(80,100,3)
+  X   <- out$X
+
+  # Get a good initial estimate by running 50 iterations of the CCD
+  # algorithm.
+  capture.output(
+    fit0 <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F = out$F,L = out$L),
+                            numiter = 50,method = "ccd"))
+
+  # Run 100 non-extrapolated updates using each of the methods.
+  numiter <- 100
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu"))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
+                            control = list(numiter = 4)))
+  capture.output(
+    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
+  capture.output(
+    fit4 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
+                            control = list(numiter = 4)))
+  capture.output(
+    fit5 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
+                            control = list(numiter = 4)))
+
+  # Run 100 extrapolated updates using each of the methods.
+  capture.output(
+    fit6 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu",
+                            control = list(extrapolate = TRUE)))
+  capture.output(
+    fit7 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
+                            control = list(numiter = 4,extrapolate = TRUE)))
+  capture.output(
+    fit8 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
+                            control = list(extrapolate = TRUE)))
+  capture.output(
+    fit9 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
+                            control = list(numiter = 4,extrapolate = TRUE)))
+  capture.output(
+    fit10 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
+                             control = list(numiter = 4,extrapolate = TRUE)))
+
+  # The extrapolated updates should achieve likelihoods that are
+  # higher (or at least not lower) than the non-extrapolated updates.
+  expect_lte(max(fit1$progress$loglik),max(fit6$progress$loglik))
+  expect_lte(max(fit2$progress$loglik),max(fit7$progress$loglik))
+  expect_lte(max(fit3$progress$loglik),max(fit8$progress$loglik))
+  expect_lte(max(fit4$progress$loglik),max(fit9$progress$loglik))
+  expect_lte(max(fit5$progress$loglik),max(fit10$progress$loglik))
+
+  # Likewise, the deviances for the extrapolated updates should be
+  # less than (or no higher than) the deviances from the non-expected
+  # updates.
+  expect_gte(min(fit1$progress$dev),min(fit6$progress$dev))
+  expect_gte(min(fit2$progress$dev),min(fit7$progress$dev))
+  expect_gte(min(fit3$progress$dev),min(fit8$progress$dev))
+  expect_gte(min(fit4$progress$dev),min(fit9$progress$dev))
+  expect_gte(min(fit5$progress$dev),min(fit10$progress$dev))
+})
+
+test_that("Re-fitting yields same result as one call to fit_poisson_nmf",{
+
 })

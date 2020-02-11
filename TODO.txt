@@ -3,7 +3,7 @@ to do
 
 + Set up CircleCI.
 
-+ Add tests for extrapolated updates.
++ Add tests for "re-fitting", with and without extrapolation.
 
 + Add roxygen2 documentation to "fit_poisson_nmf" function.
 
