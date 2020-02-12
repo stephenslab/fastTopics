@@ -301,7 +301,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-143).\n")
+    cat("(fastTopics 0.2-144).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -322,8 +322,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # RUN UPDATES
   # -----------
   if (verbose)
-    cat("iter log-likelihood      deviance res(KKT)",
-        "max|F-F'| max|L-L'| nz(F) nz(L) beta\n")
+    cat("iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'|",
+        "nz(F) nz(L) beta\n")
   fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,verbose)
 
   # Output the updated "fit".
@@ -488,14 +488,16 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
                                   max(abs(rbind(F,L))))
     progress[i,"delta.f"] <- max(abs(fit$Fbest - fit0$Fbest))
     progress[i,"delta.l"] <- max(abs(fit$Lbest - fit0$Lbest))
-    progress[i,"nonzeros.f"]  <- mean(fit$Fbest > control$zero.threshold.solution)
-    progress[i,"nonzeros.l"]  <- mean(fit$Lbest > control$zero.threshold.solution)
-    progress[i,"extrapolate"] <- extrapolate
     progress[i,"beta"]    <- fit$beta
     progress[i,"betamax"] <- fit$betamax
     progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
+    progress[i,"nonzeros.f"] <-
+      mean(fit$Fbest > control$zero.threshold.solution)
+    progress[i,"nonzeros.l"] <-
+      mean(fit$Lbest > control$zero.threshold.solution)
+    progress[i,"extrapolate"] <- extrapolate
     if (verbose)
-      cat(sprintf("%4d %+0.7e %+0.6e %0.2e %0.3e %0.3e %0.3f %0.3f %0.2f\n",
+      cat(sprintf("%4d %+0.9e %+0.8e %0.2e %0.1e %0.1e %0.3f %0.3f %0.2f\n",
                   i,progress[i,"loglik"],progress[i,"dev"],progress[i,"res"],
                   progress[i,"delta.f"],progress[i,"delta.l"],
                   progress[i,"nonzeros.f"],progress[i,"nonzeros.l"],
