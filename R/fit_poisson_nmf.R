@@ -303,7 +303,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-145).\n")
+    cat("(fastTopics 0.2-146).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -471,10 +471,18 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     t1   <- proc.time()
 
     # Update the factors and loadings.
-    extrapolate <- with(control,extrapolate & (i %% extrapolate.reset != 0))
-    if (extrapolate)
-      fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
-    else
+    extrapolate <- FALSE
+    if (control$extrapolate) {
+      if (i %% control$extrapolate.reset == 0) {
+        beta0    <- fit$beta
+        fit$beta <- 0
+        fit      <- update_poisson_nmf_extrapolated(X,fit,method,control)
+        fit$beta <- beta0
+      } else {
+        extrapolate <- TRUE
+        fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
+      }
+    } else
       fit <- update_poisson_nmf(X,fit,method,control)
     t2 <- proc.time()
     
@@ -530,6 +538,7 @@ update_poisson_nmf <- function (X, fit, method, control) {
   # be non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
   fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,method,control)
+  fit$F <- pmax(fit$F,control$minval)
 
   # Re-scale the factors and loadings.
   out   <- rescale.factors(fit$F,fit$L)
