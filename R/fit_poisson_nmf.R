@@ -277,6 +277,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                         control,keep.null = TRUE)
   if ((method == "mu" | method == "em") & any(control$minval == 0))
     warning("EM and multiplicative updates may not converge when minval = 0")
+  if (control$numiter > 1 & (method == "mu" | method == "ccd"))
+    stop("multiplicative and CCD updates do not allow control$numiter > 1")
   if (is.na(control$nc)) {
     setThreadOptions()
     control$nc <- defaultNumThreads()
@@ -301,7 +303,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-144).\n")
+    cat("(fastTopics 0.2-145).\n")
   }
   
   # INITIALIZE ESTIMATES
