@@ -41,6 +41,7 @@
 #' @importFrom ggplot2 scale_size_manual
 #' @importFrom ggplot2 scale_shape_manual
 #' @importFrom ggplot2 labs
+#' @importFrom ggplot2 xlim
 #' @importFrom cowplot plot_grid
 #' @importFrom cowplot theme_cowplot
 #' 
@@ -57,6 +58,7 @@ plot_progress_poisson_nmf <-
             linesize = rep(0.75,length(fits)),
             shape    = rep(20,length(fits)),
             ptsize   = 2,
+            limits.x = NULL,
             e        = 0.01,
             theme    = function() theme_cowplot(font_size = 12)) {
 
@@ -92,11 +94,11 @@ plot_progress_poisson_nmf <-
   rows <- which(pdat$iter %% add.point.every == 1)
   p1   <- ggplot(pdat,aes_string(x = "timing",y = y,color = "method",
                                  linetype = "method",size = "method")) +
-    geom_line() +
+    geom_line(na.rm = TRUE) +
     geom_point(data = pdat[rows,],
                mapping = aes_string(x = "timing",y = y,color = "method",
                                     shape = "method"),
-               size = ptsize,inherit.aes = FALSE) +
+               size = ptsize,inherit.aes = FALSE,na.rm = TRUE) +
     scale_y_continuous(trans = "log10") +
     scale_color_manual(values = color) +
     scale_linetype_manual(values = linetype) +
@@ -109,11 +111,11 @@ plot_progress_poisson_nmf <-
   # Create the plot showing the evolution in the KKT residual over time.
   p2 <- ggplot(pdat,aes_string(x = "timing",y = "res",color = "method",
                                linetype = "method",size = "method")) +
-    geom_line() +
+    geom_line(na.rm = TRUE) +
     geom_point(data = pdat[rows,],
                mapping = aes_string(x = "timing",y = "res",color = "method",
                                     shape = "method"),
-               size = ptsize,inherit.aes = FALSE) +
+               size = ptsize,inherit.aes = FALSE,na.rm = TRUE) +
     scale_y_continuous(trans = "log10") +
     scale_color_manual(values = color) +
     scale_linetype_manual(values = linetype) +
@@ -122,6 +124,11 @@ plot_progress_poisson_nmf <-
     labs(x = "runtime (s)",
          y = "max KKT residual") +
     theme()
+
+  if (!is.null(limits.x)) {
+   p1 <- p1 + xlim(limits.x[1],limits.x[2])
+   p2 <- p2 + xlim(limits.x[1],limits.x[2])
+  }
 
   return(plot_grid(p1,p2))
 }

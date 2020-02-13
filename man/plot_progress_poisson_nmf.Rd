@@ -14,6 +14,7 @@ plot_progress_poisson_nmf(
   linesize = rep(0.75, length(fits)),
   shape = rep(20, length(fits)),
   ptsize = 2,
+  limits.x = NULL,
   e = 0.01,
   theme = function() theme_cowplot(font_size = 12)
 )
