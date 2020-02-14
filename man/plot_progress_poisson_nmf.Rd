@@ -36,6 +36,8 @@ plot_progress_poisson_nmf(
 
 \item{ptsize}{Describe "ptsize" input argument here.}
 
+\item{limits.x}{Describe "limits.x" input argument here.}
+
 \item{e}{Describe "e" input argument here.}
 
 \item{theme}{Describe "theme" input argument here.}

@@ -28,11 +28,11 @@ mixsqp <- function (L, w, x0, numiter, control = list(), verbose = FALSE) {
 # These are the default settings used for running mix-SQP.
 mixsqp_control_default <- function()
   list(convtol.activeset         = 1e-10,
-       zero.threshold.solution   = 1e-8,
+       zero.threshold.solution   = 1e-6,
        zero.threshold.searchdir  = 1e-10,
        suffdecr.linesearch       = 0.01,
        stepsizereduce            = 0.75,
        minstepsize               = 1e-8,
        identity.contrib.increase = 10,
-       eps                       = 1e-15,
+       eps                       = 1e-8,
        maxiter.activeset         = 20)

@@ -22,6 +22,8 @@
 #' @param shape Describe "shape" input argument here.
 #' 
 #' @param ptsize Describe "ptsize" input argument here.
+#'
+#' @param limits.x Describe "limits.x" input argument here.
 #' 
 #' @param e Describe "e" input argument here.
 #'
