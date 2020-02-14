@@ -10,6 +10,7 @@ plot_progress_poisson_nmf(
   add.point.every = 20,
   color = rep(c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00",
     "#CC79A7"), length.out = length(fits)),
+  fill = rep("white", length(fits)),
   linetype = rep("solid", length(fits)),
   linesize = rep(0.75, length(fits)),
   shape = rep(20, length(fits)),
@@ -27,6 +28,8 @@ plot_progress_poisson_nmf(
 \item{add.point.every}{Describe "add.point.every" input argument here.}
 
 \item{color}{Describe "color" input argument here.}
+
+\item{fill}{Describe "fill" input argument here.}
 
 \item{linetype}{Describe "linetype" input argument here.}
 

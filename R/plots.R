@@ -15,6 +15,8 @@
 #' 
 #' @param color Describe "color" input argument here.
 #'
+#' @param fill Describe "fill" input argument here.
+#' 
 #' @param linetype Describe "linetype" input argument here.
 #'
 #' @param linesize Describe "linesize" input argument here.
@@ -39,6 +41,7 @@
 #' @importFrom ggplot2 geom_point
 #' @importFrom ggplot2 scale_y_continuous
 #' @importFrom ggplot2 scale_color_manual
+#' @importFrom ggplot2 scale_fill_manual
 #' @importFrom ggplot2 scale_linetype_manual
 #' @importFrom ggplot2 scale_size_manual
 #' @importFrom ggplot2 scale_shape_manual
@@ -56,6 +59,7 @@ plot_progress_poisson_nmf <-
             color    = rep(c("#E69F00","#56B4E9","#009E73","#F0E442",
                              "#0072B2","#D55E00","#CC79A7"),
                            length.out = length(fits)),
+            fill     = rep("white",length(fits)),
             linetype = rep("solid",length(fits)),
             linesize = rep(0.75,length(fits)),
             shape    = rep(20,length(fits)),
@@ -99,10 +103,11 @@ plot_progress_poisson_nmf <-
     geom_line(na.rm = TRUE) +
     geom_point(data = pdat[rows,],
                mapping = aes_string(x = "timing",y = y,color = "method",
-                                    shape = "method"),
+                                    fill = "method",shape = "method"),
                size = ptsize,inherit.aes = FALSE,na.rm = TRUE) +
     scale_y_continuous(trans = "log10") +
     scale_color_manual(values = color) +
+    scale_fill_manual(values = fill) +
     scale_linetype_manual(values = linetype) +
     scale_size_manual(values = linesize) +
     scale_shape_manual(values = shape) +
@@ -116,10 +121,11 @@ plot_progress_poisson_nmf <-
     geom_line(na.rm = TRUE) +
     geom_point(data = pdat[rows,],
                mapping = aes_string(x = "timing",y = "res",color = "method",
-                                    shape = "method"),
+                                    fill = "method",shape = "method"),
                size = ptsize,inherit.aes = FALSE,na.rm = TRUE) +
     scale_y_continuous(trans = "log10") +
     scale_color_manual(values = color) +
+    scale_fill_manual(values = fill) +
     scale_linetype_manual(values = linetype) +
     scale_size_manual(values = linesize) +
     scale_shape_manual(values = shape) +
