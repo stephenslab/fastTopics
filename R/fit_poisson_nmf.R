@@ -474,11 +474,15 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     extrapolate <- FALSE
     if (control$extrapolate) {
       if (i %% control$extrapolate.reset == 0) {
+
+        # TO DO: Add comments here.
         beta0    <- fit$beta
         fit$beta <- 0
         fit      <- update_poisson_nmf_extrapolated(X,fit,method,control)
         fit$beta <- beta0
       } else {
+
+        # TO DO: Add comments here.
         extrapolate <- TRUE
         fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
       }
@@ -518,7 +522,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
   fit$progress <- progress
   return(fit)
 }
-
+<
 # This implements a single (non-extrapolated) update of the factors
 # and loadings. The output is the updated "fit". Note that, because no
 # extrapolation scheme is used, the extrapolated and non-extrapolated

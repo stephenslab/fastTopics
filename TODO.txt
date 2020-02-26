@@ -1,6 +1,10 @@
 to do
 =====
 
++ Rename the fit_poisson_nmf outputs so that "Fbest" is just "F", and
+  "Lbest" is just "L". Then rename "F" and "L" as "Fn" and "Ln",
+  respectively.
+
 + Update the pkgdown site.
 
 + Add roxygen2 documentation to "fit_poisson_nmf" function.
