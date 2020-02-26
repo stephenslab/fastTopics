@@ -522,7 +522,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
   fit$progress <- progress
   return(fit)
 }
-<
+
 # This implements a single (non-extrapolated) update of the factors
 # and loadings. The output is the updated "fit". Note that, because no
 # extrapolation scheme is used, the extrapolated and non-extrapolated
