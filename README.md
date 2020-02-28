@@ -19,25 +19,40 @@ under the terms of the [MIT license][mit-license].
 
 ## Quick Start
 
-Install fastTopics using [devtools][devtools]:
+Install and load the package:
 
 ```R
 devtools::install_github("stephenslab/fastTopics")
+library(fastTopics)
 ```
 
 Note that installing the package will require a C++ compiler setup
 that is appropriate for the version of R installed on your
 computer. For details, refer to the [CRAN documentation][cran].
 
-Once you have installed the package, load the package in R:
+Simulate a 80 x 100 counts matrix:
 
 ```R
-library(fastTopics)
+set.seed(1)
+X <- simulate_count_data(80,100,k = 3)$X
 ```
 
-Next, work through the `fit_poisson_nmf` example, which illustrates
-the use of `fit_poisson_nmf` for fitting a non-negative matrix
-factorization to a small (80 x 100) counts matrix:
+Fit the Poisson NMF model using the multiplicative ("mu") and
+sequential co-ordinate ascent (SCD) updates:
+
+```R
+fit1 <- fit_poisson_nmf(X,k = 3,numiter = 500,method = "mu")
+fit2 <- fit_poisson_nmf(X,k = 3,numiter = 200,method = "scd",
+                        control = list(numiter = 4))
+```
+
+Compare the improvement in the solution over time:
+
+```R
+plot_progress_poisson_nmf(list(mu = fit1,scd = fit2))
+```
+
+For more, work through the `fit_poisson_nmf` example:
 
 ```R
 example("fit_poisson_nmf")
@@ -54,6 +69,5 @@ the [University of Chicago][uchicago], with guidance from
 [peter]: https://pcarbo.github.io
 [matthew]: http://stephenslab.uchicago.edu
 [uchicago]: https://www.uchicago.edu
-[devtools]: https://github.com/r-lib/devtools
 [cran]: https://cran.r-project.org
 
