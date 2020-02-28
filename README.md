@@ -38,7 +38,7 @@ X <- simulate_count_data(80,100,k = 3)$X
 ```
 
 Fit the Poisson NMF model using the multiplicative ("mu") and
-sequential co-ordinate ascent (SCD) updates:
+sequential co-ordinate ascent ("scd") updates:
 
 ```R
 fit1 <- fit_poisson_nmf(X,k = 3,numiter = 500,method = "mu")
