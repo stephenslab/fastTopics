@@ -3,15 +3,26 @@
 #  - Caution that very little argument checking is done.
 #
 
-#' @title Plot Progress of NMF Optimization Method Over Time
+#' @title Plot Progress of Poisson NMF Optimization Method Over Time
 #'
-#' @description Add description here.
+#' @description Create a plot showing improvement in one or more
+#'   Poisson NMF model fits over time. The horizontal axis shows the
+#'   recorded runtime (in s), and the vertical axis shows some quantity
+#'   measuring the quality of the fit: the log-likelihood, deviance or
+#'   maximum residual of the Karush-Kuhn-Tucker (KKT) first-order
+#'   optimality conditions. To better visualize log-likelihoods and
+#'   deviances, the log-likelihood and deviance differences are shown on
+#'   the logarithmic scale. where the differences are calculated with
+#'   respect to the best value achieved over all the fits compared.
 #'
 #' @param fits An object of class \code{"poisson_nmf_fit"}, or a
 #'   non-empty, named list in which each list element is an object of
 #'   class \code{"poisson_nmf_fit"}.
 #'
-#' @param y Describe "y" input argument here.
+#' @param y Column of the "progress" data frame used to assess
+#'   progress of the Poisson NMF optimization method(s). Should be one
+#'   of \code{"loglik"} (log-likelihood), \code{"dev"} (deviance) or
+#'   \code{"res"} (maximum residual of KKT conditions).
 #'
 #' @param add.point.every A positive integer giving the iteration
 #'   interval for drawing points on the progress curves. Set to
@@ -41,11 +52,13 @@
 #'   \code{\link[ggplot2]{scale_fill_manual}}. If fewer fill colours
 #'   than "fits", are given, the fill colours are recycled.
 #' 
-#' @param e Describe "e" input argument here.
+#' @param e A small, positive number added to the vertical axis (for
+#'   \code{y = "loglik"} and \code{y = "dev"} only) so that the
+#'   logarithmic scale does not over-emphasize very small differences.
 #'
-#' @param theme Describe "theme" input argument here.
+#' @param theme The ggplot2 "theme".
 #'
-#' @return Describe return value here.
+#' @return The return value is a \code{ggplot} object.
 #'
 #' @seealso \code{\link{fit_poisson_nmf}}
 #' 
@@ -111,26 +124,46 @@ plot_progress_poisson_nmf <-
 
   # PREPARE DATA FOR PLOT
   # ---------------------
-  labels <- names(fits)
-  pdat    <- NULL
-  for (i in 1:n) {
-    d        <- fits[[i]]$progress
-    d        <- cbind(data.frame("method" = labels[i],"iter" = 1:nrow(d)),d)
-    d$timing <- cumsum(d$timing)
-    pdat     <- rbind(pdat,d)
-  }
-  pdat$method <- factor(pdat$method,labels)
-  pdat$loglik <- max(pdat$loglik) - pdat$loglik + e
-  pdat$dev    <- pdat$dev - min(pdat$dev) + e
+  # Combine the progress information from all the fits into one data
+  # frame.
+  pdat <- prepare_progress_plot_data(fits,e)
 
   # CREATE PLOT
   # -----------
-  # Create the plot showing the improvement in the log-likelihood (or
-  # deviance) over time.
-  y <- "loglik"
+  # Create the plot showing the improvement in the log-likelihood,
+  # deviance, or maximum KKT residual over time.
+  return(create_progress_plot(pdat,y,add.point.every,colors,linetypes,
+                              linesizes,shapes,fills,theme))
+}
+
+# Used by plot_progress_poisson_nmf to create a data frame suitable
+# for plotting with ggplot.
+prepare_progress_plot_data <- function (fits, e) {
+  n     <- length(fits)
+  labels <- names(fits)
+  for (i in 1:n) {
+    y         <- fits[[i]]$progress
+    y         <- cbind(data.frame("method" = labels[i],"iter" = 1:nrow(y)),y)
+    y$timing  <- cumsum(y$timing)
+    fits[[i]] <- y
+  }
+  out        <- do.call(rbind,fits)
+  out$method <- factor(out$method,labels)
+  out$loglik <- max(out$loglik) - out$loglik + e
+  out$dev    <- out$dev - min(out$dev) + e
+  return(out)
+}
+
+# Used by plot_progress_poisson_nmf to create the plot.
+create_progress_plot <- function (pdat, y, add.point.every, colors, linetypes,
+                                  linesizes, shapes, fills, theme) {
   rows <- which(pdat$iter %% add.point.every == 1)
-  p1   <- ggplot(pdat,aes_string(x = "timing",y = y,color = "method",
-                                 linetype = "method",size = "method")) +
+  if (y == "res")
+    ylab <- "max KKT residual"
+  else
+    ylab <- paste("distance from best",y)
+  return(ggplot(pdat,aes_string(x = "timing",y = y,color = "method",
+                                linetype = "method",size = "method")) +
     geom_line(na.rm = TRUE) +
     geom_point(data = pdat[rows,],
                mapping = aes_string(x = "timing",y = y,color = "method",
@@ -142,7 +175,6 @@ plot_progress_poisson_nmf <-
     scale_size_manual(values = linesizes) +
     scale_shape_manual(values = shapes) +
     scale_fill_manual(values = fills) +
-    labs(x = "runtime (s)",y = paste("distance from best",y)) +
-    theme()
-  return(p1)
+    labs(x = "runtime (s)",y = ylab) +
+    theme())
 }

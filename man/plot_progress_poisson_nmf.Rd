@@ -2,7 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{plot_progress_poisson_nmf}
 \alias{plot_progress_poisson_nmf}
-\title{Plot Progress of NMF Optimization Method Over Time}
+\title{Plot Progress of Poisson NMF Optimization Method Over Time}
 \usage{
 plot_progress_poisson_nmf(
   fits,
@@ -23,7 +23,10 @@ plot_progress_poisson_nmf(
 non-empty, named list in which each list element is an object of
 class \code{"poisson_nmf_fit"}.}
 
-\item{y}{Describe "y" input argument here.}
+\item{y}{Column of the "progress" data frame used to assess
+progress of the Poisson NMF optimization method(s). Should be one
+of \code{"loglik"} (log-likelihood), \code{"dev"} (deviance) or
+\code{"res"} (maximum residual of KKT conditions).}
 
 \item{add.point.every}{A positive integer giving the iteration
 interval for drawing points on the progress curves. Set to
@@ -53,15 +56,25 @@ iterations; passed as the \code{values} input to
 \code{\link[ggplot2]{scale_fill_manual}}. If fewer fill colours
 than "fits", are given, the fill colours are recycled.}
 
-\item{e}{Describe "e" input argument here.}
+\item{e}{A small, positive number added to the vertical axis (for
+\code{y = "loglik"} and \code{y = "dev"} only) so that the
+logarithmic scale does not over-emphasize very small differences.}
 
-\item{theme}{Describe "theme" input argument here.}
+\item{theme}{The ggplot2 "theme".}
 }
 \value{
-Describe return value here.
+The return value is a \code{ggplot} object.
 }
 \description{
-Add description here.
+Create a plot showing improvement in one or more
+  Poisson NMF model fits over time. The horizontal axis shows the
+  recorded runtime (in s), and the vertical axis shows some quantity
+  measuring the quality of the fit: the log-likelihood, deviance or
+  maximum residual of the Karush-Kuhn-Tucker (KKT) first-order
+  optimality conditions. To better visualize log-likelihoods and
+  deviances, the log-likelihood and deviance differences are shown on
+  the logarithmic scale. where the differences are calculated with
+  respect to the best value achieved over all the fits compared.
 }
 \seealso{
 \code{\link{fit_poisson_nmf}}
