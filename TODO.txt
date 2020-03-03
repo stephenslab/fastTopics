@@ -1,6 +1,8 @@
 to do
 =====
 
++ Fill out roxygen docs for plot_progress_poisson_nmf.
+
 + Rename the fit_poisson_nmf outputs so that "Fbest" is just "F", and
   "Lbest" is just "L". Then rename "F" and "L" as "Fn" and "Ln",
   respectively.

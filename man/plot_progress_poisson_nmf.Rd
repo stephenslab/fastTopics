@@ -2,44 +2,56 @@
 % Please edit documentation in R/plots.R
 \name{plot_progress_poisson_nmf}
 \alias{plot_progress_poisson_nmf}
-\title{Add title here.}
+\title{Plot Progress of NMF Optimization Method Over Time}
 \usage{
 plot_progress_poisson_nmf(
   fits,
-  plot.dev = FALSE,
+  y = c("loglik", "dev", "res"),
   add.point.every = 20,
-  color = rep(c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00",
-    "#CC79A7"), length.out = length(fits)),
-  fill = rep("white", length(fits)),
-  linetype = rep("solid", length(fits)),
-  linesize = rep(0.75, length(fits)),
-  shape = rep(20, length(fits)),
-  ptsize = 2,
-  limits.x = NULL,
+  colors = c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00",
+    "#CC79A7"),
+  linetypes = "solid",
+  linesizes = 0.5,
+  shapes = 21,
+  fills = "white",
   e = 0.01,
   theme = function() theme_cowplot(font_size = 12)
 )
 }
 \arguments{
-\item{fits}{Describe "fits" input argument here.}
+\item{fits}{An object of class \code{"poisson_nmf_fit"}, or a
+non-empty, named list in which each list element is an object of
+class \code{"poisson_nmf_fit"}.}
 
-\item{plot.dev}{Describe "plot.dev" input argument here.}
+\item{y}{Describe "y" input argument here.}
 
-\item{add.point.every}{Describe "add.point.every" input argument here.}
+\item{add.point.every}{A positive integer giving the iteration
+interval for drawing points on the progress curves. Set to
+\code{Inf} to prevent points from being drawn on the plot.}
 
-\item{color}{Describe "color" input argument here.}
+\item{colors}{Colours used to draw progress curves; passed as the
+\code{values} input to \code{\link[ggplot2]{scale_color_manual}}.
+If fewer colours than "fits" are given, the colours are recycled.}
 
-\item{fill}{Describe "fill" input argument here.}
+\item{linetypes}{Line types used to draw progress curves; passed as
+the \code{values} input to \code{\link[ggplot2]{scale_linetype_manual}}.
+If fewer line types than "fits" are given, the line types are
+recycled.}
 
-\item{linetype}{Describe "linetype" input argument here.}
+\item{linesizes}{Line sizes used to draw progress curves; passed as
+the \code{values} input to \code{\link[ggplot2]{scale_size_manual}}.
+If fewer line sizes than "fits" are given, the line sizes are
+ recycled.}
 
-\item{linesize}{Describe "linesize" input argument here.}
+\item{shapes}{Shapes used to draw points at the selected
+iterations; passed as the \code{values} input to
+\code{\link[ggplot2]{scale_shape_manual}}. If fewer shapes than
+"fits" are given, the shapes are recycled.}
 
-\item{shape}{Describe "shape" input argument here.}
-
-\item{ptsize}{Describe "ptsize" input argument here.}
-
-\item{limits.x}{Describe "limits.x" input argument here.}
+\item{fills}{Fill colours used to draw points at the selected
+iterations; passed as the \code{values} input to
+\code{\link[ggplot2]{scale_fill_manual}}. If fewer fill colours
+than "fits", are given, the fill colours are recycled.}
 
 \item{e}{Describe "e" input argument here.}
 

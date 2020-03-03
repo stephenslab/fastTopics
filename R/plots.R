@@ -3,29 +3,43 @@
 #  - Caution that very little argument checking is done.
 #
 
-#' @title Add title here.
+#' @title Plot Progress of NMF Optimization Method Over Time
 #'
 #' @description Add description here.
 #'
-#' @param fits Describe "fits" input argument here.
+#' @param fits An object of class \code{"poisson_nmf_fit"}, or a
+#'   non-empty, named list in which each list element is an object of
+#'   class \code{"poisson_nmf_fit"}.
 #'
-#' @param plot.dev Describe "plot.dev" input argument here.
+#' @param y Describe "y" input argument here.
 #'
-#' @param add.point.every Describe "add.point.every" input argument here.
+#' @param add.point.every A positive integer giving the iteration
+#'   interval for drawing points on the progress curves. Set to
+#'   \code{Inf} to prevent points from being drawn on the plot.
 #' 
-#' @param color Describe "color" input argument here.
+#' @param colors Colours used to draw progress curves; passed as the
+#'   \code{values} input to \code{\link[ggplot2]{scale_color_manual}}.
+#'   If fewer colours than "fits" are given, the colours are recycled.
 #'
-#' @param fill Describe "fill" input argument here.
+#' @param linetypes Line types used to draw progress curves; passed as
+#'   the \code{values} input to \code{\link[ggplot2]{scale_linetype_manual}}.
+#'   If fewer line types than "fits" are given, the line types are
+#'   recycled.
+#'
+#' @param linesizes Line sizes used to draw progress curves; passed as
+#'   the \code{values} input to \code{\link[ggplot2]{scale_size_manual}}.
+#'   If fewer line sizes than "fits" are given, the line sizes are
+#'    recycled.
 #' 
-#' @param linetype Describe "linetype" input argument here.
-#'
-#' @param linesize Describe "linesize" input argument here.
-#'
-#' @param shape Describe "shape" input argument here.
+#' @param shapes Shapes used to draw points at the selected
+#'   iterations; passed as the \code{values} input to
+#'   \code{\link[ggplot2]{scale_shape_manual}}. If fewer shapes than
+#'   "fits" are given, the shapes are recycled.
 #' 
-#' @param ptsize Describe "ptsize" input argument here.
-#'
-#' @param limits.x Describe "limits.x" input argument here.
+#' @param fills Fill colours used to draw points at the selected
+#'   iterations; passed as the \code{values} input to
+#'   \code{\link[ggplot2]{scale_fill_manual}}. If fewer fill colours
+#'   than "fits", are given, the fill colours are recycled.
 #' 
 #' @param e Describe "e" input argument here.
 #'
@@ -41,44 +55,62 @@
 #' @importFrom ggplot2 geom_point
 #' @importFrom ggplot2 scale_y_continuous
 #' @importFrom ggplot2 scale_color_manual
-#' @importFrom ggplot2 scale_fill_manual
 #' @importFrom ggplot2 scale_linetype_manual
 #' @importFrom ggplot2 scale_size_manual
 #' @importFrom ggplot2 scale_shape_manual
+#' @importFrom ggplot2 scale_fill_manual
 #' @importFrom ggplot2 labs
-#' @importFrom ggplot2 xlim
-#' @importFrom cowplot plot_grid
 #' @importFrom cowplot theme_cowplot
 #' 
 #' @export
 #' 
 plot_progress_poisson_nmf <-
-  function (fits,
-            plot.dev = FALSE,
-            add.point.every = 20,
-            color    = rep(c("#E69F00","#56B4E9","#009E73","#F0E442",
-                             "#0072B2","#D55E00","#CC79A7"),
-                           length.out = length(fits)),
-            fill     = rep("white",length(fits)),
-            linetype = rep("solid",length(fits)),
-            linesize = rep(0.75,length(fits)),
-            shape    = rep(20,length(fits)),
-            ptsize   = 2,
-            limits.x = NULL,
-            e        = 0.01,
-            theme    = function() theme_cowplot(font_size = 12)) {
+  function (fits, y = c("loglik","dev","res"), add.point.every = 20,
+            colors = c("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2",
+                       "#D55E00","#CC79A7"),
+            linetypes = "solid", linesizes = 0.5, shapes = 21, fills = "white",
+            e = 0.01, theme = function() theme_cowplot(font_size = 12)) {
 
-  # Check input "fits".
-  if (!(is.list(fits) & !is.null(names(fits))))
-    stop("Input argument \"fits\" should be a list with named elements")
-  if (!all(sapply(fits,function (x) inherits(x,"poisson_nmf_fit"))))
-    stop("Input argument \"fit\" should be a list in which each list ",
-         "element is an object of class \"poisson_nmf_fit\"")
-  if (!all(nchar(names(fits)) > 0))
-    stop("All names for elements of \"fit\" should be non-empty")
-  
-  # Prepare the data for the plots.
-  n      <- length(fits)
+  # CHECK & PROCESS INPUTS
+  # ----------------------
+  # Check and process input "fits". It should either be an object of
+  # class poisson_nmf_fit, or a list of poisson_nmf_fit objects.
+  if (inherits(fits,"poisson_nmf_fit")) {
+    fit.name    <- deparse(substitute(fits))          
+    fits        <- list(fits)
+    names(fits) <- fit.name
+  } else {
+    msg <- paste("Input argument \"fits\" should either be an object of",
+                 "class \"poisson_nmf_fit\", or a non-empty, named list in",
+                 "which each list element is an object of class",
+                 "\"poisson_nmf_fit\"")
+    if (!(is.list(fits) & !is.null(names(fits)) & length(fits) > 0))
+      stop(msg)
+    if (!all(sapply(fits,function (x) inherits(x,"poisson_nmf_fit"))))
+      stop(msg)
+    if (!all(nchar(names(fits)) > 0))
+      stop(msg)
+  }
+
+  # Check and process input argument "y".
+  y <- match.arg(y)
+
+  # Check and process input arguments "colors", "linetypes",
+  # "linesizes" and "shapes".
+  n <- length(fits)
+  if (length(colors) < n)
+    colors <- rep(colors,length.out = n)
+  if (length(linetypes) < n)
+    linetypes <- rep(linetypes,length.out = n)
+  if (length(linesizes) < n)
+    linesizes <- rep(linesizes,length.out = n)
+  if (length(shapes) < n)
+    shapes <- rep(shapes,length.out = n)
+  if (length(fills) < n)
+    fills <- rep(fills,length.out = n)
+
+  # PREPARE DATA FOR PLOT
+  # ---------------------
   labels <- names(fits)
   pdat    <- NULL
   for (i in 1:n) {
@@ -91,12 +123,11 @@ plot_progress_poisson_nmf <-
   pdat$loglik <- max(pdat$loglik) - pdat$loglik + e
   pdat$dev    <- pdat$dev - min(pdat$dev) + e
 
+  # CREATE PLOT
+  # -----------
   # Create the plot showing the improvement in the log-likelihood (or
   # deviance) over time.
-  if (plot.dev)
-    y <- "dev"
-  else
-    y <- "loglik"
+  y <- "loglik"
   rows <- which(pdat$iter %% add.point.every == 1)
   p1   <- ggplot(pdat,aes_string(x = "timing",y = y,color = "method",
                                  linetype = "method",size = "method")) +
@@ -104,39 +135,14 @@ plot_progress_poisson_nmf <-
     geom_point(data = pdat[rows,],
                mapping = aes_string(x = "timing",y = y,color = "method",
                                     fill = "method",shape = "method"),
-               size = ptsize,inherit.aes = FALSE,na.rm = TRUE) +
+               inherit.aes = FALSE,na.rm = TRUE) +
     scale_y_continuous(trans = "log10") +
-    scale_color_manual(values = color) +
-    scale_fill_manual(values = fill) +
-    scale_linetype_manual(values = linetype) +
-    scale_size_manual(values = linesize) +
-    scale_shape_manual(values = shape) +
-    labs(x = "runtime (s)",
-         y = paste("distance from best",y)) +
+    scale_color_manual(values = colors) +
+    scale_linetype_manual(values = linetypes) +
+    scale_size_manual(values = linesizes) +
+    scale_shape_manual(values = shapes) +
+    scale_fill_manual(values = fills) +
+    labs(x = "runtime (s)",y = paste("distance from best",y)) +
     theme()
-
-  # Create the plot showing the evolution in the KKT residual over time.
-  p2 <- ggplot(pdat,aes_string(x = "timing",y = "res",color = "method",
-                               linetype = "method",size = "method")) +
-    geom_line(na.rm = TRUE) +
-    geom_point(data = pdat[rows,],
-               mapping = aes_string(x = "timing",y = "res",color = "method",
-                                    fill = "method",shape = "method"),
-               size = ptsize,inherit.aes = FALSE,na.rm = TRUE) +
-    scale_y_continuous(trans = "log10") +
-    scale_color_manual(values = color) +
-    scale_fill_manual(values = fill) +
-    scale_linetype_manual(values = linetype) +
-    scale_size_manual(values = linesize) +
-    scale_shape_manual(values = shape) +
-    labs(x = "runtime (s)",
-         y = "max KKT residual") +
-    theme()
-
-  if (!is.null(limits.x)) {
-   p1 <- p1 + xlim(limits.x[1],limits.x[2])
-   p2 <- p2 + xlim(limits.x[1],limits.x[2])
-  }
-
-  return(plot_grid(p1,p2))
+  return(p1)
 }
