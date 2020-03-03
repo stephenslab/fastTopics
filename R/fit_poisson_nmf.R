@@ -145,7 +145,7 @@
 #' library(Matrix)
 #' set.seed(1)
 #' X <- simulate_count_data(80,100,3)$X
-#'
+#' 
 #' # Run 20 EM updates to find a good initialization.
 #' fit0 <- fit_poisson_nmf(X,k = 3,numiter = 20,verbose = FALSE)
 #' 
@@ -169,7 +169,7 @@
 #'                                ccd    = fit.ccd,
 #'                                scd    = fit.scd,
 #'                                altsqp = fit.altsqp),
-#'                           color = clrs)
+#'                           colors = clrs)
 #'
 #' # All optimization algorithms other than the multiplicative updates
 #' # can handle sparse matrices as well as dense ones.
@@ -182,7 +182,7 @@
 #'                                  method = "scd",verbose = FALSE)
 #' fit.altsqp.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 200,
 #'                                  method = "altsqp",verbose = FALSE)
-#' 
+#'
 #' plot_progress_poisson_nmf(list(em        = fit.em,
 #'                                ccd       = fit.ccd,
 #'                                scd       = fit.scd,
@@ -191,8 +191,7 @@
 #'                                ccd.sp    = fit.ccd.sp,
 #'                                scd.sp    = fit.scd.sp,
 #'                                altsqp.sp = fit.altsqp.sp),
-#'                           color = rep(clrs[-1],times = 2),
-#'                           shape = rep(c(20,18),each = 4))
+#'                           colors = clrs[-1],shapes = rep(c(19,21),each = 4))
 #'
 #' # The "extrapolated" updates can sometimes produce much better fits.
 #' fit.ccd.ex <-
@@ -204,17 +203,15 @@
 #' fit.altsqp.ex <-
 #'   fit_poisson_nmf(X,fit0 = fit0,numiter = 200,method = "altsqp",
 #'                   control = list(extrapolate = TRUE),verbose = FALSE)
-#' 
+#'
 #' plot_progress_poisson_nmf(list(ccd       = fit.ccd,
 #'                                scd       = fit.scd,
 #'                                altsqp    = fit.altsqp,
 #'                                ccd.ex    = fit.ccd.ex,
 #'                                scd.ex    = fit.scd.ex,
 #'                                altsqp.ex = fit.altsqp.ex),
-#'                                color     = rep(clrs[3:5],times = 2),
-#'                                shape     = rep(c(1,19),each = 3),
-#'                                linesize  = rep(c(0.5),times = 6),
-#'                                ptsize    = 1.25)
+#'                                colors    = clrs[3:5],
+#'                                shapes    = rep(c(19,21),each = 3))
 #'
 #' @useDynLib fastTopics
 #'
@@ -303,7 +300,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-153).\n")
+    cat("(fastTopics 0.2-154).\n")
   }
   
   # INITIALIZE ESTIMATES

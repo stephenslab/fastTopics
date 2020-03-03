@@ -199,7 +199,7 @@ plot_progress_poisson_nmf(list(mu     = fit.mu,
                                ccd    = fit.ccd,
                                scd    = fit.scd,
                                altsqp = fit.altsqp),
-                          color = clrs)
+                          colors = clrs)
 
 # All optimization algorithms other than the multiplicative updates
 # can handle sparse matrices as well as dense ones.
@@ -221,8 +221,7 @@ plot_progress_poisson_nmf(list(em        = fit.em,
                                ccd.sp    = fit.ccd.sp,
                                scd.sp    = fit.scd.sp,
                                altsqp.sp = fit.altsqp.sp),
-                          color = rep(clrs[-1],times = 2),
-                          shape = rep(c(20,18),each = 4))
+                          colors = clrs[-1],shapes = rep(c(19,21),each = 4))
 
 # The "extrapolated" updates can sometimes produce much better fits.
 fit.ccd.ex <-
@@ -241,10 +240,8 @@ plot_progress_poisson_nmf(list(ccd       = fit.ccd,
                                ccd.ex    = fit.ccd.ex,
                                scd.ex    = fit.scd.ex,
                                altsqp.ex = fit.altsqp.ex),
-                               color     = rep(clrs[3:5],times = 2),
-                               shape     = rep(c(1,19),each = 3),
-                               linesize  = rep(c(0.5),times = 6),
-                               ptsize    = 1.25)
+                               colors    = clrs[3:5],
+                               shapes    = rep(c(19,21),each = 3))
 
 }
 \references{
