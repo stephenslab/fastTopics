@@ -88,35 +88,36 @@ return an object capturing the optimization algorithm state (for
 \code{init_poisson_nmf}, this is the initial state). It is a list
 with the following elements:
 
-\item{F}{A matrix containing the factor estimates.}
+\item{F}{A matrix containing the current best estimates of the
+  factors.}
 
-\item{L}{A matrix containing estimates of the loadings.}
+\item{L}{A matrix containing the current best estimates of the
+  loadings.}
+
+\item{Fn}{A matrix containing the non-extrapolated factor estimates.
+  If extrapolation is not used, \code{Fn} and \code{F} will be the
+  same.}
+
+\item{Ln}{A matrix containing the non-extrapolated estimates of the
+  loadings. If extrapolation is not used, \code{Ln} and \code{L} will
+  be the same.}
 
 \item{Fy}{A matrix containing the extrapolated factor estimates. If
-  the extrapolation scheme is not used, \code{F} and \code{Fy} will
+  the extrapolation scheme is not used, \code{Fy} and \code{F} will
   be the same.}
 
 \item{Ly}{A matrix containing the extrapolated estimates of the
-  loadings. If extrapolation is not used, \code{L} and \code{Ly} will
+  loadings. If extrapolation is not used, \code{Ly} and \code{L} will
   be the same.}
 
-\item{Fbest}{A matrix containing the current best estimates of the
-  factors. If extrapolation is not used, \code{F} and \code{Fbest}
-  will be the same.}
+\item{loss}{Value of the objective ("loss") function computed at
+  the current best estimates of the factors and loadings (\code{F}
+  and \code{L}).}
 
-\item{Lbest}{A matrix containing the current best estimates of the
-  loadings. If extrapolation is not used, \code{L} and \code{Lbest}
-  will be the same.}
-
-\item{loss}{Value of objective ("loss") function computed at the
+\item{loss1}{Value of the objective ("loss") function computed at the
   extrapolated solution for the loadings (\code{Ly}) and the
-  non-extrapolated solution for the factors (\code{F}). This is used
+  non-extrapolated solution for the factors (\code{Fn}). This is used
   internally to implement the extrapolated updates.}
-
-\item{lossbest}{Value of the objective ("loss" function computed at
-  the current best estimates of the factors and loadings
-  (\code{Fbest} and \code{Lbest}. If extrapolation is not used,
-  \code{loss} and \code{lossbest} will be the same.}
 
 \item{progress}{A data frame containing more detailed information
   about the algorithm's progress. The data frame should have

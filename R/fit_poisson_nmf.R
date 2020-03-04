@@ -90,36 +90,37 @@
 #' \code{init_poisson_nmf}, this is the initial state). It is a list
 #' with the following elements:
 #'
-#' \item{F}{A matrix containing the factor estimates.}
+#' \item{F}{A matrix containing the current best estimates of the
+#'   factors.}
+#' 
+#' \item{L}{A matrix containing the current best estimates of the
+#'   loadings.}
+#' 
+#' \item{Fn}{A matrix containing the non-extrapolated factor estimates.
+#'   If extrapolation is not used, \code{Fn} and \code{F} will be the
+#'   same.}
 #'
-#' \item{L}{A matrix containing estimates of the loadings.}
+#' \item{Ln}{A matrix containing the non-extrapolated estimates of the
+#'   loadings. If extrapolation is not used, \code{Ln} and \code{L} will
+#'   be the same.}
 #'
 #' \item{Fy}{A matrix containing the extrapolated factor estimates. If
-#'   the extrapolation scheme is not used, \code{F} and \code{Fy} will
+#'   the extrapolation scheme is not used, \code{Fy} and \code{F} will
 #'   be the same.}
 #'
 #' \item{Ly}{A matrix containing the extrapolated estimates of the
-#'   loadings. If extrapolation is not used, \code{L} and \code{Ly} will
+#'   loadings. If extrapolation is not used, \code{Ly} and \code{L} will
 #'   be the same.}
 #'
-#' \item{Fbest}{A matrix containing the current best estimates of the
-#'   factors. If extrapolation is not used, \code{F} and \code{Fbest}
-#'   will be the same.}
+#' \item{loss}{Value of the objective ("loss") function computed at
+#'   the current best estimates of the factors and loadings (\code{F}
+#'   and \code{L}).}
 #' 
-#' \item{Lbest}{A matrix containing the current best estimates of the
-#'   loadings. If extrapolation is not used, \code{L} and \code{Lbest}
-#'   will be the same.}
-#' 
-#' \item{loss}{Value of objective ("loss") function computed at the
+#' \item{loss1}{Value of the objective ("loss") function computed at the
 #'   extrapolated solution for the loadings (\code{Ly}) and the
-#'   non-extrapolated solution for the factors (\code{F}). This is used
+#'   non-extrapolated solution for the factors (\code{Fn}). This is used
 #'   internally to implement the extrapolated updates.}
 #'
-#' \item{lossbest}{Value of the objective ("loss" function computed at
-#'   the current best estimates of the factors and loadings
-#'   (\code{Fbest} and \code{Lbest}. If extrapolation is not used,
-#'   \code{loss} and \code{lossbest} will be the same.}
-#' 
 #' \item{progress}{A data frame containing more detailed information
 #'   about the algorithm's progress. The data frame should have
 #'   \code{numiter} rows. The columns of the data frame are: "iter", the
@@ -300,23 +301,33 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-154).\n")
+    cat("(fastTopics 0.2-155).\n")
   }
   
   # INITIALIZE ESTIMATES
   # --------------------
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
-  # numerical stability of the multiplicative updates.
-  out   <- rescale.factors(fit$F,fit$L)
-  fit$F <- out$F
-  fit$L <- out$L
+  # numerical stability of the updates.
+  out    <- rescale.factors(fit$F,fit$L)
+  fit$F  <- out$F
+  fit$L  <- out$L
+  out    <- rescale.factors(fit$Fn,fit$Ln)
+  fit$Fn <- out$F
+  fit$Ln <- out$L
+  out    <- rescale.factors(fit$Fy,fit$Ly)
+  fit$Fy <- out$F
+  fit$Ly <- out$L
 
   # Initialize the estimates of the factors and loadings. To prevent
   # the updates from getting "stuck", force the initial estimates to
   # be positive.
-  fit$F <- pmax(fit$F,control$minval)
-  fit$L <- pmax(fit$L,control$minval)
+  fit$F  <- pmax(fit$F,control$minval)
+  fit$L  <- pmax(fit$L,control$minval)
+  fit$Fn <- pmax(fit$Fn,control$minval)
+  fit$Ln <- pmax(fit$Ln,control$minval)
+  fit$Fy <- pmax(fit$Fy,control$minval)
+  fit$Ly <- pmax(fit$Ly,control$minval)
 
   # RUN UPDATES
   # -----------
@@ -326,13 +337,13 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,verbose)
 
   # Output the updated "fit".
-  fit$progress        <- rbind(fit0$progress,fit$progress)
-  dimnames(fit$F)     <- dimnames(fit0$F)
-  dimnames(fit$L)     <- dimnames(fit0$L)
-  dimnames(fit$Fy)    <- dimnames(fit0$Fy)
-  dimnames(fit$Ly)    <- dimnames(fit0$Ly)
-  dimnames(fit$Fbest) <- dimnames(fit0$Fbest)
-  dimnames(fit$Lbest) <- dimnames(fit0$Lbest)
+  fit$progress     <- rbind(fit0$progress,fit$progress)
+  dimnames(fit$F)  <- dimnames(fit0$F)
+  dimnames(fit$L)  <- dimnames(fit0$L)
+  dimnames(fit$Fn) <- dimnames(fit0$Fn)
+  dimnames(fit$Ln) <- dimnames(fit0$Ln)
+  dimnames(fit$Fy) <- dimnames(fit0$Fy)
+  dimnames(fit$Ly) <- dimnames(fit0$Ly)
   class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
 }
@@ -424,24 +435,24 @@ init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99,
                        "nonzeros.l","extrapolate","beta","betamax","timing")
   
   # Return a list containing: F, an initial estimate of the factors;
-  # L, an initial estimate of the loadings; Fy and Ly, the
+  # L, an initial estimate of the loadings; Fn and Ln, the
+  # non-extrapolated estimates of the factors and loadings, which
+  # initially are always the same as F and L; Fy and Ly, the
   # extrapolated estimates of the factors and loadings, which
-  # initially are always the same as F and L; Fbest and Lbest, the
-  # current best estimates of the factors and loadings, which
-  # initially are always the same as F and L; "loss" and "lossbest",
-  # the value of the objective or loss function at the initial
-  # estimates of the factors and loadings; beta, beta0 and betamax,
-  # the initial settings of the extrapolation parameters; and
-  # "progress", the initial data frame for keeping track of the
-  # algorithm's progress over time.
+  # initially are always the same as F and L; "loss" and "loss1", the
+  # value of the objective or loss function at the current best and
+  # partially extrapolated estimates of the factors and loadings;
+  # beta, beta0 and betamax, the initial settings of the extrapolation
+  # parameters; and "progress", the initial data frame for keeping
+  # track of the algorithm's progress over time.
   fit <- list(F        = F,
               L        = L,
+              Fn       = F,
+              Ln       = L,
               Fy       = F,
               Ly       = L,
-              Fbest    = F,
-              Lbest    = L,
               loss     = loss,
-              lossbest = loss,
+              loss1    = loss,
               beta     = beta,
               beta0    = beta,
               betamax  = betamax,
@@ -468,23 +479,19 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     t1   <- proc.time()
 
     # Update the factors and loadings.
-    extrapolate <- FALSE
-    if (control$extrapolate) {
-      if (i %% control$extrapolate.reset == 0) {
+    if (control$extrapolate & fit$beta > 0 &
+        i %% control$extrapolate.reset != 0) {
+        
+      # Perform an "extrapolated" update of the factors and loadings.
+      extrapolate <- TRUE
+      fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
+    } else {
 
-        # TO DO: Add comments here.
-        beta0    <- fit$beta
-        fit$beta <- 0
-        fit      <- update_poisson_nmf_extrapolated(X,fit,method,control)
-        fit$beta <- beta0
-      } else {
-
-        # TO DO: Add comments here.
-        extrapolate <- TRUE
-        fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
-      }
-    } else
+      # Perform a basic coordinate-wise update of the factors and
+      # loadings.
+      extrapolate <- FALSE
       fit <- update_poisson_nmf(X,fit,method,control)
+    }
     t2 <- proc.time()
     
     # Update the "progress" data frame with the log-likelihood,
@@ -492,20 +499,17 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     # progress to the console if requested. In all cases, the "current
     # best" estimates of the factors and loadings are used to report
     # progress.
-    u <- cost(X,fit$Lbest,t(fit$Fbest),control$eps,"poisson")
-    progress[i,"loglik"]  <- sum(loglik.const - u)
-    progress[i,"dev"]     <- sum(dev.const + 2*u)
-    progress[i,"res"]     <- with(poisson_nmf_kkt(X,fit$Fbest,fit$Lbest),
-                                  max(abs(rbind(F,L))))
-    progress[i,"delta.f"] <- max(abs(fit$Fbest - fit0$Fbest))
-    progress[i,"delta.l"] <- max(abs(fit$Lbest - fit0$Lbest))
-    progress[i,"beta"]    <- fit$beta
-    progress[i,"betamax"] <- fit$betamax
-    progress[i,"timing"]  <- t2["elapsed"] - t1["elapsed"]
-    progress[i,"nonzeros.f"] <-
-      mean(fit$Fbest > control$zero.threshold.solution)
-    progress[i,"nonzeros.l"] <-
-      mean(fit$Lbest > control$zero.threshold.solution)
+    progress[i,"loglik"]      <- sum(loglik.const - fit$loss)
+    progress[i,"dev"]         <- sum(dev.const + 2*fit$loss)
+    progress[i,"res"]         <- with(poisson_nmf_kkt(X,fit$F,fit$L),
+                                      max(abs(rbind(F,L))))
+    progress[i,"delta.f"]     <- max(abs(fit$F - fit0$F))
+    progress[i,"delta.l"]     <- max(abs(fit$L - fit0$L))
+    progress[i,"beta"]        <- fit$beta
+    progress[i,"betamax"]     <- fit$betamax
+    progress[i,"timing"]      <- t2["elapsed"] - t1["elapsed"]
+    progress[i,"nonzeros.f"]  <- mean(fit$F > control$zero.threshold.solution)
+    progress[i,"nonzeros.l"]  <- mean(fit$L > control$zero.threshold.solution)
     progress[i,"extrapolate"] <- extrapolate
     if (verbose)
       cat(sprintf("%4d %+0.9e %+0.8e %0.2e %0.1e %0.1e %0.3f %0.3f %0.2f\n",
@@ -524,9 +528,9 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
 # and loadings. The output is the updated "fit". Note that, because no
 # extrapolation scheme is used, the extrapolated and non-extrapolated
 # estimates are the same in the return value; that is, fit$Fy and
-# fit$Fbest are the same as fit$F, and fit$Ly and fit$Lbest are the
-# same as fit$L. The value of the loss function ("loss", "lossbest")
-# is also updated.
+# fit$Fn are the same as fit$F, and fit$Ly and fit$Ln are the same as
+# fit$L. The value of the loss function ("loss", "loss1") is also
+# updated.
 update_poisson_nmf <- function (X, fit, method, control) {
 
   # Update the loadings ("activations"). The factors are forced to be
@@ -548,15 +552,15 @@ update_poisson_nmf <- function (X, fit, method, control) {
 
   # The extrapolated and "current best" estimates are the same as the
   # non-extrapolated estimates.
-  fit$Fy    <- fit$F
-  fit$Ly    <- fit$L
-  fit$Fbest <- fit$F
-  fit$Lbest <- fit$L
+  fit$Fy <- fit$F
+  fit$Ly <- fit$L
+  fit$Fn <- fit$F
+  fit$Ln <- fit$L
 
   # Compute the value of the objective ("loss") function at the updated
   # estimates.
-  fit$loss     <- sum(cost(X,fit$L,t(fit$F),control$eps))
-  fit$lossbest <- fit$loss
+  fit$loss  <- sum(cost(X,fit$L,t(fit$F),control$eps))
+  fit$loss1 <- fit$loss
   
   # Output the updated "fit".
   return(fit)
@@ -569,8 +573,8 @@ update_poisson_nmf <- function (X, fit, method, control) {
 update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
 
   # Store the value of the objective (loss) function at the current
-  # iterate.
-  loss0 <- fit$loss
+  # iterate (Fn,Ly).
+  loss0 <- fit$loss1
 
   # Compute the extrapolated update for the loadings ("activations").
   # Note that when beta = 0, Ly = Ln.
@@ -582,56 +586,54 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
   # Note that when beta = 0, Fy = Fn.
   Fn     <- update_factors_poisson_nmf(X,fit$Fy,fit$Ly,method,control)
   Fn     <- pmax(Fn,control$minval)
-  fit$Fy <- pmax(Fn + fit$beta*(Fn - fit$F),control$minval)
+  fit$Fy <- pmax(Fn + fit$beta*(Fn - fit$Fn),control$minval)
   
   # Compute the value of the objective (loss) function at the
   # extrapolated solution for the loadings (Ly) and the
   # non-extrapolated solution for the factors (Fn).
-  fit$loss <- sum(cost(X,fit$Ly,t(Fn),control$eps))
-  if (fit$beta == 0) {
+  fit$loss1 <- sum(cost(X,fit$Ly,t(Fn),control$eps))
 
-    # When beta = 0, extrapolation is not used, and the extrapolation
-    # parameters are not updated; use the basic coordinate-wise
-    # updates for the factors and loadings.
-    fit$F <- Fn
-    fit$L <- Ln
+  # Update the extrapolation parameters following Algorithm 3 of
+  # Ang & Gillis (2019).
+  if (fit$loss1 > loss0) {
+
+    # The solution did not improve, so restart the extrapolation
+    # scheme.
+    fit$Fy      <- fit$Fn
+    fit$Ly      <- fit$Ln
+    fit$betamax <- fit$beta0
+    fit$beta    <- control$beta.reduce * fit$beta
   } else {
-
-    # Update the extrapolation parameters following Algorithm 3 of
-    # Ang & Gillis (2019).
-    if (fit$loss > loss0) {
-
-      # The solution did not improve, so restart the extrapolation.
-      fit$Fy      <- fit$F
-      fit$Ly      <- fit$L
-      fit$betamax <- fit$beta0
-      fit$beta    <- control$beta.reduce * fit$beta
-    } else {
         
-      # The solution improved; retain the basic co-ordinate ascent
-      # update as well.
-      fit$F       <- Fn
-      fit$L       <- Ln
-      fit$beta    <- min(fit$betamax,control$beta.increase * fit$beta)
-      fit$beta0   <- fit$beta
-      fit$betamax <- min(0.99,control$betamax.increase * fit$betamax)
-    }
+    # The solution improved; retain the basic co-ordinate ascent
+    # update as well.
+    fit$Fn      <- Fn
+    fit$Ln      <- Ln
+    fit$beta    <- min(fit$betamax,control$beta.increase * fit$beta)
+    fit$beta0   <- fit$beta
+    fit$betamax <- min(0.99,control$betamax.increase * fit$betamax)
   }
-  
-  # If the solution is improved, update the current best estimates
-  # using the non-extrapolated estimates of the factors (Fn) and the
-  # extrapolated estimates of the loadings (Ly).
-  if (fit$loss < fit$lossbest) {
-    fit$Fbest    <- Fn
-    fit$Lbest    <- fit$Ly 
-    fit$lossbest <- fit$loss
+ 
+  # If the solution improves the "current best" estimate, update the
+  # current best estimate using the non-extrapolated estimates of the
+  # factors (Fn) and the extrapolated estimates of the loadings (Ly).
+  if (fit$loss1 < fit$loss) {
+    fit$F    <- Fn
+    fit$L    <- fit$Ly 
+    fit$loss <- fit$loss1
+  }
 
-    # Re-scale the factors and loadings.
-    out       <- rescale.factors(fit$Fbest,fit$Lbest)
-    fit$Fbest <- out$F
-    fit$Lbest <- out$L
-  }
-           
+  # Re-scale the factors and loadings.
+  out    <- rescale.factors(fit$F,fit$L)
+  fit$F  <- out$F
+  fit$L  <- out$L
+  out    <- rescale.factors(fit$Fn,fit$Ln)
+  fit$Fn <- out$F
+  fit$Ln <- out$L
+  out    <- rescale.factors(fit$Fy,fit$Ly)
+  fit$Fy <- out$F
+  fit$Ly <- out$L
+  
   # Output the updated "fit".
   return(fit)
 }
