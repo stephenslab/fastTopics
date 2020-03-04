@@ -79,10 +79,10 @@ test_that(paste("multiplicative and EM updates produce same result, and",
                tolerance = 1e-10,scale = 1)
   expect_equal(fit1$progress$loglik,fit5$progress$loglik,
                tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$progress$dev,fit2$progress$dev,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$progress$dev,fit3$progress$dev,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$progress$dev,fit4$progress$dev,tolerance = 1e-10,scale = 1)
-  expect_equal(fit1$progress$dev,fit5$progress$dev,tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$dev,fit2$progress$dev,tolerance = 1e-8,scale = 1)
+  expect_equal(fit1$progress$dev,fit3$progress$dev,tolerance = 1e-8,scale = 1)
+  expect_equal(fit1$progress$dev,fit4$progress$dev,tolerance = 1e-8,scale = 1)
+  expect_equal(fit1$progress$dev,fit5$progress$dev,tolerance = 1e-8,scale = 1)
 })
 
 test_that(paste("ccd and scd updates produce the same result, and",
@@ -178,26 +178,26 @@ test_that(paste("ccd and scd updates produce the same result, and",
   
   # The likelihoods and deviances should be nearly the same.
   expect_equal(fit1$progress$loglik,fit2$progress$loglik,
-               tolerance = 1e-4,scale = 1)
+               tolerance = 0.01,scale = 1)
   expect_equal(fit1$progress$loglik,fit6$progress$loglik,
-               tolerance = 1e-12,scale = 1)
+               tolerance = 1e-10,scale = 1)
   expect_equal(fit1$progress$loglik,fit7$progress$loglik,
-               tolerance = 1e-12,scale = 1)
+               tolerance = 1e-10,scale = 1)
   expect_equal(fit1$progress$loglik,fit8$progress$loglik,
-               tolerance = 1e-12,scale = 1)
+               tolerance = 1e-10,scale = 1)
   expect_equal(fit2$progress$loglik,fit3$progress$loglik,
-               tolerance = 1e-12,scale = 1)
+               tolerance = 1e-10,scale = 1)
   expect_equal(fit2$progress$loglik,fit5$progress$loglik,
-               tolerance = 1e-12,scale = 1)
+               tolerance = 1e-10,scale = 1)
   expect_equal(fit2$progress$loglik,fit4$progress$loglik,
-               tolerance = 1e-12,scale = 1)
-  expect_equal(fit1$progress$dev,fit2$progress$dev,tolerance = 1e-4,scale = 1)
-  expect_equal(fit1$progress$dev,fit6$progress$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit1$progress$dev,fit7$progress$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit1$progress$dev,fit8$progress$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit2$progress$dev,fit3$progress$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit2$progress$dev,fit4$progress$dev,tolerance = 1e-11,scale = 1)
-  expect_equal(fit2$progress$dev,fit5$progress$dev,tolerance = 1e-11,scale = 1)
+               tolerance = 1e-10,scale = 1)
+  expect_equal(fit1$progress$dev,fit2$progress$dev,tolerance = 0.01,scale = 1)
+  expect_equal(fit1$progress$dev,fit6$progress$dev,tolerance = 1e-8,scale = 1)
+  expect_equal(fit1$progress$dev,fit7$progress$dev,tolerance = 1e-8,scale = 1)
+  expect_equal(fit1$progress$dev,fit8$progress$dev,tolerance = 1e-8,scale = 1)
+  expect_equal(fit2$progress$dev,fit3$progress$dev,tolerance = 1e-8,scale = 1)
+  expect_equal(fit2$progress$dev,fit4$progress$dev,tolerance = 1e-8,scale = 1)
+  expect_equal(fit2$progress$dev,fit5$progress$dev,tolerance = 1e-8,scale = 1)
 })
 
 test_that(paste("When initialized \"close enough\" to a stationary point, the",
@@ -226,13 +226,13 @@ test_that(paste("When initialized \"close enough\" to a stationary point, the",
 
   # Check that all three algorithms recover the same solution.
   expect_equal(min(fit1$progress$dev),min(fit2$progress$dev),
-               tolerance = 1e-4,scale = 1)
+               tolerance = 0.01,scale = 1)
   expect_equal(min(fit1$progress$dev),min(fit3$progress$dev),
-               tolerance = 1e-4,scale = 1)
+               tolerance = 0.01,scale = 1)
   expect_equal(max(fit1$progress$loglik),max(fit2$progress$loglik),
-               tolerance = 1e-4,scale = 1)
+               tolerance = 0.01,scale = 1)
   expect_equal(max(fit1$progress$loglik),max(fit3$progress$loglik),
-               tolerance = 1e-4,scale = 1)
+               tolerance = 0.01,scale = 1)
 })
 
 test_that("scd updates and nnmf from NNLM package produce same result",{
@@ -344,13 +344,13 @@ test_that(paste("All Poisson NMF updates recover same solution when",
   # All three solution estimates should have nearly the same likelihood
   # and deviance.
   expect_equal(max(fit1$progress$loglik),max(fit2$progress$loglik),
-               tolerance = 1e-4,scale = 1)
+               tolerance = 0.01,scale = 1)
   expect_equal(max(fit1$progress$loglik),max(fit3$progress$loglik),
-               tolerance = 1e-4,scale = 1)
+               tolerance = 0.01,scale = 1)
   expect_equal(min(fit1$progress$dev),min(fit2$progress$dev),
-               tolerance = 1e-4,scale = 1)
+               tolerance = 0.01,scale = 1)
   expect_equal(min(fit1$progress$dev),min(fit3$progress$dev),
-               tolerance = 1e-4,scale = 1)
+               tolerance = 0.01,scale = 1)
   
   # All three algorithms should arrive at nearly the same solution.
   fit1 <- with(fit1,rescale.factors(F,L))
