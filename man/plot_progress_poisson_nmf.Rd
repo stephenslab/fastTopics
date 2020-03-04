@@ -12,7 +12,7 @@ plot_progress_poisson_nmf(
     "#CC79A7"),
   linetypes = "solid",
   linesizes = 0.5,
-  shapes = 20,
+  shapes = 19,
   fills = "white",
   e = 0.01,
   theme = function() theme_cowplot(font_size = 12)

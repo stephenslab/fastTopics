@@ -15,19 +15,25 @@ altsqp_update_factors <-
             numiter = 1, control = fit_poisson_nmf_control_default()) {
   if (is.na(control$nc))
     control$nc <- 1
+  F <- t(F)
   if (control$nc == 1) {
-    if (is.matrix(X))
-      F <- t(altsqp_update_factors_rcpp(X,t(F),L,numiter,control))
-    else if (is.sparse.matrix(X))
-      F <- t(altsqp_update_factors_sparse_rcpp(X,t(F),L,numiter,control))
+    if (is.matrix(X)) {
+      F <- pnmfem_update_factors_rcpp(X,F,L,1)
+      F <- altsqp_update_factors_rcpp(X,F,L,numiter,control)
+    } else if (is.sparse.matrix(X)) {
+      F <- pnmfem_update_factors_sparse_rcpp(X,F,L,1)
+      F <- altsqp_update_factors_sparse_rcpp(X,F,L,numiter,control)
+    }
   } else if (control$nc > 1) {
-    if (is.matrix(X))
-      F <- t(altsqp_update_factors_parallel_rcpp(X,t(F),L,numiter,control))
-    else if (is.sparse.matrix(X))
-      F <- t(altsqp_update_factors_sparse_parallel_rcpp(X,t(F),L,numiter,
-                                                        control))
+    if (is.matrix(X)) {
+      F <- pnmfem_update_factors_parallel_rcpp(X,F,L,1)
+      F <- altsqp_update_factors_parallel_rcpp(X,F,L,numiter,control)
+    } else if (is.sparse.matrix(X)) {
+      F <- pnmfem_update_factors_sparse_parallel_rcpp(X,F,L,1)
+      F <- altsqp_update_factors_sparse_parallel_rcpp(X,F,L,numiter,control)
+    }
   }
-  return(F)
+  return(t(F))
 }
 
 # This function implements the alternating SQP ("alt-SQP") updates for
@@ -47,17 +53,24 @@ altsqp_update_loadings <-
             numiter = 1, control = fit_poisson_nmf_control_default()) {
   if (is.na(control$nc))
     control$nc <- 1
+  X <- t(X)
+  L <- t(L)
   if (control$nc == 1) {
-    if (is.matrix(X))
-      L <- t(altsqp_update_factors_rcpp(t(X),t(L),F,numiter,control))
-    else if (is.sparse.matrix(X))
-      L <- t(altsqp_update_factors_sparse_rcpp(t(X),t(L),F,numiter,control))
+    if (is.matrix(X)) {
+      L <- pnmfem_update_factors_rcpp(X,L,F,1)
+      L <- altsqp_update_factors_rcpp(X,L,F,numiter,control)
+    } else if (is.sparse.matrix(X)) {
+      L <- pnmfem_update_factors_sparse_rcpp(X,L,F,1)
+      L <- altsqp_update_factors_sparse_rcpp(X,L,F,numiter,control)
+    }
   } else if (control$nc > 1) {
-    if (is.matrix(X))
-      L <- t(altsqp_update_factors_parallel_rcpp(t(X),t(L),F,numiter,control))
-    else if (is.sparse.matrix(X))
-      L <- t(altsqp_update_factors_sparse_parallel_rcpp(t(X),t(L),F,numiter,
-                                                        control))
+    if (is.matrix(X)) {
+      L <- pnmfem_update_factors_parallel_rcpp(X,L,F,1)
+      L <- altsqp_update_factors_parallel_rcpp(X,L,F,numiter,control)
+    } else if (is.sparse.matrix(X)) {
+      L <- pnmfem_update_factors_sparse_parallel_rcpp(X,L,F,1)
+      L <- altsqp_update_factors_sparse_parallel_rcpp(X,L,F,numiter,control)
+    }
   }
-  return(L)
+  return(t(L))
 }

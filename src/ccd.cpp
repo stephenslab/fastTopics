@@ -2,7 +2,6 @@
 #include "misc.h"
 #include "poismix.h"
 
-using namespace Rcpp;
 using namespace arma;
 
 // FUNCTION DECLARATIONS
