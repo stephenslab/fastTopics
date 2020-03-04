@@ -23,6 +23,7 @@ init_poisson_nmf(
   k,
   beta = 0.5,
   betamax = 0.99,
+  minval = fit_poisson_nmf_control_default()$minval,
   e = fit_poisson_nmf_control_default()$eps
 )
 
@@ -77,6 +78,8 @@ should be specified.}
 extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 of Ang & Gillis (2019).}
 
+\item{minval}{Describe "minval" here.}
+
 \item{e}{A small, non-negative number added to the terms inside the
 logarithms to avoid computing logarithms of zero. This prevents
 numerical problems at the cost of introducing a very small
@@ -114,8 +117,8 @@ with the following elements:
   the current best estimates of the factors and loadings (\code{F}
   and \code{L}).}
 
-\item{loss1}{Value of the objective ("loss") function computed at the
-  extrapolated solution for the loadings (\code{Ly}) and the
+\item{loss.fnly}{Value of the objective ("loss") function computed
+  at the extrapolated solution for the loadings (\code{Ly}) and the
   non-extrapolated solution for the factors (\code{Fn}). This is used
   internally to implement the extrapolated updates.}
 

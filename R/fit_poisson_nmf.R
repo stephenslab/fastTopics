@@ -301,7 +301,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-155).\n")
+    cat("(fastTopics 0.2-156).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -314,12 +314,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # Initialize the estimates of the factors and loadings. To prevent
   # the updates from getting "stuck", force the initial estimates to
   # be positive.
-  fit$F  <- pmax(fit$F,control$minval)
-  fit$L  <- pmax(fit$L,control$minval)
-  fit$Fn <- pmax(fit$Fn,control$minval)
-  fit$Ln <- pmax(fit$Ln,control$minval)
-  fit$Fy <- pmax(fit$Fy,control$minval)
-  fit$Ly <- pmax(fit$Ly,control$minval)
+  fit <- safeguard.fit(fit,control$minval)
 
   # RUN UPDATES
   # -----------
@@ -364,6 +359,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #'   extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 #'   of Ang & Gillis (2019).
 #'
+#' @param minval Describe "minval" here.
+#' 
 #' @param e A small, non-negative number added to the terms inside the
 #'   logarithms to avoid computing logarithms of zero. This prevents
 #'   numerical problems at the cost of introducing a very small
@@ -371,8 +368,10 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #' 
 #' @export
 #' 
-init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99,
-                              e = fit_poisson_nmf_control_default()$eps) {
+init_poisson_nmf <-
+  function (X, F, L, k, beta = 0.5, betamax = 0.99,
+            minval = fit_poisson_nmf_control_default()$minval,
+            e = fit_poisson_nmf_control_default()$eps) {
 
   # Check input X.
   if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
@@ -416,6 +415,10 @@ init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99,
   if (is.integer(L))
     storage.mode(L) <- "double"
 
+  # Force the initial estimates to be positive.
+  F <- pmax(F,minval)
+  L <- pmax(L,minval)
+  
   # Compute the value of the objective ("loss") function at the
   # initial estimates of the factors and loading.
   loss <- sum(cost(X,L,t(F),e))
@@ -471,7 +474,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     t1   <- proc.time()
 
     # Update the factors and loadings.
-    if (control$extrapolate & fit$beta > 0 &
+    if (control$extrapolate &
+        fit$beta > 0 &
         i %% control$extrapolate.reset != 0) {
         
       # Perform an "extrapolated" update of the factors and loadings.
@@ -517,12 +521,13 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
 }
 
 # This implements a single (non-extrapolated) update of the factors
-# and loadings. The output is the updated "fit". Note that, because no
-# extrapolation scheme is used, the extrapolated and non-extrapolated
-# estimates are the same in the return value; that is, fit$Fy and
-# fit$Fn are the same as fit$F, and fit$Ly and fit$Ln are the same as
-# fit$L. The value of the loss function ("loss", "loss.fnly") is also
-# updated.
+# and loadings.
+#
+# The output is the updated "fit". Because no extrapolation scheme is
+# used, the extrapolated and non-extrapolated estimates are the same
+# in the return value; that is, Fy and Fn are the same as F, and Ly
+# and Ln are the same as L. The value of the loss function ("loss",
+# "loss.fnly") is also updated.
 update_poisson_nmf <- function (X, fit, method, control) {
 
   # Update the loadings ("activations"). The factors are forced to be
@@ -537,17 +542,15 @@ update_poisson_nmf <- function (X, fit, method, control) {
   fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,method,control)
   fit$F <- pmax(fit$F,control$minval)
 
-  # Re-scale the factors and loadings.
-  out   <- rescale.factors(fit$F,fit$L)
-  fit$F <- out$F
-  fit$L <- out$L
-
   # The extrapolated and "current best" estimates are the same as the
   # non-extrapolated estimates.
   fit$Fy <- fit$F
   fit$Ly <- fit$L
   fit$Fn <- fit$F
   fit$Ln <- fit$L
+
+  # Re-scale the factors and loadings.
+  fit <- rescale.fit(fit)
 
   # Compute the value of the objective ("loss") function at the updated
   # estimates.
@@ -558,21 +561,33 @@ update_poisson_nmf <- function (X, fit, method, control) {
   return(fit)
 }
 
-# TO DO: Give a more detailed explanation of the inputs and outputs;
-# in particular, explain what changes in "fit", and what does not.
-#
 # This implements an extrapolated update of the factors and loadings.
+#
+# The output is the updated "fit". The updated parts of the "fit" are:
+#
+#   F          "best current" factor estimates
+#   Fn         non-extrapolated factor estimates
+#   Fy         extrapolated factor estimates
+#   L          "best current" loadings estimates
+#   Ln         non-extrapolated loadings estimates
+#   Ly         extrapolated loadings estimates
+#   loss       value of the objective at the "best current" estimates 
+#   loss.fnly  value of the objective at (Fn, Ly)
+#   beta       extrapolation parameter
+#   betamax    upper bound on the extrapolation parameter
+#   beta0      extrapolation parameter setting from last improvement
+#
 update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
 
   # Store the value of the objective (loss) function at the current
   # iterate (Fn, Ly).
-  loss0 <- fit$loss.fnly
+  loss0.fnly <- fit$loss.fnly
 
   # Compute the extrapolated update for the loadings ("activations").
-  # Note that when beta = 0, Ly = Ln.
+  # Note that when beta is zero, Ly = Ln.
   Ln     <- update_loadings_poisson_nmf(X,fit$Fy,fit$Ly,method,control)
   Ln     <- pmax(Ln,control$minval)
-  fit$Ly <- pmax(Ln + fit$beta*(Ln - fit$L),control$minval)
+  fit$Ly <- pmax(Ln + fit$beta*(Ln - fit$Ln),control$minval)
 
   # Compute the extrapolated update for the factors ("basis vectors").
   # Note that when beta = 0, Fy = Fn.
@@ -587,7 +602,7 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
 
   # Update the extrapolation parameters following Algorithm 3 of
   # Ang & Gillis (2019).
-  if (fit$loss.fnly > loss0) {
+  if (fit$loss.fnly >= loss0.fnly) {
 
     # The solution did not improve, so restart the extrapolation
     # scheme.
@@ -612,7 +627,7 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
   if (fit$loss.fnly < fit$loss) {
     fit$F    <- Fn
     fit$L    <- fit$Ly 
-    fit$loss <- fit$los.fnly
+    fit$loss <- fit$loss.fnly
   }
 
   # Re-scale the factors and loadings.
@@ -673,7 +688,18 @@ rescale.fit <- function (fit) {
 
   return(fit)
 }
-    
+
+# Force the factors and loadings to be positive.
+safeguard.fit <- function (fit, minval) {
+  fit$F  <- pmax(fit$F,minval)
+  fit$L  <- pmax(fit$L,minval)
+  fit$Fn <- pmax(fit$Fn,minval)
+  fit$Ln <- pmax(fit$Ln,minval)
+  fit$Fy <- pmax(fit$Fy,minval)
+  fit$Ly <- pmax(fit$Ly,minval)
+  return(fit)
+}
+
 #' @rdname fit_poisson_nmf
 #'
 #' @export

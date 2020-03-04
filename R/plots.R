@@ -81,7 +81,7 @@ plot_progress_poisson_nmf <-
   function (fits, y = c("loglik","dev","res"), add.point.every = 20,
             colors = c("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2",
                        "#D55E00","#CC79A7"),
-            linetypes = "solid", linesizes = 0.5, shapes = 20, fills = "white",
+            linetypes = "solid", linesizes = 0.5, shapes = 19, fills = "white",
             e = 0.01, theme = function() theme_cowplot(font_size = 12)) {
 
   # CHECK & PROCESS INPUTS
