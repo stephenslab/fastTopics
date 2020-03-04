@@ -116,8 +116,8 @@
 #'   the current best estimates of the factors and loadings (\code{F}
 #'   and \code{L}).}
 #' 
-#' \item{loss1}{Value of the objective ("loss") function computed at the
-#'   extrapolated solution for the loadings (\code{Ly}) and the
+#' \item{loss.fnly}{Value of the objective ("loss") function computed
+#'   at the extrapolated solution for the loadings (\code{Ly}) and the
 #'   non-extrapolated solution for the factors (\code{Fn}). This is used
 #'   internally to implement the extrapolated updates.}
 #'
@@ -309,15 +309,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
   # numerical stability of the updates.
-  out    <- rescale.factors(fit$F,fit$L)
-  fit$F  <- out$F
-  fit$L  <- out$L
-  out    <- rescale.factors(fit$Fn,fit$Ln)
-  fit$Fn <- out$F
-  fit$Ln <- out$L
-  out    <- rescale.factors(fit$Fy,fit$Ly)
-  fit$Fy <- out$F
-  fit$Ly <- out$L
+  fit <- rescale.fit(fit)
 
   # Initialize the estimates of the factors and loadings. To prevent
   # the updates from getting "stuck", force the initial estimates to
@@ -439,24 +431,24 @@ init_poisson_nmf <- function (X, F, L, k, beta = 0.5, betamax = 0.99,
   # non-extrapolated estimates of the factors and loadings, which
   # initially are always the same as F and L; Fy and Ly, the
   # extrapolated estimates of the factors and loadings, which
-  # initially are always the same as F and L; "loss" and "loss1", the
-  # value of the objective or loss function at the current best and
-  # partially extrapolated estimates of the factors and loadings;
+  # initially are always the same as F and L; "loss" and "loss.fnly",
+  # the value of the objective or loss function at the current best
+  # and partially extrapolated estimates of the factors and loadings;
   # beta, beta0 and betamax, the initial settings of the extrapolation
   # parameters; and "progress", the initial data frame for keeping
   # track of the algorithm's progress over time.
-  fit <- list(F        = F,
-              L        = L,
-              Fn       = F,
-              Ln       = L,
-              Fy       = F,
-              Ly       = L,
-              loss     = loss,
-              loss1    = loss,
-              beta     = beta,
-              beta0    = beta,
-              betamax  = betamax,
-              progress = progress)
+  fit <- list(F         = F,
+              L         = L,
+              Fn        = F,
+              Ln        = L,
+              Fy        = F,
+              Ly        = L,
+              loss      = loss,
+              loss.fnly = loss,
+              beta      = beta,
+              beta0     = beta,
+              betamax   = betamax,
+              progress  = progress)
   class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
 }
@@ -529,7 +521,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
 # extrapolation scheme is used, the extrapolated and non-extrapolated
 # estimates are the same in the return value; that is, fit$Fy and
 # fit$Fn are the same as fit$F, and fit$Ly and fit$Ln are the same as
-# fit$L. The value of the loss function ("loss", "loss1") is also
+# fit$L. The value of the loss function ("loss", "loss.fnly") is also
 # updated.
 update_poisson_nmf <- function (X, fit, method, control) {
 
@@ -559,8 +551,8 @@ update_poisson_nmf <- function (X, fit, method, control) {
 
   # Compute the value of the objective ("loss") function at the updated
   # estimates.
-  fit$loss  <- sum(cost(X,fit$L,t(fit$F),control$eps))
-  fit$loss1 <- fit$loss
+  fit$loss      <- sum(cost(X,fit$L,t(fit$F),control$eps))
+  fit$loss.fnly <- fit$loss
   
   # Output the updated "fit".
   return(fit)
@@ -573,8 +565,8 @@ update_poisson_nmf <- function (X, fit, method, control) {
 update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
 
   # Store the value of the objective (loss) function at the current
-  # iterate (Fn,Ly).
-  loss0 <- fit$loss1
+  # iterate (Fn, Ly).
+  loss0 <- fit$loss.fnly
 
   # Compute the extrapolated update for the loadings ("activations").
   # Note that when beta = 0, Ly = Ln.
@@ -591,11 +583,11 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
   # Compute the value of the objective (loss) function at the
   # extrapolated solution for the loadings (Ly) and the
   # non-extrapolated solution for the factors (Fn).
-  fit$loss1 <- sum(cost(X,fit$Ly,t(Fn),control$eps))
+  fit$loss.fnly <- sum(cost(X,fit$Ly,t(Fn),control$eps))
 
   # Update the extrapolation parameters following Algorithm 3 of
   # Ang & Gillis (2019).
-  if (fit$loss1 > loss0) {
+  if (fit$loss.fnly > loss0) {
 
     # The solution did not improve, so restart the extrapolation
     # scheme.
@@ -617,22 +609,14 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
   # If the solution improves the "current best" estimate, update the
   # current best estimate using the non-extrapolated estimates of the
   # factors (Fn) and the extrapolated estimates of the loadings (Ly).
-  if (fit$loss1 < fit$loss) {
+  if (fit$loss.fnly < fit$loss) {
     fit$F    <- Fn
     fit$L    <- fit$Ly 
-    fit$loss <- fit$loss1
+    fit$loss <- fit$los.fnly
   }
 
   # Re-scale the factors and loadings.
-  out    <- rescale.factors(fit$F,fit$L)
-  fit$F  <- out$F
-  fit$L  <- out$L
-  out    <- rescale.factors(fit$Fn,fit$Ln)
-  fit$Fn <- out$F
-  fit$Ln <- out$L
-  out    <- rescale.factors(fit$Fy,fit$Ly)
-  fit$Fy <- out$F
-  fit$Ly <- out$L
+  fit <- rescale.fit(fit)
   
   # Output the updated "fit".
   return(fit)
@@ -668,6 +652,28 @@ update_loadings_poisson_nmf <- function (X, F, L, method, control) {
   return(L)
 }
 
+# Rescale the extrapolated, non-extrapolated and "current best"
+# factors and loadings.
+rescale.fit <- function (fit) {
+
+  # Rescale the "current best" factors and loadings.
+  out    <- rescale.factors(fit$F,fit$L)
+  fit$F  <- out$F
+  fit$L  <- out$L
+
+  # Rescale the non-extrapolated factors and loadings.
+  out    <- rescale.factors(fit$Fn,fit$Ln)
+  fit$Fn <- out$F
+  fit$Ln <- out$L
+
+  # Rescale the extrapolated factors and loadings.
+  out    <- rescale.factors(fit$Fy,fit$Ly)
+  fit$Fy <- out$F
+  fit$Ly <- out$L
+
+  return(fit)
+}
+    
 #' @rdname fit_poisson_nmf
 #'
 #' @export
