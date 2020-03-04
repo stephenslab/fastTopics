@@ -58,7 +58,7 @@ scd_update_loadings <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16) {
       W <- pnmfem_update_factors_parallel_rcpp(A,W,H,1)
       W <- scd_update_factors_parallel_rcpp(A,H,W,numiter,e)
     } else if (is.sparse.matrix(A)) {
-      W <- pnmfem_update_factors_sparse_parallel_rcpp(X,W,H,1)
+      W <- pnmfem_update_factors_sparse_parallel_rcpp(A,W,H,1)
       W <- scd_update_factors_sparse_parallel_rcpp(A,H,W,numiter,e)
     }
   }

@@ -236,7 +236,8 @@ test_that(paste("When initialized \"close enough\" to a stationary point, the",
 })
 
 test_that("scd updates and nnmf from NNLM package produce same result",{
-
+  skip("Test is no longer valid as the scd updates also include an EM update")
+ 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
   k   <- 3
@@ -373,11 +374,11 @@ test_that(paste("Extrapolated updates achieve solutions that are as good",
   out <- generate_test_data(80,100,3)
   X   <- out$X
 
-  # Get a good initial estimate by running 50 iterations of the CCD
+  # Get a good initial estimate by running 100 iterations of the CCD
   # algorithm.
   capture.output(
     fit0 <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F = out$F,L = out$L),
-                            numiter = 50,method = "ccd"))
+                            numiter = 100,method = "ccd"))
 
   # Run 100 non-extrapolated updates using each of the methods.
   numiter <- 100
