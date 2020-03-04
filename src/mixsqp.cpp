@@ -233,7 +233,7 @@ void activesetqp (const mat& H, const vec& g, vec& y, int maxiter,
     add_to_working_set = false;
     
     // Check that the search direction is close to zero.
-    if ((p.max() <= zerosearchdir) && (-p.min() <= zerosearchdir)) {
+    if (norm(p,"inf") <= zerosearchdir) {
 
       // Calculate b for all co-ordinates.
       b = g + H*y;
@@ -303,7 +303,7 @@ inline double init_hessian_correction (const mat& H, double a0) {
 void compute_activeset_searchdir (const mat& H, const vec& y, vec& p,
 				  mat& B, double ainc) {
   double a0   = 1e-15;
-  double amax = 1;
+  double amax = 1e15;
   int    n    = y.n_elem;
   mat    I(n,n,fill::eye);
   mat    R(n,n);
@@ -321,9 +321,9 @@ void compute_activeset_searchdir (const mat& H, const vec& y, vec& p,
     // Attempt to compute the Cholesky factorization of the modified
     // Hessian. If this fails, increase the contribution of the
     // identity matrix in the modified Hessian.
-    if (chol(R,B) || (a*ainc > amax))
+    if (a*ainc > amax)
       break;
-    else if (a*ainc > amax)
+    else if (chol(R,B))
       break;
     else if (a <= 0)
       a = a0;
@@ -371,7 +371,7 @@ void backtracking_line_search (double f, const mat& L, const vec& w,
       // sufficient decrease condition, and remains feasible. If so,
       // accept this candidate solution.
       if ((xnew.min() >= 0) &&
-  	 (fnew <= f + suffdecr*a*dot(y - x,g)))
+	  (fnew <= f + suffdecr*a*dot(y - x,g)))
         break;
     
       // If we cannot decrease the step size further, terminate the

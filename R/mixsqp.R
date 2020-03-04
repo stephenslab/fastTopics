@@ -29,7 +29,7 @@ mixsqp <- function (L, w, x0, numiter, control = list(), verbose = FALSE) {
 mixsqp_control_default <- function()
   list(convtol.activeset         = 1e-10,
        zero.threshold.solution   = 1e-6,
-       zero.threshold.searchdir  = 1e-10,
+       zero.threshold.searchdir  = 1e-14,
        suffdecr.linesearch       = 0.01,
        stepsizereduce            = 0.75,
        minstepsize               = 1e-8,
