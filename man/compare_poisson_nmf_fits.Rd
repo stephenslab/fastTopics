@@ -15,9 +15,6 @@ class \code{"poisson_nmf_fit"}.}
 A data frame with one row per element of \code{fits}, and
 with the following columns:
 
-\item{name}{The label assigned to the fit; it is the same as the
-  name of the corresponding list element in \code{fits}.}
-
 \item{k}{The rank of the matrix factorization.}
 
 \item{loglik}{The log-likelihood achieved at the last model fitting
@@ -29,6 +26,12 @@ with the following columns:
   system achieved at the last model fitting update; small values
   indicate that the solution is close to a local maximum, or
   stationary point, of the likelihood.}
+
+\item{nonzeros.f}{The rate of nonzeros in the factors matrix, as
+  determined by \code{control$zero.threshold.solution}.}
+
+\item{nonzeros.l}{The rate of nonzeros in the loadings matrix, as
+  determined by \code{control$zero.threshold.solution}.}
 
 \item{runtime}{The total runtime (in s) of the model fitting
   updates.}

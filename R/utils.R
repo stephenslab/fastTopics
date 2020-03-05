@@ -10,9 +10,6 @@
 #' @return A data frame with one row per element of \code{fits}, and
 #' with the following columns:
 #'
-#' \item{name}{The label assigned to the fit; it is the same as the
-#'   name of the corresponding list element in \code{fits}.}
-#'
 #' \item{k}{The rank of the matrix factorization.}
 #'
 #' \item{loglik}{The log-likelihood achieved at the last model fitting
@@ -25,6 +22,12 @@
 #'   indicate that the solution is close to a local maximum, or
 #'   stationary point, of the likelihood.}
 #'
+#' \item{nonzeros.f}{The rate of nonzeros in the factors matrix, as
+#'   determined by \code{control$zero.threshold.solution}.}
+#'
+#' \item{nonzeros.l}{The rate of nonzeros in the loadings matrix, as
+#'   determined by \code{control$zero.threshold.solution}.}
+#' 
 #' \item{runtime}{The total runtime (in s) of the model fitting
 #'   updates.}
 #' 
@@ -58,23 +61,26 @@ compare_poisson_nmf_fits <- function (fits) {
   # CREATE SUMMARY TABLE
   # --------------------
   # Initialize the data structure.
-  out <- data.frame(name    = names(fits),
-                    k       = 0,
-                    loglik  = 0,
-                    dev     = 0,
-                    res     = 0,
-                    runtime = 0,
+  n   <- length(fits)
+  out <- data.frame(k       = rep(0,n),
+                    loglik  = rep(0,n),
+                    dev     = rep(0,n),
+                    res     = rep(0,n),
+                    runtime = rep(0,n),
                     stringsAsFactors = FALSE)
-
+  rownames(out) <- names(fits)
+  
   # Collect the information from each fit.
-  n <- length(fits)
   for (i in 1:n) {
-    fit              <- fits[[i]]
-    out[i,"k"]       <- ncol(fit$F)
-    out[i,"loglik"]  <- tail(fit$progress,n = 1)$loglik
-    out[i,"dev"]     <- tail(fit$progress,n = 1)$dev
-    out[i,"res"]     <- tail(fit$progress,n = 1)$res
-    out[i,"runtime"] <- sum(fit$progress$timing)
+    fit <- fits[[i]]
+    x   <- tail(fit$progress,n = 1)
+    out[i,"k"]          <- ncol(fit$F)
+    out[i,"loglik"]     <- x$loglik
+    out[i,"dev"]        <- x$dev
+    out[i,"res"]        <- x$res
+    out[i,"nonzeros.f"] <- x$nonzeros.f
+    out[i,"nonzeros.l"] <- x$nonzeros.l
+    out[i,"runtime"]    <- sum(fit$progress$timing)
   }
 
   # Output the data frame.

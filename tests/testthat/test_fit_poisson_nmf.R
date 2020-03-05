@@ -225,13 +225,13 @@ test_that(paste("When initialized \"close enough\" to a stationary point, the",
                             control = list(numiter = 4)))
 
   # Check that all three algorithms recover the same solution.
-  expect_equal(min(fit1$progress$dev),min(fit2$progress$dev),
+  fits <- list(fit1 = fit1,fit2 = fit2,fit3 = fit3)
+  dat  <- compare_poisson_nmf_fits(fits)
+  expect_equal(dat["fit1","dev"],dat["fit2","dev"],tolerance = 0.01,scale = 1)
+  expect_equal(dat["fit1","dev"],dat["fit3","dev"],tolerance = 0.01,scale = 1)
+  expect_equal(dat["fit1","loglik"],dat["fit2","loglik"],
                tolerance = 0.01,scale = 1)
-  expect_equal(min(fit1$progress$dev),min(fit3$progress$dev),
-               tolerance = 0.01,scale = 1)
-  expect_equal(max(fit1$progress$loglik),max(fit2$progress$loglik),
-               tolerance = 0.01,scale = 1)
-  expect_equal(max(fit1$progress$loglik),max(fit3$progress$loglik),
+  expect_equal(dat["fit1","loglik"],dat["fit3","loglik"],
                tolerance = 0.01,scale = 1)
 })
 
@@ -344,14 +344,14 @@ test_that(paste("All Poisson NMF updates recover same solution when",
 
   # All three solution estimates should have nearly the same likelihood
   # and deviance.
-  expect_equal(max(fit1$progress$loglik),max(fit2$progress$loglik),
+  fits <- list(fit1 = fit1,fit2 = fit2,fit3 = fit3)
+  dat  <- compare_poisson_nmf_fits(fits)
+  expect_equal(dat["fit1","loglik"],dat["fit2","loglik"],
                tolerance = 0.01,scale = 1)
-  expect_equal(max(fit1$progress$loglik),max(fit3$progress$loglik),
+  expect_equal(dat["fit1","loglik"],dat["fit3","loglik"],
                tolerance = 0.01,scale = 1)
-  expect_equal(min(fit1$progress$dev),min(fit2$progress$dev),
-               tolerance = 0.01,scale = 1)
-  expect_equal(min(fit1$progress$dev),min(fit3$progress$dev),
-               tolerance = 0.01,scale = 1)
+  expect_equal(dat["fit1","dev"],dat["fit2","dev"],tolerance = 0.01,scale = 1)
+  expect_equal(dat["fit1","dev"],dat["fit3","dev"],tolerance = 0.01,scale = 1)
   
   # All three algorithms should arrive at nearly the same solution.
   fit1 <- with(fit1,rescale.factors(F,L))
@@ -415,20 +415,23 @@ test_that(paste("Extrapolated updates achieve solutions that are as good",
 
   # The extrapolated updates should achieve likelihoods that are
   # higher (or at least not lower) than the non-extrapolated updates.
-  expect_lte(max(fit1$progress$loglik),max(fit6$progress$loglik))
-  expect_lte(max(fit2$progress$loglik),max(fit7$progress$loglik))
-  expect_lte(max(fit3$progress$loglik),max(fit8$progress$loglik))
-  expect_lte(max(fit4$progress$loglik),max(fit9$progress$loglik))
-  expect_lte(max(fit5$progress$loglik),max(fit10$progress$loglik))
+  fits <- list(fit1 = fit1,fit2 = fit2,fit3 = fit3,fit4 = fit4,fit5 = fit5,
+               fit6 = fit6,fit7 = fit7,fit8 = fit8,fit9 = fit9,fit10 = fit10)
+  dat  <- compare_poisson_nmf_fits(fits)
+  expect_lte(dat["fit1","loglik"],dat["fit6","loglik"])
+  expect_lte(dat["fit2","loglik"],dat["fit7","loglik"])
+  expect_lte(dat["fit3","loglik"],dat["fit8","loglik"])
+  expect_lte(dat["fit4","loglik"],dat["fit9","loglik"])
+  expect_lte(dat["fit5","loglik"],dat["fit10","loglik"])
 
   # Likewise, the deviances for the extrapolated updates should be
   # less than (or no higher than) the deviances from the non-expected
   # updates.
-  expect_gte(min(fit1$progress$dev),min(fit6$progress$dev))
-  expect_gte(min(fit2$progress$dev),min(fit7$progress$dev))
-  expect_gte(min(fit3$progress$dev),min(fit8$progress$dev))
-  expect_gte(min(fit4$progress$dev),min(fit9$progress$dev))
-  expect_gte(min(fit5$progress$dev),min(fit10$progress$dev))
+  expect_gte(dat["fit1","dev"],dat["fit6","dev"])
+  expect_gte(dat["fit2","dev"],dat["fit7","dev"])
+  expect_gte(dat["fit3","dev"],dat["fit8","dev"])
+  expect_gte(dat["fit4","dev"],dat["fit9","dev"])
+  expect_gte(dat["fit5","dev"],dat["fit10","dev"])
 })
 
 test_that("Re-fitting yields same result as one call to fit_poisson_nmf",{
