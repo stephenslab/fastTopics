@@ -34,7 +34,8 @@ with the following columns:
   updates.}
 }
 \description{
-Write description of function here.
+Create a table summarizing the results of fitting one
+   or more Poisson NMF models.
 }
 \seealso{
 \code{\link{fit_poisson_nmf}}

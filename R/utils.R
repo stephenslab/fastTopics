@@ -1,6 +1,7 @@
 #' @title Summarize and Compare Poisson NMF Model Fits
 #'
-#' @description Write description of function here.
+#' @description Create a table summarizing the results of fitting one
+#'    or more Poisson NMF models.
 #'
 #' @param fits An object of class \code{"poisson_nmf_fit"}, or a
 #'   non-empty, named list in which each list element is an object of
