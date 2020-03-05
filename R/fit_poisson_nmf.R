@@ -167,6 +167,7 @@
 #' clrs <- c("royalblue","skyblue","firebrick","orange","darkmagenta")
 #' fits <- list(mu = fit.mu,em = fit.em,ccd = fit.ccd,scd = fit.scd,
 #'              altsqp = fit.altsqp)
+#' print(compare_poisson_nmf_fits(fits),digits = 8)
 #' plot_progress_poisson_nmf(fits,y = "loglik",colors = clrs)
 #' plot_progress_poisson_nmf(fits,y = "res",colors = clrs)
 #'
@@ -184,6 +185,7 @@
 #' fits <- list(em = fit.em,ccd = fit.ccd,scd = fit.scd,altsqp = fit.altsqp,
 #'              em.sp = fit.em.sp,ccd.sp = fit.ccd.sp,scd.sp = fit.scd.sp,
 #'              altsqp.sp = fit.altsqp.sp)
+#' print(compare_poisson_nmf_fits(fits),digits = 8)
 #' plot_progress_poisson_nmf(fits,colors = clrs[-1],
 #'                           shapes = rep(c(19,21),each = 4))
 #'
@@ -200,12 +202,13 @@
 #' fits <- list(ccd = fit.ccd,scd = fit.scd,altsqp = fit.altsqp,
 #'              ccd.ex = fit.ccd.ex,scd.ex = fit.scd.ex,
 #'              altsqp.ex = fit.altsqp.ex)
-#'  plot_progress_poisson_nmf(fits,y = "loglik",
-#'                            colors = clrs[3:5],
-#'                            shapes = rep(c(19,21),each = 3))
-#'  plot_progress_poisson_nmf(fits,y = "res",
-#'                            colors = clrs[3:5],
-#'                            shapes = rep(c(19,21),each = 3))
+#' print(compare_poisson_nmf_fits(fits),digits = 8)
+#' plot_progress_poisson_nmf(fits,y = "loglik",
+#'                           colors = clrs[3:5],
+#'                           shapes = rep(c(19,21),each = 3))
+#' plot_progress_poisson_nmf(fits,y = "res",
+#'                           colors = clrs[3:5],
+#'                           shapes = rep(c(19,21),each = 3))
 #'
 #' @useDynLib fastTopics
 #'
@@ -294,7 +297,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-161).\n")
+    cat("(fastTopics 0.2-162).\n")
   }
   
   # INITIALIZE ESTIMATES

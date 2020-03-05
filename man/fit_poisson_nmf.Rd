@@ -200,6 +200,7 @@ fit.altsqp <- fit_poisson_nmf(X,fit0 = fit0,numiter = 200,
 clrs <- c("royalblue","skyblue","firebrick","orange","darkmagenta")
 fits <- list(mu = fit.mu,em = fit.em,ccd = fit.ccd,scd = fit.scd,
              altsqp = fit.altsqp)
+print(compare_poisson_nmf_fits(fits),digits = 8)
 plot_progress_poisson_nmf(fits,y = "loglik",colors = clrs)
 plot_progress_poisson_nmf(fits,y = "res",colors = clrs)
 
@@ -217,6 +218,7 @@ fit.altsqp.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 200,
 fits <- list(em = fit.em,ccd = fit.ccd,scd = fit.scd,altsqp = fit.altsqp,
              em.sp = fit.em.sp,ccd.sp = fit.ccd.sp,scd.sp = fit.scd.sp,
              altsqp.sp = fit.altsqp.sp)
+print(compare_poisson_nmf_fits(fits),digits = 8)
 plot_progress_poisson_nmf(fits,colors = clrs[-1],
                           shapes = rep(c(19,21),each = 4))
 
@@ -233,12 +235,13 @@ fit.altsqp.ex <-
 fits <- list(ccd = fit.ccd,scd = fit.scd,altsqp = fit.altsqp,
              ccd.ex = fit.ccd.ex,scd.ex = fit.scd.ex,
              altsqp.ex = fit.altsqp.ex)
- plot_progress_poisson_nmf(fits,y = "loglik",
-                           colors = clrs[3:5],
-                           shapes = rep(c(19,21),each = 3))
- plot_progress_poisson_nmf(fits,y = "res",
-                           colors = clrs[3:5],
-                           shapes = rep(c(19,21),each = 3))
+print(compare_poisson_nmf_fits(fits),digits = 8)
+plot_progress_poisson_nmf(fits,y = "loglik",
+                          colors = clrs[3:5],
+                          shapes = rep(c(19,21),each = 3))
+plot_progress_poisson_nmf(fits,y = "res",
+                          colors = clrs[3:5],
+                          shapes = rep(c(19,21),each = 3))
 
 }
 \references{

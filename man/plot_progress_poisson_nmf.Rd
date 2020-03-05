@@ -76,6 +76,9 @@ Create a plot showing improvement in one or more
   the logarithmic scale. where the differences are calculated with
   respect to the best value achieved over all the fits compared.
 }
+\details{
+Note that only minimal argument checking is performed.
+}
 \seealso{
 \code{\link{fit_poisson_nmf}}
 }

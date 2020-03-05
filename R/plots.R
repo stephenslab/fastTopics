@@ -1,8 +1,3 @@
-# NOTES:
-#
-#  - Caution that very little argument checking is done.
-#
-
 #' @title Plot Progress of Poisson NMF Optimization Method Over Time
 #'
 #' @description Create a plot showing improvement in one or more
@@ -15,6 +10,8 @@
 #'   the logarithmic scale. where the differences are calculated with
 #'   respect to the best value achieved over all the fits compared.
 #'
+#' @details Note that only minimal argument checking is performed.
+#' 
 #' @param fits An object of class \code{"poisson_nmf_fit"}, or a
 #'   non-empty, named list in which each list element is an object of
 #'   class \code{"poisson_nmf_fit"}.

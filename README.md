@@ -46,10 +46,17 @@ fit2 <- fit_poisson_nmf(X,k = 3,numiter = 200,method = "scd",
                         control = list(numiter = 4))
 ```
 
+Compare the two fits:
+
+```R
+fits <- list(mu = fit1,scd = fit2)
+print(compare_poisson_nmf_fits(fits),digits = 8)
+```
+
 Compare the improvement in the solution over time:
 
 ```R
-plot_progress_poisson_nmf(list(mu = fit1,scd = fit2))
+plot_progress_poisson_nmf(fits)
 ```
 
 For more, work through the `fit_poisson_nmf` example:
