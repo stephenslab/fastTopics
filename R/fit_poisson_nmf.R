@@ -20,11 +20,11 @@
 #' @title Fit or Re-fit Poisson Non-negative Matrix Factorization
 #'
 #' @description This function decomposes the input matrix X = L*F' by
-#'   nonnegative matrix factorization (NMF) based on the "divergence"
-#'   criterion; equivalently, it optimizes the likelihood under a
-#'   Poisson model of the count data, X. It runs a specified number of
-#'   multiplicative updates (MU) or expectation maximization (EM)
-#'   updates to fit the L and F matrices.
+#'   nonnegative matrix factorization (NMF) based on the
+#'   \dQuote{divergence} criterion; equivalently, it optimizes the
+#'   likelihood under a Poisson model of the count data, X. It runs a
+#'   specified number of multiplicative updates (MU) or expectation
+#'   maximization (EM) updates to fit the L and F matrices.
 #'
 #'   Although the EM updates are mathematically equivalent to the
 #'   multiplicative updates, and therefore they share the same
@@ -59,7 +59,7 @@
 #' @param X The n x m matrix of counts; all entries of X should be
 #'   non-negative. It can be a sparse matrix (class \code{"dgCMatrix"})
 #'   or dense matrix (class \code{"matrix"}), with some exceptions (see
-#'   "Details").
+#'   \sQuote{Details}).
 #'
 #' @param k An integer 2 or greater giving the matrix rank for a
 #'   random initialization of the factors and loadings. (They are
@@ -68,22 +68,24 @@
 #'   already provided.
 #' 
 #' @param fit0 The initial model fit. It should be an object of class
-#'   "poisson_nmf_fit", such as an output from \code{init_poisson_nmf},
-#'   or from a previous call to \code{fit_poisson_nmf}.
+#'   \dQuote{poisson_nmf_fit}, such as an output from
+#'   \code{init_poisson_nmf}, or from a previous call to
+#'   \code{fit_poisson_nmf}.
 #'
 #' @param numiter The number of updates of the factors and loadings to
 #'   perform.
 #' 
 #' @param method The method to use for updating the factors and
-#'   loadings. The following five update methods are implemented:
-#'   multiplicative updates, \code{method = "mu"}; expectation
-#'   maximization (EM), \code{method = "em"}; sequential co-ordinate
-#'   descent (SCD), \code{method = "scd"}; cyclic co-ordinate descent
-#'   (CCD), \code{method = "ccd"}; and alternating sequential quadratic
-#'   programming (alt-SQP), \code{method = "altsqp"}. See "Details" for
-#'   a detailed description of these methods.
+#'   loadings. Five methods are implemented: multiplicative updates,
+#'   \code{method = "mu"}; expectation maximization (EM), \code{method =
+#'   "em"}; sequential co-ordinate descent (SCD), \code{method = "scd"};
+#'   cyclic co-ordinate descent (CCD), \code{method = "ccd"}; and the
+#'   alternating sequential quadratic programming (alt-SQP) method,
+#'   \code{method = "altsqp"}. See \sQuote{Details} for a detailed
+#'   description of these methods.
 #'
-#' @param control Describe input argument "control" here.
+#' @param control A list of parameters controlling the behaviour of
+#'   the optimization algorithm. See \sQuote{Details}.
 #' 
 #' @param verbose When \code{verbose = TRUE}, information about the
 #'   algorithm's progress is printed to the console at each iteration.
@@ -115,24 +117,40 @@
 #'   loadings. If extrapolation is not used, \code{Ly} and \code{L} will
 #'   be the same.}
 #'
-#' \item{loss}{Value of the objective ("loss") function computed at
-#'   the current best estimates of the factors and loadings (\code{F}
-#'   and \code{L}).}
+#' \item{loss}{Value of the objective (\dQuote{loss}) function
+#'   computed at the current best estimates of the factors and
+#'   loadings.}
 #' 
-#' \item{loss.fnly}{Value of the objective ("loss") function computed
-#'   at the extrapolated solution for the loadings (\code{Ly}) and the
-#'   non-extrapolated solution for the factors (\code{Fn}). This is used
-#'   internally to implement the extrapolated updates.}
+#' \item{loss.fnly}{Value of the objective (\dQuote{loss}) function
+#'   computed at the extrapolated solution for the loadings (\code{Ly})
+#'   and the non-extrapolated solution for the factors (\code{Fn}). This
+#'   is used internally to implement the extrapolated updates.}
 #'
-#' \item{progress}{A data frame containing more detailed information
-#'   about the algorithm's progress. The data frame should have
-#'   \code{numiter} rows. The columns of the data frame are: "iter", the
-#'   iteration number; "loglik", the log-likelihood at the current
-#'   factor and loading estimates; "dev", the deviance at the current
-#'   factor and loading estimates; "delta.l", the largest change in the
-#'   factors matrix; "delta.f", the largest change in the loadings
-#'   matrix; and "timing", the elapsed time in seconds (based on
-#'   \code{\link{system.time}}).}
+#' \item{beta}{The extrapolation parameter, \eqn{beta} in Algorithm 3
+#'   of Ang & Gillis (2019).}
+#'
+#' \item{betamax}{Upper bound on the extrapolation parameter. This is
+#'   \eqn{\bar{\gamma}} in Algorithm 3 of Ang & Gillis (2019).}
+#'
+#' \item{beta0}{The setting of the extrapolation parameter at the
+#'   last iteration that improved the solution.}
+#' 
+#' \item{progress}{A data frame containing detailed information about
+#'   the algorithm's progress. The data frame should have \code{numiter}
+#'   rows. The columns of the data frame are: "iter", the iteration
+#'   number; "loglik", the log-likelihood at the current best factor and
+#'   loading estimates; "dev", the deviance at the current best factor
+#'   and loading estimates; "res", the maximum residual of the
+#'   Karush-Kuhn-Tucker (KKT) first-order optimality conditions at the
+#'   current best factor and loading estimates; "delta.f", the largest
+#'   change in the factors matrix; "delta.l", the largest change in the
+#'   loadings matrix; "nonzeros.f", the proportion of entries in the
+#'   factors matrix that are nonzero; "nonzeros.l", the proportion of
+#'   entries in the loadings matrix that are nonzero; "extrapolate",
+#'   which is 1 if extrapolation is used, otherwise it is 0; "beta", the
+#'   setting of the extrapolation parameter; "betamax", the setting of
+#'   the extrapolation parameter upper bound; and "timing", the elapsed
+#'   time in seconds (recorded using \code{\link{proc.time}}).}
 #' 
 #' @references
 #'
@@ -304,7 +322,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-165).\n")
+    cat("(fastTopics 0.2-166).\n")
   }
   
   # INITIALIZE ESTIMATES
