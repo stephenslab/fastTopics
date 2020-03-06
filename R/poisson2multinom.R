@@ -5,11 +5,11 @@
 #'   multinomial topic model given parameter estimates for a Poisson
 #'   non-negative matrix factorization.
 #'
-#' @param fit A list containing two dense, non-negative matrices,
-#'   \code{fit$F} and \code{fit$L}. The former is an m x k matrix of
-#'   factors, and the latter is an n x k matrix of loadings. It does not
-#'   make sense for a multinomial topic model to have less than two
-#'   topics, so an error will be reported when k < 2.
+#' @param fit An object of class \dQuote{poisson_nmf_fit}, such as an
+#'   output from \code{fit_poisson_nmf}. It does not make sense for a
+#'   multinomial topic model to have less than two topics, so an error
+#'   will be reported when k < 2, where k is the rank of the matrix
+#'   factorization.
 #'
 #' @return The return value is the list \code{fit}, in which
 #'   \code{fit$F} and \code{fit$L} are the parameters of the multinomial

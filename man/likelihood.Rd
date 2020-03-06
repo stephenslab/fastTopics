@@ -20,9 +20,13 @@ cost(X, A, B, e = 1e-15, family = c("poisson", "multinom"), version)
 sparse matrix (class \code{"dgCMatrix"}) or dense matrix (class
 \code{"matrix"}).}
 
-\item{fit}{A list containing two dense, non-negative matrices,
-\code{fit$F} and \code{fit$L}. The former is an m x k matrix of
-factors, and the latter is an n x k matrix of loadings.}
+\item{fit}{A Poisson NMF or multinomial topic model fit. For
+\code{loglik_poisson_nmf} and \code{deviance_poisson_nmf}, this
+should be an object of class \dQuote{poisson_nmf_fit}, such as an
+output from \code{fit_poisson_nmf}. For
+\code{loglik_multinom_topic_model}, this should be_ object of class
+\dQuote{multinom_topic_model_fit}, such as an output from
+\code{poisson2multinom}.}
 
 \item{e}{A small, non-negative number added to the terms inside the
 logarithms to avoid computing logarithms of zero. This prevents
@@ -67,6 +71,7 @@ set.seed(1)
 out <- simulate_count_data(10,20,3)
 X   <- out$X
 fit <- out[c("F","L")]
+class(fit) <- c("poisson_nmf_fit","list")
 
 # Compute the Poisson log-likelihoods and deviances.
 data.frame(loglik   = loglik_poisson_nmf(X,fit),
