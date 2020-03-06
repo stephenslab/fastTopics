@@ -11,7 +11,7 @@ fit_poisson_nmf(
   k,
   fit0,
   numiter = 100,
-  method = c("em", "altsqp", "scd", "ccd", "mu"),
+  method = c("em", "scd", "ccd", "altsqp", "mu"),
   control = list(),
   verbose = TRUE
 )
@@ -38,18 +38,24 @@ or dense matrix (class \code{"matrix"}), with some exceptions (see
 \item{k}{An integer 2 or greater giving the matrix rank for a
 random initialization of the factors and loadings. (They are
 initialized uniformly at random.) This argument should only be
-specified if the initial estimates (\code{fit} or \code{F, L})
-aren't already provided.}
+specified if the initial fit (\code{fit0} or \code{F, L}) are not
+already provided.}
 
-\item{fit0}{Describe input argument "fit" here.}
+\item{fit0}{The initial model fit. It should be an object of class
+"poisson_nmf_fit", such as an output from \code{init_poisson_nmf},
+or from a previous call to \code{fit_poisson_nmf}.}
 
-\item{numiter}{The number of multiplicative updates to run.}
+\item{numiter}{The number of updates of the factors and loadings to
+perform.}
 
-\item{method}{When \code{method = "em"}, the EM updates will be
-performed; when \code{method = "mu"}, the multiplicative updates
-will be performed. The multiplicative updates are only implemented
-for dense count matrices; if \code{method = "mu"} and \code{X} is a
-sparse matrix, and error will be generated.}
+\item{method}{The method to use for updating the factors and
+loadings. The following five update methods are implemented:
+multiplicative updates, \code{method = "mu"}; expectation
+maximization (EM), \code{method = "em"}; sequential co-ordinate
+descent (SCD), \code{method = "scd"}; cyclic co-ordinate descent
+(CCD), \code{method = "ccd"}; and alternating sequential quadratic
+programming (alt-SQP), \code{method = "altsqp"}. See "Details" for
+a detailed description of these methods.}
 
 \item{control}{Describe input argument "control" here.}
 
@@ -59,17 +65,18 @@ algorithm's progress is printed to the console at each iteration.}
 \item{F}{An optional argument giving is the initial estimate of the
 factors (also sometimes called the "basis vectors"). It should be
 an m x k matrix, where m is the number of columns in the counts
-matrix X, and k > 1 is the rank of the matrix factorization, or,
-equivalently, the number of topics. All entries of F should be
-non-negative. When not provided, input argument \code{k} should be
-specified.}
+matrix \code{X}, and k > 1 is the rank of the matrix factorization
+(equivalently, the number of "topics"). All entries of \code{F}
+should be non-negative. When not provided, input argument \code{k}
+should be specified instead.}
 
 \item{L}{An optional argument giving the initial estimate of the
 loadings (also sometimes called the "activations"). It should an n
-x k matrix, where n is the number of rows in the counts matrix X,
-and k > 1 is the rank of the matrix factorization. All entries of L
+x k matrix, where n is the number of rows in the counts matrix
+\code{X}, and k > 1 is the rank of the matrix factorization
+(equivalently, the number of "topics"). All entries of \code{L}
 should be non-negative. When not provided, input argument \code{k}
-should be specified.}
+should be specified instead.}
 
 \item{beta}{Initial setting of the extrapolation parameter. This is
 \eqn{beta} in Algorithm 3 of Ang & Gillis (2019).}
@@ -78,12 +85,12 @@ should be specified.}
 extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 of Ang & Gillis (2019).}
 
-\item{minval}{Describe "minval" here.}
+\item{minval}{A small, positive constant used to safeguard the}
 
 \item{e}{A small, non-negative number added to the terms inside the
-logarithms to avoid computing logarithms of zero. This prevents
-numerical problems at the cost of introducing a very small
-inaccuracy in the computation.}
+logarithms to avoid computing logarithms of zero. See the
+description of \code{control$eps} in "Details" for more
+information.}
 }
 \value{
 Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}
@@ -152,11 +159,8 @@ The multiplicative and EM updates are very simple and
   stationary point of the objective, particularly when the data are
   sparse.
 
-  This function is mainly for internal use, and should only
-  be called directly if you really know what you are doing. In
-  particular, only minimal argument checking is performed; if you are
-  not careful, you will get poor results are errors that are
-  difficult to interpret.
+  Using this function requires some care; only minimal argument
+  checking is performed, and error messages may not be helpful.
 
   The implementation of the multiplicative updates is adapted from
   the MATLAB code by Daichi Kitamura \url{http://d-kitamura.net}.
@@ -252,4 +256,8 @@ Gillis, N. and Glineur, F. (2012). Accelerated multiplicative
   Lee, D. D. and Seung, H. S. (2001). Algorithms for
   non-negative matrix factorization. In \emph{Advances in Neural
   Information Processing Systems} \bold{13}, 556–562.
+
+  Lin, X. and Boutros, P. C. (2018). Fast nonnegative matrix
+  factorization and applications to pattern extraction, deconvolution
+  and imputation. \emph{bioRxiv} doi:10.1101/321802.
 }
