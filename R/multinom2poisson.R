@@ -31,48 +31,32 @@
 #'
 multinom2poisson <- function (fit, X) {
 
-  # Verify input argument "fit".
-  verify.fit(fit)
+  # Check input argument "fit".
+  if (!(is.list(fit) & inherits(fit,"multinom_topic_model_fit")))
+    stop("Input argument \"fit\" should be an object of class ",
+         "\"multinom_topic_model_fit\"")
   F <- fit$F
   L <- fit$L
-  
-  # Verify and process input matrix F.
-  if (any(colSums(F) <= 0))
-    stop("Each column of \"fit$F\" should have at least one positive entry")
-  if (is.integer(F))
-    storage.mode(F) <- "double"
-  
-  # Verify and process input matrix L.
-  if (any(rowSums(L) <= 0))
-    stop("Each row of \"fit$L\" should have at least one positive entry")
-  if (is.integer(L))
-    storage.mode(L) <- "double"
-  
-  # Check that k > 1.
-  if (ncol(F) < 2)
-    stop("Input matrices \"fit$F\" and \"fit$L\" should have at least ",
-         "2 columns")
 
-  # Exactly one of fit$s and X should be provided.
+  # Check input argument "X".
+  if (!missing(X))
+    if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
+      stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
+           "a \"dgCMatrix\")")
+  
+  # Exactly one of X and fit$s should be provided.
   if (sum(c(!missing(X),is.element("s",names(fit)))) != 1)
     stop("Exactly one of \"X\" and \"fit$s\" should be specified")
   
-  if (missing(X)) {
+  if (missing(X))
       
     # Process the "scale factors", s.
-    s <- fit$s
-    s <- as.double(s)
-  } else {
-
-    # Check the data matrix, X.
-    verify.fit.and.count.matrix(X,fit)
-    if (is.matrix(X) & is.integer(X))
-      storage.mode(X) <- "double"
+    s <- as.double(fit$s)
+  else
 
     # Compute maximum-likelihood estimates of the "document sizes", s,
     # from the counts matrix, X.
-    s <- rowSums(X)
-  }
+    s <- as.double(rowSums(X))
 
   # Recover F and L for the Poisson non-negative matrix factorization.
   out <- rescale.factors(F,s*L)
@@ -81,5 +65,6 @@ multinom2poisson <- function (fit, X) {
   fit$F <- out$F
   fit$L <- out$L
   fit$s <- NULL
+  class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
 }

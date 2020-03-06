@@ -14,8 +14,9 @@ test_that("poisson2multinom correctly scales factors and loadings",{
   rownames(F) <- paste0("j",1:5)
   colnames(L) <- paste0("k",1:2)
   colnames(F) <- paste0("k",1:2)
-  fit <- list(F = F,L = L)
-  fit <- poisson2multinom(fit)
+  fit         <- list(F = F,L = L)
+  class(fit)  <- c("poisson_nmf_fit","list")
+  fit         <- poisson2multinom(fit)
   expect_equivalent(colSums(fit$F),c(1,1))
   expect_equivalent(rowSums(fit$L),c(1,1,1,1))
 })
@@ -27,10 +28,13 @@ test_that("multinom2poisson recovers original Poisson NMF model fit",{
   fit1 <- iterate_updates(X,out$F,out$L,100,
                           function (X,F,L) t(betanmf_update_factors(X,L,t(F))),
                           function (X,F,L) betanmf_update_loadings(X,L,t(F)))
-  fit2 <- poisson2multinom(fit1)
+  class(fit1) <- c("poisson_nmf_fit","list")
+  fit2    <- poisson2multinom(fit1)
+  fit2a   <- fit2
+  fit2a$s <- NULL
   fit3 <- multinom2poisson(fit2)
-  fit4 <- multinom2poisson(fit2[c("F","L")],X)
-  fit5 <- multinom2poisson(fit2[c("F","L")],as(X,"dgCMatrix"))
+  fit4 <- multinom2poisson(fit2a,X)
+  fit5 <- multinom2poisson(fit2a,as(X,"dgCMatrix"))
   Y1   <- with(fit1,tcrossprod(L,F))
   Y3   <- with(fit3,tcrossprod(L,F))
   Y4   <- with(fit4,tcrossprod(L,F))

@@ -200,7 +200,7 @@ Hsieh and Inderjit Dhillon, which is available for download at
 implementation is based on version 0.4-3 of the NNLM package.
 
 The "alternating SQP" (alt-SQP) updates are a new method based
-on the mix-SQP algorithm (Kim \emph{et al}, 2020).
+on the mix-SQP algorithm (Kim et al, 2020).
 
 An additional re-scaling step is performed after each update to
 promote numerical stability.
@@ -395,10 +395,9 @@ Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
   proportions using sequential quadratic programming. To appear in
   \emph{Journal of Computational and Graphical Statistics.}
 
-  Lee, D. D. and
-  Seung, H. S. (2001). Algorithms for non-negative matrix
-  factorization. In \emph{Advances in Neural Information Processing
-  Systems} \bold{13}, 556–562.
+  Lee, D. D. and Seung, H. S. (2001). Algorithms for non-negative
+  matrix factorization. In \emph{Advances in Neural Information
+  Processing Systems} \bold{13}, 556–562.
 
   Lin, X. and Boutros, P. C. (2018). Fast nonnegative matrix
   factorization and applications to pattern extraction, deconvolution

@@ -22,39 +22,24 @@
 #' 
 poisson2multinom <- function (fit) {
 
-  # Verify input argument "fit".
-  verify.fit(fit)
-  F <- fit$F
-  L <- fit$L
-  
-  # Verify and process input matrix F.
-  if (any(colSums(F) <= 0))
-    stop("Each column of \"fit$F\" should have at least one positive entry")
-  if (is.integer(F))
-    storage.mode(F) <- "double"
-  
-  # Verify and process input matrix L. Each row of L should have at
-  # least one positive entry.
-  if (any(rowSums(L) <= 0))
-    stop("Each row of \"fit$L\" should have at least one positive entry")
-  if (is.integer(L))
-    storage.mode(L) <- "double"
-  
-  # Check that k > 1.
-  if (ncol(F) < 2)
-    stop("Input matrices \"fit$F\" and \"fit$L\" should have at least ",
-         "2 columns")
+  # Check input argument "fit".
+  if (!(is.list(fit) & inherits(fit,"poisson_nmf_fit")))
+    stop("Input argument \"fit\" should be an object of class ",
+         "\"poisson_nmf_fit\"")
+  if (ncol(fit$F) < 2 | ncol(fit$L) < 2)
+    stop("Input matrices \"fit$F\" and \"fit$L\" should have 2 or more",
+         "columns")
   
   # Recover F and L for the multinomial model. Here, s gives the
   # Poisson rates for generating the "document sizes".
-  L <- scale.cols(L,colSums(F))
-  s <- rowSums(L)
-  L <- L / s
-  F <- normalize.cols(F)
-
-  # Update the "fit" object, and return it.
-  fit$F <- F
-  fit$L <- L
-  fit$s <- s
+  fit <- within(fit,{
+    L <- scale.cols(L,colSums(F))
+    s <- rowSums(L)
+    L <- L / s
+    F <- normalize.cols(F)
+  })
+  
+  # Return the updated fit.
+  class(fit) <- c("multinom_topic_model_fit","list")
   return(fit)
 }

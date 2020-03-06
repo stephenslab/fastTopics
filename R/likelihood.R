@@ -120,23 +120,18 @@ loglik_helper <- function (X, fit,
   output.type <- match.arg(output.type)
       
   # Verify and process inputs X and "fit". 
+  if (output.type == "loglik.multinom") {
+    if (!inherits(fit,"multinom_topic_model_fit"))
+      stop("Input argument \"fit\" should be an object of class ",
+           "\"multinom_topic_model_fit\"")
+  } else if (!inherits(fit,"poisson_nmf_fit"))
+    stop("Input argument \"fit\" should be an object of class ",
+         "\"poisson_nmf_fit\"")
   verify.fit.and.count.matrix(X,fit)
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
   F <- fit$F
   L <- fit$L
-
-  # Process input matrix F.
-  if (is.integer(F))
-    storage.mode(F) <- "double"
-  if (output.type == "loglik.multinom")
-    F <- normalize.cols(F)
-  
-  # Process input matrix L.
-  if (is.integer(L))
-    storage.mode(L) <- "double"
-  if (output.type == "loglik.multinom")
-    L <- normalize.rows(L)
 
   # Compute the log-likelihood or deviance.
   if (output.type == "loglik.poisson")
