@@ -9,21 +9,26 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
-scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16) {
+scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16,
+                                runem = TRUE) {
   if (nc == 1) {
     if (is.matrix(A)) {
-      H <- pnmfem_update_factors_rcpp(A,H,W,1)
+      if (runem)
+        H <- pnmfem_update_factors_rcpp(A,H,W,1)
       H <- scd_update_factors_rcpp(A,W,H,numiter,e)
     } else if (is.sparse.matrix(A)) {
-      H <- pnmfem_update_factors_sparse_rcpp(A,H,W,1)
+      if (runem)
+        H <- pnmfem_update_factors_sparse_rcpp(A,H,W,1)
       H <- scd_update_factors_sparse_rcpp(A,W,H,numiter,e)
     }
   } else if (nc > 1) {
     if (is.matrix(A)) {
-      H <- pnmfem_update_factors_parallel_rcpp(A,H,W,1)
+      if (runem)
+        H <- pnmfem_update_factors_parallel_rcpp(A,H,W,1)
       H <- scd_update_factors_parallel_rcpp(A,W,H,numiter,e)
     } else if (is.sparse.matrix(A)) {
-      H <- pnmfem_update_factors_sparse_parallel_rcpp(A,H,W,1)
+      if (runem)
+        H <- pnmfem_update_factors_sparse_parallel_rcpp(A,H,W,1)
       H <- scd_update_factors_sparse_parallel_rcpp(A,W,H,numiter,e)
     }
   }  
@@ -41,24 +46,29 @@ scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16) {
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
-scd_update_loadings <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16) {
+scd_update_loadings <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16,
+                                 runem = TRUE) {
   A <- t(A)
   W <- t(W)
   H <- t(H)
   if (nc == 1) {
     if (is.matrix(A)) {
-      W <- pnmfem_update_factors_rcpp(A,W,H,1)
+     if (runem)
+        W <- pnmfem_update_factors_rcpp(A,W,H,1)
       W <- scd_update_factors_rcpp(A,H,W,numiter,e)
     } else if (is.sparse.matrix(A)) {
-      W <- pnmfem_update_factors_sparse_rcpp(A,W,H,1)
+     if (runem)
+        W <- pnmfem_update_factors_sparse_rcpp(A,W,H,1)
       W <- scd_update_factors_sparse_rcpp(A,H,W,numiter,e)
     }
   } else if (nc > 1) {
     if (is.matrix(A)) {
-      W <- pnmfem_update_factors_parallel_rcpp(A,W,H,1)
+     if (runem)
+        W <- pnmfem_update_factors_parallel_rcpp(A,W,H,1)
       W <- scd_update_factors_parallel_rcpp(A,H,W,numiter,e)
     } else if (is.sparse.matrix(A)) {
-      W <- pnmfem_update_factors_sparse_parallel_rcpp(A,W,H,1)
+      if (runem)
+        W <- pnmfem_update_factors_sparse_parallel_rcpp(A,W,H,1)
       W <- scd_update_factors_sparse_parallel_rcpp(A,H,W,numiter,e)
     }
   }
