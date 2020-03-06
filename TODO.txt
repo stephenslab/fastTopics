@@ -3,10 +3,4 @@ to do
 
 + Update the pkgdown site.
 
-+ Add roxygen2 documentation to "fit_poisson_nmf" function.
-
-+ Fill out @details for fit_poisson_nmf.
-
-+ In roxygen2 docs, give advice on setting control parameters.
-
 + Set up CircleCI.

@@ -1,55 +1,49 @@
-# NOTES:
-#
-#   + EM updates are equivalent to multiplicative updates, but
-#     computation is implemented differently.
-#
-#   + method = "scd" is based on version 0.4-3 of the NNLM package.
-#
-#   + method = "ccd" is based on MATLAB code by ...
-#
-#
-
 #' @title Fit or Re-fit Poisson Non-negative Matrix Factorization
 #'
-#' @description This function decomposes the input matrix \eqn{X =
-#'   L*F^T} by nonnegative matrix factorization (NMF) based on the
-#'   \dQuote{divergence} criterion; equivalently, it optimizes the
-#'   likelihood under a Poisson model of the count data, X. It runs a
-#'   specified number of coordinate-wise updates to fit the L and F
-#'   matrices.
+#' @description This function approximates the input matrix \code{X}
+#'   by the non-negative matrix factorization \code{L \%*\% t(F)} by
+#'   nonnegative matrix factorization (NMF), in which the quality of the
+#'   approximation is measured by a \dQuote{divergence} criterion;
+#'   equivalently, it optimizes the likelihood under a Poisson model of
+#'   the count data, X. It runs a specified number of coordinate-wise
+#'   updates to fit the L and F matrices.
 #'
-#' @details Add details here.
+#' @details Using this function requires some care; only minimal
+#' argument checking is performed, and error messages may not be
+#' helpful.
 #'
-#' Although the EM updates are mathematically equivalent to the
-#' multiplicative updates, and therefore they share the same
-#' convergence properties, the implementation of EM is quite
-#' different; in particular, the EM updates are more suitable for
-#' sparse counts matrices.
+#' The EM and multiplicative updates are simple and fast, but can be
+#' slow to converge to a stationary point. When \code{control$numiter
+#' = 1}, the EM and multiplicative updates are mathematically
+#' equivalent to the multiplicative updates, and therefore share the
+#' same convergence properties. However, the implementation of the EM
+#' updates is quite different; in particular, the EM updates are more
+#' suitable for sparse counts matrices. The implementation of the
+#' multiplicative updates is adapted from the MATLAB code by Daichi
+#' Kitamura \url{http://d-kitamura.net}.
 #'
-#' The multiplicative and EM updates are very simple and
-#'   fast. However, they can also be very slow to converge to a
-#'   stationary point of the objective, particularly when the data are
-#'   sparse.
+#' Since the multiplicative updates are implemented using standard
+#' matrix operations, the speed is heavily dependent on the
+#' BLAS/LAPACK numerical libraries used. In particular, using
+#' optimized implementations such as OpenBLAS or Intel MKL can result
+#' in much improved performance of the multiplcative updates.
 #'
-#'   Using this function requires some care; only minimal argument
-#'   checking is performed, and error messages may not be helpful.
+#' The cyclic co-ordinate descent (CCD) and sequential co-ordinate
+#' descent (SCD) updates adopt the same optimization strategy, but
+#' differ in the implementation details. In practice, we have found
+#' that the CCD and SCD updates arrive at the same solution when
+#' initialized "sufficiently close" to a stationary point. The CCD
+#' implementation is adapted from the C++ code developed by Cho-Jui
+#' Hsieh and Inderjit Dhillon, which is available for download at
+#' \url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
+#' implementation is based on version 0.4-3 of the NNLM package.
+#'
+#' The "alternating SQP" (alt-SQP) updates are a new method based
+#' on the mix-SQP algorithm (Kim et al, 2020).
 #' 
-#'   The implementation of the multiplicative updates is adapted from
-#'   the MATLAB code by Daichi Kitamura \url{http://d-kitamura.net}.
+#' An additional re-scaling step is performed after each update to
+#' promote numerical stability.
 #'
-#'   The "safeguard" step preventing the factors and loadings from
-#'   exactly reaching zero is motivated by Theorem 1 of Gillis & Glineur
-#'   (2012).
-#' 
-#'   An additional re-scaling step is performed at each iteration to
-#'   promote numerical stability.
-#'
-#'   Since the multiplicative updates are implemented using standard
-#'   matrix operations, the speed is heavily dependent on the
-#'   BLAS/LAPACK numerical libraries used. In particular, using
-#'   optimized implementations such as OpenBLAS or Intel MKL can result
-#'   in much improved performance of the multiplcative updates.
-#' 
 #' The \code{control} argument is a list in which any of the
 #' following named components will override the default optimization
 #' algorithm settings (as they are defined by
@@ -62,8 +56,8 @@
 #'   to 1 for \code{method = "mu"} and, \code{method = "ccd"}.}
 #'
 #' \item{\code{nc}}{Number of RcppParallel threads to use for the
-#'   updates. When \code{nc} is "NA", the default number of threads is
-#'   used; see \code{\link[RcppParallel]{defaultNumThreads}}. This
+#'   updates. When \code{nc} is \code{NA}, the default number of threads
+#'   is used; see \code{\link[RcppParallel]{defaultNumThreads}}. This
 #'   setting is ignored for the multiplicative upates (\code{method =
 #'   "mu"}).}
 #'
@@ -71,10 +65,10 @@
 #'   the multiplicative updates. The safeguarded updates are implemented
 #'   as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
 #'   where \code{F1} and \code{L1} are the factors and loadings matrices
-#'   obtained by applying an update. Setting \code{minval = 0} is
-#'   allowed, but some methods are not guaranteed to converge to a
-#'   stationary point without this safeguard, and a warning will be
-#'   given in this case.
+#'   obtained by applying an update. Thi is motivated by Theorem 1 of
+#'   Gillis & Glineur (2012). Setting \code{minval = 0} is allowed, but
+#'   some methods are not guaranteed to converge to a stationary point
+#'   without this safeguard, and a warning will be given in this case.}
 #'
 #' \item{\code{extrapolate}}{When \code{extrapolate = TRUE}, the
 #'   extrapolation scheme of Ang & Gillis (2019) is used.}
@@ -122,7 +116,7 @@
 #'   stringent the \dQuote{sufficient decrease} condition is for
 #'   accepting a step size in the backtracking line search inside the
 #'   alt-SQP updates. Larger values will make the condition more
-#' s  tringent. This should be a positive number less than 1.}
+#'   stringent. This should be a positive number less than 1.}
 #'
 #' \item{\code{stepsizereduce}}{The multiplicative factor for
 #'   decreasing the step size in the backtracking line search inside the
@@ -178,7 +172,9 @@
 #'   the optimization algorithm. See \sQuote{Details}.
 #' 
 #' @param verbose When \code{verbose = TRUE}, information about the
-#'   algorithm's progress is printed to the console at each iteration.
+#'   algorithm's progress is printed to the console at each
+#'   iteration. For interpretation of the columns, see the description
+#'   of the \code{progress} return value.
 #'
 #' @return Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}
 #' return an object capturing the optimization algorithm state (for
@@ -244,13 +240,32 @@
 #' 
 #' @references
 #'
+#'   Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
+#'   factorization algorithms using extrapolation. \emph{Neural
+#'   Computation} \bold{31}, 417–439.
+#' 
+#'   Cichocki, A., Cruces, S. and Amari, S. (2011). Generalized
+#'   alpha-beta divergences and their application to robust nonnegative
+#'   matrix factorization. \emph{Entropy} \bold{13}, 134–170.
+#' 
 #'   Gillis, N. and Glineur, F. (2012). Accelerated multiplicative
 #'   updates and hierarchical ALS algorithms for nonnegative matrix
-#'   factorization. \emph{Neural Computation} \code{24}, 1085–1105. 
-#' 
-#'   Lee, D. D. and Seung, H. S. (2001). Algorithms for
-#'   non-negative matrix factorization. In \emph{Advances in Neural
-#'   Information Processing Systems} \bold{13}, 556–562.
+#'   factorization. \emph{Neural Computation} \code{24}, 1085–1105.
+#'
+#'   Hsieh, C.-J. and Dhillon, I. (2011). Fast coordinate descent
+#'   methods with variable selection for non-negative matrix
+#'   factorization. In \emph{Proceedings of the 17th ACM SIGKDD
+#'   international conference on Knowledge discovery and data mining},
+#'   p. 1064-1072
+#'
+#'   Kim, Y., Carbonetto, P., Stephens, M. and Anitescu, M. (2020) A
+#'   fast algorithm for maximum likelihood estimation of mixture
+#'   proportions using sequential quadratic programming. To appear in
+#'   \emph{Journal of Computational and Graphical Statistics.}
+#'
+#'   Lee, D. D. and Seung, H. S. (2001). Algorithms for non-negative
+#'   matrix factorization. In \emph{Advances in Neural Information
+#'   Processing Systems} \bold{13}, 556–562.
 #'
 #'   Lin, X. and Boutros, P. C. (2018). Fast nonnegative matrix
 #'   factorization and applications to pattern extraction, deconvolution
@@ -412,7 +427,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-167).\n")
+    cat("(fastTopics 0.2-168).\n")
   }
   
   # INITIALIZE ESTIMATES
