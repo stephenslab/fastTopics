@@ -158,43 +158,15 @@ with the following elements:
   time in seconds (recorded using \code{\link{proc.time}}).}
 }
 \description{
-This function decomposes the input matrix X = L*F' by
-  nonnegative matrix factorization (NMF) based on the
+This function decomposes the input matrix \eqn{X =
+  L*F^T} by nonnegative matrix factorization (NMF) based on the
   \dQuote{divergence} criterion; equivalently, it optimizes the
   likelihood under a Poisson model of the count data, X. It runs a
-  specified number of multiplicative updates (MU) or expectation
-  maximization (EM) updates to fit the L and F matrices.
-
-  Although the EM updates are mathematically equivalent to the
-  multiplicative updates, and therefore they share the same
-  convergence properties, the implementation of EM is quite
-  different; in particular, the EM updates are more suitable for
-  sparse counts matrices.
+  specified number of coordinate-wise updates to fit the L and F
+  matrices.
 }
 \details{
-The multiplicative and EM updates are very simple and
-  fast. However, they can also be very slow to converge to a
-  stationary point of the objective, particularly when the data are
-  sparse.
 
-  Using this function requires some care; only minimal argument
-  checking is performed, and error messages may not be helpful.
-
-  The implementation of the multiplicative updates is adapted from
-  the MATLAB code by Daichi Kitamura \url{http://d-kitamura.net}.
-
-  The "safeguard" step preventing the factors and loadings from
-  exactly reaching zero is motivated by Theorem 1 of Gillis & Glineur
-  (2012).
-
-  An additional re-scaling step is performed at each iteration to
-  promote numerical stability.
-
-  Since the multiplicative updates are implemented using standard
-  matrix operations, the speed is heavily dependent on the
-  BLAS/LAPACK numerical libraries used. In particular, using
-  optimized implementations such as OpenBLAS or Intel MKL can result
-  in much improved performance of the multiplcative updates.
 }
 \examples{
 # Simulate a 80 x 100 data set.

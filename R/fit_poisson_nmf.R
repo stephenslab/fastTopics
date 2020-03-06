@@ -7,32 +7,26 @@
 #
 #   + method = "ccd" is based on MATLAB code by ...
 #
-#   + "minval" is a small positive constant used to safeguard the
-#     multiplicative updates. The multiplicative updates are implemented
-#     as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
-#     where \code{F1} and \code{L1} are the factors and loadings
-#     matrices obtained by applying a single multiplicative update
-#     rule. Setting \code{minval = 0} is allowed, but the multiplicative
-#     updates are not guaranteed to converge to a stationary point
-#     without this safeguard, and a warning will be given in this case.
 #
 
 #' @title Fit or Re-fit Poisson Non-negative Matrix Factorization
 #'
-#' @description This function decomposes the input matrix X = L*F' by
-#'   nonnegative matrix factorization (NMF) based on the
+#' @description This function decomposes the input matrix \eqn{X =
+#'   L*F^T} by nonnegative matrix factorization (NMF) based on the
 #'   \dQuote{divergence} criterion; equivalently, it optimizes the
 #'   likelihood under a Poisson model of the count data, X. It runs a
-#'   specified number of multiplicative updates (MU) or expectation
-#'   maximization (EM) updates to fit the L and F matrices.
+#'   specified number of coordinate-wise updates to fit the L and F
+#'   matrices.
 #'
-#'   Although the EM updates are mathematically equivalent to the
-#'   multiplicative updates, and therefore they share the same
-#'   convergence properties, the implementation of EM is quite
-#'   different; in particular, the EM updates are more suitable for
-#'   sparse counts matrices.
+#' @details Add details here.
 #'
-#' @details The multiplicative and EM updates are very simple and
+#' Although the EM updates are mathematically equivalent to the
+#' multiplicative updates, and therefore they share the same
+#' convergence properties, the implementation of EM is quite
+#' different; in particular, the EM updates are more suitable for
+#' sparse counts matrices.
+#'
+#' The multiplicative and EM updates are very simple and
 #'   fast. However, they can also be very slow to converge to a
 #'   stationary point of the objective, particularly when the data are
 #'   sparse.
@@ -55,6 +49,102 @@
 #'   BLAS/LAPACK numerical libraries used. In particular, using
 #'   optimized implementations such as OpenBLAS or Intel MKL can result
 #'   in much improved performance of the multiplcative updates.
+#' 
+#' The \code{control} argument is a list in which any of the
+#' following named components will override the default optimization
+#' algorithm settings (as they are defined by
+#' \code{fit_poisson_nmf_control_default}):
+#' 
+#' \describe{
+#'
+#' \item{\code{numiter}}{Number of "inner loop" iterations to run when
+#'   performing and update of the factors or loadings. This must be set
+#'   to 1 for \code{method = "mu"} and, \code{method = "ccd"}.}
+#'
+#' \item{\code{nc}}{Number of RcppParallel threads to use for the
+#'   updates. When \code{nc} is "NA", the default number of threads is
+#'   used; see \code{\link[RcppParallel]{defaultNumThreads}}. This
+#'   setting is ignored for the multiplicative upates (\code{method =
+#'   "mu"}).}
+#'
+#' \item{\code{minval}}{A small, positive constant used to safeguard
+#'   the multiplicative updates. The safeguarded updates are implemented
+#'   as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
+#'   where \code{F1} and \code{L1} are the factors and loadings matrices
+#'   obtained by applying an update. Setting \code{minval = 0} is
+#'   allowed, but some methods are not guaranteed to converge to a
+#'   stationary point without this safeguard, and a warning will be
+#'   given in this case.
+#'
+#' \item{\code{extrapolate}}{When \code{extrapolate = TRUE}, the
+#'   extrapolation scheme of Ang & Gillis (2019) is used.}
+#'
+#' \item{\code{extrapolate.reset}}{To promote better numerical
+#'   stability of the extrapolated updates, they are \dQuote{reset}
+#'   every so often. This parameter determines the number of iterations
+#'   to wait before resetting.}
+#'
+#' \item{\code{beta.increase}}{When the extrapolated update improves
+#'   the solution, scale the extrapolation parameter by this amount.}
+#'
+#' \item{\code{beta.reduce}}{When the extrapolaaed update does not
+#'   improve the solution, scale the extrapolation parameter by this
+#'   amount.}
+#'
+#' \item{\code{betamax.increase}}{When the extrapolated update
+#'   improves the solution, scale the extrapolation parameter by this
+#'   amount.}
+#'
+#' \item{\code{eps}}{A small, non-negative number that is added to the
+#'   terms inside the logarithms to sidestep computing logarithms of
+#'   zero. This prevents numerical problems at the cost of introducing a
+#'   small inaccuracy in the solution. Increasing this number may lead
+#'   to faster convergence but possibly a less accurate solution.}
+#'
+#' \item{\code{zero.threshold.solution}}{A small, non-negative number
+#'   used to determine which entries of the solution are exactly
+#'   zero. Any entries that are less than or equal to
+#'   \code{zero.threshold.solution} are considered to be exactly
+#'   zero. This is also used by the alt-SQP method to determine the
+#'   initial \dQuote{active set}.}
+#'
+#' \item{\code{convtol.activeset}}{A small, non-negative number
+#'   specifying the convergence tolerance for the active-set step in the
+#'   alt-SQP updates. Smaller values will result in higher quality
+#'   search directions for the SQP algorithm but possibly a greater
+#'   per-iteration computational cost.}
+#' 
+#' \item{\code{zero.threshold.searchdir}}{A small, non-negative number
+#'   used to determine when the search direction in the alt-SQP
+#'   active-set step is considered "small enough".}
+#'
+#' \item{\code{suffdecr.linesearch}}{This parameter determines how
+#'   stringent the \dQuote{sufficient decrease} condition is for
+#'   accepting a step size in the backtracking line search inside the
+#'   alt-SQP updates. Larger values will make the condition more
+#' s  tringent. This should be a positive number less than 1.}
+#'
+#' \item{\code{stepsizereduce}}{The multiplicative factor for
+#'   decreasing the step size in the backtracking line search inside the
+#'   alt-SQP updates. Smaller values will yield a faster backtracking
+#'   line search at the expense of a less fine-grained search. Should be
+#'   a positive number less than 1.}
+#'
+#' \item{\code{minstepsize}}{The smallest step size accepted by the
+#'   line search step inside the alt-SQP updates. Should be a number
+#'   greater than 0 and at most 1.}
+#'
+#' \item{\code{identity.contrib.increase}}{This is another parameter
+#'   controlling behaviour of the active-set method inside the alt-SQP
+#'   updates. When the Hessian is not positive definite, a multiple of
+#'   the identity is added to the Hessian to ensure a unique search
+#'   direction. The factor for increasing the identity contribution in
+#'   this modified Hessian is determined by this control parameter.}
+#'
+#' \item{\code{maxiter.activeset}}{This is another parameter
+#'   controlling behaviour of the active-set method inside the alt-SQP
+#'   updates. It determines the maximum number of active-set iteration
+#'   taken to solve each of the quadratic subproblems.}}
 #'
 #' @param X The n x m matrix of counts; all entries of X should be
 #'   non-negative. It can be a sparse matrix (class \code{"dgCMatrix"})
@@ -294,8 +384,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # Check and process the optimization settings.
   control <- modifyList(fit_poisson_nmf_control_default(),
                         control,keep.null = TRUE)
-  if ((method == "mu" | method == "em") & any(control$minval == 0))
-    warning("EM and multiplicative updates may not converge when minval = 0")
+  if (any(control$minval == 0))
+    warning("Updates may not converge when minval = 0")
   if (control$numiter > 1 & (method == "mu" | method == "ccd"))
     stop("multiplicative and CCD updates do not allow control$numiter > 1")
   if (is.na(control$nc)) {
@@ -322,7 +412,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "alt-SQP"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.2-166).\n")
+    cat("(fastTopics 0.2-167).\n")
   }
   
   # INITIALIZE ESTIMATES
