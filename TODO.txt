@@ -1,7 +1,7 @@
 to do
 =====
 
-+ Implement backtracking line search for SCD algorithm.
++ Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.
 
