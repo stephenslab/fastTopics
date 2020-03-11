@@ -9,8 +9,8 @@ using namespace arma;
 // This is the same as compute_grad_scd (see below), except that u =
 // sum(L[,j]), w must contain only the nonzero values, and vectors l
 // and Lx should contain only the entries associated with these
-// nonzero values (vectors l, w and Lx should be the same
-// length). This is used by scd_kl_update.
+// nonzero values (vectors l, w and Lx should be the same length). 
+// This is used by scd_kl_update.
 inline void compute_grad_scd_sparse (const vec& l, const vec& w, const vec& Lx,
 				     double u, double x, double& g, double& h,
 				     vec& r, double e) {
@@ -19,25 +19,27 @@ inline void compute_grad_scd_sparse (const vec& l, const vec& w, const vec& Lx,
   g = dot(r,w) - u + h*x;
 }
 
-// Compute the first-order (g) and second-order (h) partial
-// derivatives of the loss function (i.e., the negative Poisson
-// log-likelihood) with respect to the jth mixture weight, x[j],
-// where: input argument l = L[,j] is the jth column of the n x m data
-// matrix, L; input w is a vector of length n containing a count or
-// "pseudocount" associated with each row of L; x is the initial
-// estimate of the mixture weights; and Lx = L*x. Input argument u is
-// a vector storing an intermediate result of the same size as w.
-// This is used by scd_kl_update.
+// Compute the first-order and second-order partial derivatives of the
+// loss function (i.e., the negative Poisson log-likelihood) with
+// respect to the jth mixture weight, x[j], where: input argument l =
+// L[,j] is the jth column of the n x m data matrix, L; input w is a
+// vector of length n containing a count or "pseudocount" associated
+// with each row of L; x is the initial estimate of the mixture
+// weights; and Lx = L*x. Input argument u is a vector storing an
+// intermediate result of the same size as w. The outputs are g = h*x
+// - d and h, where d and h are the first-order and second-order
+// partial derivatives of the loss function. This is used by
+// scd_kl_update.
 inline void compute_grad_scd (const vec& l, const vec& w, const vec& Lx,
 			      double x, double& g, double& h, vec& r,
 			      double e) {
   compute_grad_scd_sparse(l,w,Lx,sum(l),x,g,h,r,e);
 }
 
-// Given the first-order (g) and second-order (h) partial derivatives
-// of the loss function (negative Poisson log-likelihood), compute the
-// SCD update of the mixture weight, x[j]. This is used by
-// scd_kl_update.
+// Given g = h*x - d and h, where d and h are the first-order and
+// second-order partial derivatives of the loss function (negative
+// Poisson log-likelihood), compute the SCD update of the mixture
+// weight, x[j]. This is used by scd_kl_update.
 inline double project_iterate_scd (double g, double h, double e) {
   double x = g/(h + e);
   x = maximum(x,0);
