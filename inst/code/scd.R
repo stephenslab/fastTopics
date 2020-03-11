@@ -1,6 +1,10 @@
 # A small script to illustrate the co-ordinate ascent updates in the
 # sequential co-ordinate descent (SCD) algorithm described by Lin &
 # Boutros (2018).
+#
+# Here I enhance the SCD algorithm with a simple backtracking line
+# search to guarantee that the objective decreases at each iteration.
+#
 
 # SIMULATE DATA
 # -------------
