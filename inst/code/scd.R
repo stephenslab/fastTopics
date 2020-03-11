@@ -18,6 +18,7 @@ b <- abs(rnorm(n))
 # 
 # using a simple sequential quadratic programming (SQP) method.
 x       <- 1
+e       <- 1e-15
 numiter <- 20
 f       <- rep(0,numiter)
 for (i in 1:numiter) {
@@ -31,8 +32,29 @@ for (i in 1:numiter) {
   h <- sum(w*u^2)
   g <- sum(b - w*u)
 
+  # Perform backtracking line search to determine a suitable step size.
+  p    <- -g/h
+  if (p >= -e)
+    s <- 1
+  else
+    s <- min(1,-x/p)
+  smin <- e
+  while (TRUE) {
+    xnew <- x + s*p
+    ynew <- a + b*xnew
+    fnew <- sum(b*xnew - w*log(ynew))
+    if (s < smin) {
+      xnew <- x
+      s    <- 0
+      break
+    } else if (fnew < f[i])
+      break
+    else
+      s <- s/2
+  }
+  
   # Update x.
-  x <- max(0,x - g/h)
+  x <- xnew
 }
 cat(sprintf("solution: %0.6f\n",x))
 

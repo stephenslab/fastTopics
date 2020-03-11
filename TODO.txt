@@ -1,6 +1,8 @@
 to do
 =====
 
++ Implement backtracking line search for SCD algorithm.
+
 + Update the pkgdown site.
 
 + Set up CircleCI.
