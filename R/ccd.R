@@ -11,7 +11,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
-ccd_update_factors <- function (V, W, H, nc = 1, e = 1e-15) {
+ccd_update_factors <- function (V, W, H, nc = 1, e = 1e-15, k = 1:row(H)) {
   if (nc == 1) {
     if (is.matrix(V)) {
       H <- pnmfem_update_factors_rcpp(V,H,W,1)
@@ -45,7 +45,7 @@ ccd_update_factors <- function (V, W, H, nc = 1, e = 1e-15) {
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
-ccd_update_loadings <- function (V, W, H, nc = 1, e = 1e-15) {
+ccd_update_loadings <- function (V, W, H, nc = 1, e = 1e-15, k = 1:ncol(W)) {
   V <- t(V)
   W <- t(W)
   H <- t(H)

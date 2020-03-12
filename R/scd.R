@@ -10,7 +10,7 @@
 #' @importFrom RcppParallel RcppParallelLibs
 #'
 scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16,
-                                runem = TRUE) {
+                                k = 1:nrow(H), runem = TRUE) {
   if (nc == 1) {
     if (is.matrix(A)) {
       if (runem)
@@ -47,7 +47,7 @@ scd_update_factors <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16,
 #' @importFrom RcppParallel RcppParallelLibs
 #'
 scd_update_loadings <- function (A, W, H, numiter = 1, nc = 1, e = 1e-16,
-                                 runem = TRUE) {
+                                 k = 1:nrow(W), runem = TRUE) {
   A <- t(A)
   W <- t(W)
   H <- t(H)

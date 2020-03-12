@@ -12,7 +12,8 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
-pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1) {
+pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1,
+                                   k = 1:ncol(F)) {
   F <- t(F)
   if (nc == 1) {
     if (is.matrix(X))
@@ -44,7 +45,8 @@ pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1) {
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
-pnmfem_update_loadings <- function (X, F, L, numiter = 1, nc = 1) {
+pnmfem_update_loadings <- function (X, F, L, numiter = 1, nc = 1,
+                                    k = 1:ncol(L)) {
   X <- t(X)  
   L <- t(L)
   if (nc == 1) {

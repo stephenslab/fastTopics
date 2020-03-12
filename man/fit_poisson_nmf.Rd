@@ -13,6 +13,8 @@ fit_poisson_nmf(
   numiter = 100,
   method = c("em", "scd", "ccd", "mu"),
   control = list(),
+  update.factors = 1:k,
+  update.loadings = 1:k,
   verbose = TRUE
 )
 
@@ -58,6 +60,13 @@ and cyclic co-ordinate descent (CCD), \code{method = "ccd"}. See
 
 \item{control}{A list of parameters controlling the behaviour of
 the optimization algorithm. See \sQuote{Details}.}
+
+\item{update.factors}{Describe "update.factors" input argument
+here. Could be modified by rescaling or safeguarding step. Must be
+1:k for method = "mu".}
+
+\item{update.loadings}{Describe "update.loadings" input argument
+here.}
 
 \item{verbose}{When \code{verbose = TRUE}, information about the
 algorithm's progress is printed to the console at each
