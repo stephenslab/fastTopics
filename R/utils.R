@@ -23,10 +23,10 @@
 #'   stationary point, of the likelihood.}
 #'
 #' \item{nonzeros.f}{The rate of nonzeros in the factors matrix, as
-#'   determined by \code{control$zero.threshold.solution}.}
+#'   determined by \code{control$zero.threshold}.}
 #'
 #' \item{nonzeros.l}{The rate of nonzeros in the loadings matrix, as
-#'   determined by \code{control$zero.threshold.solution}.}
+#'   determined by \code{control$zero.threshold}.}
 #' 
 #' \item{runtime}{The total runtime (in s) of the model fitting
 #'   updates.}

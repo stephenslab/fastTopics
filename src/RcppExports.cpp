@@ -6,66 +6,6 @@
 
 using namespace Rcpp;
 
-// altsqp_update_factors_rcpp
-arma::mat altsqp_update_factors_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, double numiter, const Rcpp::List& control);
-RcppExport SEXP _fastTopics_altsqp_update_factors_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP numiterSEXP, SEXP controlSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
-    Rcpp::traits::input_parameter< double >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_rcpp(X, F, L, numiter, control));
-    return rcpp_result_gen;
-END_RCPP
-}
-// altsqp_update_factors_sparse_rcpp
-arma::mat altsqp_update_factors_sparse_rcpp(const arma::sp_mat& X, const arma::mat& F, const arma::mat& L, double numiter, const Rcpp::List& control);
-RcppExport SEXP _fastTopics_altsqp_update_factors_sparse_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP numiterSEXP, SEXP controlSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::sp_mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
-    Rcpp::traits::input_parameter< double >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_sparse_rcpp(X, F, L, numiter, control));
-    return rcpp_result_gen;
-END_RCPP
-}
-// altsqp_update_factors_parallel_rcpp
-arma::mat altsqp_update_factors_parallel_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, double numiter, const Rcpp::List& control);
-RcppExport SEXP _fastTopics_altsqp_update_factors_parallel_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP numiterSEXP, SEXP controlSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
-    Rcpp::traits::input_parameter< double >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_parallel_rcpp(X, F, L, numiter, control));
-    return rcpp_result_gen;
-END_RCPP
-}
-// altsqp_update_factors_sparse_parallel_rcpp
-arma::mat altsqp_update_factors_sparse_parallel_rcpp(const arma::sp_mat& X, const arma::mat& F, const arma::mat& L, double numiter, const Rcpp::List& control);
-RcppExport SEXP _fastTopics_altsqp_update_factors_sparse_parallel_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP numiterSEXP, SEXP controlSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::sp_mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
-    Rcpp::traits::input_parameter< double >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(altsqp_update_factors_sparse_parallel_rcpp(X, F, L, numiter, control));
-    return rcpp_result_gen;
-END_RCPP
-}
 // ccd_update_factors_rcpp
 arma::mat ccd_update_factors_rcpp(const arma::mat& V, const arma::mat& W, arma::mat& H, double e);
 RcppExport SEXP _fastTopics_ccd_update_factors_rcpp(SEXP VSEXP, SEXP WSEXP, SEXP HSEXP, SEXP eSEXP) {
@@ -182,21 +122,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// mixsqp_rcpp
-Rcpp::List mixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, unsigned int numiter, const Rcpp::List& control);
-RcppExport SEXP _fastTopics_mixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(mixsqp_rcpp(L, w, x0, numiter, control));
-    return rcpp_result_gen;
-END_RCPP
-}
 // pnmfem_update_factors_rcpp
 arma::mat pnmfem_update_factors_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, double numiter);
 RcppExport SEXP _fastTopics_pnmfem_update_factors_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP numiterSEXP) {
@@ -267,21 +192,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// poismixsqp_rcpp
-arma::vec poismixsqp_rcpp(const arma::mat& L, const arma::vec& w, const arma::vec& x0, unsigned int numiter, const Rcpp::List& control);
-RcppExport SEXP _fastTopics_poismixsqp_rcpp(SEXP LSEXP, SEXP wSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(poismixsqp_rcpp(L, w, x0, numiter, control));
-    return rcpp_result_gen;
-END_RCPP
-}
 // poismixem2_rcpp
 arma::vec poismixem2_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::vec& x0, unsigned int numiter);
 RcppExport SEXP _fastTopics_poismixem2_rcpp(SEXP L1SEXP, SEXP wSEXP, SEXP uSEXP, SEXP x0SEXP, SEXP numiterSEXP) {
@@ -294,22 +204,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     rcpp_result_gen = Rcpp::wrap(poismixem2_rcpp(L1, w, u, x0, numiter));
-    return rcpp_result_gen;
-END_RCPP
-}
-// poismixsqp2_rcpp
-arma::vec poismixsqp2_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::vec& x0, unsigned int numiter, const Rcpp::List& control);
-RcppExport SEXP _fastTopics_poismixsqp2_rcpp(SEXP L1SEXP, SEXP wSEXP, SEXP uSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type L1(L1SEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(poismixsqp2_rcpp(L1, w, u, x0, numiter, control));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -326,23 +220,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     rcpp_result_gen = Rcpp::wrap(poismixem3_rcpp(L1, w, u, i, x0, numiter));
-    return rcpp_result_gen;
-END_RCPP
-}
-// poismixsqp3_rcpp
-arma::vec poismixsqp3_rcpp(const arma::mat& L1, const arma::vec& w, const arma::vec& u, const arma::uvec& i, const arma::vec& x0, unsigned int numiter, const Rcpp::List& control);
-RcppExport SEXP _fastTopics_poismixsqp3_rcpp(SEXP L1SEXP, SEXP wSEXP, SEXP uSEXP, SEXP iSEXP, SEXP x0SEXP, SEXP numiterSEXP, SEXP controlSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type L1(L1SEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< const arma::uvec& >::type i(iSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type x0(x0SEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type control(controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(poismixsqp3_rcpp(L1, w, u, i, x0, numiter, control));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -470,10 +347,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fastTopics_altsqp_update_factors_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_rcpp, 5},
-    {"_fastTopics_altsqp_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_sparse_rcpp, 5},
-    {"_fastTopics_altsqp_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_parallel_rcpp, 5},
-    {"_fastTopics_altsqp_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_altsqp_update_factors_sparse_parallel_rcpp, 5},
     {"_fastTopics_ccd_update_factors_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_rcpp, 4},
     {"_fastTopics_ccd_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_sparse_rcpp, 4},
     {"_fastTopics_ccd_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_parallel_rcpp, 4},
@@ -482,17 +355,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
     {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},
     {"_fastTopics_mixem_rcpp", (DL_FUNC) &_fastTopics_mixem_rcpp, 4},
-    {"_fastTopics_mixsqp_rcpp", (DL_FUNC) &_fastTopics_mixsqp_rcpp, 5},
     {"_fastTopics_pnmfem_update_factors_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_sparse_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_parallel_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_sparse_parallel_rcpp, 4},
     {"_fastTopics_poismixem_rcpp", (DL_FUNC) &_fastTopics_poismixem_rcpp, 4},
-    {"_fastTopics_poismixsqp_rcpp", (DL_FUNC) &_fastTopics_poismixsqp_rcpp, 5},
     {"_fastTopics_poismixem2_rcpp", (DL_FUNC) &_fastTopics_poismixem2_rcpp, 5},
-    {"_fastTopics_poismixsqp2_rcpp", (DL_FUNC) &_fastTopics_poismixsqp2_rcpp, 6},
     {"_fastTopics_poismixem3_rcpp", (DL_FUNC) &_fastTopics_poismixem3_rcpp, 6},
-    {"_fastTopics_poismixsqp3_rcpp", (DL_FUNC) &_fastTopics_poismixsqp3_rcpp, 7},
     {"_fastTopics_scd_kl_update_rcpp", (DL_FUNC) &_fastTopics_scd_kl_update_rcpp, 5},
     {"_fastTopics_scd_kl_update2_rcpp", (DL_FUNC) &_fastTopics_scd_kl_update2_rcpp, 6},
     {"_fastTopics_ccd_kl_update_rcpp", (DL_FUNC) &_fastTopics_ccd_kl_update_rcpp, 5},

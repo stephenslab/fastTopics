@@ -11,7 +11,7 @@ fit_poisson_nmf(
   k,
   fit0,
   numiter = 100,
-  method = c("em", "scd", "ccd", "altsqp", "mu"),
+  method = c("em", "scd", "ccd", "mu"),
   control = list(),
   verbose = TRUE
 )
@@ -53,10 +53,8 @@ perform.}
 loadings. Five methods are implemented: multiplicative updates,
 \code{method = "mu"}; expectation maximization (EM), \code{method =
 "em"}; sequential co-ordinate descent (SCD), \code{method = "scd"};
-cyclic co-ordinate descent (CCD), \code{method = "ccd"}; and the
-alternating sequential quadratic programming (alt-SQP) method,
-\code{method = "altsqp"}. See \sQuote{Details} for a detailed
-description of these methods.}
+and cyclic co-ordinate descent (CCD), \code{method = "ccd"}. See
+\sQuote{Details} for a detailed description of these methods.}
 
 \item{control}{A list of parameters controlling the behaviour of
 the optimization algorithm. See \sQuote{Details}.}
@@ -199,9 +197,6 @@ Hsieh and Inderjit Dhillon, which is available for download at
 \url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
 implementation is based on version 0.4-3 of the NNLM package.
 
-The "alternating SQP" (alt-SQP) updates are a new method based
-on the mix-SQP algorithm (Kim et al, 2020).
-
 An additional re-scaling step is performed after each update to
 promote numerical stability.
 
@@ -256,50 +251,10 @@ algorithm settings (as they are defined by
   small inaccuracy in the solution. Increasing this number may lead
   to faster convergence but possibly a less accurate solution.}
 
-\item{\code{zero.threshold.solution}}{A small, non-negative number
-  used to determine which entries of the solution are exactly
-  zero. Any entries that are less than or equal to
-  \code{zero.threshold.solution} are considered to be exactly
-  zero. This is also used by the alt-SQP method to determine the
-  initial \dQuote{active set}.}
-
-\item{\code{convtol.activeset}}{A small, non-negative number
-  specifying the convergence tolerance for the active-set step in the
-  alt-SQP updates. Smaller values will result in higher quality
-  search directions for the SQP algorithm but possibly a greater
-  per-iteration computational cost.}
-
-\item{\code{zero.threshold.searchdir}}{A small, non-negative number
-  used to determine when the search direction in the alt-SQP
-  active-set step is considered "small enough".}
-
-\item{\code{suffdecr.linesearch}}{This parameter determines how
-  stringent the \dQuote{sufficient decrease} condition is for
-  accepting a step size in the backtracking line search inside the
-  alt-SQP updates. Larger values will make the condition more
-  stringent. This should be a positive number less than 1.}
-
-\item{\code{stepsizereduce}}{The multiplicative factor for
-  decreasing the step size in the backtracking line search inside the
-  alt-SQP updates. Smaller values will yield a faster backtracking
-  line search at the expense of a less fine-grained search. Should be
-  a positive number less than 1.}
-
-\item{\code{minstepsize}}{The smallest step size accepted by the
-  line search step inside the alt-SQP updates. Should be a number
-  greater than 0 and at most 1.}
-
-\item{\code{identity.contrib.increase}}{This is another parameter
-  controlling behaviour of the active-set method inside the alt-SQP
-  updates. When the Hessian is not positive definite, a multiple of
-  the identity is added to the Hessian to ensure a unique search
-  direction. The factor for increasing the identity contribution in
-  this modified Hessian is determined by this control parameter.}
-
-\item{\code{maxiter.activeset}}{This is another parameter
-  controlling behaviour of the active-set method inside the alt-SQP
-  updates. It determines the maximum number of active-set iteration
-  taken to solve each of the quadratic subproblems.}}
+\item{\code{zero.threshold}}{A small, non-negative number used to
+  determine which entries of the solution are exactly zero. Any
+  entries that are less than or equal to \code{zero.threshold} are
+  considered to be exactly zero.}}
 }
 \examples{
 # Simulate a 80 x 100 data set.
@@ -321,12 +276,9 @@ fit.ccd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
                               method = "ccd",verbose = FALSE)
 fit.scd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
                               method = "scd",verbose = FALSE)
-fit.altsqp <- fit_poisson_nmf(X,fit0 = fit0,numiter = 200,
-                              method = "altsqp",verbose = FALSE)
 
-clrs <- c("royalblue","skyblue","firebrick","orange","darkmagenta")
-fits <- list(mu = fit.mu,em = fit.em,ccd = fit.ccd,scd = fit.scd,
-             altsqp = fit.altsqp)
+clrs <- c("royalblue","skyblue","darkorange","darkmagenta")
+fits <- list(mu = fit.mu,em = fit.em,ccd = fit.ccd,scd = fit.scd)
 print(compare_poisson_nmf_fits(fits),digits = 8)
 plot_progress_poisson_nmf(fits,y = "loglik",colors = clrs)
 plot_progress_poisson_nmf(fits,y = "res",colors = clrs)
@@ -340,14 +292,11 @@ fit.ccd.sp    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
                                  method = "ccd",verbose = FALSE)
 fit.scd.sp    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
                                  method = "scd",verbose = FALSE)
-fit.altsqp.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 200,
-                                 method = "altsqp",verbose = FALSE)
-fits <- list(em = fit.em,ccd = fit.ccd,scd = fit.scd,altsqp = fit.altsqp,
-             em.sp = fit.em.sp,ccd.sp = fit.ccd.sp,scd.sp = fit.scd.sp,
-             altsqp.sp = fit.altsqp.sp)
+fits <- list(em = fit.em,ccd = fit.ccd,scd = fit.scd,em.sp = fit.em.sp,
+             ccd.sp = fit.ccd.sp,scd.sp = fit.scd.sp)
 print(compare_poisson_nmf_fits(fits),digits = 8)
 plot_progress_poisson_nmf(fits,colors = clrs[-1],
-                          shapes = rep(c(19,21),each = 4))
+                          shapes = rep(c(19,21),each = 3))
 
 # The "extrapolated" updates can sometimes produce much better fits.
 fit.ccd.ex <-
@@ -356,19 +305,13 @@ fit.ccd.ex <-
 fit.scd.ex <-
   fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "scd",
                   control = list(extrapolate = TRUE),verbose = FALSE)
-fit.altsqp.ex <-
-  fit_poisson_nmf(X,fit0 = fit0,numiter = 200,method = "altsqp",
-                  control = list(extrapolate = TRUE),verbose = FALSE)
-fits <- list(ccd = fit.ccd,scd = fit.scd,altsqp = fit.altsqp,
-             ccd.ex = fit.ccd.ex,scd.ex = fit.scd.ex,
-             altsqp.ex = fit.altsqp.ex)
+fits <- list(ccd = fit.ccd,scd = fit.scd,ccd.ex = fit.ccd.ex,
+             scd.ex = fit.scd.ex)
 print(compare_poisson_nmf_fits(fits),digits = 8)
-plot_progress_poisson_nmf(fits,y = "loglik",
-                          colors = clrs[3:5],
-                          shapes = rep(c(19,21),each = 3))
-plot_progress_poisson_nmf(fits,y = "res",
-                          colors = clrs[3:5],
-                          shapes = rep(c(19,21),each = 3))
+plot_progress_poisson_nmf(fits,y = "loglik",colors = clrs[3:4],
+                          shapes = rep(c(19,21),each = 2))
+plot_progress_poisson_nmf(fits,y = "res",colors = clrs[3:4],
+                          shapes = rep(c(19,21),each = 2))
 
 }
 \references{

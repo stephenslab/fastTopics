@@ -201,7 +201,7 @@ test_that(paste("ccd and scd updates produce the same result, and",
 })
 
 test_that(paste("When initialized \"close enough\" to a stationary point, the",
-                "SCD, CCD and alt-SQP updates recover the same solution"),{
+                "SCD and CCD updates recover the same solution"),{
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
@@ -213,25 +213,19 @@ test_that(paste("When initialized \"close enough\" to a stationary point, the",
     fit0 <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F = out$F,L = out$L),
               numiter = 40,method = "scd"))
   
-  # Run 300 updates of the CCD, SCD and alt-SQP algorithms.
+  # Run 300 updates of the CCD and SCD algorithms.
   numiter <- 300
   capture.output(
     fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
                             control = list(numiter = 2)))
-  capture.output(
-    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
-                            control = list(numiter = 4)))
 
-  # Check that all three algorithms recover the same solution.
-  fits <- list(fit1 = fit1,fit2 = fit2,fit3 = fit3)
+  # Check that both algorithms recover the same solution.
+  fits <- list(fit1 = fit1,fit2 = fit2)
   dat  <- compare_poisson_nmf_fits(fits)
   expect_equal(dat["fit1","dev"],dat["fit2","dev"],tolerance = 0.01,scale = 1)
-  expect_equal(dat["fit1","dev"],dat["fit3","dev"],tolerance = 0.01,scale = 1)
   expect_equal(dat["fit1","loglik"],dat["fit2","loglik"],
-               tolerance = 0.01,scale = 1)
-  expect_equal(dat["fit1","loglik"],dat["fit3","loglik"],
                tolerance = 0.01,scale = 1)
 })
 
@@ -264,57 +258,6 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
   expect_equivalent(t(fit1$H),fit2$F,tolerance = 1e-12,scale = 1)
 })
 
-test_that(paste("altsqp updates with dense and sparse matrices produce the",
-                "same result, and monotonically increase the likelihood",
-                "in all cases"),{
-
-  # Generate a 80 x 100 data matrix to factorize.
-  set.seed(1)
-  out <- generate_test_data(80,100,3)
-  X   <- out$X
-  F   <- out$F
-  L   <- out$L
-
-  # Run 20 sequential alternating SQP (alt-SQP) updates.
-  numiter <- 20
-  fit0    <- init_poisson_nmf(X,F = out$F,L = out$L)
-  capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
-                            control = list(nc = 1,numiter = 4)))
-
-  # Redo the alt-SQP updates with sparse X.
-  Y <- as(X,"dgCMatrix")
-  capture.output(
-    fit2 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "altsqp",
-                            control = list(nc = 1,numiter = 4)))
-
-  # Redo the alt-SQP updates using multithreaded computations.
-  capture.output(
-    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,
-              method = "altsqp",control = list(nc = 4,numiter = 4)))
-  capture.output(
-    fit4 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "altsqp",
-                            control = list(nc = 4,numiter = 4)))
-  
-  # The updated factors and loadings should be nearly the same in all
-  # cases.
-  expect_equivalent(fit1$F,fit2$F,tolerance = 1e-8,scale = 1)
-  expect_equivalent(fit1$L,fit2$L,tolerance = 1e-8,scale = 1)
-  expect_equivalent(fit1$L,fit3$L,tolerance = 1e-8,scale = 1)
-  expect_equivalent(fit1$L,fit4$L,tolerance = 1e-8,scale = 1)
-  
-  # The alt-SQP updates should monotonically increase the likelihood
-  # and decrease the deviance.
-  expect_nondecreasing(fit1$progress$loglik)
-  expect_nondecreasing(fit2$progress$loglik)
-  expect_nondecreasing(fit3$progress$loglik)
-  expect_nondecreasing(fit4$progress$loglik)
-  expect_nonincreasing(fit1$progress$dev)
-  expect_nonincreasing(fit2$progress$dev)
-  expect_nonincreasing(fit3$progress$dev)
-  expect_nonincreasing(fit4$progress$dev)
-})
-
 test_that(paste("All Poisson NMF updates recover same solution when",
                 "F, L are initialized close to a stationary point"),{
 
@@ -329,39 +272,26 @@ test_that(paste("All Poisson NMF updates recover same solution when",
     fit0 <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F = out$F,L = out$L),
                             numiter = 50,method = "ccd"))
 
-  # Now improve the fit by running 100 iterations of the CCD, SCD and
-  # alt-SQP algorithms.
+  # Now improve the fit by running 100 iterations of the CCD and SCD
+  # algorithms.
   numiter <- 100
   capture.output(
     fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
                            control = list(numiter = 4)))
-  capture.output(
-    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
-                            control = list(numiter = 4)))
 
   # All three solution estimates should have nearly the same likelihood
   # and deviance.
-  fits <- list(fit1 = fit1,fit2 = fit2,fit3 = fit3)
+  fits <- list(fit1 = fit1,fit2 = fit2)
   dat  <- compare_poisson_nmf_fits(fits)
   expect_equal(dat["fit1","loglik"],dat["fit2","loglik"],
                tolerance = 0.01,scale = 1)
-  expect_equal(dat["fit1","loglik"],dat["fit3","loglik"],
-               tolerance = 0.01,scale = 1)
   expect_equal(dat["fit1","dev"],dat["fit2","dev"],tolerance = 0.01,scale = 1)
-  expect_equal(dat["fit1","dev"],dat["fit3","dev"],tolerance = 0.01,scale = 1)
   
-  # All three algorithms should arrive at nearly the same solution.
-  fit1 <- with(fit1,rescale.factors(F,L))
-  fit2 <- with(fit2,rescale.factors(F,L))
-  fit3 <- with(fit3,rescale.factors(F,L))
+  # Both algorithms should arrive at nearly the same solution.
   expect_equivalent(fit1$F,fit2$F,tolerance = 1e-3,scale = 1)
   expect_equivalent(fit1$L,fit2$L,tolerance = 1e-3,scale = 1)
-  expect_equivalent(fit1$F,fit3$F,tolerance = 1e-3,scale = 1)
-  expect_equivalent(fit1$L,fit3$L,tolerance = 1e-3,scale = 1)
-  expect_equivalent(fit2$F,fit3$F,tolerance = 1e-3,scale = 1)
-  expect_equivalent(fit2$L,fit3$L,tolerance = 1e-3,scale = 1)
 })
 
 test_that(paste("Extrapolated updates achieve solutions that are as good",
@@ -391,46 +321,38 @@ test_that(paste("Extrapolated updates achieve solutions that are as good",
   capture.output(
     fit4 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
                             control = list(numiter = 4)))
-  capture.output(
-    fit5 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
-                            control = list(numiter = 4)))
 
   # Run 100 extrapolated updates using each of the methods.
   capture.output(
-    fit6 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu",
+    fit5 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu",
                             control = list(extrapolate = TRUE)))
   capture.output(
-    fit7 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
+    fit6 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
                             control = list(numiter = 4,extrapolate = TRUE)))
   capture.output(
-    fit8 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
+    fit7 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
                             control = list(extrapolate = TRUE)))
   capture.output(
-    fit9 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
+    fit8 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
                             control = list(numiter = 4,extrapolate = TRUE)))
-  capture.output(
-    fit10 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "altsqp",
-                             control = list(numiter = 4,extrapolate = TRUE)))
 
   # The extrapolated updates should achieve likelihoods that are
   # higher (or at least not lower) than the non-extrapolated updates.
-  fits <- list(fit1 = fit1,fit2 = fit2,fit3 = fit3,fit4 = fit4,fit5 = fit5,
-               fit6 = fit6,fit7 = fit7,fit8 = fit8,fit9 = fit9,fit10 = fit10)
+  fits <- list(fit1 = fit1,fit2 = fit2,fit3 = fit3,fit4 = fit4,
+               fit5 = fit5,fit6 = fit6,fit7 = fit7,fit8 = fit8)
   dat  <- compare_poisson_nmf_fits(fits)
-  expect_lte(dat["fit1","loglik"],dat["fit6","loglik"])
-  expect_lte(dat["fit2","loglik"],dat["fit7","loglik"])
-  expect_lte(dat["fit3","loglik"],dat["fit8","loglik"])
-  expect_lte(dat["fit4","loglik"],dat["fit9","loglik"])
-  expect_lte(dat["fit5","loglik"],dat["fit10","loglik"])
+  expect_lte(dat["fit1","loglik"],dat["fit5","loglik"])
+  expect_lte(dat["fit2","loglik"],dat["fit6","loglik"])
+  expect_lte(dat["fit3","loglik"],dat["fit7","loglik"])
+  expect_lte(dat["fit4","loglik"],dat["fit8","loglik"])
 
   # Likewise, the deviances for the extrapolated updates should be
   # less than (or no higher than) the deviances from the non-expected
   # updates.
-  expect_gte(dat["fit1","dev"],dat["fit6","dev"])
-  expect_gte(dat["fit2","dev"],dat["fit7","dev"])
-  expect_gte(dat["fit3","dev"],dat["fit8","dev"])
-  expect_gte(dat["fit4","dev"],dat["fit9","dev"])
-  expect_gte(dat["fit5","dev"],dat["fit10","dev"])
+  expect_gte(dat["fit1","dev"],dat["fit5","dev"])
+  expect_gte(dat["fit2","dev"],dat["fit6","dev"])
+  expect_gte(dat["fit3","dev"],dat["fit7","dev"])
+  expect_gte(dat["fit4","dev"],dat["fit8","dev"])
 })
 
 test_that("Re-fitting yields same result as one call to fit_poisson_nmf",{
@@ -487,17 +409,6 @@ test_that("Re-fitting yields same result as one call to fit_poisson_nmf",{
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "scd"))
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "scd"))
-  fit1$progress$timing <- NULL
-  fit2$progress$timing <- NULL
-  expect_equal(fit1,fit2)
-
-  # Repeat this test for the alt-SQP updates.
-  capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "altsqp"))
-  capture.output(
-    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "altsqp"))
-  capture.output(
-    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "altsqp"))
   fit1$progress$timing <- NULL
   fit2$progress$timing <- NULL
   expect_equal(fit1,fit2)
