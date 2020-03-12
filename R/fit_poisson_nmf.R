@@ -125,13 +125,6 @@
 #'
 #' @param control A list of parameters controlling the behaviour of
 #'   the optimization algorithm. See \sQuote{Details}.
-#'
-#' @param update.factors Describe "update.factors" input argument
-#'   here. Could be modified by rescaling or safeguarding step. Must be
-#'   1:k for method = "mu".
-#'
-#' @param update.loadings Describe "update.loadings" input argument
-#'   here.
 #' 
 #' @param verbose When \code{verbose = TRUE}, information about the
 #'   algorithm's progress is printed to the console at each
@@ -300,8 +293,7 @@
 #'
 fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                              method = c("em","scd","ccd","mu"), 
-                             control = list(), update.factors = 1:k,
-                             update.loadings = 1:k, verbose = TRUE) {
+                             control = list(), verbose = TRUE) {
 
   # CHECK & PROCESS INPUTS
   # ----------------------
@@ -362,16 +354,6 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   if (control$nc > 1)
     message(sprintf("Using %d RcppParallel threads.",control$nc))
 
-  # Check the "update.factors" and "update.loadings" input arguments.
-  if (length(update.factors) == 0 & length(update.loadings) == 0)
-    stop("Inputs \"update.factors\" and \"update.loadings\" are invalid; ",
-         "at least one column of F or at least one column of L should be ",
-         "selected for updating")
-  if ((length(update.factors) < k | length(update.loadings) < k) &
-      method == "mu")
-    stop("Partial updating of factors and loadings is not implemented for ",
-         "method == \"mu\"")
-  
   # Give an overview of the optimization settings.
   if (verbose) {
     cat(sprintf("Fitting rank-%d Poisson NMF to %d x %d %s matrix.\n",k,n,m,
@@ -386,7 +368,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-3).\n")
+    cat("(fastTopics 0.3-4).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -406,9 +388,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   if (verbose)
     cat("iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'|",
         "nz(F) nz(L) beta\n")
-  fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,
-                                   update.factors,update.loadings,
-                                   verbose)
+  fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,verbose)
 
   # Output the updated "fit".
   fit$progress     <- rbind(fit0$progress,fit$progress)
@@ -548,7 +528,6 @@ init_poisson_nmf <-
 
 # This implements the core part of fit_poisson_nmf.
 fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
-                                       update.factors, update.loadings,
                                        verbose) {
 
   # Pre-compute quaantities and set up data structures used in the
@@ -571,15 +550,13 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
         
       # Perform an "extrapolated" update of the factors and loadings.
       extrapolate <- TRUE
-      fit <- update_poisson_nmf_extrapolated(X,fit,method,control,
-                                             update.factors,update.loadings)
+      fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
     } else {
 
       # Perform a basic coordinate-wise update of the factors and
       # loadings.
       extrapolate <- FALSE
-      fit <- update_poisson_nmf(X,fit,method,control,update.factors,
-                                update.loadingsl)
+      fit <- update_poisson_nmf(X,fit,method,control)
     }
     t2 <- proc.time()
     
@@ -621,21 +598,18 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
 # in the return value; that is, Fy and Fn are the same as F, and Ly
 # and Ln are the same as L. The value of the loss function ("loss",
 # "loss.fnly") is also updated.
-update_poisson_nmf <- function (X, fit, method, control, update.factors,
-                                update.loadings) {
+update_poisson_nmf <- function (X, fit, method, control) {
 
   # Update the loadings ("activations"). The factors are forced to be
   # non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
-  fit$L <- update_loadings_poisson_nmf(X,fit$F,fit$L,method,control,
-                                       update.loadings)
+  fit$L <- update_loadings_poisson_nmf(X,fit$F,fit$L,method,control)
   fit$L <- pmax(fit$L,control$minval)
 
   # Update the factors ("basis vectors"). The loadings are forced to
   # be non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
-  fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,method,control,
-                                      update.factors)
+  fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,method,control)
   fit$F <- pmax(fit$F,control$minval)
 
   # The extrapolated and "current best" estimates are the same as the
@@ -673,8 +647,7 @@ update_poisson_nmf <- function (X, fit, method, control, update.factors,
 #   betamax    upper bound on the extrapolation parameter
 #   beta0      extrapolation parameter setting from last improvement
 #
-update_poisson_nmf_extrapolated <- function (X, fit, method, control,
-                                             update.factors, update.loadings) {
+update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
 
   # Store the value of the objective (loss) function at the current
   # iterate (Fn, Ly).
@@ -682,15 +655,13 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control,
 
   # Compute the extrapolated update for the loadings ("activations").
   # Note that when beta is zero, Ly = Ln.
-  Ln     <- update_loadings_poisson_nmf(X,fit$Fy,fit$Ly,method,control,
-                                        update.loadings)
+  Ln     <- update_loadings_poisson_nmf(X,fit$Fy,fit$Ly,method,control)
   Ln     <- pmax(Ln,control$minval)
   fit$Ly <- pmax(Ln + fit$beta*(Ln - fit$Ln),control$minval)
 
   # Compute the extrapolated update for the factors ("basis vectors").
   # Note that when beta = 0, Fy = Fn.
-  Fn     <- update_factors_poisson_nmf(X,fit$Fy,fit$Ly,method,control,
-                                       update.factors)
+  Fn     <- update_factors_poisson_nmf(X,fit$Fy,fit$Ly,method,control)
   Fn     <- pmax(Fn,control$minval)
   fit$Fy <- pmax(Fn + fit$beta*(Fn - fit$Fn),control$minval)
   
@@ -737,29 +708,28 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control,
 }
 
 # Implements a single update of the factors matrix.
-update_factors_poisson_nmf <- function (X, F, L, method, control, k) {
+update_factors_poisson_nmf <- function (X, F, L, method, control) {
   if (method == "mu")
     F <- t(betanmf_update_factors(X,L,t(F)))
   else if (method == "em")
-    F <- pnmfem_update_factors(X,F,L,control$numiter,control$nc,k)
+    F <- pnmfem_update_factors(X,F,L,control$numiter,control$nc)
   else if (method == "ccd")
-    F <- t(ccd_update_factors(X,L,t(F),control$nc,control$eps,k))
+    F <- t(ccd_update_factors(X,L,t(F),control$nc,control$eps))
   else if (method == "scd")
-    F <- t(scd_update_factors(X,L,t(F),control$numiter,control$nc,
-                              control$eps,k))
+    F <- t(scd_update_factors(X,L,t(F),control$numiter,control$nc,control$eps))
   return(F)
 }
   
 # Implements a single update of the loadings matrix.
-update_loadings_poisson_nmf <- function (X, F, L, method, control, k) {
+update_loadings_poisson_nmf <- function (X, F, L, method, control) {
   if (method == "mu")
     L <- betanmf_update_loadings(X,L,t(F))
   else if (method == "em")
-    L <- pnmfem_update_loadings(X,F,L,control$numiter,control$nc,k)
+    L <- pnmfem_update_loadings(X,F,L,control$numiter,control$nc)
   else if (method == "ccd")
-    L <- ccd_update_loadings(X,L,t(F),control$nc,control$eps,k)
+    L <- ccd_update_loadings(X,L,t(F),control$nc,control$eps)
   else if (method == "scd")
-    L <- scd_update_loadings(X,L,t(F),control$numiter,control$nc,control$eps,k)
+    L <- scd_update_loadings(X,L,t(F),control$numiter,control$nc,control$eps)
   return(L)
 }
 
