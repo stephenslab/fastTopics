@@ -36,17 +36,13 @@
 
 
 <meta property="og:title" content="Fit or Re-fit Poisson Non-negative Matrix Factorization — fit_poisson_nmf" />
-<meta property="og:description" content="This function decomposes the input matrix X = L*F' by
-  nonnegative matrix factorization (NMF) based on the &quot;divergence&quot;
-  criterion; equivalently, it optimizes the likelihood under a
-  Poisson model of the count data, X. It runs a specified number of
-  multiplicative updates (MU) or expectation maximization (EM)
-  updates to fit the L and F matrices.
-Although the EM updates are mathematically equivalent to the
-  multiplicative updates, and therefore they share the same
-  convergence properties, the implementation of EM is quite
-  different; in particular, the EM updates are more suitable for
-  sparse counts matrices." />
+<meta property="og:description" content="This function approximates the input matrix X
+  by the non-negative matrix factorization L %*% t(F) by
+  nonnegative matrix factorization (NMF), in which the quality of the
+  approximation is measured by a &amp;#8220;divergence&amp;#8221; criterion;
+  equivalently, it optimizes the likelihood under a Poisson model of
+  the count data, X. It runs a specified number of coordinate-wise
+  updates to fit the L and F matrices." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -79,7 +75,7 @@ Although the EM updates are mathematically equivalent to the
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.133</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
       </span>
     </div>
 
@@ -115,17 +111,13 @@ Although the EM updates are mathematically equivalent to the
     </div>
 
     <div class="ref-description">
-    <p>This function decomposes the input matrix X = L*F' by
-  nonnegative matrix factorization (NMF) based on the "divergence"
-  criterion; equivalently, it optimizes the likelihood under a
-  Poisson model of the count data, X. It runs a specified number of
-  multiplicative updates (MU) or expectation maximization (EM)
+    <p>This function approximates the input matrix <code>X</code>
+  by the non-negative matrix factorization <code>L %*% t(F)</code> by
+  nonnegative matrix factorization (NMF), in which the quality of the
+  approximation is measured by a &#8220;divergence&#8221; criterion;
+  equivalently, it optimizes the likelihood under a Poisson model of
+  the count data, X. It runs a specified number of coordinate-wise
   updates to fit the L and F matrices.</p>
-<p>Although the EM updates are mathematically equivalent to the
-  multiplicative updates, and therefore they share the same
-  convergence properties, the implementation of EM is quite
-  different; in particular, the EM updates are more suitable for
-  sparse counts matrices.</p>
     </div>
 
     <pre class="usage"><span class='fu'>fit_poisson_nmf</span>(
@@ -133,7 +125,7 @@ Although the EM updates are mathematically equivalent to the
   <span class='no'>k</span>,
   <span class='no'>fit0</span>,
   <span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"em"</span>, <span class='st'>"altsqp"</span>, <span class='st'>"scd"</span>, <span class='st'>"ccd"</span>, <span class='st'>"mu"</span>),
+  <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"em"</span>, <span class='st'>"scd"</span>, <span class='st'>"ccd"</span>, <span class='st'>"mu"</span>),
   <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )
@@ -145,6 +137,7 @@ Although the EM updates are mathematically equivalent to the
   <span class='no'>k</span>,
   <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
   <span class='kw'>betamax</span> <span class='kw'>=</span> <span class='fl'>0.99</span>,
+  <span class='kw'>minval</span> <span class='kw'>=</span> <span class='fu'>fit_poisson_nmf_control_default</span>()$<span class='no'>minval</span>,
   <span class='kw'>e</span> <span class='kw'>=</span> <span class='fu'>fit_poisson_nmf_control_default</span>()$<span class='no'>eps</span>
 )
 
@@ -158,59 +151,68 @@ Although the EM updates are mathematically equivalent to the
       <td><p>The n x m matrix of counts; all entries of X should be
 non-negative. It can be a sparse matrix (class <code>"dgCMatrix"</code>)
 or dense matrix (class <code>"matrix"</code>), with some exceptions (see
-"Details").</p></td>
+&#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>k</th>
       <td><p>An integer 2 or greater giving the matrix rank for a
 random initialization of the factors and loadings. (They are
 initialized uniformly at random.) This argument should only be
-specified if the initial estimates (<code>fit</code> or <code>F, L</code>)
-aren't already provided.</p></td>
+specified if the initial fit (<code>fit0</code> or <code>F, L</code>) are not
+already provided.</p></td>
     </tr>
     <tr>
       <th>fit0</th>
-      <td><p>Describe input argument "fit" here.</p></td>
+      <td><p>The initial model fit. It should be an object of class
+&#8220;poisson_nmf_fit&#8221;, such as an output from
+<code>init_poisson_nmf</code>, or from a previous call to
+<code>fit_poisson_nmf</code>.</p></td>
     </tr>
     <tr>
       <th>numiter</th>
-      <td><p>The number of multiplicative updates to run.</p></td>
+      <td><p>The number of updates of the factors and loadings to
+perform.</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>When <code>method = "em"</code>, the EM updates will be
-performed; when <code>method = "mu"</code>, the multiplicative updates
-will be performed. The multiplicative updates are only implemented
-for dense count matrices; if <code>method = "mu"</code> and <code>X</code> is a
-sparse matrix, and error will be generated.</p></td>
+      <td><p>The method to use for updating the factors and
+loadings. Five methods are implemented: multiplicative updates,
+<code>method = "mu"</code>; expectation maximization (EM), <code>method =
+"em"</code>; sequential co-ordinate descent (SCD), <code>method = "scd"</code>;
+and cyclic co-ordinate descent (CCD), <code>method = "ccd"</code>. See
+&#8216;Details&#8217; for a detailed description of these methods.</p></td>
     </tr>
     <tr>
       <th>control</th>
-      <td><p>Describe input argument "control" here.</p></td>
+      <td><p>A list of parameters controlling the behaviour of
+the optimization algorithm. See &#8216;Details&#8217;.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
       <td><p>When <code>verbose = TRUE</code>, information about the
-algorithm's progress is printed to the console at each iteration.</p></td>
+algorithm's progress is printed to the console at each
+iteration. For interpretation of the columns, see the description
+of the <code>progress</code> return value.</p></td>
     </tr>
     <tr>
       <th>F</th>
       <td><p>An optional argument giving is the initial estimate of the
 factors (also sometimes called the "basis vectors"). It should be
 an m x k matrix, where m is the number of columns in the counts
-matrix X, and k &gt; 1 is the rank of the matrix factorization, or,
-equivalently, the number of topics. All entries of F should be
-non-negative. When not provided, input argument <code>k</code> should be
-specified.</p></td>
+matrix <code>X</code>, and k &gt; 1 is the rank of the matrix factorization
+(equivalently, the number of "topics"). All entries of <code>F</code>
+should be non-negative. When not provided, input argument <code>k</code>
+should be specified instead.</p></td>
     </tr>
     <tr>
       <th>L</th>
       <td><p>An optional argument giving the initial estimate of the
 loadings (also sometimes called the "activations"). It should an n
-x k matrix, where n is the number of rows in the counts matrix X,
-and k &gt; 1 is the rank of the matrix factorization. All entries of L
+x k matrix, where n is the number of rows in the counts matrix
+<code>X</code>, and k &gt; 1 is the rank of the matrix factorization
+(equivalently, the number of "topics"). All entries of <code>L</code>
 should be non-negative. When not provided, input argument <code>k</code>
-should be specified.</p></td>
+should be specified instead.</p></td>
     </tr>
     <tr>
       <th>beta</th>
@@ -224,22 +226,15 @@ extrapolation parameter. This is \(\bar{\gamma}\) in Algorithm 3
 of Ang &amp; Gillis (2019).</p></td>
     </tr>
     <tr>
-      <th>e</th>
-      <td><p>A small, non-negative number added to the terms inside the
-logarithms to avoid computing logarithms of zero. This prevents
-numerical problems at the cost of introducing a very small
-inaccuracy in the computation.</p></td>
+      <th>minval</th>
+      <td><p>A small, positive constant used to safeguard the</p></td>
     </tr>
     <tr>
-      <th>minval</th>
-      <td><p>A small positive constant used to safeguard the
-multiplicative updates. The multiplicative updates are implemented
-as <code>F &lt;- pmax(F1,minval)</code> and <code>L &lt;- pmax(L1,minval)</code>,
-where <code>F1</code> and <code>L1</code> are the factors and loadings matrices
-obtained by applying a single multiplicative update rule. Setting
-<code>minval = 0</code> is allowed, but the multiplicative updates are
-not guaranteed to converge to a stationary point without this
-safeguard, and a warning will be given in this case.</p></td>
+      <th>e</th>
+      <td><p>A small, non-negative number added to the terms inside the
+logarithms to avoid computing logarithms of zero. See the
+description of <code>control$eps</code> in "Details" for more
+information.</p></td>
     </tr>
     </table>
 
@@ -249,77 +244,175 @@ safeguard, and a warning will be given in this case.</p></td>
 return an object capturing the optimization algorithm state (for
 <code>init_poisson_nmf</code>, this is the initial state). It is a list
 with the following elements:</p>
-<dt>F</dt><dd><p>A matrix containing the factor estimates.</p></dd>
+<dt>F</dt><dd><p>A matrix containing the current best estimates of the
+  factors.</p></dd>
 
-<dt>L</dt><dd><p>A matrix containing estimates of the loadings.</p></dd>
+<dt>L</dt><dd><p>A matrix containing the current best estimates of the
+  loadings.</p></dd>
+
+<dt>Fn</dt><dd><p>A matrix containing the non-extrapolated factor estimates.
+  If extrapolation is not used, <code>Fn</code> and <code>F</code> will be the
+  same.</p></dd>
+
+<dt>Ln</dt><dd><p>A matrix containing the non-extrapolated estimates of the
+  loadings. If extrapolation is not used, <code>Ln</code> and <code>L</code> will
+  be the same.</p></dd>
 
 <dt>Fy</dt><dd><p>A matrix containing the extrapolated factor estimates. If
-  the extrapolation scheme is not used, <code>F</code> and <code>Fy</code> will
+  the extrapolation scheme is not used, <code>Fy</code> and <code>F</code> will
   be the same.</p></dd>
 
 <dt>Ly</dt><dd><p>A matrix containing the extrapolated estimates of the
-  loadings. If extrapolation is not used, <code>L</code> and <code>Ly</code> will
+  loadings. If extrapolation is not used, <code>Ly</code> and <code>L</code> will
   be the same.</p></dd>
 
-<dt>Fbest</dt><dd><p>A matrix containing the current best estimates of the
-  factors. If extrapolation is not used, <code>F</code> and <code>Fbest</code>
-  will be the same.</p></dd>
+<dt>loss</dt><dd><p>Value of the objective (&#8220;loss&#8221;) function
+  computed at the current best estimates of the factors and
+  loadings.</p></dd>
 
-<dt>Lbest</dt><dd><p>A matrix containing the current best estimates of the
-  loadings. If extrapolation is not used, <code>L</code> and <code>Lbest</code>
-  will be the same.</p></dd>
+<dt>loss.fnly</dt><dd><p>Value of the objective (&#8220;loss&#8221;) function
+  computed at the extrapolated solution for the loadings (<code>Ly</code>)
+  and the non-extrapolated solution for the factors (<code>Fn</code>). This
+  is used internally to implement the extrapolated updates.</p></dd>
 
-<dt>loss</dt><dd><p>Value of objective ("loss") function computed at the
-  extrapolated solution for the loadings (<code>Ly</code>) and the
-  non-extrapolated solution for the factors (<code>F</code>). This is used
-  internally to implement the extrapolated updates.</p></dd>
+<dt>beta</dt><dd><p>The extrapolation parameter, \(beta\) in Algorithm 3
+  of Ang &amp; Gillis (2019).</p></dd>
 
-<dt>lossbest</dt><dd><p>Value of the objective ("loss" function computed at
-  the current best estimates of the factors and loadings
-  (<code>Fbest</code> and <code>Lbest</code>. If extrapolation is not used,
-  <code>loss</code> and <code>lossbest</code> will be the same.</p></dd>
+<dt>betamax</dt><dd><p>Upper bound on the extrapolation parameter. This is
+  \(\bar{\gamma}\) in Algorithm 3 of Ang &amp; Gillis (2019).</p></dd>
 
-<dt>progress</dt><dd><p>A data frame containing more detailed information
-  about the algorithm's progress. The data frame should have
-  <code>numiter</code> rows. The columns of the data frame are: "iter", the
-  iteration number; "loglik", the log-likelihood at the current
-  factor and loading estimates; "dev", the deviance at the current
-  factor and loading estimates; "delta.l", the largest change in the
-  factors matrix; "delta.f", the largest change in the loadings
-  matrix; and "timing", the elapsed time in seconds (based on
-  <code><a href='https://rdrr.io/r/base/system.time.html'>system.time</a></code>).</p></dd>
+<dt>beta0</dt><dd><p>The setting of the extrapolation parameter at the
+  last iteration that improved the solution.</p></dd>
+
+<dt>progress</dt><dd><p>A data frame containing detailed information about
+  the algorithm's progress. The data frame should have <code>numiter</code>
+  rows. The columns of the data frame are: "iter", the iteration
+  number; "loglik", the log-likelihood at the current best factor and
+  loading estimates; "dev", the deviance at the current best factor
+  and loading estimates; "res", the maximum residual of the
+  Karush-Kuhn-Tucker (KKT) first-order optimality conditions at the
+  current best factor and loading estimates; "delta.f", the largest
+  change in the factors matrix; "delta.l", the largest change in the
+  loadings matrix; "nonzeros.f", the proportion of entries in the
+  factors matrix that are nonzero; "nonzeros.l", the proportion of
+  entries in the loadings matrix that are nonzero; "extrapolate",
+  which is 1 if extrapolation is used, otherwise it is 0; "beta", the
+  setting of the extrapolation parameter; "betamax", the setting of
+  the extrapolation parameter upper bound; and "timing", the elapsed
+  time in seconds (recorded using <code><a href='https://rdrr.io/r/base/proc.time.html'>proc.time</a></code>).</p></dd>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The multiplicative and EM updates are very simple and
-  fast. However, they can also be very slow to converge to a
-  stationary point of the objective, particularly when the data are
-  sparse.</p>
-<p>This function is mainly for internal use, and should only
-  be called directly if you really know what you are doing. In
-  particular, only minimal argument checking is performed; if you are
-  not careful, you will get poor results are errors that are
-  difficult to interpret.</p>
-<p>The implementation of the multiplicative updates is adapted from
-  the MATLAB code by Daichi Kitamura <a href='http://d-kitamura.net'>http://d-kitamura.net</a>.</p>
-<p>The "safeguard" step preventing the factors and loadings from
-  exactly reaching zero is motivated by Theorem 1 of Gillis &amp; Glineur
-  (2012).</p>
-<p>An additional re-scaling step is performed at each iteration to
-  promote numerical stability.</p>
+    <p>Using this function requires some care; only minimal
+argument checking is performed, and error messages may not be
+helpful.</p>
+<p>The EM and multiplicative updates are simple and fast, but can be
+slow to converge to a stationary point. When <code>control$numiter
+= 1</code>, the EM and multiplicative updates are mathematically
+equivalent to the multiplicative updates, and therefore share the
+same convergence properties. However, the implementation of the EM
+updates is quite different; in particular, the EM updates are more
+suitable for sparse counts matrices. The implementation of the
+multiplicative updates is adapted from the MATLAB code by Daichi
+Kitamura <a href='http://d-kitamura.net'>http://d-kitamura.net</a>.</p>
 <p>Since the multiplicative updates are implemented using standard
-  matrix operations, the speed is heavily dependent on the
-  BLAS/LAPACK numerical libraries used. In particular, using
-  optimized implementations such as OpenBLAS or Intel MKL can result
-  in much improved performance of the multiplcative updates.</p>
+matrix operations, the speed is heavily dependent on the
+BLAS/LAPACK numerical libraries used. In particular, using
+optimized implementations such as OpenBLAS or Intel MKL can result
+in much improved performance of the multiplcative updates.</p>
+<p>The cyclic co-ordinate descent (CCD) and sequential co-ordinate
+descent (SCD) updates adopt the same optimization strategy, but
+differ in the implementation details. In practice, we have found
+that the CCD and SCD updates arrive at the same solution when
+initialized "sufficiently close" to a stationary point. The CCD
+implementation is adapted from the C++ code developed by Cho-Jui
+Hsieh and Inderjit Dhillon, which is available for download at
+<a href='https://www.cs.utexas.edu/~cjhsieh/nmf'>https://www.cs.utexas.edu/~cjhsieh/nmf</a>. The SCD
+implementation is based on version 0.4-3 of the NNLM package.</p>
+<p>An additional re-scaling step is performed after each update to
+promote numerical stability.</p>
+<p>The <code>control</code> argument is a list in which any of the
+following named components will override the default optimization
+algorithm settings (as they are defined by
+<code>fit_poisson_nmf_control_default</code>):</p>
+<dl class='dl-horizontal'>
+
+<dt><code>numiter</code></dt><dd><p>Number of "inner loop" iterations to run when
+  performing and update of the factors or loadings. This must be set
+  to 1 for <code>method = "mu"</code> and, <code>method = "ccd"</code>.</p></dd>
+
+<dt><code>nc</code></dt><dd><p>Number of RcppParallel threads to use for the
+  updates. When <code>nc</code> is <code>NA</code>, the default number of threads
+  is used; see <code><a href='https://rdrr.io/pkg/RcppParallel/man/setThreadOptions.html'>defaultNumThreads</a></code>. This
+  setting is ignored for the multiplicative upates (<code>method =
+  "mu"</code>).</p></dd>
+
+<dt><code>minval</code></dt><dd><p>A small, positive constant used to safeguard
+  the multiplicative updates. The safeguarded updates are implemented
+  as <code>F &lt;- pmax(F1,minval)</code> and <code>L &lt;- pmax(L1,minval)</code>,
+  where <code>F1</code> and <code>L1</code> are the factors and loadings matrices
+  obtained by applying an update. Thi is motivated by Theorem 1 of
+  Gillis &amp; Glineur (2012). Setting <code>minval = 0</code> is allowed, but
+  some methods are not guaranteed to converge to a stationary point
+  without this safeguard, and a warning will be given in this case.</p></dd>
+
+<dt><code>extrapolate</code></dt><dd><p>When <code>extrapolate = TRUE</code>, the
+  extrapolation scheme of Ang &amp; Gillis (2019) is used.</p></dd>
+
+<dt><code>extrapolate.reset</code></dt><dd><p>To promote better numerical
+  stability of the extrapolated updates, they are &#8220;reset&#8221;
+  every so often. This parameter determines the number of iterations
+  to wait before resetting.</p></dd>
+
+<dt><code>beta.increase</code></dt><dd><p>When the extrapolated update improves
+  the solution, scale the extrapolation parameter by this amount.</p></dd>
+
+<dt><code>beta.reduce</code></dt><dd><p>When the extrapolaaed update does not
+  improve the solution, scale the extrapolation parameter by this
+  amount.</p></dd>
+
+<dt><code>betamax.increase</code></dt><dd><p>When the extrapolated update
+  improves the solution, scale the extrapolation parameter by this
+  amount.</p></dd>
+
+<dt><code>eps</code></dt><dd><p>A small, non-negative number that is added to the
+  terms inside the logarithms to sidestep computing logarithms of
+  zero. This prevents numerical problems at the cost of introducing a
+  small inaccuracy in the solution. Increasing this number may lead
+  to faster convergence but possibly a less accurate solution.</p></dd>
+
+<dt><code>zero.threshold</code></dt><dd><p>A small, non-negative number used to
+  determine which entries of the solution are exactly zero. Any
+  entries that are less than or equal to <code>zero.threshold</code> are
+  considered to be exactly zero.</p></dd>
+</dl>
+
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>Gillis, N. and Glineur, F. (2012). Accelerated multiplicative
+    <p>Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
+  factorization algorithms using extrapolation. <em>Neural
+  Computation</em> <b>31</b>, 417–439.</p>
+<p>Cichocki, A., Cruces, S. and Amari, S. (2011). Generalized
+  alpha-beta divergences and their application to robust nonnegative
+  matrix factorization. <em>Entropy</em> <b>13</b>, 134–170.</p>
+<p>Gillis, N. and Glineur, F. (2012). Accelerated multiplicative
   updates and hierarchical ALS algorithms for nonnegative matrix
   factorization. <em>Neural Computation</em> <code>24</code>, 1085–1105.</p>
-<p>Lee, D. D. and Seung, H. S. (2001). Algorithms for
-  non-negative matrix factorization. In <em>Advances in Neural
-  Information Processing Systems</em> <b>13</b>, 556–562.</p>
+<p>Hsieh, C.-J. and Dhillon, I. (2011). Fast coordinate descent
+  methods with variable selection for non-negative matrix
+  factorization. In <em>Proceedings of the 17th ACM SIGKDD
+  international conference on Knowledge discovery and data mining</em>,
+  p. 1064-1072</p>
+<p>Kim, Y., Carbonetto, P., Stephens, M. and Anitescu, M. (2020) A
+  fast algorithm for maximum likelihood estimation of mixture
+  proportions using sequential quadratic programming. To appear in
+  <em>Journal of Computational and Graphical Statistics.</em></p>
+<p>Lee, D. D. and Seung, H. S. (2001). Algorithms for non-negative
+  matrix factorization. In <em>Advances in Neural Information
+  Processing Systems</em> <b>13</b>, 556–562.</p>
+<p>Lin, X. and Boutros, P. C. (2018). Fast nonnegative matrix
+  factorization and applications to pattern extraction, deconvolution
+  and imputation. <em>bioRxiv</em> doi:10.1101/321802.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Simulate a 80 x 100 data set.</span>
@@ -331,54 +424,49 @@ with the following elements:</p>
 <span class='no'>fit0</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>20</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'>
 <span class='co'># The fit_poisson_nmf interface implements 5 different algorithms </span>
 <span class='co'># for optimizing a Poisson non-negative matrix factorization. Let's</span>
-<span class='co'># compare their runtime and abiliity to identify a good "fit".</span>
+<span class='co'># run the different algoriths, and compare the quality of the fits.</span>
 <span class='no'>fit.mu</span>     <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>400</span>,
                               <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"mu"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.em</span>     <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>400</span>,
                               <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"em"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.ccd</span>    <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>300</span>,
                               <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"ccd"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.scd</span>    <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>300</span>,
-                              <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.altsqp</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>200</span>,
-                              <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"altsqp"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'>
-<span class='no'>clrs</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"royalblue"</span>,<span class='st'>"skyblue"</span>,<span class='st'>"firebrick"</span>,<span class='st'>"orange"</span>,<span class='st'>"darkmagenta"</span>)
-<span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mu</span>     <span class='kw'>=</span> <span class='no'>fit.mu</span>,
-                               <span class='kw'>em</span>     <span class='kw'>=</span> <span class='no'>fit.em</span>,
-                               <span class='kw'>ccd</span>    <span class='kw'>=</span> <span class='no'>fit.ccd</span>,
-                               <span class='kw'>scd</span>    <span class='kw'>=</span> <span class='no'>fit.scd</span>,
-                               <span class='kw'>altsqp</span> <span class='kw'>=</span> <span class='no'>fit.altsqp</span>),
-                          <span class='kw'>color</span> <span class='kw'>=</span> <span class='no'>clrs</span>)</div><div class='img'><img src='fit_poisson_nmf-1.png' alt='' width='700' height='433' /></div><div class='input'>
-<span class='co'># All optimization algorithms other than the multiplicative updates</span>
-<span class='co'># can handle sparse matrices as well as dense ones.</span>
+                              <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'>
+<span class='no'>clrs</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"royalblue"</span>,<span class='st'>"skyblue"</span>,<span class='st'>"darkorange"</span>,<span class='st'>"darkmagenta"</span>)
+<span class='no'>fits</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mu</span> <span class='kw'>=</span> <span class='no'>fit.mu</span>,<span class='kw'>em</span> <span class='kw'>=</span> <span class='no'>fit.em</span>,<span class='kw'>ccd</span> <span class='kw'>=</span> <span class='no'>fit.ccd</span>,<span class='kw'>scd</span> <span class='kw'>=</span> <span class='no'>fit.scd</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>),<span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;     k     loglik       dev           res runtime nonzeros.f nonzeros.l
+#&gt; mu  3 -530270.69 1051628.7 6.5838683e-02   0.632       0.86 0.89583333
+#&gt; em  3 -530270.69 1051628.7 6.5838705e-02   0.485       0.86 0.89583333
+#&gt; ccd 3 -528244.65 1047576.6 5.3908864e-05   0.392       0.85 0.83750000
+#&gt; scd 3 -528244.65 1047576.6 5.4411955e-05   0.356       0.85 0.83750000</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>)</div><div class='img'><img src='fit_poisson_nmf-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"res"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>)</div><div class='img'><img src='fit_poisson_nmf-2.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># All algorithms except the multiplicative updates can handle</span>
+<span class='co'># sparse matrices as well as dense ones.</span>
 <span class='no'>Y</span> <span class='kw'>&lt;-</span> <span class='fu'>as</span>(<span class='no'>X</span>,<span class='st'>"dgCMatrix"</span>)
 <span class='no'>fit.em.sp</span>     <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>Y</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>400</span>,
                                  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"em"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.ccd.sp</span>    <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>Y</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>300</span>,
                                  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"ccd"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.scd.sp</span>    <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>Y</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>300</span>,
-                                 <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.altsqp.sp</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>Y</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>200</span>,
-                                 <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"altsqp"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'>
-<span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>em</span>        <span class='kw'>=</span> <span class='no'>fit.em</span>,
-                               <span class='kw'>ccd</span>       <span class='kw'>=</span> <span class='no'>fit.ccd</span>,
-                               <span class='kw'>scd</span>       <span class='kw'>=</span> <span class='no'>fit.scd</span>,
-                               <span class='kw'>altsqp</span>    <span class='kw'>=</span> <span class='no'>fit.altsqp</span>,
-                               <span class='kw'>em.sp</span>     <span class='kw'>=</span> <span class='no'>fit.em.sp</span>,
-                               <span class='kw'>ccd.sp</span>    <span class='kw'>=</span> <span class='no'>fit.ccd.sp</span>,
-                               <span class='kw'>scd.sp</span>    <span class='kw'>=</span> <span class='no'>fit.scd.sp</span>,
-                               <span class='kw'>altsqp.sp</span> <span class='kw'>=</span> <span class='no'>fit.altsqp.sp</span>),
-                          <span class='kw'>color</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='no'>clrs</span>[-<span class='fl'>1</span>],<span class='kw'>times</span> <span class='kw'>=</span> <span class='fl'>2</span>),
-                          <span class='kw'>shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>20</span>,<span class='fl'>18</span>),<span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>4</span>))</div><div class='img'><img src='fit_poisson_nmf-2.png' alt='' width='700' height='433' /></div><div class='input'>
+                                 <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fits</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>em</span> <span class='kw'>=</span> <span class='no'>fit.em</span>,<span class='kw'>ccd</span> <span class='kw'>=</span> <span class='no'>fit.ccd</span>,<span class='kw'>scd</span> <span class='kw'>=</span> <span class='no'>fit.scd</span>,<span class='kw'>em.sp</span> <span class='kw'>=</span> <span class='no'>fit.em.sp</span>,
+             <span class='kw'>ccd.sp</span> <span class='kw'>=</span> <span class='no'>fit.ccd.sp</span>,<span class='kw'>scd.sp</span> <span class='kw'>=</span> <span class='no'>fit.scd.sp</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>),<span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;        k     loglik       dev           res runtime nonzeros.f nonzeros.l
+#&gt; em     3 -530270.69 1051628.7 6.5838705e-02   0.485       0.86 0.89583333
+#&gt; ccd    3 -528244.65 1047576.6 5.3908864e-05   0.392       0.85 0.83750000
+#&gt; scd    3 -528244.65 1047576.6 5.4411955e-05   0.356       0.85 0.83750000
+#&gt; em.sp  3 -530270.69 1051628.7 6.5838705e-02   0.344       0.86 0.89583333
+#&gt; ccd.sp 3 -528244.65 1047576.6 5.3908864e-05   0.297       0.85 0.83750000
+#&gt; scd.sp 3 -528244.65 1047576.6 5.4411955e-05   0.485       0.85 0.83750000</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>[-<span class='fl'>1</span>],
+                          <span class='kw'>shapes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>19</span>,<span class='fl'>21</span>),<span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>3</span>))</div><div class='img'><img src='fit_poisson_nmf-3.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># The "extrapolated" updates can sometimes produce much better fits.</span>
 <span class='no'>fit.ccd.ex</span> <span class='kw'>&lt;-</span>
   <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>300</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"ccd"</span>,
                   <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>extrapolate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.scd.ex</span> <span class='kw'>&lt;-</span>
   <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>300</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,
-                  <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>extrapolate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.altsqp.ex</span> <span class='kw'>&lt;-</span>
-  <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>200</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"altsqp"</span>,
-                  <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>extrapolate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'>
-<span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>ccd</span>       <span class='kw'>=</span> <span class='no'>fit.ccd</span>,
-                               <span class='kw'>scd</span>       <span class='kw'>=</span> <span class='no'>fit.scd</span>,
-                               <span class='kw'>altsqp</span>    <span class='kw'>=</span> <span class='no'>fit.altsqp</span>,
-                               <span class='kw'>ccd.ex</span>    <span class='kw'>=</span> <span class='no'>fit.ccd.ex</span>,
-                               <span class='kw'>scd.ex</span>    <span class='kw'>=</span> <span class='no'>fit.scd.ex</span>,
-                               <span class='kw'>altsqp.ex</span> <span class='kw'>=</span> <span class='no'>fit.altsqp.ex</span>),
-                               <span class='kw'>color</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='no'>clrs</span>[<span class='fl'>3</span>:<span class='fl'>5</span>],<span class='kw'>times</span> <span class='kw'>=</span> <span class='fl'>2</span>),
-                               <span class='kw'>shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>20</span>,<span class='fl'>18</span>),<span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>3</span>))</div><div class='img'><img src='fit_poisson_nmf-3.png' alt='' width='700' height='433' /></div><div class='input'>
+                  <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>extrapolate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fits</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>ccd</span> <span class='kw'>=</span> <span class='no'>fit.ccd</span>,<span class='kw'>scd</span> <span class='kw'>=</span> <span class='no'>fit.scd</span>,<span class='kw'>ccd.ex</span> <span class='kw'>=</span> <span class='no'>fit.ccd.ex</span>,
+             <span class='kw'>scd.ex</span> <span class='kw'>=</span> <span class='no'>fit.scd.ex</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>),<span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;        k     loglik       dev           res runtime nonzeros.f nonzeros.l
+#&gt; ccd    3 -528244.65 1047576.6 5.3908864e-05   0.392 0.85000000 0.83750000
+#&gt; scd    3 -528244.65 1047576.6 5.4411955e-05   0.356 0.85000000 0.83750000
+#&gt; ccd.ex 3 -527639.09 1046365.5 4.5935281e-07   0.882 0.87666667 0.81666667
+#&gt; scd.ex 3 -527639.09 1046365.5 1.0219130e-06   0.374 0.87666667 0.81666667</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>[<span class='fl'>3</span>:<span class='fl'>4</span>],
+                          <span class='kw'>shapes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>19</span>,<span class='fl'>21</span>),<span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>2</span>))</div><div class='img'><img src='fit_poisson_nmf-4.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"res"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>[<span class='fl'>3</span>:<span class='fl'>4</span>],
+                          <span class='kw'>shapes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>19</span>,<span class='fl'>21</span>),<span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>2</span>))</div><div class='img'><img src='fit_poisson_nmf-5.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

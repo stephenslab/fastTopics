@@ -76,7 +76,7 @@ Function cost is mainly used internally to quickly compute
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.133</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
       </span>
     </div>
 
@@ -141,9 +141,13 @@ sparse matrix (class <code>"dgCMatrix"</code>) or dense matrix (class
     </tr>
     <tr>
       <th>fit</th>
-      <td><p>A list containing two dense, non-negative matrices,
-<code>fit$F</code> and <code>fit$L</code>. The former is an m x k matrix of
-factors, and the latter is an n x k matrix of loadings.</p></td>
+      <td><p>A Poisson NMF or multinomial topic model fit. For
+<code>loglik_poisson_nmf</code> and <code>deviance_poisson_nmf</code>, this
+should be an object of class &#8220;poisson_nmf_fit&#8221;, such as an
+output from <code>fit_poisson_nmf</code>. For
+<code>loglik_multinom_topic_model</code>, this should be_ object of class
+&#8220;multinom_topic_model_fit&#8221;, such as an output from
+<code>poisson2multinom</code>.</p></td>
     </tr>
     <tr>
       <th>e</th>
@@ -190,6 +194,7 @@ implementation is used. The R version is typically faster when
 <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='simulate_count_data.html'>simulate_count_data</a></span>(<span class='fl'>10</span>,<span class='fl'>20</span>,<span class='fl'>3</span>)
 <span class='no'>X</span>   <span class='kw'>&lt;-</span> <span class='no'>out</span>$<span class='no'>X</span>
 <span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='no'>out</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"F"</span>,<span class='st'>"L"</span>)]
+<span class='fu'><a href='https://rdrr.io/r/base/class.html'>class</a></span>(<span class='no'>fit</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"poisson_nmf_fit"</span>,<span class='st'>"list"</span>)
 
 <span class='co'># Compute the Poisson log-likelihoods and deviances.</span>
 <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>loglik</span>   <span class='kw'>=</span> <span class='fu'>loglik_poisson_nmf</span>(<span class='no'>X</span>,<span class='no'>fit</span>),

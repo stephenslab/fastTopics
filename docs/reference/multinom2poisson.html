@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.133</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
       </span>
     </div>
 
@@ -122,21 +122,15 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>fit</th>
-      <td><p>A list containing two dense, non-negative matrices,
-<code>fit$F</code> and <code>fit$L</code>. The former is an m x k matrix of
-factors, and the latter is an n x k matrix of loadings. It does not
-make sense for a multinomial topic model to have less than two
-topics, so an error will be reported when k &lt; 2. An additional
-vector <code>fit$s</code> of length n specifing the "document sizes" may
-be provided. If this is not provided, the document sizes will need
-to be estimated from the data (see input argument <code>X</code>).</p></td>
+      <td><p>An object of class &#8220;multinom_topic_model_fit&#8221;,
+such as an output from <code>poisson2multinom</code>.</p></td>
     </tr>
     <tr>
       <th>X</th>
       <td><p>The n x m matrix of counts or pseudocounts. It can be a
 sparse matrix (class <code>"dgCMatrix"</code>) or dense matrix (class
 <code>"matrix"</code>). This only needs to be provided if the document
-sizes <code>fit$s</code> are not made available.</p></td>
+sizes <code>fit$s</code> are not available.</p></td>
     </tr>
     </table>
 

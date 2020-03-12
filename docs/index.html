@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.133</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
       </span>
     </div>
 
@@ -69,6 +69,7 @@
 <div id="fasttopics" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#fasttopics" class="anchor"></a>fastTopics</h1></div>
+
 <p>R package implementing fast optimization algorithms for fitting topic models and non-negative matrix factorizations to count data.</p>
 <p>If you find a bug, or you have a question or feedback on this software, please post an <a href="https://github.com/stephenslab/fastTopics/issues">issue</a>.</p>
 <div id="license" class="section level2">
@@ -80,33 +81,29 @@
 <div id="quick-start" class="section level2">
 <h2 class="hasAnchor">
 <a href="#quick-start" class="anchor"></a>Quick Start</h2>
-<p>The fastTopics package is currently undergoing major re-development in the master branch, so it is recommended to install the version from the v0.1 branch. To do this, clone the repository from GitHub, switch to the v0.1 branch by running in the shell</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">git</span> checkout v0.1</span></code></pre></div>
-<p>then use <a href="https://github.com/r-lib/devtools">devtools</a>:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2"></a>devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_local</a></span>(<span class="st">"fastTopics"</span>)</span></code></pre></div>
-<p>This command should automatically install all required packages if they are not installed already.</p>
-<p>Alternatively, to install the latest (in-development) version of the fastTopics package, download or clone the repository from GitHub, then run:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_local</a></span>(<span class="st">"fastTopics"</span>)</span></code></pre></div>
-<p>Compiling this package from source will require a C++ compiler setup that is appropriate for the version of R installed on your computer. For details, refer to the <a href="https://cran.r-project.org">CRAN documentation</a>. For Mac computers, see <a href="https://pcarbo.github.io/pcarbo/r-macos.html">these notes</a>.</p>
-</div>
-<div id="developer-notes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#developer-notes" class="anchor"></a>Developer notes</h2>
-<div id="testing-and-installing-the-package" class="section level3">
-<h3 class="hasAnchor">
-<a href="#testing-and-installing-the-package" class="anchor"></a>Testing and installing the package</h3>
-<p>To install and test the fastTopics R package, run the following commands in the shell:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a><span class="ex">R</span> CMD build fastTopics</span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="ex">R</span> CMD INSTALL fastTopics_0.2-133.tar.gz</span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="ex">R</span> CMD check --as-cran fastTopics_0.2-133.tar.gz</span></code></pre></div>
-<p>Note that these commands require that the dependencies have already been installed. See the <a href="DESCRIPTION">DESCRIPTION</a> file for details.</p>
-</div>
+<p>Install and load the package:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"stephenslab/fastTopics"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(fastTopics)</span></code></pre></div>
+<p>Note that installing the package will require a C++ compiler setup that is appropriate for the version of R installed on your computer. For details, refer to the <a href="https://cran.r-project.org">CRAN documentation</a>.</p>
+<p>Simulate a 80 x 100 counts matrix:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">1</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>X &lt;-<span class="st"> </span><span class="kw"><a href="reference/simulate_count_data.html">simulate_count_data</a></span>(<span class="dv">80</span>,<span class="dv">100</span>,<span class="dt">k =</span> <span class="dv">3</span>)<span class="op">$</span>X</span></code></pre></div>
+<p>Fit the Poisson NMF model using the multiplicative (“mu”) and sequential co-ordinate ascent (“scd”) updates:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>fit1 &lt;-<span class="st"> </span><span class="kw"><a href="reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span>(X,<span class="dt">k =</span> <span class="dv">3</span>,<span class="dt">numiter =</span> <span class="dv">500</span>,<span class="dt">method =</span> <span class="st">"mu"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>fit2 &lt;-<span class="st"> </span><span class="kw"><a href="reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span>(X,<span class="dt">k =</span> <span class="dv">3</span>,<span class="dt">numiter =</span> <span class="dv">200</span>,<span class="dt">method =</span> <span class="st">"scd"</span>,</span>
+<span id="cb3-3"><a href="#cb3-3"></a>                        <span class="dt">control =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">numiter =</span> <span class="dv">4</span>))</span></code></pre></div>
+<p>Compare the two fits:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>fits &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">mu =</span> fit1,<span class="dt">scd =</span> fit2)</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="kw"><a href="reference/compare_poisson_nmf_fits.html">compare_poisson_nmf_fits</a></span>(fits),<span class="dt">digits =</span> <span class="dv">8</span>)</span></code></pre></div>
+<p>Compare the improvement in the solution over time:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw"><a href="reference/plot_progress_poisson_nmf.html">plot_progress_poisson_nmf</a></span>(fits)</span></code></pre></div>
+<p>For more, work through the <code>fit_poisson_nmf</code> example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/example.html">example</a></span>(<span class="st">"fit_poisson_nmf"</span>)</span></code></pre></div>
 </div>
 <div id="credits" class="section level2">
 <h2 class="hasAnchor">
 <a href="#credits" class="anchor"></a>Credits</h2>
-<p>The fastTopics R package was developed by <a href="https://pcarbo.github.io">Peter Carbonetto</a> at the [University of Chicago][uchicago], with guidance from <a href="http://stephenslab.uchicago.edu">Matthew Stephens</a>.</p>
+<p>The fastTopics R package was developed by <a href="https://pcarbo.github.io">Peter Carbonetto</a> at the <a href="https://www.uchicago.edu">University of Chicago</a>, with guidance from <a href="http://stephenslab.uchicago.edu">Matthew Stephens</a>.</p>
 </div>
 </div>
   </div>
@@ -137,7 +134,15 @@
 </ul>
 </div>
 
-  </div>
+  <div class="dev-status">
+<h2>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://travis-ci.org/stephenslab/fastTopics"><img src="https://travis-ci.org/stephenslab/fastTopics.svg?branch=master" alt="Travis Build Status"></a></li>
+<li><a href="https://ci.appveyor.com/project/pcarbo/fasttopics"><img src="https://ci.appveyor.com/api/projects/status/224272mhk5fadgmt?svg=true" alt="Appveyor Build status"></a></li>
+<li><a href="https://codecov.io/gh/stephenslab/fastTopics"><img src="https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg" alt="codecov"></a></li>
+</ul>
+</div>
+</div>
 </div>
 
 

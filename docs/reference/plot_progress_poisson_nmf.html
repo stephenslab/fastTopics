@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add title here. — plot_progress_poisson_nmf • fastTopics</title>
+<title>Plot Progress of Poisson NMF Optimization Method Over Time — plot_progress_poisson_nmf • fastTopics</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,16 @@
 
 
 
-<meta property="og:title" content="Add title here. — plot_progress_poisson_nmf" />
-<meta property="og:description" content="Add description here." />
+<meta property="og:title" content="Plot Progress of Poisson NMF Optimization Method Over Time — plot_progress_poisson_nmf" />
+<meta property="og:description" content="Create a plot showing improvement in one or more
+  Poisson NMF model fits over time. The horizontal axis shows the
+  recorded runtime (in s), and the vertical axis shows some quantity
+  measuring the quality of the fit: the log-likelihood, deviance or
+  maximum residual of the Karush-Kuhn-Tucker (KKT) first-order
+  optimality conditions. To better visualize log-likelihoods and
+  deviances, the log-likelihood and deviance differences are shown on
+  the logarithmic scale. where the differences are calculated with
+  respect to the best value achieved over all the fits compared." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -69,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.133</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
       </span>
     </div>
 
@@ -99,25 +107,33 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add title here.</h1>
+    <h1>Plot Progress of Poisson NMF Optimization Method Over Time</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
     <div class="hidden name"><code>plot_progress_poisson_nmf.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Add description here.</p>
+    <p>Create a plot showing improvement in one or more
+  Poisson NMF model fits over time. The horizontal axis shows the
+  recorded runtime (in s), and the vertical axis shows some quantity
+  measuring the quality of the fit: the log-likelihood, deviance or
+  maximum residual of the Karush-Kuhn-Tucker (KKT) first-order
+  optimality conditions. To better visualize log-likelihoods and
+  deviances, the log-likelihood and deviance differences are shown on
+  the logarithmic scale. where the differences are calculated with
+  respect to the best value achieved over all the fits compared.</p>
     </div>
 
     <pre class="usage"><span class='fu'>plot_progress_poisson_nmf</span>(
   <span class='no'>fits</span>,
-  <span class='kw'>plot.dev</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"loglik"</span>, <span class='st'>"dev"</span>, <span class='st'>"res"</span>),
   <span class='kw'>add.point.every</span> <span class='kw'>=</span> <span class='fl'>20</span>,
-  <span class='kw'>color</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"#E69F00"</span>, <span class='st'>"#56B4E9"</span>, <span class='st'>"#009E73"</span>, <span class='st'>"#F0E442"</span>, <span class='st'>"#0072B2"</span>, <span class='st'>"#D55E00"</span>,
-    <span class='st'>"#CC79A7"</span>), <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>fits</span>)),
-  <span class='kw'>linetype</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='st'>"solid"</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>fits</span>)),
-  <span class='kw'>linesize</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.75</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>fits</span>)),
-  <span class='kw'>shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>20</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>fits</span>)),
-  <span class='kw'>ptsize</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>colors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"#E69F00"</span>, <span class='st'>"#56B4E9"</span>, <span class='st'>"#009E73"</span>, <span class='st'>"#F0E442"</span>, <span class='st'>"#0072B2"</span>, <span class='st'>"#D55E00"</span>,
+    <span class='st'>"#CC79A7"</span>),
+  <span class='kw'>linetypes</span> <span class='kw'>=</span> <span class='st'>"solid"</span>,
+  <span class='kw'>linesizes</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='kw'>shapes</span> <span class='kw'>=</span> <span class='fl'>19</span>,
+  <span class='kw'>fills</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>0.01</span>,
   <span class='kw'>theme</span> <span class='kw'>=</span> <span class='kw'>function</span>() <span class='fu'>theme_cowplot</span>(<span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>12</span>)
 )</pre>
@@ -127,49 +143,75 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>fits</th>
-      <td><p>Describe "fits" input argument here.</p></td>
+      <td><p>An object of class <code>"poisson_nmf_fit"</code>, or a
+non-empty, named list in which each list element is an object of
+class <code>"poisson_nmf_fit"</code>.</p></td>
     </tr>
     <tr>
-      <th>plot.dev</th>
-      <td><p>Describe "plot.dev" input argument here.</p></td>
+      <th>y</th>
+      <td><p>Column of the "progress" data frame used to assess
+progress of the Poisson NMF optimization method(s). Should be one
+of <code>"loglik"</code> (log-likelihood), <code>"dev"</code> (deviance) or
+<code>"res"</code> (maximum residual of KKT conditions).</p></td>
     </tr>
     <tr>
       <th>add.point.every</th>
-      <td><p>Describe "add.point.every" input argument here.</p></td>
+      <td><p>A positive integer giving the iteration
+interval for drawing points on the progress curves. Set to
+<code>Inf</code> to prevent points from being drawn on the plot.</p></td>
     </tr>
     <tr>
-      <th>color</th>
-      <td><p>Describe "color" input argument here.</p></td>
+      <th>colors</th>
+      <td><p>Colours used to draw progress curves; passed as the
+<code>values</code> input to <code><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_color_manual</a></code>.
+If fewer colours than "fits" are given, the colours are recycled.</p></td>
     </tr>
     <tr>
-      <th>linetype</th>
-      <td><p>Describe "linetype" input argument here.</p></td>
+      <th>linetypes</th>
+      <td><p>Line types used to draw progress curves; passed as
+the <code>values</code> input to <code><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_linetype_manual</a></code>.
+If fewer line types than "fits" are given, the line types are
+recycled.</p></td>
     </tr>
     <tr>
-      <th>linesize</th>
-      <td><p>Describe "linesize" input argument here.</p></td>
+      <th>linesizes</th>
+      <td><p>Line sizes used to draw progress curves; passed as
+the <code>values</code> input to <code><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_size_manual</a></code>.
+If fewer line sizes than "fits" are given, the line sizes are
+ recycled.</p></td>
     </tr>
     <tr>
-      <th>shape</th>
-      <td><p>Describe "shape" input argument here.</p></td>
+      <th>shapes</th>
+      <td><p>Shapes used to draw points at the selected
+iterations; passed as the <code>values</code> input to
+<code><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_shape_manual</a></code>. If fewer shapes than
+"fits" are given, the shapes are recycled.</p></td>
     </tr>
     <tr>
-      <th>ptsize</th>
-      <td><p>Describe "ptsize" input argument here.</p></td>
+      <th>fills</th>
+      <td><p>Fill colours used to draw points at the selected
+iterations; passed as the <code>values</code> input to
+<code><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_fill_manual</a></code>. If fewer fill colours
+than "fits", are given, the fill colours are recycled.</p></td>
     </tr>
     <tr>
       <th>e</th>
-      <td><p>Describe "e" input argument here.</p></td>
+      <td><p>A small, positive number added to the vertical axis (for
+<code>y = "loglik"</code> and <code>y = "dev"</code> only) so that the
+logarithmic scale does not over-emphasize very small differences.</p></td>
     </tr>
     <tr>
       <th>theme</th>
-      <td><p>Describe "theme" input argument here.</p></td>
+      <td><p>The ggplot2 "theme".</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Describe return value here.</p>
+    <p>The return value is a <code>ggplot</code> object.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Note that only minimal argument checking is performed.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code></p></div>
@@ -180,6 +222,7 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
       <li><a href="#see-also">See also</a></li>
     </ul>
 

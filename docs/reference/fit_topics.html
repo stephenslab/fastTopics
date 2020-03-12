@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization — poisson2multinom • fastTopics</title>
+<title>Add title here. — fit_topics • fastTopics</title>
 
 
 <!-- jquery -->
@@ -36,11 +35,8 @@
 
 
 
-<meta property="og:title" content="Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization — poisson2multinom" />
-<meta property="og:description" content="This function recovers parameter estimates of the
-  multinomial topic model given parameter estimates for a Poisson
-  non-negative matrix factorization." />
+<meta property="og:title" content="Add title here. — fit_topics" />
+<meta property="og:description" content="Add description here." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -103,48 +99,32 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization</h1>
-    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/poisson2multinom.R'><code>R/poisson2multinom.R</code></a></small>
-    <div class="hidden name"><code>poisson2multinom.Rd</code></div>
+    <h1>Add title here.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/fit_topics.R'><code>R/fit_topics.R</code></a></small>
+    <div class="hidden name"><code>fit_topics.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function recovers parameter estimates of the
-  multinomial topic model given parameter estimates for a Poisson
-  non-negative matrix factorization.</p>
+    <p>Add description here.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>poisson2multinom</span>(<span class='no'>fit</span>)</pre>
+    <pre class="usage"><span class='fu'>fit_topics</span>(<span class='no'>X</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>fit</th>
-      <td><p>An object of class &#8220;poisson_nmf_fit&#8221;, such as an
-output from <code>fit_poisson_nmf</code>. It does not make sense for a
-multinomial topic model to have less than two topics, so an error
-will be reported when k &lt; 2, where k is the rank of the matrix
-factorization.</p></td>
+      <th>X</th>
+      <td><p>Describe input argument "X" here.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>The return value is the list <code>fit</code>, in which
-  <code>fit$F</code> and <code>fit$L</code> are the parameters of the multinomial
-  topic model; specifically, <code>fit$L[i,]</code> gives the topic
-  probabilities for sample or document i, and <code>fit$F[,k]</code> gives
-  the term probabilities for topic k. An additional vector
-  <code>fit$s</code> of length n is returned giving the "document sizes".</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
     </ul>
 
   </div>
