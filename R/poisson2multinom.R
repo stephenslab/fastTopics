@@ -32,14 +32,23 @@ poisson2multinom <- function (fit) {
   
   # Recover F and L for the multinomial model. Here, s gives the
   # Poisson rates for generating the "document sizes".
-  fit <- within(fit,{
-    L <- scale.cols(L,colSums(F))
-    s <- rowSums(L)
-    L <- L / s
-    F <- normalize.cols(F)
-  })
+  out   <- get_multinom_from_pnmf(fit$F,fit$L)
+  fit$F <- out$F
+  fit$L <- out$L
+  fit$s <- out$s
   
   # Return the updated fit.
   class(fit) <- c("multinom_topic_model_fit","list")
   return(fit)
+}
+
+# Get the parameters of the multinomial topic model from the
+# parameters of the Poisson NMF model.
+get_multinom_from_pnmf <- function (F, L) {
+  u <- colSums(F)
+  F <- scale.cols(F,1/u)
+  L <- scale.cols(L,u)
+  s <- rowSums(L)
+  L <- L / s
+  return(list(F = F,L = L,s = s))
 }
