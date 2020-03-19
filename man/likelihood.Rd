@@ -7,13 +7,13 @@
 \alias{cost}
 \title{Topic Model Likelihoods and Deviances}
 \usage{
-loglik_poisson_nmf(X, fit, e = 1e-15)
+loglik_poisson_nmf(X, fit, e = 1e-08)
 
-loglik_multinom_topic_model(X, fit, e = 1e-15)
+loglik_multinom_topic_model(X, fit, e = 1e-08)
 
-deviance_poisson_nmf(X, fit, e = 1e-15)
+deviance_poisson_nmf(X, fit, e = 1e-08)
 
-cost(X, A, B, e = 1e-15, family = c("poisson", "multinom"), version)
+cost(X, A, B, e = 1e-08, family = c("poisson", "multinom"), version)
 }
 \arguments{
 \item{X}{The n x m matrix of counts or pseudocounts. It can be a
