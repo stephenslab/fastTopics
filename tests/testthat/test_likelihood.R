@@ -38,11 +38,10 @@ test_that(paste("loglik_poisson_nmf gives correct result for sparse and",
     out <- simulate_count_data(10,8,k)
     X   <- out$X
     fit <- out[c("F","L")]
-    Y   <- with(fit,tcrossprod(L,F))
     class(fit) <- c("poisson_nmf_fit","list")
     
     # Compute the log-likelikhood.
-    f1 <- rowSums(dpois(X,Y,log = TRUE))
+    f1 <- loglik_poisson_nmf_with_dpois(X,fit)
     f2 <- loglik_poisson_nmf(X,fit)
     f3 <- loglik_poisson_nmf(as(X,"dgCMatrix"),fit)
     names(f1) <- rownames(X)
@@ -66,13 +65,9 @@ test_that(paste("loglik_multinom_topic_model gives correct result for",
     fit <- out[c("F","L")]
     class(fit) <- c("poisson_nmf_fit","list")
     fit <- poisson2multinom(fit)
-    Y   <- with(fit,tcrossprod(L,F))
 
     # Compute the log-likelikhood.
-    f1        <- rep(0,10)
-    names(f1) <- rownames(X)
-    for (i in 1:10)
-      f1[i] <- dmultinom(X[i,],prob = Y[i,],log = TRUE)
+    f1 <- loglik_multinom_topic_model_with_dmultinom(X,fit)
     f2 <- loglik_multinom_topic_model(X,fit)
     f3 <- loglik_multinom_topic_model(as(X,"dgCMatrix"),fit)
 
@@ -93,11 +88,10 @@ test_that(paste("deviance_poisson_topic_nmf gives correct result for sparse",
     out <- simulate_count_data(10,8,k)
     X   <- out$X
     fit <- out[c("F","L")]
-    Y   <- with(fit,tcrossprod(L,F))
     class(fit) <- c("poisson_nmf_fit","list")
 
     # Compute the deviances.
-    d1 <- rowSums(stats::poisson()$dev.resids(X,Y,1))
+    d1 <- deviance_poisson_nmf_with_poisson(X,fit)
     d2 <- deviance_poisson_nmf(X,fit)
     d3 <- deviance_poisson_nmf(as(X,"dgCMatrix"),fit)
 

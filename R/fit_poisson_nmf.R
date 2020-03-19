@@ -368,7 +368,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-5).\n")
+    cat("(fastTopics 0.3-6).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -532,8 +532,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
 
   # Pre-compute quaantities and set up data structures used in the
   # loop below.
-  loglik.const    <- loglik_poisson_const(X)
-  dev.const       <- deviance_poisson_const(X)
+  loglik.const    <- sum(loglik_poisson_const(X))
+  dev.const       <- sum(deviance_poisson_const(X))
   progress        <- as.data.frame(matrix(0,numiter,11))
   names(progress) <- c("loglik","dev","res","delta.f","delta.l","nonzeros.f",
                        "nonzeros.l","extrapolate","beta","betamax","timing")
@@ -565,8 +565,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     # progress to the console if requested. In all cases, the "current
     # best" estimates of the factors and loadings are used to report
     # progress.
-    progress[i,"loglik"]      <- sum(loglik.const - fit$loss)
-    progress[i,"dev"]         <- sum(dev.const + 2*fit$loss)
+    progress[i,"loglik"]      <- loglik.const - fit$loss
+    progress[i,"dev"]         <- dev.const + 2*fit$loss
     progress[i,"res"]         <- with(poisson_nmf_kkt(X,fit$F,fit$L),
                                       max(abs(rbind(F,L))))
     progress[i,"delta.f"]     <- max(abs(fit$F - fit0$F))

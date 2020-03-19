@@ -63,6 +63,37 @@ generate_poismix_data <- function (n, x) {
   return(list(L = L,w = w))
 }
 
+# Compute the log-likelihoods for a Poisson non-negative matrix
+# factorization. This should give the same result as
+# loglik_poisson_nmf, but the computation is done less efficiently
+# using dpois.
+loglik_poisson_nmf_with_dpois <- function (X, fit) {
+  Y <- with(fit,tcrossprod(L,F))
+  return(rowSums(stats::dpois(X,Y,log = TRUE)))
+}
+
+# Compute the deviance for a Poisson non-negative matrix
+# factorization. This should give the same result as
+# deviance_poisson_nmf, but the computation is done less efficiently
+# using "poisson" from the stats package.
+deviance_poisson_nmf_with_poisson <- function (X, fit) {
+  Y <- with(fit,tcrossprod(L,F))
+  return(rowSums(stats::poisson()$dev.resids(X,Y,1)))
+}
+
+# Compute the log-likelihoods for a multinomial topic model. This
+# should give the same result as loglik_multinom_topic_model, but the
+# computation is done less efficiently using dmultinom.
+loglik_multinom_topic_model_with_dmultinom <- function (X, fit) {
+  n             <- nrow(fit$L)
+  loglik        <- rep(0,n)
+  names(loglik) <- rownames(X)
+  Y             <- with(fit,tcrossprod(L,F))
+  for (i in 1:n)
+    loglik[i] <- stats::dmultinom(X[i,],prob = Y[i,],log = TRUE)
+  return(loglik)
+}
+
 # Iterate the given updates for the factors (F) and loadings (L) matrices.
 iterate_updates <- function (X, F, L, numiter, update_factors = NULL,
                              update_loadings = NULL, factors_first = TRUE) {
