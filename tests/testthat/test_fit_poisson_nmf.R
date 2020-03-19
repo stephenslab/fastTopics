@@ -9,6 +9,26 @@ test_that("Version number in fit_poisson_nmf with verbose = TRUE is correct",{
   expect_equal(paste("fastTopics",packageDescription("fastTopics")$Version),x)
 })
 
+test_that(paste("fit$progress$loglik and fit$progress$dev agree with",
+                "loglik_poisson_nmf and deviance_poisson_nmf"),{
+
+  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  out  <- generate_test_data(80,100,3)
+  X    <- out$X
+  fit0 <- init_poisson_nmf(X,F = out$F,L = out$L)
+
+  # Run 50 SCD updates.
+  capture.output(
+    fit <- fit_poisson_nmf(X,fit0 = fit0,numiter = 50,method = "scd",
+                           control = list(extrapolate = TRUE,nc = 4)))
+
+  # Check that the log-likelihood and deviance calculations agree with
+  # loglik_poisson_nmf and deviance_poisson_nmf.
+  expect_equal(sum(loglik_poisson_nmf(X,fit)),tail(fit$progress$loglik,n = 1))
+  expect_equal(sum(deviance_poisson_nmf(X,fit)),tail(fit$progress$dev,n = 1))
+})
+
 test_that(paste("multiplicative and EM updates produce same result, and",
                 "monotonically increase the likelihood"),{
                     

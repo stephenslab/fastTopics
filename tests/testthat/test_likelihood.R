@@ -42,8 +42,8 @@ test_that(paste("loglik_poisson_nmf gives correct result for sparse and",
     
     # Compute the log-likelikhood.
     f1 <- loglik_poisson_nmf_with_dpois(X,fit)
-    f2 <- loglik_poisson_nmf(X,fit)
-    f3 <- loglik_poisson_nmf(as(X,"dgCMatrix"),fit)
+    f2 <- loglik_poisson_nmf(X,fit,e = 0)
+    f3 <- loglik_poisson_nmf(as(X,"dgCMatrix"),fit,e = 0)
     names(f1) <- rownames(X)
 
     # The likelihood calculations should all be the same.
@@ -68,8 +68,8 @@ test_that(paste("loglik_multinom_topic_model gives correct result for",
 
     # Compute the log-likelikhood.
     f1 <- loglik_multinom_topic_model_with_dmultinom(X,fit)
-    f2 <- loglik_multinom_topic_model(X,fit)
-    f3 <- loglik_multinom_topic_model(as(X,"dgCMatrix"),fit)
+    f2 <- loglik_multinom_topic_model(X,fit,e = 0)
+    f3 <- loglik_multinom_topic_model(as(X,"dgCMatrix"),fit,e = 0)
 
     # The likelihood calculations should all be the same.
     expect_equal(f1,f2)
@@ -92,8 +92,8 @@ test_that(paste("deviance_poisson_topic_nmf gives correct result for sparse",
 
     # Compute the deviances.
     d1 <- deviance_poisson_nmf_with_poisson(X,fit)
-    d2 <- deviance_poisson_nmf(X,fit)
-    d3 <- deviance_poisson_nmf(as(X,"dgCMatrix"),fit)
+    d2 <- deviance_poisson_nmf(X,fit,e = 0)
+    d3 <- deviance_poisson_nmf(as(X,"dgCMatrix"),fit,e = 0)
 
     # The deviance calculations should all be the same.
     expect_equal(d1,d2)

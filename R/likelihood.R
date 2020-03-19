@@ -66,21 +66,21 @@
 #' 
 #' @export
 #' 
-loglik_poisson_nmf <- function (X, fit, e = 1e-15)
+loglik_poisson_nmf <- function (X, fit, e = 1e-8)
   loglik_helper(X,fit,"loglik.poisson",e)
 
 #' @rdname likelihood
 #' 
 #' @export
 #' 
-loglik_multinom_topic_model <- function (X, fit, e = 1e-15)
+loglik_multinom_topic_model <- function (X, fit, e = 1e-8)
   loglik_helper(X,fit,"loglik.multinom",e)
 
 #' @rdname likelihood
 #' 
 #' @export
 #' 
-deviance_poisson_nmf <- function (X, fit, e = 1e-15)
+deviance_poisson_nmf <- function (X, fit, e = 1e-8)
   loglik_helper(X,fit,"deviance.poisson",e)
 
 #' @rdname likelihood
@@ -89,7 +89,7 @@ deviance_poisson_nmf <- function (X, fit, e = 1e-15)
 #' 
 #' @export
 #'
-cost <- function (X, A, B, e = 1e-15, family = c("poisson","multinom"),
+cost <- function (X, A, B, e = 1e-8, family = c("poisson","multinom"),
                   version) {
 
   # Check and process "model" and "version" input arguments.
@@ -178,7 +178,7 @@ deviance_poisson_const <- function (X) {
 # Compute the residuals of the first-order Karush-Kuhn-Tucker (KKT)
 # conditions for Poisson non-negative matrix factorization at solution
 # estimate (F,L).
-poisson_nmf_kkt <- function (X, F, L, e = 1e-15) {
+poisson_nmf_kkt <- function (X, F, L, e = 1e-8) {
   if (is.matrix(X)) {
     A <- X/(tcrossprod(L,F) + e)
     return(list(F = F*(t(1 - A) %*% L),
