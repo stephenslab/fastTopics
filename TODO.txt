@@ -6,3 +6,5 @@ to do
 + Update the pkgdown site.
 
 + Set up CircleCI.
+
++ Add CITATION.
