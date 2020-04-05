@@ -141,6 +141,8 @@ with the following elements:
   and the non-extrapolated solution for the factors (\code{Fn}). This
   is used internally to implement the extrapolated updates.}
 
+\item{iter}{The number of the most recently completed iteration.}
+
 \item{beta}{The extrapolation parameter, \eqn{beta} in Algorithm 3
   of Ang & Gillis (2019).}
 

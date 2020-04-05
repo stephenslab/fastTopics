@@ -180,6 +180,8 @@
 #'   and the non-extrapolated solution for the factors (\code{Fn}). This
 #'   is used internally to implement the extrapolated updates.}
 #'
+#' \item{iter}{The number of the most recently completed iteration.}
+#' 
 #' \item{beta}{The extrapolation parameter, \eqn{beta} in Algorithm 3
 #'   of Ang & Gillis (2019).}
 #'
@@ -385,7 +387,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-12).\n")
+    cat("(fastTopics 0.3-13).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -514,16 +516,18 @@ init_poisson_nmf <-
 
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
-  progress        <- as.data.frame(matrix(0,0,11))
-  names(progress) <- c("loglik","dev","res","delta.f","delta.l","nonzeros.f",
-                       "nonzeros.l","extrapolate","beta","betamax","timing")
+  progress        <- as.data.frame(matrix(0,0,12))
+  names(progress) <- c("iter","loglik","dev","res","delta.f","delta.l",
+                       "nonzeros.f","nonzeros.l","extrapolate","beta",
+                       "betamax","timing")
   
   # Return a list containing: F, an initial estimate of the factors;
   # L, an initial estimate of the loadings; Fn and Ln, the
   # non-extrapolated estimates of the factors and loadings, which
   # initially are always the same as F and L; Fy and Ly, the
   # extrapolated estimates of the factors and loadings, which
-  # initially are always the same as F and L; "loss" and "loss.fnly",
+  # initially are always the same as F and L; "iter", the current
+  # iteration number (initially set to zero); "loss" and "loss.fnly",
   # the value of the objective or loss function at the current best
   # and partially extrapolated estimates of the factors and loadings;
   # beta, beta0 and betamax, the initial settings of the extrapolation
@@ -537,6 +541,7 @@ init_poisson_nmf <-
               Ly        = L,
               loss      = loss,
               loss.fnly = loss,
+              iter      = 0,
               beta      = beta,
               beta0     = beta,
               betamax   = betamax,
@@ -554,9 +559,10 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
   # loop below.
   loglik.const    <- sum(loglik_poisson_const(X))
   dev.const       <- sum(deviance_poisson_const(X))
-  progress        <- as.data.frame(matrix(0,numiter,11))
-  names(progress) <- c("loglik","dev","res","delta.f","delta.l","nonzeros.f",
-                       "nonzeros.l","extrapolate","beta","betamax","timing")
+  progress        <- as.data.frame(matrix(0,numiter,12))
+  names(progress) <- c("iter","loglik","dev","res","delta.f","delta.l",
+                       "nonzeros.f","nonzeros.l","extrapolate","beta",
+                       "betamax","timing")
 
   # Iterate the updates of the factors and loadings.
   for (i in 1:numiter) {
@@ -582,12 +588,16 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
                                 method,control)
     }
     t2 <- proc.time()
+
+    # Update the iteration number.
+    fit$iter <- fit$iter + 1
     
     # Update the "progress" data frame with the log-likelihood,
     # deviance, and other quantities, and report the algorithm's
     # progress to the console if requested. In all cases, the "current
     # best" estimates of the factors and loadings are used to report
     # progress.
+    progress[i,"iter"]        <- fit$iter
     progress[i,"loglik"]      <- loglik.const - fit$loss
     progress[i,"dev"]         <- dev.const + 2*fit$loss
     progress[i,"res"]         <- with(poisson_nmf_kkt(X,fit$F,fit$L),
@@ -603,10 +613,10 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
     progress[i,"extrapolate"] <- extrapolate
     if (verbose)
       cat(sprintf("%4d %+0.9e %+0.8e %0.2e %0.1e %0.1e %0.3f %0.3f %0.2f\n",
-                  i,progress[i,"loglik"],progress[i,"dev"],progress[i,"res"],
-                  progress[i,"delta.f"],progress[i,"delta.l"],
-                  progress[i,"nonzeros.f"],progress[i,"nonzeros.l"],
-                  extrapolate * progress[i,"beta"]))
+                  fit$iter,progress[i,"loglik"],progress[i,"dev"],
+                  progress[i,"res"],progress[i,"delta.f"],
+                  progress[i,"delta.l"],progress[i,"nonzeros.f"],
+                  progress[i,"nonzeros.l"],extrapolate * progress[i,"beta"]))
   }
 
   # Output the updated "fit".

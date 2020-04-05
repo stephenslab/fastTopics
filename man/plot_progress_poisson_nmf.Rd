@@ -6,6 +6,7 @@
 \usage{
 plot_progress_poisson_nmf(
   fits,
+  x = c("timing", "iter"),
   y = c("loglik", "dev", "res"),
   add.point.every = 20,
   colors = c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00",
@@ -22,6 +23,8 @@ plot_progress_poisson_nmf(
 \item{fits}{An object of class \code{"poisson_nmf_fit"}, or a
 non-empty, named list in which each list element is an object of
 class \code{"poisson_nmf_fit"}.}
+
+\item{x}{Describe "x" argument here.}
 
 \item{y}{Column of the "progress" data frame used to assess
 progress of the Poisson NMF optimization method(s). Should be one

@@ -16,6 +16,8 @@
 #'   non-empty, named list in which each list element is an object of
 #'   class \code{"poisson_nmf_fit"}.
 #'
+#' @param x Describe "x" argument here.
+#' 
 #' @param y Column of the "progress" data frame used to assess
 #'   progress of the Poisson NMF optimization method(s). Should be one
 #'   of \code{"loglik"} (log-likelihood), \code{"dev"} (deviance) or
@@ -75,7 +77,8 @@
 #' @export
 #' 
 plot_progress_poisson_nmf <-
-  function (fits, y = c("loglik","dev","res"), add.point.every = 20,
+  function (fits, x = c("timing","iter"), y = c("loglik","dev","res"),
+            add.point.every = 20,
             colors = c("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2",
                        "#D55E00","#CC79A7"),
             linetypes = "solid", linesizes = 0.5, shapes = 19, fills = "white",
