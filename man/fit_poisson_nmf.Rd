@@ -51,12 +51,16 @@ already provided.}
 \item{numiter}{The number of updates of the factors and loadings to
 perform.}
 
-\item{update.factors}{Describe "update.factors" argument here.}
+\item{update.factors}{Describe "update.factors" argument here. Note
+that loadings that are not updated may still be modified due to
+rescaling.}
 
-\item{update.loadings}{Describe "update.loadings" argument here.}
+\item{update.loadings}{Describe "update.loadings" argument
+here. Note that factors that are not updated may still be modified
+due to rescaling.}
 
 \item{method}{The method to use for updating the factors and
-loadings. Five methods are implemented: multiplicative updates,
+loadings. Four methods are implemented: multiplicative updates,
 \code{method = "mu"}; expectation maximization (EM), \code{method =
 "em"}; sequential co-ordinate descent (SCD), \code{method = "scd"};
 and cyclic co-ordinate descent (CCD), \code{method = "ccd"}. See
@@ -206,6 +210,11 @@ implementation is based on version 0.4-3 of the NNLM package.
 An additional re-scaling step is performed after each update to
 promote numerical stability.
 
+TO DO: Mention that both the log-likelihood (or deviance) and
+residuals of the KKT system are used to monitor progress. Explain
+what are the KKT conditions, and that the residuals should vanish
+at a solution.
+
 The \code{control} argument is a list in which any of the
 following named components will override the default optimization
 algorithm settings (as they are defined by
@@ -271,17 +280,17 @@ X <- simulate_count_data(80,100,3)$X
 # Run 20 EM updates to find a good initialization.
 fit0 <- fit_poisson_nmf(X,k = 3,numiter = 20,verbose = FALSE)
 
-# The fit_poisson_nmf interface implements 5 different algorithms 
+# The fit_poisson_nmf interface implements 4 different algorithms 
 # for optimizing a Poisson non-negative matrix factorization. Let's
 # run the different algoriths, and compare the quality of the fits.
-fit.mu     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
-                              method = "mu",verbose = FALSE)
-fit.em     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
-                              method = "em",verbose = FALSE)
-fit.ccd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
-                              method = "ccd",verbose = FALSE)
-fit.scd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
-                              method = "scd",verbose = FALSE)
+fit.mu  <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
+                           method = "mu",verbose = FALSE)
+fit.em  <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
+                           method = "em",verbose = FALSE)
+fit.ccd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
+                           method = "ccd",verbose = FALSE)
+fit.scd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
+                           method = "scd",verbose = FALSE)
 
 clrs <- c("royalblue","skyblue","darkorange","darkmagenta")
 fits <- list(mu = fit.mu,em = fit.em,ccd = fit.ccd,scd = fit.scd)
@@ -292,12 +301,12 @@ plot_progress_poisson_nmf(fits,y = "res",colors = clrs)
 # All algorithms except the multiplicative updates can handle
 # sparse matrices as well as dense ones.
 Y <- as(X,"dgCMatrix")
-fit.em.sp     <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 400,
-                                 method = "em",verbose = FALSE)
-fit.ccd.sp    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
-                                 method = "ccd",verbose = FALSE)
-fit.scd.sp    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
-                                 method = "scd",verbose = FALSE)
+fit.em.sp  <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 400,
+                              method = "em",verbose = FALSE)
+fit.ccd.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
+                              method = "ccd",verbose = FALSE)
+fit.scd.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
+                              method = "scd",verbose = FALSE)
 fits <- list(em = fit.em,ccd = fit.ccd,scd = fit.scd,em.sp = fit.em.sp,
              ccd.sp = fit.ccd.sp,scd.sp = fit.scd.sp)
 print(compare_poisson_nmf_fits(fits),digits = 8)

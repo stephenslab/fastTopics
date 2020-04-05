@@ -121,12 +121,16 @@
 #' @param numiter The number of updates of the factors and loadings to
 #'   perform.
 #'
-#' @param update.factors Describe "update.factors" argument here.
+#' @param update.factors Describe "update.factors" argument here. Note
+#'   that loadings that are not updated may still be modified due to
+#'   rescaling.
 #'
-#' @param update.loadings Describe "update.loadings" argument here.
+#' @param update.loadings Describe "update.loadings" argument
+#'   here. Note that factors that are not updated may still be modified
+#'   due to rescaling.
 #' 
 #' @param method The method to use for updating the factors and
-#'   loadings. Five methods are implemented: multiplicative updates,
+#'   loadings. Four methods are implemented: multiplicative updates,
 #'   \code{method = "mu"}; expectation maximization (EM), \code{method =
 #'   "em"}; sequential co-ordinate descent (SCD), \code{method = "scd"};
 #'   and cyclic co-ordinate descent (CCD), \code{method = "ccd"}. See
@@ -244,17 +248,17 @@
 #' # Run 20 EM updates to find a good initialization.
 #' fit0 <- fit_poisson_nmf(X,k = 3,numiter = 20,verbose = FALSE)
 #'
-#' # The fit_poisson_nmf interface implements 5 different algorithms 
+#' # The fit_poisson_nmf interface implements 4 different algorithms 
 #' # for optimizing a Poisson non-negative matrix factorization. Let's
 #' # run the different algoriths, and compare the quality of the fits.
-#' fit.mu     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
-#'                               method = "mu",verbose = FALSE)
-#' fit.em     <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
-#'                               method = "em",verbose = FALSE)
-#' fit.ccd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
-#'                               method = "ccd",verbose = FALSE)
-#' fit.scd    <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
-#'                               method = "scd",verbose = FALSE)
+#' fit.mu  <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
+#'                            method = "mu",verbose = FALSE)
+#' fit.em  <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
+#'                            method = "em",verbose = FALSE)
+#' fit.ccd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
+#'                            method = "ccd",verbose = FALSE)
+#' fit.scd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
+#'                            method = "scd",verbose = FALSE)
 #'
 #' clrs <- c("royalblue","skyblue","darkorange","darkmagenta")
 #' fits <- list(mu = fit.mu,em = fit.em,ccd = fit.ccd,scd = fit.scd)
@@ -265,12 +269,12 @@
 #' # All algorithms except the multiplicative updates can handle
 #' # sparse matrices as well as dense ones.
 #' Y <- as(X,"dgCMatrix")
-#' fit.em.sp     <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 400,
-#'                                  method = "em",verbose = FALSE)
-#' fit.ccd.sp    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
-#'                                  method = "ccd",verbose = FALSE)
-#' fit.scd.sp    <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
-#'                                  method = "scd",verbose = FALSE)
+#' fit.em.sp  <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 400,
+#'                               method = "em",verbose = FALSE)
+#' fit.ccd.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
+#'                               method = "ccd",verbose = FALSE)
+#' fit.scd.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
+#'                               method = "scd",verbose = FALSE)
 #' fits <- list(em = fit.em,ccd = fit.ccd,scd = fit.scd,em.sp = fit.em.sp,
 #'              ccd.sp = fit.ccd.sp,scd.sp = fit.scd.sp)
 #' print(compare_poisson_nmf_fits(fits),digits = 8)
@@ -381,7 +385,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-10).\n")
+    cat("(fastTopics 0.3-11).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -624,13 +628,15 @@ update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
   # Update the loadings ("activations"). The factors are forced to be
   # non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
-  fit$L <- update_loadings_poisson_nmf(X,fit$F,fit$L,method,control)
+  fit$L <- update_loadings_poisson_nmf(X,fit$F,fit$L,update.loadings,method,
+                                       control)
   fit$L <- pmax(fit$L,control$minval)
 
   # Update the factors ("basis vectors"). The loadings are forced to
   # be non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
-  fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,method,control)
+  fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,update.factors,method,
+                                      control)
   fit$F <- pmax(fit$F,control$minval)
 
   # The extrapolated and "current best" estimates are the same as the
@@ -668,7 +674,9 @@ update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
 #   betamax    upper bound on the extrapolation parameter
 #   beta0      extrapolation parameter setting from last improvement
 #
-update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
+update_poisson_nmf_extrapolated <- function (X, fit, update.loadings,
+                                             update.factors, method,
+                                             control) {
 
   # Store the value of the objective (loss) function at the current
   # iterate (Fn, Ly).
@@ -676,13 +684,15 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
 
   # Compute the extrapolated update for the loadings ("activations").
   # Note that when beta is zero, Ly = Ln.
-  Ln     <- update_loadings_poisson_nmf(X,fit$Fy,fit$Ly,method,control)
+  Ln     <- update_loadings_poisson_nmf(X,fit$Fy,fit$Ly,update.loadings,
+                                        method,control)
   Ln     <- pmax(Ln,control$minval)
   fit$Ly <- pmax(Ln + fit$beta*(Ln - fit$Ln),control$minval)
 
   # Compute the extrapolated update for the factors ("basis vectors").
   # Note that when beta = 0, Fy = Fn.
-  Fn     <- update_factors_poisson_nmf(X,fit$Fy,fit$Ly,method,control)
+  Fn     <- update_factors_poisson_nmf(X,fit$Fy,fit$Ly,update.factors,
+                                       method,control)
   Fn     <- pmax(Fn,control$minval)
   fit$Fy <- pmax(Fn + fit$beta*(Fn - fit$Fn),control$minval)
   
@@ -742,11 +752,11 @@ update_factors_poisson_nmf <- function (X, F, L, j, method, control) {
 }
   
 # Implements a single update of the loadings matrix.
-update_loadings_poisson_nmf <- function (X, F, L, method, control) {
+update_loadings_poisson_nmf <- function (X, F, L, i, method, control) {
   if (method == "mu")
     L <- betanmf_update_loadings(X,L,t(F))
   else if (method == "em")
-    L <- pnmfem_update_loadings(X,F,L,control$numiter,control$nc)
+    L <- pnmfem_update_loadings(X,F,L,i,control$numiter,control$nc)
   else if (method == "ccd")
     L <- ccd_update_loadings(X,L,t(F),control$nc,control$eps)
   else if (method == "scd")
