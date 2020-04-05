@@ -123,16 +123,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // pnmfem_update_factors_rcpp
-arma::mat pnmfem_update_factors_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, double numiter);
-RcppExport SEXP _fastTopics_pnmfem_update_factors_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP numiterSEXP) {
+arma::mat pnmfem_update_factors_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L, const arma::vec& j, double numiter);
+RcppExport SEXP _fastTopics_pnmfem_update_factors_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP, SEXP jSEXP, SEXP numiterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type j(jSEXP);
     Rcpp::traits::input_parameter< double >::type numiter(numiterSEXP);
-    rcpp_result_gen = Rcpp::wrap(pnmfem_update_factors_rcpp(X, F, L, numiter));
+    rcpp_result_gen = Rcpp::wrap(pnmfem_update_factors_rcpp(X, F, L, j, numiter));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -355,7 +356,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
     {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},
     {"_fastTopics_mixem_rcpp", (DL_FUNC) &_fastTopics_mixem_rcpp, 4},
-    {"_fastTopics_pnmfem_update_factors_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_rcpp, 4},
+    {"_fastTopics_pnmfem_update_factors_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_rcpp, 5},
     {"_fastTopics_pnmfem_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_sparse_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_parallel_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_sparse_parallel_rcpp, 4},

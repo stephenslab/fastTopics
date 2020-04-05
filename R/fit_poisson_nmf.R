@@ -41,6 +41,11 @@
 #' An additional re-scaling step is performed after each update to
 #' promote numerical stability.
 #'
+#' TO DO: Mention that both the log-likelihood (or deviance) and
+#' residuals of the KKT system are used to monitor progress. Explain
+#' what are the KKT conditions, and that the residuals should vanish
+#' at a solution.
+#' 
 #' The \code{control} argument is a list in which any of the
 #' following named components will override the default optimization
 #' algorithm settings (as they are defined by
@@ -115,6 +120,10 @@
 #'
 #' @param numiter The number of updates of the factors and loadings to
 #'   perform.
+#'
+#' @param update.factors Describe "update.factors" argument here.
+#'
+#' @param update.loadings Describe "update.loadings" argument here.
 #' 
 #' @param method The method to use for updating the factors and
 #'   loadings. Five methods are implemented: multiplicative updates,
@@ -292,6 +301,8 @@
 #' @export
 #'
 fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
+                             update.factors = seq(1,ncol(X)),
+                             update.loadings = seq(1,nrow(X)),
                              method = c("em","scd","ccd","mu"), 
                              control = list(), verbose = TRUE) {
 
@@ -330,7 +341,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # Check input argument "numiter".
   if (any(numiter < 1))
     stop("Input argument \"numiter\" must be 1 or greater")
-      
+
   # Check and process input argument "method".
   method <- match.arg(method)
   if (method == "mu" & is.sparse.matrix(X)) {
@@ -338,6 +349,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
             "attempting to convert \"X\" to a dense matrix")
     X <- as.matrix(X)
   }
+  # TO DO: Check that "update.factors" and "update.loadings" are
+  # compatible with "method".
   
   # Check and process the optimization settings.
   control <- modifyList(fit_poisson_nmf_control_default(),
@@ -368,7 +381,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-9).\n")
+    cat("(fastTopics 0.3-10).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -388,7 +401,9 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   if (verbose)
     cat("iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'|",
         "nz(F) nz(L) beta\n")
-  fit <- fit_poisson_nmf_main_loop(X,fit,numiter,method,control,verbose)
+  fit <- fit_poisson_nmf_main_loop(X,fit,numiter,update.factors,
+                                   update.loadings,method,control,
+                                   verbose)
 
   # Output the updated "fit".
   fit$progress     <- rbind(fit0$progress,fit$progress)
@@ -527,9 +542,10 @@ init_poisson_nmf <-
 }
 
 # This implements the core part of fit_poisson_nmf.
-fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
+fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
+                                       update.loadings, method, control,
                                        verbose) {
-
+    
   # Pre-compute quaantities and set up data structures used in the
   # loop below.
   loglik.const    <- sum(loglik_poisson_const(X))
@@ -550,13 +566,16 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
         
       # Perform an "extrapolated" update of the factors and loadings.
       extrapolate <- TRUE
-      fit <- update_poisson_nmf_extrapolated(X,fit,method,control)
+      fit <- update_poisson_nmf_extrapolated(X,fit,update.factors,
+                                             update.loadings,method,
+                                             control)
     } else {
 
       # Perform a basic coordinate-wise update of the factors and
       # loadings.
       extrapolate <- FALSE
-      fit <- update_poisson_nmf(X,fit,method,control)
+      fit <- update_poisson_nmf(X,fit,update.factors,update.loadings,
+                                method,control)
     }
     t2 <- proc.time()
     
@@ -568,7 +587,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
     progress[i,"loglik"]      <- loglik.const - fit$loss
     progress[i,"dev"]         <- dev.const + 2*fit$loss
     progress[i,"res"]         <- with(poisson_nmf_kkt(X,fit$F,fit$L),
-                                      max(abs(rbind(F,L))))
+                                      max(abs(rbind(F[update.factors,],
+                                                    L[update.loadings,]))))
     progress[i,"delta.f"]     <- max(abs(fit$F - fit0$F))
     progress[i,"delta.l"]     <- max(abs(fit$L - fit0$L))
     progress[i,"beta"]        <- fit$beta
@@ -598,7 +618,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, method, control,
 # in the return value; that is, Fy and Fn are the same as F, and Ly
 # and Ln are the same as L. The value of the loss function ("loss",
 # "loss.fnly") is also updated.
-update_poisson_nmf <- function (X, fit, method, control) {
+update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
+                                method, control) {
 
   # Update the loadings ("activations"). The factors are forced to be
   # non-negative, or positive; the latter can promote better
@@ -708,11 +729,11 @@ update_poisson_nmf_extrapolated <- function (X, fit, method, control) {
 }
 
 # Implements a single update of the factors matrix.
-update_factors_poisson_nmf <- function (X, F, L, method, control) {
+update_factors_poisson_nmf <- function (X, F, L, j, method, control) {
   if (method == "mu")
     F <- t(betanmf_update_factors(X,L,t(F)))
   else if (method == "em")
-    F <- pnmfem_update_factors(X,F,L,control$numiter,control$nc)
+    F <- pnmfem_update_factors(X,F,L,j,control$numiter,control$nc)
   else if (method == "ccd")
     F <- t(ccd_update_factors(X,L,t(F),control$nc,control$eps))
   else if (method == "scd")
@@ -733,7 +754,7 @@ update_loadings_poisson_nmf <- function (X, F, L, method, control) {
   return(L)
 }
 
-# Rescale the extrapolated, non-extrapolated and "current best"
+# Rescale the extrapolated, non-extrapolated, and "current best"
 # factors and loadings.
 rescale.fit <- function (fit) {
 

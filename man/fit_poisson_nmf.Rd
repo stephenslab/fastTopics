@@ -11,6 +11,8 @@ fit_poisson_nmf(
   k,
   fit0,
   numiter = 100,
+  update.factors = seq(1, ncol(X)),
+  update.loadings = seq(1, nrow(X)),
   method = c("em", "scd", "ccd", "mu"),
   control = list(),
   verbose = TRUE
@@ -48,6 +50,10 @@ already provided.}
 
 \item{numiter}{The number of updates of the factors and loadings to
 perform.}
+
+\item{update.factors}{Describe "update.factors" argument here.}
+
+\item{update.loadings}{Describe "update.loadings" argument here.}
 
 \item{method}{The method to use for updating the factors and
 loadings. Five methods are implemented: multiplicative updates,

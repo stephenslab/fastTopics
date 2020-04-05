@@ -85,8 +85,9 @@ struct pnmfem_factor_updater_sparse : public RcppParallel::Worker {
 // FUNCTION DEFINITIONS
 // --------------------
 // Perform one or several EM updates for the factors matrix, F, in
-// which the matrix X is approximated by L*F. Input "numiter"
-// specifies the number of EM updates to perform.
+// which the matrix X is approximated by L*F. Input "k" specifies
+// which columns of F are updated. Input "numiter" specifies the
+// number of EM updates to perform.
 //
 // Note that, unlike most other functions implemented in this package,
 // the factors matrix F should be a k x m matrix, where k is the
@@ -97,15 +98,16 @@ struct pnmfem_factor_updater_sparse : public RcppParallel::Worker {
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::mat pnmfem_update_factors_rcpp (const arma::mat& X, const arma::mat& F,
-				      const arma::mat& L, double numiter) {
-  unsigned int m = X.n_cols;
+				      const arma::mat& L, const arma::vec& j,
+				      double numiter) {
+  unsigned int n = j.n_elem;
   vec  u    = sum(L,0);
   mat  L1   = L;
   mat  P    = L;
   mat  Fnew = F;
   normalizecols(L1);
-  for (unsigned int j = 0; j < m; j++)
-    Fnew.col(j) = pnmfem_update_factor(X,F,L1,u,P,j,numiter);
+  for (unsigned int i = 0; i < n; i++)
+    Fnew.col(j(i)) = pnmfem_update_factor(X,F,L1,u,P,j(i),numiter);
   return Fnew;
 }
 

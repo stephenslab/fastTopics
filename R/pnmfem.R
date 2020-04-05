@@ -12,11 +12,12 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
-pnmfem_update_factors <- function (X, F, L, numiter = 1, nc = 1) {
+pnmfem_update_factors <- function (X, F, L, j = seq(1,ncol(X)),
+                                   numiter = 1, nc = 1) {
   F <- t(F)
   if (nc == 1) {
     if (is.matrix(X))
-      F <- pnmfem_update_factors_rcpp(X,F,L,numiter)
+      F <- pnmfem_update_factors_rcpp(X,F,L,j,numiter)
     else if (is.sparse.matrix(X))
       F <- pnmfem_update_factors_sparse_rcpp(X,F,L,numiter)
   } else if (nc > 1) {
