@@ -40,12 +40,13 @@ struct pnmfem_factor_updater : public RcppParallel::Worker {
   mat          L1;
   vec          u;
   mat&         Fnew;
+  const vec&   j;
   unsigned int numiter;
 
   // This is used to create a pnmfem_factor_updater object.
   pnmfem_factor_updater (const mat& X, const mat& F, const mat& L, 
-			 mat& Fnew, unsigned int numiter) :
-    X(X), F(F), L1(L), u(L.n_cols), Fnew(Fnew), numiter(numiter) { 
+			 mat& Fnew, const vec& j, unsigned int numiter) :
+    X(X), F(F), L1(L), u(L.n_cols), Fnew(Fnew), j(j), numiter(numiter) { 
     u = sum(L,0);
     normalizecols(L1);
   };
@@ -53,8 +54,8 @@ struct pnmfem_factor_updater : public RcppParallel::Worker {
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
     mat P = L1;
-    for (unsigned int j = begin; j < end; j++)
-      Fnew.col(j) = pnmfem_update_factor(X,F,L1,u,P,j,numiter);
+    for (unsigned int i = begin; i < end; i++)
+      Fnew.col(j(i)) = pnmfem_update_factor(X,F,L1,u,P,j(i),numiter);
   }
 };
 
@@ -66,19 +67,22 @@ struct pnmfem_factor_updater_sparse : public RcppParallel::Worker {
   mat           L1;
   vec           u;
   mat&          Fnew;
+  const vec&    j;
   unsigned int  numiter;
 
   // This is used to create a pnmfem_factor_updater object.
   pnmfem_factor_updater_sparse (const sp_mat& X, const mat& F, const mat& L, 
-				mat& Fnew, unsigned int numiter) :
-    X(X), F(F), L1(L), u(L.n_cols), Fnew(Fnew), numiter(numiter) {
+				mat& Fnew, const vec& j, 
+				unsigned int numiter) :
+    X(X), F(F), L1(L), u(L.n_cols), Fnew(Fnew), j(j), numiter(numiter) {
     u = sum(L,0);
     normalizecols(L1);
   };
+
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    for (unsigned int j = begin; j < end; j++)
-      Fnew.col(j) = pnmfem_update_factor_sparse(X,F,L1,u,j,numiter);
+    for (unsigned int i = begin; i < end; i++)
+      Fnew.col(j(i)) = pnmfem_update_factor_sparse(X,F,L1,u,j(i),numiter);
   }
 };
 
@@ -118,14 +122,15 @@ arma::mat pnmfem_update_factors_rcpp (const arma::mat& X, const arma::mat& F,
 arma::mat pnmfem_update_factors_sparse_rcpp (const arma::sp_mat& X,
 					     const arma::mat& F,
 					     const arma::mat& L,
+					     const arma::vec& j,
 					     double numiter) {
-  unsigned int m = X.n_cols;
+  unsigned int n = j.n_elem;
   vec  u    = sum(L,0);
   mat  L1   = L;
   mat  Fnew = F;
   normalizecols(L1);
-  for (unsigned int j = 0; j < m; j++)
-    Fnew.col(j) = pnmfem_update_factor_sparse(X,F,L1,u,j,numiter);
+  for (unsigned int i = 0; i < n; i++)
+    Fnew.col(j(i)) = pnmfem_update_factor_sparse(X,F,L1,u,j(i),numiter);
   return Fnew;
 }
 
@@ -138,10 +143,11 @@ arma::mat pnmfem_update_factors_sparse_rcpp (const arma::sp_mat& X,
 arma::mat pnmfem_update_factors_parallel_rcpp (const arma::mat& X,
 					       const arma::mat& F,
 					       const arma::mat& L,
+					       const arma::vec& j,
 					       double numiter) {
   mat Fnew = F;
-  pnmfem_factor_updater worker(X,F,L,Fnew,numiter);
-  parallelFor(0,X.n_cols,worker);
+  pnmfem_factor_updater worker(X,F,L,Fnew,j,numiter);
+  parallelFor(0,j.n_elem,worker);
   return Fnew;
 }
 
@@ -153,9 +159,10 @@ arma::mat pnmfem_update_factors_parallel_rcpp (const arma::mat& X,
 arma::mat pnmfem_update_factors_sparse_parallel_rcpp (const arma::sp_mat& X,
 						      const arma::mat& F,
 						      const arma::mat& L,
+						      const arma::vec& j,
 						      double numiter) {
   mat Fnew = F;
-  pnmfem_factor_updater_sparse worker(X,F,L,Fnew,numiter);
-  parallelFor(0,X.n_cols,worker);
+  pnmfem_factor_updater_sparse worker(X,F,L,Fnew,j,numiter);
+  parallelFor(0,j.n_elem,worker);
   return Fnew;
 }

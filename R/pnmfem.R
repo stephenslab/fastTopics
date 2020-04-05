@@ -20,12 +20,12 @@ pnmfem_update_factors <- function (X, F, L, j = seq(1,ncol(X)),
     if (is.matrix(X))
       F <- pnmfem_update_factors_rcpp(X,F,L,j-1,numiter)
     else if (is.sparse.matrix(X))
-      F <- pnmfem_update_factors_sparse_rcpp(X,F,L,numiter)
+      F <- pnmfem_update_factors_sparse_rcpp(X,F,L,j-1,numiter)
   } else if (nc > 1) {
     if (is.matrix(X))
-      F <- pnmfem_update_factors_parallel_rcpp(X,F,L,numiter)
+      F <- pnmfem_update_factors_parallel_rcpp(X,F,L,j-1,numiter)
     else if (is.sparse.matrix(X))
-      F <- pnmfem_update_factors_sparse_parallel_rcpp(X,F,L,numiter)
+      F <- pnmfem_update_factors_sparse_parallel_rcpp(X,F,L,j-1,numiter)
   }
   return(t(F))
 }
@@ -54,12 +54,12 @@ pnmfem_update_loadings <- function (X, F, L, i = seq(1,nrow(X)),
     if (is.matrix(X))
       L <- pnmfem_update_factors_rcpp(X,L,F,i-1,numiter)
     else if (is.sparse.matrix(X))
-      L <- pnmfem_update_factors_sparse_rcpp(X,L,F,numiter)
+      L <- pnmfem_update_factors_sparse_rcpp(X,L,F,i-1,numiter)
   } else if (nc > 1) {
     if (is.matrix(X))
-      L <- pnmfem_update_factors_parallel_rcpp(X,L,F,numiter)
+      L <- pnmfem_update_factors_parallel_rcpp(X,L,F,i-1,numiter)
     else if (is.sparse.matrix(X))
-      L <- pnmfem_update_factors_sparse_parallel_rcpp(X,L,F,numiter)
+      L <- pnmfem_update_factors_sparse_parallel_rcpp(X,L,F,i-1,numiter)
   }
   return(t(L))
 }
