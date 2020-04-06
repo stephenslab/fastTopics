@@ -35,7 +35,7 @@ pnmfem_update_factors <- function (X, F, L, j = seq(1,ncol(X)),
 # updates are equivalent to multiplicative updates, but computation is
 # implemented differently. Inputs F and L should be dense matrices
 # ("is.matrix" should return TRUE), but for X both dense matrices and
-# sparse matrices are supported ("matrix" and "dgCMatrix" classes).  #
+# sparse matrices are supported ("matrix" and "dgCMatrix" classes). 
 # Input "i" specifies which rows of L to update; by default, all rows
 # are updated. Input "numiter" specifies the number of EM updates to
 # perform, and input "nc" specifies the number of threads to use in

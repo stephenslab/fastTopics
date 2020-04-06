@@ -270,9 +270,9 @@ test_that("scd updates and nnmf from NNLM package produce same result",{
   # Run 20 sequential coordinate descent (SCD) updates as they are
   # implemented in the fastTopics package.
   fit2 <- iterate_updates(X,F,L,numiter,
-            function (X,F,L) t(scd_update_factors(X,L,t(F),4,runem = FALSE)),
-            function (X,F,L) scd_update_loadings(X,L,t(F),4,runem = FALSE),
-            factors_first = FALSE)
+    function (X,F,L) t(scd_update_factors(X,L,t(F),numiter = 4,runem = FALSE)),
+    function (X,F,L) scd_update_loadings(X,L,t(F),numiter = 4,runem = FALSE),
+    factors_first = FALSE)
 
   expect_equivalent(fit1$W,fit2$L,tolerance = 1e-12,scale = 1)
   expect_equivalent(t(fit1$H),fit2$F,tolerance = 1e-12,scale = 1)

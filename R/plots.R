@@ -169,17 +169,17 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
     ylab <- paste("distance from best",y)
   return(ggplot(pdat,aes_string(x = x,y = y,color = "method",
                                 linetype = "method",size = "method")) +
-    geom_line(na.rm = TRUE) +
-    geom_point(data = pdat[rows,],
-               mapping = aes_string(x = x,y = y,color = "method",
-                                    fill = "method",shape = "method"),
-               inherit.aes = FALSE,na.rm = TRUE) +
-    scale_y_continuous(trans = "log10") +
-    scale_color_manual(values = colors) +
-    scale_linetype_manual(values = linetypes) +
-    scale_size_manual(values = linesizes) +
-    scale_shape_manual(values = shapes) +
-    scale_fill_manual(values = fills) +
-    labs(x = xlab,y = ylab) +
-    theme())
+         geom_line(na.rm = TRUE) +
+         geom_point(data = pdat[rows,],
+                    mapping = aes_string(x = x,y = y,color = "method",
+                                         fill = "method",shape = "method"),
+                    inherit.aes = FALSE,na.rm = TRUE) +
+         scale_y_continuous(trans = "log10") +
+         scale_color_manual(values = colors) +
+         scale_linetype_manual(values = linetypes) +
+         scale_size_manual(values = linesizes) +
+         scale_shape_manual(values = shapes) +
+         scale_fill_manual(values = fills) +
+         labs(x = xlab,y = ylab) +
+         theme())
 }

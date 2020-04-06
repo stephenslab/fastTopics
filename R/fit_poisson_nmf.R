@@ -123,11 +123,11 @@
 #'
 #' @param update.factors Describe "update.factors" argument here. Note
 #'   that loadings that are not updated may still be modified due to
-#'   rescaling.
+#'   rescaling. Only implemented for "em" and "scd" methods.
 #'
 #' @param update.loadings Describe "update.loadings" argument
 #'   here. Note that factors that are not updated may still be modified
-#'   due to rescaling.
+#'   due to rescaling. Only implemented for "em" and "scd" methods.
 #' 
 #' @param method The method to use for updating the factors and
 #'   loadings. Four methods are implemented: multiplicative updates,
@@ -348,6 +348,10 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   if (any(numiter < 1))
     stop("Input argument \"numiter\" must be 1 or greater")
 
+  # Process input arguments "update.factors" and "update.loadings".
+  update.factors  <- sort(update.factors)
+  update.loadings <- sort(update.loadings)
+  
   # Check and process input argument "method".
   method <- match.arg(method)
   if (method == "mu" & is.sparse.matrix(X)) {
@@ -355,8 +359,10 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
             "attempting to convert \"X\" to a dense matrix")
     X <- as.matrix(X)
   }
-  # TO DO: Check that "update.factors" and "update.loadings" are
-  # compatible with "method".
+  if (!(all(update.factors == 1:m) & all(update.loadings == 1:n)))
+    if (method == "mu" | method == "ccd")
+      stop("All factors and loadings must be updated for method = \"mu\" ",
+           "and method = \"ccd\"")
   
   # Check and process the optimization settings.
   control <- modifyList(fit_poisson_nmf_control_default(),
@@ -387,7 +393,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-14).\n")
+    cat("(fastTopics 0.3-15).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -684,8 +690,8 @@ update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
 #   betamax    upper bound on the extrapolation parameter
 #   beta0      extrapolation parameter setting from last improvement
 #
-update_poisson_nmf_extrapolated <- function (X, fit, update.loadings,
-                                             update.factors, method,
+update_poisson_nmf_extrapolated <- function (X, fit, update.factors,
+                                             update.loadings, method,
                                              control) {
 
   # Store the value of the objective (loss) function at the current
@@ -757,7 +763,8 @@ update_factors_poisson_nmf <- function (X, F, L, j, method, control) {
   else if (method == "ccd")
     F <- t(ccd_update_factors(X,L,t(F),control$nc,control$eps))
   else if (method == "scd")
-    F <- t(scd_update_factors(X,L,t(F),control$numiter,control$nc,control$eps))
+    F <- t(scd_update_factors(X,L,t(F),j,control$numiter,control$nc,
+                              control$eps))
   return(F)
 }
   
@@ -770,7 +777,7 @@ update_loadings_poisson_nmf <- function (X, F, L, i, method, control) {
   else if (method == "ccd")
     L <- ccd_update_loadings(X,L,t(F),control$nc,control$eps)
   else if (method == "scd")
-    L <- scd_update_loadings(X,L,t(F),control$numiter,control$nc,control$eps)
+    L <- scd_update_loadings(X,L,t(F),i,control$numiter,control$nc,control$eps)
   return(L)
 }
 
