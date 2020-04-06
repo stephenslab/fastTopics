@@ -16,7 +16,9 @@
 #'   non-empty, named list in which each list element is an object of
 #'   class \code{"poisson_nmf_fit"}.
 #'
-#' @param x Describe "x" argument here.
+#' @param x Choose \code{"timing"} to plot improvement in the solution
+#'   over time, or choose \code{"iter"} to plot improvement in the
+#'   solution per iteration.
 #' 
 #' @param y Column of the "progress" data frame used to assess
 #'   progress of the Poisson NMF optimization method(s). Should be one

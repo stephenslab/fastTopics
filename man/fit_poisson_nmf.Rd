@@ -53,11 +53,11 @@ perform.}
 
 \item{update.factors}{Describe "update.factors" argument here. Note
 that loadings that are not updated may still be modified due to
-rescaling.}
+rescaling. Only implemented for "em" and "scd" methods.}
 
 \item{update.loadings}{Describe "update.loadings" argument
 here. Note that factors that are not updated may still be modified
-due to rescaling.}
+due to rescaling. Only implemented for "em" and "scd" methods.}
 
 \item{method}{The method to use for updating the factors and
 loadings. Four methods are implemented: multiplicative updates,
