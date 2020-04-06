@@ -290,62 +290,66 @@ BEGIN_RCPP
 END_RCPP
 }
 // scd_update_factors_rcpp
-arma::mat scd_update_factors_rcpp(const arma::mat& A, const arma::mat& W, const arma::mat& H, unsigned int numiter, double e);
-RcppExport SEXP _fastTopics_scd_update_factors_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP numiterSEXP, SEXP eSEXP) {
+arma::mat scd_update_factors_rcpp(const arma::mat& A, const arma::mat& W, const arma::mat& H, const arma::vec& j, unsigned int numiter, double e);
+RcppExport SEXP _fastTopics_scd_update_factors_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP jSEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type j(jSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(scd_update_factors_rcpp(A, W, H, numiter, e));
+    rcpp_result_gen = Rcpp::wrap(scd_update_factors_rcpp(A, W, H, j, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // scd_update_factors_sparse_rcpp
-arma::mat scd_update_factors_sparse_rcpp(const arma::sp_mat& A, const arma::mat& W, const arma::mat& H, unsigned int numiter, double e);
-RcppExport SEXP _fastTopics_scd_update_factors_sparse_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP numiterSEXP, SEXP eSEXP) {
+arma::mat scd_update_factors_sparse_rcpp(const arma::sp_mat& A, const arma::mat& W, const arma::mat& H, const arma::vec& j, unsigned int numiter, double e);
+RcppExport SEXP _fastTopics_scd_update_factors_sparse_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP jSEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::sp_mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type j(jSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(scd_update_factors_sparse_rcpp(A, W, H, numiter, e));
+    rcpp_result_gen = Rcpp::wrap(scd_update_factors_sparse_rcpp(A, W, H, j, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // scd_update_factors_parallel_rcpp
-arma::mat scd_update_factors_parallel_rcpp(const arma::mat& A, const arma::mat& W, const arma::mat& H, unsigned int numiter, double e);
-RcppExport SEXP _fastTopics_scd_update_factors_parallel_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP numiterSEXP, SEXP eSEXP) {
+arma::mat scd_update_factors_parallel_rcpp(const arma::mat& A, const arma::mat& W, const arma::mat& H, const arma::vec& j, unsigned int numiter, double e);
+RcppExport SEXP _fastTopics_scd_update_factors_parallel_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP jSEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type j(jSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(scd_update_factors_parallel_rcpp(A, W, H, numiter, e));
+    rcpp_result_gen = Rcpp::wrap(scd_update_factors_parallel_rcpp(A, W, H, j, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
 // scd_update_factors_sparse_parallel_rcpp
-arma::mat scd_update_factors_sparse_parallel_rcpp(const arma::sp_mat& A, const arma::mat& W, const arma::mat& H, unsigned int numiter, double e);
-RcppExport SEXP _fastTopics_scd_update_factors_sparse_parallel_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP numiterSEXP, SEXP eSEXP) {
+arma::mat scd_update_factors_sparse_parallel_rcpp(const arma::sp_mat& A, const arma::mat& W, const arma::mat& H, const arma::vec& j, unsigned int numiter, double e);
+RcppExport SEXP _fastTopics_scd_update_factors_sparse_parallel_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP jSEXP, SEXP numiterSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::sp_mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type W(WSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type j(jSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(scd_update_factors_sparse_parallel_rcpp(A, W, H, numiter, e));
+    rcpp_result_gen = Rcpp::wrap(scd_update_factors_sparse_parallel_rcpp(A, W, H, j, numiter, e));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -370,10 +374,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_scd_kl_update2_rcpp", (DL_FUNC) &_fastTopics_scd_kl_update2_rcpp, 6},
     {"_fastTopics_ccd_kl_update_rcpp", (DL_FUNC) &_fastTopics_ccd_kl_update_rcpp, 5},
     {"_fastTopics_ccd_kl_update2_rcpp", (DL_FUNC) &_fastTopics_ccd_kl_update2_rcpp, 6},
-    {"_fastTopics_scd_update_factors_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_rcpp, 5},
-    {"_fastTopics_scd_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_sparse_rcpp, 5},
-    {"_fastTopics_scd_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_parallel_rcpp, 5},
-    {"_fastTopics_scd_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_sparse_parallel_rcpp, 5},
+    {"_fastTopics_scd_update_factors_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_rcpp, 6},
+    {"_fastTopics_scd_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_sparse_rcpp, 6},
+    {"_fastTopics_scd_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_parallel_rcpp, 6},
+    {"_fastTopics_scd_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_sparse_parallel_rcpp, 6},
     {NULL, NULL, 0}
 };
 

@@ -6,11 +6,12 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-void scd_update_factors (const mat& A, const mat& W, mat& H, 
+void scd_update_factors (const mat& A, const mat& W, mat& H, const vec& j,
 			 unsigned int numiter, double e);
 
 void scd_update_factors_sparse (const sp_mat& A, const mat& W, mat& H,
-				unsigned int numiter, double e);
+				const vec& j, unsigned int numiter, 
+				double e);
 
 // INLINE FUNCTION DEFINITIONS
 // ---------------------------
@@ -44,18 +45,19 @@ struct scd_factor_updater : public RcppParallel::Worker {
   const mat&   A;
   const mat&   W;
   mat&         H;
-  double       e;
+  const vec&   j;
   unsigned int numiter;
+  double       e;
 
   // This is used to create a scd_factor_updater object.
-  scd_factor_updater (const mat& A, const mat& W, mat& H, 
+  scd_factor_updater (const mat& A, const mat& W, mat& H, const vec& j,
 		      unsigned int numiter, double e) :
-    A(A), W(W), H(H), e(e), numiter(numiter) { };
+    A(A), W(W), H(H), j(j), numiter(numiter), e(e) { };
 
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    for (unsigned int j = begin; j < end; j++)
-      scd_update_factor(A,W,H,j,numiter,e);
+    for (unsigned int i = begin; i < end; i++)
+      scd_update_factor(A,W,H,j(i),numiter,e);
   }
 };
 
@@ -66,20 +68,21 @@ struct scd_factor_updater_sparse : public RcppParallel::Worker {
   const mat&    W;
   vec           sumw;
   mat&          H;
+  const vec&    j;
   unsigned int  numiter;
   double        e;
 
   // This is used to create a scd_factor_updater_sparse object.
-  scd_factor_updater_sparse (const sp_mat& A, const mat& W, mat& H,
-			     unsigned int numiter, double e) :
-    A(A), W(W), sumw(W.n_cols), H(H), numiter(numiter), e(e) {
+  scd_factor_updater_sparse (const sp_mat& A, const mat& W, mat& H, 
+			     const vec& j, unsigned int numiter, double e) :
+    A(A), W(W), sumw(W.n_cols), H(H), j(j), numiter(numiter), e(e) {
     sumw = sum(W,0);
   };
-
+ 
   // This function updates the factors for a given range of columns.
   void operator() (std::size_t begin, std::size_t end) {
-    for (unsigned int j = begin; j < end; j++)
-      scd_update_factor_sparse(A,W,sumw,H,j,numiter,e);
+    for (unsigned int i = begin; i < end; i++)
+      scd_update_factor_sparse(A,W,sumw,H,j(i),numiter,e);
   }
 };
 
@@ -102,10 +105,10 @@ struct scd_factor_updater_sparse : public RcppParallel::Worker {
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::mat scd_update_factors_rcpp (const arma::mat& A, const arma::mat& W,
-				   const arma::mat& H, unsigned int numiter,
-				   double e) {
+				   const arma::mat& H, const arma::vec& j,
+				   unsigned int numiter, double e) {
   mat Hnew = H;
-  scd_update_factors(A,W,Hnew,numiter,e);
+  scd_update_factors(A,W,Hnew,j,numiter,e);
   return Hnew;
 }
 
@@ -116,10 +119,11 @@ arma::mat scd_update_factors_rcpp (const arma::mat& A, const arma::mat& W,
 arma::mat scd_update_factors_sparse_rcpp (const arma::sp_mat& A,
 					  const arma::mat& W,
 					  const arma::mat& H,
+					  const arma::vec& j,
 					  unsigned int numiter, 
 					  double e) {
   mat Hnew = H;
-  scd_update_factors_sparse(A,W,Hnew,numiter,e);
+  scd_update_factors_sparse(A,W,Hnew,j,numiter,e);
   return Hnew;
 }
 
@@ -132,11 +136,12 @@ arma::mat scd_update_factors_sparse_rcpp (const arma::sp_mat& A,
 arma::mat scd_update_factors_parallel_rcpp (const arma::mat& A, 
 					    const arma::mat& W,
 					    const arma::mat& H, 
+					    const arma::vec& j,
 					    unsigned int numiter, 
 					    double e) {
   mat Hnew = H;
-  scd_factor_updater worker(A,W,Hnew,numiter,e);
-  parallelFor(0,H.n_cols,worker);
+  scd_factor_updater worker(A,W,Hnew,j,numiter,e);
+  parallelFor(0,j.n_elem,worker);
   return Hnew;
 }
 
@@ -148,29 +153,30 @@ arma::mat scd_update_factors_parallel_rcpp (const arma::mat& A,
 arma::mat scd_update_factors_sparse_parallel_rcpp (const arma::sp_mat& A, 
 						   const arma::mat& W,
 						   const arma::mat& H, 
+						   const arma::vec& j,
 						   unsigned int numiter, 
 						   double e) {
   mat Hnew = H;
-  scd_factor_updater_sparse worker(A,W,Hnew,numiter,e);
-  parallelFor(0,H.n_cols,worker);
+  scd_factor_updater_sparse worker(A,W,Hnew,j,numiter,e);
+  parallelFor(0,j.n_elem,worker);
   return Hnew;
 }
 
 // Iterate the SCD updates over all columns of H, in which A is
 // approximated by the matrix product W*H.
-void scd_update_factors (const mat& A, const mat& W, mat& H,
+void scd_update_factors (const mat& A, const mat& W, mat& H, const vec& j,
 			 unsigned int numiter, double e) {
-  unsigned int m = H.n_cols;
-  for (unsigned int j = 0; j < m; j++)
-    scd_update_factor(A,W,H,j,numiter,e);
+  unsigned int n = j.n_elem;
+  for (unsigned int i = 0; i < n; i++)
+    scd_update_factor(A,W,H,j(i),numiter,e);
 }
 
 // This is the same as scd_update_factors, except that the count data are
 // stored as a sparse matrix.
 void scd_update_factors_sparse (const sp_mat& A, const mat& W, mat& H,
-				unsigned int numiter, double e) {
-  unsigned int m    = H.n_cols;
+				const vec& j, unsigned int numiter, double e) {
+  unsigned int n    = j.n_elem;
   vec          sumw = sum(W,0);
-  for (unsigned int j = 0; j < m; j++)
-    scd_update_factor_sparse(A,W,sumw,H,j,numiter,e);
+  for (unsigned int i = 0; i < n; i++)
+    scd_update_factor_sparse(A,W,sumw,H,j(i),numiter,e);
 }

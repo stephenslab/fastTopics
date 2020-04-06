@@ -10,6 +10,10 @@
 # minimum value of the updated loadings. A positive value of "e"
 # promotes better convergence of the EM updates.
 #
+# Note that the RcppParallel multithreading (specified by argument
+# "nc") will only work correctly if the number of threads is set
+# beforehand using RcppParallel::setThreadOptions.
+#
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
@@ -42,6 +46,10 @@ pnmfem_update_factors <- function (X, F, L, j = seq(1,ncol(X)),
 # the multithreaded updates. Input argument "e" is a non-negative
 # scalar specifying the minimum value of the updated loadings. A
 # positive value of "e" promotes better convergence of the EM updates.
+#
+# Note that the RcppParallel multithreading (specified by argument
+# "nc") will only work correctly if the number of threads is set
+# beforehand using RcppParallel::setThreadOptions.
 #
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs

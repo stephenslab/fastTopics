@@ -8,6 +8,10 @@
 # Note that a single EM update of each factor is performed before
 # running the CCD updates.
 #
+# Also note that the RcppParallel multithreading (specified by
+# argument "nc") will only work correctly if the number of threads is
+# set beforehand using RcppParallel::setThreadOptions.
+#
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #'
@@ -43,6 +47,10 @@ ccd_update_factors <- function (V, W, H, nc = 1, e = 1e-15) {
 #
 # Note that a single EM update of the loadings is performed before
 # running the CCD updates.
+#
+# Also note that the RcppParallel multithreading (specified by
+# argument "nc") will only work correctly if the number of threads is
+# set beforehand using RcppParallel::setThreadOptions.
 #
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs

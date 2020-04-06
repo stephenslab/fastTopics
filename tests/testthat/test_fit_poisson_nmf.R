@@ -21,7 +21,7 @@ test_that(paste("fit$progress$loglik and fit$progress$dev agree with",
   # Run 50 SCD updates.
   capture.output(
     fit <- fit_poisson_nmf(X,fit0 = fit0,numiter = 50,method = "scd",
-                           control = list(extrapolate = TRUE,nc = 4)))
+                           control = list(extrapolate = TRUE,nc = 1)))
 
   # Check that the log-likelihood and deviance calculations agree with
   # loglik_poisson_nmf and deviance_poisson_nmf.
@@ -250,7 +250,7 @@ test_that(paste("When initialized \"close enough\" to a stationary point, the",
 })
 
 test_that("scd updates and nnmf from NNLM package produce same result",{
- 
+
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
   k   <- 3
