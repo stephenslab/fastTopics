@@ -105,7 +105,8 @@ plot_progress_poisson_nmf <-
       stop(msg)
   }
 
-  # Check and process input argument "y".
+  # Check and process input arguments "x" and "y".
+  x <- match.arg(x)
   y <- match.arg(y)
 
   # Check and process input arguments "colors", "linetypes",
@@ -132,7 +133,7 @@ plot_progress_poisson_nmf <-
   # -----------
   # Create the plot showing the improvement in the log-likelihood,
   # deviance, or maximum KKT residual over time.
-  return(create_progress_plot(pdat,y,add.point.every,colors,linetypes,
+  return(create_progress_plot(pdat,x,y,add.point.every,colors,linetypes,
                               linesizes,shapes,fills,theme))
 }
 
@@ -143,7 +144,7 @@ prepare_progress_plot_data <- function (fits, e) {
   labels <- names(fits)
   for (i in 1:n) {
     y         <- fits[[i]]$progress
-    y         <- cbind(data.frame("method" = labels[i],"iter" = 1:nrow(y)),y)
+    y         <- cbind(data.frame("method" = labels[i]),y)
     y$timing  <- cumsum(y$timing)
     fits[[i]] <- y
   }
@@ -155,18 +156,22 @@ prepare_progress_plot_data <- function (fits, e) {
 }
 
 # Used by plot_progress_poisson_nmf to create the plot.
-create_progress_plot <- function (pdat, y, add.point.every, colors, linetypes,
-                                  linesizes, shapes, fills, theme) {
+create_progress_plot <- function (pdat, x, y, add.point.every, colors,
+                                  linetypes, linesizes, shapes, fills, theme) {
   rows <- which(pdat$iter %% add.point.every == 1)
+  if (x == "timing")
+    xlab <- "runtime (s)"
+  else if (x == "iter")
+    xlab <- "iteration"
   if (y == "res")
     ylab <- "max KKT residual"
-  else
+  else if (y == "loglik" | y == "dev")
     ylab <- paste("distance from best",y)
-  return(ggplot(pdat,aes_string(x = "timing",y = y,color = "method",
+  return(ggplot(pdat,aes_string(x = x,y = y,color = "method",
                                 linetype = "method",size = "method")) +
     geom_line(na.rm = TRUE) +
     geom_point(data = pdat[rows,],
-               mapping = aes_string(x = "timing",y = y,color = "method",
+               mapping = aes_string(x = x,y = y,color = "method",
                                     fill = "method",shape = "method"),
                inherit.aes = FALSE,na.rm = TRUE) +
     scale_y_continuous(trans = "log10") +
@@ -175,6 +180,6 @@ create_progress_plot <- function (pdat, y, add.point.every, colors, linetypes,
     scale_size_manual(values = linesizes) +
     scale_shape_manual(values = shapes) +
     scale_fill_manual(values = fills) +
-    labs(x = "runtime (s)",y = ylab) +
+    labs(x = xlab,y = ylab) +
     theme())
 }
