@@ -365,7 +365,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
             "attempting to convert \"X\" to a dense matrix")
     X <- as.matrix(X)
   }
-  if (!(all(update.factors == 1:m) & all(update.loadings == 1:n)))
+  if (!(length(update.factors) == m & length(update.loadings) == n))
     if (method == "mu" | method == "ccd")
       stop("All factors and loadings must be updated for method = \"mu\" ",
            "and method = \"ccd\"")
@@ -399,7 +399,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-18).\n")
+    cat("(fastTopics 0.3-19).\n")
   }
   
   # INITIALIZE ESTIMATES

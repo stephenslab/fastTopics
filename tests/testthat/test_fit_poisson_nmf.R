@@ -433,3 +433,70 @@ test_that("Re-fitting yields same result as one call to fit_poisson_nmf",{
   fit2$progress$timing <- NULL
   expect_equal(fit1,fit2)
 })
+
+test_that("Fixed factors and loadings to not change (aside from rescaling)",{
+
+  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  n   <- 80
+  m   <- 100
+  k   <- 3
+  out <- generate_test_data(n,m,k)
+  X   <- out$X
+  Y   <- as(X,"dgCMatrix")
+
+  # Select which factors and loadings to update.
+  n1 <- 75
+  m1 <- 90
+  i  <- sample(n,n1)
+  j  <- sample(m,m1)
+  i0 <- setdiff(1:n,i)
+  j0 <- setdiff(1:m,j)
+  
+  # Run all variants of the EM algorithm.
+  numiter <- 20
+  fit0    <- init_poisson_nmf(X,F = out$F,L = out$L)
+  capture.output(
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,
+                            update.factors = j,update.loadings = i,
+                            method = "em",control = list(nc = 1)))
+  capture.output(
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,
+                            update.factors = j,update.loadings = i,
+                            method = "em",control = list(nc = 4)))
+  capture.output(
+    fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "em",
+                            update.factors = j,update.loadings = i,
+                            control = list(nc = 1)))
+  capture.output(
+    fit4 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "em",
+                            update.factors = j,update.loadings = i,
+                            control = list(nc = 4)))
+
+  # The factors that are not selected for updating should not change,
+  # aside from a rescaling.
+  compare_factors_ignoring_rescaling <- function (fit1, fit2, j)
+    abs(max(apply(fit2$F[j,]/fit1$F[j,],2,diff)))
+  expect_equal(compare_factors_ignoring_rescaling(fit0,fit1,j0),0,
+               scale = 1,tolerance = 1e-15)
+  expect_equal(compare_factors_ignoring_rescaling(fit0,fit2,j0),0,
+               scale = 1,tolerance = 1e-15)
+  expect_equal(compare_factors_ignoring_rescaling(fit0,fit3,j0),0,
+               scale = 1,tolerance = 1e-15)
+  expect_equal(compare_factors_ignoring_rescaling(fit0,fit4,j0),0,
+               scale = 1,tolerance = 1e-15)
+  
+  # The loadings that are not selected for updating should not change,
+  # aside from a rescaling.
+  compare_loadings_ignoring_rescaling <- function (fit1, fit2, i)
+    abs(max(apply(fit2$L[i,]/fit1$L[i,],2,diff)))
+  expect_equal(compare_loadings_ignoring_rescaling(fit0,fit1,i0),0,
+               scale = 1,tolerance = 1e-15)
+  expect_equal(compare_loadings_ignoring_rescaling(fit0,fit2,i0),0,
+               scale = 1,tolerance = 1e-15)
+  expect_equal(compare_loadings_ignoring_rescaling(fit0,fit3,i0),0,
+               scale = 1,tolerance = 1e-15)
+  expect_equal(compare_loadings_ignoring_rescaling(fit0,fit4,i0),0,
+               scale = 1,tolerance = 1e-15)
+
+})
