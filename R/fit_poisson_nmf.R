@@ -121,13 +121,19 @@
 #' @param numiter The number of updates of the factors and loadings to
 #'   perform.
 #'
-#' @param update.factors Describe "update.factors" argument here. Note
-#'   that loadings that are not updated may still be modified due to
-#'   rescaling. Only implemented for "em" and "scd" methods.
+#' @param update.factors A numeric vector specifying which factors
+#'   (rows of \code{F}) to update. By default, all factors are
+#'   updated. Note that the rows that are not updated may still change
+#'   by rescaling. This option is only implemented for \code{method =
+#'   "em"} and \code{method = "scd"}. If another method is selected, the
+#'   default setting of \code{update.factors} must be used.
 #'
-#' @param update.loadings Describe "update.loadings" argument
-#'   here. Note that factors that are not updated may still be modified
-#'   due to rescaling. Only implemented for "em" and "scd" methods.
+#' @param update.loadings A numeric vector specifying which loadings
+#'   (rows of \code{L}) to update. By default, all loadings are
+#'   updated. Note that the rows that are not updated may still change
+#'   by rescaling. This option is only implemented for \code{method =
+#'   "em"} and \code{method = "scd"}. If another method is selected, the
+#'   default setting of \code{update.loadings} must be used.
 #' 
 #' @param method The method to use for updating the factors and
 #'   loadings. Four methods are implemented: multiplicative updates,
@@ -393,7 +399,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-16).\n")
+    cat("(fastTopics 0.3-17).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -638,6 +644,9 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
 # in the return value; that is, Fy and Fn are the same as F, and Ly
 # and Ln are the same as L. The value of the loss function ("loss",
 # "loss.fnly") is also updated.
+#
+# Note that "update.factors" and "update.loadings" is ignored for
+# method = "mu" and method = "ccd".
 update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
                                 method, control) {
 
@@ -690,6 +699,8 @@ update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
 #   betamax    upper bound on the extrapolation parameter
 #   beta0      extrapolation parameter setting from last improvement
 #
+# Note that "update.factors" and "update.loadings" is ignored for
+# method = "mu" and method = "ccd".
 update_poisson_nmf_extrapolated <- function (X, fit, update.factors,
                                              update.loadings, method,
                                              control) {
@@ -754,30 +765,39 @@ update_poisson_nmf_extrapolated <- function (X, fit, update.factors,
   return(fit)
 }
 
-# Implements a single update of the factors matrix.
+# Implements a single update of the factors matrix. Note that input
+# argument "j", specifying which columns of F to update, is ignored for
+# method = "mu" and method = "ccd".
 update_factors_poisson_nmf <- function (X, F, L, j, method, control) {
+  numiter <- control$numiter
+  nc      <- control$nc
+  eps     <- control$eps
   if (method == "mu")
     F <- t(betanmf_update_factors(X,L,t(F)))
   else if (method == "em")
-    F <- pnmfem_update_factors(X,F,L,j,control$numiter,control$nc)
+    F <- pnmfem_update_factors(X,F,L,j,numiter,nc)
   else if (method == "ccd")
-    F <- t(ccd_update_factors(X,L,t(F),control$nc,control$eps))
+    F <- t(ccd_update_factors(X,L,t(F),nc,eps))
   else if (method == "scd")
-    F <- t(scd_update_factors(X,L,t(F),j,control$numiter,control$nc,
-                              control$eps))
+    F <- t(scd_update_factors(X,L,t(F),j,numiter,nc,eps))
   return(F)
 }
   
-# Implements a single update of the loadings matrix.
+# Implements a single update of the loadings matrix. Note that input
+# argument "i", specifying which rows of L to update, is ignored for
+# method = "mu" and method = "ccd".
 update_loadings_poisson_nmf <- function (X, F, L, i, method, control) {
+  numiter <- control$numiter
+  nc      <- control$nc
+  eps     <- control$eps
   if (method == "mu")
     L <- betanmf_update_loadings(X,L,t(F))
   else if (method == "em")
-    L <- pnmfem_update_loadings(X,F,L,i,control$numiter,control$nc)
+    L <- pnmfem_update_loadings(X,F,L,i,numiter,nc)
   else if (method == "ccd")
-    L <- ccd_update_loadings(X,L,t(F),control$nc,control$eps)
+    L <- ccd_update_loadings(X,L,t(F),nc,eps)
   else if (method == "scd")
-    L <- scd_update_loadings(X,L,t(F),i,control$numiter,control$nc,control$eps)
+    L <- scd_update_loadings(X,L,t(F),i,numiter,nc,eps)
   return(L)
 }
 

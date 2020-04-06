@@ -51,13 +51,19 @@ already provided.}
 \item{numiter}{The number of updates of the factors and loadings to
 perform.}
 
-\item{update.factors}{Describe "update.factors" argument here. Note
-that loadings that are not updated may still be modified due to
-rescaling. Only implemented for "em" and "scd" methods.}
+\item{update.factors}{A numeric vector specifying which factors
+(rows of \code{F}) to update. By default, all factors are
+updated. Note that the rows that are not updated may still change
+by rescaling. This option is only implemented for \code{method =
+"em"} and \code{method = "scd"}. If another method is selected, the
+default setting of \code{update.factors} must be used.}
 
-\item{update.loadings}{Describe "update.loadings" argument
-here. Note that factors that are not updated may still be modified
-due to rescaling. Only implemented for "em" and "scd" methods.}
+\item{update.loadings}{A numeric vector specifying which loadings
+(rows of \code{L}) to update. By default, all loadings are
+updated. Note that the rows that are not updated may still change
+by rescaling. This option is only implemented for \code{method =
+"em"} and \code{method = "scd"}. If another method is selected, the
+default setting of \code{update.loadings} must be used.}
 
 \item{method}{The method to use for updating the factors and
 loadings. Four methods are implemented: multiplicative updates,
