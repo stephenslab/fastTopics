@@ -1,6 +1,27 @@
 to do
 =====
 
++ Implement functions "select_factors" and "select_loadings".
+
++ Implement function to compute estimates of term-frequency log-ratios
+  (tflrs), s.e.'s and Z-scores.
+
++ Implement simple bar plot to show loadings vs. categorical variable
+  ("loadings_plot").
+
++ Implement simple "volcano" plot ("volcano_plot").
+
++ Implement simple interactive "volcano" plot using plotly
+  ("volcano_plotly")
+
++ Implement simple 2-d t-SNE plot to show loadings for a single topic
+  projected onto a 2-d surface ("tsne_plot_2d").
+
++ Implement simple a "STRUCTURE" plot, in which the samples (rows) are
+  automatically arranged by a 1-d t-SNE embedding ("structure_plot").
+  Optionally, a categorical variable (labeling) may be provided, in
+  which case the samples are arranged according to that labeling.
+
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.
