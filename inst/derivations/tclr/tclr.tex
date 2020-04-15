@@ -23,8 +23,8 @@ conditions (e.g., \cite{cui-churchill-2003, quackenbush-2002}). To
 motivate the ideas below, I write the log-fold change for gene $j$
 and condition $k$ as a ratio of two conditional expectations,
 \begin{equation}
-\mathsf{lfc}(j,k) = \log_2 \frac{E[x_j \,|\, \mathrm{condition} = k]}
-                                {E[x_j \,|\, \mathrm{condition} \neq k]},
+\mathsf{lfc}(j,k) = \log_2 \frac{E[\,x_j \,|\, \mathrm{condition} = k\,]}
+                                {E[\,x_j \,|\, \mathrm{condition} \neq k\,]},
 \end{equation}
 where $x_j$ is the measured expression level (e.g., UMI count) of gene
 $j$. In experiments where the conditions are inferred---for example,
@@ -46,12 +46,9 @@ in condition (or cluster) $k$.
 The aim in the next sections is to define a analogue to the log-fold
 change statistic for topic modeling.
 
-\section{Poisson non-negative matrix factorization and the multinomial
-  topic model}
+\section{The multinomial topic model}
 
-Here we briefly describe the multinomial topic model and Poisson
-non-negative matrix factorization---these are covered in much more
-detail in other documents.
+Here we briefly describe the multinomial topic model.
 
 The topic model describes a process for generating an $n \times m$
 matrix of counts, $X$. We begin with the ``bag of words'' description,
@@ -68,14 +65,43 @@ to. The topic indicator variable is in turn generated according to
 $p(z_{it} = k) = l_{ik}$, where $l_{i1}, \ldots, l_{iK}$ is a
 document-specific probability table.
 
-Returning to the question of assessing differential gene expression,
-there are two ``twists'' relative to the standard analysis: one, the
-group (topic) assignments are probabilistic; two, the group
-assignments are made at the level of genes, not cells. With these two
-points in mind, I propose the ``term-count log-ratio'',
+This process defines a {\em multinomial} model for the 
+counts $x_{i1}, \ldots, x_{im}$ in document/sample $i$, hence the
+``multinomial topic model'':
 \begin{equation}
-\mathsf{tclr}(j,k) = \log_2 \left\{ \frac{x}{y} \right\}.
+x_{i1}, \ldots, x_{im} \sim
+\mathrm{Multinom}(x_{i1}, \ldots, x_{im}; m_i, \pi_i),
 \end{equation}
+where $\pi_i$ is a vector of probabilities $\pi_{ij}$ given by a
+weighted sum of the word/gene probabilities, or ``factors'', $f_{jk}$,
+\begin{equation}
+\pi_{ij} = \sum_{k=1}^K l_{ik} f_{jk}.
+\end{equation}
+
+\section{The ``term-count log-ratio'' ({\em tclr})}
+
+Returning to the question of assessing differential gene expression,
+there are two twists relative to the standard analysis: one, the group
+(topic) assignments are probabilistic; two, the group assignments are
+made at the level of genes, not cells. With these two points in mind,
+I propose the ``term-count log-ratio'', the (logarithm of the)
+expected expression level of gene $j$ conditioned on assignment to
+topic $k$ over the expected expression level of gene $j$ conditioned
+on not being assigned to topic $k$:
+\begin{equation}
+\mathsf{tclr}(j,k) =
+\log_2 \frac{E[\,x_j \,|\, z_j = k\,]}{E[\,x_j \,|\, z_j \neq k\,]}.
+\end{equation}
+For a given gene $j$ and topic $k$, $\mathsf{tclr}(j,k)$ is calculated
+as
+\begin{align}
+\mathsf{tclr}(j,k) &=
+\log_2 \left\{ \frac{E[\, x_j, z_j = k \,]}{E[\, x_j, z_j \neq k\,]} \times
+\frac{p(z_j \neq k)}{p(z_j = k)} \right\} \\
+&= \log_2 \left\{ \frac{\sum_{i=1}^n E[\, x_{ij}, z_{ij} = k \,]}
+                       {\sum_{i=1}^n E[\, x_{ij}, z_{ij} \neq k\,]} \times
+\frac{\sum_{i=1}^n p(z_{ij} \neq k)}{\sum_{i=1}^n p(z_{ij} = k)} \right\} \\
+\end{align}
 
 \bibliographystyle{siamplain}
 \bibliography{tclr}
