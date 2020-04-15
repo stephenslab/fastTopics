@@ -1,0 +1,55 @@
+\documentclass[final]{siamart171218}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\setlength{\oddsidemargin}{0.65in}
+\setlength{\evensidemargin}{0.65in}
+
+\title{The ``term-count log-ratio'' statistic for topic modeling analysis
+  of differential gene expression}
+
+\author{Peter Carbonetto\thanks{Dept. of Human Genetics and the Research Computing Center, University of Chicago, Chicago, IL}}
+
+\begin{document}
+
+\maketitle
+
+\section{Differential gene expression}
+
+The ``log-fold change'' statistic is commonly used in microarray and
+RNA sequencing experiments to quantify expression changes between two
+conditions (e.g., \cite{cui-churchill-2003, quackenbush-2002}). To
+motivate the ideas below, I write the log-fold change for gene $j$
+and condition $k$ as a ratio of two conditional expectations,
+\begin{equation*}
+\mathsf{lfc}(j,k) = \log_2 \frac{E[x_j \,|\, \mathrm{condition} = k]}
+                                {E[x_j \,|\, \mathrm{condition} \neq k]},
+\end{equation*}
+where $x_j$ is the measured expression level (e.g., UMI count) of gene
+$j$. In experiments where the conditions are inferred --- for example,
+by running a machine learning algorithm to cluster the expression
+profiles --- this quantity could represent the difference in gene
+expression between cells inside and outside a cluster.
+
+Supposing $n_k$ out of a total of $n$ gene expression profiles
+(cells) are from condition $k$, then $\mathsf{lfc}(j,k)$ can be
+computed as
+\begin{equation*}
+\mathsf{lfc}(j,k) =
+\log_2 \left\{\frac{n_{jk}}{n_j - n_{jk}} \times \frac{n - n_k}{n_k} \right\},
+\end{equation*}
+where $n_j$ is the total expression of gene $j$ among all expression
+profiles, and $n_{jk}$ is the total expression of $j$ among all cells
+in condition (or cluster) $k$.
+  
+\section{Poisson non-negative matrix factorization and the multinomial
+  topic model}
+
+{\em Add text here.}
+
+\bibliographystyle{siamplain}
+\bibliography{tclr}
+
+\end{document}
+
