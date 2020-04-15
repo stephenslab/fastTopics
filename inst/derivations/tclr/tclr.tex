@@ -97,11 +97,28 @@ as
 \begin{align}
 \mathsf{tclr}(j,k) &=
 \log_2 \left\{ \frac{E[\, x_j, z_j = k \,]}{E[\, x_j, z_j \neq k\,]} \times
-\frac{p(z_j \neq k)}{p(z_j = k)} \right\} \\
+\frac{p(z_j \neq k)}{p(z_j = k)} \right\} \nonumber \\
 &= \log_2 \left\{ \frac{\sum_{i=1}^n E[\, x_{ij}, z_{ij} = k \,]}
                        {\sum_{i=1}^n E[\, x_{ij}, z_{ij} \neq k\,]} \times
-\frac{\sum_{i=1}^n p(z_{ij} \neq k)}{\sum_{i=1}^n p(z_{ij} = k)} \right\} \\
+                  \frac{\sum_{i=1}^n p(z_{ij} \neq k)}
+                       {\sum_{i=1}^n p(z_{ij} = k)} \right\} \nonumber \\
+&= \log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, p(z_{ij} = k)}
+                       {\sum_{i=1}^n x_{ij} \, p(z_{ij} \neq k)} \times
+                  \frac{\sum_{i=1}^n \sum_{j'=1}^m x_{ij} \, p(z_{ij'} \neq k)}
+                       {\sum_{i=1}^n \sum_{j'=1}^m x_{ij} \, p(z_{ij'} = k)}
+                  \right\},
 \end{align}
+The probabilities $p(z_{ij} = k)$ in the above expressions are {\em
+  posterior probabilities}, which, in the multinomial topic model,
+work out to simply
+\begin{equation}
+p(z_{ij} = k) = \frac{l_{ik} f_{jk}}{\sum_{k'=1}^K l_{ik'} f_{jk'}}.
+\end{equation}
+Here I've made use of the property that the topic assignments $z_{it}$
+are the same for all $w_{it} = j$, so in a small abuse of notation
+I've written the topic assignments as $z_{ij}$.
+
+At the maximum-likelihood solution of 
 
 \bibliographystyle{siamplain}
 \bibliography{tclr}
