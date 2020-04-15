@@ -23,8 +23,9 @@ conditions (e.g., \cite{cui-churchill-2003, quackenbush-2002}). To
 motivate the ideas below, I write the log-fold change for gene $j$
 and condition $k$ as a ratio of two conditional expectations,
 \begin{equation}
-\mathsf{lfc}(j,k) = \log_2 \frac{E[\,x_j \,|\, \mathrm{condition} = k\,]}
-                                {E[\,x_j \,|\, \mathrm{condition} \neq k\,]},
+\mathsf{lfc}(j,k) \equiv
+\log_2 \frac{E[\,x_j \,|\, \mathrm{condition} = k\,]}
+            {E[\,x_j \,|\, \mathrm{condition} \neq k\,]},
 \end{equation}
 where $x_j$ is the measured expression level (e.g., UMI count) of gene
 $j$. In experiments where the conditions are inferred---for example,
@@ -91,8 +92,12 @@ As we have investigated in other documents, the multinomial topic
 model is closely related to a Poisson non-negative matrix
 factorization of the count data,
 \begin{equation}
-p()
+x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}),
 \end{equation}
+where $\lambda_{ij} = \sum_{k=1}^K \hat{l}_{ik} \hat{f}_{jk}$. Given a
+Poisson NMF fit, an equivalent multinomial topic model can be easily
+recovered, as we have shown elsewhere; by ``equivalent'', we mean the
+likelihoods of the two models are the same.
 
 \section{The ``term-count log-ratio'' ({\em tclr})}
 
@@ -105,7 +110,7 @@ expected expression level of gene $j$ conditioned on assignment to
 topic $k$ over the expected expression level of gene $j$ conditioned
 on not being assigned to topic $k$:
 \begin{equation}
-\mathsf{tclr}(j,k) =
+\mathsf{tclr}(j,k) \equiv
 \log_2 \frac{E[\,x_j \,|\, z_j = k\,]}{E[\,x_j \,|\, z_j \neq k\,]}.
 \end{equation}
 For a given gene $j$ and topic $k$, $\mathsf{tclr}(j,k)$ is calculated
@@ -123,6 +128,7 @@ as
                   \frac{\sum_{i=1}^n \sum_{j'=1}^m x_{ij} \, p(z_{ij'} \neq k)}
                        {\sum_{i=1}^n \sum_{j'=1}^m x_{ij} \, p(z_{ij'} = k)}
                   \right\},
+\label{eq:tclr}
 \end{align}
 The probabilities $p(z_{ij} = k)$ in the above expressions are {\em
 posterior probabilities}, which, in the multinomial topic model,
@@ -134,8 +140,8 @@ Here I've made use of the property that the topic assignments $z_{it}$
 are the same for all $w_{it} = j$, so in a small abuse of notation
 I've written the topic assignments as $z_{ij}$.
 
-At the maximum-likelihood solution of the $l_{ik}$'s and $f_{kl}$'s,
-the {\em tclr} statistic simplifies to
+At the maximum-likelihood solution (MLE) of the $l_{ik}$'s and $f_{kl}$'s,
+the {\em tclr} statistic simplifies slightly:
 \begin{equation}
 \mathsf{tclr}(j,k) = \log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, p(z_{ij} = k)}
                        {\sum_{i=1}^n x_{ij} \, p(z_{ij} \neq k)} \times
@@ -143,6 +149,14 @@ the {\em tclr} statistic simplifies to
                        {\sum_{i=1}^n m_i (1 - l_{ik})}
                   \right\}.
 \end{equation}
+This is because, at the MLE, the loadings $l_{ik}$, $k = 1, \ldots,
+K$, for a given document/cell $i$ should be proportional to the sums
+$\sum_{j=1}^m x_{ij} p(z_{ij} = k)$.
+
+Finally, it is convenient that the {\em tclr} \eqref{eq:tclr} will be
+the same if we replace the multinomial topic model parameters $l_{ik}$
+and $f_{jk}$ with the corresponding parameters of the Poisson NMF,
+$\hat{l}_{ik}$ and $\hat{f}_{jk}$ (proof not given).
 
 \bibliographystyle{siamplain}
 \bibliography{tclr}
