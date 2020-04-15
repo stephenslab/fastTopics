@@ -102,13 +102,20 @@ likelihoods of the two models are the same.
 \section{The ``term-count log-ratio'' ({\em tclr})}
 
 Returning to the question of assessing differential gene expression,
-there are two twists relative to the standard analysis: one, the group
-(topic) assignments are probabilistic; two, the group assignments are
-made at the level of genes, not cells. With these two points in mind,
-I propose the ``term-count log-ratio'', the (logarithm of the)
-expected expression level of gene $j$ conditioned on assignment to
-topic $k$ over the expected expression level of gene $j$ conditioned
-on not being assigned to topic $k$:
+there are two new twists when done in the context of topic modeling:
+\begin{enumerate}
+  
+\item The cluster (topic) assignments are probabilistic
+
+\item The cluster assignments are
+  made at the level of genes, not cells.
+
+\end{enumerate}
+I propose a statistic, the ``term-count log-ratio,'' to address these
+two points. It is the (logarithm of the) expected expression level of
+gene $j$ conditioned on assignment to topic $k$ over the expected
+expression level of gene $j$ conditioned on not being assigned to
+topic $k$:
 \begin{equation}
 \mathsf{tclr}(j,k) \equiv
 \log_2 \frac{E[\,x_j \,|\, z_j = k\,]}{E[\,x_j \,|\, z_j \neq k\,]}.
