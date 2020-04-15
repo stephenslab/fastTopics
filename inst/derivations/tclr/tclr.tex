@@ -46,9 +46,11 @@ in condition (or cluster) $k$.
 The aim in the next sections is to define a analogue to the log-fold
 change statistic for topic modeling.
 
-\section{The multinomial topic model}
+\section{The multinomial topic model and Poisson non-negative matrix
+  factorization}
 
-Here we briefly describe the multinomial topic model.
+Here we briefly describe the multinomial topic model, and its
+connection to Poisson non-negative matrix factorization (Poisson NMF).
 
 The topic model describes a process for generating an $n \times m$
 matrix of counts, $X$. We begin with the ``bag of words'' description,
@@ -76,6 +78,20 @@ where $\pi_i$ is a vector of probabilities $\pi_{ij}$ given by a
 weighted sum of the word/gene probabilities, or ``factors'', $f_{jk}$,
 \begin{equation}
 \pi_{ij} = \sum_{k=1}^K l_{ik} f_{jk}.
+\end{equation}
+The log-likelihood for the multinomial topic model, ignoring terms
+that do not depend on the model parameters, has a very simple
+expression:
+\begin{equation}
+\log p(x) = \sum_{i=1}^n \sum_{j=1}^m
+x_{ij} \log({\textstyle \sum_{k=1}^K l_{ik} f_{jk}}).
+\end{equation}
+
+As we have investigated in other documents, the multinomial topic
+model is closely related to a Poisson non-negative matrix
+factorization of the count data,
+\begin{equation}
+p()
 \end{equation}
 
 \section{The ``term-count log-ratio'' ({\em tclr})}
@@ -109,7 +125,7 @@ as
                   \right\},
 \end{align}
 The probabilities $p(z_{ij} = k)$ in the above expressions are {\em
-  posterior probabilities}, which, in the multinomial topic model,
+posterior probabilities}, which, in the multinomial topic model,
 work out to simply
 \begin{equation}
 p(z_{ij} = k) = \frac{l_{ik} f_{jk}}{\sum_{k'=1}^K l_{ik'} f_{jk'}}.
@@ -118,7 +134,15 @@ Here I've made use of the property that the topic assignments $z_{it}$
 are the same for all $w_{it} = j$, so in a small abuse of notation
 I've written the topic assignments as $z_{ij}$.
 
-At the maximum-likelihood solution of 
+At the maximum-likelihood solution of the $l_{ik}$'s and $f_{kl}$'s,
+the {\em tclr} statistic simplifies to
+\begin{equation}
+\mathsf{tclr}(j,k) = \log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, p(z_{ij} = k)}
+                       {\sum_{i=1}^n x_{ij} \, p(z_{ij} \neq k)} \times
+                  \frac{\sum_{i=1}^n m_i l_{ik}}
+                       {\sum_{i=1}^n m_i (1 - l_{ik})}
+                  \right\}.
+\end{equation}
 
 \bibliographystyle{siamplain}
 \bibliography{tclr}
