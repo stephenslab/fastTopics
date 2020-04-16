@@ -119,14 +119,14 @@ topic $k$:
 \log_2 \frac{E[\,x_j \,|\, \mathrm{topic} = k\,]}
             {E[\,x_j \,|\, \mathrm{topic} \neq k\,]}.
 \end{equation}
-For a given gene $j$ and topic $k$, $\mathsf{tclr}(j,k)$ is calculated
-as
+For a given gene $j$ and topic $k$, $\mathsf{tclr}(j,k)$ can be
+calculated as
 \begin{align}
 \mathsf{tclr}(j,k) &=
-\log_2 \left\{ \frac{E[\, x_j, \mathsf{topic}(j) = k \,]}
-                    {E[\, x_j, \mathsf{topic}(j) \neq k\,]} \times
-               \frac{p(\mathsf{topic}(j) \neq k)}
-                    {p(\mathsf{topic}(j) = k)} \right\} \nonumber \\
+\log_2 \left\{ \frac{E[\, x_j, \mathsf{topic} = k \,]}
+                    {E[\, x_j, \mathsf{topic} \neq k\,]} \times
+               \frac{p(\mathsf{topic} \neq k)}
+                    {p(\mathsf{topic} = k)} \right\} \nonumber \\
 &= \log_2 \left\{ 
 \frac{\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) \, \phi_{ijkt}}
      {\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) \, (1 - \phi_{ijkt})}
@@ -157,7 +157,7 @@ for the {\em tclr} simplifies somewhat:
 \end{equation}
 
 At the maximum-likelihood solution (MLE) of the $l_{ik}$'s and $f_{kl}$'s,
-the {\em tclr} statistic simplifies slightly:
+the {\em tclr} statistic further simplifies:
 \begin{equation}
 \mathsf{tclr}(j,k) = \log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, p(z_{ij} = k)}
                        {\sum_{i=1}^n x_{ij} \, p(z_{ij} \neq k)} \times
