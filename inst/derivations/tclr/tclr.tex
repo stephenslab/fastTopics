@@ -129,14 +129,14 @@ calculated as
                     {p(\mathsf{topic} = k)} \right\} \nonumber \\
 &= \log_2 \left\{ 
 \frac{\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) \, \phi_{ijkt}}
-     {\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) \, (1 - \phi_{ijkt})}
+     {\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) (1 - \phi_{ijkt})}
      \times \frac{\sum_{i=1}^n \sum_{t=1}^{s_i} \phi_{ijkt}}
                  {\sum_{i=1}^n \sum_{t=1}^{s_i} 1-\phi_{ijkt}} 
 \right\},
 \label{eq:tclr}
 \end{align}
-where $\phi_{ijkt}$ is the posterior probability of $z_{it} = k$ given
-$w_{it} = j$,
+where $\phi_{ijkt}$ denotes the posterior probability of $z_{it} = k$
+given $w_{it} = j$,
 \begin{align}
 \phi_{ijkt} &\equiv p(z_{it} = k \,|\, w_{it} = j) \nonumber \\
 &= \frac{p(w_{it} = j \,|\, z_{it} = k) \, p(z_{it} = k)}
@@ -151,23 +151,23 @@ for the {\em tclr} simplifies somewhat:
 \begin{equation}
 \mathsf{tclr}(j,k) = \log_2 \left\{ 
 \frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
-     {\sum_{i=1}^n x_{ij} \, (1 - \phi_{ijk})}
+     {\sum_{i=1}^n x_{ij} (1 - \phi_{ijk})}
      \times \frac{\sum_{i=1}^n \sum_{j'=1}^m x_{ij} \phi_{ij'k}}
                  {\sum_{i=1}^n \sum_{j'=1}^m x_{ij} (1-\phi_{ij'k})} \right\}
 \end{equation}
 
 At the maximum-likelihood solution (MLE) of the $l_{ik}$'s and $f_{kl}$'s,
-the {\em tclr} statistic further simplifies:
+the {\em tclr} statistic simplifies further:
 \begin{equation}
-\mathsf{tclr}(j,k) = \log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, p(z_{ij} = k)}
-                       {\sum_{i=1}^n x_{ij} \, p(z_{ij} \neq k)} \times
-                  \frac{\sum_{i=1}^n m_i l_{ik}}
-                       {\sum_{i=1}^n m_i (1 - l_{ik})}
+\mathsf{tclr}(j,k) = \log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
+                       {\sum_{i=1}^n x_{ij} (1 - \phi_{ijk})} \times
+                  \frac{\sum_{i=1}^n s_i l_{ik}}
+                       {\sum_{i=1}^n s_i (1 - l_{ik})}
                   \right\}.
 \end{equation}
-This is because, at the MLE, the loadings $l_{ik}$, $k = 1, \ldots,
+This is because, at the MLE, the loadings $s_{ik}$, $k = 1, \ldots,
 K$, for a given document/cell $i$ should be proportional to the sums
-$\sum_{j=1}^m x_{ij} p(z_{ij} = k)$.
+$\sum_{j=1}^m x_{ij} \phi_{ijk}$.
 
 Finally, it is convenient that the {\em tclr} \eqref{eq:tclr} will be
 the same if we replace the multinomial topic model parameters $l_{ik}$
