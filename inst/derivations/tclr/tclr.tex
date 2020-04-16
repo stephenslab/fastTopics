@@ -18,10 +18,10 @@
 \section{Differential gene expression}
 
 The ``log-fold change'' statistic is commonly used in microarray and
-RNA sequencing experiments to quantify expression changes between two
-conditions (e.g., \cite{cui-churchill-2003, quackenbush-2002}). To
-motivate the ideas below, I write the log-fold change for gene $j$
-and condition $k$ as a ratio of two conditional expectations,
+RNA sequencing experiments to quantify expression differences between
+two conditions (e.g., \cite{cui-churchill-2003, quackenbush-2002}). To
+motivate the ideas below, I write the log-fold change for gene $j$ and
+condition $k$ as a ratio of two conditional expectations,
 \begin{equation}
 \mathsf{lfc}(j,k) \equiv
 \log_2 \frac{E[\,x_j \,|\, \mathrm{condition} = k\,]}
@@ -44,7 +44,7 @@ where $n_j$ is the total expression of gene $j$ among all expression
 profiles, and $n_{jk}$ is the total expression of $j$ among all cells
 in condition (or cluster) $k$.
 
-The aim in the next sections is to define a analogue to the log-fold
+The aim of the next sections is to define a analogue to the log-fold
 change statistic for topic modeling.
 
 \section{The multinomial topic model and Poisson non-negative matrix
@@ -53,44 +53,42 @@ change statistic for topic modeling.
 Here we briefly describe the multinomial topic model, and its
 connection to Poisson non-negative matrix factorization (Poisson NMF).
 
-The topic model describes a process for generating an $n \times m$
-matrix of counts, $X$. We begin with the ``bag of words'' description,
-which is what is used to describe LDA \cite{blei-2003}. In this view,
-each row $i$ is a document (or gene expression profile), and let $m_i$
-be the size of this document; that is, $m_i = \sum_{j=1}^m
-x_{ij}$. The vector $w_i$ is a vector of terms (or genes) of length
-$m_i$ (the order of the words or genes appearing in this vector
-doesn't matter, hence the ``bag of words''). For each $t = 1, \ldots,
-m_{i}$, the word/gene $w_{it}$ is equal to $j$ with probability
-$p(w_{it} \,|\, z_{it} = k) = f_{jk}$, where $z_{it}$ is a variable
-indicating which topic, $k \in \{1, \ldots, K\}$ the word/gene belongs
-to. The topic indicator variable is in turn generated according to
-$p(z_{it} = k) = l_{ik}$, where $l_{i1}, \ldots, l_{iK}$ is a
-document-specific probability table.
+We begin with the ``bag of words'' description, which was used to
+describe the LDA model \cite{blei-2003}. In this view, each document
+(or gene expression profile) $i$ is represented as a vector of
+terms/genes, $w_i = (w_{i1}, \ldots, w_{is_i})$, where $s_i$ is the
+size of document $i$. (The order of the words or genes appearing in
+this vector doesn't matter, hence the ``bag of words.'') Each $w_{it}
+\in \{1, \ldots, m\}$ is term/gene $j$ with probability
+$p(w_{it} = j \,|\, z_{it} = k) = f_{jk}$, in which we have introduced
+$z_{it}$, a variable indicating which topic $k \in \{1, \ldots, K\}$
+the word/gene is drawn from. The topic indicator variables for
+document $i$ are in turn generated according to $p(z_{it} = k) =
+l_{ik}$.
 
-This process defines a {\em multinomial} model for the 
-counts $x_{i1}, \ldots, x_{im}$ in document/sample $i$, hence the
-``multinomial topic model'':
+This process also defines a {\em multinomial} model for an $n \times
+m$ matrix of counts $x_{ij}$:
 \begin{equation}
 x_{i1}, \ldots, x_{im} \sim
-\mathrm{Multinom}(x_{i1}, \ldots, x_{im}; m_i, \pi_i),
+\mathrm{Multinom}(x_{i1}, \ldots, x_{im}; s_i, \pi_i),
 \end{equation}
-where $\pi_i$ is a vector of probabilities $\pi_{ij}$ given by a
-weighted sum of the word/gene probabilities, or ``factors'', $f_{jk}$,
+where $x_{ij} = \sum_{t=1}^{s_i} \delta_j(w_{it})$ is the number of
+times term/gene $j$ appears in document/cell $i$, and the
+probabilities $\pi_{ij}$ are weighted sums of the ``factors''
+$f_{jk}$,
 \begin{equation}
 \pi_{ij} = \sum_{k=1}^K l_{ik} f_{jk}.
 \end{equation}
 The log-likelihood for the multinomial topic model, ignoring terms
-that do not depend on the model parameters, has a very simple
-expression:
+that do not depend on the model parameters, has a simple expression:
 \begin{equation}
 \log p(x) = \sum_{i=1}^n \sum_{j=1}^m
 x_{ij} \log({\textstyle \sum_{k=1}^K l_{ik} f_{jk}}).
 \end{equation}
 
-As we have investigated in other documents, the multinomial topic
-model is closely related to a Poisson non-negative matrix
-factorization of the count data,
+As we have shown elsewhere, the multinomial topic model is closely
+related to a Poisson non-negative matrix factorization of the count
+data,
 \begin{equation}
 x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}),
 \end{equation}
@@ -105,10 +103,10 @@ Returning to the question of assessing differential gene expression,
 there are two new twists when done in the context of topic modeling:
 \begin{enumerate}
   
-\item The cluster (topic) assignments are probabilistic
+\item The cluster (topic) assignments are probabilistic.
 
-\item The cluster assignments are
-  made at the level of genes, not cells.
+\item The cluster assignments are made at the level of genes, not
+  cells.
 
 \end{enumerate}
 I propose a statistic, the ``term-count log-ratio,'' to address these
@@ -118,34 +116,45 @@ expression level of gene $j$ conditioned on not being assigned to
 topic $k$:
 \begin{equation}
 \mathsf{tclr}(j,k) \equiv
-\log_2 \frac{E[\,x_j \,|\, z_j = k\,]}{E[\,x_j \,|\, z_j \neq k\,]}.
+\log_2 \frac{E[\,x_j \,|\, \mathrm{topic} = k\,]}
+            {E[\,x_j \,|\, \mathrm{topic} \neq k\,]}.
 \end{equation}
 For a given gene $j$ and topic $k$, $\mathsf{tclr}(j,k)$ is calculated
 as
 \begin{align}
 \mathsf{tclr}(j,k) &=
-\log_2 \left\{ \frac{E[\, x_j, z_j = k \,]}{E[\, x_j, z_j \neq k\,]} \times
-\frac{p(z_j \neq k)}{p(z_j = k)} \right\} \nonumber \\
-&= \log_2 \left\{ \frac{\sum_{i=1}^n E[\, x_{ij}, z_{ij} = k \,]}
-                       {\sum_{i=1}^n E[\, x_{ij}, z_{ij} \neq k\,]} \times
-                  \frac{\sum_{i=1}^n p(z_{ij} \neq k)}
-                       {\sum_{i=1}^n p(z_{ij} = k)} \right\} \nonumber \\
-&= \log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, p(z_{ij} = k)}
-                       {\sum_{i=1}^n x_{ij} \, p(z_{ij} \neq k)} \times
-                  \frac{\sum_{i=1}^n \sum_{j'=1}^m x_{ij} \, p(z_{ij'} \neq k)}
-                       {\sum_{i=1}^n \sum_{j'=1}^m x_{ij} \, p(z_{ij'} = k)}
-                  \right\},
+\log_2 \left\{ \frac{E[\, x_j, \mathsf{topic}(j) = k \,]}
+                    {E[\, x_j, \mathsf{topic}(j) \neq k\,]} \times
+               \frac{p(\mathsf{topic}(j) \neq k)}
+                    {p(\mathsf{topic}(j) = k)} \right\} \nonumber \\
+&= \log_2 \left\{ 
+\frac{\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) \, \phi_{ijkt}}
+     {\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) \, (1 - \phi_{ijkt})}
+     \times \frac{\sum_{i=1}^n \sum_{t=1}^{s_i} \phi_{ijkt}}
+                 {\sum_{i=1}^n \sum_{t=1}^{s_i} 1-\phi_{ijkt}} 
+\right\},
 \label{eq:tclr}
 \end{align}
-The probabilities $p(z_{ij} = k)$ in the above expressions are {\em
-posterior probabilities}, which, in the multinomial topic model,
-work out to simply
+where $\phi_{ijkt}$ is the posterior probability of $z_{it} = k$ given
+$w_{it} = j$,
+\begin{align}
+\phi_{ijkt} &\equiv p(z_{it} = k \,|\, w_{it} = j) \nonumber \\
+&= \frac{p(w_{it} = j \,|\, z_{it} = k) \, p(z_{it} = k)}
+        {\sum_{k'=1}^K p(w_{it} = j \,|\, z_{it} = k') \, p(z_{it} = k')} 
+   \nonumber \\
+&= \frac{l_{ik} f_{jk}}
+        {\sum_{k'=1}^K l_{ik'} f_{jk'}}.
+\end{align}
+Since the topic assignments $z_{it}$ do not depend on $t$---that is,
+we can drop the ``$t$'' subscript from $\phi_{ijkt}$---the expression
+for the {\em tclr} simplifies somewhat:
 \begin{equation}
-p(z_{ij} = k) = \frac{l_{ik} f_{jk}}{\sum_{k'=1}^K l_{ik'} f_{jk'}}.
+\mathsf{tclr}(j,k) = \log_2 \left\{ 
+\frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
+     {\sum_{i=1}^n x_{ij} \, (1 - \phi_{ijk})}
+     \times \frac{\sum_{i=1}^n \sum_{j'=1}^m x_{ij} \phi_{ij'k}}
+                 {\sum_{i=1}^n \sum_{j'=1}^m x_{ij} (1-\phi_{ij'k})} \right\}
 \end{equation}
-Here I've made use of the property that the topic assignments $z_{it}$
-are the same for all $w_{it} = j$, so in a small abuse of notation
-I've written the topic assignments as $z_{ij}$.
 
 At the maximum-likelihood solution (MLE) of the $l_{ik}$'s and $f_{kl}$'s,
 the {\em tclr} statistic simplifies slightly:
