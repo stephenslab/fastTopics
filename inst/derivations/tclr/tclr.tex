@@ -31,18 +31,14 @@ where $x_j$ is the measured expression level (e.g., UMI count) of gene
 $j$. In experiments where the conditions are inferred---for example,
 by running a machine learning algorithm to cluster the expression
 profiles---this quantity could represent the difference in gene
-expression between cells inside and outside a cluster.
-
-Supposing $n_k$ out of a total of $n$ gene expression profiles
-(cells) are from condition $k$, then $\mathsf{lfc}(j,k)$ can be
-computed as
-\begin{equation}
-\mathsf{lfc}(j,k) =
-\log_2 \left\{\frac{n_{jk}}{n_j - n_{jk}} \times \frac{n - n_k}{n_k} \right\},
-\end{equation}
-where $n_j$ is the total expression of gene $j$ among all expression
-profiles, and $n_{jk}$ is the total expression of $j$ among all cells
-in condition (or cluster) $k$.
+expression between cells inside and outside a
+cluster.\footnote{Supposing $n_k$ out of a total of $n$ gene
+  expression profiles (cells) are from condition $k$, then
+  $\mathsf{lfc}(j,k)$ can be computed as $\mathsf{lfc}(j,k) = \log_2
+  \{n_{jk}/(n_j - n_{jk}) \times (n - n_k)/n_k \}$, where $n_j$ is the
+  total expression of gene $j$ among all expression profiles, and
+  $n_{jk}$ is the total expression of $j$ among all cells in condition
+  (or cluster) $k$.}
 
 The aim of the next sections is to define a analogue to the log-fold
 change statistic for topic modeling.
@@ -94,8 +90,7 @@ x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}),
 \end{equation}
 where $\lambda_{ij} = \sum_{k=1}^K \hat{l}_{ik} \hat{f}_{jk}$. Given a
 Poisson NMF fit, an equivalent multinomial topic model can be easily
-recovered, as we have shown elsewhere; by ``equivalent'', we mean the
-likelihoods of the two models are the same.
+recovered, as we have shown elsewhere.
 
 \section{The ``term-count log-ratio'' ({\em tclr})}
 
