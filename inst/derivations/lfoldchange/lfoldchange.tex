@@ -91,7 +91,7 @@ where $\lambda_{ij} = \sum_{k=1}^K \hat{l}_{ik} \hat{f}_{jk}$. Given a
 Poisson NMF fit, an equivalent multinomial topic model can be easily
 recovered, as we have shown elsewhere.
 
-\section{The ``term-count log-ratio'' ({\em tclr})}
+\section{Gene expression differences in topics}
 
 Returning to the question of assessing differential gene expression,
 there are two new twists when done in the context of topic modeling:
@@ -103,31 +103,30 @@ there are two new twists when done in the context of topic modeling:
   cells.
 
 \end{enumerate}
-I propose a statistic, the ``term-count log-ratio,'' to address these
-two points. It is the (logarithm of the) expected expression level of
-gene $j$ conditioned on assignment to topic $k$ over the expected
-expression level of gene $j$ conditioned on not being assigned to
-topic $k$:
+I propose a log-fold change statistic to address these two points. It
+compares the probability of gene $j$ occurring ($w = j$) given topic
+$k$ ($z = k$) versus the probability given assignment a topic other
+than $k$ ($z \neq k$):
 \begin{equation}
-\mathsf{tclr}(j,k) \equiv
-\log_2 \frac{E[\,x_j \,|\, \mathrm{topic} = k\,]}
-            {E[\,x_j \,|\, \mathrm{topic} \neq k\,]}.
+\mathsf{lfc}(j,k) \equiv
+\log_2 \frac{p(w = j \,|\, z = k)}
+            {p(w = j \,|\, z \neq k)}.
 \end{equation}
-For a given gene $j$ and topic $k$, $\mathsf{tclr}(j,k)$ can be
+For a given gene $j$ and topic $k$, $\mathsf{lfc}(j,k)$ can be
 calculated as
 \begin{align}
-\mathsf{tclr}(j,k) &=
-\log_2 \left\{ \frac{E[\, x_j, \mathsf{topic} = k \,]}
-                    {E[\, x_j, \mathsf{topic} \neq k\,]} \times
-               \frac{p(\mathsf{topic} \neq k)}
-                    {p(\mathsf{topic} = k)} \right\} \nonumber \\
+\mathsf{lfc}(j,k) &=
+\log_2 \left\{ \frac{p(w = j, z = k)}
+                    {p(w = j, z \neq k)} \times
+               \frac{p(z \neq k)}{p(z = k)} \right\} \nonumber \\
 &= \log_2 \left\{ 
 \frac{\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) \, \phi_{ijkt}}
      {\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) (1 - \phi_{ijkt})}
-     \times \frac{\sum_{i=1}^n \sum_{t=1}^{s_i} \phi_{ijkt}}
-                 {\sum_{i=1}^n \sum_{t=1}^{s_i} 1-\phi_{ijkt}} 
-\right\},
-\label{eq:tclr}
+\times \frac{\sum_{i=1}^n \sum_{j'=1}^m \sum_{t=1}^{s_i} 
+             \delta_{j'}(w_{it}) (1-\phi_{ij'kt})}
+            {\sum_{i=1}^n \sum_{j'=1}^m \sum_{t=1}^{s_i} \delta_{j'}(w_{it}) 
+             \, \phi_{ij'kt}} \right\},
+\label{eq:lfc-topic-model}
 \end{align}
 where $\phi_{ijkt}$ denotes the posterior probability of $z_{it} = k$
 given $w_{it} = j$,
@@ -140,33 +139,34 @@ given $w_{it} = j$,
         {\sum_{k'=1}^K l_{ik'} f_{jk'}}.
 \end{align}
 Since the topic assignments $z_{it}$ do not depend on $t$---that is,
-we can drop the ``$t$'' subscript from $\phi_{ijkt}$---the expression
-for the {\em tclr} simplifies somewhat:
+we can drop the ``$t$'' subscript from the $\phi_{ijkt}$'s---the expression
+for the {\em lfc} simplifies:
 \begin{equation}
-\mathsf{tclr}(j,k) = \log_2 \left\{ 
+\mathsf{lfc}(j,k) = \log_2 \left\{ 
 \frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
      {\sum_{i=1}^n x_{ij} (1 - \phi_{ijk})}
-     \times \frac{\sum_{i=1}^n \sum_{j'=1}^m x_{ij} \phi_{ij'k}}
-                 {\sum_{i=1}^n \sum_{j'=1}^m x_{ij} (1-\phi_{ij'k})} \right\}
+     \times \frac{\sum_{i=1}^n \sum_{j'=1}^m x_{ij'} (1-\phi_{ij'k})}
+                 {\sum_{i=1}^n \sum_{j'=1}^m x_{ij'} \phi_{ij'k}} \right\}.
 \end{equation}
 
 At the maximum-likelihood solution (MLE) of the $l_{ik}$'s and $f_{kl}$'s,
-the {\em tclr} statistic simplifies further:
+the {\em lfc} statistic simplifies further:
 \begin{equation}
-\mathsf{tclr}(j,k) = \log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
-                       {\sum_{i=1}^n x_{ij} (1 - \phi_{ijk})} \times
-                  \frac{\sum_{i=1}^n s_i l_{ik}}
-                       {\sum_{i=1}^n s_i (1 - l_{ik})}
-                  \right\}.
+\mathsf{lfc}(j,k) = 
+\log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
+                    {\sum_{i=1}^n x_{ij} (1 - \phi_{ijk})} \times
+               \frac{\sum_{i=1}^n s_i (1 - l_{ik})}
+                    {\sum_{i=1}^n s_i l_{ik}} \right\}.
 \end{equation}
 This is because, at the MLE, the loadings $s_{ik}$, $k = 1, \ldots,
 K$, for a given document/cell $i$ should be proportional to the sums
 $\sum_{j=1}^m x_{ij} \phi_{ijk}$.
 
-Finally, it is convenient that the {\em tclr} \eqref{eq:tclr} will be
-the same if we replace the multinomial topic model parameters $l_{ik}$
-and $f_{jk}$ with the corresponding parameters of the Poisson NMF,
-$\hat{l}_{ik}$ and $\hat{f}_{jk}$ (proof not given).
+Finally, it is convenient that the {\em lfc}
+\eqref{eq:lfc-topic-model} will be the same if we replace the
+multinomial topic model parameters $l_{ik}$ and $f_{jk}$ with the
+corresponding parameters of the Poisson NMF, $\hat{l}_{ik}$ and
+$\hat{f}_{jk}$ (proof not given).
 
 \bibliographystyle{siamplain}
 \bibliography{lfoldchange}
