@@ -169,7 +169,7 @@ Finally, it is convenient that the {\em lfc} (\ref{eq:lfc-topic},
 topic model parameters $l_{ik}$ and $f_{jk}$ with the corresponding
 parameters of the Poisson NMF, $\hat{l}_{ik}$ and $\hat{f}_{jk}$
 (proof not given). From the derivation of the EM algorithm for Poisson
-NMF, we have that
+NMF, this identity holds at the MLE:
 \begin{equation*}
 \hat{f}_{jk} = \frac{\sum_{i=1}^n \phi_{ijk}}{\sum_{i=1}^n \hat{l}_{ik}}.
 \end{equation*}
@@ -185,9 +185,12 @@ the following simple expression for the log-fold change:
 \label{eq:lfc-topic-mle-2}
 \end{equation}
 What is nice about this about this expression is that it can be
-computed without seeing the data. This same expression also works with
-the for the parameters of multinomial topic model $l_{ik}, f_{jk}$ so
-long as they are MLEs (proof not shown).
+computed without seeing the data. It is also plain to see from this
+expression that to arrive at a log-fold change, one must weight the
+factors $f_{jk}$ by the sample-wide topic probabilities $\sum_i
+l_{ik}$ across This same expression also works with the for the
+parameters of multinomial topic model $l_{ik}, f_{jk}$, again, so long
+as they are MLEs (proof not shown).
 
 \bibliographystyle{siamplain}
 \bibliography{lfoldchange}
