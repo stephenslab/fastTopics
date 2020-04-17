@@ -108,25 +108,26 @@ compares the probability of gene $j$ occurring ($w = j$) given topic
 $k$ ($z = k$) versus the probability given assignment a topic other
 than $k$ ($z \neq k$):
 \begin{equation}
-\mathsf{lfc}(j,k) \equiv
+\mathsf{lfc}^{\mathsf{topics}}(j,k) \equiv
 \log_2 \frac{p(w = j \,|\, z = k)}
             {p(w = j \,|\, z \neq k)}.
 \end{equation}
 For a given gene $j$ and topic $k$, $\mathsf{lfc}(j,k)$ can be
 calculated as
 \begin{align}
-\mathsf{lfc}(j,k) &=
+\mathsf{lfc}^{\mathsf{topics}}(j,k) &=
 \log_2 \left\{ \frac{p(w = j, z = k)}
                     {p(w = j, z \neq k)} \times
                \frac{p(z \neq k)}{p(z = k)} \right\} \nonumber \\
 &= \log_2 \left\{ 
 \frac{\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) \, \phi_{ijkt}}
      {\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) (1 - \phi_{ijkt})}
-\times \frac{\sum_{i=1}^n \sum_{j'=1}^m \sum_{t=1}^{s_i} 
+\right. \nonumber \\ 
+& \qquad \qquad \times \left. \frac{\sum_{i=1}^n \sum_{j'=1}^m \sum_{t=1}^{s_i} 
              \delta_{j'}(w_{it}) (1-\phi_{ij'kt})}
             {\sum_{i=1}^n \sum_{j'=1}^m \sum_{t=1}^{s_i} \delta_{j'}(w_{it}) 
              \, \phi_{ij'kt}} \right\},
-\label{eq:lfc-topic-model}
+\label{eq:lfc-topic}
 \end{align}
 where $\phi_{ijkt}$ denotes the posterior probability of $z_{it} = k$
 given $w_{it} = j$,
@@ -142,7 +143,7 @@ Since the topic assignments $z_{it}$ do not depend on $t$---that is,
 we can drop the ``$t$'' subscript from the $\phi_{ijkt}$'s---the expression
 for the {\em lfc} simplifies:
 \begin{equation}
-\mathsf{lfc}(j,k) = \log_2 \left\{ 
+\mathsf{lfc}^{\mathsf{topics}}(j,k) = \log_2 \left\{ 
 \frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
      {\sum_{i=1}^n x_{ij} (1 - \phi_{ijk})}
      \times \frac{\sum_{i=1}^n \sum_{j'=1}^m x_{ij'} (1-\phi_{ij'k})}
@@ -152,21 +153,41 @@ for the {\em lfc} simplifies:
 At the maximum-likelihood solution (MLE) of the $l_{ik}$'s and $f_{jk}$'s,
 the {\em lfc} statistic simplifies further:
 \begin{equation}
-\mathsf{lfc}(j,k) = 
+\mathsf{lfc}^{\mathsf{topics}}(j,k) = 
 \log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
                     {\sum_{i=1}^n x_{ij} (1 - \phi_{ijk})} \times
                \frac{\sum_{i=1}^n s_i (1 - l_{ik})}
                     {\sum_{i=1}^n s_i l_{ik}} \right\}.
+\label{eq:lfc-topic-mle}
 \end{equation}
 This is because, at the MLE, the loadings $l_{ik}$, $k = 1, \ldots,
 K$, for a given document/cell $i$ should be equal to the average of
-the weighted counts $\frac{1}{s_i} \sum_{j=1}^m x_{ij} \phi_{ijk}$.
+the weighted counts $\frac{1}{s_i} \sum_{j=1}^m x_{ij} \phi_{ijk}$. 
 
-Finally, it is convenient that the {\em lfc}
-\eqref{eq:lfc-topic-model} will be the same if we replace the
-multinomial topic model parameters $l_{ik}$ and $f_{jk}$ with the
-corresponding parameters of the Poisson NMF, $\hat{l}_{ik}$ and
-$\hat{f}_{jk}$ (proof not given).
+Finally, it is convenient that the {\em lfc} (\ref{eq:lfc-topic},
+\ref{eq:lfc-topic-mle}) will be the same if we replace the multinomial
+topic model parameters $l_{ik}$ and $f_{jk}$ with the corresponding
+parameters of the Poisson NMF, $\hat{l}_{ik}$ and $\hat{f}_{jk}$
+(proof not given). From the derivation of the EM algorithm for Poisson
+NMF, we have that
+\begin{equation*}
+\hat{f}_{jk} = \frac{\sum_{i=1}^n \phi_{ijk}}{\sum_{i=1}^n \hat{l}_{ik}}.
+\end{equation*}
+Plugging this relationship into \eqref{eq:lfc-topic-mle}, we obtain
+the following simple expression for the log-fold change:
+\begin{equation}
+\mathsf{lfc}^{\mathsf{topics}}(j,k) = 
+\log_2 \left\{ 
+\frac{\hat{f}_{jk} \sum_{i=1}^n \hat{l}_{ik}}
+     {\sum_{k' \neq k} \hat{f}_{jk'} \sum_{i=1}^n \hat{l}_{ik'}} \times
+\frac{\sum_{i=1}^n s_i (1 - \hat{l}_{ik})}
+     {\sum_{i=1}^n s_i \hat{l}_{ik}} \right\}.
+\label{eq:lfc-topic-mle-2}
+\end{equation}
+What is nice about this about this expression is that it can be
+computed without seeing the data. This same expression also works with
+the for the parameters of multinomial topic model $l_{ik}, f_{jk}$ so
+long as they are MLEs (proof not shown).
 
 \bibliographystyle{siamplain}
 \bibliography{lfoldchange}
