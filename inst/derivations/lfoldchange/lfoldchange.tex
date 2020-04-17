@@ -149,7 +149,7 @@ for the {\em lfc} simplifies:
                  {\sum_{i=1}^n \sum_{j'=1}^m x_{ij'} \phi_{ij'k}} \right\}.
 \end{equation}
 
-At the maximum-likelihood solution (MLE) of the $l_{ik}$'s and $f_{kl}$'s,
+At the maximum-likelihood solution (MLE) of the $l_{ik}$'s and $f_{jk}$'s,
 the {\em lfc} statistic simplifies further:
 \begin{equation}
 \mathsf{lfc}(j,k) = 
@@ -158,9 +158,9 @@ the {\em lfc} statistic simplifies further:
                \frac{\sum_{i=1}^n s_i (1 - l_{ik})}
                     {\sum_{i=1}^n s_i l_{ik}} \right\}.
 \end{equation}
-This is because, at the MLE, the loadings $s_{ik}$, $k = 1, \ldots,
-K$, for a given document/cell $i$ should be proportional to the sums
-$\sum_{j=1}^m x_{ij} \phi_{ijk}$.
+This is because, at the MLE, the loadings $l_{ik}$, $k = 1, \ldots,
+K$, for a given document/cell $i$ should be equal to the average of
+the weighted counts $\frac{1}{s_i} \sum_{j=1}^m x_{ij} \phi_{ijk}$.
 
 Finally, it is convenient that the {\em lfc}
 \eqref{eq:lfc-topic-model} will be the same if we replace the
