@@ -3,3 +3,5 @@
 ^_pkgdown\.yml$
 ^\.travis\.yml$
 ^appveyor\.yml$
+^\.circleci$
+^\.circleci/config\.yml$
