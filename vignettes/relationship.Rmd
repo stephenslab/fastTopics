@@ -1,0 +1,14 @@
+---
+title: Exploring the close relationship between topic modeling and non-negative matrix factorization
+author: Peter Carbonetto
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Relationship between NMF and topic modeling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+rnorm(10)
+```

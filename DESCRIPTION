@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.3-24
+Version: 0.3-25
 Date: 2020-04-18
 Title: Fast Optimization Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
@@ -34,7 +34,9 @@ Suggests:
     NNLM,
     REBayes,
     Rmosek,
-    testthat
+    testthat,
+    knitr,
+    rmarkdown
 LinkingTo:
     Rcpp,
     RcppParallel,
@@ -43,3 +45,4 @@ Remotes: linxihui/NNLM
 LazyData: true
 NeedsCompilation: yes
 RoxygenNote: 7.1.0
+VignetteBuilder: knitr
