@@ -10,7 +10,7 @@ jobs:
           keys:
             - r-pkg-cache-{{ arch }}-{{ .Branch }}
             - r-pkg-cache-{{ arch }}-
-       - checkout
+      - checkout
       - run:
           name: Install package dependencies
           command: |
