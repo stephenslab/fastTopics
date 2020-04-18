@@ -1,13 +1,14 @@
 language: r
 cache: packages
 latex: false
-r_build_args: --no-build-vignettes
-r_check_args: --as-cran --ignore-vignettes
+r_build_args:
+r_check_args: --as-cran
 
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
 install:
-  - R -e 'install.packages(c("covr","testthat","Rcpp","RcppArmadillo","RcppParallel","NNLM","ggplot2","cowplot"))'
+  - R -e 'install.packages(c("devtools","covr","testthat","dplyr","Rcpp","RcppArmadillo","RcppParallel","ggplot2","cowplot"))'
+  - R -e 'devtools::install_github("linxihui/NNLM",upgrade = "never")'
 
 env:
   global:

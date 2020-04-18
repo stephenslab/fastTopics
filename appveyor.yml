@@ -24,7 +24,8 @@ environment:
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
 build_script:
-  - R -e install.packages(c('testthat','Rcpp','RcppArmadillo','RcppParallel','NNLM','ggplot2','cowplot'),head(.libPaths(),1),'http://cran.wustl.edu')
+  - R -e install.packages(c('devtools','testthat','dplyr','Rcpp','RcppArmadillo','RcppParallel','ggplot2','cowplot'),head(.libPaths(),1),'http://cran.wustl.edu')
+  - R -e devtools::install_github('linxihui/NNLM',upgrade = 'never')
 
 test_script:
   - travis-tool.sh run_tests
