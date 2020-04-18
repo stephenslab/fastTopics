@@ -32,4 +32,9 @@ test_that(paste("Select S3 method correctly subsets and re-orders the",
   expect_equal(dim(fit2$L),c(n0,k))
   expect_equal(rownames(fit2$F),cols)
   expect_equal(rownames(fit2$L),rows)
+
+  # An error is thrown when the selected factors or loadings do not
+  # exist.
+  expect_error(select(fit,factors = m+1))
+  expect_error(select(fit,loadings = n+1))
 })

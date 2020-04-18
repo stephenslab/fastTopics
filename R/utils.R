@@ -45,13 +45,18 @@ select.poisson_nmf_fit <- function (.data, factors, loadings, ...) {
   if (missing(loadings))
     loadings <- 1:n
   
-  # Select or re-order the factors and loadings. 
-  .data$F  <- .data$F[factors,]
-  .data$Fn <- .data$Fn[factors,]
-  .data$Fy <- .data$Fy[factors,]
-  .data$L  <- .data$L[loadings,]
-  .data$Ln <- .data$Ln[loadings,]
-  .data$Ly <- .data$Ly[loadings,]
+  tryCatch({  
+
+    # Select or re-order the factors.
+    .data$F  <- .data$F[factors,,drop = FALSE]
+    .data$Fn <- .data$Fn[factors,,drop = FALSE]
+    .data$Fy <- .data$Fy[factors,,drop = FALSE]
+
+    # Select or re-order the loadings.
+    .data$L  <- .data$L[loadings,,drop = FALSE]
+    .data$Ln <- .data$Ln[loadings,,drop = FALSE]
+    .data$Ly <- .data$Ly[loadings,,drop = FALSE]
+  },error = function (e) stop("Invalid selection of factors or loadings"))
   return(.data)
 }
 
