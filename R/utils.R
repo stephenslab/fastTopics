@@ -1,3 +1,60 @@
+#' @title Extract or Re-order Poisson NMF Factors and Loadings
+#'
+#' @description This function can be used to extract estimates for a
+#'   subset of the count data, or to re-order the factors and loadings
+#'   (corresponding to columns and rows of the data matrix,
+#'   respectively).
+#'
+#' @details Evaluation metrics such as the log-likelihood and deviance
+#'   are invariant to re-ordering of the factors and loadings (rows and
+#'   columns of the counts matrix), but extracting a subset of the
+#'   factors and/or loadings will invalidate these metrics.
+#'
+#' @param .data Poisson NMF fit; that is, an object of class
+#'   \dQuote{poisson_nmf_fit}, such as an output from
+#'   \code{fit_poisson_nmf}.
+#'
+#' @param factors Factor indices (names or numbers), corresponding to
+#'   columns of the counts matrix. If not specified, all factors are
+#'   returned.
+#'
+#' @param loadings Loadings indices (names or numbers), corresponding
+#'   to rows of the counts matrix. If not specified, all loadings are
+#'   returned.
+#' 
+#' @param ... Other arguments passed to the generic select function.
+#' 
+#' @return A Poisson NMF fit containing the selected factors and
+#'   loadings only.
+#'
+#' @seealso \code{\link{fit_poisson_nmf}}
+#'
+#' @importFrom dplyr select
+#'
+#' @export
+#' 
+select.poisson_nmf_fit <- function (.data, factors, loadings, ...) {
+
+  # Get the number of rows (n) and columns (m) of the count data.
+  n <- nrow(.data$L)
+  m <- nrow(.data$F)
+
+  # Verify and process the inputs.
+  if (missing(factors))
+    factors <- 1:m
+  if (missing(loadings))
+    loadings <- 1:n
+  
+  # Select or re-order the factors and loadings. 
+  .data$F  <- .data$F[factors,]
+  .data$Fn <- .data$Fn[factors,]
+  .data$Fy <- .data$Fy[factors,]
+  .data$L  <- .data$L[loadings,]
+  .data$Ln <- .data$Ln[loadings,]
+  .data$Ly <- .data$Ly[loadings,]
+  return(.data)
+}
+
 #' @title Summarize and Compare Poisson NMF Model Fits
 #'
 #' @description Create a table summarizing the results of fitting one

@@ -11,14 +11,19 @@
 \dQuote{poisson_nmf_fit}, such as an output from
 \code{fit_poisson_nmf}.}
 
-\item{factors}{Describe "factors" here.}
+\item{factors}{Factor indices (names or numbers), corresponding to
+columns of the counts matrix. If not specified, all factors are
+returned.}
 
-\item{loadings}{Describe "loadings" here.}
+\item{loadings}{Loadings indices (names or numbers), corresponding
+to rows of the counts matrix. If not specified, all loadings are
+returned.}
 
 \item{...}{Other arguments passed to the generic select function.}
 }
 \value{
-A "
+A Poisson NMF fit containing the selected factors and
+  loadings only.
 }
 \description{
 This function can be used to extract estimates for a
