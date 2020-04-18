@@ -10,13 +10,12 @@ jobs:
           keys:
             - r-pkg-cache-{{ arch }}-{{ .Branch }}
             - r-pkg-cache-{{ arch }}-
-      - checkout
+       - checkout
       - run:
           name: Install package dependencies
           command: |
             mkdir -p ~/R/Library
-            Rscript -e 'install.packages("remotes")'
-            Rscript -e 'remotes::install_deps(dependencies = TRUE)'
+            Rscript -e 'install.packages(c("remotes","Rcpp","RcppParallel","ggplot2","cowplot","testthat"))'
       - run:
           name: Session information and installed package versions
           command: |
