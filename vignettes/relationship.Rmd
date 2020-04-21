@@ -54,14 +54,20 @@ rbind(dim(dat$X),
       dim(fit$F))
 ```
 
-The Poisson NMF optimization algorithm can be understood as finding 
-$L$ and $F$ that maximize the likelihood,
+The Poisson NMF fitting algorithm finds an $L$ and an $F$ that
+maximize the likelihood,
 
-```{r plot-loglik, fig.height=2.5, fig.width=3.5}
-plot_progress_poisson_nmf(fit,x = "iter",y = "loglik")
+```{r plot-loglik, fig.height=3.5, fig.width=4}
+plot(fit$progress$loglik,type = "l",col = "dodgerblue",lwd = 2,
+     xlab = "iteration",ylab = "loglik")
 ```
 
-or, equivalently, minimize the *deviance*.
+or, equivalently, that minimize the *deviance*,
+
+```{r plot-dev, fig.height=3.5, fig.width=4}
+plot(fit$progress$dev,type = "l",col = "dodgerblue",lwd = 2,
+     xlab = "iteration",ylab = "deviance")
+```
 
 Note that the MLE is not unique; we can multiply each column $k$ of
 $F$ by some scalar $a_k$ and divide the corresponding columnof $L$ by
@@ -69,18 +75,18 @@ the same $a_k$ and the likelihood will not change.
 
 ## Topic modeling
 
-The topic model (Hoffman, xxx) is: $$X_{i\cdot}
-\sim Mult(n_i, P_i)$$ where $n_i:= \sum_j X_{ij}$ and $P = \tilde{L}
-\tilde{F}^T$, where $\tilde{L}$ and $\tilde{F}$ are non-negative
-matrices as above to be estimated, similar to $L$ and $F$ above, but
-constrained so that each row of $\tilde{L}$ sums to 1 and each column
-of $\tilde{F}$ sums to 1.  The maximum likelihood estimates for
-$\tilde{L}$ and $\tilde{F}$ in the topic model are simple to obtain
-from the maximum likelihood estimates for $L$ and $F$ in the pNMF
-model, and vice versa. However, the pNMF model is easier to work with
-from a computational perspective because of the lack of constraints.
-So we provide functions to fit the pNMF model (`fit_poisson_nmf`) and
-a function to obtain the topic model fit (`poisson2multinom`).
+The topic model (Hoffman, xxx) is: $$X_{i\cdot} \sim Mult(n_i, P_i)$$
+where $n_i:= \sum_j X_{ij}$ and $P = \tilde{L} \tilde{F}^T$, where
+$\tilde{L}$ and $\tilde{F}$ are non-negative matrices as above to be
+estimated, similar to $L$ and $F$ above, but constrained so that each
+row of $\tilde{L}$ sums to 1 and each column of $\tilde{F}$ sums to 1.
+The maximum likelihood estimates for $\tilde{L}$ and $\tilde{F}$ in
+the topic model are simple to obtain from the maximum likelihood
+estimates for $L$ and $F$ in the pNMF model, and vice versa. However,
+the pNMF model is easier to work with from a computational perspective
+because of the lack of constraints.  So we provide functions to fit
+the pNMF model (`fit_poisson_nmf`) and a function to obtain the topic
+model fit (`poisson2multinom`).
 
 ```{r test-chunk}
 rnorm(10)
