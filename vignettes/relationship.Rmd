@@ -22,74 +22,108 @@ knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
 ## Poisson non-negative matrix factorization
 
 In Poisson NMF ([Lee & Seung, 2001][lee-seung-2001]), the counts
-$x_{ij}$---elements of an $n \times m$ counts matrix $X$---are modeled
+$x_{ij}$---elements of an $n \times m$ counts matrix, $X$---are modeled
 using the Poisson distribution:
 $$
 x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}),
 $$
 where each Poisson *rate*, $\lambda_{ij}$, is given by a simple linear
-combination of parameters, $f_{jk}$ and $l_{ik}$, to be estimated from
-the data:
+combination of non-negative parameters, $f_{jk} \geq 0$ and $l_{ik}
+\geq 0$, to be estimated from the data:
 $$
 \lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk}.
 $$
+The $K$ is a user-specified tuning parameter giving the "rank" of the
+matrix factorization.
 
-The $K$ above is a user-specified tuning parameter determining the
-"rank" of the matrix factorization.
-
-The `fit_poisson_nmf` function computes *maximum-likelihood estimates*
-(MLEs) of the Poisson NMF parameters. These parameters are stored as
-an $m \times K$ matrix $F$ and an $n \times K$ matrix $L$. Drawing the
-connection to PCA, we call $L$ the "loadings" matrix, and $F$ the
-"factors" matrix. Here's an example:
+Function `fit_poisson_nmf` from the fastTopics package computes
+*maximum-likelihood estimates* (MLEs) of the Poisson NMF
+parameters. These parameters are stored as an $m \times K$ matrix $F$,
+and an $n \times K$ matrix $L$. Drawing the connection to PCA, we call
+$L$ the "loadings" matrix (also sometimes called the "activations"), and
+$F$ is the "factors" matrix (also "basis vectors"). Here is an example
+with $n = 80$, $m = 100$ and $K = 3$:
 
 ```{r fit-poisson-nmf-model, message=FALSE}
 library(Matrix)
 library(fastTopics)
 set.seed(1)
-dat <- simulate_count_data(80,100,3)
-fit <- fit_poisson_nmf(dat$X,k = 3,numiter = 200,verbose = FALSE)
+dat  <- simulate_count_data(80,100,3)
+fit1 <- fit_poisson_nmf(dat$X,k = 3,numiter = 200,verbose = FALSE)
 rbind(dim(dat$X),
-      dim(fit$L),
-      dim(fit$F))
+      dim(fit1$L),
+      dim(fit1$F))
 ```
 
-The Poisson NMF fitting algorithm finds an $L$ and an $F$ that
-maximize the likelihood,
+The NMF fitting procedure finds an $L$ and an $F$ that maximize
+the likelihood,
 
 ```{r plot-loglik, fig.height=3.5, fig.width=4}
-plot(fit$progress$loglik,type = "l",col = "dodgerblue",lwd = 2,
+plot(fit1$progress$loglik,type = "l",col = "dodgerblue",lwd = 2,
      xlab = "iteration",ylab = "loglik")
 ```
 
-or, equivalently, that minimize the *deviance*,
+or, equivalently, minimize the "deviance".
 
-```{r plot-dev, fig.height=3.5, fig.width=4}
-plot(fit$progress$dev,type = "l",col = "dodgerblue",lwd = 2,
-     xlab = "iteration",ylab = "deviance")
-```
-
-Note that the MLE is not unique; we can multiply each column $k$ of
-$F$ by some scalar $a_k$ and divide the corresponding columnof $L$ by
-the same $a_k$ and the likelihood will not change.
+Note that the MLE is not unique; we can multiply the $k$th column of
+$F$ by some positive scalar, $a_k$, and divide the corresponding
+column of $L$ by the same $a_k$, the likelihood will not change.
 
 ## Topic modeling
 
-The topic model (Hoffman, xxx) is: $$X_{i\cdot} \sim Mult(n_i, P_i)$$
-where $n_i:= \sum_j X_{ij}$ and $P = \tilde{L} \tilde{F}^T$, where
-$\tilde{L}$ and $\tilde{F}$ are non-negative matrices as above to be
-estimated, similar to $L$ and $F$ above, but constrained so that each
-row of $\tilde{L}$ sums to 1 and each column of $\tilde{F}$ sums to 1.
-The maximum likelihood estimates for $\tilde{L}$ and $\tilde{F}$ in
-the topic model are simple to obtain from the maximum likelihood
-estimates for $L$ and $F$ in the pNMF model, and vice versa. However,
-the pNMF model is easier to work with from a computational perspective
-because of the lack of constraints.  So we provide functions to fit
-the pNMF model (`fit_poisson_nmf`) and a function to obtain the topic
-model fit (`poisson2multinom`).
+In the multinomial topic model ([Hofmann, 1999][hofmann-1999];
+[Blei *et al*, 2003][blei-2003]), each sample (row of $X$) is drawn
+from a multinomial distribution,
+$$
+x_{i1}, \ldots, x_{im} | t_i \sim Multinom(t_i, \pi_i),
+$$
+in which $t_i = \sum_{j=1}^m x_{ij}$ is the total sample size for the
+$i$th row, and the multinomial probabilities are
+$$
+\pi_{ij} = \sum_{k=1}^K l_{ik}^{\ast} f_{jk}^{\ast}
+$$
+This is similar to the definition of the Poisson rates $\lambda_{ij}$
+above, except that the parameters are also constrained so that each
+row of the loadings matrix $L^{\ast}$ and each column of factors
+matrix $F^{\ast}$ sum to 1:
+$$
+\sum_{k=1}^K l_{ik} = 1, \qquad
+\sum_{j=1}^m f_{jk} = 1.
+$$
+With the addition of these constraints, the $\pi_{ij}$'s for each row
+(sample) $i$ are guaranteed to sum to 1, which is needed for the
+multinomial distribution.
 
-```{r test-chunk}
-rnorm(10)
+Maximum-likelihood estimates for the multinomial topic model
+parameters, $L^{\ast}$ and $F^{\ast}$, are easy to recover from
+maximum-likelihood estimates of the Poisson NMF parameters, $L$ and
+$F$. The multinomial topic model is in fact a *reparameterization* of
+the Poisson NMF model:
+
+```{r poisson2multinom-1}
+fit2 <- poisson2multinom(fit1)
 ```
 
+Let's check that the new parameters satisfy the constraints that the
+rows of $L$ and columns of $F$ sum to 1:
+
+```{r poisson2multinom-2}
+range(rowSums(fit2$L))
+range(colSums(fit2$F))
+```
+
+The likelihood does not change with reparameterization:
+
+**TO DO NEXT**
+
+However, the pNMF model is easier
+to work with from a computational perspective because of the lack of
+constraints.  So we provide functions to fit the pNMF model
+(`fit_poisson_nmf`) and a function to obtain the topic model fit
+(`poisson2multinom`).
+
+[hofmann-1999]: https://doi.org/10.1145/312624.312649
+
 [lee-seung-2001]: http://papers.nips.cc/paper/1861-algorithms-for-non-negative-matrix-factorization
+
+[blei-2003]: http://jmlr.csail.mit.edu/papers/v3/blei03a.html
