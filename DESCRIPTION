@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.3-26
+Version: 0.3-27
 Date: 2020-04-21
 Title: Fast Optimization Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
@@ -13,10 +13,10 @@ BugReports: https://github.com/stephenslab/fastTopics/issues
 Depends: R (>= 3.3.0)
 Description: Implements fast, scalable optimization algorithms for
     fitting topic models and non-negative matrix factorizations to
-    count data. The algorithms are particularly well suited to large,
-    sparse count data (that is, data containing a high proportion of
-    zero counts), but the algorithms also work well on non-sparse
-    data.
+    count data. The methods exploit the close relationship between
+    topic modeling and Poisson non-negative matrix factorization. The
+    algorithms can acccommodate large, sparse count data (that is,
+    data containing a high proportion of zero counts).
 License: MIT + file LICENSE
 SystemRequirements: GNU make
 Imports:

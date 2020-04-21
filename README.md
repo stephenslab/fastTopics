@@ -7,7 +7,8 @@
 
 fastTopics is an R package implementing fast optimization algorithms
 for fitting topic models and non-negative matrix factorizations to
-count data. It exploits the [close relationship][add-link-here]
+count data. The algorithms can accommodate large, sparse count
+data. The methods exploit the [close relationship][add-link-here]
 between topic modeling and Poisson non-negative matrix factorization.
 
 If you find a bug, or you have a question or feedback on this software,

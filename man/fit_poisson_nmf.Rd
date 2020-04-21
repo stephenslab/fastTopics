@@ -13,7 +13,7 @@ fit_poisson_nmf(
   numiter = 100,
   update.factors = seq(1, ncol(X)),
   update.loadings = seq(1, nrow(X)),
-  method = c("em", "scd", "ccd", "mu"),
+  method = c("scd", "em", "mu", "ccd"),
   control = list(),
   verbose = TRUE
 )
