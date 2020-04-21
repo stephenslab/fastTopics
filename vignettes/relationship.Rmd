@@ -9,6 +9,84 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+The **fastTopics** package implements fast optimization algorithms for
+fitting topic models and non-negative matrix factorizations to count
+data. This document explains the close relationship between topic
+modeling and non-negative matrix factorization (NMF) for count data.
+
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
+                      fig.align = "center")
+```
+
+## Poisson non-negative matrix factorization
+
+In Poisson NMF ([Lee & Seung, 2001][lee-seung-2001]), the counts
+$x_{ij}$---elements of an $n \times m$ counts matrix $X$---are modeled
+using the Poisson distribution:
+$$
+x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}),
+$$
+where each Poisson *rate*, $\lambda_{ij}$, is given by a simple linear
+combination of parameters $f$ and $l$ that are to be estimated from
+the data:
+$$
+\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk}.
+$$
+The $K$ in the Poisson NMF model is a user-specified tuning parameter
+determining the "rank" of the matrix factorization.
+
+The `fit_poisson_nmf` function computes *maximum-likelihood estimates*
+(MLEs) of the Poisson NMF parameters. The parameters are stored as an
+$m \times K$ matrix $F$ and an $n \times K$ matrix $L$. Here's an
+example:
+
+```{r fit-poisson-nmf-model, message=FALSE}
+library(Matrix)
+library(fastTopics)
+set.seed(1)
+dat <- simulate_count_data(80,100,3)
+fit <- fit_poisson_nmf(dat$X,k = 3,numiter = 200,verbose = FALSE)
+dim(dat$X)
+dim(fit$F)
+dim(fit$L)
+```
+
+The Poisson NMF optimization algorithm can be understood as finding an
+L and F that maximize the likelihood,
+
 ```{r}
+# Add code here.
+```
+
+or, equivalently, minimize the *deviance*,
+
+```{r}
+# Add code here.
+```
+
+(Note that the mles of
+$L$ and $F$ in this model are not unique because multiplying any
+column of $L$ by $c$ and dividing the same column of $F$ by $c$ yields
+the same likelihood.)
+
+## Topic modeling
+
+The topic model (Hoffman, xxx) is: $$X_{i\cdot}
+\sim Mult(n_i, P_i)$$ where $n_i:= \sum_j X_{ij}$ and $P = \tilde{L}
+\tilde{F}^T$, where $\tilde{L}$ and $\tilde{F}$ are non-negative
+matrices as above to be estimated, similar to $L$ and $F$ above, but
+constrained so that each row of $\tilde{L}$ sums to 1 and each column
+of $\tilde{F}$ sums to 1.  The maximum likelihood estimates for
+$\tilde{L}$ and $\tilde{F}$ in the topic model are simple to obtain
+from the maximum likelihood estimates for $L$ and $F$ in the pNMF
+model, and vice versa. However, the pNMF model is easier to work with
+from a computational perspective because of the lack of constraints.
+So we provide functions to fit the pNMF model (`fit_poisson_nmf`) and
+a function to obtain the topic model fit (`poisson2multinom`).
+
+```{r test-chunk}
 rnorm(10)
 ```
+
+[lee-seung-2001]: http://papers.nips.cc/paper/1861-algorithms-for-non-negative-matrix-factorization

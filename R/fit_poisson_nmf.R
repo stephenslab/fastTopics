@@ -315,7 +315,7 @@
 fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                              update.factors = seq(1,ncol(X)),
                              update.loadings = seq(1,nrow(X)),
-                             method = c("em","scd","ccd","mu"), 
+                             method = c("scd","em","mu","ccd"), 
                              control = list(), verbose = TRUE) {
 
   # CHECK & PROCESS INPUTS
@@ -399,7 +399,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-25).\n")
+    cat("(fastTopics 0.3-26).\n")
   }
   
   # INITIALIZE ESTIMATES

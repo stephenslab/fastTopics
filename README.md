@@ -5,8 +5,10 @@
 [![CircleCI build status](https://circleci.com/gh/stephenslab/fastTopics.svg?style=svg)](https://circleci.com/gh/stephenslab/fastTopics)
 [![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/fastTopics)
 
-R package implementing fast optimization algorithms for fitting topic
-models and non-negative matrix factorizations to count data.
+fastTopics is an R package implementing fast optimization algorithms
+for fitting topic models and non-negative matrix factorizations to
+count data. It exploits the [close relationship][add-link-here]
+between topic modeling and Poisson non-negative matrix factorization.
 
 If you find a bug, or you have a question or feedback on this software,
 please post an [issue][issues].
