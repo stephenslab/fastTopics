@@ -1,5 +1,5 @@
 ---
-title: Exploring the close relationship between topic modeling and non-negative matrix factorization
+title: Exploring the close relationship between topic modeling and non-negative matrix factorization for count data
 author: Peter Carbonetto
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -28,18 +28,20 @@ $$
 x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}),
 $$
 where each Poisson *rate*, $\lambda_{ij}$, is given by a simple linear
-combination of parameters $f$ and $l$ that are to be estimated from
+combination of parameters, $f_{jk}$ and $l_{ik}$, to be estimated from
 the data:
 $$
 \lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk}.
 $$
-The $K$ in the Poisson NMF model is a user-specified tuning parameter
-determining the "rank" of the matrix factorization.
+
+The $K$ above is a user-specified tuning parameter determining the
+"rank" of the matrix factorization.
 
 The `fit_poisson_nmf` function computes *maximum-likelihood estimates*
-(MLEs) of the Poisson NMF parameters. The parameters are stored as an
-$m \times K$ matrix $F$ and an $n \times K$ matrix $L$. Here's an
-example:
+(MLEs) of the Poisson NMF parameters. These parameters are stored as
+an $m \times K$ matrix $F$ and an $n \times K$ matrix $L$. Drawing the
+connection to PCA, we call $L$ the "loadings" matrix, and $F$ the
+"factors" matrix. Here's an example:
 
 ```{r fit-poisson-nmf-model, message=FALSE}
 library(Matrix)
@@ -47,28 +49,23 @@ library(fastTopics)
 set.seed(1)
 dat <- simulate_count_data(80,100,3)
 fit <- fit_poisson_nmf(dat$X,k = 3,numiter = 200,verbose = FALSE)
-dim(dat$X)
-dim(fit$F)
-dim(fit$L)
+rbind(dim(dat$X),
+      dim(fit$L),
+      dim(fit$F))
 ```
 
-The Poisson NMF optimization algorithm can be understood as finding an
-L and F that maximize the likelihood,
+The Poisson NMF optimization algorithm can be understood as finding 
+$L$ and $F$ that maximize the likelihood,
 
-```{r}
-# Add code here.
+```{r plot-loglik, fig.height=2.5, fig.width=3.5}
+plot_progress_poisson_nmf(fit,x = "iter",y = "loglik")
 ```
 
-or, equivalently, minimize the *deviance*,
+or, equivalently, minimize the *deviance*.
 
-```{r}
-# Add code here.
-```
-
-(Note that the mles of
-$L$ and $F$ in this model are not unique because multiplying any
-column of $L$ by $c$ and dividing the same column of $F$ by $c$ yields
-the same likelihood.)
+Note that the MLE is not unique; we can multiply each column $k$ of
+$F$ by some scalar $a_k$ and divide the corresponding columnof $L$ by
+the same $a_k$ and the likelihood will not change.
 
 ## Topic modeling
 
