@@ -24,4 +24,12 @@ to do
 
 + Update the pkgdown site.
 
++ Create vignette giving more details about the different optimization
+  algorithms. (Then simplify the fit_poisson_nmf example.)
+
++ Create vignette illustrating application of fastTopics to text data.
+
++ Create vignette illustrating application of fastTopics to gene
+  expression (single-cell RNA-seq) data.
+
 + Add CITATION.

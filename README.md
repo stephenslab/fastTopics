@@ -34,36 +34,36 @@ Note that installing the package will require a C++ compiler setup
 that is appropriate for the version of R installed on your
 computer. For details, refer to the [CRAN documentation][cran].
 
-Simulate a 80 x 100 counts matrix:
+Simulate a (sparse) 80 x 100 counts matrix:
 
 ```R
+library(Matrix)
 set.seed(1)
-X <- simulate_count_data(80,100,k = 3)$X
+X <- simulate_count_data(80,100,k = 3,sparse = TRUE)$X
 ```
 
-Fit the Poisson NMF model using the multiplicative ("mu") and
-sequential co-ordinate ascent ("scd") updates:
+Remove columns (words) that do not appear in any row (document).
 
 ```R
-fit1 <- fit_poisson_nmf(X,k = 3,numiter = 500,method = "mu")
-fit2 <- fit_poisson_nmf(X,k = 3,numiter = 200,method = "scd",
-                        control = list(numiter = 4))
+X <- X[,colSums(X > 0) > 0]
 ```
 
-Compare the two fits:
+Fit the Poisson NMF model by running 200 updates (you may want to
+start with fewer iterations and see how it goes):
 
 ```R
-fits <- list(mu = fit1,scd = fit2)
-print(compare_poisson_nmf_fits(fits),digits = 8)
+fit <- fit_poisson_nmf(X,k = 3,numiter = 200)
 ```
 
-Compare the improvement in the solution over time:
+Recover the topic model. After this step, the L matrix contains
+the topic probabilities ("loadings"), and the F matrix contains the
+word probabilities ("factors").
 
 ```R
-plot_progress_poisson_nmf(fits)
+fit.multinom <- poisson2multinom(fit)
 ```
 
-For more, work through the `fit_poisson_nmf` example:
+For more, see the examples included with `help(fit_poisson_nmf)`:
 
 ```R
 example("fit_poisson_nmf")
