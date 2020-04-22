@@ -142,11 +142,11 @@ From topic model to Poisson NMF
 
 We can also go in the reverse direction and recover a Poisson NMF fit
 from a multinomial topic model fit, even when the sample sizes $s_i$
-have not been estimated:
+have not been estimated. We give an example to illustrate:
 
 ```{r multinom2poisson, fig.height=3, fig.width=3.25}
 fit.multinom["s"] <- NULL
-fit2 <- multinom2poisson(fit.multinom,dat$X)
+fit2     <- multinom2poisson(fit.multinom,dat$X)
 loglik1  <- loglik_poisson_nmf(dat$X,fit1)
 loglik2  <- loglik_poisson_nmf(dat$X,fit2)
 quickplot(x = loglik1,y = loglik2) + theme_cowplot(12)
@@ -154,6 +154,8 @@ quickplot(x = loglik1,y = loglik2) + theme_cowplot(12)
 
 Summary
 -------
+
+This approach combines the benefits of Poisson NMF and topic modeling.
 
 The Poisson NMF is easier to fit because it doesn't have the
 constraints. On ther other hand, there are many reasons to prefer the
