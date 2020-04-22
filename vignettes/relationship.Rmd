@@ -88,20 +88,22 @@ $i$th row, and the multinomial probabilities are
 $$
 \pi_{ij} = \sum_{k=1}^K l_{ik}^{\ast} f_{jk}^{\ast}
 $$
-Note the similarity to the Poisson rates $\lambda_{ij}$ above.  There
-is, however, a key difference: the parameters $l_{ik}^{\ast} \geq 0,
-f_{jk}^{\ast} \geq 0$ are additionally constrained so that each row of
-the loadings matrix $L^{\ast}$ and each column of factors matrix
-$F^{\ast}$ sums to 1:
+
+where $l_{ik}^{\ast} \geq 0, f_{jk}^{\ast} \geq 0$. Note the
+similarity to the Poisson rates $\lambda_{ij}$ above. There is,
+however, an important difference: the topic model parameters are
+additionally constrained so that each row of the loadings matrix,
+$L^{\ast}$, and each column of factors matrix, $F^{\ast}$, sums to 1:
 $$
 \sum_{k=1}^K l_{ik}^{\ast} = 1, \qquad
 \sum_{j=1}^m f_{jk}^{\ast} = 1.
 $$
-With the addition of these constraints, the $\pi_{ij}$'s are
-guaranteed to be probabilities, and the factors and loadings have a
-simple interpretation: $l_{ik}^{\ast}$ is the proportion that
-topic $k$ contributes to the counts in sample $i$; $f_{jk}$ is the
-probability of token $j$ occuring in topic $k$.
+
+With these new constraints, the $\pi_{ij}$'s are guaranteed to be
+probabilities, and the factors and loadings have a simple
+interpretation: $l_{ik}^{\ast}$ is the proportion that topic $k$
+contributes to the counts in sample $i$; $f_{jk}$ is the probability
+of item $j$ occuring in topic $k$.
 
 From Poisson NMF to topic model
 -------------------------------
@@ -113,7 +115,7 @@ is easily recovered:
 fit.multinom <- poisson2multinom(fit1)
 ```
 
-Indeed, therows of $L$ and columns of $F$ sum to 1:
+The rows of $L$ and columns of $F$ indeed sum to 1:
 
 ```{r poisson2multinom-2}
 range(rowSums(fit.multinom$L))
@@ -121,14 +123,12 @@ range(colSums(fit.multinom$F))
 ```
 
 The multinomial topic model is in fact a *reparameterization* of the
-Poisson NMF model, and the likelihood does not change with
-this reparameterization. Specifically, we have the following result:
-$$
-\mathrm{Multinom}(x_i; t_i, \pi_i) \times \mathrm{Poisson}(t_i; s_i) =
-\prod_{j=1}^m \mathrm{Poisson}(x_{ij}; \lambda_{ij}),
-$$
-in which the $s_i$'s are the mean estimates of the document sizes
- $t_i$. We can check that this result holds in the toy data:
+Poisson NMF model, and nex we will show that the likelihood does not
+change with this reparameterization. Specifically, we have the
+following result: $$ \mathrm{Multinom}(x_i; t_i, \pi_i) \times
+\mathrm{Poisson}(t_i; s_i) = \prod_{j=1}^m \mathrm{Poisson}(x_{ij};
+\lambda_{ij}), $$ in which the $s_i$'s are the "size factors". We can
+check that this result holds in the toy data:
 
 ```{r loglik-poisson-vs-multinom, fig.height=3, fig.width=3.25}
 ll.pnmf     <- loglik_poisson_nmf(dat$X,fit1)
@@ -140,22 +140,28 @@ quickplot(x = ll.pnmf,y = ll.multinom) + theme_cowplot(12)
 From topic model to Poisson NMF
 -------------------------------
 
-We can also go in the reverse direction and recover a Poisson NMF fit
-from a multinomial topic model fit, even when the sample sizes $s_i$
-have not been estimated. We give an example to illustrate:
+We can also easily go in the reverse direction, from Poisson NMF fit
+to multinomial topic model fit. We give an example (we remove the size
+factor estimates returned by `poisson2multinom` to show that they are
+not needed):
 
 ```{r multinom2poisson, fig.height=3, fig.width=3.25}
 fit.multinom["s"] <- NULL
-fit2     <- multinom2poisson(fit.multinom,dat$X)
-loglik1  <- loglik_poisson_nmf(dat$X,fit1)
-loglik2  <- loglik_poisson_nmf(dat$X,fit2)
+fit2    <- multinom2poisson(fit.multinom,dat$X)
+loglik1 <- loglik_poisson_nmf(dat$X,fit1)
+loglik2 <- loglik_poisson_nmf(dat$X,fit2)
 quickplot(x = loglik1,y = loglik2) + theme_cowplot(12)
 ```
+
+The likelihoods for the original Poisson NMF fit, and the one
+recovered from the topic model, are exactly the same (note the factors
+and loadings are not necessarily the same---they will only be the
+same up to a rescaling of the columns).
 
 Summary
 -------
 
-This approach combines the benefits of Poisson NMF and topic modeling.
+This approach combines the advantages of Poisson NMF and topic modeling.
 
 The Poisson NMF is easier to fit because it doesn't have the
 constraints. On ther other hand, there are many reasons to prefer the
