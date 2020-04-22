@@ -1,8 +1,6 @@
 to do
 =====
 
-+ Implement functions "select_factors" and "select_loadings".
-
 + Implement function to compute estimates of term-frequency log-ratios
   (tflrs), s.e.'s and Z-scores.
 
@@ -25,7 +23,5 @@ to do
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.
-
-+ Set up CircleCI.
 
 + Add CITATION.
