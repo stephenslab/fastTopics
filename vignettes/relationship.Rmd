@@ -21,7 +21,7 @@ modeling and non-negative matrix factorization (NMF).
 
 These are the packages used in the examples below:
 
-```{r load-pkgs}
+```{r load-pkgs, message=FALSE, warning=FALSE}
 library(fastTopics)
 library(ggplot2)
 library(cowplot)
@@ -35,15 +35,15 @@ In Poisson non-negative matrix factorization
 \times m$ matrix, $X$, are modeled by the Poisson
 distribution:
 $$
-x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}),
+x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}).
 $$
 Each Poisson rate, $\lambda_{ij}$, is a simple linear combination of
-parameters $f_{jk} \geq 0, l_{ik} \geq 0$ to be fitted the data:
+parameters $f_{jk} \geq 0, l_{ik} \geq 0$ to be fitted to the data:
 $$
-\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk}.
+\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk},
 $$
-Here, $K$ is a user-specified tuning parameter. It is the "rank" of the
-matrix factorization.
+in which $K$ is a user-specified tuning parameter specifying the rank
+of the matrix factorization.
 
 The fastTopics function `fit_poisson_nmf` computes maximum-likelihood
 estimates (MLEs) of the Poisson NMF parameters. These parameters are
@@ -123,12 +123,14 @@ range(colSums(fit.multinom$F))
 ```
 
 The multinomial topic model is in fact a *reparameterization* of the
-Poisson NMF model, and nex we will show that the likelihood does not
-change with this reparameterization. Specifically, we have the
-following result: $$ \mathrm{Multinom}(x_i; t_i, \pi_i) \times
-\mathrm{Poisson}(t_i; s_i) = \prod_{j=1}^m \mathrm{Poisson}(x_{ij};
-\lambda_{ij}), $$ in which the $s_i$'s are the "size factors". We can
-check that this result holds in the toy data:
+Poisson NMF model; in particular, the *likelihood does not change with
+this reparameterization.* We have the following result:
+$$
+\mathrm{Multinom}(x_i; t_i, \pi_i) \times \mathrm{Poisson}(t_i;
+s_i) = \prod_{j=1}^m \mathrm{Poisson}(x_{ij}; \lambda_{ij}),
+$$
+in which the $s_i$'s are the "size factors". We can check that this
+result holds in the toy data:
 
 ```{r loglik-poisson-vs-multinom, fig.height=3, fig.width=3.25}
 ll.pnmf     <- loglik_poisson_nmf(dat$X,fit1)
@@ -140,10 +142,10 @@ quickplot(x = ll.pnmf,y = ll.multinom) + theme_cowplot(12)
 From topic model to Poisson NMF
 -------------------------------
 
-We can also easily go in the reverse direction, from Poisson NMF fit
-to multinomial topic model fit. We give an example (we remove the size
-factor estimates returned by `poisson2multinom` to show that they are
-not needed):
+Also, we can easily go in the reverse direction, from Poisson NMF fit
+to multinomial topic model fit. Here is an example, again using the
+toy data (we remove the size factor estimates returned by
+`poisson2multinom` to show that they are not needed):
 
 ```{r multinom2poisson, fig.height=3, fig.width=3.25}
 fit.multinom["s"] <- NULL
@@ -153,29 +155,28 @@ loglik2 <- loglik_poisson_nmf(dat$X,fit2)
 quickplot(x = loglik1,y = loglik2) + theme_cowplot(12)
 ```
 
-The likelihoods for the original Poisson NMF fit, and the one
-recovered from the topic model, are exactly the same (note the factors
-and loadings are not necessarily the same---they will only be the
-same up to a rescaling of the columns).
+From this plot, we see that the likelihoods for the original Poisson
+NMF fit, and the one recovered from the topic model, are exactly the
+same. (Note that the factors and loadings will not necessarily be the
+same---they will the same up to a rescaling of the columns).
 
 Summary
 -------
 
-This approach combines the advantages of Poisson NMF and topic modeling.
+The "fastTopics" approach aims to combine the advantages of Poisson
+NMF and topic modeling.
 
 The Poisson NMF is easier to fit because it doesn't have the
-constraints. On ther other hand, there are many reasons to prefer the
-topic model for ease of analysis and interpretation; for example, the
-(the $l_{ik}'s$) give the topic probabilities for each document, and
-can be used to, for example, find similar documents. So we provide
-functions to fit the pNMF model (`fit_poisson_nmf`) and a function to
-obtain the topic model fit (`poisson2multinom`).
+additional constraints.
 
-**TO DO NEXT**
+On ther other hand, the parameters of the topic model are typically
+more useful for for understanding data; for example, the
+$l_{ik}^{\ast}$'s are topic proportions, which can be used to compare
+samples (documents), among other things.
 
-However, the pNMF model is easier
-to work with from a computational perspective because of the lack of
-constraints.
+So we provide a function to fit the Poisson NMF model
+(`fit_poisson_nmf`), and another function to obtain the topic model
+fit (`poisson2multinom`).
 
 [hofmann-1999]: https://doi.org/10.1145/312624.312649
 

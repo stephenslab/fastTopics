@@ -76,7 +76,7 @@ Function cost is mainly used internally to quickly compute
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.28</span>
       </span>
     </div>
 
@@ -84,6 +84,9 @@ Function cost is mainly used internally to quickly compute
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">Home</a>
+</li>
+<li>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../reference/index.html">Functions</a>
@@ -122,13 +125,13 @@ Function cost is mainly used internally to quickly compute
   argument checking is performed.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>loglik_poisson_nmf</span>(<span class='no'>X</span>, <span class='no'>fit</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-15</span>)
+    <pre class="usage"><span class='fu'>loglik_poisson_nmf</span>(<span class='no'>X</span>, <span class='no'>fit</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-08</span>)
 
-<span class='fu'>loglik_multinom_topic_model</span>(<span class='no'>X</span>, <span class='no'>fit</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-15</span>)
+<span class='fu'>loglik_multinom_topic_model</span>(<span class='no'>X</span>, <span class='no'>fit</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-08</span>)
 
-<span class='fu'>deviance_poisson_nmf</span>(<span class='no'>X</span>, <span class='no'>fit</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-15</span>)
+<span class='fu'>deviance_poisson_nmf</span>(<span class='no'>X</span>, <span class='no'>fit</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-08</span>)
 
-<span class='fu'>cost</span>(<span class='no'>X</span>, <span class='no'>A</span>, <span class='no'>B</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-15</span>, <span class='kw'>family</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"poisson"</span>, <span class='st'>"multinom"</span>), <span class='no'>version</span>)</pre>
+<span class='fu'>cost</span>(<span class='no'>X</span>, <span class='no'>A</span>, <span class='no'>B</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-08</span>, <span class='kw'>family</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"poisson"</span>, <span class='st'>"multinom"</span>), <span class='no'>version</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -211,9 +214,9 @@ implementation is used. The R version is typically faster when
 #&gt; i10 -25.25658 17.93207</div><div class='input'>
 <span class='co'># Compute multinomial log-likelihoods.</span>
 <span class='fu'>loglik_multinom_topic_model</span>(<span class='no'>X</span>,<span class='fu'><a href='poisson2multinom.html'>poisson2multinom</a></span>(<span class='no'>fit</span>))</div><div class='output co'>#&gt;        i1        i2        i3        i4        i5        i6        i7        i8 
-#&gt; -24.15063 -19.55914 -15.95322 -19.13328 -23.80668 -11.59211 -17.17074 -12.79242 
+#&gt; -24.15062 -19.55914 -15.95322 -19.13328 -23.80668 -11.59211 -17.17073 -12.79242 
 #&gt;        i9       i10 
-#&gt; -18.51231 -22.59113 </div><div class='input'>
+#&gt; -18.51231 -22.59112 </div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

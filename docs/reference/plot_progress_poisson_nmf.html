@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.28</span>
       </span>
     </div>
 
@@ -85,6 +85,9 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">Home</a>
+</li>
+<li>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../reference/index.html">Functions</a>
@@ -126,6 +129,7 @@
 
     <pre class="usage"><span class='fu'>plot_progress_poisson_nmf</span>(
   <span class='no'>fits</span>,
+  <span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"timing"</span>, <span class='st'>"iter"</span>),
   <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"loglik"</span>, <span class='st'>"dev"</span>, <span class='st'>"res"</span>),
   <span class='kw'>add.point.every</span> <span class='kw'>=</span> <span class='fl'>20</span>,
   <span class='kw'>colors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"#E69F00"</span>, <span class='st'>"#56B4E9"</span>, <span class='st'>"#009E73"</span>, <span class='st'>"#F0E442"</span>, <span class='st'>"#0072B2"</span>, <span class='st'>"#D55E00"</span>,
@@ -146,6 +150,12 @@
       <td><p>An object of class <code>"poisson_nmf_fit"</code>, or a
 non-empty, named list in which each list element is an object of
 class <code>"poisson_nmf_fit"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>x</th>
+      <td><p>Choose <code>"timing"</code> to plot improvement in the solution
+over time, or choose <code>"iter"</code> to plot improvement in the
+solution per iteration.</p></td>
     </tr>
     <tr>
       <th>y</th>

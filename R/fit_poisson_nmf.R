@@ -8,9 +8,22 @@
 #'   the count data, X. It runs a specified number of coordinate-wise
 #'   updates to fit the L and F matrices.
 #'
-#' @details Using this function requires some care; only minimal
-#' argument checking is performed, and error messages may not be
-#' helpful.
+#' @details In Poisson non-negative matrix factorization (Lee & Seung,
+#' 2001), counts \eqn{x_{ij}} in the \eqn{n \times m} matrix, \eqn{X},
+#' are modeled by the Poisson distribution: \deqn{x_{ij} \sim
+#' \mathrm{Poisson}(\lambda_{ij}).} Each Poisson rate,
+#' \eqn{\lambda_{ij}}, is a simple linear combination of parameters
+#' \eqn{f_{jk} \geq 0, l_{ik} \geq 0} to be fitted to the data:
+#' \deqn{\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk},} in which \eqn{K} is
+#' a user-specified tuning parameter specifying the rank of the matrix
+#' factorization. Function \code{fit_poisson_nmf} computes
+#' maximum-likelihood estimates (MLEs) of the parameters.  For
+#' additional mathematical background, and an explanation of how
+#' Poisson NMF is connected to topic modeling, see the vignette:
+#' \code{vignette(topic = "relationship",package = "fastTopics")}.
+#'
+#' Using this function requires some care; only minimal argument
+#' checking is performed, and error messages may not be helpful.
 #'
 #' The EM and multiplicative updates are simple and fast, but can be
 #' slow to converge to a stationary point. When \code{control$numiter
@@ -399,7 +412,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-27).\n")
+    cat("(fastTopics 0.3-28).\n")
   }
   
   # INITIALIZE ESTIMATES
