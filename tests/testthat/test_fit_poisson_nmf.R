@@ -458,7 +458,7 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   Y   <- as(X,"dgCMatrix")
 
   # Check that the factors remain the same (up to a rescaling) when
-  # update.factors = NULL.
+  # update.factors is NULL.
   numiter <- 20
   fit0    <- init_poisson_nmf(X,F = out$F,L = out$L)
   capture.output(
@@ -470,7 +470,7 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
                scale = 1,tolerance = 1e-14)
   
   # Check that the loadings remain the same (up to a rescaling) when
-  # update.loadings = NULL.
+  # update.loadings is NULL.
   compare_loadings_ignoring_rescaling <- function (fit1, fit2, i)
     abs(max(apply(fit2$L[i,]/fit1$L[i,],2,diff)))
   capture.output(
