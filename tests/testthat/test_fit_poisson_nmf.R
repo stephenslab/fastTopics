@@ -41,16 +41,17 @@ test_that(paste("multiplicative and EM updates produce same result, and",
   # Run 20 multiplicative updates and 20 EM updates.
   numiter <- 20
   capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu"))
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu",
+                            control = list(numiter = 1)))
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
-                            control = list(nc = 1)))
+                            control = list(numiter = 1,nc = 1)))
 
   # Run 20 EM updates again, this time using multithreaded computations.
   nc <- 4
   capture.output(
     fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
-                            control = list(nc = nc)))
+                            control = list(numiter = 1,nc = nc)))
   
   # Store the counts as a sparse matrix.
   Y <- as(X,"dgCMatrix")
@@ -59,13 +60,13 @@ test_that(paste("multiplicative and EM updates produce same result, and",
   # matrix.
   capture.output(
     fit4 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "em",
-                            control = list(nc = 1)))
+                            control = list(numiter = 1,nc = 1)))
 
   # Run 20 EM updates one last time, using the sparse counts matrix,
   # and using multithreaded computations.
   capture.output(
     fit5 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "em",
-                            control = list(nc = 1)))
+                            control = list(numiter = 1,nc = 1)))
 
   # All the updates should monotonically increase the likelihood and
   # decrease the deviance.
@@ -122,44 +123,44 @@ test_that(paste("ccd and scd updates produce the same result, and",
   # Run 20 cyclic co-ordinate descent (CCD) updates.
   numiter <- 20
   capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"),
-                            control = list(nc = 1))
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
+                            control = list(numiter = 1,nc = 1)))
 
   # Run 20 sequential coordinate descent (SCD) updates.
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
-                            control = list(nc = 1)))
+                            control = list(numiter = 1,nc = 1)))
 
   # Redo the SCD updates with a sparse matrix.
   Y <- as(X,"dgCMatrix")
   capture.output(
       fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd",
-                              control = list(nc = 1)))
+                              control = list(numiter = 1,nc = 1)))
   
   # Run 20 sequential coordinate descent (SCD) updates using the
   # multithreaded computations.
   nc <- 4
   capture.output(
     fit4 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
-                            control = list(nc = nc)))
+                            control = list(numiter = 1,nc = nc)))
 
   # Redo the SCD updates one more time with a sparse matrix and
   # multithreaded computations.
   capture.output(
     fit5 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd",
-                            control = list(nc = nc)))
+                            control = list(numiter = 1,nc = nc)))
 
   # Redo the CCD updates with a sparse matrix, with and without
   # multithreading.
   capture.output(
     fit6 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "ccd",
-                            control = list(nc = 1)))
+                            control = list(numiter = 1,nc = 1)))
   capture.output(
     fit7 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
-                            control = list(nc = nc)))
+                            control = list(numiter = 1,nc = nc)))
   capture.output(
     fit8 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "ccd",
-                            control = list(nc = nc)))
+                            control = list(numiter = 1,nc = nc)))
   
   # All the updates should monotonically increase the likelihood and
   # decrease the deviance.
@@ -236,7 +237,8 @@ test_that(paste("When initialized \"close enough\" to a stationary point, the",
   # Run 300 updates of the CCD and SCD algorithms.
   numiter <- 300
   capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
+                            control = list(numiter = 1)))
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
                             control = list(numiter = 2)))
@@ -290,13 +292,15 @@ test_that(paste("All Poisson NMF updates recover same solution when",
   # algorithm.
   capture.output(
     fit0 <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F = out$F,L = out$L),
-                            numiter = 50,method = "ccd"))
+                            numiter = 50,method = "ccd",
+                            control = list(numiter = 1)))
 
   # Now improve the fit by running 100 iterations of the CCD and SCD
   # algorithms.
   numiter <- 100
   capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
+                            control = list(numiter = 1)))
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
                            control = list(numiter = 4)))
@@ -332,12 +336,14 @@ test_that(paste("Extrapolated updates achieve solutions that are as good",
   # Run 100 non-extrapolated updates using each of the methods.
   numiter <- 100
   capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu"))
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu",
+                            control = list(numiter = 1)))
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
                             control = list(numiter = 4)))
   capture.output(
-    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd"))
+    fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
+                            control = list(numiter = 1)))
   capture.output(
     fit4 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
                             control = list(numiter = 4)))
@@ -345,13 +351,13 @@ test_that(paste("Extrapolated updates achieve solutions that are as good",
   # Run 100 extrapolated updates using each of the methods.
   capture.output(
     fit5 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "mu",
-                            control = list(extrapolate = TRUE)))
+                            control = list(numiter = 1,extrapolate = TRUE)))
   capture.output(
     fit6 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
                             control = list(numiter = 4,extrapolate = TRUE)))
   capture.output(
     fit7 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "ccd",
-                            control = list(extrapolate = TRUE)))
+                            control = list(numiter = 1,extrapolate = TRUE)))
   capture.output(
     fit8 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
                             control = list(numiter = 4,extrapolate = TRUE)))
@@ -386,14 +392,17 @@ test_that("Re-fitting yields same result as one call to fit_poisson_nmf",{
   # Run 20 multiplicative updates.
   fit0 <- init_poisson_nmf(X,k = k)
   capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "mu"))
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "mu",
+                            control = list(numiter = 1)))
 
   # Run 10 multiplicative updates, then "re-fit" the model by running
   # another 10 multiplicative updates.
   capture.output(
-    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "mu"))
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "mu",
+                            control = list(numiter = 1)))
   capture.output(
-    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "mu"))
+    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "mu",
+                            control = list(numiter = 1)))
 
   # The two "fits" should be exactly the same (other than the timing).
   fit1$progress$timing <- NULL
@@ -413,11 +422,14 @@ test_that("Re-fitting yields same result as one call to fit_poisson_nmf",{
 
   # Repeat this test for the CCD updates.
   capture.output(
-    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "ccd"))
+    fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "ccd",
+                            control = list(numiter = 1)))
   capture.output(
-    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "ccd"))
+    fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 10,method = "ccd",
+                            control = list(numiter = 1)))
   capture.output(
-    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "ccd"))
+    fit2 <- fit_poisson_nmf(X,fit0 = fit2,numiter = 10,method = "ccd",
+                            control = list(numiter = 1)))
   fit1$progress$timing <- NULL
   fit2$progress$timing <- NULL
   expect_equal(fit1,fit2)

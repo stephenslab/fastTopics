@@ -388,8 +388,11 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                         control,keep.null = TRUE)
   if (any(control$minval == 0))
     warning("Updates may not converge when minval = 0")
-  if (control$numiter > 1 & (method == "mu" | method == "ccd"))
-    stop("multiplicative and CCD updates do not allow control$numiter > 1")
+  if (control$numiter > 1 & (method == "mu" | method == "ccd")) {
+    warning("multiplicative and CCD updates do not allow control$numiter > 1; ",
+            "setting control$numiter = 1")
+    control$numiter <- 1
+  }
   if (is.na(control$nc)) {
     setThreadOptions()
     control$nc <- defaultNumThreads()
@@ -412,7 +415,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-28).\n")
+    cat("(fastTopics 0.3-29).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -852,7 +855,7 @@ safeguard.fit <- function (fit, minval) {
 #' @export
 #' 
 fit_poisson_nmf_control_default <- function()
-  c(list(numiter           = 1,
+  c(list(numiter           = 4,
          minval            = 1e-15,
          eps               = 1e-8,
          zero.threshold    = 1e-6,
