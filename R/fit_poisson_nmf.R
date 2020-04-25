@@ -373,7 +373,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   update.factors  <- sort(update.factors)
   update.loadings <- sort(update.loadings)
   if (length(update.factors) == 0 & length(update.loadings) == 0)
-    stop("No factors or loadings have been selected for updating")
+    stop("None of the factors or loadings have been selected for updating")
   
   # Check and process input argument "method".
   method <- match.arg(method)
@@ -423,7 +423,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-30).\n")
+    cat("(fastTopics 0.3-31).\n")
   }
   
   # INITIALIZE ESTIMATES
