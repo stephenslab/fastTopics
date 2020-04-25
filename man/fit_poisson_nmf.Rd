@@ -54,16 +54,18 @@ perform.}
 \item{update.factors}{A numeric vector specifying which factors
 (rows of \code{F}) to update. By default, all factors are
 updated. Note that the rows that are not updated may still change
-by rescaling. This option is only implemented for \code{method =
-"em"} and \code{method = "scd"}. If another method is selected, the
-default setting of \code{update.factors} must be used.}
+by rescaling. When \code{NULL}, all factors are fixed. This option
+is only implemented for \code{method = "em"} and \code{method =
+"scd"}. If another method is selected, the default setting of
+\code{update.factors} must be used.}
 
 \item{update.loadings}{A numeric vector specifying which loadings
 (rows of \code{L}) to update. By default, all loadings are
 updated. Note that the rows that are not updated may still change
-by rescaling. This option is only implemented for \code{method =
-"em"} and \code{method = "scd"}. If another method is selected, the
-default setting of \code{update.loadings} must be used.}
+by rescaling. When \code{NULL}, all loadings are fixed. This option
+is only implemented for \code{method = "em"} and \code{method =
+"scd"}. If another method is selected, the default setting of
+\code{update.loadings} must be used.}
 
 \item{method}{The method to use for updating the factors and
 loadings. Four methods are implemented: multiplicative updates,

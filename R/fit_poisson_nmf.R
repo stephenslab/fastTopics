@@ -137,16 +137,18 @@
 #' @param update.factors A numeric vector specifying which factors
 #'   (rows of \code{F}) to update. By default, all factors are
 #'   updated. Note that the rows that are not updated may still change
-#'   by rescaling. This option is only implemented for \code{method =
-#'   "em"} and \code{method = "scd"}. If another method is selected, the
-#'   default setting of \code{update.factors} must be used.
+#'   by rescaling. When \code{NULL}, all factors are fixed. This option
+#'   is only implemented for \code{method = "em"} and \code{method =
+#'   "scd"}. If another method is selected, the default setting of
+#'   \code{update.factors} must be used.
 #'
 #' @param update.loadings A numeric vector specifying which loadings
 #'   (rows of \code{L}) to update. By default, all loadings are
 #'   updated. Note that the rows that are not updated may still change
-#'   by rescaling. This option is only implemented for \code{method =
-#'   "em"} and \code{method = "scd"}. If another method is selected, the
-#'   default setting of \code{update.loadings} must be used.
+#'   by rescaling. When \code{NULL}, all loadings are fixed. This option
+#'   is only implemented for \code{method = "em"} and \code{method =
+#'   "scd"}. If another method is selected, the default setting of
+#'   \code{update.loadings} must be used.
 #' 
 #' @param method The method to use for updating the factors and
 #'   loadings. Four methods are implemented: multiplicative updates,
@@ -370,6 +372,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # Process input arguments "update.factors" and "update.loadings".
   update.factors  <- sort(update.factors)
   update.loadings <- sort(update.loadings)
+  if (length(update.factors) == 0 & length(update.loadings) == 0)
+    stop("No factors or loadings have been selected for updating")
   
   # Check and process input argument "method".
   method <- match.arg(method)
@@ -382,7 +386,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     if (method == "mu" | method == "ccd")
       stop("All factors and loadings must be updated for method = \"mu\" ",
            "and method = \"ccd\"")
-  
+    
   # Check and process the optimization settings.
   control <- modifyList(fit_poisson_nmf_control_default(),
                         control,keep.null = TRUE)
@@ -393,6 +397,10 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
             "setting control$numiter = 1")
     control$numiter <- 1
   }
+  if ((length(update.factors) == 0 | length(update.loadings) == 0) &
+      control$extrapolate)
+    stop("control$extrapolate cannot be TRUE when all factors or loadings ",
+         "are fixed")
   if (is.na(control$nc)) {
     setThreadOptions()
     control$nc <- defaultNumThreads()
@@ -415,7 +423,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-29).\n")
+    cat("(fastTopics 0.3-30).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -669,17 +677,21 @@ update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
   # Update the loadings ("activations"). The factors are forced to be
   # non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
-  fit$L <- update_loadings_poisson_nmf(X,fit$F,fit$L,update.loadings,method,
-                                       control)
-  fit$L <- pmax(fit$L,control$minval)
+  if (length(update.loadings) > 0) {
+    fit$L <- update_loadings_poisson_nmf(X,fit$F,fit$L,update.loadings,
+                                         method,control)
+    fit$L <- pmax(fit$L,control$minval)
+  }
 
   # Update the factors ("basis vectors"). The loadings are forced to
   # be non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
-  fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,update.factors,method,
-                                      control)
-  fit$F <- pmax(fit$F,control$minval)
-
+  if (length(update.factors) > 0) {
+    fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,update.factors,
+                                        method,control)
+    fit$F <- pmax(fit$F,control$minval)
+  }
+  
   # The extrapolated and "current best" estimates are the same as the
   # non-extrapolated estimates.
   fit$Fy <- fit$F

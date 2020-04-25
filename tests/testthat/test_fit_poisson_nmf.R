@@ -490,26 +490,26 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   compare_factors_ignoring_rescaling <- function (fit1, fit2, j)
     abs(max(apply(fit2$F[j,]/fit1$F[j,],2,diff)))
   expect_equal(compare_factors_ignoring_rescaling(fit0,fit1,j0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 1e-14)
   expect_equal(compare_factors_ignoring_rescaling(fit0,fit2,j0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 1e-14)
   expect_equal(compare_factors_ignoring_rescaling(fit0,fit3,j0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 1e-14)
   expect_equal(compare_factors_ignoring_rescaling(fit0,fit4,j0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 1e-14)
   
   # The loadings that are not selected for updating should not change,
   # aside from a rescaling.
   compare_loadings_ignoring_rescaling <- function (fit1, fit2, i)
     abs(max(apply(fit2$L[i,]/fit1$L[i,],2,diff)))
   expect_equal(compare_loadings_ignoring_rescaling(fit0,fit1,i0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 1e-14)
   expect_equal(compare_loadings_ignoring_rescaling(fit0,fit2,i0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 1e-14)
   expect_equal(compare_loadings_ignoring_rescaling(fit0,fit3,i0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 1e-14)
   expect_equal(compare_loadings_ignoring_rescaling(fit0,fit4,i0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 1e-14)
 
   # Run all variants of the SCD algorithm.
   capture.output(
