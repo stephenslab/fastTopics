@@ -3,7 +3,7 @@ context("fit_poisson_nmf")
 test_that("Version number in fit_poisson_nmf with verbose = TRUE is correct",{
   set.seed(1)
   X   <- generate_test_data(20,40,3)$X
-  out <- capture.output(fit_poisson_nmf(X,k = 3))
+  out <- capture.output(fit <- fit_poisson_nmf(X,k = 3,init_method = "random"))
   x   <- unlist(strsplit(out[2],"(",fixed = TRUE))[2]
   x   <- unlist(strsplit(x,")"))[1]
   expect_equal(paste("fastTopics",packageDescription("fastTopics")$Version),x)
@@ -390,10 +390,11 @@ test_that("Re-fitting yields same result as one call to fit_poisson_nmf",{
   X    <- out$X
 
   # Run 20 multiplicative updates.
-  fit0 <- init_poisson_nmf(X,k = k)
-  capture.output(
+  capture.output({
+    fit0 <- init_poisson_nmf(X,k = k)
     fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 20,method = "mu",
-                            control = list(numiter = 1)))
+                            control = list(numiter = 1))
+  })
 
   # Run 10 multiplicative updates, then "re-fit" the model by running
   # another 10 multiplicative updates.

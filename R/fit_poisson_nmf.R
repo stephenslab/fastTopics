@@ -157,6 +157,9 @@
 #'   and cyclic co-ordinate descent (CCD), \code{method = "ccd"}. See
 #'   \sQuote{Details} for a detailed description of these methods.
 #'
+#' @param init_method Describe "init_method" input argument here. Only
+#'   relevant if initial values of F, L are not provided.
+#' 
 #' @param control A list of parameters controlling the behaviour of
 #'   the optimization algorithm. See \sQuote{Details}.
 #' 
@@ -262,6 +265,9 @@
 #'   factorization and applications to pattern extraction, deconvolution
 #'   and imputation. \emph{bioRxiv} doi:10.1101/321802.
 #'
+#'   Ke, Z. & Wang, M. (2017). A new SVD approach to optimal topic
+#'   estimation. \emph{ArXiv} \url{http://arxiv.org/abs/1704.07016}
+#'
 #' @examples
 #' # Simulate a 80 x 100 data set.
 #' library(Matrix)
@@ -322,15 +328,14 @@
 #' @useDynLib fastTopics
 #'
 #' @importFrom utils modifyList
-#' @importFrom RcppParallel setThreadOptions
-#' @importFrom RcppParallel defaultNumThreads
 #'
 #' @export
 #'
 fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                              update.factors = seq(1,ncol(X)),
                              update.loadings = seq(1,nrow(X)),
-                             method = c("scd","em","mu","ccd"), 
+                             method = c("scd","em","mu","ccd"),
+                             init_method = c("topicscore","random"),
                              control = list(), verbose = TRUE) {
 
   # CHECK & PROCESS INPUTS
@@ -350,21 +355,6 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   n <- nrow(X)
   m <- ncol(X)
 
-  # Only one of "k" and "fit0" should be provided. If argument "k" is
-  # given, generate a random initialization of the factors and
-  # loadings.
-  if (!(missing(k) & !missing(fit0) | (!missing(k) & missing(fit0))))
-    stop("Provide a rank, \"k\", or an initialization, \"fit0\", but not both")
-  if (missing(fit0))
-    fit0 <- init_poisson_nmf(X,k = k)
-  k <- ncol(fit0$F)
-
-  # Check input argument "fit0".
-  if (!(is.list(fit0) & inherits(fit0,"poisson_nmf_fit")))
-    stop("Input argument \"fit0\" should be an object of class ",
-         "\"poisson_nmf_fit\", such as an output of init_poisson_nmf")
-  fit <- fit0
-    
   # Check input argument "numiter".
   if (any(numiter < 1))
     stop("Input argument \"numiter\" must be 1 or greater")
@@ -375,8 +365,9 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   if (length(update.factors) == 0 & length(update.loadings) == 0)
     stop("None of the factors or loadings have been selected for updating")
   
-  # Check and process input argument "method".
-  method <- match.arg(method)
+  # Check and process input arguments "method" and "init_method".
+  method      <- match.arg(method)
+  init_method <- match.arg(init_method)
   if (method == "mu" & is.sparse.matrix(X)) {
     warning("method = \"mu\" is not implemented for sparse counts matrices; ",
             "attempting to convert \"X\" to a dense matrix")
@@ -386,29 +377,39 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     if (method == "mu" | method == "ccd")
       stop("All factors and loadings must be updated for method = \"mu\" ",
            "and method = \"ccd\"")
-    
+  
   # Check and process the optimization settings.
   control <- modifyList(fit_poisson_nmf_control_default(),
                         control,keep.null = TRUE)
   if (any(control$minval == 0))
     warning("Updates may not converge when minval = 0")
   if (control$numiter > 1 & (method == "mu" | method == "ccd")) {
-    warning("multiplicative and CCD updates do not allow control$numiter > 1; ",
-            "setting control$numiter = 1")
+    warning("multiplicative and CCD updates do not allow ",
+            "control$numiter > 1; setting control$numiter = 1")
     control$numiter <- 1
   }
   if ((length(update.factors) == 0 | length(update.loadings) == 0) &
       control$extrapolate)
     stop("control$extrapolate cannot be TRUE when all factors or loadings ",
          "are fixed")
-  if (is.na(control$nc)) {
-    setThreadOptions()
-    control$nc <- defaultNumThreads()
-  } else
-    setThreadOptions(numThreads = control$nc)
-  if (control$nc > 1)
-    message(sprintf("Using %d RcppParallel threads.",control$nc))
+  control$nc <- initialize.multithreading(control$nc)
+  
+  # Only one of "k" and "fit0" should be provided. If argument "k" is
+  # given, generate a random initialization of the factors and
+  # loadings.
+  if (!(missing(k) & !missing(fit0) | (!missing(k) & missing(fit0))))
+    stop("Provide a rank, \"k\", or an initialization, \"fit0\", but not both")
+  if (missing(fit0))
+    fit0 <- init_poisson_nmf(X,k = k,init_method = init_method,
+                             control = control,verbose = verbose)
 
+  # Check input argument "fit0".
+  if (!(is.list(fit0) & inherits(fit0,"poisson_nmf_fit")))
+    stop("Input argument \"fit0\" should be an object of class ",
+         "\"poisson_nmf_fit\", such as an output of init_poisson_nmf")
+  fit <- fit0
+  k   <- ncol(fit$F)
+  
   # Give an overview of the optimization settings.
   if (verbose) {
     cat(sprintf("Fitting rank-%d Poisson NMF to %d x %d %s matrix.\n",k,n,m,
@@ -423,7 +424,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-31).\n")
+    cat("(fastTopics 0.3-32).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -484,21 +485,12 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #'   extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 #'   of Ang & Gillis (2019).
 #'
-#' @param minval A small, positive constant used to safeguard the
-#     updates. See the description of \code{control$minval} in
-#     "Details" for more information.
-#' 
-#' @param e A small, non-negative number added to the terms inside the
-#'   logarithms to avoid computing logarithms of zero. See the
-#'   description of \code{control$eps} in "Details" for more
-#'   information.
-#' 
 #' @export
 #' 
 init_poisson_nmf <-
-  function (X, F, L, k, beta = 0.5, betamax = 0.99,
-            minval = fit_poisson_nmf_control_default()$minval,
-            e = fit_poisson_nmf_control_default()$eps) {
+  function (X, F, L, k, init_method = c("topicscore","random"),
+            beta = 0.5, betamax = 0.99, control = list(),
+            verbose = TRUE) {
 
   # Check input X.
   if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
@@ -512,43 +504,76 @@ init_poisson_nmf <-
   # Only one of k and (F,L) should be provided.
   if (!(missing(k) & (!missing(F) & !missing(L)) |
        (!missing(k) & (missing(F) & missing(L)))))
-    stop("Provide a rank, k, or an initialization, (F, L), but not both")
+    stop("Provide a rank (k) or an initialization (F, L), but not both")
   if (missing(k))
     k <- ncol(F)
   if (any(k < 2))
     stop("Matrix factorization rank \"k\" should be 2 or greater")
 
-  # If the factor matrix is not provided, initialize the entries
-  # uniformly at random.
-  if (missing(F)) {
-    F           <- rand(m,k)
+  # Check and process input argument "init_method".
+  init_method <- match.arg(init_method)
+  
+  # Check and process the optimization settings.
+  control <- modifyList(fit_poisson_nmf_control_default(),
+                        control,keep.null = TRUE)
+
+  # If the factor and loadings matrices are not provided, initialize
+  # them using the chosen method. If the factor and loadings matrices
+  # are provided, run a few simple checks to verify that they are
+  # valid initial estimates.
+  if (missing(F) | missing(L)) {
+
+    if (init_method == "random") {
+
+      # Initialize the factors and loadings uniformly at random.
+      F <- rand(m,k)
+      L <- rand(n,k)
+    } else if (init_method == "topicscore") {
+
+      # Initialize the factors using the "Topic SCORE" algorithm.
+      if (verbose)
+        cat("Initializing factors using Topic SCORE algorithm.\n")
+      F <- topic_score(X,k)
+
+      # Fit the loadings by running a small number of sequential
+      # co-ordinate descent (SCD) updates.
+      if (verbose)
+        cat(sprintf("Initializing loadings by running %d SCD updates.\n",
+                    control$init_numiter))
+      control$nc <- initialize.multithreading(control$nc)
+      s <- rowSums(X)
+      L <- matrix(s,n,k)
+      L <- scd_update_loadings(X,L,t(F),1:n,control$init_numiter,
+                               control$nc,control$eps)
+    }
     rownames(F) <- colnames(X)
-    colnames(F) <- paste0("k",1:k)
-  } else if (!(is.matrix(F) & is.numeric(F)))
-    stop("Input argument \"F\" should be a numeric matrix (is.matrix(F) ",
-         "should return TRUE)")
-  if (is.integer(F))
-    storage.mode(F) <- "double"
-    
-  # If the loading matrix is not provided, initialize the entries
-  # uniformly at random.
-  if (missing(L)) {
-    L           <- rand(n,k)
     rownames(L) <- rownames(X)
+    colnames(F) <- paste0("k",1:k)
     colnames(L) <- paste0("k",1:k)
-  } else if (!(is.matrix(L) & is.numeric(L)))
-    stop("Input argument \"L\" should be a numeric matrix (is.matrix(L) ",
-         "should return TRUE)")
-  if (is.integer(L))
-    storage.mode(L) <- "double"
+  } else {
+
+    # Check the provided factor matrix.
+    if (!(is.matrix(F) & is.numeric(F)))
+      stop("Input argument \"F\" should be a numeric matrix (is.matrix(F) ",
+           "should return TRUE)")
+    if (is.integer(F))
+      storage.mode(F) <- "double"
+
+    # Check the provided loadings matrix.
+    if (!(is.matrix(L) & is.numeric(L)))
+      stop("Input argument \"L\" should be a numeric matrix (is.matrix(L) ",
+           "should return TRUE)")
+    if (is.integer(L))
+      storage.mode(L) <- "double"
+  }
 
   # Force the initial estimates to be positive.
-  F <- pmax(F,minval)
-  L <- pmax(L,minval)
-  
+  F <- pmax(F,control$minval)
+  L <- pmax(L,control$minval)
+
   # Compute the value of the objective ("loss") function at the
   # initial estimates of the factors and loading.
-  loss <- sum(cost(X,L,t(F),e))
+  loss <- sum(cost(X,L,t(F),control$eps))
 
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
@@ -868,6 +893,7 @@ safeguard.fit <- function (fit, minval) {
 #' 
 fit_poisson_nmf_control_default <- function()
   c(list(numiter           = 4,
+         init_numiter      = 10,
          minval            = 1e-15,
          eps               = 1e-8,
          zero.threshold    = 1e-6,

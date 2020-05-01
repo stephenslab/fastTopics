@@ -73,6 +73,22 @@ rescale.factors <- function (F, L) {
 rand <- function (n, m, min = 0, max = 1) 
   matrix(runif(n*m,min,max),n,m)
 
+# TO DO: Explain here what this function does, and how to use it.
+#
+#' @importFrom RcppParallel setThreadOptions
+#' @importFrom RcppParallel defaultNumThreads
+#'
+initialize.multithreading <- function (n) {
+  if (is.na(n)) {
+    setThreadOptions()
+    n <- defaultNumThreads()
+  } else
+    setThreadOptions(numThreads = n)
+  if (n > 1)
+    message(sprintf("Using %d RcppParallel threads.",n))
+  return(n)
+}
+
 # For a Poisson non-negative matrix factorization with rank = 1, the
 # maximum-likelihood estimate (MLE) has a closed-form (up to a scaling
 # factor); this function returns the MLE subject to the constraint
@@ -84,3 +100,4 @@ rand <- function (n, m, min = 0, max = 1)
 fit_pnmf_rank1 <- function (X)
   list(F = matrix(colMeans(X)),
        L = matrix(rowMeans(X)))
+

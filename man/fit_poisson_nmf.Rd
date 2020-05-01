@@ -23,10 +23,11 @@ init_poisson_nmf(
   F,
   L,
   k,
+  init_method = c("topicscore", "random"),
   beta = 0.5,
   betamax = 0.99,
-  minval = fit_poisson_nmf_control_default()$minval,
-  e = fit_poisson_nmf_control_default()$eps
+  control = list(),
+  verbose = TRUE
 )
 
 fit_poisson_nmf_control_default()
@@ -98,19 +99,15 @@ x k matrix, where n is the number of rows in the counts matrix
 should be non-negative. When not provided, input argument \code{k}
 should be specified instead.}
 
+\item{init_method}{Describe "init_method" input argument here. Only
+relevant if initial values of F, L are not provided.}
+
 \item{beta}{Initial setting of the extrapolation parameter. This is
 \eqn{beta} in Algorithm 3 of Ang & Gillis (2019).}
 
 \item{betamax}{Initial setting for the upper bound on the
 extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 of Ang & Gillis (2019).}
-
-\item{minval}{A small, positive constant used to safeguard the}
-
-\item{e}{A small, non-negative number added to the terms inside the
-logarithms to avoid computing logarithms of zero. See the
-description of \code{control$eps} in "Details" for more
-information.}
 }
 \value{
 Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}
@@ -383,4 +380,7 @@ Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
   Lin, X. and Boutros, P. C. (2018). Fast nonnegative matrix
   factorization and applications to pattern extraction, deconvolution
   and imputation. \emph{bioRxiv} doi:10.1101/321802.
+
+  Ke, Z. & Wang, M. (2017). A new SVD approach to optimal topic
+  estimation. \emph{ArXiv} \url{http://arxiv.org/abs/1704.07016}
 }
