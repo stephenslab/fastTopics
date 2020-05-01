@@ -39,11 +39,9 @@ non-negative. It can be a sparse matrix (class \code{"dgCMatrix"})
 or dense matrix (class \code{"matrix"}), with some exceptions (see
 \sQuote{Details}).}
 
-\item{k}{An integer 2 or greater giving the matrix rank for a
-random initialization of the factors and loadings. (They are
-initialized uniformly at random.) This argument should only be
-specified if the initial fit (\code{fit0} or \code{F, L}) are not
-already provided.}
+\item{k}{An integer 2 or greater giving the matrix rank. This
+argument should only be specified if the initial fit (\code{fit0}
+or \code{F, L}) s not provided.}
 
 \item{fit0}{The initial model fit. It should be an object of class
 \dQuote{poisson_nmf_fit}, such as an output from
@@ -76,11 +74,19 @@ loadings. Four methods are implemented: multiplicative updates,
 and cyclic co-ordinate descent (CCD), \code{method = "ccd"}. See
 \sQuote{Details} for a detailed description of these methods.}
 
-\item{init_method}{Describe "init_method" input argument here. Only
-relevant if initial values of F, L are not provided.}
+\item{init_method}{The method used to initialize the factors and
+loadings. When \code{init_method = "random"}, the factors and
+loadings are initialized uniformly at random; when
+\code{init_method = "topicscore"}, the factors are initialized
+using the (very fast) Topic SCORE algorithm (Ke & Wang, 2017), and
+the loadings are initialized by running a small number of SCD
+updates. This input argument is ignored if initial estimates of the
+factors and loadings are already provided via input \code{fit0}, or
+inputs \code{F} and \code{L}.}
 
 \item{control}{A list of parameters controlling the behaviour of
-the optimization algorithm. See \sQuote{Details}.}
+the optimization algorithm (and the Topic SCORE algorithm if it
+is used to initialize the model parameters). See \sQuote{Details}.}
 
 \item{verbose}{When \code{verbose = TRUE}, information about the
 algorithm's progress is printed to the console at each
@@ -231,10 +237,10 @@ implementation is based on version 0.4-3 of the NNLM package.
 An additional re-scaling step is performed after each update to
 promote numerical stability.
 
-TO DO: Mention that both the log-likelihood (or deviance) and
-residuals of the KKT system are used to monitor progress. Explain
-what are the KKT conditions, and that the residuals should vanish
-at a solution.
+\emph{TO DO:} Mention that both the log-likelihood (or deviance)
+and residuals of the KKT system are used to monitor
+progress. Explain what are the KKT conditions, and that the
+residuals should vanish at a solution.
 
 The \code{control} argument is a list in which any of the
 following named components will override the default optimization
@@ -291,6 +297,11 @@ algorithm settings (as they are defined by
   determine which entries of the solution are exactly zero. Any
   entries that are less than or equal to \code{zero.threshold} are
   considered to be exactly zero.}}
+
+An additional setting, \code{control$init.numter}, controls the
+number of sequential co-ordinate descent (SCD) updates that are
+performed to initialize the loadings matrix when \code{init_method
+= "topicscore"}.
 }
 \examples{
 # Simulate a 80 x 100 data set.
