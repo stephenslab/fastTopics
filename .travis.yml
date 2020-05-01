@@ -7,7 +7,7 @@ r_check_args: --as-cran
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
 install:
-  - R -e 'install.packages(c("devtools","covr","testthat","dplyr","Rcpp","RcppArmadillo","RcppParallel","ggplot2","cowplot"))'
+  - R -e 'install.packages(c("devtools","covr","testthat","quadprog","irlba","dplyr","Rcpp","RcppArmadillo","RcppParallel","ggplot2","cowplot"))'
   - R -e 'devtools::install_github("linxihui/NNLM",upgrade = "never")'
 
 env:
