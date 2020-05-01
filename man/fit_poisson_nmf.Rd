@@ -14,6 +14,7 @@ fit_poisson_nmf(
   update.factors = seq(1, ncol(X)),
   update.loadings = seq(1, nrow(X)),
   method = c("scd", "em", "mu", "ccd"),
+  init_method = c("topicscore", "random"),
   control = list(),
   verbose = TRUE
 )
@@ -75,6 +76,9 @@ loadings. Four methods are implemented: multiplicative updates,
 and cyclic co-ordinate descent (CCD), \code{method = "ccd"}. See
 \sQuote{Details} for a detailed description of these methods.}
 
+\item{init_method}{Describe "init_method" input argument here. Only
+relevant if initial values of F, L are not provided.}
+
 \item{control}{A list of parameters controlling the behaviour of
 the optimization algorithm. See \sQuote{Details}.}
 
@@ -98,9 +102,6 @@ x k matrix, where n is the number of rows in the counts matrix
 (equivalently, the number of "topics"). All entries of \code{L}
 should be non-negative. When not provided, input argument \code{k}
 should be specified instead.}
-
-\item{init_method}{Describe "init_method" input argument here. Only
-relevant if initial values of F, L are not provided.}
 
 \item{beta}{Initial setting of the extrapolation parameter. This is
 \eqn{beta} in Algorithm 3 of Ang & Gillis (2019).}

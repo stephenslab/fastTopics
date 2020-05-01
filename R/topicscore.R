@@ -16,6 +16,7 @@
 #
 # The return value is an m x k word-topic matrix.
 #
+#' @importFrom stats quantile
 #' @importFrom irlba irlba
 #' 
 topic_score <- function (X, k, k0 = ceiling(1.5*k), m = 3*k, Mquantile = 0) {
