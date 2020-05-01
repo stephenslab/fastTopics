@@ -281,11 +281,12 @@
 #' # for optimizing a Poisson non-negative matrix factorization. Let's
 #' # run the different algoriths, and compare the quality of the fits.
 #' fit.mu  <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
-#'                            method = "mu",verbose = FALSE)
+#'                            method = "mu",control = list(numiter = 1),
+#'                            verbose = FALSE)
 #' fit.em  <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
 #'                            method = "em",verbose = FALSE)
-#' fit.ccd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
-#'                            method = "ccd",verbose = FALSE)
+#' fit.ccd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "ccd",
+#'                            control = list(numiter = 1),verbose = FALSE)
 #' fit.scd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
 #'                            method = "scd",verbose = FALSE)
 #'
@@ -300,8 +301,8 @@
 #' Y <- as(X,"dgCMatrix")
 #' fit.em.sp  <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 400,
 #'                               method = "em",verbose = FALSE)
-#' fit.ccd.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
-#'                               method = "ccd",verbose = FALSE)
+#' fit.ccd.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,method = "ccd",
+#'                               control = list(numiter = 1),verbose = FALSE)
 #' fit.scd.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
 #'                               method = "scd",verbose = FALSE)
 #' fits <- list(em = fit.em,ccd = fit.ccd,scd = fit.scd,em.sp = fit.em.sp,
@@ -313,7 +314,8 @@
 #' # The "extrapolated" updates can sometimes produce much better fits.
 #' fit.ccd.ex <-
 #'   fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "ccd",
-#'                   control = list(extrapolate = TRUE),verbose = FALSE)
+#'                   control = list(numiter = 1,extrapolate = TRUE),
+#'                   verbose = FALSE)
 #' fit.scd.ex <-
 #'   fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "scd",
 #'                   control = list(extrapolate = TRUE),verbose = FALSE)
