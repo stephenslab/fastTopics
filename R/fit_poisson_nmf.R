@@ -905,16 +905,14 @@ safeguard.fit <- function (fit, minval) {
 #' @export
 #' 
 fit_poisson_nmf_control_default <- function()
-  c(list(numiter           = 4,
-         init.numiter      = 10,
-         minval            = 1e-15,
-         eps               = 1e-8,
-         zero.threshold    = 1e-6,
-         nc                = as.integer(NA),
-         extrapolate       = FALSE,
-         extrapolate.reset = 20,
-         beta.increase     = 1.1,
-         beta.reduce       = 0.75,
-         betamax.increase  = 1.05))
-
-
+  list(numiter           = 4,
+       init.numiter      = 10,
+       minval            = 1e-15,
+       eps               = 1e-8,
+       zero.threshold    = 1e-6,
+       nc                = as.integer(NA),
+       extrapolate       = FALSE,
+       extrapolate.reset = 20,
+       beta.increase     = 1.1,
+       beta.reduce       = 0.75,
+       betamax.increase  = 1.05)
