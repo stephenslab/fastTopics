@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.28</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.32</span>
       </span>
     </div>
 
@@ -74,7 +74,7 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#fasttopics" class="anchor"></a>fastTopics</h1></div>
 
-<p>fastTopics is an R package implementing fast optimization algorithms for fitting topic models and non-negative matrix factorizations to count data. The algorithms can accommodate large, sparse count data. The methods exploit the [close relationship][add-link-here] between topic modeling and Poisson non-negative matrix factorization.</p>
+<p>fastTopics is an R package implementing fast optimization algorithms for fitting topic models and (Poisson) non-negative matrix factorizations to count data. The methods exploit the <a href="https://stephenslab.github.io/fastTopics/articles/relationship.html">close relationship</a> between topic modeling and Poisson non-negative matrix factorization.</p>
 <p>If you find a bug, or you have a question or feedback on this software, please post an <a href="https://github.com/stephenslab/fastTopics/issues">issue</a>.</p>
 <div id="license" class="section level2">
 <h2 class="hasAnchor">
@@ -89,19 +89,17 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"stephenslab/fastTopics"</span>)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(fastTopics)</a></code></pre></div>
 <p>Note that installing the package will require a C++ compiler setup that is appropriate for the version of R installed on your computer. For details, refer to the <a href="https://cran.r-project.org">CRAN documentation</a>.</p>
-<p>Simulate a 80 x 100 counts matrix:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">X &lt;-<span class="st"> </span><span class="kw"><a href="reference/simulate_count_data.html">simulate_count_data</a></span>(<span class="dv">80</span>,<span class="dv">100</span>,<span class="dt">k =</span> <span class="dv">3</span>)<span class="op">$</span>X</a></code></pre></div>
-<p>Fit the Poisson NMF model using the multiplicative (“mu”) and sequential co-ordinate ascent (“scd”) updates:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">fit1 &lt;-<span class="st"> </span><span class="kw"><a href="reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span>(X,<span class="dt">k =</span> <span class="dv">3</span>,<span class="dt">numiter =</span> <span class="dv">500</span>,<span class="dt">method =</span> <span class="st">"mu"</span>)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">fit2 &lt;-<span class="st"> </span><span class="kw"><a href="reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span>(X,<span class="dt">k =</span> <span class="dv">3</span>,<span class="dt">numiter =</span> <span class="dv">200</span>,<span class="dt">method =</span> <span class="st">"scd"</span>,</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">                        <span class="dt">control =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">numiter =</span> <span class="dv">4</span>))</a></code></pre></div>
-<p>Compare the two fits:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">fits &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">mu =</span> fit1,<span class="dt">scd =</span> fit2)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="kw"><a href="reference/compare_poisson_nmf_fits.html">compare_poisson_nmf_fits</a></span>(fits),<span class="dt">digits =</span> <span class="dv">8</span>)</a></code></pre></div>
-<p>Compare the improvement in the solution over time:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="reference/plot_progress_poisson_nmf.html">plot_progress_poisson_nmf</a></span>(fits)</a></code></pre></div>
-<p>For more, work through the <code>fit_poisson_nmf</code> example:</p>
+<p>Simulate a (sparse) 80 x 100 counts matrix:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Matrix)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">X &lt;-<span class="st"> </span><span class="kw"><a href="reference/simulate_count_data.html">simulate_count_data</a></span>(<span class="dv">80</span>,<span class="dv">100</span>,<span class="dt">k =</span> <span class="dv">3</span>,<span class="dt">sparse =</span> <span class="ot">TRUE</span>)<span class="op">$</span>X</a></code></pre></div>
+<p>Remove columns (words) that do not appear in any row (document).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">X &lt;-<span class="st"> </span>X[,<span class="kw"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html">colSums</a></span>(X <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</a></code></pre></div>
+<p>Fit the Poisson NMF model by running 200 updates (you may want to start with fewer iterations and see how it goes):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">fit &lt;-<span class="st"> </span><span class="kw"><a href="reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span>(X,<span class="dt">k =</span> <span class="dv">3</span>,<span class="dt">numiter =</span> <span class="dv">200</span>)</a></code></pre></div>
+<p>Recover the topic model. After this step, the L matrix contains the topic probabilities (“loadings”), and the F matrix contains the word probabilities (“factors”).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">fit.multinom &lt;-<span class="st"> </span><span class="kw"><a href="reference/poisson2multinom.html">poisson2multinom</a></span>(fit)</a></code></pre></div>
+<p>For more, see the examples included with <code><a href="https://rdrr.io/r/utils/help.html">help(fit_poisson_nmf)</a></code>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/example.html">example</a></span>(<span class="st">"fit_poisson_nmf"</span>)</a></code></pre></div>
 </div>
 <div id="credits" class="section level2">

@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.28</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.32</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1>Exploring the close relationship between topic modeling and non-negative matrix factorization for count data</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2020-04-22</h4>
+            <h4 class="date">2020-05-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/relationship.Rmd"><code>vignettes/relationship.Rmd</code></a></small>
       <div class="hidden name"><code>relationship.Rmd</code></div>
@@ -143,14 +143,22 @@ s_i) = \prod_{j=1}^m \mathrm{Poisson}(x_{ij}; \lambda_{ij}),
 <div id="from-topic-model-to-poisson-nmf" class="section level2">
 <h2 class="hasAnchor">
 <a href="#from-topic-model-to-poisson-nmf" class="anchor"></a>From topic model to Poisson NMF</h2>
-<p>Also, we can easily go in the reverse direction, from Poisson NMF fit to multinomial topic model fit. Here is an example, again using the toy data (we remove the size factor estimates returned by <code>poisson2multinom</code> to show that they are not needed):</p>
+<p>We can also easily go in the reverse direction, from multinomial topic model fit to Poisson NMF fit. Here is an example, using the same toy data set (the size factor estimates returned by <code>poisson2multinom</code> were removed first to demonstrate that they are not needed):</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">fit.multinom[<span class="st">"s"</span>] &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
 <a class="sourceLine" id="cb7-2" data-line-number="2">fit2    &lt;-<span class="st"> </span><span class="kw"><a href="../reference/multinom2poisson.html">multinom2poisson</a></span>(fit.multinom,dat<span class="op">$</span>X)</a>
 <a class="sourceLine" id="cb7-3" data-line-number="3">loglik1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span>(dat<span class="op">$</span>X,fit1)</a>
 <a class="sourceLine" id="cb7-4" data-line-number="4">loglik2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span>(dat<span class="op">$</span>X,fit2)</a>
 <a class="sourceLine" id="cb7-5" data-line-number="5"><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/qplot.html">quickplot</a></span>(<span class="dt">x =</span> loglik1,<span class="dt">y =</span> loglik2) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>)</a></code></pre></div>
-<p><img src="relationship_files/figure-html/multinom2poisson-1.png" width="312" style="display: block; margin: auto;"></p>
-<p>From this plot, we see that the likelihoods for the original Poisson NMF fit, and the one recovered from the topic model, are exactly the same. (Note that the factors and loadings will not necessarily be the same—they will the same up to a rescaling of the columns).</p>
+<p><img src="relationship_files/figure-html/multinom2poisson-1-1.png" width="312" style="display: block; margin: auto;"></p>
+<p>From this plot, we see that the likelihoods for the original Poisson NMF fit, and the one recovered from the topic model, are exactly the same. (Note that the factors and loadings will not necessarily be the same—they will only the same up to a rescaling of the columns).</p>
+<p>The reverse transformation from multinomial topic model back to Poisson NMF is in fact <em>very</em> simple, involving only a simple rescaling of the loadings by the total counts for each sample (the function <code>multinom2poisson</code> is really only needed for additional bookkeeping):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">s           &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(dat<span class="op">$</span>X)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">fit3        &lt;-<span class="st"> </span>fit.multinom</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">fit3<span class="op">$</span>L      &lt;-<span class="st"> </span>s <span class="op">*</span><span class="st"> </span>fit3<span class="op">$</span>L</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(fit3) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"poisson_nmf_fit"</span>,<span class="st">"list"</span>)</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">loglik3     &lt;-<span class="st"> </span><span class="kw"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span>(dat<span class="op">$</span>X,fit3)</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/qplot.html">quickplot</a></span>(<span class="dt">x =</span> loglik1,<span class="dt">y =</span> loglik3) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>)</a></code></pre></div>
+<p><img src="relationship_files/figure-html/multinom2poisson-2-1.png" width="312" style="display: block; margin: auto;"></p>
 </div>
 <div id="summary" class="section level2">
 <h2 class="hasAnchor">
