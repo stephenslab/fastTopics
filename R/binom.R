@@ -35,9 +35,18 @@ fit_binom_topic_model <- function (n0, n1, q, e = 1e-5) {
   # Fit the binomial probabilities using the "limited-memory"
   # quasi-Newton method implemented in "optim".
   out <- optim(c(0.5,0.5),f,g,method = "L-BFGS-B",lower = c(0,0),
-               upper = c(1,1),control = list(factr = 1e-8,maxit = 100))
+               upper = c(1,1),control = list(factr = 1e-10,maxit = 40))
 
   # Output MLEs of p0 and p1, and the other "optim" outputs.
   names(out$par) <- c("p0","p1")
   return(out)
+}
+
+# TO DO: Explain what this function does, and describe the inputs and
+# outputs.
+#' 
+#' @importFrom pracma quad2d
+#' 
+loglikratio_binomial_topic_model <- function (n0, n1, q) {
+  # TO DO.
 }
