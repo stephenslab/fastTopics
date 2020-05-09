@@ -5,8 +5,9 @@
 # zero and division by zero.
 #'
 #' @importFrom stats optim
+#' @importFrom pracma quad2d
 #' 
-fit_binom_topic_model <- function (n0, n1, q, e = 1e-5) {
+fit_binom_topic_model <- function (n0, n1, q, e = 1e-15) {
 
   # Make sure none of the "weights" are exactly 0 or 1.
   q <- pmax(q,e)
@@ -27,9 +28,9 @@ fit_binom_topic_model <- function (n0, n1, q, e = 1e-5) {
   # log-likelihood at x, where x = c(p0,p1).
   g <- function (x) {
     p <- pbinom(x[1],x[2],q)
-    g <- n1/(p+e) - n0/(1-p+e)
-    return(c(-sum(g*(1-q)),
-             -sum(g*q)))
+    u <- n1/(p+e) - n0/(1-p+e)
+    return(c(-sum(u*(1-q)),
+             -sum(u*q)))
   }
   
   # Fit the binomial probabilities using the "limited-memory"
@@ -37,16 +38,30 @@ fit_binom_topic_model <- function (n0, n1, q, e = 1e-5) {
   out <- optim(c(0.5,0.5),f,g,method = "L-BFGS-B",lower = c(0,0),
                upper = c(1,1),control = list(factr = 1e-10,maxit = 40))
 
+  # Compute the log-ratio of the likelihoods.
+  #
+  # TO DO: Explain this code in greater detail.
+  #
+  # This is the marginal probability density of x ~ Binom(n,p), with
+  # success rate p drawn uniformly over the [0,1] interval. Note that
+  # the density function is the same regardless of the number of
+  # successes, n1.
+  n     <- n0 + n1
+  ll0   <- (lgamma(sum(n) + 1) - lgamma(sum(n) + 2))
+  llmle <- -out$value
+  loglik <- function (x, y)
+    -f(c(x,y))
+  quadf <- function (X, Y) {
+    Z <- X
+    for (i in 1:length(X))
+      Z[i] <- loglik(X[i],Y[i])
+    return(exp(Z - llmle))
+  }
+  out$loglikratio <- sum(lchoose(n,n1)) + log(quad2d(quadf,0,1,0,1)) +
+                     llmle - ll0
+  
   # Output MLEs of p0 and p1, and the other "optim" outputs.
   names(out$par) <- c("p0","p1")
   return(out)
 }
 
-# TO DO: Explain what this function does, and describe the inputs and
-# outputs.
-#' 
-#' @importFrom pracma quad2d
-#' 
-loglikratio_binomial_topic_model <- function (n0, n1, q) {
-  # TO DO.
-}

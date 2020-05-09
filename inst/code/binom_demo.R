@@ -12,4 +12,5 @@ n1 <- rbinom(n,s,p)
 n0 <- s - n1    
 
 # Fit the model parameters, p0 and p1.
-print(fit_binom_topic_model(n0,n1,q))
+out <- fit_binom_topic_model(n0,n1,q)
+print(out)

@@ -32,8 +32,8 @@ topic_score <- function (X, k, k0 = ceiling(1.5*k), m = 3*k, Mquantile = 0) {
   
   # Step 1: Recover the left-scaling matrix (LSM).
   v1 <- abs(V[,1])
-  R  <- V[,-1]/v1
-  
+  R  <- V[,-1,drop = FALSE]/v1
+
   # Step 2: Perform "Vertex Hunting".
   V <- vertex_hunting(R,k0,m)
   

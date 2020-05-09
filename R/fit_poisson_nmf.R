@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-35).\n")
+    cat("(fastTopics 0.3-37).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -629,7 +629,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
                                        update.loadings, method, control,
                                        verbose) {
     
-  # Pre-compute quaantities and set up data structures used in the
+  # Pre-compute quantities and set up data structures used in the
   # loop below.
   loglik.const    <- sum(loglik_poisson_const(X))
   dev.const       <- sum(deviance_poisson_const(X))

@@ -73,7 +73,8 @@ rescale.factors <- function (F, L) {
 rand <- function (n, m, min = 0, max = 1) 
   matrix(runif(n*m,min,max),n,m)
 
-# TO DO: Explain here what this function does, and how to use it.
+# Initialize RcppParallel multithreading using a pre-specified number
+# of threads, or using the default number of threads when "n" is NA.
 #
 #' @importFrom RcppParallel setThreadOptions
 #' @importFrom RcppParallel defaultNumThreads
