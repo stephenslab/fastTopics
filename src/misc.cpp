@@ -51,7 +51,7 @@ void normalizerows (mat& A) {
   A.each_col() /= b;
 }
 
-// Normalize each row of A so that the entries in each column sum to 1.
+// Normalize each column of A so that the entries in each column sum to 1.
 void normalizecols (mat& A) {
   vec b = sum(A,0);
   A.each_row() /= b;

@@ -19,13 +19,14 @@
 #' @importFrom stats quantile
 #' @importFrom irlba irlba
 #' 
-topic_score <- function (X, k, k0 = ceiling(1.5*k), m = 3*k, Mquantile = 0) {
+topic_score <- function (X, k, k0 = ifelse(k < 10,ceiling(1.5*k),k + 2),
+                         m = 3*k, Mquantile = 0) {
 
   # M0 = D0*1/n, where D0(j,i) is the expected frequency of word j
   # in document i.
   M0 <- colMeans(X)
   M0 <- pmin(M0,quantile(M0,Mquantile))
-  
+
   # Compute the k right singular vectors of the normalized counts matrix.
   X <- scale.cols(X,1/sqrt(M0))
   V <- irlba(X,k)$v
@@ -33,7 +34,7 @@ topic_score <- function (X, k, k0 = ceiling(1.5*k), m = 3*k, Mquantile = 0) {
   # Step 1: Recover the left-scaling matrix (LSM).
   v1 <- abs(V[,1])
   R  <- V[,-1,drop = FALSE]/v1
-
+  
   # Step 2: Perform "Vertex Hunting".
   V <- vertex_hunting(R,k0,m)
   
