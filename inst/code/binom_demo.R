@@ -1,3 +1,5 @@
+source("binom.R")
+
 # Simulate a binomial data set.
 set.seed(1)
 n  <- 200
@@ -9,6 +11,5 @@ p  <- q*p1 + (1-q)*p0
 x  <- rbinom(n,s,p)
 y  <- s - x
 
-# Fit the model parameters, p0 and p1.
-out <- fit_binom_topic_model(x,y,q)
-print(out)
+# Fit the model parameters, p0 and p1, using optim.
+p.optim <- fit_binom_optim(x,y,q)
