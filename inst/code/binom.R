@@ -59,23 +59,25 @@ fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 40,
     p11 <- p1*q
     p00 <- p00/(p00 + p01)
     p11 <- p11/(p10 + p11)
+    p10 <- 1 - p11
+    p01 <- 1 - p00
     
     # M-step
     # ------
-    p0 <- sum(x*(1 - p11))/sum(y*p00)
-    p1 <- sum(x*p11)/sum(y*(1 - p00))
+    p0 <- sum(x*p10/sum(y*p00)
+    p1 <- sum(x*p11)/sum(y*p01)
     p0 <- p0/(1 + p0)
     p1 <- p1/(1 + p1)
     
-    # Compute the log-likelihood at the current estimates of the model
-    # parameters.
+    # Compute the log-likelihood (ignoring terms that don't depend on
+    # p0 or p1) at the current estimates of the model parameters.
     p            <- pbinom(p0,p1,q)
     loglik[iter] <- sum(x*log(p+e) + y*log(1-p+e))
   }
 
   # Output the MLEs of p0 and p1, and the log-likelihood at each EM
   # iteration.
-  p <- c(p0,p1)
+  p        <- c(p0,p1)
   names(p) <- c("p0","p1")
   return(list(p = p,loglik = loglik))
 }
