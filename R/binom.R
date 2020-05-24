@@ -189,6 +189,81 @@ fit_binom_optim <- function (x, y, q, p0 = 0.5, p1 = 0.5, e = 1e-15,
   return(out)
 }
 
+# Perform EM updates to compute maximum-likelihood estimates (MLEs) of
+# parameters (p0, p1) in the binomial topic model. Specifically, the
+# binomial topic model is x ~ Binom(n,p), where the binomial success
+# rates are p = q*p1 + (1-q)*p0, and n = x + y. Input argument "e" is
+# a small positive number added to the likelihood and gradient to
+# avoid NaNs; specifically, logarithms of zero and division by zero.
+fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 40,
+                          e = 1e-15) {
+  loglik <- rep(0,numiter)
+  for (iter in 1:numiter) {
+
+    # E-step
+    # ------
+    p00 <- (1-p0)*(1-q)
+    p01 <- (1-p1)*q
+    p10 <- p0*(1-q)
+    p11 <- p1*q
+    p00 <- p00/(p00 + p01)
+    p11 <- p11/(p10 + p11)
+    p10 <- 1 - p11
+    p01 <- 1 - p00
+    
+    # M-step
+    # ------
+    p0 <- sum(x*p10)/sum(y*p00)
+    p1 <- sum(x*p11)/sum(y*p01)
+    p0 <- p0/(1 + p0)
+    p1 <- p1/(1 + p1)
+    
+    # Compute the log-likelihood (ignoring terms that don't depend on
+    # p0 or p1) at the current estimates of the model parameters.
+    p            <- pbinom(p0,p1,q)
+    loglik[iter] <- sum(x*log(p+e) + y*log(1-p+e))
+  }
+
+  # Output the MLEs of p0 and p1, and the log-likelihood at each EM
+  # iteration.
+  p        <- c(p0,p1)
+  names(p) <- c("p0","p1")
+  return(list(p = p,loglik = loglik))
+}
+
+compute_lfoldchange_helper <- function (X, F, L, k) {
+
+  # Get the number of rows (n) and columns (m) of the counts matrix,
+  # and the number of topics (k).
+  n <- nrow(X)  
+  m <- ncol(X)
+
+  # Initialize storage for the expected counts.
+  n0 <- rep(0,m)
+  n1 <- rep(0,m)
+  
+  # Repeat for row (i) and column (j) of the counts matrix.
+  for (i in 1:n)
+    for (j in 1:m) {
+      x <- X[i,j]
+        
+      # Compute the posterior topic assignment probabilities.
+      p <- F[j,] * L[i,]
+      p <- p / sum(p)
+
+      # Update the expectations.
+      n0[j] <- n0[j] + x*(1-p[k])
+      n1[j] <- n1[j] + x*p[k]
+    }
+
+  # Output the expectations.
+  return(list(n0 = n0,n1 = n1))
+}
+
+# Compute the binomial success rates given the model parameters.
+pbinom <- function (p0, p1, q)
+  q*p1 + (1-q)*p0
+    
 # This return the same value as dbinom(x,x+y,p), except that terms
 # that do not depend on the success probabilities p are ignored.
 loglik_binom <- function (x, y, p, e = 1e-15)
