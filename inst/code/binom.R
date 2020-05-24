@@ -64,7 +64,7 @@ fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 40,
     
     # M-step
     # ------
-    p0 <- sum(x*p10/sum(y*p00)
+    p0 <- sum(x*p10)/sum(y*p00)
     p1 <- sum(x*p11)/sum(y*p01)
     p0 <- p0/(1 + p0)
     p1 <- p1/(1 + p1)
@@ -111,25 +111,3 @@ compute_lfoldchange_helper <- function (X, F, L, k) {
   return(list(n0 = n0,n1 = n1))
 }
 
-  # Compute the log-ratio of the likelihoods.
-  #
-  # TO DO: Explain this code in greater detail.
-  #
-  # This is the marginal probability density of x ~ Binom(n,p), with
-  # success rate p drawn uniformly over the [0,1] interval. Note that
-  # the density function is the same regardless of the number of
-  # successes, n1.
-  ## n     <- n0 + n1
-  ## ll0   <- (lgamma(sum(n) + 1) - lgamma(sum(n) + 2))
-  ## llmle <- -out$value
-  ## loglik <- function (x, y)
-  ##   -f(c(x,y))
-  ## quadf <- function (X, Y) {
-  ##   Z <- X
-  ##   for (i in 1:length(X))
-  ##     Z[i] <- loglik(X[i],Y[i])
-  ##   return(exp(Z - llmle))
-  ## }
-  ## out$loglikratio <- sum(lchoose(n,n1)) + log(quad2d(quadf,0,1,0,1)) +
-  ##                    llmle - ll0
-  
