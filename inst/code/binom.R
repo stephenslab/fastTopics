@@ -2,11 +2,12 @@
 pbinom <- function (p0, p1, q)
   q*p1 + (1-q)*p0
     
-# Fit model parameters (p0, p1) of binomial model x ~ Binom(n,p), where
-# the binomial success rates are p = q*p1 + (1-q)*p0, and n = x + y.
-# Input argument "e" is a small positive number added to the
-# likelihood and gradient to avoid NaNs; specifically, logarithms of
-# zero and division by zero.
+# Compute maximum-likelihood estimates (MLEs) of parameters (p0, p1)
+# in the binomial topic model. The binomial topic model is x ~
+# Binom(n,p), where the binomial success rates are p = q*p1 +
+# (1-q)*p0, and n = x + y. Input argument "e" is a small positive
+# number added to the likelihood and gradient to avoid NaNs;
+# specifically, logarithms of zero and division by zero.
 fit_binom_optim <- function (x, y, q, e = 1e-15) {
 
   # Make sure none of the "weights" are exactly 0 or 1.
@@ -32,16 +33,21 @@ fit_binom_optim <- function (x, y, q, e = 1e-15) {
   # Fit the binomial probabilities using the "limited-memory"
   # quasi-Newton method implemented in "optim".
   out <- optim(c(0.5,0.5),f,g,method = "L-BFGS-B",lower = c(0,0),
-               upper = c(1,1),control = list(factr = 1e-10,maxit = 40))
+               upper = c(1,1),control = list(factr = 1e-12,maxit = 100))
 
   # Output MLEs of p0 and p1, and the other "optim" outputs.
   names(out$par) <- c("p0","p1")
   return(out)
 }
 
-# TO DO: Explain here what this function does, and how to use it.
-fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 100) {
-  n      <- x + y  
+# Perform EM updates to compute maximum-likelihood estimates (MLEs) of
+# parameters (p0, p1) in the binomial topic model. Specifically, the
+# binomial topic model is x ~ Binom(n,p), where the binomial success
+# rates are p = q*p1 + (1-q)*p0, and n = x + y. Input argument "e" is
+# a small positive number added to the likelihood and gradient to
+# avoid NaNs; specifically, logarithms of zero and division by zero.
+fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 100,
+                          e = 1e-15) {
   loglik <- rep(0,numiter)
   for (iter in 1:numiter) {
 
@@ -51,30 +57,56 @@ fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 100) {
     p01 <- (1-p1)*q
     p10 <- p0*(1-q)
     p11 <- p1*q
-    z0  <- p00 + p01
-    z1  <- p10 + p11
-    p00 <- p00/z0
-    p01 <- p01/z0
-    p10 <- p10/z1
-    p11 <- p11/z1
+    p00 <- p00/(p00 + p01)
+    p11 <- p11/(p10 + p11)
     
     # M-step
     # ------
-    p0 <- sum(x*p10)/sum(y*p00)
-    p1 <- sum(x*p11)/sum(y*p01)
+    p0 <- sum(x*(1 - p11))/sum(y*p00)
+    p1 <- sum(x*p11)/sum(y*(1 - p00))
     p0 <- p0/(1 + p0)
     p1 <- p1/(1 + p1)
-    print(c(p0,p1))
     
     # Compute the log-likelihood at the current estimates of the model
     # parameters.
     p            <- pbinom(p0,p1,q)
-    loglik[iter] <- sum(dbinom(x,n,p,log = TRUE))
+    loglik[iter] <- sum(x*log(p+e) + y*log(1-p+e))
   }
 
   # Output the MLEs of p0 and p1, and the log-likelihood at each EM
   # iteration.
-  return(list(p0 = p0,p1 = p1,loglik = loglik))
+  p <- c(p0,p1)
+  names(p) <- c("p0","p1")
+  return(list(p = p,loglik = loglik))
+}
+
+compute_lfoldchange_helper <- function (X, F, L, k) {
+
+  # Get the number of rows (n) and columns (m) of the counts matrix,
+  # and the number of topics (k).
+  n <- nrow(X)  
+  m <- ncol(X)
+
+  # Initialize storage for the expected counts.
+  n0 <- rep(0,m)
+  n1 <- rep(0,m)
+  
+  # Repeat for row (i) and column (j) of the counts matrix.
+  for (i in 1:n)
+    for (j in 1:m) {
+      x <- X[i,j]
+        
+      # Compute the posterior topic assignment probabilities.
+      p <- F[j,] * L[i,]
+      p <- p / sum(p)
+
+      # Update the expectations.
+      n0[j] <- n0[j] + x*(1-p[k])
+      n1[j] <- n1[j] + x*p[k]
+    }
+
+  # Output the expectations.
+  return(list(n0 = n0,n1 = n1))
 }
 
   # Compute the log-ratio of the likelihoods.

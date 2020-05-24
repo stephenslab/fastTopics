@@ -1,3 +1,5 @@
+# A short script to check that my implementation of the EM algorithm
+# for fitting the binomial topic model gives the correct result.
 source("binom.R")
 
 # Simulate a binomial data set.
@@ -16,3 +18,7 @@ out1 <- fit_binom_optim(x,y,q)
 
 # Fit the model parameters using EM.
 out2 <- fit_binom_em(x,y,q,numiter = 40)
+
+# optim and EM should give the same solution.
+print(out1$par)
+print(out2$p)
