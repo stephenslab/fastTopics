@@ -1,3 +1,7 @@
+# Compute the binomial success rates given the model parameters.
+pbinom <- function (p0, p1, q)
+  q*p1 + (1-q)*p0
+    
 # Fit model parameters (p0, p1) of binomial model x ~ Binom(n,p), where
 # the binomial success rates are p = q*p1 + (1-q)*p0, and n = x + y.
 # Input argument "e" is a small positive number added to the
@@ -9,10 +13,6 @@ fit_binom_optim <- function (x, y, q, e = 1e-15) {
   q <- pmax(q,e)
   q <- pmin(q,1 - e)
 
-  # Compute the binomial success rates given the model parameters.
-  pbinom <- function (p0, p1, q)
-    q*p1 + (1-q)*p0
-    
   # Define function for computing the negative log-likelihood at x,
   # where par = c(p0,p1).
   f <- function (par) {
@@ -36,12 +36,45 @@ fit_binom_optim <- function (x, y, q, e = 1e-15) {
 
   # Output MLEs of p0 and p1, and the other "optim" outputs.
   names(out$par) <- c("p0","p1")
-  return(out$par)
+  return(out)
 }
 
 # TO DO: Explain here what this function does, and how to use it.
-fit_binom_em <- function (x, y, q) {
+fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 100) {
+  n      <- x + y  
+  loglik <- rep(0,numiter)
+  for (iter in 1:numiter) {
 
+    # E-step
+    # ------
+    p00 <- (1-p0)*(1-q)
+    p01 <- (1-p1)*q
+    p10 <- p0*(1-q)
+    p11 <- p1*q
+    z0  <- p00 + p01
+    z1  <- p10 + p11
+    p00 <- p00/z0
+    p01 <- p01/z0
+    p10 <- p10/z1
+    p11 <- p11/z1
+    
+    # M-step
+    # ------
+    p0 <- sum(x*p10)/sum(y*p00)
+    p1 <- sum(x*p11)/sum(y*p01)
+    p0 <- p0/(1 + p0)
+    p1 <- p1/(1 + p1)
+    print(c(p0,p1))
+    
+    # Compute the log-likelihood at the current estimates of the model
+    # parameters.
+    p            <- pbinom(p0,p1,q)
+    loglik[iter] <- sum(dbinom(x,n,p,log = TRUE))
+  }
+
+  # Output the MLEs of p0 and p1, and the log-likelihood at each EM
+  # iteration.
+  return(list(p0 = p0,p1 = p1,loglik = loglik))
 }
 
   # Compute the log-ratio of the likelihoods.

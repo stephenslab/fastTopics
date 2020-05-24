@@ -12,4 +12,7 @@ x  <- rbinom(n,s,p)
 y  <- s - x
 
 # Fit the model parameters, p0 and p1, using optim.
-p.optim <- fit_binom_optim(x,y,q)
+out1 <- fit_binom_optim(x,y,q)
+
+# Fit the model parameters using EM.
+out2 <- fit_binom_em(x,y,q,numiter = 40)
