@@ -1,6 +1,8 @@
 to do
 =====
 
++ Allow *either* F or L to be provided in init_poisson_nmf.
+
 + Implement function to compute estimates of term-frequency log-ratios
   (tflrs), s.e.'s and Z-scores.
 

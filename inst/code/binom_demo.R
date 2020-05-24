@@ -17,7 +17,7 @@ y  <- s - x
 out1 <- fit_binom_optim(x,y,q)
 
 # Fit the model parameters using EM.
-out2 <- fit_binom_em(x,y,q,numiter = 40)
+out2 <- fit_binom_em(x,y,q)
 
 # optim and EM should give the same solution.
 print(out1$par)
