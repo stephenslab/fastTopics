@@ -22,3 +22,6 @@ out2 <- fit_binom_em(x,y,q)
 # optim and EM should give the same solution.
 print(out1$par)
 print(out2$p)
+
+# Compute the log-Bayes factor.
+# TO DO.

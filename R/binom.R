@@ -63,9 +63,9 @@ poisson2binom <- function (X, fit, e = 0.01, version = c("Rcpp","R")) {
 #'
 #' @param fit Describe input argument F.
 #'
-#' @param fit Describe input argument "p0".
+#' @param p0 Describe input argument "p0".
 #'
-#' @param fit Describe input argument "p1".
+#' @param p1 Describe input argument "p1".
 #' 
 #' @param method Describe input argument "method".
 #'

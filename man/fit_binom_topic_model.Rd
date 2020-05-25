@@ -19,7 +19,11 @@ fit_binom_topic_model(
 \arguments{
 \item{X}{Describe input argument X.}
 
-\item{fit}{Describe input argument "p1".}
+\item{fit}{Describe input argument F.}
+
+\item{p0}{Describe input argument "p0".}
+
+\item{p1}{Describe input argument "p1".}
 
 \item{method}{Describe input argument "method".}
 
