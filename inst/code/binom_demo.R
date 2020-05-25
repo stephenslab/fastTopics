@@ -1,6 +1,6 @@
 # A short script to check that my implementation of the EM algorithm
-# for fitting the binomial topic model gives the correct result.
-source("binom.R")
+# for fitting the "univariate" ("single-gene") binomial model gives
+# the correct result.
 
 # Simulate a binomial data set.
 set.seed(1)

@@ -1,3 +1,12 @@
+# Compute the binomial success rates given the model parameters.
+pbinom <- function (p0, p1, q)
+  q*p1 + (1-q)*p0
+    
+# This return the same value as dbinom(x,x+y,p), except that terms
+# that do not depend on the success probabilities p are ignored.
+loglik_binom <- function (x, y, p, e = 1e-15)
+  return(sum(x*log(p+e) + y*log(1-p+e)))
+
 #' @title Function Title Goes Here
 #'
 #' @description Description of function goes here.
@@ -198,13 +207,16 @@ compute_binom_logbayesfactors <- function (X, fit, verbose = TRUE) {
   return(logbf)
 }
 
-# Compute maximum-likelihood estimates (MLEs) of parameters p0, p1 in
-# the binomial topic model using optim; specifically, the low-memory
-# BFGS quasi-Newton method. The binomial topic model is x ~
-# Binom(n,p), where the binomial success rates are p = q*p1 +
-# (1-q)*p0, and n = x + y. Inputs p0 and p1 are initial parameter
-# estimates. Input "control" is a list of control parameters passed to
-# optim. Input argument "e" is a small positive scalar added to the
+# Compute maximum-likelihood estimates (MLEs) of the parameters in the
+# "univariate" (or "single-gene") binomial model: x ~ Binom(n,p), with
+# binomial success rates p = p0*(1-q) + p1*q, and n = x + y.
+# Probabilities p0, p1 are estimated, and vector q is provided. The
+# likelihood is maximized using optim; specifically, the low-memory
+# BFGS quasi-Newton method is used.
+#
+# Input arguments p0 and p1 are initial estimates of the parameters.
+# Input "control" is a list of control parameters passed to optim.
+# Input argument "e" is a small positive scalar added to the
 # likelihood and gradient to avoid NaNs; specifically, logarithms of
 # zero and division by zero.
 #
@@ -232,12 +244,12 @@ fit_binom_optim <- function (x, y, q, p0 = 0.5, p1 = 0.5, e = 1e-15,
               sum(u*q)))
   }
   
-  # Fit the binomial probabilities using the "limited-memory"
-  # quasi-Newton method implemented in "optim".
+  # Fit the binomial probabilities using the limited-memory
+  # quasi-Newton method implemented in optim.
   out <- optim(c(p0,p1),f,g,method = "L-BFGS-B",lower = c(0,0),
                upper = c(1,1),control = control)
 
-  # Output MLEs of p0 and p1, and the other "optim" outputs.
+  # Output MLEs of p0 and p1, and the other optim outputs.
   names(out$par) <- c("p0","p1")
   return(out)
 }
@@ -299,16 +311,6 @@ fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 40,
 compute_binom_logbf <- function (x, y, q, p0, p1, e = 1e-15) {
 
 }
-
-# Compute the binomial success rates given the model parameters.
-pbinom <- function (p0, p1, q)
-  q*p1 + (1-q)*p0
-    
-# This return the same value as dbinom(x,x+y,p), except that terms
-# that do not depend on the success probabilities p are ignored.
-loglik_binom <- function (x, y, p, e = 1e-15)
-  return(sum(x*log(p+e) + y*log(1-p+e)))
-
 
 # TO DO: Explain here what this function does, and how to use it.
 binom_stats <- function (X, F, L) {
