@@ -2,14 +2,33 @@
 #'
 #' @description Description of function goes here.
 #'
+#' @param X Describe input argument "X".
+#'
+#' @param fit Describe input argument "fit".
+#'
+#' @param verbose Describe input argument "verbose".
+#' 
 #' @export
 #' 
 binom_topic_analysis <- function (X, fit, verbose = TRUE) {
   # TO DO.
 }
 
-# TO DO: Explain here what this function does, and how to use it.
-multinom2binom <- function (X, fit, e = 0.01, version = c("Rcpp","R")) {
+#' @title Function Title Goes Here
+#'
+#' @description Description of function goes here.
+#'
+#' @param X Describe input argument "X".
+#'
+#' @param fit Describe input argument "fit".
+#'
+#' @param e Describe input argument "e".
+#'
+#' @param version Describe input argument "version".
+#' 
+#' @export
+#' 
+poisson2binom <- function (X, fit, e = 0.01, version = c("Rcpp","R")) {
     
   # Compute the expected counts.
   if (version == "Rcpp")
@@ -42,24 +61,30 @@ multinom2binom <- function (X, fit, e = 0.01, version = c("Rcpp","R")) {
 #'
 #' @param X Describe input argument X.
 #'
-#' @param F Describe input argument F.
+#' @param fit Describe input argument F.
 #'
+#' @param fit Describe input argument "p0".
+#'
+#' @param fit Describe input argument "p1".
+#' 
 #' @param method Describe input argument "method".
 #'
 #' @param e Describe input argument "e".
+#'
+#' @param numiter Describe input argument "numiter".
 #'
 #' @param control Describe input argument "control".
 #'
 #' @param verbose Describe input argument "verbose".
 #'
-#' @return Describe return value here.
+#' @return Describe return value.
 #'
 #' @importFrom progress progress_bar
 #' 
 #' @export
 #' 
-fit_binom_topic_model <- function (X, fit, P0, P1, method = c("em", "optim"),
-                                   e = 1e-15,
+fit_binom_topic_model <- function (X, fit, p0, p1, method = c("em", "optim"),
+                                   e = 1e-15, numiter = 40,
                                    control = list(factr = 1e-14,maxit = 100),
                                    verbose = TRUE) {
 
@@ -76,73 +101,101 @@ fit_binom_topic_model <- function (X, fit, P0, P1, method = c("em", "optim"),
   k <- ncol(fit$F)
 
   # Initialize the binomial topic model parameter estimates.
-  if (missing(P0))
-    P0 <- matrix(0.5,m,k)
-  if (missing(P1))
-    P1 <- matrix(0.5,m,k)
+  if (missing(p0))
+    p0 <- matrix(0.5,m,k)
+  if (missing(p1))
+    p1 <- matrix(0.5,m,k)
 
   # Fit a binomial topic model for each column (gene) j and topic k.
   s <- rowSums(X)
   if (verbose)
-  pb <- progress_bar$new(total = m)
+    pb <- progress_bar$new(total = m)
   for (i in 1:m) {
     if (verbose)
       pb$tick()
     x <- X[,i]
+    y <- s - x
     for (j in 1:k) {
       q <- fit$L[,j]
       if (method == "em") {
-        # TO DO.
+        out     <- fit_binom_em(x,y,q,p0[i,j],p1[i,j],numiter,e)
+        p0[i,j] <- out$p["p0"]
+        p1[i,j] <- out$p["p1"]
       } else if (method == "optim") {
-        out     <- fit_binom_optim(x,s - x,q,P0[i,j],P1[i,j],e,control)
-        P0[i,j] <- out$par["p0"]
-        P1[i,j] <- out$par["p1"]
+        out     <- fit_binom_optim(x,y,q,p0[i,j],p1[i,j],e,control)
+        p0[i,j] <- out$par["p0"]
+        p1[i,j] <- out$par["p1"]
       } 
     }
   }
 
   # Output the maximum-likelihood estimates (MLEs) of the binomial
   # topic model for each column (gene) j, and for each topic k.
-  return(list(P0 = P0,P1 = P1))
+  fit <- list(p0 = p0,p1 = p1)
+  class(fit) <- c("binom_topic_model_fit","list")
+  return(fit)
 }
 
-# TO DO: Explain here what this function does, and how to use it.
-binom_stats <- function (X, F, L) {
+#' @title Function Title Goes Here
+#'
+#' @description Description of function goes here.
+#'
+#' @param X Describe input argument "X".
+#'
+#' @param fit Describe input argument "fit",
+#'
+#' @param verbose Describe input argument "verbose".
+#'
+#' @export
+#' 
+compute_binom_zscores <- function (X, fit, verbose = TRUE)  {
 
-  # Get the number of rows (n) and columns (m) of the counts matrix,
-  # and the number of topics (k).
-  n <- nrow(X)  
+  # Verify and process the input arguments.
+  # TO DO.
+}
+
+#' @title Function Title Goes Here
+#'
+#' @description Description of function goes here.
+#'
+#' @importFrom progress progress_bar
+#' 
+#' @param X Describe input argument "X".
+#'
+#' @param fit Describe input argument "fit",
+#'
+#' @param verbose Describe input argument "verbose".
+#'
+#' @export
+#' 
+compute_binom_logbayesfactors <- function (X, fit, verbose = TRUE) {
+
+  # Get the number of rows (n) and columns (m) of X, and get the
+  # number of topics (k).
+  n <- nrow(X)
   m <- ncol(X)
-  k <- ncol(F)
+  k <- ncol(fit$F)
 
-  # Initialize storage for expectations and marginal probabilities.
-  a0 <- matrix(0,m,k)
-  a1 <- matrix(0,m,k)
-  b0 <- rep(0,k)
-  b1 <- rep(0,k)
-  
-  # Repeat for row (i) and column (j) of the counts matrix.
-  for (i in 1:n)
-    for (j in 1:m) {
-      x <- X[i,j]
-        
-      # Compute the posterior topic assignment probabilities.
-      p <- F[j,] * L[i,]
-      p <- p / sum(p)
+  # Initialize storage for the output.
+  logbf <- matrix(0,m,k)
 
-      # Update the expectations.
-      a0[j,] <- a0[j,] + x*(1-p)
-      a1[j,] <- a1[j,] + x*p
-      b0     <- b0     + x*(1-p)
-      b1     <- b1     + x*p
+  # Compute the log-Bayes factor for each column (gene) j and topic k.
+  s <- rowSums(X)
+  if (verbose)
+    pb <- progress_bar$new(total = m)
+  for (i in 1:m) {
+    if (verbose)
+      pb$tick()
+    x <- X[,i]
+    y <- s - x
+    for (j in 1:k) {
+      q <- fit$L[,j]
+      # TO DO.
     }
+  }
 
-  # Output the expectations (a0, a1) and marginal probabilities (b0,
-  # b1).
-  return(list(a0 = a0,
-              a1 = a1,
-              b0 = b0,
-              b1 = b1))
+  # Ouput the log-Bayes factors.
+  return(logbf)
 }
 
 # Compute maximum-likelihood estimates (MLEs) of parameters p0, p1 in
@@ -197,11 +250,20 @@ fit_binom_optim <- function (x, y, q, p0 = 0.5, p1 = 0.5, e = 1e-15,
 # avoid NaNs; specifically, logarithms of zero and division by zero.
 fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 40,
                           e = 1e-15) {
+
+  # Monitor progress by computing the log-likelihood at each iteration.
   loglik <- rep(0,numiter)
   for (iter in 1:numiter) {
 
     # E-step
     # ------
+    # Compute the posterior probabilities,
+    #
+    #   p00 = Pr(z = 0 | x = 0)
+    #   p10 = Pr(z = 0 | x = 1)
+    #   p01 = Pr(z = 1 | x = 0)
+    #   p11 = Pr(z = 1 | x = 1)
+    # 
     p00 <- (1-p0)*(1-q)
     p01 <- (1-p1)*q
     p10 <- p0*(1-q)
@@ -213,22 +275,73 @@ fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 40,
     
     # M-step
     # ------
+    # Update the binomial topic model parameters,
+    # p0 = Pr(x = 1 | z = 0) and p1 = Pr(x = 1 | z = 1).
     p0 <- sum(x*p10)/sum(y*p00)
     p1 <- sum(x*p11)/sum(y*p01)
     p0 <- p0/(1 + p0)
     p1 <- p1/(1 + p1)
     
-    # Compute the log-likelihood (ignoring terms that don't depend on
-    # p0 or p1) at the current estimates of the model parameters.
-    p            <- pbinom(p0,p1,q)
-    loglik[iter] <- sum(x*log(p+e) + y*log(1-p+e))
+    # Compute the log-likelihood at the current estimates of the model
+    # parameters (ignoring terms that don't depend on p0 or p1).
+    p <- pbinom(p0,p1,q)
+    loglik[iter] <- loglik_binom(x,y,p,e)
   }
 
-  # Output the MLEs of p0 and p1, and the log-likelihood at each EM
+  # Output the estimates of p0 and p1, and the log-likelihood at each EM
   # iteration.
   p        <- c(p0,p1)
   names(p) <- c("p0","p1")
   return(list(p = p,loglik = loglik))
+}
+
+# Compute the binomial success rates given the model parameters.
+pbinom <- function (p0, p1, q)
+  q*p1 + (1-q)*p0
+    
+# This return the same value as dbinom(x,x+y,p), except that terms
+# that do not depend on the success probabilities p are ignored.
+loglik_binom <- function (x, y, p, e = 1e-15)
+  return(sum(x*log(p+e) + y*log(1-p+e)))
+
+
+# TO DO: Explain here what this function does, and how to use it.
+binom_stats <- function (X, F, L) {
+
+  # Get the number of rows (n) and columns (m) of the counts matrix,
+  # and the number of topics (k).
+  n <- nrow(X)  
+  m <- ncol(X)
+  k <- ncol(F)
+
+  # Initialize storage for expectations and marginal probabilities.
+  a0 <- matrix(0,m,k)
+  a1 <- matrix(0,m,k)
+  b0 <- rep(0,k)
+  b1 <- rep(0,k)
+  
+  # Repeat for row (i) and column (j) of the counts matrix.
+  for (i in 1:n)
+    for (j in 1:m) {
+      x <- X[i,j]
+        
+      # Compute the posterior topic assignment probabilities.
+      p <- F[j,] * L[i,]
+      p <- p / sum(p)
+
+      # Update the expectations.
+      a0[j,] <- a0[j,] + x*(1-p)
+      a1[j,] <- a1[j,] + x*p
+      b0     <- b0     + x*(1-p)
+      b1     <- b1     + x*p
+    }
+
+  # Output the expectations (a0, a1) and marginal probabilities (b0,
+  # b1).
+  return(list(a0 = a0,
+              a1 = a1,
+              b0 = b0,
+              b1 = b1))
 }
 
 compute_lfoldchange_helper <- function (X, F, L, k) {
@@ -259,13 +372,4 @@ compute_lfoldchange_helper <- function (X, F, L, k) {
   # Output the expectations.
   return(list(n0 = n0,n1 = n1))
 }
-
-# Compute the binomial success rates given the model parameters.
-pbinom <- function (p0, p1, q)
-  q*p1 + (1-q)*p0
-    
-# This return the same value as dbinom(x,x+y,p), except that terms
-# that do not depend on the success probabilities p are ignored.
-loglik_binom <- function (x, y, p, e = 1e-15)
-  return(sum(x*log(p+e) + y*log(1-p+e)))
 

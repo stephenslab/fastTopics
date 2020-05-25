@@ -11,7 +11,7 @@ to do
 
 + Implement simple "volcano" plot ("volcano_plot").
 
-+ Implement simple interactive "volcano" plot using plotly
++ Implement simple *interactive* "volcano" plot using plotly
   ("volcano_plotly")
 
 + Implement simple 2-d t-SNE plot to show loadings for a single topic

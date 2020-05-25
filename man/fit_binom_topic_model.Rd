@@ -7,10 +7,11 @@
 fit_binom_topic_model(
   X,
   fit,
-  P0,
-  P1,
+  p0,
+  p1,
   method = c("em", "optim"),
   e = 1e-15,
+  numiter = 40,
   control = list(factr = 1e-14, maxit = 100),
   verbose = TRUE
 )
@@ -18,18 +19,20 @@ fit_binom_topic_model(
 \arguments{
 \item{X}{Describe input argument X.}
 
+\item{fit}{Describe input argument "p1".}
+
 \item{method}{Describe input argument "method".}
 
 \item{e}{Describe input argument "e".}
 
+\item{numiter}{Describe input argument "numiter".}
+
 \item{control}{Describe input argument "control".}
 
 \item{verbose}{Describe input argument "verbose".}
-
-\item{F}{Describe input argument F.}
 }
 \value{
-Describe return value here.
+Describe return value.
 }
 \description{
 Description of function goes here.
