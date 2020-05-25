@@ -22,6 +22,8 @@ tsne_from_topics(
 
 \item{normalize}{Describe input argument "normalize" here.}
 
+\item{verbose}{Describe input argument "verbose" here.}
+
 \item{...}{Describe other input arguments here.}
 }
 \value{

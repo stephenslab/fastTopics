@@ -9,7 +9,8 @@
 #' @param pca Describe input argument "pca" here.
 #'
 #' @param normalize Describe input argument "normalize" here.
-#' 
+#'
+#' @param verbose Describe input argument "verbose" here.
 #' @param ... Describe other input arguments here.
 #'
 #' @return Describe the return value here.
