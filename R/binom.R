@@ -295,6 +295,11 @@ fit_binom_em <- function (x, y, q, p0 = 0.5, p1 = 0.5, numiter = 40,
   return(list(p = p,loglik = loglik))
 }
 
+# TO DO: Explain here what this function does, and how to use it.
+compute_binom_logbf <- function (x, y, q, p0, p1, e = 1e-15) {
+
+}
+
 # Compute the binomial success rates given the model parameters.
 pbinom <- function (p0, p1, q)
   q*p1 + (1-q)*p0
