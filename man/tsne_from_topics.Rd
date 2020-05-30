@@ -7,9 +7,11 @@
 tsne_from_topics(
   fit,
   dims = 2,
-  n = 1000,
   pca = FALSE,
   normalize = FALSE,
+  perplexity = 100,
+  theta = 0.1,
+  max_iter = 1000,
   verbose = FALSE,
   ...
 )
@@ -19,11 +21,11 @@ tsne_from_topics(
 
 \item{dims}{Describe input argument "dims" here.}
 
-\item{n}{Describe input argument "n" here.}
-
 \item{pca}{Describe input argument "pca" here.}
 
 \item{normalize}{Describe input argument "normalize" here.}
+
+\item{max_iter}{Describe input argument "max_iter" here.}
 
 \item{verbose}{Describe input argument "verbose" here.}
 

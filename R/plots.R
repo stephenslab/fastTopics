@@ -186,6 +186,62 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
          theme())
 }
 
+#' @title Loadings Plot
+#'
+#' @description Add description here.
+#'
+#' @details Add details here.
+#' 
+#' @param fit Describe input argument "fit" here.
+#'
+#' @param k Describe input argument "k" here.
+#' 
+#' @param x Describe input argument "x" here.
+#'
+#' @param geom.boxplot.params Describe input argument
+#' "geom.boxplot.params" here.
+#'
+#' @param labs.params Describe input argument "labs.params" here.
+#' 
+#' @param use.theme Describe input argument "use.theme" here.
+#'
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 geom_boxplot
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_blank
+#' @importFrom ggplot2 element_text
+#' @importFrom cowplot theme_cowplot
+#' 
+#' @export
+#' 
+loadings_plot <-
+  function (fit, k, x,
+            geom.boxplot.params = list(width = 0.25,size = 0.4,
+                                       outlier.shape = NA),
+            labs.params = list(x = "",y = "loading"),
+            use.theme = function() theme_cowplot(12) +
+              theme(axis.line   = element_blank(),
+                    axis.text.x = element_text(angle = 45,hjust = 1),
+                    plot.title  = element_text(size = 12,face = "plain"))) {
+
+  # Check and process input arguments.
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "multinom_topic_model_fit")
+      
+  # Prepare the data for plotting.
+  pdat <- data.frame(x = x,loading = fit$L[,k])
+
+  # Create the loadings plot.
+  return(ggplot(pdat,aes_string(x = "x",y = "loading")) +
+         do.call(labs,labs.params) +
+         do.call(geom_boxplot,geom.boxplot.params) +
+         use.theme())
+}
+
 #' @title t-SNE from Poisson NMF or Topic Model
 #'
 #' @description Computes a 2-dimensional embededding of the data from
@@ -196,12 +252,12 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #'
 #' @param dims Describe input argument "dims" here.
 #'
-#' @param n Describe input argument "n" here.
-#'  
 #' @param pca Describe input argument "pca" here.
 #'
 #' @param normalize Describe input argument "normalize" here.
 #'
+#' @param max_iter Describe input argument "max_iter" here.
+#' 
 #' @param verbose Describe input argument "verbose" here.
 #' 
 #' @param ... Describe other input arguments here.
@@ -212,8 +268,10 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' 
 #' @export
 #' 
-tsne_from_topics <- function (fit, dims = 2, n = 1000, pca = FALSE,
-                              normalize = FALSE, verbose = FALSE, ...) {
+tsne_from_topics <- function (fit, dims = 2, pca = FALSE,
+                              normalize = FALSE, perplexity = 100,
+                              theta = 0.1, max_iter = 1000,
+                              verbose = FALSE, ...) {
   if (inherits(fit,"poisson_nmf_fit"))
     fit <- poisson2multinom(fit)
   else if (!inherits(fit,"multinom_topic_model_fit"))
@@ -223,7 +281,8 @@ tsne_from_topics <- function (fit, dims = 2, n = 1000, pca = FALSE,
   n0 <- nrow(L)
   if (n < n0)
     L <- L[sample(n0,n),]
-  out <- Rtsne(L,dims,pca = pca,normalize = normalize,verbose = verbose,...)
+  out <- Rtsne(L,dims,pca = pca,normalize = normalize,perplexity = perplexity,
+               theta = theta,max_iter = max_iter,verbose = verbose,...)
   Y <- out$Y
   rownames(Y) <- rownames(L)
   colnames(Y) <- paste("d",1:dims)
