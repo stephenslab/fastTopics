@@ -14,7 +14,7 @@ fit_poisson_nmf(
   update.factors = seq(1, ncol(X)),
   update.loadings = seq(1, nrow(X)),
   method = c("scd", "em", "mu", "ccd"),
-  init_method = c("topicscore", "random"),
+  init.method = c("topicscore", "random"),
   control = list(),
   verbose = TRUE
 )
@@ -24,7 +24,7 @@ init_poisson_nmf(
   F,
   L,
   k,
-  init_method = c("topicscore", "random"),
+  init.method = c("topicscore", "random"),
   beta = 0.5,
   betamax = 0.99,
   control = list(),
@@ -74,10 +74,10 @@ loadings. Four methods are implemented: multiplicative updates,
 and cyclic co-ordinate descent (CCD), \code{method = "ccd"}. See
 \sQuote{Details} for a detailed description of these methods.}
 
-\item{init_method}{The method used to initialize the factors and
-loadings. When \code{init_method = "random"}, the factors and
+\item{init.method}{The method used to initialize the factors and
+loadings. When \code{init.method = "random"}, the factors and
 loadings are initialized uniformly at random; when
-\code{init_method = "topicscore"}, the factors are initialized
+\code{init.method = "topicscore"}, the factors are initialized
 using the (very fast) Topic SCORE algorithm (Ke & Wang, 2017), and
 the loadings are initialized by running a small number of SCD
 updates. This input argument is ignored if initial estimates of the
@@ -300,7 +300,7 @@ algorithm settings (as they are defined by
 
 An additional setting, \code{control$init.numter}, controls the
 number of sequential co-ordinate descent (SCD) updates that are
-performed to initialize the loadings matrix when \code{init_method
+performed to initialize the loadings matrix when \code{init.method
 = "topicscore"}.
 }
 \examples{

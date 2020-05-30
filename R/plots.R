@@ -185,3 +185,91 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
          labs(x = xlab,y = ylab) +
          theme())
 }
+
+#' @title Title Goes Here
+#'
+#' @description Describe function here.
+#'
+#' @param fit Describe input argument "fit" here.
+#'
+#' @param dims Describe input argument "dims" here.
+#'
+#' @param pca Describe input argument "pca" here.
+#'
+#' @param normalize Describe input argument "normalize" here.
+#'
+#' @param verbose Describe input argument "verbose" here.
+#' @param ... Describe other input arguments here.
+#'
+#' @return Describe the return value here.
+#' 
+#' @importFrom Rtsne Rtsne
+#' 
+#' @export
+#' 
+tsne_from_topics <- function (fit, dims = 2, pca = FALSE, normalize = FALSE,
+                              verbose = FALSE, ...) {
+  if (!inherits(fit,"poisson_nmf_fit"))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\"")
+  out <- Rtsne(fit$L,dims = dims,pca = pca,normalize = normalize,
+               verbose = verbose,...)
+  Y   <- out$Y
+  rownames(Y) <- rownames(fit$L)
+  colnames(Y) <- paste("d",1:dims)
+  return(Y)
+}
+
+#' @title Title Goes Here
+#'
+#' @description Describe function here.
+#'
+#' @param fit Describe input argument "fit" here.
+#'
+#' @param k Describe input argument "k" here.
+#'
+#' @param Y Describe input argument "Y" here.
+#' 
+#' @return Describe the return value here.
+#'
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 scale_fill_gradient2
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_blank
+#' @importFrom ggplot2 element_text
+#' @importFrom cowplot theme_cowplot
+#' 
+#' @export
+#' 
+tsne_plot <- function (fit, k, Y,
+                       geom.point.params = list(color = "white",stroke = 0.3,
+                                                shape = 21),
+                       scale.fill.gradient2.params = list(low = "lightskyblue",
+                         mid = "gold",high = "orangered",midpoint = 0.5),
+                       labs.params = list(x = "tsne 1",y = "tsne 2",
+                                          title = paste("topic",k)),
+                       use.theme = function() theme_cowplot(12) +
+                         theme(axis.line  = element_blank(),
+                               plot.title = element_text(size = 12,
+                                                         face = "plain"))) {
+
+  # Check and process inputs.
+  if (inherits(fit,"poisson_nmf_fit"))
+    fit <- poisson2multinom(fit)
+  else if (!inherits(fit,"multinom_topic_model_fit"))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" ",
+         "or \"multinom_topic_model_fit\"")
+  
+  # Prepare the data for plotting.
+  pdat        <- cbind(as.data.frame(Y),fit$L[,k])
+  names(pdat) <- c("d1","d2","prob")
+  
+  # Create the t-SNE plot using ggplot2.
+  return(ggplot(pdat,aes_string(x = "d1",y = "d2",fill = "prob")) +
+         do.call(geom_point,geom.point.params) +
+         do.call(scale_fill_gradient2,scale.fill.gradient2.params) +
+         do.call(labs,labs.params) +
+         use.theme())
+}

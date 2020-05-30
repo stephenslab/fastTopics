@@ -15,7 +15,7 @@ to do
   ("volcano_plotly")
 
 + Implement simple 2-d t-SNE plot to show loadings for a single topic
-  projected onto a 2-d surface ("tsne_plot_2d").
+  projected onto a 2-d surface ("tsne_plot").
 
 + Implement simple a "STRUCTURE" plot, in which the samples (rows) are
   automatically arranged by a 1-d t-SNE embedding ("structure_plot").

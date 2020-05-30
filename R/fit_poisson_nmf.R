@@ -117,7 +117,7 @@
 #'
 #' An additional setting, \code{control$init.numter}, controls the
 #' number of sequential co-ordinate descent (SCD) updates that are
-#' performed to initialize the loadings matrix when \code{init_method
+#' performed to initialize the loadings matrix when \code{init.method
 #' = "topicscore"}.
 #'
 #' @param X The n x m matrix of counts; all entries of X should be
@@ -160,10 +160,10 @@
 #'   and cyclic co-ordinate descent (CCD), \code{method = "ccd"}. See
 #'   \sQuote{Details} for a detailed description of these methods.
 #'
-#' @param init_method The method used to initialize the factors and
-#'   loadings. When \code{init_method = "random"}, the factors and
+#' @param init.method The method used to initialize the factors and
+#'   loadings. When \code{init.method = "random"}, the factors and
 #'   loadings are initialized uniformly at random; when
-#'   \code{init_method = "topicscore"}, the factors are initialized
+#'   \code{init.method = "topicscore"}, the factors are initialized
 #'   using the (very fast) Topic SCORE algorithm (Ke & Wang, 2017), and
 #'   the loadings are initialized by running a small number of SCD
 #'   updates. This input argument is ignored if initial estimates of the
@@ -348,7 +348,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                              update.factors = seq(1,ncol(X)),
                              update.loadings = seq(1,nrow(X)),
                              method = c("scd","em","mu","ccd"),
-                             init_method = c("topicscore","random"),
+                             init.method = c("topicscore","random"),
                              control = list(), verbose = TRUE) {
 
   # CHECK & PROCESS INPUTS
@@ -378,9 +378,9 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   if (length(update.factors) == 0 & length(update.loadings) == 0)
     stop("None of the factors or loadings have been selected for updating")
   
-  # Check and process input arguments "method" and "init_method".
+  # Check and process input arguments "method" and "init.method".
   method      <- match.arg(method)
-  init_method <- match.arg(init_method)
+  init.method <- match.arg(init.method)
   if (method == "mu" & is.sparse.matrix(X)) {
     warning("method = \"mu\" is not implemented for sparse counts matrices; ",
             "attempting to convert \"X\" to a dense matrix")
@@ -413,7 +413,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   if (!(missing(k) & !missing(fit0) | (!missing(k) & missing(fit0))))
     stop("Provide a rank, \"k\", or an initialization, \"fit0\", but not both")
   if (missing(fit0))
-    fit0 <- init_poisson_nmf(X,k = k,init_method = init_method,
+    fit0 <- init_poisson_nmf(X,k = k,init.method = init.method,
                              control = control,verbose = verbose)
 
   # Check input argument "fit0".
@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-44).\n")
+    cat("(fastTopics 0.3-45).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -501,7 +501,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #' @export
 #' 
 init_poisson_nmf <-
-  function (X, F, L, k, init_method = c("topicscore","random"),
+  function (X, F, L, k, init.method = c("topicscore","random"),
             beta = 0.5, betamax = 0.99, control = list(),
             verbose = TRUE) {
 
@@ -523,8 +523,8 @@ init_poisson_nmf <-
   if (any(k < 2))
     stop("Matrix factorization rank \"k\" should be 2 or greater")
 
-  # Check and process input argument "init_method".
-  init_method <- match.arg(init_method)
+  # Check and process input argument "init.method".
+  init.method <- match.arg(init.method)
   
   # Check and process the optimization settings.
   control <- modifyList(fit_poisson_nmf_control_default(),
@@ -536,12 +536,12 @@ init_poisson_nmf <-
   # valid initial estimates.
   if (missing(F) | missing(L)) {
 
-    if (init_method == "random") {
+    if (init.method == "random") {
 
       # Initialize the factors and loadings uniformly at random.
       F <- rand(m,k)
       L <- rand(n,k)
-    } else if (init_method == "topicscore") {
+    } else if (init.method == "topicscore") {
 
       # Initialize the factors using the "Topic SCORE" algorithm.
       if (verbose)
