@@ -2,11 +2,12 @@
 % Please edit documentation in R/plots.R
 \name{tsne_from_topics}
 \alias{tsne_from_topics}
-\title{Title Goes Here}
+\title{t-SNE from Poisson NMF or Topic Model}
 \usage{
 tsne_from_topics(
   fit,
   dims = 2,
+  n = 1000,
   pca = FALSE,
   normalize = FALSE,
   verbose = FALSE,
@@ -17,6 +18,8 @@ tsne_from_topics(
 \item{fit}{Describe input argument "fit" here.}
 
 \item{dims}{Describe input argument "dims" here.}
+
+\item{n}{Describe input argument "n" here.}
 
 \item{pca}{Describe input argument "pca" here.}
 
@@ -30,5 +33,7 @@ tsne_from_topics(
 Describe the return value here.
 }
 \description{
-Describe function here.
+Computes a 2-dimensional embededding of the data from
+  the estimated topic probabilities, or "loadings", using the t-SNE
+  method.
 }

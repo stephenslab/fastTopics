@@ -7,7 +7,6 @@
 tsne_plot(
   fit,
   k,
-  Y,
   geom.point.params = list(color = "white", stroke = 0.3, shape = 21),
   scale.fill.gradient2.params = list(low = "lightskyblue", mid = "gold", high =
     "orangered", midpoint = 0.5),
