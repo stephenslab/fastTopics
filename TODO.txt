@@ -22,13 +22,18 @@ to do
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.
+  
++ Create vignette illustrating the differential expression analysis on
+  a simulated data set.
 
 + Create vignette giving more details about the different optimization
   algorithms. (Then simplify the fit_poisson_nmf example.)
 
-+ Create vignette illustrating application of fastTopics to text data.
++ Create vignette illustrating application of fastTopics to text data,
+  with a focus on the different ways to visualize the results.
 
 + Create vignette illustrating application of fastTopics to gene
-  expression (single-cell RNA-seq) data.
+  expression (single-cell RNA-seq) data, with a focus on the different
+  ways to visualize the results.
 
 + Add CITATION.
