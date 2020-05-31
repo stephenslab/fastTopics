@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-51).\n")
+    cat("(fastTopics 0.3-52).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -480,16 +480,16 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #'   an m x k matrix, where m is the number of columns in the counts
 #'   matrix \code{X}, and k > 1 is the rank of the matrix factorization
 #'   (equivalently, the number of "topics"). All entries of \code{F}
-#'   should be non-negative. When not provided, input argument \code{k}
-#'   should be specified instead.
+#'   should be non-negative. When \code{F} and \code{L} are not provided,
+#'   input argument \code{k} should be specified instead.
 #'
 #' @param L An optional argument giving the initial estimate of the
 #'   loadings (also sometimes called the "activations"). It should an n
 #'   x k matrix, where n is the number of rows in the counts matrix
 #'   \code{X}, and k > 1 is the rank of the matrix factorization
 #'   (equivalently, the number of "topics"). All entries of \code{L}
-#'   should be non-negative. When not provided, input argument \code{k}
-#'   should be specified instead.
+#'   should be non-negative. When \code{F} and \code{L} are not provided,
+#'   input argument \code{k} should be specified instead.
 #'
 #' @param beta Initial setting of the extrapolation parameter. This is
 #'   \eqn{beta} in Algorithm 3 of Ang & Gillis (2019).
@@ -543,10 +543,15 @@ init_poisson_nmf <-
     if (init.method == "random") {
 
       # Initialize the factors and loadings uniformly at random.
-      F <- rand(m,k)
-      L <- rand(n,k)
+      if (missing(F))
+        F <- rand(m,k)
+      if (missing(L))
+        L <- rand(n,k)
     } else if (init.method == "topicscore") {
-
+      if (!(missing(F) & missing(L)))
+        stop("init.method = \"topicscore\" can only be used when both L ",
+             "and F are not provided")
+      
       # Initialize the factors using the "Topic SCORE" algorithm.
       if (verbose)
         cat("Initializing factors using Topic SCORE algorithm.\n")

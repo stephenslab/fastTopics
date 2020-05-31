@@ -9,6 +9,30 @@ test_that("Version number in fit_poisson_nmf with verbose = TRUE is correct",{
   expect_equal(paste("fastTopics",packageDescription("fastTopics")$Version),x)
 })
 
+test_that(paste("init_poisson_nmf works when both F, L are provided, and",
+                "when one or more of F, L are missing"),{
+
+  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  out  <- generate_test_data(80,100,3)
+  X    <- out$X
+
+  # Initialize the Poisson NMF fit in different ways.
+  fit0 <- init_poisson_nmf(X,F = out$F,L = out$L)
+  fit1 <- init_poisson_nmf(X,k = 3,init.method = "random")
+  fit2 <- init_poisson_nmf(X,F = out$F,init.method = "random")
+  fit3 <- init_poisson_nmf(X,L = out$L,init.method = "random")
+  capture.output(fit4 <- init_poisson_nmf(X,k = 3,init.method = "topicscore"))
+  expect_error(init_poisson_nmf(X,F = out$F,init.method = "topicscore"))
+  expect_error(init_poisson_nmf(X,L = out$L,init.method = "topicscore"))
+  expect_s3_class(fit1,"poisson_nmf_fit")
+  expect_s3_class(fit2,"poisson_nmf_fit")
+  expect_s3_class(fit3,"poisson_nmf_fit")
+  expect_s3_class(fit4,"poisson_nmf_fit")
+
+  
+})
+
 test_that(paste("fit$progress$loglik and fit$progress$dev agree with",
                 "loglik_poisson_nmf and deviance_poisson_nmf"),{
 
