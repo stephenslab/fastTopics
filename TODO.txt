@@ -1,6 +1,9 @@
 to do
 =====
 
++ Write function to simulate a data sets for testing differential
+  gene expression analysis.
+
 + Implement function to compute estimates of term-frequency log-ratios
   (tflrs), s.e.'s and Z-scores.
 
@@ -21,8 +24,8 @@ to do
 
 + Update the pkgdown site.
   
-+ Create vignette illustrating the differential expression analysis on
-  a simulated data set.
++ Create vignette illustrating the "relative" and "absolute"
+  differential gene expression analyses on a simulated data set.
 
 + Create vignette giving more details about the different optimization
   algorithms. (Then simplify the fit_poisson_nmf example.)

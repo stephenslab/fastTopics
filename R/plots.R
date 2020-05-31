@@ -284,49 +284,70 @@ loadings_plot_ggplot_call <- function (dat, k, font_size = 10)
 
 #' @title t-SNE from Poisson NMF or Topic Model
 #'
-#' @description Computes a 2-dimensional embededding of the data from
-#'   the estimated topic probabilities, or "loadings", using the t-SNE
+#' @description Computes a low-dimensional embededding of the data from
+#'   the estimated loadings, or topic probabilities, using the t-SNE
 #'   method.
 #'
-#' @param fit Describe input argument "fit" here.
+#' @param fit An object of class \dQuote{poisson_nmf_fit} or
+#'   \dQuote{multinom_topic_model_fit}.
 #'
-#' @param dims Describe input argument "dims" here.
+#' @param dims The number of dimensions in the t-SNE embedding; passed
+#'   as argument \dQuote{dims} to \code{\link[Rtsne]{Rtsne}}.
 #'
-#' @param pca Describe input argument "pca" here.
-#'
-#' @param normalize Describe input argument "normalize" here.
-#'
-#' @param max_iter Describe input argument "max_iter" here.
+#' @param n Describe input argument "n" here.
 #' 
+#' @param pca Whether to perform a PCA processing stepe in t-SNE;
+#'   passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.
+#'
+#' @param normalize Whether to normalize the data prior to running
+#'   t-SNE; passed as argument \dQuote{normalize} to
+#'   \code{\link[Rtsne]{Rtsne}}.
+#'
+#' @param max_iter Maximum number of t-SNE iterations; passed as
+#'   argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.
+#'
 #' @param verbose Describe input argument "verbose" here.
 #' 
-#' @param ... Describe other input arguments here.
+#' @param ... Additional arguments passed to
+#'   \code{\link[Rtsne]{Rtsne}}.
 #'
 #' @return Describe the return value here.
+#'
+#' @seealso \code{\link[Rtsne]{Rtsne}}
 #' 
 #' @importFrom Rtsne Rtsne
 #' 
 #' @export
 #' 
-tsne_from_topics <- function (fit, dims = 2, pca = FALSE,
+tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
                               normalize = FALSE, perplexity = 100,
-                              theta = 0.1, max_iter = 1000,
-                              verbose = FALSE, ...) {
-  if (inherits(fit,"poisson_nmf_fit"))
-    fit <- poisson2multinom(fit)
-  else if (!inherits(fit,"multinom_topic_model_fit"))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" ",
-         "or \"multinom_topic_model_fit\"")
+                              theta = 0.1, max_iter = 1000, verbose = TRUE,
+                              ...) {
+    
+  # Check and process input arguments.
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "multinom_topic_model_fit")
+
+  # Randomly subsample, if necessary.
   L  <- fit$L
   n0 <- nrow(L)
-  if (n < n0)
-    L <- L[sample(n0,n),]
+  if (n < n0) {
+    rows <- sample(n0,n)
+    L    <- L[rows,]
+  } else
+    rows <- 1:n0
+
+  # Compute the t-SNE embedding.
   out <- Rtsne(L,dims,pca = pca,normalize = normalize,perplexity = perplexity,
                theta = theta,max_iter = max_iter,verbose = verbose,...)
-  Y <- out$Y
+
+  # Return ...
+  Y           <- out$Y
   rownames(Y) <- rownames(L)
-  colnames(Y) <- paste("d",1:dims)
-  return(list(Y = Y,L = L))
+  colnames(Y) <- paste0("d",1:dims)
+  return(list(Y = Y,rows = rows))
 }
 
 #' @title Title Goes Here

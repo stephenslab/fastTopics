@@ -12,30 +12,40 @@ tsne_from_topics(
   perplexity = 100,
   theta = 0.1,
   max_iter = 1000,
-  verbose = FALSE,
+  verbose = TRUE,
   ...
 )
 }
 \arguments{
-\item{fit}{Describe input argument "fit" here.}
+\item{fit}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}.}
 
-\item{dims}{Describe input argument "dims" here.}
+\item{dims}{The number of dimensions in the t-SNE embedding; passed
+as argument \dQuote{dims} to \code{\link[Rtsne]{Rtsne}}.}
 
-\item{pca}{Describe input argument "pca" here.}
+\item{pca}{Whether to perform a PCA processing stepe in t-SNE;
+passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.}
 
-\item{normalize}{Describe input argument "normalize" here.}
+\item{normalize}{Whether to normalize the data prior to running
+t-SNE; passed as argument \dQuote{normalize} to
+\code{\link[Rtsne]{Rtsne}}.}
 
-\item{max_iter}{Describe input argument "max_iter" here.}
+\item{max_iter}{Maximum number of t-SNE iterations; passed as
+argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.}
 
-\item{verbose}{Describe input argument "verbose" here.}
+\item{verbose}{Describe "verbose" here.}
 
-\item{...}{Describe other input arguments here.}
+\item{...}{Additional arguments passed to
+\code{\link[Rtsne]{Rtsne}}.}
 }
 \value{
 Describe the return value here.
 }
 \description{
-Computes a 2-dimensional embededding of the data from
-  the estimated topic probabilities, or "loadings", using the t-SNE
+Computes a low-dimensional embededding of the data from
+  the estimated loadings, or topic probabilities, using the t-SNE
   method.
+}
+\seealso{
+\code{\link[Rtsne]{Rtsne}}
 }

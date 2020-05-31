@@ -94,20 +94,21 @@ iteration. For interpretation of the columns, see the description
 of the \code{progress} return value.}
 
 \item{F}{An optional argument giving is the initial estimate of the
-factors (also sometimes called the "basis vectors"). It should be
-an m x k matrix, where m is the number of columns in the counts
-matrix \code{X}, and k > 1 is the rank of the matrix factorization
-(equivalently, the number of "topics"). All entries of \code{F}
-should be non-negative. When not provided, input argument \code{k}
-should be specified instead.}
+factors (also sometimes called the \dQuote{basis vectors}). It
+should be an m x k matrix, where m is the number of columns in the
+counts matrix \code{X}, and k > 1 is the rank of the matrix
+factorization (equivalently, the number of \dQuote{topics}). All
+entries of \code{F} should be non-negative. When \code{F} and
+\code{L} are not provided, input argument \code{k} should be
+specified instead.}
 
 \item{L}{An optional argument giving the initial estimate of the
-loadings (also sometimes called the "activations"). It should an n
-x k matrix, where n is the number of rows in the counts matrix
-\code{X}, and k > 1 is the rank of the matrix factorization
-(equivalently, the number of "topics"). All entries of \code{L}
-should be non-negative. When not provided, input argument \code{k}
-should be specified instead.}
+loadings (also sometimes called the \dQuote{activations}). It
+should an n x k matrix, where n is the number of rows in the counts
+matrix \code{X}, and k > 1 is the rank of the matrix factorization
+(equivalently, the number of \dQuote{topics}). All entries of
+\code{L} should be non-negative. When \code{F} and \code{L} are not
+provided, input argument \code{k} should be specified instead.}
 
 \item{beta}{Initial setting of the extrapolation parameter. This is
 \eqn{beta} in Algorithm 3 of Ang & Gillis (2019).}
