@@ -2,18 +2,18 @@
 % Please edit documentation in R/plots.R
 \name{loadings_plot}
 \alias{loadings_plot}
+\alias{loadings_plot_ggplot_call}
 \title{Loadings Plot}
 \usage{
 loadings_plot(
   fit,
   k,
   x,
-  geom.boxplot.params = list(width = 0.25, size = 0.4, outlier.shape = NA),
-  labs.params = list(x = "", y = "loading"),
-  use.theme = function() theme_cowplot(12) + theme(axis.line = element_blank(),
-    axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size =
-    12, face = "plain"))
+  ggplot_call = loadings_plot_ggplot_call,
+  plot_grid_call = function(plots) do.call(plot_grid, plots)
 )
+
+loadings_plot_ggplot_call(dat, k, font_size = 10)
 }
 \arguments{
 \item{fit}{Describe input argument "fit" here.}
@@ -22,12 +22,16 @@ loadings_plot(
 
 \item{x}{Describe input argument "x" here.}
 
-\item{geom.boxplot.params}{Describe input argument
-"geom.boxplot.params" here.}
+\item{ggplot_call}{Describe input argument "ggplot_call" here.}
 
-\item{labs.params}{Describe input argument "labs.params" here.}
+\item{dat}{Describe "dat" input argument here.}
 
-\item{use.theme}{Describe input argument "use.theme" here.}
+\item{font_size}{Describe "font_size" input argument here.}
+
+\item{plot.title}{Describe "plot.title" input argument here.}
+}
+\value{
+Describe the return value here.
 }
 \description{
 Add description here.

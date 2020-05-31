@@ -186,6 +186,8 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
          theme())
 }
 
+#' @rdname loadings_plot
+#' 
 #' @title Loadings Plot
 #'
 #' @description Add description here.
@@ -198,13 +200,56 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' 
 #' @param x Describe input argument "x" here.
 #'
-#' @param geom.boxplot.params Describe input argument
-#' "geom.boxplot.params" here.
+#' @param ggplot_call Describe input argument "ggplot_call" here.
 #'
-#' @param labs.params Describe input argument "labs.params" here.
+#' @param plot_grid_call Describe input argument "plot_grid_call" here.
 #' 
-#' @param use.theme Describe input argument "use.theme" here.
+#' @return Describe the return value here.
 #'
+#' @importFrom cowplot plot_grid
+#' 
+#' @export
+#' 
+loadings_plot <-
+  function (fit, k, x,
+            ggplot_call = loadings_plot_ggplot_call,
+            plot_grid_call = function (plots) do.call(plot_grid,plots)) {
+
+  # Check and process input arguments.
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "multinom_topic_model_fit")
+  n <- nrow(fit$L)
+  if (!(is.factor(x) && length(x) == n))
+    stop("Input \"x\" should be a factor with as many elements as there ",
+         "are rows in the loadings matrix")
+  
+  if (length(k) == 1)
+
+    # Create the loadings plot.
+    return(ggplot_call(data.frame(x = x,loading = fit$L[,k]),k))
+  else {
+
+    # Create a loadings plot for each selected topic, and combine them
+    # using plot_grid.
+    m     <- length(k)
+    plots <- vector("list",m)
+    names(plots) <- k
+    for (i in 1:m)
+      plots[[i]] <- loadings_plot(fit,k[i],x,ggplot_call)
+    return(plot_grid_call(plots))
+  }
+}
+
+#' @rdname loadings_plot
+#'
+#' @param dat Describe "dat" input argument here.
+#'
+#' @param plot.title Describe "plot.title" input argument here.
+#' 
+#' @param font_size Describe "font_size" input argument here.
+#' 
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
 #' @importFrom ggplot2 geom_boxplot
@@ -216,31 +261,14 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' 
 #' @export
 #' 
-loadings_plot <-
-  function (fit, k, x,
-            geom.boxplot.params = list(width = 0.25,size = 0.4,
-                                       outlier.shape = NA),
-            labs.params = list(x = "",y = "loading"),
-            use.theme = function() theme_cowplot(12) +
-              theme(axis.line   = element_blank(),
-                    axis.text.x = element_text(angle = 45,hjust = 1),
-                    plot.title  = element_text(size = 12,face = "plain"))) {
-
-  # Check and process input arguments.
-  if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "multinom_topic_model_fit")
-      
-  # Prepare the data for plotting.
-  pdat <- data.frame(x = x,loading = fit$L[,k])
-
-  # Create the loadings plot.
-  return(ggplot(pdat,aes_string(x = "x",y = "loading")) +
-         do.call(labs,labs.params) +
-         do.call(geom_boxplot,geom.boxplot.params) +
-         use.theme())
-}
+loadings_plot_ggplot_call <- function (dat, k, font_size = 10)
+  ggplot(dat,aes_string(x = "x",y = "loading")) +
+    geom_boxplot(width = 0.25,size = 0.4,outlier.shape = NA) +
+    labs(x = "",y = "loading",title = paste("topic",k)) +
+    theme_cowplot(font_size) +
+    theme(axis.line   = element_blank(),
+          axis.text.x = element_text(angle = 45,hjust = 1),
+          plot.title  = element_text(size = font_size,face = "plain"))
 
 #' @title t-SNE from Poisson NMF or Topic Model
 #'
