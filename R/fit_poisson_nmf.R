@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-49).\n")
+    cat("(fastTopics 0.3-50).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -514,12 +514,16 @@ init_poisson_nmf <-
   n <- nrow(X)
   m <- ncol(X)
 
-  # Only one of k and (F,L) should be provided.
-  if (!(missing(k) & (!missing(F) & !missing(L)) |
+  # Only one of k and (F or L) should be provided.
+  if (!(missing(k) & !(missing(F) & missing(L)) |
        (!missing(k) & (missing(F) & missing(L)))))
-    stop("Provide a rank (k) or an initialization (F, L), but not both")
-  if (missing(k))
-    k <- ncol(F)
+    stop("Provide a rank (k) or an initialization F and/or L, but not both")
+  if (missing(k)) {
+    if (missing(F))
+      k <- ncol(L)
+    else
+      k <- ncol(F)
+  }
   if (any(k < 2))
     stop("Matrix factorization rank \"k\" should be 2 or greater")
 
