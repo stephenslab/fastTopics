@@ -7,6 +7,7 @@
 tsne_from_topics(
   fit,
   dims = 2,
+  n = 5000,
   pca = FALSE,
   normalize = FALSE,
   perplexity = 100,
@@ -23,6 +24,11 @@ tsne_from_topics(
 \item{dims}{The number of dimensions in the t-SNE embedding; passed
 as argument \dQuote{dims} to \code{\link[Rtsne]{Rtsne}}.}
 
+\item{n}{The maximum number of rows in the loadings matrix
+\code{fit$L} to use; when the loadings matrix has more than
+\code{n} rows, the t-SNE embedding is computed on a random
+selection of \code{n} rows.}
+
 \item{pca}{Whether to perform a PCA processing stepe in t-SNE;
 passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.}
 
@@ -33,18 +39,24 @@ t-SNE; passed as argument \dQuote{normalize} to
 \item{max_iter}{Maximum number of t-SNE iterations; passed as
 argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.}
 
-\item{verbose}{Describe "verbose" here.}
+\item{verbose}{If \code{verbose = TRUE}, progress updates are
+printed; passed as argument \dQuote{verbose} to
+\code{\link[Rtsne]{Rtsne}}.}
 
-\item{...}{Additional arguments passed to
+\item{\dots}{Additional arguments passed to
 \code{\link[Rtsne]{Rtsne}}.}
 }
 \value{
-Describe the return value here.
+A list with two elements: \code{Y}, an n x d matrix
+  containing the embedding \code{Y} returned by
+  \code{\link[Rtsne]{Rtsne}}, where n is the number of rows of the
+  loadings matrix, and \code{d = dims}; \code{rows}, the rows of the
+  loadings matrix included in the t-SNE embedding.
 }
 \description{
 Computes a low-dimensional embededding of the data from
   the estimated loadings, or topic probabilities, using the t-SNE
-  method.
+  nonlinear dimensionality reduction method.
 }
 \seealso{
 \code{\link[Rtsne]{Rtsne}}

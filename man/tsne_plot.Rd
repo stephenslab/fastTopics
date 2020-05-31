@@ -2,17 +2,15 @@
 % Please edit documentation in R/plots.R
 \name{tsne_plot}
 \alias{tsne_plot}
-\title{Title Goes Here}
+\title{t-SNE Plot}
 \usage{
 tsne_plot(
   fit,
   k,
-  geom.point.params = list(color = "white", stroke = 0.3, shape = 21),
-  scale.fill.gradient2.params = list(low = "lightskyblue", mid = "gold", high =
-    "orangered", midpoint = 0.5),
-  labs.params = list(x = "tsne 1", y = "tsne 2", title = paste("topic", k)),
-  use.theme = function() theme_cowplot(12) + theme(axis.line = element_blank(),
-    plot.title = element_text(size = 12, face = "plain"))
+  Y,
+  ggplot_call = tsne_plot_ggplot_call,
+  plot_grid_call = function(plots) do.call(plot_grid, plots),
+  ...
 )
 }
 \arguments{
@@ -21,6 +19,8 @@ tsne_plot(
 \item{k}{Describe input argument "k" here.}
 
 \item{Y}{Describe input argument "Y" here.}
+
+\item{\dots}{Describe other inputs ("...") here.}
 }
 \value{
 Describe the return value here.

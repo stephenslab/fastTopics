@@ -219,8 +219,7 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' @export
 #' 
 loadings_plot <-
-  function (fit, k, x,
-            ggplot_call = loadings_plot_ggplot_call,
+  function (fit, k, x, ggplot_call = loadings_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots)) {
 
   # Check and process input arguments.
@@ -286,7 +285,7 @@ loadings_plot_ggplot_call <- function (dat, k, font_size = 10)
 #'
 #' @description Computes a low-dimensional embededding of the data from
 #'   the estimated loadings, or topic probabilities, using the t-SNE
-#'   method.
+#'   nonlinear dimensionality reduction method.
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
@@ -294,7 +293,10 @@ loadings_plot_ggplot_call <- function (dat, k, font_size = 10)
 #' @param dims The number of dimensions in the t-SNE embedding; passed
 #'   as argument \dQuote{dims} to \code{\link[Rtsne]{Rtsne}}.
 #'
-#' @param n Describe input argument "n" here.
+#' @param n The maximum number of rows in the loadings matrix
+#'   \code{fit$L} to use; when the loadings matrix has more than
+#'   \code{n} rows, the t-SNE embedding is computed on a random
+#'   selection of \code{n} rows.
 #' 
 #' @param pca Whether to perform a PCA processing stepe in t-SNE;
 #'   passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.
@@ -306,12 +308,18 @@ loadings_plot_ggplot_call <- function (dat, k, font_size = 10)
 #' @param max_iter Maximum number of t-SNE iterations; passed as
 #'   argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.
 #'
-#' @param verbose Describe input argument "verbose" here.
+#' @param verbose If \code{verbose = TRUE}, progress updates are
+#'   printed; passed as argument \dQuote{verbose} to
+#'   \code{\link[Rtsne]{Rtsne}}.
 #' 
-#' @param ... Additional arguments passed to
+#' @param \dots Additional arguments passed to
 #'   \code{\link[Rtsne]{Rtsne}}.
 #'
-#' @return Describe the return value here.
+#' @return A list with two elements: \code{Y}, an n x d matrix
+#'   containing the embedding \code{Y} returned by
+#'   \code{\link[Rtsne]{Rtsne}}, where n is the number of rows of the
+#'   loadings matrix, and \code{d = dims}; \code{rows}, the rows of the
+#'   loadings matrix included in the t-SNE embedding.
 #'
 #' @seealso \code{\link[Rtsne]{Rtsne}}
 #' 
@@ -321,8 +329,8 @@ loadings_plot_ggplot_call <- function (dat, k, font_size = 10)
 #' 
 tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
                               normalize = FALSE, perplexity = 100,
-                              theta = 0.1, max_iter = 1000, verbose = TRUE,
-                              ...) {
+                              theta = 0.1, max_iter = 1000,
+                              verbose = TRUE, ...) {
     
   # Check and process input arguments.
   if (!(inherits(fit,"poisson_nmf_fit") |
@@ -343,14 +351,15 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
   out <- Rtsne(L,dims,pca = pca,normalize = normalize,perplexity = perplexity,
                theta = theta,max_iter = max_iter,verbose = verbose,...)
 
-  # Return ...
+  # Return the t-SNE embedding stored as an n x dims matrix (Y), and
+  # the rows of L included in the embedding.
   Y           <- out$Y
   rownames(Y) <- rownames(L)
   colnames(Y) <- paste0("d",1:dims)
   return(list(Y = Y,rows = rows))
 }
 
-#' @title Title Goes Here
+#' @title t-SNE Plot
 #'
 #' @description Describe function here.
 #'
@@ -359,6 +368,8 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
 #' @param k Describe input argument "k" here.
 #'
 #' @param Y Describe input argument "Y" here.
+#'
+#' @param \dots Describe other inputs ("...") here.
 #' 
 #' @return Describe the return value here.
 #'
@@ -374,17 +385,20 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
 #' 
 #' @export
 #' 
-tsne_plot <- function (fit, k,
-                       geom.point.params = list(color = "white",stroke = 0.3,
-                                                shape = 21),
-                       scale.fill.gradient2.params = list(low = "lightskyblue",
-                         mid = "gold",high = "orangered",midpoint = 0.5),
-                       labs.params = list(x = "tsne 1",y = "tsne 2",
-                                          title = paste("topic",k)),
-                       use.theme = function() theme_cowplot(12) +
-                         theme(axis.line  = element_blank(),
-                               plot.title = element_text(size = 12,
-                                                         face = "plain"))) {
+tsne_plot <-
+  function (fit, k, Y, ggplot_call = tsne_plot_ggplot_call,
+            plot_grid_call = function (plots) do.call(plot_grid,plots),
+            ...) {
+## geom.point.params = list(color = "white",stroke = 0.3,
+##                          shape = 21),
+## scale.fill.gradient2.params = list(low = "lightskyblue",
+                       ##   mid = "gold",high = "orangered",midpoint = 0.5),
+                       ## labs.params = list(x = "tsne 1",y = "tsne 2",
+                       ##                    title = paste("topic",k)),
+                       ## use.theme = function() theme_cowplot(12) +
+                       ##   theme(axis.line  = element_blank(),
+                       ##         plot.title = element_text(size = 12,
+                       ##                                   face = "plain")))
 
   # Check and process inputs.
   if (inherits(fit,"poisson_nmf_fit"))
@@ -392,7 +406,12 @@ tsne_plot <- function (fit, k,
   else if (!inherits(fit,"multinom_topic_model_fit"))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" ",
          "or \"multinom_topic_model_fit\"")
+
+  # If necessary, compute the t-SNE embedding.
+  if (missing(Y))
+  
   fit <- tsne_from_topics(fit,2)
+  
   # else if (!(is.matrix(Y) && nrow(Y) == nrow(fit$L) && ncol(Y) == 2))
   #   stop("bad input Y")
   
