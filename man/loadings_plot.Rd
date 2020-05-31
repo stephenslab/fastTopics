@@ -16,26 +16,39 @@ loadings_plot(
 loadings_plot_ggplot_call(dat, k, font_size = 10)
 }
 \arguments{
-\item{fit}{Describe input argument "fit" here.}
+\item{fit}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}.}
 
-\item{k}{Describe input argument "k" here.}
+\item{k}{The topic, or topics, selected by number or name.}
 
-\item{x}{Describe input argument "x" here.}
+\item{x}{A categorical variable represented as a
+\code{\link{factor}}. It should have the same number of elements as
+the number of rows in \code{fit$L}.}
 
-\item{ggplot_call}{Describe input argument "ggplot_call" here.}
+\item{ggplot_call}{The function used to create the plot. Replace
+\code{loadings_plot_ggplot_call} with your own function to
+customize the appearance of the plot.}
 
-\item{dat}{Describe "dat" input argument here.}
+\item{plot_grid_call}{When multiple topics are selected, this is
+the function used to arrange the plots into a grid using
+\code{\link[cowplot]{plot_grid}}. It should be a function accepting
+a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
-\item{font_size}{Describe "font_size" input argument here.}
+\item{dat}{A data frame passed as input to
+\code{\link[ggplot2]{ggplot}}, containing columns "x" and
+"loading".}
 
-\item{plot.title}{Describe "plot.title" input argument here.}
+\item{font_size}{Font size used in  plot.}
+
+\item{plot.title}{Describe "plot.title" input argument here. The
+name or number of the topic being plotted; it is only used to
+determine the plot title.}
 }
 \value{
-Describe the return value here.
+A \code{ggplot} object.
 }
 \description{
-Add description here.
-}
-\details{
-Add details here.
+Generate one or more bar plots to visualize the
+  relationship between the loadings, or topic probabilities, and a
+  selected categorical variable (a factor).
 }

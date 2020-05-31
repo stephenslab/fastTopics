@@ -6,9 +6,6 @@ to do
 + Implement function to compute estimates of term-frequency log-ratios
   (tflrs), s.e.'s and Z-scores.
 
-+ Implement simple bar plot to show loadings vs. categorical variable
-  ("loadings_plot").
-
 + Implement simple "volcano" plot ("volcano_plot").
 
 + Implement simple *interactive* "volcano" plot using plotly

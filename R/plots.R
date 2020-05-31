@@ -190,21 +190,29 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' 
 #' @title Loadings Plot
 #'
-#' @description Add description here.
+#' @description Generate one or more bar plots to visualize the
+#'   relationship between the loadings, or topic probabilities, and a
+#'   selected categorical variable (a factor).
 #'
-#' @details Add details here.
+#' @param fit An object of class \dQuote{poisson_nmf_fit} or
+#'   \dQuote{multinom_topic_model_fit}.
+#'
+#' @param k The topic, or topics, selected by number or name.
 #' 
-#' @param fit Describe input argument "fit" here.
+#' @param x A categorical variable represented as a
+#'   \code{\link{factor}}. It should have the same number of elements as
+#'   the number of rows in \code{fit$L}.
 #'
-#' @param k Describe input argument "k" here.
+#' @param ggplot_call The function used to create the plot. Replace
+#'   \code{loadings_plot_ggplot_call} with your own function to
+#'   customize the appearance of the plot.
+#'
+#' @param plot_grid_call When multiple topics are selected, this is
+#'   the function used to arrange the plots into a grid using
+#'   \code{\link[cowplot]{plot_grid}}. It should be a function accepting
+#'   a single argument, \code{plots}, a list of \code{ggplot} objects.
 #' 
-#' @param x Describe input argument "x" here.
-#'
-#' @param ggplot_call Describe input argument "ggplot_call" here.
-#'
-#' @param plot_grid_call Describe input argument "plot_grid_call" here.
-#' 
-#' @return Describe the return value here.
+#' @return A \code{ggplot} object.
 #'
 #' @importFrom cowplot plot_grid
 #' 
@@ -232,7 +240,7 @@ loadings_plot <-
   else {
 
     # Create a loadings plot for each selected topic, and combine them
-    # using plot_grid.
+    # using plot_grid. This is done by recursively calling loadings_plot.
     m     <- length(k)
     plots <- vector("list",m)
     names(plots) <- k
@@ -244,11 +252,15 @@ loadings_plot <-
 
 #' @rdname loadings_plot
 #'
-#' @param dat Describe "dat" input argument here.
+#' @param dat A data frame passed as input to
+#'   \code{\link[ggplot2]{ggplot}}, containing columns "x" and
+#'   "loading".
 #'
-#' @param plot.title Describe "plot.title" input argument here.
+#' @param plot.title Describe "plot.title" input argument here. The
+#'   name or number of the topic being plotted; it is only used to
+#'   determine the plot title.
 #' 
-#' @param font_size Describe "font_size" input argument here.
+#' @param font_size Font size used in  plot.
 #' 
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
