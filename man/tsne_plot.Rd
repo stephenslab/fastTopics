@@ -7,6 +7,7 @@
 \usage{
 tsne_plot(
   fit,
+  color = c("probs", "loadings"),
   k,
   tsne,
   ggplot_call = tsne_plot_ggplot_call,
@@ -21,6 +22,12 @@ tsne_plot_ggplot_call(dat, topic.label, font.size = 10)
 
 \item{k}{Describe input argument "k" here.}
 
+\item{tsne}{Describe input argument "tsne" here.}
+
+\item{ggplot_call}{Describe input argument "ggplot_call" here.}
+
+\item{plot_grid_call}{Describe input argument "plot_grid_call" here.}
+
 \item{\dots}{Describe other inputs ("...") here.}
 
 \item{dat}{Describe "dat" here.}
@@ -28,8 +35,6 @@ tsne_plot_ggplot_call(dat, topic.label, font.size = 10)
 \item{topic.label}{Describe "topic.label" input argument here.}
 
 \item{font.size}{Describe "font.size" input argument here.}
-
-\item{Y}{Describe input argument "Y" here.}
 }
 \value{
 Describe the return value here.

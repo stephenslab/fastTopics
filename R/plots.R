@@ -197,12 +197,13 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
 #'
-#' @param k The topic, or topics, selected by number or name.
-#' 
 #' @param x A categorical variable represented as a
 #'   \code{\link{factor}}. It should have the same number of elements as
 #'   the number of rows in \code{fit$L}.
 #'
+#' @param k The topic, or topics, selected by number or name. When not
+#'   specified, all topics and selected.
+#' 
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{loadings_plot_ggplot_call} with your own function to
 #'   customize the appearance of the plot.
@@ -219,7 +220,7 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' @export
 #' 
 loadings_plot <-
-  function (fit, k, x, ggplot_call = loadings_plot_ggplot_call,
+  function (fit, x, k, ggplot_call = loadings_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots)) {
 
   # Check and process input arguments.
@@ -231,6 +232,8 @@ loadings_plot <-
   if (!(is.factor(x) && length(x) == n))
     stop("Input \"x\" should be a factor with as many elements as there ",
          "are rows in the loadings matrix")
+  if (missing(k))
+    k <- seq(1,ncol(fit$L))
   
   if (length(k) == 1)
 
@@ -244,7 +247,7 @@ loadings_plot <-
     plots <- vector("list",m)
     names(plots) <- k
     for (i in 1:m)
-      plots[[i]] <- loadings_plot(fit,k[i],x,ggplot_call)
+      plots[[i]] <- loadings_plot(fit,x,k[i],ggplot_call)
     return(plot_grid_call(plots))
   }
 }
@@ -252,8 +255,8 @@ loadings_plot <-
 #' @rdname loadings_plot
 #'
 #' @param dat A data frame passed as input to
-#'   \code{\link[ggplot2]{ggplot}}, containing columns "x" and
-#'   "loading".
+#'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
+#'   "x" and "loading".
 #'
 #' @param topic.label Describe "topic.label" input argument here. The
 #'   name or number of the topic being plotted; it is only used to
@@ -315,7 +318,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' @param \dots Additional arguments passed to
 #'   \code{\link[Rtsne]{Rtsne}}.
 #'
-#' @return A list with two elements: \code{Y}, an n x d matrix
+#' @return A list with two list elements: \code{Y}, an n x d matrix
 #'   containing the embedding \code{Y} returned by
 #'   \code{\link[Rtsne]{Rtsne}}, where n is the number of rows of the
 #'   loadings matrix, and \code{d = dims}; \code{rows}, the rows of the
@@ -367,43 +370,49 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
 #'
 #' @param k Describe input argument "k" here.
 #'
-#' @param Y Describe input argument "Y" here.
+#' @param tsne Describe input argument "tsne" here.
 #'
+#' @param ggplot_call Describe input argument "ggplot_call" here.
+#'
+#' @param plot_grid_call Describe input argument "plot_grid_call" here.
+#' 
 #' @param \dots Describe other inputs ("...") here.
 #' 
 #' @return Describe the return value here.
 #'
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes_string
-#' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 scale_fill_gradient2
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 element_text
-#' @importFrom cowplot theme_cowplot
 #' @importFrom cowplot plot_grid
 #' 
 #' @export
 #' 
 tsne_plot <-
-  function (fit, k, tsne,
+  function (fit, color = c("probs","loadings"), k, tsne,
             ggplot_call = tsne_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots),
             ...) {
 
   # Check and process inputs.
-  if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
+  color <- match.arg(color)
+  if (color == "loadings") {
+    if (!inherits(fit,"poisson_nmf_fit"))
+      stop("For color = \"loadings\", input \"fit\" should be an object of ",
+           "class \"poisson_nmf_fit\"")
+  } else if (color == "probs") {
+    if (!(inherits(fit,"poisson_nmf_fit") |
+          inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
          "multinom_topic_model_fit")
-
+  }
+  if (missing(k))
+    k <- seq(1,ncol(fit$L))
+  
   # If necessary, compute the t-SNE embedding.
   if (missing(tsne))
     tsne <- tsne_from_topics(fit,2,...)
   
   if (length(k) == 1) {
-
+    if (inherits(fit,"poisson_nmf_fit") & color == "probs")
+      fit <- poisson2multinom(fit)
+      
     # Prepare the data for plotting.
     fit        <- select(fit,loadings = tsne$rows)
     dat        <- as.data.frame(cbind(tsne$Y,fit$L[,k]))
@@ -419,7 +428,8 @@ tsne_plot <-
     plots <- vector("list",m)
     names(plots) <- k
     for (i in 1:m)
-      plots[[i]] <- tsne_plot(fit,k[i],tsne,ggplot_call,plot_grid_call,...)
+      plots[[i]] <- tsne_plot(fit,color,k[i],tsne,ggplot_call,
+                              plot_grid_call,...)
     return(plot_grid_call(plots))
   }
 }
@@ -431,6 +441,16 @@ tsne_plot <-
 #' @param topic.label Describe "topic.label" input argument here.
 #'
 #' @param font.size Describe "font.size" input argument here.
+#' 
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 scale_fill_gradient2
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_blank
+#' @importFrom ggplot2 element_text
+#' @importFrom cowplot theme_cowplot
 #' 
 #' @export
 #' 

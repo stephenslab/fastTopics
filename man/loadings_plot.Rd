@@ -7,8 +7,8 @@
 \usage{
 loadings_plot(
   fit,
-  k,
   x,
+  k,
   ggplot_call = loadings_plot_ggplot_call,
   plot_grid_call = function(plots) do.call(plot_grid, plots)
 )
@@ -19,11 +19,12 @@ loadings_plot_ggplot_call(dat, topic.label, font.size = 10)
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
 \dQuote{multinom_topic_model_fit}.}
 
-\item{k}{The topic, or topics, selected by number or name.}
-
 \item{x}{A categorical variable represented as a
 \code{\link{factor}}. It should have the same number of elements as
 the number of rows in \code{fit$L}.}
+
+\item{k}{The topic, or topics, selected by number or name. When not
+specified, all topics and selected.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{loadings_plot_ggplot_call} with your own function to
@@ -35,8 +36,8 @@ the function used to arrange the plots into a grid using
 a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
 \item{dat}{A data frame passed as input to
-\code{\link[ggplot2]{ggplot}}, containing columns "x" and
-"loading".}
+\code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
+"x" and "loading".}
 
 \item{topic.label}{Describe "topic.label" input argument here. The
 name or number of the topic being plotted; it is only used to

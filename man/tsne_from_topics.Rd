@@ -47,7 +47,7 @@ printed; passed as argument \dQuote{verbose} to
 \code{\link[Rtsne]{Rtsne}}.}
 }
 \value{
-A list with two elements: \code{Y}, an n x d matrix
+A list with two list elements: \code{Y}, an n x d matrix
   containing the embedding \code{Y} returned by
   \code{\link[Rtsne]{Rtsne}}, where n is the number of rows of the
   loadings matrix, and \code{d = dims}; \code{rows}, the rows of the
