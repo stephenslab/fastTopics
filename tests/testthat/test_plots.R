@@ -16,6 +16,11 @@ test_that("Test that the plotting functions work",{
   plot_progress_poisson_nmf(list(scd = fit1,em = fit2))
   
   # Test loadings_plot.
-  x <- factor(sample(1:4,80,replace = TRUE))
-  expect_s3_class(loadings_plot(poisson2multinom(fit1),1:3,x),"ggplot")
+  x   <- factor(sample(1:4,80,replace = TRUE))
+  out <- loadings_plot(poisson2multinom(fit1),x)
+  expect_s3_class(out,"ggplot")
+
+  # Test tsne_plot.
+  capture.output(out <- tsne_plot(fit1,perplexity = 10))
+  expect_s3_class(out,"ggplot")
 })

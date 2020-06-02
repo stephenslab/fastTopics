@@ -29,8 +29,6 @@ test_that(paste("init_poisson_nmf works when both F, L are provided, and",
   expect_s3_class(fit2,"poisson_nmf_fit")
   expect_s3_class(fit3,"poisson_nmf_fit")
   expect_s3_class(fit4,"poisson_nmf_fit")
-
-  
 })
 
 test_that(paste("fit$progress$loglik and fit$progress$dev agree with",
