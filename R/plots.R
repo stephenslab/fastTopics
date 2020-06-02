@@ -382,6 +382,7 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
 #' @importFrom ggplot2 element_blank
 #' @importFrom ggplot2 element_text
 #' @importFrom cowplot theme_cowplot
+#' @importFrom cowplot plot_grid
 #' 
 #' @export
 #' 
@@ -389,6 +390,11 @@ tsne_plot <-
   function (fit, k, Y, ggplot_call = tsne_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots),
             ...) {
+  ## return(ggplot(pdat,aes_string(x = "d1",y = "d2",fill = "loading")) +
+  ##        do.call(geom_point,geom.point.params) +
+  ##        do.call(scale_fill_gradient2,scale.fill.gradient2.params) +
+  ##        do.call(labs,labs.params) +
+  ##        use.theme())
 ## geom.point.params = list(color = "white",stroke = 0.3,
 ##                          shape = 21),
 ## scale.fill.gradient2.params = list(low = "lightskyblue",
@@ -408,21 +414,33 @@ tsne_plot <-
          "or \"multinom_topic_model_fit\"")
 
   # If necessary, compute the t-SNE embedding.
-  if (missing(Y))
+  if (missing(Y)) {
+    out <- tsne_from_topics(fit,2,...)
+    Y   <- out$Y
+    if (length(out$rows) < nrow(fit$L))
+      fit <- select(fit,loadings = out$rows)
+  } else if (!(is.matrix(Y) && nrow(Y) == nrow(fit$L) && ncol(Y) == 2))
+    stop("Input \"Y\" should be an n x 2 numeric matrix giving a 2-d ",
+         "embedding of the samples (rows of X), where n is the number of ",
+         "rows in the loadings matrix")
   
-  fit <- tsne_from_topics(fit,2)
-  
-  # else if (!(is.matrix(Y) && nrow(Y) == nrow(fit$L) && ncol(Y) == 2))
-  #   stop("bad input Y")
-  
-  # Prepare the data for plotting.
-  pdat        <- as.data.frame(with(fit,cbind(Y,L[,k])))
-  names(pdat) <- c("d1","d2","loading")
-  
-  # Create the t-SNE plot using ggplot2.
-  return(ggplot(pdat,aes_string(x = "d1",y = "d2",fill = "loading")) +
-         do.call(geom_point,geom.point.params) +
-         do.call(scale_fill_gradient2,scale.fill.gradient2.params) +
-         do.call(labs,labs.params) +
-         use.theme())
+  if (length(k) == 1) {
+
+    # Prepare the data for plotting.
+    pdat        <- as.data.frame(cbind(Y,fit$L[,k]))
+    names(pdat) <- c("d1","d2","loading")
+      
+    # Create the t-SNE plot.
+    return(ggplot_call(data.frame(x = x,loading = fit$L[,k]),k))
+  } else {
+
+    # Create a t-SNE plot for each selected topic, and combine them
+    # using plot_grid. This is done by recursively calling loadings_plot.
+    m     <- length(k)
+    plots <- vector("list",m)
+    names(plots) <- k
+    for (i in 1:m)
+      plots[[i]] <- tsne_plot(fit,k[i],Y,ggplot_call,...)
+    return(plot_grid_call(plots))
+  }
 }
