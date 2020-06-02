@@ -343,8 +343,7 @@ binom_stats <- function (X, F, L) {
       b1     <- b1     + x*p
     }
 
-  # Output the expectations (a0, a1) and marginal probabilities (b0,
-  # b1).
+  # Output the expectations.
   return(list(a0 = a0,
               a1 = a1,
               b0 = b0,
