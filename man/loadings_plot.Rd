@@ -13,7 +13,7 @@ loadings_plot(
   plot_grid_call = function(plots) do.call(plot_grid, plots)
 )
 
-loadings_plot_ggplot_call(dat, k, font_size = 10)
+loadings_plot_ggplot_call(dat, topic.label, font.size = 10)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
@@ -38,11 +38,11 @@ a single argument, \code{plots}, a list of \code{ggplot} objects.}
 \code{\link[ggplot2]{ggplot}}, containing columns "x" and
 "loading".}
 
-\item{font_size}{Font size used in  plot.}
-
-\item{plot.title}{Describe "plot.title" input argument here. The
+\item{topic.label}{Describe "topic.label" input argument here. The
 name or number of the topic being plotted; it is only used to
 determine the plot title.}
+
+\item{font.size}{Font size used in plot.}
 }
 \value{
 A \code{ggplot} object.

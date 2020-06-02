@@ -60,6 +60,13 @@ select.poisson_nmf_fit <- function (.data, factors, loadings, ...) {
   return(.data)
 }
 
+#' @rdname select.poisson_nmf_fit
+#' 
+#' @export
+#' 
+select.multinom_topic_model_fit <- function (.data, factors, loadings, ...)
+  select.poisson_nmf_fit(.data,factors,loadings,...)
+
 #' @title Summarize and Compare Poisson NMF Model Fits
 #'
 #' @description Create a table summarizing the results of fitting one

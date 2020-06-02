@@ -255,11 +255,11 @@ loadings_plot <-
 #'   \code{\link[ggplot2]{ggplot}}, containing columns "x" and
 #'   "loading".
 #'
-#' @param plot.title Describe "plot.title" input argument here. The
+#' @param topic.label Describe "topic.label" input argument here. The
 #'   name or number of the topic being plotted; it is only used to
 #'   determine the plot title.
 #' 
-#' @param font_size Font size used in  plot.
+#' @param font.size Font size used in plot.
 #' 
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
@@ -272,14 +272,14 @@ loadings_plot <-
 #' 
 #' @export
 #' 
-loadings_plot_ggplot_call <- function (dat, k, font_size = 10)
+loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
   ggplot(dat,aes_string(x = "x",y = "loading")) +
     geom_boxplot(width = 0.25,size = 0.4,outlier.shape = NA) +
-    labs(x = "",y = "loading",title = paste("topic",k)) +
-    theme_cowplot(font_size) +
+    labs(x = "",y = "loading",title = paste("topic",topic.label)) +
+    theme_cowplot(font.size) +
     theme(axis.line   = element_blank(),
           axis.text.x = element_text(angle = 45,hjust = 1),
-          plot.title  = element_text(size = font_size,face = "plain"))
+          plot.title  = element_text(size = font.size,face = "plain"))
 
 #' @title t-SNE from Poisson NMF or Topic Model
 #'
@@ -387,51 +387,30 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
 #' @export
 #' 
 tsne_plot <-
-  function (fit, k, Y, ggplot_call = tsne_plot_ggplot_call,
+  function (fit, k, tsne,
+            ggplot_call = tsne_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots),
             ...) {
-  ## return(ggplot(pdat,aes_string(x = "d1",y = "d2",fill = "loading")) +
-  ##        do.call(geom_point,geom.point.params) +
-  ##        do.call(scale_fill_gradient2,scale.fill.gradient2.params) +
-  ##        do.call(labs,labs.params) +
-  ##        use.theme())
-## geom.point.params = list(color = "white",stroke = 0.3,
-##                          shape = 21),
-## scale.fill.gradient2.params = list(low = "lightskyblue",
-                       ##   mid = "gold",high = "orangered",midpoint = 0.5),
-                       ## labs.params = list(x = "tsne 1",y = "tsne 2",
-                       ##                    title = paste("topic",k)),
-                       ## use.theme = function() theme_cowplot(12) +
-                       ##   theme(axis.line  = element_blank(),
-                       ##         plot.title = element_text(size = 12,
-                       ##                                   face = "plain")))
 
   # Check and process inputs.
-  if (inherits(fit,"poisson_nmf_fit"))
-    fit <- poisson2multinom(fit)
-  else if (!inherits(fit,"multinom_topic_model_fit"))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" ",
-         "or \"multinom_topic_model_fit\"")
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "multinom_topic_model_fit")
 
   # If necessary, compute the t-SNE embedding.
-  if (missing(Y)) {
-    out <- tsne_from_topics(fit,2,...)
-    Y   <- out$Y
-    if (length(out$rows) < nrow(fit$L))
-      fit <- select(fit,loadings = out$rows)
-  } else if (!(is.matrix(Y) && nrow(Y) == nrow(fit$L) && ncol(Y) == 2))
-    stop("Input \"Y\" should be an n x 2 numeric matrix giving a 2-d ",
-         "embedding of the samples (rows of X), where n is the number of ",
-         "rows in the loadings matrix")
+  if (missing(tsne))
+    tsne <- tsne_from_topics(fit,2,...)
   
   if (length(k) == 1) {
 
     # Prepare the data for plotting.
-    pdat        <- as.data.frame(cbind(Y,fit$L[,k]))
-    names(pdat) <- c("d1","d2","loading")
+    fit        <- select(fit,loadings = tsne$rows)
+    dat        <- as.data.frame(cbind(tsne$Y,fit$L[,k]))
+    names(dat) <- c("d1","d2","loading")
       
     # Create the t-SNE plot.
-    return(ggplot_call(data.frame(x = x,loading = fit$L[,k]),k))
+    return(ggplot_call(dat,k))
   } else {
 
     # Create a t-SNE plot for each selected topic, and combine them
@@ -440,7 +419,27 @@ tsne_plot <-
     plots <- vector("list",m)
     names(plots) <- k
     for (i in 1:m)
-      plots[[i]] <- tsne_plot(fit,k[i],Y,ggplot_call,...)
+      plots[[i]] <- tsne_plot(fit,k[i],tsne,ggplot_call,plot_grid_call,...)
     return(plot_grid_call(plots))
   }
 }
+
+#' @rdname tsne_plot
+#'
+#' @param dat Describe "dat" here.
+#'
+#' @param topic.label Describe "topic.label" input argument here.
+#'
+#' @param font.size Describe "font.size" input argument here.
+#' 
+#' @export
+#' 
+tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
+  ggplot(dat,aes_string(x = "d1",y = "d2",fill = "loading")) +
+    geom_point(shape = 21,color = "white",stroke = 0.3) +
+    scale_fill_gradient2(low = "lightskyblue",mid = "gold",high = "orangered",
+                         midpoint = mean(range(dat$loading))) +
+    labs(x = "tsne 1",y = "tsne 2",title = paste("topic",topic.label)) +
+    theme_cowplot(font.size) +
+    theme(axis.line  = element_blank(),
+          plot.title = element_text(size = font.size,face = "plain"))

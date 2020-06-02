@@ -2,9 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{select.poisson_nmf_fit}
 \alias{select.poisson_nmf_fit}
+\alias{select.multinom_topic_model_fit}
 \title{Extract or Re-order Poisson NMF Factors and Loadings}
 \usage{
 \method{select}{poisson_nmf_fit}(.data, factors, loadings, ...)
+
+\method{select}{multinom_topic_model_fit}(.data, factors, loadings, ...)
 }
 \arguments{
 \item{.data}{Poisson NMF fit; that is, an object of class

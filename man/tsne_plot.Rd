@@ -2,25 +2,34 @@
 % Please edit documentation in R/plots.R
 \name{tsne_plot}
 \alias{tsne_plot}
+\alias{tsne_plot_ggplot_call}
 \title{t-SNE Plot}
 \usage{
 tsne_plot(
   fit,
   k,
-  Y,
+  tsne,
   ggplot_call = tsne_plot_ggplot_call,
   plot_grid_call = function(plots) do.call(plot_grid, plots),
   ...
 )
+
+tsne_plot_ggplot_call(dat, topic.label, font.size = 10)
 }
 \arguments{
 \item{fit}{Describe input argument "fit" here.}
 
 \item{k}{Describe input argument "k" here.}
 
-\item{Y}{Describe input argument "Y" here.}
-
 \item{\dots}{Describe other inputs ("...") here.}
+
+\item{dat}{Describe "dat" here.}
+
+\item{topic.label}{Describe "topic.label" input argument here.}
+
+\item{font.size}{Describe "font.size" input argument here.}
+
+\item{Y}{Describe input argument "Y" here.}
 }
 \value{
 Describe the return value here.
