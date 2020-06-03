@@ -28,8 +28,9 @@ when \code{color = "probs"}, the estimated topic probabilities
 (which can be recovered from the loadings by calling
 \code{\link{poisson2multinom}} are shown.}
 
-\item{k}{The topic, or topics, selected by number or name. When not
-specified, all topics are plotted.}
+\item{k}{The topic, or topics, selected by number or name. One plot
+is created per selected topic. When not specified, all topics are
+plotted.}
 
 \item{tsne}{A 2-d embedding of the samples (rows of X), or a subset
 of the samples, such as an output from
@@ -64,10 +65,9 @@ it is only used to determine the plot title.}
 A \code{ggplot} object.
 }
 \description{
-Visualize Poisson NMF loadings ("activations") or
-  multinomial topic probabilities by projecting the samples onto a
-  2-d surface, and coloring the samples according to the their
-  loadings/probabilities . By default, the 2-d embedding is computed
-  from the loadings or topic probabilities using the t-SNE nonlinear
-  dimensionality reduction method.
+Visualize the "structure" of the Poisson NMF loadings
+  ("activations") or the topic probabilities by projection onto a 2-d
+  surface. Samples in the projection are colored according to the their
+  loadings/probabilities. By default, t-SNE is used to compute the
+  2-d embedding from the loadings or topic probabilities.
 }

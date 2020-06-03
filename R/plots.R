@@ -363,12 +363,11 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
 
 #' @title t-SNE Plot
 #'
-#' @description Visualize Poisson NMF loadings ("activations") or
-#'   multinomial topic probabilities by projecting the samples onto a
-#'   2-d surface, and coloring the samples according to the their
-#'   loadings/probabilities . By default, the 2-d embedding is computed
-#'   from the loadings or topic probabilities using the t-SNE nonlinear
-#'   dimensionality reduction method.
+#' @description Visualize the "structure" of the Poisson NMF loadings
+#'   ("activations") or the topic probabilities by projection onto a 2-d
+#'   surface. Samples in the projection are colored according to the their
+#'   loadings/probabilities. By default, t-SNE is used to compute the
+#'   2-d embedding from the loadings or topic probabilities.
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
@@ -380,8 +379,9 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
 #'   (which can be recovered from the loadings by calling
 #'   \code{\link{poisson2multinom}} are shown.
 #' 
-#' @param k The topic, or topics, selected by number or name. When not
-#'   specified, all topics are plotted.
+#' @param k The topic, or topics, selected by number or name. One plot
+#'   is created per selected topic. When not specified, all topics are
+#'   plotted.
 #'
 #' @param tsne A 2-d embedding of the samples (rows of X), or a subset
 #'   of the samples, such as an output from
@@ -491,3 +491,20 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
     theme_cowplot(font.size) +
     theme(axis.line  = element_blank(),
           plot.title = element_text(size = font.size,face = "plain"))
+
+#' Structure Plot
+#'
+#' @description Describe the structure plot. Explain why it is called
+#' a "structure plot" (add reference(s) below).
+#' 
+#' @param fit Describe
+#'
+#' @references
+#'
+#' [Add reference(s) here.]
+#' 
+#' @export
+#'
+structure_plot <- function (fit) {
+  # TO DO.
+}
