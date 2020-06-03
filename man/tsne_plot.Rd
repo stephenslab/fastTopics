@@ -18,27 +18,56 @@ tsne_plot(
 tsne_plot_ggplot_call(dat, topic.label, font.size = 10)
 }
 \arguments{
-\item{fit}{Describe input argument "fit" here.}
+\item{fit}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}.}
 
-\item{k}{Describe input argument "k" here.}
+\item{color}{The data mapped to the color \dQuote{aesthetic} in the
+plot. When \code{color = "loadings"}, the estimated loadings
+(stored the \code{L} matrix) in the Poisson NMF model are plotted;
+when \code{color = "probs"}, the estimated topic probabilities
+(which can be recovered from the loadings by calling
+\code{\link{poisson2multinom}} are shown.}
 
-\item{tsne}{Describe input argument "tsne" here.}
+\item{k}{The topic, or topics, selected by number or name. When not
+specified, all topics are plotted.}
 
-\item{ggplot_call}{Describe input argument "ggplot_call" here.}
+\item{tsne}{A 2-d embedding of the samples (rows of X), or a subset
+of the samples, such as an output from
+\code{\link{tsne_from_topics}}. It should be a list object with the
+same structure as a \code{tsne_from_topics} output; see
+\code{\link{tsne_from_topics}} for details. If not provided, a 2-d
+t-SNE embedding will be estimated automatically by calling
+\code{tsne_from_topics}.}
 
-\item{plot_grid_call}{Describe input argument "plot_grid_call" here.}
+\item{ggplot_call}{The function used to create the plot. Replace
+\code{tsne_plot_ggplot_call} with your own function to
+customize the appearance of the plot.}
 
-\item{\dots}{Describe other inputs ("...") here.}
+\item{plot_grid_call}{When multiple topics are selected, this is
+the function used to arrange the plots into a grid using
+\code{\link[cowplot]{plot_grid}}. It should be a function accepting
+a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
-\item{dat}{Describe "dat" here.}
+\item{\dots}{Additional arguments passed to \code{tsne_from_topics}.}
 
-\item{topic.label}{Describe "topic.label" input argument here.}
+\item{dat}{A data frame passed as input to
+\code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
+"d1", "d2" (the first and second dimensions in the 2-d embedding),
+and "loading".}
 
-\item{font.size}{Describe "font.size" input argument here.}
+\item{topic.label}{The name or number of the topic being plotted;
+it is only used to determine the plot title.}
+
+\item{font.size}{Font size used in plot.}
 }
 \value{
-Describe the return value here.
+A \code{ggplot} object.
 }
 \description{
-Describe function here.
+Visualize Poisson NMF loadings ("activations") or
+  multinomial topic probabilities by projecting the samples onto a
+  2-d surface, and coloring the samples according to the their
+  loadings/probabilities . By default, the 2-d embedding is computed
+  from the loadings or topic probabilities using the t-SNE nonlinear
+  dimensionality reduction method.
 }

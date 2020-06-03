@@ -24,7 +24,7 @@ loadings_plot_ggplot_call(dat, topic.label, font.size = 10)
 the number of rows in \code{fit$L}.}
 
 \item{k}{The topic, or topics, selected by number or name. When not
-specified, all topics and selected.}
+specified, all topics are plotted.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{loadings_plot_ggplot_call} with your own function to
@@ -39,9 +39,8 @@ a single argument, \code{plots}, a list of \code{ggplot} objects.}
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
 "x" and "loading".}
 
-\item{topic.label}{Describe "topic.label" input argument here. The
-name or number of the topic being plotted; it is only used to
-determine the plot title.}
+\item{topic.label}{The name or number of the topic being plotted;
+it is only used to determine the plot title.}
 
 \item{font.size}{Font size used in plot.}
 }

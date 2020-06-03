@@ -68,7 +68,7 @@ logarithmic scale does not over-emphasize very small differences.}
 \item{theme}{The ggplot2 "theme".}
 }
 \value{
-The return value is a \code{ggplot} object.
+A \code{ggplot} object.
 }
 \description{
 Create a plot showing improvement in one or more
