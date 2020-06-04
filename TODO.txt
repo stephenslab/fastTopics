@@ -17,6 +17,8 @@ to do
   Optionally, a categorical variable (labeling) may be provided, in
   which case the samples are arranged according to that labeling.
 
++ Add test(s) for structure_plot.
+
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.
