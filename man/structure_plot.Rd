@@ -2,12 +2,33 @@
 % Please edit documentation in R/plots.R
 \name{structure_plot}
 \alias{structure_plot}
+\alias{structure_plot_ggplot_call}
 \title{Structure Plot}
 \usage{
-structure_plot(fit)
+structure_plot(
+  fit,
+  topics,
+  rows,
+  colors = c("lightcyan", "indianred", "gold", "dodgerblue", "seagreen", "darkmagenta"),
+  ggplot_call = structure_plot_ggplot_call
+)
+
+structure_plot_ggplot_call(dat, colors, font.size = 10)
 }
 \arguments{
-\item{fit}{Describe}
+\item{fit}{Describe input argument "fit" here.}
+
+\item{topics}{Describe input argument "topics" here.}
+
+\item{rows}{Describe input argument "rows" here.}
+
+\item{colors}{Describe input argument "colors" here.}
+
+\item{ggplot_call}{Describe input argument "ggplot_call" here.}
+
+\item{dat}{Describe input argument "dat" here.}
+
+\item{font.size}{Describe input argument "font.size" here.}
 }
 \description{
 Describe the structure plot. Explain why it is called

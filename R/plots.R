@@ -497,14 +497,81 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' @description Describe the structure plot. Explain why it is called
 #' a "structure plot" (add reference(s) below).
 #' 
-#' @param fit Describe
+#' @param fit Describe input argument "fit" here.
 #'
+#' @param topics Describe input argument "topics" here.
+#' 
+#' @param rows Describe input argument "rows" here.
+#'
+#' @param colors Describe input argument "colors" here.
+#'
+#' @param ggplot_call Describe input argument "ggplot_call" here.
+#' 
 #' @references
 #'
 #' [Add reference(s) here.]
 #' 
 #' @export
 #'
-structure_plot <- function (fit) {
-  # TO DO.
+structure_plot <-
+  function (fit, topics, rows,
+            colors = c("lightcyan","indianred","gold","dodgerblue",
+                       "seagreen","darkmagenta"),
+            ggplot_call = structure_plot_ggplot_call) {
+
+  # Check and process inputs.
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "multinom_topic_model_fit")
+  if (inherits(fit,"poisson_nmf_fit"))
+    fit <- poisson2multinom(fit)
+
+  # Prepare the data for plotting.
+  fit <- select(fit,loadings = rows)
+  dat <- compile_structure_plot_data(fit,topics)
+      
+  # Create the structure plot.
+  return(ggplot_call(dat,colors))
+}
+
+#' @rdname structure_plot
+#'
+#' @param dat Describe input argument "dat" here.
+#'
+#' @param font.size Describe input argument "font.size" here.
+#' 
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 geom_col
+#' @importFrom ggplot2 scale_x_continuous
+#' @importFrom ggplot2 scale_color_manual
+#' @importFrom ggplot2 scale_fill_manual
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_blank
+#' @importFrom cowplot theme_cowplot
+#' 
+#' @export
+#'
+structure_plot_ggplot_call <- function (dat, colors, font.size = 10)
+  ggplot(dat,aes_string(x = "sample",y = "prob",color = "topic",
+                        fill = "topic")) +
+    geom_col() +
+    scale_x_continuous(breaks = NULL,limits = c(0,max(dat$sample) + 1)) +
+    scale_color_manual(values = colors) +
+    scale_fill_manual(values = colors) +
+    labs(x = "",y = "topic probability") +
+    theme_cowplot(font.size) +
+    theme(axis.line = element_blank())
+
+# TO DO: Explain here what this function does, and how to use it.
+compile_structure_plot_data <- function (fit, topics) {
+  n   <- nrow(fit$L)
+  k   <- length(topics)
+  dat <- data.frame(sample = rep(1:n,times = k),
+                    topic  = rep(topics,each = n),
+                    prob   = c(fit$L[,topics]))
+  dat$topic <- factor(dat$topic,topics)
+  return(dat)
 }
