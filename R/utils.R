@@ -1,22 +1,12 @@
-#' @title Extract or Re-order Poisson NMF Factors and Loadings
+#' @title Extract or Re-order Multinomial Topic Model Loadings
 #'
 #' @description This function can be used to extract estimates for a
-#'   subset of the count data, or to re-order the factors and loadings
-#'   (corresponding to columns and rows of the data matrix,
-#'   respectively).
+#'   subset of the count data, or to re-order the rows of the loadings
+#'   matrix.
 #'
-#' @details Evaluation metrics such as the log-likelihood and deviance
-#'   are invariant to re-ordering of the factors and loadings (rows and
-#'   columns of the counts matrix), but extracting a subset of the
-#'   factors and/or loadings will invalidate these metrics.
-#'
-#' @param .data Poisson NMF fit; that is, an object of class
-#'   \dQuote{poisson_nmf_fit}, such as an output from
-#'   \code{fit_poisson_nmf}.
-#'
-#' @param factors Factor indices (names or numbers), corresponding to
-#'   columns of the counts matrix. If not specified, all factors are
-#'   returned.
+#' @param .data Multinomial Topic Model fit; that is, an object of
+#'   class \dQuote{multinom_topic_model_fit}, such as an output from
+#'   \code{poisson2multinom}.
 #'
 #' @param loadings Loadings indices (names or numbers), corresponding
 #'   to rows of the counts matrix. If not specified, all loadings are
@@ -24,48 +14,27 @@
 #' 
 #' @param ... Other arguments passed to the generic select function.
 #' 
-#' @return A Poisson NMF fit containing the selected factors and
+#' @return A multinomial topic model fit containing the selected
 #'   loadings only.
 #'
-#' @seealso \code{\link{fit_poisson_nmf}}
+#' @seealso \code{\link{fit_poisson_nmf}},
+#'   \code{\link{poisson2multinom}}
 #'
 #' @importFrom dplyr select
 #'
 #' @export
 #' 
-select.poisson_nmf_fit <- function (.data, factors, loadings, ...) {
-
-  # Get the number of rows (n) and columns (m) of the count data.
+select.multinom_topic_model_fit <- function (.data, loadings, ...) {
   n <- nrow(.data$L)
-  m <- nrow(.data$F)
-
-  # Verify and process the inputs.
-  if (missing(factors))
-    factors <- 1:m
   if (missing(loadings))
     loadings <- 1:n
-  
   tryCatch({  
-
-    # Select or re-order the factors.
-    .data$F  <- .data$F[factors,,drop = FALSE]
-    .data$Fn <- .data$Fn[factors,,drop = FALSE]
-    .data$Fy <- .data$Fy[factors,,drop = FALSE]
-
-    # Select or re-order the loadings.
     .data$L  <- .data$L[loadings,,drop = FALSE]
     .data$Ln <- .data$Ln[loadings,,drop = FALSE]
     .data$Ly <- .data$Ly[loadings,,drop = FALSE]
-  },error = function (e) stop("Invalid selection of factors or loadings"))
+  },error = function (e) stop("Invalid selection of loadings"))
   return(.data)
 }
-
-#' @rdname select.poisson_nmf_fit
-#' 
-#' @export
-#' 
-select.multinom_topic_model_fit <- function (.data, factors, loadings, ...)
-  select.poisson_nmf_fit(.data,factors,loadings,...)
 
 #' @title Summarize and Compare Poisson NMF Model Fits
 #'

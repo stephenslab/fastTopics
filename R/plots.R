@@ -227,7 +227,7 @@ loadings_plot <-
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "multinom_topic_model_fit")
+         "\"multinom_topic_model_fit\"")
   n <- nrow(fit$L)
   if (!(is.factor(x) && length(x) == n))
     stop("Input \"x\" should be a factor with as many elements as there ",
@@ -299,6 +299,10 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #'   \code{fit$L} to use; when the loadings matrix has more than
 #'   \code{n} rows, the t-SNE embedding is computed on a random
 #'   selection of \code{n} rows.
+#'
+#' @param model Describe "model" input argument here.
+#' 
+#' @param scaling Describe input argument "scaling" here.
 #' 
 #' @param pca Whether to perform a PCA processing stepe in t-SNE;
 #'   passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.
@@ -329,25 +333,42 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' 
 #' @export
 #' 
-tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
-                              normalize = FALSE, perplexity = 100,
-                              theta = 0.1, max_iter = 1000,
-                              verbose = TRUE, ...) {
+tsne_from_topics <-
+  function (fit, dims = 2, n = 5000,
+            model = ifelse(inherits(fit,"multinom_topic_model_fit"),
+                           "multinom","poisson"),
+            scaling = NULL, pca = FALSE, normalize = FALSE, perplexity = 100,
+            theta = 0.1, max_iter = 1000, verbose = TRUE, ...) {
     
   # Check and process input arguments.
-  if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "multinom_topic_model_fit")
-
+  if (model == "poisson") {
+    if (!inherits(fit,"poisson_nmf_fit"))
+      stop("For model = \"poisson\", input \"fit\" should be an object of ",
+           "class \"poisson_nmf_fit\"")
+  } else if (model == "multinom") {
+    if (!(inherits(fit,"poisson_nmf_fit") |
+          inherits(fit,"multinom_topic_model_fit")))
+      stop("For model = \"multinom\", input \"fit\" should be an object of ",
+           "class \"poisson_nmf_fit\" or \"multinom_topic_model_fit\"")
+  }
+  
   # Randomly subsample, if necessary.
-  L  <- fit$L
-  n0 <- nrow(L)
-  if (n < n0) {
+  n0 <- nrow(fit$L)
+  if (n < n0)
     rows <- sample(n0,n)
-    L    <- L[rows,]
-  } else
+  else
     rows <- 1:n0
+
+  # Prepare the data for t-SNE. If requested, re-scale the columns of
+  # the loadings matrix.
+  if (model == "multinom" & inherits(fit,"poisson_nmf_fit"))
+    fit <- poisson2multinom(fit)
+  L <- fit$L[rows,]
+  if (!is.null(scaling))
+    L <- scale.cols(L,scaling)
+
+  # TESTING.
+  set.seed(1)
 
   # Compute the t-SNE embedding.
   out <- Rtsne(L,dims,pca = pca,normalize = normalize,perplexity = perplexity,
@@ -400,7 +421,9 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, pca = FALSE,
 #'   \code{\link[cowplot]{plot_grid}}. It should be a function accepting
 #'   a single argument, \code{plots}, a list of \code{ggplot} objects.
 #' 
-#' @param \dots Additional arguments passed to \code{tsne_from_topics}.
+#' @param \dots Additional arguments passed to
+#'   \code{tsne_from_topics}. These arguments are only used if
+#'   \code{tsne} is not given.
 #' 
 #' @return A \code{ggplot} object.
 #'
@@ -424,7 +447,7 @@ tsne_plot <-
     if (!(inherits(fit,"poisson_nmf_fit") |
           inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "multinom_topic_model_fit")
+         "\"multinom_topic_model_fit\"")
   }
   if (missing(k))
     k <- seq(1,ncol(fit$L))
@@ -434,12 +457,11 @@ tsne_plot <-
     tsne <- tsne_from_topics(fit,2,...)
   
   if (length(k) == 1) {
-    if (inherits(fit,"poisson_nmf_fit") & color == "probs")
-      fit <- poisson2multinom(fit)
       
     # Prepare the data for plotting.
-    fit        <- select(fit,loadings = tsne$rows)
-    dat        <- as.data.frame(cbind(tsne$Y,fit$L[,k]))
+    if (inherits(fit,"poisson_nmf_fit") & color == "probs")
+      fit <- poisson2multinom(fit)
+    dat <- as.data.frame(cbind(tsne$Y,fit$L[tsne$rows,k]))
     names(dat) <- c("d1","d2","loading")
       
     # Create the t-SNE plot.
@@ -503,9 +525,14 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' 
 #' @param rows Describe input argument "rows" here.
 #'
+#' @param n Describe input argument "n" here. Only relevant if rows is
+#'   not provided.
+#' 
 #' @param colors Describe input argument "colors" here.
 #'
 #' @param ggplot_call Describe input argument "ggplot_call" here.
+#'
+#' @param ... Describe additional input argument ("...") here.
 #' 
 #' @references
 #'
@@ -514,22 +541,34 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' @export
 #'
 structure_plot <-
-  function (fit, topics, rows,
+  function (fit, topics, rows, n = 2000,
             colors = c("lightcyan","indianred","gold","dodgerblue",
                        "seagreen","darkmagenta"),
-            ggplot_call = structure_plot_ggplot_call) {
+            ggplot_call = structure_plot_ggplot_call,
+            ...) {
 
   # Check and process inputs.
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "multinom_topic_model_fit")
+         "\"multinom_topic_model_fit\"")
+  k <- ncol(fit$L)
+  if (missing(topics))
+    topics <- 1:k
+
+  # If the ordering of the rows is not provided, determine an ordering
+  # by computing a 1-d embedding from the topic probabilities.
+  if (missing(rows)) {
+    out  <- tsne_from_topics(fit,1,n,...)
+    y    <- drop(out$Y)
+    rows <- out$rows
+    rows <- rows[order(y)]
+  }
+  
+  # Prepare the data for plotting.
   if (inherits(fit,"poisson_nmf_fit"))
     fit <- poisson2multinom(fit)
-
-  # Prepare the data for plotting.
-  fit <- select(fit,loadings = rows)
-  dat <- compile_structure_plot_data(fit,topics)
+  dat <- compile_structure_plot_data(L[rows,],topics)
       
   # Create the structure plot.
   return(ggplot_call(dat,colors))
@@ -566,12 +605,12 @@ structure_plot_ggplot_call <- function (dat, colors, font.size = 10)
     theme(axis.line = element_blank())
 
 # TO DO: Explain here what this function does, and how to use it.
-compile_structure_plot_data <- function (fit, topics) {
-  n   <- nrow(fit$L)
+compile_structure_plot_data <- function (L, topics) {
+  n   <- nrow(L)
   k   <- length(topics)
   dat <- data.frame(sample = rep(1:n,times = k),
                     topic  = rep(topics,each = n),
-                    prob   = c(fit$L[,topics]))
+                    prob   = c(L[,topics]))
   dat$topic <- factor(dat$topic,topics)
   return(dat)
 }

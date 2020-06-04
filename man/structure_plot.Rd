@@ -9,8 +9,10 @@ structure_plot(
   fit,
   topics,
   rows,
+  n = 2000,
   colors = c("lightcyan", "indianred", "gold", "dodgerblue", "seagreen", "darkmagenta"),
-  ggplot_call = structure_plot_ggplot_call
+  ggplot_call = structure_plot_ggplot_call,
+  ...
 )
 
 structure_plot_ggplot_call(dat, colors, font.size = 10)
@@ -22,9 +24,14 @@ structure_plot_ggplot_call(dat, colors, font.size = 10)
 
 \item{rows}{Describe input argument "rows" here.}
 
+\item{n}{Describe input argument "n" here. Only relevant if rows is
+not provided.}
+
 \item{colors}{Describe input argument "colors" here.}
 
 \item{ggplot_call}{Describe input argument "ggplot_call" here.}
+
+\item{...}{Describe additional input argument ("...") here.}
 
 \item{dat}{Describe input argument "dat" here.}
 

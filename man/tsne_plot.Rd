@@ -49,7 +49,9 @@ the function used to arrange the plots into a grid using
 \code{\link[cowplot]{plot_grid}}. It should be a function accepting
 a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
-\item{\dots}{Additional arguments passed to \code{tsne_from_topics}.}
+\item{\dots}{Additional arguments passed to
+\code{tsne_from_topics}. These arguments are only used if
+\code{tsne} is not given.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns

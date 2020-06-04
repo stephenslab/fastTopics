@@ -8,6 +8,7 @@ tsne_from_topics(
   fit,
   dims = 2,
   n = 5000,
+  scaling = NULL,
   pca = FALSE,
   normalize = FALSE,
   perplexity = 100,
@@ -28,6 +29,8 @@ as argument \dQuote{dims} to \code{\link[Rtsne]{Rtsne}}.}
 \code{fit$L} to use; when the loadings matrix has more than
 \code{n} rows, the t-SNE embedding is computed on a random
 selection of \code{n} rows.}
+
+\item{scaling}{Describe input argument "scaling" here.}
 
 \item{pca}{Whether to perform a PCA processing stepe in t-SNE;
 passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.}
