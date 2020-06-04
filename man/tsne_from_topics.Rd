@@ -8,6 +8,7 @@ tsne_from_topics(
   fit,
   dims = 2,
   n = 5000,
+  model = ifelse(inherits(fit, "multinom_topic_model_fit"), "multinom", "poisson"),
   scaling = NULL,
   pca = FALSE,
   normalize = FALSE,
@@ -30,7 +31,21 @@ as argument \dQuote{dims} to \code{\link[Rtsne]{Rtsne}}.}
 \code{n} rows, the t-SNE embedding is computed on a random
 selection of \code{n} rows.}
 
-\item{scaling}{Describe input argument "scaling" here.}
+\item{model}{When \code{model = "poisson"}, the t-SNE embedding is
+computed using the loadings of the Poisson NMF model; when
+\code{model = "multinom"}, the t-SNE embedding is based on the
+topic probabilities of the multinomial topic model. \code{model =
+"poisson"} is the only available option when \code{fit} is an
+\dQuote{poisson_nmf_fit} object.}
+
+\item{scaling}{A numeric vector of length equal to the number of
+topics specifying a scaling of the columns of \code{fit$L}; this
+re-scaling is performed prior to running t-SNE. The vector must
+contain non-negative numbers only. A larger value will increase the
+importance, or "weight", of the respective topic in computing the
+embedding. When \code{scaling} is \code{NULL}, no re-scaling is
+performed. Note that this scaling will have no effect if
+\code{normalize = TRUE}.}
 
 \item{pca}{Whether to perform a PCA processing stepe in t-SNE;
 passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.}
@@ -39,6 +54,13 @@ passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.}
 t-SNE; passed as argument \dQuote{normalize} to
 \code{\link[Rtsne]{Rtsne}}.}
 
+\item{perplexity}{t-SNE perplexity parameter; passed as
+argument \dQuote{perplexity} to \code{\link[Rtsne]{Rtsne}}. Note
+that the default setting may not work for smaller data sets.}
+
+\item{theta}{t-SNE speed/accuracy trade-off parameter; passed as
+argument \dQuote{theta} to \code{\link[Rtsne]{Rtsne}}.}
+
 \item{max_iter}{Maximum number of t-SNE iterations; passed as
 argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.}
 
@@ -46,8 +68,7 @@ argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.}
 printed; passed as argument \dQuote{verbose} to
 \code{\link[Rtsne]{Rtsne}}.}
 
-\item{\dots}{Additional arguments passed to
-\code{\link[Rtsne]{Rtsne}}.}
+\item{\dots}{Additional arguments passed to \code{\link[Rtsne]{Rtsne}}.}
 }
 \value{
 A list with two list elements: \code{Y}, an n x d matrix
@@ -60,6 +81,14 @@ A list with two list elements: \code{Y}, an n x d matrix
 Computes a low-dimensional embededding of the data from
   the estimated loadings, or topic probabilities, using the t-SNE
   nonlinear dimensionality reduction method.
+}
+\details{
+This is a "lightweight" interface for rapidly producing
+  t-SNE embeddings from matrix factorizations or multinomial topic
+  models; in particular, the default t-SNE settings are chosen to be
+  more suitable for the matrix factorization or topic modeling
+  setting (e.g., the PCA step in \code{Rtsne} is disabled by default
+  as this step is usually redundant).
 }
 \seealso{
 \code{\link[Rtsne]{Rtsne}}

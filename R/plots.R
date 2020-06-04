@@ -194,6 +194,14 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #'   relationship between the loadings, or topic probabilities, and a
 #'   selected categorical variable (a factor).
 #'
+#' @details This is a "lightweight" interface primarily intended to
+#'   expedite creation of boxplots for investigating relationships
+#'   between topics and a categorical variables of interest without
+#'   having to spend a great deal of time worrying about the plotting
+#'   settings; most of the "heavy lifting" is done by ggplot2
+#'   (specifically, function \code{\link[ggplot2]{geom_boxplot}} in the
+#'   ggplot2 package).
+#'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
 #'
@@ -289,6 +297,13 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #'   the estimated loadings, or topic probabilities, using the t-SNE
 #'   nonlinear dimensionality reduction method.
 #'
+#' @details This is a "lightweight" interface for rapidly producing
+#'   t-SNE embeddings from matrix factorizations or multinomial topic
+#'   models; in particular, the default t-SNE settings are chosen to be
+#'   more suitable for the matrix factorization or topic modeling
+#'   setting (e.g., the PCA step in \code{Rtsne} is disabled by default
+#'   as this step is usually redundant).
+#' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
 #'
@@ -300,9 +315,21 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #'   \code{n} rows, the t-SNE embedding is computed on a random
 #'   selection of \code{n} rows.
 #'
-#' @param model Describe "model" input argument here.
+#' @param model When \code{model = "poisson"}, the t-SNE embedding is
+#'   computed using the loadings of the Poisson NMF model; when
+#'   \code{model = "multinom"}, the t-SNE embedding is based on the
+#'   topic probabilities of the multinomial topic model. \code{model =
+#'   "poisson"} is the only available option when \code{fit} is an
+#'   \dQuote{poisson_nmf_fit} object.
 #' 
-#' @param scaling Describe input argument "scaling" here.
+#' @param scaling A numeric vector of length equal to the number of
+#'   topics specifying a scaling of the columns of \code{fit$L}; this
+#'   re-scaling is performed prior to running t-SNE. The vector must
+#'   contain non-negative numbers only. A larger value will increase the
+#'   importance, or "weight", of the respective topic in computing the
+#'   embedding. When \code{scaling} is \code{NULL}, no re-scaling is
+#'   performed. Note that this scaling will have no effect if
+#'   \code{normalize = TRUE}.
 #' 
 #' @param pca Whether to perform a PCA processing stepe in t-SNE;
 #'   passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.
@@ -311,6 +338,13 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #'   t-SNE; passed as argument \dQuote{normalize} to
 #'   \code{\link[Rtsne]{Rtsne}}.
 #'
+#' @param perplexity t-SNE perplexity parameter; passed as
+#'   argument \dQuote{perplexity} to \code{\link[Rtsne]{Rtsne}}. Note
+#'   that the default setting may not work for smaller data sets.
+#'
+#' @param theta t-SNE speed/accuracy trade-off parameter; passed as
+#'   argument \dQuote{theta} to \code{\link[Rtsne]{Rtsne}}.
+#' 
 #' @param max_iter Maximum number of t-SNE iterations; passed as
 #'   argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.
 #'
@@ -318,8 +352,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #'   printed; passed as argument \dQuote{verbose} to
 #'   \code{\link[Rtsne]{Rtsne}}.
 #' 
-#' @param \dots Additional arguments passed to
-#'   \code{\link[Rtsne]{Rtsne}}.
+#' @param \dots Additional arguments passed to \code{\link[Rtsne]{Rtsne}}.
 #'
 #' @return A list with two list elements: \code{Y}, an n x d matrix
 #'   containing the embedding \code{Y} returned by
@@ -367,9 +400,6 @@ tsne_from_topics <-
   if (!is.null(scaling))
     L <- scale.cols(L,scaling)
 
-  # TESTING.
-  set.seed(1)
-
   # Compute the t-SNE embedding.
   out <- Rtsne(L,dims,pca = pca,normalize = normalize,perplexity = perplexity,
                theta = theta,max_iter = max_iter,verbose = verbose,...)
@@ -390,6 +420,8 @@ tsne_from_topics <-
 #'   loadings/probabilities. By default, t-SNE is used to compute the
 #'   2-d embedding from the loadings or topic probabilities.
 #'
+#' @details Add details here.
+#' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
 #'
@@ -423,7 +455,7 @@ tsne_from_topics <-
 #' 
 #' @param \dots Additional arguments passed to
 #'   \code{tsne_from_topics}. These arguments are only used if
-#'   \code{tsne} is not given.
+#'   \code{tsne} is not provided.
 #' 
 #' @return A \code{ggplot} object.
 #'
@@ -559,7 +591,7 @@ structure_plot <-
   # If the ordering of the rows is not provided, determine an ordering
   # by computing a 1-d embedding from the topic probabilities.
   if (missing(rows)) {
-    out  <- tsne_from_topics(fit,1,n,...)
+    out  <- tsne_from_topics(fit,1,n,"multinom",...)
     y    <- drop(out$Y)
     rows <- out$rows
     rows <- rows[order(y)]
@@ -568,7 +600,7 @@ structure_plot <-
   # Prepare the data for plotting.
   if (inherits(fit,"poisson_nmf_fit"))
     fit <- poisson2multinom(fit)
-  dat <- compile_structure_plot_data(L[rows,],topics)
+  dat <- compile_structure_plot_data(fit$L[rows,],topics)
       
   # Create the structure plot.
   return(ggplot_call(dat,colors))

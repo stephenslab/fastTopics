@@ -51,7 +51,7 @@ a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
 \item{\dots}{Additional arguments passed to
 \code{tsne_from_topics}. These arguments are only used if
-\code{tsne} is not given.}
+\code{tsne} is not provided.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
@@ -72,4 +72,7 @@ Visualize the "structure" of the Poisson NMF loadings
   surface. Samples in the projection are colored according to the their
   loadings/probabilities. By default, t-SNE is used to compute the
   2-d embedding from the loadings or topic probabilities.
+}
+\details{
+Add details here.
 }

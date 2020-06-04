@@ -52,3 +52,12 @@ Generate one or more bar plots to visualize the
   relationship between the loadings, or topic probabilities, and a
   selected categorical variable (a factor).
 }
+\details{
+This is a "lightweight" interface primarily intended to
+  expedite creation of boxplots for investigating relationships
+  between topics and a categorical variables of interest without
+  having to spend a great deal of time worrying about the plotting
+  settings; most of the "heavy lifting" is done by ggplot2
+  (specifically, function \code{\link[ggplot2]{geom_boxplot}} in the
+  ggplot2 package).
+}

@@ -9,7 +9,7 @@ dat <- simulate_count_data(n,m,k)
 X   <- dat$X
 
 # Fit multinomial topic model.
-F   <- rand(m,k)
+F   <- fastTopics:::rand(m,k)
 L   <- dat$L
 fit <- fit_poisson_nmf(X,fit0 = init_poisson_nmf(X,F,L),numiter = 20,
                        update.loadings = NULL,verbose = FALSE)

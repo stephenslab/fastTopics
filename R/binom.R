@@ -34,10 +34,13 @@ binom_topic_analysis <- function (X, fit, verbose = TRUE) {
 #' @param e Describe input argument "e".
 #'
 #' @param version Describe input argument "version".
+#'
+#' @importFrom Rcpp evalCpp
 #' 
 #' @export
 #' 
 poisson2binom <- function (X, fit, e = 0.01, version = c("Rcpp","R")) {
+  version <- match.arg(version)
     
   # Compute the expected counts.
   if (version == "Rcpp")
