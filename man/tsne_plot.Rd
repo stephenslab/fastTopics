@@ -7,7 +7,7 @@
 \usage{
 tsne_plot(
   fit,
-  color = c("probs", "loadings"),
+  color = c("probability", "loading"),
   k,
   tsne,
   ggplot_call = tsne_plot_ggplot_call,
@@ -22,11 +22,15 @@ tsne_plot_ggplot_call(dat, topic.label, font.size = 10)
 \dQuote{multinom_topic_model_fit}.}
 
 \item{color}{The data mapped to the color \dQuote{aesthetic} in the
-plot. When \code{color = "loadings"}, the estimated loadings
-(stored the \code{L} matrix) in the Poisson NMF model are plotted;
-when \code{color = "probs"}, the estimated topic probabilities
-(which can be recovered from the loadings by calling
-\code{\link{poisson2multinom}} are shown.}
+plot. When \code{color = "loading"}, the estimated loadings (stored
+the \code{L} matrix) in the Poisson NMF model are plotted; when
+\code{color = "probability"}, the estimated topic probabilities
+(which are recovered from the loadings by calling
+\code{\link{poisson2multinom}} are shown. When \code{fit} is a
+\dQuote{multinom_topic_model_fit} object, the only available option
+is \code{color = "probability"}. In most settings, the topic
+probabilities are preferred, even if the 2-d embedding is computed
+from the loading matrix of the Poisson NMF model.}
 
 \item{k}{The topic, or topics, selected by number or name. One plot
 is created per selected topic. When not specified, all topics are
@@ -74,5 +78,13 @@ Visualize the "structure" of the Poisson NMF loadings
   2-d embedding from the loadings or topic probabilities.
 }
 \details{
-Add details here.
+This is a lightweight interface primarily intended to
+  expedite creation of scatterplots for visualizing the loadings or
+  topic probabilities in 2-d; most of the "heavy lifting" is done by
+  ggplot2 (specifically, function \code{\link[ggplot2]{geom_boxplot}}
+  in the ggplot2 package). The 2-d embedding itself is computed by
+  invoking function \code{\link{tsne_from_topics}} (unless the "tsne"
+  input is provided). For more control over the plot's appearance,
+  the plot can be customized by modifying the \code{ggplot_call} and
+  \code{plot_grid_call} arguments.
 }

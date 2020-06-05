@@ -60,6 +60,6 @@ This is a lightweight interface primarily intended to
   settings; most of the "heavy lifting" is done by ggplot2
   (specifically, function \code{\link[ggplot2]{geom_boxplot}} in the
   ggplot2 package). For more control over the plot's appearance, the
-  plot can easily be customized by modifying the \code{ggplot_call}
+  plot can be customized by modifying the \code{ggplot_call}
   and \code{plot_grid_call} arguments.
 }
