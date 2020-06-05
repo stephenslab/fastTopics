@@ -10,7 +10,10 @@ structure_plot(
   topics,
   rows,
   n = 2000,
-  colors = c("lightcyan", "indianred", "gold", "dodgerblue", "seagreen", "darkmagenta"),
+  labeling,
+  colors = c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462",
+    "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"),
+  gap = 1,
   ggplot_call = structure_plot_ggplot_call,
   ...
 )
@@ -18,20 +21,35 @@ structure_plot(
 structure_plot_ggplot_call(dat, colors, font.size = 10)
 }
 \arguments{
-\item{fit}{Describe input argument "fit" here.}
+\item{fit}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}. If it is the former, the
+multinomial topic model fit is automatically recovered using
+\code{link{poisson2multinom}}.}
 
-\item{topics}{Describe input argument "topics" here.}
+\item{topics}{Top-to-bottom order of topic probabilities in
+structure plot. First topic is shown on the top. Default is
+\code{1:k}, where \code{k} is the number of topics.}
 
-\item{rows}{Describe input argument "rows" here.}
+\item{rows}{Ordering of rows (samples) in plot. Generated
+automatically from 1-d t-SNE if not provided.}
 
-\item{n}{Describe input argument "n" here. Only relevant if rows is
-not provided.}
+\item{n}{Describe input argument "n" here. Ignored if "rows" is
+provided.}
 
-\item{colors}{Describe input argument "colors" here.}
+\item{labeling}{Describe input argument "labeling" here.}
+
+\item{colors}{Colors used to draw topics in structure
+plot: \code{colors[1]} is the colour used to draw \code{topics[1]},
+\code{colors[2]} is the colour used to draw \code{topics[2]}, and
+so on. Default colours are from \url{https://colorbrewer2.org}
+(qualitative data, "12-class Set3").}
+
+\item{gap}{Describe input argument "gap" here.}
 
 \item{ggplot_call}{Describe input argument "ggplot_call" here.}
 
-\item{...}{Describe additional input argument ("...") here.}
+\item{...}{Additional arguments passed to
+\code{\link{tsne_from_topics}}.}
 
 \item{dat}{Describe input argument "dat" here.}
 

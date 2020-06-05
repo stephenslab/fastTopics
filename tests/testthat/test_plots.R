@@ -25,4 +25,7 @@ test_that("Test that the plotting functions work",{
   capture.output(out2 <- tsne_plot(fit1,color = "loading",perplexity = 10))
   expect_s3_class(out1,"ggplot")
   expect_s3_class(out2,"ggplot")
+
+  # Test structure_plot.
+  out <- structure_plot(fit1,perplexity = 20)
 })

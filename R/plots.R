@@ -552,20 +552,35 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' @description Describe the structure plot. Explain why it is called
 #' a "structure plot" (add reference(s) below).
 #' 
-#' @param fit Describe input argument "fit" here.
+#' @param fit An object of class \dQuote{poisson_nmf_fit} or
+#'   \dQuote{multinom_topic_model_fit}. If it is the former, the
+#'   multinomial topic model fit is automatically recovered using
+#'   \code{link{poisson2multinom}}.
 #'
-#' @param topics Describe input argument "topics" here.
+#' @param topics Top-to-bottom order of topic probabilities in
+#'   structure plot. First topic is shown on the top. Default is
+#'   \code{1:k}, where \code{k} is the number of topics.
 #' 
-#' @param rows Describe input argument "rows" here.
+#' @param rows Ordering of rows (samples) in plot. Generated
+#'   automatically from 1-d t-SNE if not provided.
 #'
-#' @param n Describe input argument "n" here. Only relevant if rows is
-#'   not provided.
+#' @param n Describe input argument "n" here. Ignored if "rows" is
+#'   provided.
+#'
+#' @param labeling Describe input argument "labeling" here.
 #' 
-#' @param colors Describe input argument "colors" here.
+#' @param colors Colors used to draw topics in structure
+#'   plot: \code{colors[1]} is the colour used to draw \code{topics[1]},
+#'   \code{colors[2]} is the colour used to draw \code{topics[2]}, and
+#'   so on. Default colours are from \url{https://colorbrewer2.org}
+#'   (qualitative data, "12-class Set3").
 #'
+#' @param gap Describe input argument "gap" here.
+#' 
 #' @param ggplot_call Describe input argument "ggplot_call" here.
 #'
-#' @param ... Describe additional input argument ("...") here.
+#' @param ... Additional arguments passed to
+#'   \code{\link{tsne_from_topics}}.
 #' 
 #' @references
 #'
@@ -574,35 +589,37 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' @export
 #'
 structure_plot <-
-  function (fit, topics, rows, n = 2000,
-            colors = c("lightcyan","indianred","gold","dodgerblue",
-                       "seagreen","darkmagenta"),
-            ggplot_call = structure_plot_ggplot_call,
-            ...) {
+    function (fit, topics, rows, n = 2000, labeling, 
+              colors = c("#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3",
+                         "#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd",
+                         "#ccebc5","#ffed6f"),
+              gap = 1,
+              ggplot_call = structure_plot_ggplot_call, ...) {
 
   # Check and process inputs.
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
          "\"multinom_topic_model_fit\"")
+  if (inherits(fit,"poisson_nmf_fit"))
+    fit <- poisson2multinom(fit)
   k <- ncol(fit$L)
   if (missing(topics))
     topics <- 1:k
-
+  if (missing(labeling)) {
+    # TO DO.
+  }
+  
   # If the ordering of the rows is not provided, determine an ordering
   # by computing a 1-d embedding from the topic probabilities.
   if (missing(rows)) {
-    out  <- tsne_from_topics(poisson2multinom(fit),1,n,...)
-    y    <- drop(out$Y)
-    rows <- out$rows
-    rows <- rows[order(y)]
+    out  <- tsne_from_topics(fit,1,n,...)
+    rows <- out$rows[order(out$Y)]
   }
   
   # Prepare the data for plotting. Note that it is important to subset
   # the rows *after* recovering the parameters of the multinomial
   # topic model.
-  if (inherits(fit,"poisson_nmf_fit"))
-    fit <- poisson2multinom(fit)
   dat <- compile_structure_plot_data(fit$L[rows,],topics)
       
   # Create the structure plot.
