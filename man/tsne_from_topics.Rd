@@ -8,7 +8,6 @@ tsne_from_topics(
   fit,
   dims = 2,
   n = 5000,
-  model = ifelse(inherits(fit, "multinom_topic_model_fit"), "multinom", "poisson"),
   scaling = NULL,
   pca = FALSE,
   normalize = FALSE,
@@ -29,18 +28,13 @@ as argument \dQuote{dims} to \code{\link[Rtsne]{Rtsne}}.}
 \item{n}{The maximum number of rows in the loadings matrix
 \code{fit$L} to use; when the loadings matrix has more than
 \code{n} rows, the t-SNE embedding is computed on a random
-selection of \code{n} rows.}
-
-\item{model}{When \code{model = "poisson"}, the t-SNE embedding is
-computed using the loadings of the Poisson NMF model; when
-\code{model = "multinom"}, the t-SNE embedding is based on the
-topic probabilities of the multinomial topic model. \code{model =
-"poisson"} is the only available option when \code{fit} is an
-\dQuote{poisson_nmf_fit} object.}
+selection of \code{n} rows. An upper limit on the number of rows is
+used because the runtime of \code{\link[Rtsne]{Rtsne}} increases
+rapidly with the number of rows in the input matrix.}
 
 \item{scaling}{A numeric vector of length equal to the number of
 topics specifying a scaling of the columns of \code{fit$L}; this
-re-scaling is performed prior to running t-SNE. The vector must
+re-scaling is performed prior to running t-SNE. The vector should
 contain non-negative numbers only. A larger value will increase the
 importance, or "weight", of the respective topic in computing the
 embedding. When \code{scaling} is \code{NULL}, no re-scaling is
@@ -83,12 +77,13 @@ Computes a low-dimensional embededding of the data from
   nonlinear dimensionality reduction method.
 }
 \details{
-This is a "lightweight" interface for rapidly producing
+This is a lightweight interface for rapidly producing
   t-SNE embeddings from matrix factorizations or multinomial topic
-  models; in particular, the default t-SNE settings are chosen to be
-  more suitable for the matrix factorization or topic modeling
-  setting (e.g., the PCA step in \code{Rtsne} is disabled by default
-  as this step is usually redundant).
+  models; in particular, \code{tsne_from_topics} replaces the t-SNE
+  defaults with settings that are more suitable for visualizing the
+  structure of a matrix factorization or topic model (e.g., the PCA
+  step in \code{Rtsne} is activated by default, but disabled in
+  \code{tsne_from_topics}).
 }
 \seealso{
 \code{\link[Rtsne]{Rtsne}}

@@ -194,13 +194,15 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #'   relationship between the loadings, or topic probabilities, and a
 #'   selected categorical variable (a factor).
 #'
-#' @details This is a "lightweight" interface primarily intended to
+#' @details This is a lightweight interface primarily intended to
 #'   expedite creation of boxplots for investigating relationships
 #'   between topics and a categorical variables of interest without
 #'   having to spend a great deal of time worrying about the plotting
 #'   settings; most of the "heavy lifting" is done by ggplot2
 #'   (specifically, function \code{\link[ggplot2]{geom_boxplot}} in the
-#'   ggplot2 package).
+#'   ggplot2 package). For more control over the plot's appearance, the
+#'   plot can easily be customized by modifying the \code{ggplot_call}
+#'   and \code{plot_grid_call} arguments.
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
@@ -297,15 +299,16 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #'   the estimated loadings, or topic probabilities, using the t-SNE
 #'   nonlinear dimensionality reduction method.
 #'
-#' @details This is a "lightweight" interface for rapidly producing
+#' @details This is a lightweight interface for rapidly producing
 #'   t-SNE embeddings from matrix factorizations or multinomial topic
-#'   models; in particular, the default t-SNE settings are chosen to be
-#'   more suitable for the matrix factorization or topic modeling
-#'   setting (e.g., the PCA step in \code{Rtsne} is disabled by default
-#'   as this step is usually redundant).
+#'   models; in particular, \code{tsne_from_topics} replaces the t-SNE
+#'   defaults with settings that are more suitable for visualizing the
+#'   structure of a matrix factorization or topic model (e.g., the PCA
+#'   step in \code{Rtsne} is activated by default, but disabled in
+#'   \code{tsne_from_topics}).
 #' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
-#'   \dQuote{multinom_topic_model_fit}.
+#' \dQuote{multinom_topic_model_fit}.
 #'
 #' @param dims The number of dimensions in the t-SNE embedding; passed
 #'   as argument \dQuote{dims} to \code{\link[Rtsne]{Rtsne}}.
@@ -313,18 +316,13 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' @param n The maximum number of rows in the loadings matrix
 #'   \code{fit$L} to use; when the loadings matrix has more than
 #'   \code{n} rows, the t-SNE embedding is computed on a random
-#'   selection of \code{n} rows.
+#'   selection of \code{n} rows. An upper limit on the number of rows is
+#'   used because the runtime of \code{\link[Rtsne]{Rtsne}} increases
+#'   rapidly with the number of rows in the input matrix.
 #'
-#' @param model When \code{model = "poisson"}, the t-SNE embedding is
-#'   computed using the loadings of the Poisson NMF model; when
-#'   \code{model = "multinom"}, the t-SNE embedding is based on the
-#'   topic probabilities of the multinomial topic model. \code{model =
-#'   "poisson"} is the only available option when \code{fit} is an
-#'   \dQuote{poisson_nmf_fit} object.
-#' 
 #' @param scaling A numeric vector of length equal to the number of
 #'   topics specifying a scaling of the columns of \code{fit$L}; this
-#'   re-scaling is performed prior to running t-SNE. The vector must
+#'   re-scaling is performed prior to running t-SNE. The vector should
 #'   contain non-negative numbers only. A larger value will increase the
 #'   importance, or "weight", of the respective topic in computing the
 #'   embedding. When \code{scaling} is \code{NULL}, no re-scaling is
@@ -366,24 +364,16 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' 
 #' @export
 #' 
-tsne_from_topics <-
-  function (fit, dims = 2, n = 5000,
-            model = ifelse(inherits(fit,"multinom_topic_model_fit"),
-                           "multinom","poisson"),
-            scaling = NULL, pca = FALSE, normalize = FALSE, perplexity = 100,
-            theta = 0.1, max_iter = 1000, verbose = TRUE, ...) {
+tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
+                              pca = FALSE, normalize = FALSE, perplexity = 100,
+                              theta = 0.1, max_iter = 1000, verbose = TRUE,
+                              ...) {
     
   # Check and process input arguments.
-  if (model == "poisson") {
-    if (!inherits(fit,"poisson_nmf_fit"))
-      stop("For model = \"poisson\", input \"fit\" should be an object of ",
-           "class \"poisson_nmf_fit\"")
-  } else if (model == "multinom") {
-    if (!(inherits(fit,"poisson_nmf_fit") |
-          inherits(fit,"multinom_topic_model_fit")))
-      stop("For model = \"multinom\", input \"fit\" should be an object of ",
-           "class \"poisson_nmf_fit\" or \"multinom_topic_model_fit\"")
-  }
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "\"multinom_topic_model_fit\"")
   
   # Randomly subsample, if necessary.
   n0 <- nrow(fit$L)
@@ -394,8 +384,6 @@ tsne_from_topics <-
 
   # Prepare the data for t-SNE. If requested, re-scale the columns of
   # the loadings matrix.
-  if (model == "multinom" & inherits(fit,"poisson_nmf_fit"))
-    fit <- poisson2multinom(fit)
   L <- fit$L[rows,]
   if (!is.null(scaling))
     L <- scale.cols(L,scaling)
@@ -405,7 +393,7 @@ tsne_from_topics <-
                theta = theta,max_iter = max_iter,verbose = verbose,...)
 
   # Return the t-SNE embedding stored as an n x dims matrix (Y), and
-  # the rows of L included in the embedding.
+  # the rows of L included in the embedding (rows).
   Y           <- out$Y
   rownames(Y) <- rownames(L)
   colnames(Y) <- paste0("d",1:dims)
@@ -591,7 +579,7 @@ structure_plot <-
   # If the ordering of the rows is not provided, determine an ordering
   # by computing a 1-d embedding from the topic probabilities.
   if (missing(rows)) {
-    out  <- tsne_from_topics(fit,1,n,"multinom",...)
+    out  <- tsne_from_topics(poisson2multinom(fit),1,n,...)
     y    <- drop(out$Y)
     rows <- out$rows
     rows <- rows[order(y)]
