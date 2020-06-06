@@ -15,7 +15,7 @@ tsne_plot(
   ...
 )
 
-tsne_plot_ggplot_call(dat, topic.label, font.size = 10)
+tsne_plot_ggplot_call(dat, topic.label, font.size = 9)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or

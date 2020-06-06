@@ -13,7 +13,7 @@ loadings_plot(
   plot_grid_call = function(plots) do.call(plot_grid, plots)
 )
 
-loadings_plot_ggplot_call(dat, topic.label, font.size = 10)
+loadings_plot_ggplot_call(dat, topic.label, font.size = 9)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or

@@ -284,7 +284,7 @@ loadings_plot <-
 #' 
 #' @export
 #' 
-loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
+loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
   ggplot(dat,aes_string(x = "x",y = "loading")) +
     geom_boxplot(width = 0.25,size = 0.4,outlier.shape = NA) +
     labs(x = "",y = "loading",title = paste("topic",topic.label)) +
@@ -537,7 +537,7 @@ tsne_plot <-
 #' 
 #' @export
 #' 
-tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
+tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
   ggplot(dat,aes_string(x = "d1",y = "d2",fill = "loading")) +
     geom_point(shape = 21,color = "white",stroke = 0.3) +
     scale_fill_gradient2(low = "lightskyblue",mid = "gold",high = "orangered",
@@ -593,8 +593,7 @@ structure_plot <-
             colors = c("#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3",
                        "#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd",
                        "#ccebc5","#ffed6f"),
-              gap = 1,
-              ggplot_call = structure_plot_ggplot_call, ...) {
+            gap = 1, ggplot_call = structure_plot_ggplot_call, ...) {
 
   # Check and process inputs.
   if (!(inherits(fit,"poisson_nmf_fit") |
@@ -609,33 +608,59 @@ structure_plot <-
     topics <- 1:k
   if (missing(grouping))
     grouping <- factor(rep(1,n0))
+  ng <- nlevels(grouping)
+ 
+  if (ng == 1) {
 
-  # If the ordering of the rows is not provided, determine an ordering
-  # by computing a 1-d embedding from the topic probabilities,
-  # separately for each group.
-  if (missing(rows)) {
-    rows <- NULL
-    N    <- round(n/n0*table(grouping))
-    for (j in levels(grouping)) {
-      i    <- which(grouping == j)
-      out  <- tsne_from_topics(select(fit,i),1,N[j],...)
-      rows <- c(rows,i[out$rows[order(out$Y)]])
+    # If the ordering of the rows is not provided, determine an
+    # ordering by computing a 1-d embedding from the topic
+    # probabilities.
+    if (missing(rows)) {
+      out  <- tsne_from_topics(fit,1,n,...)
+      rows <- out$rows[order(out$Y)]
     }
-  }
 
-  # Prepare the data for plotting. Note that it is important to subset
-  # the rows *after* recovering the parameters of the multinomial
-  # topic model.
-  dat <- compile_structure_plot_data(fit$L[rows,],topics)
-      
-  # Create the structure plot.
-  return(ggplot_call(dat,colors))
+    # Prepare the data for plotting. Note that it is important to
+    # subset the rows *after* recovering the parameters of the
+    # multinomial topic model.
+    dat <- compile_structure_plot_data(fit$L[rows,],topics)
+
+    # Create the structure plot.
+    return(ggplot_call(dat,colors))
+  } else {
+
+    # If the ordering of the rows is not provided, determine an
+    # ordering by computing a 1-d embedding from the topic
+    # probabilities, separately for each group.
+    if (missing(rows)) {
+      rows <- NULL
+      n    <- round(n/n0*table(grouping))
+      for (j in levels(grouping)) {
+        i    <- which(grouping == j)
+        out  <- tsne_from_topics(select(fit,i),1,n[j],...)
+        rows <- c(rows,i[out$rows[order(out$Y)]])
+      }
+    }
+
+    # Prepare the data for plotting. Note that it is important to
+    # subset the rows *after* recovering the parameters of the
+    # multinomial topic model.
+    out <- compile_grouped_structure_plot_data(fit$L[rows,],topics,
+                                               grouping[rows],gap)
+
+    # Create the structure plot.
+    return(ggplot_call(out$dat,colors,out$ticks))
+  }
 }
 
 #' @rdname structure_plot
 #'
 #' @param dat Describe input argument "dat" here.
 #'
+#' @param ticks Describe input argument "ticks" here.
+#'
+#' @param colors Describe input argument "colors" here.
+#' 
 #' @param font.size Describe input argument "font.size" here.
 #' 
 #' @importFrom ggplot2 ggplot
@@ -647,20 +672,25 @@ structure_plot <-
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 theme
 #' @importFrom ggplot2 element_blank
+#' @importFrom ggplot2 element_text
 #' @importFrom cowplot theme_cowplot
 #' 
 #' @export
 #'
-structure_plot_ggplot_call <- function (dat, colors, font.size = 10)
+structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
+                                        font.size = 8)
   ggplot(dat,aes_string(x = "sample",y = "prob",color = "topic",
                         fill = "topic")) +
     geom_col() +
-    scale_x_continuous(breaks = NULL,limits = c(0,max(dat$sample) + 1)) +
+    scale_x_continuous(limits = c(0,max(dat$sample) + 1),
+                       breaks = ticks,labels = names(ticks)) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
     labs(x = "",y = "topic probability") +
     theme_cowplot(font.size) +
-    theme(axis.line = element_blank())
+    theme(axis.line   = element_blank(),
+          axis.ticks  = element_blank(),
+          axis.text.x = element_text(angle = 45,hjust = 1))
 
 # TO DO: Explain here what this function does, and how to use it.
 compile_structure_plot_data <- function (L, topics) {
@@ -671,4 +701,23 @@ compile_structure_plot_data <- function (L, topics) {
                     prob   = c(L[,topics]))
   dat$topic <- factor(dat$topic,topics)
   return(dat)
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+compile_grouped_structure_plot_data <- function (L, topics, grouping, gap) {
+  ng    <- nlevels(grouping)
+  ticks <- rep(0,ng)
+  names(ticks) <- levels(grouping)
+  dat   <- NULL
+  m     <- 0
+  for (j in levels(grouping)) {
+    i          <- which(grouping == j)
+    out        <- compile_structure_plot_data(L[i,],topics)
+    out$sample <- out$sample + m
+    n          <- length(i)
+    dat        <- rbind(dat,out)
+    ticks[j]   <- m + n/2
+    m          <- m + n + gap
+  }
+  return(list(dat = dat,ticks = ticks))
 }

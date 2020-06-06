@@ -18,7 +18,7 @@ structure_plot(
   ...
 )
 
-structure_plot_ggplot_call(dat, colors, font.size = 10)
+structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 8)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
@@ -38,11 +38,7 @@ automatically from 1-d t-SNE if not provided.}
 structure plot. First topic is shown on the top. Default is
 \code{1:k}, where \code{k} is the number of topics.}
 
-\item{colors}{Colors used to draw topics in structure
-plot: \code{colors[1]} is the colour used to draw \code{topics[1]},
-\code{colors[2]} is the colour used to draw \code{topics[2]}, and
-so on. Default colours are from \url{https://colorbrewer2.org}
-(qualitative data, "12-class Set3").}
+\item{colors}{Describe input argument "colors" here.}
 
 \item{gap}{Describe input argument "gap" here.}
 
@@ -52,6 +48,8 @@ so on. Default colours are from \url{https://colorbrewer2.org}
 \code{\link{tsne_from_topics}}.}
 
 \item{dat}{Describe input argument "dat" here.}
+
+\item{ticks}{Describe input argument "ticks" here.}
 
 \item{font.size}{Describe input argument "font.size" here.}
 }
