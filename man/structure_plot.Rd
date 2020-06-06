@@ -38,7 +38,11 @@ automatically from 1-d t-SNE if not provided.}
 structure plot. First topic is shown on the top. Default is
 \code{1:k}, where \code{k} is the number of topics.}
 
-\item{colors}{Describe input argument "colors" here.}
+\item{colors}{Colors used to draw topics in structure
+plot: \code{colors[1]} is the colour used to draw \code{topics[1]},
+\code{colors[2]} is the colour used to draw \code{topics[2]}, and
+so on. Default colours are from \url{https://colorbrewer2.org}
+(qualitative data, "12-class Set3").}
 
 \item{gap}{Describe input argument "gap" here.}
 
@@ -47,11 +51,19 @@ structure plot. First topic is shown on the top. Default is
 \item{...}{Additional arguments passed to
 \code{\link{tsne_from_topics}}.}
 
-\item{dat}{Describe input argument "dat" here.}
+\item{dat}{A data frame passed as input to
+\code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
+"sample", "topic" and "prob": column "sample" contains the
+positions of the samples (rows of the loadings matrix) along the
+horizontal axis; column "topic" is a topic (corresponding to
+columns of the loadings matrix); and column "prob" is the topic
+probability for the given sample.}
 
-\item{ticks}{Describe input argument "ticks" here.}
+\item{ticks}{The placement of the group labels along the horizontal
+axis, and their names. For data that is not grouped, use
+\code{ticks = NULL.}}
 
-\item{font.size}{Describe input argument "font.size" here.}
+\item{font.size}{Font size used in plot.}
 }
 \description{
 Describe the structure plot. Explain why it is called

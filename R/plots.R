@@ -417,6 +417,14 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
 #'   input is provided). For more control over the plot's appearance,
 #'   the plot can be customized by modifying the \code{ggplot_call} and
 #'   \code{plot_grid_call} arguments.
+#'
+#'   An effective 2-d visualization may also necessitate some fine-tunning
+#'   of the t-SNE settings, such as the "perplexity", or the number of
+#'   samples included in the plot. The t-SNE settings can be controlled
+#'   by the additional arguments (\dots) passed to
+#'   \code{tsne_from_topics}; see \code{\link{tsne_from_topics}} for
+#'   details. Alternatively, a 2-d embedding may be pre-computed, and
+#'   passed as argument \code{tsne} to \code{tsne_plot}.
 #' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
@@ -655,13 +663,19 @@ structure_plot <-
 
 #' @rdname structure_plot
 #'
-#' @param dat Describe input argument "dat" here.
+#' @param dat A data frame passed as input to
+#'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
+#'   "sample", "topic" and "prob": column "sample" contains the
+#'   positions of the samples (rows of the loadings matrix) along the
+#'   horizontal axis; column "topic" is a topic (corresponding to
+#'   columns of the loadings matrix); and column "prob" is the topic
+#'   probability for the given sample.
 #'
-#' @param ticks Describe input argument "ticks" here.
+#' @param ticks The placement of the group labels along the horizontal
+#'   axis, and their names. For data that is not grouped, use
+#'   \code{ticks = NULL.}
 #'
-#' @param colors Describe input argument "colors" here.
-#' 
-#' @param font.size Describe input argument "font.size" here.
+#' @param font.size Font size used in plot.
 #' 
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string

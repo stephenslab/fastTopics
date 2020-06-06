@@ -87,4 +87,12 @@ This is a lightweight interface primarily intended to
   input is provided). For more control over the plot's appearance,
   the plot can be customized by modifying the \code{ggplot_call} and
   \code{plot_grid_call} arguments.
+
+  An effective 2-d visualization may also necessitate some fine-tunning
+  of the t-SNE settings, such as the "perplexity", or the number of
+  samples included in the plot. The t-SNE settings can be controlled
+  by the additional arguments (\dots) passed to
+  \code{tsne_from_topics}; see \code{\link{tsne_from_topics}} for
+  details. Alternatively, a 2-d embedding may be pre-computed, and
+  passed as argument \code{tsne} to \code{tsne_plot}.
 }
