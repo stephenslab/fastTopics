@@ -7,10 +7,10 @@
 \usage{
 structure_plot(
   fit,
-  topics,
-  rows,
   n = 2000,
-  labeling,
+  rows,
+  grouping,
+  topics,
   colors = c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462",
     "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"),
   gap = 1,
@@ -26,17 +26,17 @@ structure_plot_ggplot_call(dat, colors, font.size = 10)
 multinomial topic model fit is automatically recovered using
 \code{link{poisson2multinom}}.}
 
-\item{topics}{Top-to-bottom order of topic probabilities in
-structure plot. First topic is shown on the top. Default is
-\code{1:k}, where \code{k} is the number of topics.}
+\item{n}{Describe input argument "n" here. Ignored if "rows" is
+provided.}
 
 \item{rows}{Ordering of rows (samples) in plot. Generated
 automatically from 1-d t-SNE if not provided.}
 
-\item{n}{Describe input argument "n" here. Ignored if "rows" is
-provided.}
+\item{grouping}{Describe input argument "grouping" here.}
 
-\item{labeling}{Describe input argument "labeling" here.}
+\item{topics}{Top-to-bottom order of topic probabilities in
+structure plot. First topic is shown on the top. Default is
+\code{1:k}, where \code{k} is the number of topics.}
 
 \item{colors}{Colors used to draw topics in structure
 plot: \code{colors[1]} is the colour used to draw \code{topics[1]},

@@ -28,4 +28,7 @@ test_that("Test that the plotting functions work",{
 
   # Test structure_plot.
   out <- structure_plot(fit1,perplexity = 20)
+  #
+  # TO DO: Add test for labeled structure plot.
+  #
 })

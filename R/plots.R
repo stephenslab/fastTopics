@@ -557,17 +557,17 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #'   multinomial topic model fit is automatically recovered using
 #'   \code{link{poisson2multinom}}.
 #'
-#' @param topics Top-to-bottom order of topic probabilities in
-#'   structure plot. First topic is shown on the top. Default is
-#'   \code{1:k}, where \code{k} is the number of topics.
-#' 
-#' @param rows Ordering of rows (samples) in plot. Generated
-#'   automatically from 1-d t-SNE if not provided.
-#'
 #' @param n Describe input argument "n" here. Ignored if "rows" is
 #'   provided.
 #'
-#' @param labeling Describe input argument "labeling" here.
+#' @param rows Ordering of rows (samples) in plot. Generated
+#'   automatically from 1-d t-SNE if not provided.
+#'
+#' @param grouping Describe input argument "grouping" here.
+#' 
+#' @param topics Top-to-bottom order of topic probabilities in
+#'   structure plot. First topic is shown on the top. Default is
+#'   \code{1:k}, where \code{k} is the number of topics.
 #' 
 #' @param colors Colors used to draw topics in structure
 #'   plot: \code{colors[1]} is the colour used to draw \code{topics[1]},
@@ -589,10 +589,10 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 10)
 #' @export
 #'
 structure_plot <-
-    function (fit, topics, rows, n = 2000, labeling, 
-              colors = c("#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3",
-                         "#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd",
-                         "#ccebc5","#ffed6f"),
+  function (fit, n = 2000, rows, grouping, topics, 
+            colors = c("#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3",
+                       "#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd",
+                       "#ccebc5","#ffed6f"),
               gap = 1,
               ggplot_call = structure_plot_ggplot_call, ...) {
 
@@ -603,20 +603,26 @@ structure_plot <-
          "\"multinom_topic_model_fit\"")
   if (inherits(fit,"poisson_nmf_fit"))
     fit <- poisson2multinom(fit)
-  k <- ncol(fit$L)
+  n0 <- nrow(fit$L)
+  k  <- ncol(fit$L)
   if (missing(topics))
     topics <- 1:k
-  if (missing(labeling)) {
-    # TO DO.
-  }
-  
+  if (missing(grouping))
+    grouping <- factor(rep(1,n0))
+
   # If the ordering of the rows is not provided, determine an ordering
-  # by computing a 1-d embedding from the topic probabilities.
+  # by computing a 1-d embedding from the topic probabilities,
+  # separately for each group.
   if (missing(rows)) {
-    out  <- tsne_from_topics(fit,1,n,...)
-    rows <- out$rows[order(out$Y)]
+    rows <- NULL
+    N    <- round(n/n0*table(grouping))
+    for (j in levels(grouping)) {
+      i    <- which(grouping == j)
+      out  <- tsne_from_topics(select(fit,i),1,N[j],...)
+      rows <- c(rows,i[out$rows[order(out$Y)]])
+    }
   }
-  
+
   # Prepare the data for plotting. Note that it is important to subset
   # the rows *after* recovering the parameters of the multinomial
   # topic model.
