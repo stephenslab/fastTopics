@@ -692,7 +692,14 @@ structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
           axis.ticks  = element_blank(),
           axis.text.x = element_text(angle = 45,hjust = 1))
 
-# TO DO: Explain here what this function does, and how to use it.
+# This is used by structure_plot to create a data frame suitable for
+# plotting with ggplot. Inputs argument L is the "loadings" matrix
+# from a multinomial topic model fit---each row of L is a vector of
+# topic probabilities. Input argument "topics" is the vector of the
+# selected topics (that is, selected columns of L). The output is a
+# data frame with three columns: "sample", a row of L (numeric);
+# "topic", a topic (factor); and "prob", the topic probability for the
+# given sample (numeric).
 compile_structure_plot_data <- function (L, topics) {
   n   <- nrow(L)
   k   <- length(topics)
