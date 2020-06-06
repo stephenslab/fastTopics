@@ -693,7 +693,7 @@ structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
           axis.text.x = element_text(angle = 45,hjust = 1))
 
 # This is used by structure_plot to create a data frame suitable for
-# plotting with ggplot. Inputs argument L is the "loadings" matrix
+# plotting with ggplot. Input argument L is the "loadings" matrix
 # from a multinomial topic model fit---each row of L is a vector of
 # topic probabilities. Input argument "topics" is the vector of the
 # selected topics (that is, selected columns of L). The output is a
@@ -710,8 +710,20 @@ compile_structure_plot_data <- function (L, topics) {
   return(dat)
 }
 
-# TO DO: Explain here what this function does, and how to use it.
-compile_grouped_structure_plot_data <- function (L, topics, grouping, gap) {
+# This is used by structure_plot tto create a data frame suitable for
+# plotting with ggplot when the data are grouped. Input argument L is
+# the "loadings" matrix from a multinomiial topic model fit---each row
+# of L is a vector of topic probabilities. Input argument "topics" is
+# the vector of the selected topics (that is, selected columns of L).
+# Input argument "grouping" is a factor with one entry for each row of
+# L giving the grouping for the rows of L. The rows of L (and,
+# correspondingly, the grouping vector) should be arranged in order of
+# the groups; that is, "sort(grouping)" should be the same as
+# "grouping". Finally, the value "gap" (zero by default) is added to
+# the sample indices in each group to provide a visual spacing of the
+# groups.
+compile_grouped_structure_plot_data <- function (L, topics, grouping,
+                                                 gap = 0) {
   ng    <- nlevels(grouping)
   ticks <- rep(0,ng)
   names(ticks) <- levels(grouping)
