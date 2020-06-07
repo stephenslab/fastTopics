@@ -21,7 +21,7 @@ test_that("Test that the plotting functions work",{
   expect_s3_class(out,"ggplot")
 
   # Test tsne_plot.
-  capture.output(out1 <- tsne_plot(fit1,color = "probability",perplexity = 10))
+  capture.output(out1 <- tsne_plot(fit1,color = "prop",perplexity = 10))
   capture.output(out2 <- tsne_plot(fit1,color = "loading",perplexity = 10))
   expect_s3_class(out1,"ggplot")
   expect_s3_class(out2,"ggplot")

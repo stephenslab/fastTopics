@@ -73,7 +73,7 @@ A list with two list elements: \code{Y}, an n x d matrix
 }
 \description{
 Computes a low-dimensional embededding of the data from
-  the estimated loadings, or topic probabilities, using the t-SNE
+  the estimated loadings or topic proportions using the t-SNE
   nonlinear dimensionality reduction method.
 }
 \details{

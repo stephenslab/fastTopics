@@ -67,11 +67,11 @@ customize the appearance of the plot.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-"sample", "topic" and "prob": column "sample" contains the
+"sample", "topic" and "prop": column "sample" contains the
 positions of the samples (rows of the loadings matrix) along the
 horizontal axis; column "topic" is a topic (corresponding to
-columns of the loadings matrix); and column "prob" is the topic
-probability for the given sample.}
+columns of the loadings matrix); and column "prop" is the topic
+proportion for the given sample.}
 
 \item{ticks}{The placement of the group labels along the horizontal
 axis, and their names. For data that is not grouped, use

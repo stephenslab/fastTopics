@@ -191,7 +191,7 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' @title Loadings Plot
 #'
 #' @description Generate one or more bar plots to visualize the
-#'   relationship between the loadings, or topic probabilities, and a
+#'   relationship between the loadings, or topic proportions, and a
 #'   selected categorical variable (a factor).
 #'
 #' @details This is a lightweight interface primarily intended to
@@ -296,7 +296,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model
 #'
 #' @description Computes a low-dimensional embededding of the data from
-#'   the estimated loadings, or topic probabilities, using the t-SNE
+#'   the estimated loadings or topic proportions using the t-SNE
 #'   nonlinear dimensionality reduction method.
 #'
 #' @details This is a lightweight interface for rapidly producing
@@ -403,14 +403,14 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
 #' @title t-SNE Plot
 #'
 #' @description Visualize the "structure" of the Poisson NMF loadings
-#'   ("activations") or the topic probabilities by projection onto a 2-d
+#'   ("activations") or the topic proportions by projection onto a 2-d
 #'   surface. Samples in the projection are colored according to the their
-#'   loadings/probabilities. By default, t-SNE is used to compute the
-#'   2-d embedding from the loadings or topic probabilities.
+#'   loadings/proportions. By default, t-SNE is used to compute the
+#'   2-d embedding from the loadings or topic proportions.
 #'
 #' @details This is a lightweight interface primarily intended to
 #'   expedite creation of scatterplots for visualizing the loadings or
-#'   topic probabilities in 2-d; most of the "heavy lifting" is done by
+#'   topic proportions in 2-d; most of the "heavy lifting" is done by
 #'   ggplot2 (specifically, function \code{\link[ggplot2]{geom_boxplot}}
 #'   in the ggplot2 package). The 2-d embedding itself is computed by
 #'   invoking function \code{\link{tsne_from_topics}} (unless the "tsne"
@@ -432,13 +432,13 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
 #' @param color The data mapped to the color \dQuote{aesthetic} in the
 #'   plot. When \code{color = "loading"}, the estimated loadings (stored
 #'   the \code{L} matrix) in the Poisson NMF model are plotted; when
-#'   \code{color = "probability"}, the estimated topic probabilities
-#'   (which are recovered from the loadings by calling
+#'   \code{color = "prop"}, the estimated topic proportions (which are
+#'   recovered from the loadings by calling
 #'   \code{\link{poisson2multinom}} are shown. When \code{fit} is a
 #'   \dQuote{multinom_topic_model_fit} object, the only available option
-#'   is \code{color = "probability"}. In most settings, the topic
-#'   probabilities are preferred, even if the 2-d embedding is computed
-#'   from the loading matrix of the Poisson NMF model.
+#'   is \code{color = "prop"}. In most settings, the topic proportions
+#'   are preferred, even if the 2-d embedding is computed from the
+#'   loading matrix of the Poisson NMF model.
 #' 
 #' @param k The topic, or topics, selected by number or name. One plot
 #'   is created per selected topic. When not specified, all topics are
@@ -472,7 +472,7 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
 #' @export
 #' 
 tsne_plot <-
-  function (fit, color = c("probability","loading"), k, tsne,
+  function (fit, color = c("prop","loading"), k, tsne,
             ggplot_call = tsne_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots), ...) {
 
@@ -482,7 +482,7 @@ tsne_plot <-
     if (!inherits(fit,"poisson_nmf_fit"))
       stop("For color = \"loading\", input \"fit\" should be an object of ",
            "class \"poisson_nmf_fit\"")
-  } else if (color == "probability") {
+  } else if (color == "prop") {
     if (!(inherits(fit,"poisson_nmf_fit") |
           inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
@@ -500,7 +500,7 @@ tsne_plot <-
     # Prepare the data for plotting. Note that it is important to
     # subset the rows *after* recovering the parameters of the
     # multinomial topic model.
-    if (inherits(fit,"poisson_nmf_fit") & color == "probability")
+    if (inherits(fit,"poisson_nmf_fit") & color == "prop")
       fit <- poisson2multinom(fit)
     dat <- as.data.frame(cbind(tsne$Y,fit$L[tsne$rows,k]))
     names(dat) <- c("d1","d2","loading")
@@ -659,7 +659,7 @@ structure_plot <-
 
     # If the ordering of the rows is not provided, determine an
     # ordering by computing a 1-d embedding from the topic
-    # probabilities.
+    # proportions.
     if (missing(rows)) {
       out  <- tsne_from_topics(fit,1,n,...)
       rows <- out$rows[order(out$Y)]
@@ -676,7 +676,7 @@ structure_plot <-
 
     # If the ordering of the rows is not provided, determine an
     # ordering by computing a 1-d embedding from the topic
-    # probabilities, separately for each group.
+    # proportions, separately for each group.
     if (missing(rows)) {
       rows <- NULL
       n    <- round(n/n0*table(grouping))
@@ -702,11 +702,11 @@ structure_plot <-
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   "sample", "topic" and "prob": column "sample" contains the
+#'   "sample", "topic" and "prop": column "sample" contains the
 #'   positions of the samples (rows of the loadings matrix) along the
 #'   horizontal axis; column "topic" is a topic (corresponding to
-#'   columns of the loadings matrix); and column "prob" is the topic
-#'   probability for the given sample.
+#'   columns of the loadings matrix); and column "prop" is the topic
+#'   proportion for the given sample.
 #'
 #' @param ticks The placement of the group labels along the horizontal
 #'   axis, and their names. For data that is not grouped, use
@@ -730,14 +730,14 @@ structure_plot <-
 #'
 structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
                                         font.size = 8)
-  ggplot(dat,aes_string(x = "sample",y = "prob",color = "topic",
+  ggplot(dat,aes_string(x = "sample",y = "prop",color = "topic",
                         fill = "topic")) +
     geom_col() +
     scale_x_continuous(limits = c(0,max(dat$sample) + 1),
                        breaks = ticks,labels = names(ticks)) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
-    labs(x = "",y = "topic probability") +
+    labs(x = "",y = "proportion") +
     theme_cowplot(font.size) +
     theme(axis.line   = element_blank(),
           axis.ticks  = element_blank(),
@@ -746,17 +746,17 @@ structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
 # This is used by structure_plot to create a data frame suitable for
 # plotting with ggplot. Input argument L is the "loadings" matrix
 # from a multinomial topic model fit---each row of L is a vector of
-# topic probabilities. Input argument "topics" is the vector of the
+# topic proportions. Input argument "topics" is the vector of the
 # selected topics (that is, selected columns of L). The output is a
 # data frame with three columns: "sample", a row of L (numeric);
-# "topic", a topic (factor); and "prob", the topic probability for the
+# "topic", a topic (factor); and "prop", the topic proportion for the
 # given sample (numeric).
 compile_structure_plot_data <- function (L, topics) {
   n   <- nrow(L)
   k   <- length(topics)
   dat <- data.frame(sample = rep(1:n,times = k),
                     topic  = rep(topics,each = n),
-                    prob   = c(L[,topics]))
+                    prop   = c(L[,topics]))
   dat$topic <- factor(dat$topic,topics)
   return(dat)
 }
@@ -764,7 +764,7 @@ compile_structure_plot_data <- function (L, topics) {
 # This is used by structure_plot tto create a data frame suitable for
 # plotting with ggplot when the data are grouped. Input argument L is
 # the "loadings" matrix from a multinomiial topic model fit---each row
-# of L is a vector of topic probabilities. Input argument "topics" is
+# of L is a vector of topic proportions. Input argument "topics" is
 # the vector of the selected topics (that is, selected columns of L).
 # Input argument "grouping" is a factor with one entry for each row of
 # L giving the grouping for the rows of L. The rows of L (and,
