@@ -1,6 +1,9 @@
 to do
 =====
 
++ Implement summary(fit), where "fit" is an object of class
+  "poisson_nmf_fit" or "multinom_topic_model_fit".
+
 + Write function to simulate a data sets for testing differential
   gene expression analysis.
 
@@ -11,13 +14,6 @@ to do
 
 + Implement simple *interactive* "volcano" plot using plotly
   ("volcano_plotly")
-
-+ Implement simple a "STRUCTURE" plot, in which the samples (rows) are
-  automatically arranged by a 1-d t-SNE embedding ("structure_plot").
-  Optionally, a categorical variable (labeling) may be provided, in
-  which case the samples are arranged according to that labeling.
-
-+ Add test(s) for structure_plot.
 
 + Implement backtracking line search option for SCD algorithm.
 
