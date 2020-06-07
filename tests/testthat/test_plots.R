@@ -27,8 +27,12 @@ test_that("Test that the plotting functions work",{
   expect_s3_class(out2,"ggplot")
 
   # Test structure_plot.
-  out <- structure_plot(fit1,perplexity = 20)
-  #
-  # TO DO: Add test for labeled structure plot.
-  #
+  g    <- factor(apply(poisson2multinom(fit1)$L,1,which.max))
+  tsne <- tsne_from_topics(poisson2multinom(fit1),dims = 1,perplexity = 20)
+  out1 <- structure_plot(fit1,perplexity = 20)
+  out2 <- structure_plot(fit1,rows = order(tsne$Y))
+  out3 <- structure_plot(fit1,rows = order(tsne$Y),grouping = g,gap = 2)
+  expect_s3_class(out1,"ggplot")
+  expect_s3_class(out2,"ggplot")
+  expect_s3_class(out3,"ggplot")
 })

@@ -22,33 +22,47 @@ structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 8)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
-\dQuote{multinom_topic_model_fit}. If it is the former, the
-multinomial topic model fit is automatically recovered using
-\code{link{poisson2multinom}}.}
+\dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
+as input, the correspondinig multinomial topic model fit is
+automatically recovered using \code{link{poisson2multinom}}.}
 
-\item{n}{Describe input argument "n" here. Ignored if "rows" is
+\item{n}{The maximum number of samples (rows of the loadings
+matrix) to include in the plot. Including large numbers (e.g.,
+thousands) of samples is not recommended because it dramatically
+slows down the t-SNE computation, and typically there is little to
+no benefit in including large number of samples in the plot due to
+screen resolution limits. Ignored if \code{rows} is provided.}
+
+\item{rows}{Ordering of rows (samples) in plot, after they have
+been grouped. Generated automatically from 1-d t-SNE if not
 provided.}
 
-\item{rows}{Ordering of rows (samples) in plot. Generated
-automatically from 1-d t-SNE if not provided.}
+\item{grouping}{Optional categorical variable (factor) with one
+entry for each row of the loadings matrix \code{fit$L} defining a
+grouping of the samples (rows). The samples (rows) are arranged
+along the horizontal axis according to this grouping, then within
+each group according to \code{rows} or, if not provided, according
+to the 1-d t-SNE embedding.}
 
-\item{grouping}{Describe input argument "grouping" here.}
+\item{topics}{Top-to-bottom ordering of the topics in the structure
+plot; topics[1] is shown on the top, topics[2] is shown next, and
+so on. The default is \code{topics = 1:k}, where \code{k} is the
+number of topics (columns of \code{fit$L}).}
 
-\item{topics}{Top-to-bottom order of topic probabilities in
-structure plot. First topic is shown on the top. Default is
-\code{1:k}, where \code{k} is the number of topics.}
-
-\item{colors}{Colors used to draw topics in structure
-plot: \code{colors[1]} is the colour used to draw \code{topics[1]},
+\item{colors}{Colors used to draw topics in structure plot:
+\code{colors[1]} is the colour used to draw \code{topics[1]},
 \code{colors[2]} is the colour used to draw \code{topics[2]}, and
-so on. Default colours are from \url{https://colorbrewer2.org}
-(qualitative data, "12-class Set3").}
+so on. The default colour setting is the from
+\url{https://colorbrewer2.org} (qualitative data, "12-class Set3").}
 
-\item{gap}{Describe input argument "gap" here.}
+\item{gap}{The horizontal spacing between groups. Ignored if
+\code{grouping} is not provided.}
 
-\item{ggplot_call}{Describe input argument "ggplot_call" here.}
+\item{ggplot_call}{The function used to create the plot. Replace
+\code{structure_plot_ggplot_call} with your own function to
+customize the appearance of the plot.}
 
-\item{...}{Additional arguments passed to
+\item{\dots}{Additional arguments passed to
 \code{\link{tsne_from_topics}}.}
 
 \item{dat}{A data frame passed as input to
@@ -65,10 +79,35 @@ axis, and their names. For data that is not grouped, use
 
 \item{font.size}{Font size used in plot.}
 }
+\value{
+A \code{ggplot} object.
+}
 \description{
-Describe the structure plot. Explain why it is called
-a "structure plot" (add reference(s) below).
+Create a "Structure plot" from a multinomial topic
+  model fit. The Structure plot represents the estimated topic
+  proportions of each sample as a stacked bar chart, with bars of
+  different colors representing different topics. Consequently,
+  samples that have similar topic proportions have similar amounts of
+  each color.
+}
+\details{
+The samples are arranged automatically by a 1-d t-SNE embedding
+("structure_plot"). Optionally, a categorical variable (a grouping)
+may be provided, in which case the samples are arranged according
+to that grouping, then arranged within each group using
+t-SNE.
+
+The name "Structure plot" comes from its widespread use in
+population genetics to visualize the results of the Structure
+software (Rosenberg \emph{et al}, 2002).
 }
 \references{
-[Add reference(s) here.]
+Dey, K. K., Hsiao, C. J. and Stephens, M. (2017). Visualizing the
+structure of RNA-seq expression data using grade of membership
+models. \emph{PLoS Genetics} \bold{13}, e1006599.
+
+Rosenberg, N. A., Pritchard, J. K., Weber, J. L., Cann, H. M.,
+Kidd, K. K., Zhivotovsky, L. A. and Feldman, M. W. (2002). Genetic
+structure of human populations. \emph{Science} \bold{298},
+2381–2385.
 }
