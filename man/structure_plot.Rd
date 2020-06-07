@@ -23,7 +23,7 @@ structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 8)
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
 \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
-as input, the correspondinig multinomial topic model fit is
+as input, the corresponding multinomial topic model fit is
 automatically recovered using \code{link{poisson2multinom}}.}
 
 \item{n}{The maximum number of samples (rows of the loadings
@@ -49,7 +49,7 @@ plot; topics[1] is shown on the top, topics[2] is shown next, and
 so on. The default is \code{topics = 1:k}, where \code{k} is the
 number of topics (columns of \code{fit$L}).}
 
-\item{colors}{Colors used to draw topics in structure plot:
+\item{colors}{Colors used to draw topics in Structure plot:
 \code{colors[1]} is the colour used to draw \code{topics[1]},
 \code{colors[2]} is the colour used to draw \code{topics[2]}, and
 so on. The default colour setting is the from
@@ -91,15 +91,22 @@ Create a "Structure plot" from a multinomial topic
   each color.
 }
 \details{
-The samples are arranged automatically by a 1-d t-SNE embedding
-("structure_plot"). Optionally, a categorical variable (a grouping)
-may be provided, in which case the samples are arranged according
-to that grouping, then arranged within each group using
-t-SNE.
-
 The name "Structure plot" comes from its widespread use in
-population genetics to visualize the results of the Structure
-software (Rosenberg \emph{et al}, 2002).
+  population genetics to visualize the results of the Structure
+  software (Rosenberg \emph{et al}, 2002).
+
+  For most uses of the Structure plot in population genetics, there
+  is usually some grouping of the samples (e.g., assignment to
+  pre-defined populations) that guides arrangement of the samples
+  along the horizontal axis in the bar chart. In other applications,
+  such as analysis of gene expression data, no pre-defined grouping
+  exists. Therefore, a "smart" arrangement of the samples is, by
+  default, generated automatically by performing a 1-d t-SNE
+  embedding of the samples.
+
+  Alternatively, a categorical variable---the grouping---may be
+  provided, in which case the samples are arranged according to that
+  grouping, then arranged within each group using t-SNE.
 }
 \references{
 Dey, K. K., Hsiao, C. J. and Stephens, M. (2017). Visualizing the

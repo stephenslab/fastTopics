@@ -564,19 +564,26 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   samples that have similar topic proportions have similar amounts of
 #'   each color.
 #'
-#' @details The samples are arranged automatically by a 1-d t-SNE embedding
-#' ("structure_plot"). Optionally, a categorical variable (a grouping)
-#' may be provided, in which case the samples are arranged according
-#' to that grouping, then arranged within each group using
-#' t-SNE.
-#'
-#' The name "Structure plot" comes from its widespread use in
-#' population genetics to visualize the results of the Structure
-#' software (Rosenberg \emph{et al}, 2002).
+#' @details The name "Structure plot" comes from its widespread use in
+#'   population genetics to visualize the results of the Structure
+#'   software (Rosenberg \emph{et al}, 2002).
 #' 
+#'   For most uses of the Structure plot in population genetics, there
+#'   is usually some grouping of the samples (e.g., assignment to
+#'   pre-defined populations) that guides arrangement of the samples
+#'   along the horizontal axis in the bar chart. In other applications,
+#'   such as analysis of gene expression data, no pre-defined grouping
+#'   exists. Therefore, a "smart" arrangement of the samples is, by
+#'   default, generated automatically by performing a 1-d t-SNE
+#'   embedding of the samples.
+#'
+#'   Alternatively, a categorical variable---the grouping---may be
+#'   provided, in which case the samples are arranged according to that
+#'   grouping, then arranged within each group using t-SNE.
+#'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
-#'   as input, the correspondinig multinomial topic model fit is
+#'   as input, the corresponding multinomial topic model fit is
 #'   automatically recovered using \code{link{poisson2multinom}}.
 #'
 #' @param n The maximum number of samples (rows of the loadings
@@ -602,7 +609,7 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   so on. The default is \code{topics = 1:k}, where \code{k} is the
 #'   number of topics (columns of \code{fit$L}).
 #' 
-#' @param colors Colors used to draw topics in structure plot:
+#' @param colors Colors used to draw topics in Structure plot:
 #'   \code{colors[1]} is the colour used to draw \code{topics[1]},
 #'   \code{colors[2]} is the colour used to draw \code{topics[2]}, and
 #'   so on. The default colour setting is the from
@@ -670,7 +677,7 @@ structure_plot <-
     # multinomial topic model.
     dat <- compile_structure_plot_data(fit$L[rows,],topics)
 
-    # Create the structure plot.
+    # Create the Structure plot.
     return(ggplot_call(dat,colors))
   } else {
 
@@ -693,7 +700,7 @@ structure_plot <-
     out <- compile_grouped_structure_plot_data(fit$L[rows,],topics,
                                                grouping[rows],gap)
 
-    # Create the structure plot.
+    # Create the Structure plot.
     return(ggplot_call(out$dat,colors,out$ticks))
   }
 }
