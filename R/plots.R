@@ -190,7 +190,7 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' 
 #' @title Loadings Plot
 #'
-#' @description Generate one or more bar plots to visualize the
+#' @description Generate one or more barcharts to visualize the
 #'   relationship between the loadings, or topic proportions, and a
 #'   selected categorical variable (a factor).
 #'
@@ -559,7 +559,7 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' @description Create a "Structure plot" from a multinomial topic
 #'   model fit. The Structure plot represents the estimated topic
-#'   proportions of each sample as a stacked bar chart, with bars of
+#'   proportions of each sample as a stacked barchart, with bars of
 #'   different colors representing different topics. Consequently,
 #'   samples that have similar topic proportions have similar amounts of
 #'   each color.
