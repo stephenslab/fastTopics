@@ -85,7 +85,7 @@ A \code{ggplot} object.
 \description{
 Create a "Structure plot" from a multinomial topic
   model fit. The Structure plot represents the estimated topic
-  proportions of each sample as a stacked bar chart, with bars of
+  proportions of each sample as a stacked barchart, with bars of
   different colors representing different topics. Consequently,
   samples that have similar topic proportions have similar amounts of
   each color.

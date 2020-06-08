@@ -4,6 +4,8 @@ to do
 + Implement summary(fit), where "fit" is an object of class
   "poisson_nmf_fit" or "multinom_topic_model_fit".
 
++ Add tests for summary(fit).
+
 + Write function to simulate a data sets for testing differential
   gene expression analysis.
 

@@ -48,7 +48,7 @@ it is only used to determine the plot title.}
 A \code{ggplot} object.
 }
 \description{
-Generate one or more bar plots to visualize the
+Generate one or more barcharts to visualize the
   relationship between the loadings, or topic proportions, and a
   selected categorical variable (a factor).
 }
