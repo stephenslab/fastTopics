@@ -2,15 +2,24 @@
 % Please edit documentation in R/summary.R
 \name{summary.poisson_nmf_fit}
 \alias{summary.poisson_nmf_fit}
+\alias{summary.multinom_topic_model_fit}
 \alias{print.summary.poisson_nmf_fit}
-\title{Summarize Poisson NMF Fit}
+\alias{print.summary.multinom_topic_model_fit}
+\title{Summarize Poisson NMF or Multinomial Topic Model Fit}
 \usage{
 \method{summary}{poisson_nmf_fit}(object, ...)
 
+\method{summary}{multinom_topic_model_fit}(object, ...)
+
 \method{print}{summary.poisson_nmf_fit}(x, ...)
+
+\method{print}{summary.multinom_topic_model_fit}(x, ...)
 }
 \arguments{
-\item{object}{Describe input argument "object" here.}
+\item{object}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}. The former is usually the result
+of calling \code{\link{fit_poisson_nmf}}; the latter is usually the
+result of calling \code{link{poisson2multinom}}.}
 
 \item{\dots}{Additional arguments passed to the generic method.}
 
@@ -18,9 +27,11 @@
 usually a result of a call to \code{summary.poisson_nmf_fit}.}
 }
 \value{
-The function \code{summary.poisson_nmf_fit} computes and
-  returns a list of statistics summarizing the model fit.
+The functions \code{summary.poisson_nmf_fit} and
+  \code{summary.multinom_topic_model_fit} compute and return a list
+  of statistics summarizing the model fit.
 }
 \description{
-Add description of function here.
+\code{summary} method for the \dQuote{poisson_nmf_fit}
+  and \dQuote{multinom_topic_model_fit} classes.
 }
