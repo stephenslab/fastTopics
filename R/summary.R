@@ -45,10 +45,9 @@ summary.multinom_topic_model_fit <- function (object, ...) {
               loglik  = object$progress[numiter,"loglik"],
               dev     = object$progress[numiter,"dev"],
               res     = object$progress[numiter,"res"],
-              topic.proportions = t(apply(object$L,2,quantile)))
-  colnames(out$topic.proportions) <- c("Min","1Q","Median","3Q","Max")
-  if (is.null(rownames(out$topic.proportions)))
-    rownames(out$topic.proportions) <- 1:k
+              topic.proportions = summarize_topic_proportions(object$L),
+              topic.reps        = NULL)
+  # colnames(out$topic.proportions) <- c("Min","1Q","Median","3Q","Max")
   if (!is.null(object$s))
     out$s <- object$s
   class(out) <- c("summary.multinom_topic_model_fit","list")
@@ -80,12 +79,12 @@ print.summary.poisson_nmf_fit <- function (x, ...) {
 print.summary.multinom_topic_model_fit <- function (x, ...) {
   k <- x$k
   cat("Model overview:\n")
-  cat(sprintf("  Number of data rows (n):   %d\n",x$n))
-  cat(sprintf("  Number of data cols (m):   %d\n",x$m))
-  cat(sprintf("  Rank/number of topics (k): %d\n",x$k))
+  cat(sprintf("  Number of data rows, n: %d\n",x$n))
+  cat(sprintf("  Number of data cols, m: %d\n",x$m))
+  cat(sprintf("  Rank/Number of topics, k: %d\n",x$k))
   cat(sprintf("Evaluation of fit (%d updates of performed):\n",x$numiter))
-  cat(sprintf("  Log-likelihood:   %+0.12e\n",x$loglik))
-  cat(sprintf("  Deviance:         %+0.12e\n",x$dev))
+  cat(sprintf("  Log-likelihood: %+0.12e\n",x$loglik))
+  cat(sprintf("  Deviance: %+0.12e\n",x$dev))
   cat(sprintf("  Max KKT residual: %+0.6e\n",x$res))
   if (!is.null(x$s)) {
     cat(sprintf("Size factors:\n"))
@@ -98,4 +97,22 @@ print.summary.multinom_topic_model_fit <- function (x, ...) {
   cat(sprintf("Topic representatives:\n"))
   cat("  TO DO\n")
   return(invisible(x))
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+summarize_topic_proportions <- function (L) {
+  k   <- ncol(L)
+  out <- t(apply(L,2,
+                 function (x) as.vector(table(cut(x,c(-1,0.1,0.5,0.9,1))))))
+  if (is.null(rownames(out)))
+    rownames(out) <- 1:k
+  colnames(out) <- c("<0.1","0.1-0.5","0.5-0.9",">0.9")
+  return(out)
+}
+  
+# TO DO: Explain here what this function does, and how to use it.
+get_topic_representatives <- function (L) {
+  n <- nrow(L)
+  if (is.null(rownames(L)))
+    rownames(L) <- 1:n
 }
