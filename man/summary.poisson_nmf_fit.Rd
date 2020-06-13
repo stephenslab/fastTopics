@@ -21,7 +21,8 @@
 of calling \code{\link{fit_poisson_nmf}}; the latter is usually the
 result of calling \code{link{poisson2multinom}}.}
 
-\item{\dots}{Additional arguments passed to the generic method.}
+\item{\dots}{Additional arguments passed to the generic \code{summary}
+or \code{print.summary} method.}
 
 \item{x}{An object of class \dQuote{summary.poisson_nmf_fit},
 usually a result of a call to \code{summary.poisson_nmf_fit}.}
@@ -30,6 +31,8 @@ usually a result of a call to \code{summary.poisson_nmf_fit}.}
 The functions \code{summary.poisson_nmf_fit} and
   \code{summary.multinom_topic_model_fit} compute and return a list
   of statistics summarizing the model fit.
+
+  TO DO: Describe the individual outputs.
 }
 \description{
 \code{summary} method for the \dQuote{poisson_nmf_fit}
