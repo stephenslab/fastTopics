@@ -97,8 +97,9 @@ print.summary.multinom_topic_model_fit <- function (x, ...) {
   return(invisible(x))
 }
 
-# Output topic proportion histograms as a k x n matrix, where k is the
-# number of topics, and n is the number of bins in the histogram.
+# Given a matrix of topic proportions, L, output topic proportion
+# histograms as a k x n matrix, where k is the number of topics, and n
+# is the number of bins in the histogram.
 summarize_topic_proportions <- function (L) {
   k   <- ncol(L)
   out <- t(apply(L,2,
@@ -109,7 +110,12 @@ summarize_topic_proportions <- function (L) {
   return(out)
 }
   
-# TO DO: Explain here what this function does, and how to use it.
+# Given a matrix of topic proportions, L, return a k x k matrix, where
+# k is the number of topics, in which each row is a sample (data
+# matrix row). The ith row of the matrix contains the topic
+# proportions for the sample "most representative" of the ith topic;
+# that is, the row or sample with the largest proportion of counts
+# drawn from the ith topic.
 get_topic_representatives <- function (L) {
   n    <- nrow(L)
   k    <- ncol(L)
