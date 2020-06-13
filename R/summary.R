@@ -8,7 +8,8 @@
 #'   of calling \code{\link{fit_poisson_nmf}}; the latter is usually the
 #'   result of calling \code{link{poisson2multinom}}.
 #'
-#' @param \dots Additional arguments passed to the generic method.
+#' @param \dots Additional arguments passed to the generic \code{summary}
+#'   or \code{print.summary} method.
 #'
 #' @method summary poisson_nmf_fit
 #'
@@ -31,10 +32,17 @@ summary.poisson_nmf_fit <- function (object, ...) {
 #' @export
 #' 
 summary.multinom_topic_model_fit <- function (object, ...) {
-  #
-  # TO DO.
-  #  
-  class(out) <- c("summary.poisson_nmf_fit","list")
+  numiter <- nrow(object$progress)
+  out <- list(n       = nrow(object$L),
+              m       = nrow(object$F),
+              k       = ncol(object$F),
+              numiter = numiter,
+              loglik  = object$progress[numiter,"loglik"],
+              dev     = object$progress[numiter,"dev"],
+              res     = object$progress[numiter,"res"])
+  if (!is.null(object$s))
+    out$s <- object$s
+  class(out) <- c("summary.multinom_topic_model_fit","list")
   return(out)
 }
 
@@ -59,8 +67,12 @@ print.summary.poisson_nmf_fit <- function (x, ...) {
 #' @export
 #'
 print.summary.multinom_topic_model_fit <- function (x, ...) {
-  #
-  # TO DO.
-  #  
+  cat(sprintf("number of data rows (n): %d\n",x$n))
+  cat(sprintf("number of data cols (m): %d\n",x$m))
+  cat(sprintf("number of topics (k):    %d\n",x$k))
+  cat(sprintf("Evaluation of fit (%d updates performed):\n",x$numiter))
+  cat(sprintf("  log-likelihood:   %+0.12e\n",x$loglik))
+  cat(sprintf("  deviance:         %+0.12e\n",x$dev))
+  cat(sprintf("  max KKT residual: %+0.6e\n",x$res))
   return(invisible(x))
 }

@@ -6,7 +6,7 @@ to do
 
 + Add tests for summary(fit).
 
-+ Write function to simulate a data sets for testing differential
++ Write function(s) to simulate data sets for testing differential
   gene expression analysis.
 
 + Implement function to compute estimates of term-frequency log-ratios
