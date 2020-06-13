@@ -38,18 +38,16 @@ summary.poisson_nmf_fit <- function (object, ...) {
 summary.multinom_topic_model_fit <- function (object, ...) {
   numiter <- nrow(object$progress)
   k       <- ncol(object$F)
-  out <- list(n       = nrow(object$L),
-              m       = nrow(object$F),
-              k       = k,
-              numiter = numiter,
-              loglik  = object$progress[numiter,"loglik"],
-              dev     = object$progress[numiter,"dev"],
-              res     = object$progress[numiter,"res"],
+  out <- list(n                 = nrow(object$L),
+              m                 = nrow(object$F),
+              k                 = k,
+              s                 = object$s,
+              numiter           = numiter,
+              loglik            = object$progress[numiter,"loglik"],
+              dev               = object$progress[numiter,"dev"],
+              res               = object$progress[numiter,"res"],
               topic.proportions = summarize_topic_proportions(object$L),
-              topic.reps        = NULL)
-  # colnames(out$topic.proportions) <- c("Min","1Q","Median","3Q","Max")
-  if (!is.null(object$s))
-    out$s <- object$s
+              topic.reps        = get_topic_representatives(object$L))
   class(out) <- c("summary.multinom_topic_model_fit","list")
   return(out)
 }
@@ -93,13 +91,14 @@ print.summary.multinom_topic_model_fit <- function (x, ...) {
     print(q)
   }
   cat(sprintf("Topic proportions:\n"))
-  print(round(x$topic.proportions,digits = 4))
+  print(x$topic.proportions)
   cat(sprintf("Topic representatives:\n"))
-  cat("  TO DO\n")
+  print(round(x$topic.reps,digits = 3))
   return(invisible(x))
 }
 
-# TO DO: Explain here what this function does, and how to use it.
+# Output topic proportion histograms as a k x n matrix, where k is the
+# number of topics, and n is the number of bins in the histogram.
 summarize_topic_proportions <- function (L) {
   k   <- ncol(L)
   out <- t(apply(L,2,
@@ -112,7 +111,13 @@ summarize_topic_proportions <- function (L) {
   
 # TO DO: Explain here what this function does, and how to use it.
 get_topic_representatives <- function (L) {
-  n <- nrow(L)
-  if (is.null(rownames(L)))
-    rownames(L) <- 1:n
+  n    <- nrow(L)
+  k    <- ncol(L)
+  rows <- apply(L,2,which.max)
+  out  <- L[rows,]
+  if (is.null(rownames(out)))
+    rownames(out) <- rows
+  if (is.null(colnames(out)))
+    colnames(out) <- 1:k
+  return(out)
 }
