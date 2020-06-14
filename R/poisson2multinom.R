@@ -16,7 +16,7 @@
 #'   topic model; specifically, \code{fit$L[i,]} gives the topic
 #'   probabilities for sample or document i, and \code{fit$F[,k]} gives
 #'   the term probabilities for topic k. An additional vector
-#'   \code{fit$s} of length n is returned giving the "document sizes".
+#'   \code{fit$s} of length n is returned giving the "size factors".
 #' 
 #' @export
 #' 

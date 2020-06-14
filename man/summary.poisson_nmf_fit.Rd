@@ -33,25 +33,38 @@ The functions \code{summary.poisson_nmf_fit} and
 of statistics summarizing the model fit. The returned list
 includes the following elements:
 
-\item{n}{Describe "n" output here.}
+\item{n}{The number of rows in the counts matrix, typically the
+  number of samples.}
 
-\item{m}{Describe "m" output here.}
+\item{m}{The number of columns in the counts matrix, typically the
+  number of observed counts per sample.}
 
-\item{k}{Describe "k" output here.}
+\item{k}{The rank of the Poisson non-negative matrix factorizataion
+  or, equivalently, the number of topics.}
 
-\item{s}{Describe "s" output here.}
+\item{s}{A vector of length n giving the "size factor" estimates;
+  these estimates should be equal, or close to, the total counts in
+  each row of the counts matrix.}
 
-\item{numiter}{Describe "numiter" output here.}
+\item{numiter}{The number of loadings and/or factors updates
+  performed.}
 
-\item{loglik}{Describe "loglik" output here.}
+\item{loglik}{The log-likelihood attained by the model fit.}
 
-\item{dev}{Describe "dev" output here.}
+\item{dev}{The deviance attained by the model fit.}
 
-\item{res}{Describe "res" output here.}
+\item{res}{The maximum residual of the Karush-Kuhn-Tucker (KKT)
+  first-order optimality conditions. This can be used to assess
+  convergence of the updates to a (local) solution.}
 
-\item{topic.proportions}{Describe "topic.proportions" output here.}
+\item{topic.proportions}{Matrix giving a high-level summary of the
+topic proportions, in which rows correspond to topics, and columns
+are proportion ranges.}
 
-\item{topic.reps}{Describe "topic.reps" output here.}
+\item{topic.reps}{A matrix in which the ith row gives the topic
+  proportions for the sample "most representative" of topic i; by
+  "most representative", we mean the row (or sample) with the
+  highest proportion of counts drawn from the topic i.}
 }
 \description{
 \code{summary} method for the \dQuote{poisson_nmf_fit}

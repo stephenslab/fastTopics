@@ -27,7 +27,7 @@ test_that("Test that the plotting functions work",{
   expect_s3_class(out2,"ggplot")
 
   # Test structure_plot.
-  g    <- factor(apply(poisson2multinom(fit1)$L,1,which.max))
+  g <- factor(apply(poisson2multinom(fit1)$L,1,which.max))
   capture.output(tsne <- tsne_from_topics(poisson2multinom(fit1),dims = 1,
                                           perplexity = 20))
   capture.output(out1 <- structure_plot(fit1,perplexity = 20))
