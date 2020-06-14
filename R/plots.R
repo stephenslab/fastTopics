@@ -736,7 +736,7 @@ structure_plot <-
 #' @export
 #'
 structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
-                                        font.size = 8)
+                                        font.size = 9)
   ggplot(dat,aes_string(x = "sample",y = "prop",color = "topic",
                         fill = "topic")) +
     geom_col() +
