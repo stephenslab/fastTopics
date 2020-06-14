@@ -29,10 +29,29 @@ usually a result of a call to \code{summary.poisson_nmf_fit}.}
 }
 \value{
 The functions \code{summary.poisson_nmf_fit} and
-  \code{summary.multinom_topic_model_fit} compute and return a list
-  of statistics summarizing the model fit.
+\code{summary.multinom_topic_model_fit} compute and return a list
+of statistics summarizing the model fit. The returned list
+includes the following elements:
 
-  TO DO: Describe the individual outputs.
+\item{n}{Describe "n" output here.}
+
+\item{m}{Describe "m" output here.}
+
+\item{k}{Describe "k" output here.}
+
+\item{s}{Describe "s" output here.}
+
+\item{numiter}{Describe "numiter" output here.}
+
+\item{loglik}{Describe "loglik" output here.}
+
+\item{dev}{Describe "dev" output here.}
+
+\item{res}{Describe "res" output here.}
+
+\item{topic.proportions}{Describe "topic.proportions" output here.}
+
+\item{topic.reps}{Describe "topic.reps" output here.}
 }
 \description{
 \code{summary} method for the \dQuote{poisson_nmf_fit}

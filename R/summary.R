@@ -8,16 +8,32 @@
 #'   of calling \code{\link{fit_poisson_nmf}}; the latter is usually the
 #'   result of calling \code{link{poisson2multinom}}.
 #'
-#' @param \dots Additional arguments passed to the generic \code{summary}
-#'   or \code{print.summary} method.
-#'
 #' @method summary poisson_nmf_fit
 #'
 #' @return The functions \code{summary.poisson_nmf_fit} and
-#'   \code{summary.multinom_topic_model_fit} compute and return a list
-#'   of statistics summarizing the model fit.
+#' \code{summary.multinom_topic_model_fit} compute and return a list
+#' of statistics summarizing the model fit. The returned list
+#' includes the following elements:
 #'
-#'   TO DO: Describe the individual outputs.
+#' \item{n}{Describe "n" output here.}
+#'
+#' \item{m}{Describe "m" output here.}
+#'
+#' \item{k}{Describe "k" output here.}
+#'
+#' \item{s}{Describe "s" output here.}
+#'
+#' \item{numiter}{Describe "numiter" output here.}
+#'
+#' \item{loglik}{Describe "loglik" output here.}
+#'
+#' \item{dev}{Describe "dev" output here.}
+#'
+#' \item{res}{Describe "res" output here.}
+#'
+#' \item{topic.proportions}{Describe "topic.proportions" output here.}
+#'
+#' \item{topic.reps}{Describe "topic.reps" output here.}
 #' 
 #' @export
 #' 
@@ -56,6 +72,9 @@ summary.multinom_topic_model_fit <- function (object, ...) {
 #'
 #' @param x An object of class \dQuote{summary.poisson_nmf_fit},
 #'   usually a result of a call to \code{summary.poisson_nmf_fit}.
+#'
+#' @param \dots Additional arguments passed to the generic \code{summary}
+#'   or \code{print.summary} method.
 #'
 #' @method print summary.poisson_nmf_fit
 #' 
