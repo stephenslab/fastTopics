@@ -38,8 +38,9 @@ test_that("Test that the plotting functions work",{
   expect_s3_class(out3,"ggplot")
 
   # Test the "plot" S3 method (which creates a Structure plot).
-  fit2 <- multinom2poisson(fit1)
+  fit2 <- poisson2multinom(fit1)
   capture.output(out1 <- plot(fit1,perplexity = 20))
-  capture.output(out2 <- plot(,perplexity = 20))
+  capture.output(out2 <- plot(fit2,perplexity = 20))
   expect_s3_class(out1,"ggplot")
+  expect_s3_class(out2,"ggplot")
 })
