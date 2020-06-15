@@ -618,8 +618,9 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   \code{structure_plot_ggplot_call} with your own function to
 #'   customize the appearance of the plot.
 #'
-#' @param \dots Additional arguments passed to
-#'   \code{\link{tsne_from_topics}}.
+#' @param \dots Additional arguments passed to \code{structure_plot}
+#'   (for the \code{plot} method) or \code{\link{tsne_from_topics}} (for
+#'   function \code{structure_plot}).
 #'
 #' @return A \code{ggplot} object.
 #'
@@ -633,7 +634,7 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' Kidd, K. K., Zhivotovsky, L. A. and Feldman, M. W. (2002). Genetic
 #' structure of human populations. \emph{Science} \bold{298},
 #' 2381–2385.
-#' 
+#'
 #' @export
 #'
 structure_plot <-
@@ -700,6 +701,33 @@ structure_plot <-
     return(ggplot_call(out$dat,colors,out$ticks))
   }
 }
+
+#' @rdname structure_plot
+#'
+#' @param fit An object of class \dQuote{poisson_nmf_fit} or
+#'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
+#'   as input, the corresponding multinomial topic model fit is
+#'   automatically recovered using \code{link{poisson2multinom}}.
+#'
+#' @importFrom graphics plot
+#' 
+#' @method plot poisson_nmf_fit
+#'
+#' @export
+#'
+plot.poisson_nmf_fit <- function (x, ...)
+  structure_plot(x,...)
+
+#' @rdname structure_plot
+#'
+#' @importFrom graphics plot
+#' 
+#' @method plot multinom_topic_model_fit
+#' 
+#' @export
+#' 
+plot.multinom_topic_model_fit <- function (x, ...)
+  structure_plot(x,...)
 
 #' @rdname structure_plot
 #'

@@ -1,6 +1,6 @@
 context("summary")
 
-test_that("summary functions works",{
+test_that("summary method and print.summary methods produce output",{
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)

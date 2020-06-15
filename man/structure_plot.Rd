@@ -2,6 +2,8 @@
 % Please edit documentation in R/plots.R
 \name{structure_plot}
 \alias{structure_plot}
+\alias{plot.poisson_nmf_fit}
+\alias{plot.multinom_topic_model_fit}
 \alias{structure_plot_ggplot_call}
 \title{Structure Plot}
 \usage{
@@ -17,6 +19,10 @@ structure_plot(
   ggplot_call = structure_plot_ggplot_call,
   ...
 )
+
+\method{plot}{poisson_nmf_fit}(x, ...)
+
+\method{plot}{multinom_topic_model_fit}(x, ...)
 
 structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 9)
 }
@@ -62,8 +68,9 @@ so on. The default colour setting is the from
 \code{structure_plot_ggplot_call} with your own function to
 customize the appearance of the plot.}
 
-\item{\dots}{Additional arguments passed to
-\code{\link{tsne_from_topics}}.}
+\item{\dots}{Additional arguments passed to \code{structure_plot}
+(for the \code{plot} method) or \code{\link{tsne_from_topics}} (for
+function \code{structure_plot}).}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
