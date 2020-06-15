@@ -1,6 +1,8 @@
 to do
 =====
 
++ Implement plot_loglik_vs_rank.
+
 + Implement plot(fit), which calls structure_plot.
 
 + Write function(s) to simulate data sets for testing differential
