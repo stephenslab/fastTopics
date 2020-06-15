@@ -1,6 +1,8 @@
 to do
 =====
 
++ Implement plot(fit), which calls structure_plot.
+
 + Write function(s) to simulate data sets for testing differential
   gene expression analysis.
 
