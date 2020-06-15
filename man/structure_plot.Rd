@@ -18,7 +18,7 @@ structure_plot(
   ...
 )
 
-structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 8)
+structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 9)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
