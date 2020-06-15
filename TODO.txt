@@ -1,9 +1,6 @@
 to do
 =====
 
-+ Implement summary(fit), where "fit" is an object of class
-  "poisson_nmf_fit" or "multinom_topic_model_fit".
-
 + Write function(s) to simulate data sets for testing differential
   gene expression analysis.
 

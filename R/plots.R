@@ -278,7 +278,6 @@ loadings_plot <-
 #' @importFrom ggplot2 geom_boxplot
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_blank
 #' @importFrom ggplot2 element_text
 #' @importFrom cowplot theme_cowplot
 #' 
@@ -289,8 +288,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
     geom_boxplot(width = 0.25,size = 0.4,outlier.shape = NA) +
     labs(x = "",y = "loading",title = paste("topic",topic.label)) +
     theme_cowplot(font.size) +
-    theme(axis.line   = element_blank(),
-          axis.text.x = element_text(angle = 45,hjust = 1),
+    theme(axis.text.x = element_text(angle = 45,hjust = 1),
           plot.title  = element_text(size = font.size,face = "plain"))
 
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model
@@ -539,7 +537,6 @@ tsne_plot <-
 #' @importFrom ggplot2 scale_fill_gradient2
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_blank
 #' @importFrom ggplot2 element_text
 #' @importFrom cowplot theme_cowplot
 #' 
@@ -552,8 +549,7 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
                          midpoint = mean(range(dat$loading))) +
     labs(x = "tsne 1",y = "tsne 2",title = paste("topic",topic.label)) +
     theme_cowplot(font.size) +
-    theme(axis.line  = element_blank(),
-          plot.title = element_text(size = font.size,face = "plain"))
+    theme(plot.title = element_text(size = font.size,face = "plain"))
 
 #' Structure Plot
 #'
