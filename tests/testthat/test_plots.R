@@ -1,9 +1,25 @@
 context("plots")
 
-test_that("Test that the plotting functions work",{
+test_that("Test that plot_loglik_vs_rank works",{
   set.seed(1)
-  dat  <- generate_test_data(80,100,3)
-  X    <- dat$X
+  dat <- generate_test_data(80,100,3)
+  X   <- dat$X
+
+  # Fit matrix factorizations with rank k = 2, 3, 5, 10.
+  capture.output(fit2 <- fit_poisson_nmf(X,k = 2,numiter = 100))
+  capture.output(fit3 <- fit_poisson_nmf(X,k = 3,numiter = 100))
+  capture.output(fit5 <- fit_poisson_nmf(X,k = 5,numiter = 100))
+  capture.output(fit10 <- fit_poisson_nmf(X,k = 10,numiter = 100))
+
+  # Plot log-likelihood vs. rank.
+  out <- plot_loglik_vs_rank(list(fit2,fit3,fit5,fit10))
+  expect_s3_class(out,"ggplot")
+})
+
+test_that("Test that other plotting functions work",{
+  set.seed(1)
+  dat <- generate_test_data(80,100,3)
+  X   <- dat$X
   capture.output(fit0 <- init_poisson_nmf(X,k = 3))
   capture.output(
     fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 50,method = "scd",
@@ -44,3 +60,4 @@ test_that("Test that the plotting functions work",{
   expect_s3_class(out1,"ggplot")
   expect_s3_class(out2,"ggplot")
 })
+
