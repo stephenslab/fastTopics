@@ -186,11 +186,16 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
          theme())
 }
 
-#' @title Plot Log-Likelihood vs. Rank
+#' @title Plot Log-Likelihood Versus Poisson NMF Rank 
 #'
-#' @description Describe function here.
+#' @description Create a plot showing the improvement in the
+#'   log-likelihood as the rank of the matrix factorization or
+#'   the number of topics ("k") increases.
 #' 
-#' @param fits Describe input argument "fits" here.
+#' @param fits A list with two more list elements, in which each list
+#'   element is an object of class \code{"poisson_nmf_fit"}. If two or
+#'   more Poisson NMF fits shares the same rank, the largest
+#'   log-likelihood is plotted.
 #'
 #' @return A \code{ggplot} object.
 #'
@@ -205,6 +210,11 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' @export
 #'
 plot_loglik_vs_rank <- function (fits) {
+  n <- length(fits)
+  if (n < 2)
+    stop("Input argument \"fits\" should be a list with at least two list ",
+         "elements")
+  names(fits) <- paste0("fit",1:n)
   dat <- compare_poisson_nmf_fits(fits)[c("k","loglik.diff")]
   dat <- transform(dat,k = factor(k))
   y   <- tapply(dat$loglik.diff,dat$k,max)

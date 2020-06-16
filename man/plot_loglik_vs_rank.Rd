@@ -2,16 +2,21 @@
 % Please edit documentation in R/plots.R
 \name{plot_loglik_vs_rank}
 \alias{plot_loglik_vs_rank}
-\title{Plot Log-Likelihood vs. Rank}
+\title{Plot Log-Likelihood Versus Poisson NMF Rank}
 \usage{
 plot_loglik_vs_rank(fits)
 }
 \arguments{
-\item{fits}{Describe input argument "fits" here.}
+\item{fits}{A list with two more list elements, in which each list
+element is an object of class \code{"poisson_nmf_fit"}. If two or
+more Poisson NMF fits shares the same rank, the largest
+log-likelihood is plotted.}
 }
 \value{
-Describe return value here.
+A \code{ggplot} object.
 }
 \description{
-Describe function here.
+Create a plot showing the improvement in the
+  log-likelihood as the rank of the matrix factorization or
+  the number of topics ("k") increases.
 }
