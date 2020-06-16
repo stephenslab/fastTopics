@@ -27,11 +27,20 @@ with the following columns:
   indicate that the solution is close to a local maximum, or
   stationary point, of the likelihood.}
 
+\item{loglik.diff}{The improvement in the log-likelihood relative
+  to the model fit with the smallest log-likelihood.}
+
+\item{dev.diff}{The improvement in the deviance relative to the
+  model fit with the largest deviance.}
+
 \item{nonzeros.f}{The rate of nonzeros in the factors matrix, as
   determined by \code{control$zero.threshold}.}
 
 \item{nonzeros.l}{The rate of nonzeros in the loadings matrix, as
   determined by \code{control$zero.threshold}.}
+
+\item{numiter}{The number of loadings and/or factor updates
+  performed.}
 
 \item{runtime}{The total runtime (in s) of the model fitting
   updates.}

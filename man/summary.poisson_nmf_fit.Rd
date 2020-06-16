@@ -46,7 +46,7 @@ includes the following elements:
   these estimates should be equal, or close to, the total counts in
   each row of the counts matrix.}
 
-\item{numiter}{The number of loadings and/or factors updates
+\item{numiter}{The number of loadings and/or factor updates
   performed.}
 
 \item{loglik}{The log-likelihood attained by the model fit.}

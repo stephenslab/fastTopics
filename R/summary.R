@@ -28,7 +28,7 @@
 #'   these estimates should be equal, or close to, the total counts in
 #'   each row of the counts matrix.}
 #'
-#' \item{numiter}{The number of loadings and/or factors updates
+#' \item{numiter}{The number of loadings and/or factor updates
 #'   performed.}
 #'
 #' \item{loglik}{The log-likelihood attained by the model fit.}
@@ -153,11 +153,20 @@ print.summary.multinom_topic_model_fit <- function (x, ...) {
 #'   indicate that the solution is close to a local maximum, or
 #'   stationary point, of the likelihood.}
 #'
+#' \item{loglik.diff}{The improvement in the log-likelihood relative
+#'   to the model fit with the smallest log-likelihood.}
+#'
+#' \item{dev.diff}{The improvement in the deviance relative to the
+#'   model fit with the largest deviance.}
+#' 
 #' \item{nonzeros.f}{The rate of nonzeros in the factors matrix, as
 #'   determined by \code{control$zero.threshold}.}
 #'
 #' \item{nonzeros.l}{The rate of nonzeros in the loadings matrix, as
 #'   determined by \code{control$zero.threshold}.}
+#'
+#' \item{numiter}{The number of loadings and/or factor updates
+#'   performed.}
 #' 
 #' \item{runtime}{The total runtime (in s) of the model fitting
 #'   updates.}
@@ -193,11 +202,16 @@ compare_poisson_nmf_fits <- function (fits) {
   # --------------------
   # Initialize the data structure.
   n   <- length(fits)
-  out <- data.frame(k       = rep(0,n),
-                    loglik  = rep(0,n),
-                    dev     = rep(0,n),
-                    res     = rep(0,n),
-                    runtime = rep(0,n),
+  out <- data.frame(k           = rep(0,n),
+                    loglik      = rep(0,n),
+                    dev         = rep(0,n),
+                    loglik.diff = rep(0,n),
+                    dev.diff    = rep(0,n),
+                    res         = rep(0,n),
+                    nonzeros.f  = rep(0,n),
+                    nonzeros.l  = rep(0,n),
+                    numiter     = rep(0,n),
+                    runtime     = rep(0,n),
                     stringsAsFactors = FALSE)
   rownames(out) <- names(fits)
   
@@ -211,9 +225,14 @@ compare_poisson_nmf_fits <- function (fits) {
     out[i,"res"]        <- x$res
     out[i,"nonzeros.f"] <- x$nonzeros.f
     out[i,"nonzeros.l"] <- x$nonzeros.l
+    out[i,"numiter"]    <- nrow(fit$progress)
     out[i,"runtime"]    <- sum(fit$progress$timing)
   }
 
+  # Calculate the "loglik.diff" and "dev.diff" entries.
+  out$loglik.diff <- out$loglik - min(out$loglik)
+  out$dev.diff    <- max(out$dev) - out$dev
+  
   # Output the data frame.
   return(out)
 }
