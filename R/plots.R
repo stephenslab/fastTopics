@@ -186,19 +186,46 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
          theme())
 }
 
+#' @rdname plot_loglik_vs_rank
+#' 
 #' @title Plot Log-Likelihood Versus Poisson NMF Rank 
 #'
 #' @description Create a plot showing the improvement in the
 #'   log-likelihood as the rank of the matrix factorization or
-#'   the number of topics ("k") increases.
+#'   the number of topics (\dQuote{k}) increases.
 #' 
 #' @param fits A list with two more list elements, in which each list
 #'   element is an object of class \code{"poisson_nmf_fit"}. If two or
 #'   more Poisson NMF fits shares the same rank, the largest
 #'   log-likelihood is plotted.
 #'
+#' @param ggplot_call The function used to create the plot. Replace
+#'   \code{loglik_vs_rank_ggplot_call} with your own function to
+#'   customize the appearance of the plot.
+#'
 #' @return A \code{ggplot} object.
 #'
+#' @export
+#'
+plot_loglik_vs_rank <- function (fits,
+                                 ggplot_call = loglik_vs_rank_ggplot_call) {
+  n   <- length(fits)
+  names(fits) <- paste0("fit",1:n)
+  dat <- compare_poisson_nmf_fits(fits)[c("k","loglik.diff")]
+  dat <- transform(dat,k = factor(k))
+  y   <- tapply(dat$loglik.diff,dat$k,max)
+  dat <- data.frame(x = as.numeric(names(y)),y = y)
+  return(loglik_vs_rank_ggplot_call(dat))
+}
+
+#' @rdname plot_loglik_vs_rank
+#'
+#' @param dat A data frame passed as input to
+#'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
+#'   \dQuote{x} and \dQuote{y}.
+#'
+#' @param font.size Font size used in plot.
+#' 
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
 #' @importFrom ggplot2 geom_line
@@ -208,25 +235,15 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' @importFrom cowplot theme_cowplot
 #' 
 #' @export
-#'
-plot_loglik_vs_rank <- function (fits) {
-  n <- length(fits)
-  if (n < 2)
-    stop("Input argument \"fits\" should be a list with at least two list ",
-         "elements")
-  names(fits) <- paste0("fit",1:n)
-  dat <- compare_poisson_nmf_fits(fits)[c("k","loglik.diff")]
-  dat <- transform(dat,k = factor(k))
-  y   <- tapply(dat$loglik.diff,dat$k,max)
-  dat <- data.frame(x = as.numeric(names(y)),y = y)
+#' 
+loglik_vs_rank_ggplot_call <- function (dat, font.size = 9)
   return(ggplot(dat,aes_string(x = "x",y = "y")) +
          geom_line() +
          geom_point() +
          scale_x_continuous(breaks = dat$x) +
          labs(x = "rank, or number of topics (k)",
               y = "log-likelihood difference") +
-         theme_cowplot(font_size = 10))
-}
+         theme_cowplot(font_size = font.size))
 
 #' @rdname loadings_plot
 #' 
@@ -308,7 +325,7 @@ loadings_plot <-
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   "x" and "loading".
+#'   \dQuote{x} and \dQuote{loading}.
 #'
 #' @param topic.label The name or number of the topic being plotted;
 #' it is only used to determine the plot title.

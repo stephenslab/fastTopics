@@ -1,7 +1,7 @@
 to do
 =====
 
-+ Implement plot_loglik_vs_rank.
++ Add test(s) for plot_loglik_vs_rank.
 
 + Write function(s) to simulate data sets for testing differential
   gene expression analysis.

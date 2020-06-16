@@ -37,7 +37,7 @@ a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-"x" and "loading".}
+\dQuote{x} and \dQuote{loading}.}
 
 \item{topic.label}{The name or number of the topic being plotted;
 it is only used to determine the plot title.}
