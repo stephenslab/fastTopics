@@ -186,6 +186,38 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
          theme())
 }
 
+#' @title Plot Log-Likelihood vs. Rank
+#'
+#' @description Describe function here.
+#' 
+#' @param fits Describe input argument "fits" here.
+#'
+#' @return A \code{ggplot} object.
+#'
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 geom_line
+#' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 scale_x_continuous
+#' @importFrom ggplot2 labs
+#' @importFrom cowplot theme_cowplot
+#' 
+#' @export
+#'
+plot_loglik_vs_rank <- function (fits) {
+  dat <- compare_poisson_nmf_fits(fits)[c("k","loglik.diff")]
+  dat <- transform(dat,k = factor(k))
+  y   <- tapply(dat$loglik.diff,dat$k,max)
+  dat <- data.frame(x = as.numeric(names(y)),y = y)
+  return(ggplot(dat,aes_string(x = "x",y = "y")) +
+         geom_line() +
+         geom_point() +
+         scale_x_continuous(breaks = dat$x) +
+         labs(x = "rank, or number of topics (k)",
+              y = "log-likelihood difference") +
+         theme_cowplot(font_size = 10))
+}
+
 #' @rdname loadings_plot
 #' 
 #' @title Loadings Plot
