@@ -4,7 +4,7 @@
 \alias{simulate_poisson_gene_data}
 \title{Add Title Here.}
 \usage{
-simulate_poisson_gene_data(n, m, k)
+simulate_poisson_gene_data(n, m, k, sparse = FALSE)
 }
 \arguments{
 \item{n}{Describe input argument "n" here.}
@@ -12,6 +12,8 @@ simulate_poisson_gene_data(n, m, k)
 \item{m}{Describe input argument "m" here.}
 
 \item{k}{Describe input argument "k" here.}
+
+\item{sparse}{Describe input argument "sparse" here.}
 }
 \description{
 Add description here.

@@ -91,19 +91,34 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #' @param m Describe input argument "m" here.
 #' 
 #' @param k Describe input argument "k" here.
-#' 
+#'
+#' @param sparse Describe input argument "sparse" here.
+#'
+#' @importFrom methods as
+#' @importFrom stats runif
+#' @importFrom stats rnorm
 #' @importFrom stats rpois
 #' @importFrom MCMCpack rdirichlet
 #' 
 #' @export
 #'
-simulate_poisson_gene_data <- function (n, m, k) {
+simulate_poisson_gene_data <- function (n, m, k, sparse = FALSE) {
  
   # Simulate the Poisson rates ("factors") according to the following
-  # procedure:
+  # procedure. For each count: (1) generate u = abs(r) - 5, where r is
+  # normal with zero mean and s.d. of 2; (2) for each topic k,
+  # generate the Poisson rate as exp(max(t,-5)), where t is drawn from
+  # a mixture of two normals with the same mean but different standard
+  # deviation, 0.95*N(u,s/10) + 0.05*N(u,s), where s = with mean u
+  # and standard deviation exp(-u/8).
   F <- matrix(0,m,k)
   for (j in 1:m) {
-    # TO DO.
+    u     <- abs(rnorm(1,0,2)) - 5
+    s     <- exp(-u/8)
+    a     <- runif(k)
+    z     <- (a >= 0.05) * rnorm(k,u,s/10) +
+             (a <  0.05) * rnorm(k,u,s)
+    F[j,] <- exp(pmax(-5,z))
   }
     
   # For each sample, generate the topic proportions ("loadings")
@@ -119,15 +134,23 @@ simulate_poisson_gene_data <- function (n, m, k) {
     j      <- sample(k,k1[i])
     L[i,j] <- rdirichlet(1,rep(1,k1[i]))
   }
+
+  # Simulate the counts.
+  X <- matrix(as.double(rpois(n*m,tcrossprod(L,F))),n,m)
+  if (sparse)
+    X <- as(X,"dgCMatrix")
   
   # Add row and column names to outputs.
+  rownames(X) <- paste0("i",1:n)
   rownames(L) <- paste0("i",1:n)
+  colnames(X) <- paste0("j",1:m)
   rownames(F) <- paste0("j",1:m)
   colnames(F) <- paste0("k",1:k)
   colnames(L) <- paste0("k",1:k)
   
-  # Return a list containing ...
-  return(list(F = F,L = L))
+  # Return a list containing: (1) the data matrix, X; (2) the factors
+  # matrix, F; and (3) the loadings matrix, L.
+  return(list(X = X,F = F,L = L))
 }
 
 #' @title Add Title Here.
