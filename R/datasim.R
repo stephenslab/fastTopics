@@ -75,3 +75,61 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
   # matrix, F; and (3) the loadings matrix, L.
   return(list(X = X,F = F,L = L))
 }
+
+#' @title Add Title Here.
+#'
+#' @description Add description here.
+#'
+#' @param n Describe input argument "n" here.
+#'
+#' @param m Describe input argument "m" here.
+#' 
+#' @param k Describe input argument "k" here.
+#' 
+#' @importFrom stats rpois
+#' @importFrom MCMCpack rdirichlet
+#' 
+#' @export
+#'
+simulate_poisson_gene_data <- function (n, m, k) {
+ 
+  # Simulate the Poisson rates ("factors") according to the following
+  # procedure:
+  F <- matrix(0,m,k)
+  for (j in 1:m) {
+    # TO DO.
+  }
+    
+  # For each sample, generate the topic proportions ("loadings")
+  # according to the following procedure: (1) the number of nonzero
+  # topic proportions is 1 <= n <= k with probability proportional to
+  # 2^(-n); (2) sample the indices of the nonzero topics; (3) sample
+  # the nonzero topic proportions from the Dirichlet distribution with
+  # "prior sample sizes" alpha = 1, so that all topics are equally
+  # likely.
+  L  <- matrix(0,n,k)
+  k1 <- sample(k,n,replace = TRUE,prob = 2^(-seq(1,k)))
+  for (i in 1:n) {
+    j      <- sample(k,k1[i])
+    L[i,j] <- rdirichlet(1,rep(1,k1[i]))
+  }
+  
+  # Add row and column names to outputs.
+  rownames(L) <- paste0("i",1:n)
+  rownames(F) <- paste0("j",1:m)
+  colnames(F) <- paste0("k",1:k)
+  colnames(L) <- paste0("k",1:k)
+  
+  # Return a list containing ...
+  return(list(F = F,L = L))
+}
+
+#' @title Add Title Here.
+#'
+#' @description Add description here.
+#' 
+#' @export
+#' 
+simulate_multinom_gene_data <- function () {
+  # TO DO.
+} 
