@@ -17,7 +17,7 @@ jobs:
           name: Install package dependencies
           command: |
             mkdir -p ~/R/Library
-            Rscript -e 'install.packages(c("devtools","remotes","quadprog","pracma","irlba","Rtsne","dplyr","Rcpp","RcppArmadillo","RcppParallel","progress","ggplot2","cowplot","testthat"))'
+            Rscript -e 'install.packages(c("devtools","remotes","quadprog","pracma","MCMCpack","irlba","Rtsne","dplyr","Rcpp","RcppArmadillo","RcppParallel","progress","ggplot2","cowplot","testthat"))'
             Rscript -e 'devtools::install_github("linxihui/NNLM",upgrade = "never")'
       - run:
           name: Session information and installed package versions

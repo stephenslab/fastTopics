@@ -16,3 +16,10 @@ simulate_poisson_gene_data(n, m, k)
 \description{
 Add description here.
 }
+\details{
+Add details here.
+
+Note that only minimal argument checking is performed. This
+function is mainly used for testing the implementation of the
+differential count analysis
+}

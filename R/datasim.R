@@ -80,6 +80,12 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'
 #' @description Add description here.
 #'
+#' @details Add details here.
+#' 
+#' Note that only minimal argument checking is performed. This
+#' function is mainly used for testing the implementation of the
+#' differential count analysis
+#' 
 #' @param n Describe input argument "n" here.
 #'
 #' @param m Describe input argument "m" here.
