@@ -9,7 +9,7 @@
 #'   matrix \code{F} are drawn uniformly at random between 0 and
 #'   \code{fmax}.
 #'
-#'   Note that only minimal argument checking is performed. This
+#' @details Note that only minimal argument checking is performed. This
 #'   function is mainly used to simulate small data sets for the examples
 #'   and package tests.
 #' 
@@ -76,24 +76,26 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
   return(list(X = X,F = F,L = L))
 }
 
-#' @title Add Title Here.
+#' @title Simulate ...
 #'
-#' @description Add description here.
+#' @details Note that only minimal argument checking is performed;
+#'   the function is mainly used to test implementation of the
+#'   topic-modeling-based differential count analysis.
 #'
-#' @details Add details here.
+#' @param n Number of rows in the simulated count matrix. It should be
+#'   at least 2.
+#'
+#' @param m Number of columns in the simulated count matrix. It should
+#'   be at least 2.
+#'
+#' @param k Number of factors, or "topics", used to generate the
+#'   individual Poisson rates. The number of topics should be 2 or
+#'   greater.
+#'
+#' @param sparse If \code{sparse = TRUE}, convert the counts matrix to
+#'   a sparse matrix in compressed, column-oriented format; see
+#'   \code{\link[Matrix]{sparseMatrix}}.
 #' 
-#' Note that only minimal argument checking is performed. This
-#' function is mainly used for testing the implementation of the
-#' differential count analysis
-#' 
-#' @param n Describe input argument "n" here.
-#'
-#' @param m Describe input argument "m" here.
-#' 
-#' @param k Describe input argument "k" here.
-#'
-#' @param sparse Describe input argument "sparse" here.
-#'
 #' @importFrom methods as
 #' @importFrom stats runif
 #' @importFrom stats rnorm
@@ -103,7 +105,15 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #' @export
 #'
 simulate_poisson_gene_data <- function (n, m, k, sparse = FALSE) {
- 
+
+  # Check inputs.
+  if (!(is.scalar(n) & all(n >= 2)))
+    stop("Input argument \"n\" should be 2 or greater")
+  if (!(is.scalar(m) & all(m >= 2)))
+    stop("Input argument \"m\" should be 2 or greater")
+  if (!(is.scalar(k) & all(k >= 2)))
+    stop("Input argument \"k\" should be 2 or greater")
+  
   # Simulate the Poisson rates ("factors") according to the following
   # procedure. For each count: (1) generate u = abs(r) - 5, where r is
   # normal with zero mean and s.d. of 2; (2) for each topic k,

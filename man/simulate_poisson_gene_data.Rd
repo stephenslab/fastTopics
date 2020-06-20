@@ -2,26 +2,30 @@
 % Please edit documentation in R/datasim.R
 \name{simulate_poisson_gene_data}
 \alias{simulate_poisson_gene_data}
-\title{Add Title Here.}
+\title{Simulate ...}
 \usage{
 simulate_poisson_gene_data(n, m, k, sparse = FALSE)
 }
 \arguments{
-\item{n}{Describe input argument "n" here.}
+\item{n}{Number of rows in the simulated count matrix. It should be
+at least 2.}
 
-\item{m}{Describe input argument "m" here.}
+\item{m}{Number of columns in the simulated count matrix. It should
+be at least 2.}
 
-\item{k}{Describe input argument "k" here.}
+\item{k}{Number of factors, or "topics", used to generate the
+individual Poisson rates. The number of topics should be 2 or
+greater.}
 
-\item{sparse}{Describe input argument "sparse" here.}
+\item{sparse}{If \code{sparse = TRUE}, convert the counts matrix to
+a sparse matrix in compressed, column-oriented format; see
+\code{\link[Matrix]{sparseMatrix}}.}
 }
 \description{
-Add description here.
+Simulate ...
 }
 \details{
-Add details here.
-
-Note that only minimal argument checking is performed. This
-function is mainly used for testing the implementation of the
-differential count analysis
+Note that only minimal argument checking is performed;
+  the function is mainly used to test implementation of the
+  topic-modeling-based differential count analysis.
 }

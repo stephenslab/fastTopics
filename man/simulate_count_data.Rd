@@ -40,8 +40,9 @@ Simulate a counts matrix \code{X} such that
   uniformly at random between 0 and \code{lmax}, and the entries of
   matrix \code{F} are drawn uniformly at random between 0 and
   \code{fmax}.
-
-  Note that only minimal argument checking is performed. This
+}
+\details{
+Note that only minimal argument checking is performed. This
   function is mainly used to simulate small data sets for the examples
   and package tests.
 }
