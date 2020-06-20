@@ -76,9 +76,30 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
   return(list(X = X,F = F,L = L))
 }
 
-#' @title Simulate ...
+#' @title Simulate Gene-Expression Data with Absolute Expression Changes
 #'
-#' @details Note that only minimal argument checking is performed;
+#' @description Simulate "gene-expression-inspired" count data from a
+#'   Poisson NMF model, in which topics capture "gene expression
+#'   programs", and the gene expression programs are characterized by
+#'   \emph{absolute} changes in expression rates. The way in which the
+#'   counts are simulated is modeled after gene expression studies in
+#'   which expression is measured by single-cell RNA sequencing
+#'   ("RNA-seq") techniques: each row of the counts matrix corresponds a
+#'   gene expression profile, each column corresponds to a gene, and the
+#'   matrix entry is a "read count" measuring expression level. The
+#'   factors are simulated so as to capture "realistic" changes in gene
+#'   expression across different cell types. See \dQuote{Details} for
+#'   the exact procedure used to simulate the data.
+#'
+#' @details The counts are simulated from a Poisson NMF model; that
+#'   is, \code{X[i,j]} is Poisson with rate \code{Y[i,j]}, where \code{Y
+#'   = tcrossprod(L,F)}. Here we describe the process for generating the
+#'   n x k loadings matrix \code{L} and the m x k factors matrix
+#'   \code{F}.
+#'
+#'   \emph{Add material here.}
+#'
+#'   Note that only minimal argument checking is performed;
 #'   the function is mainly used to test implementation of the
 #'   topic-modeling-based differential count analysis.
 #'

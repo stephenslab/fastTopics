@@ -2,7 +2,7 @@
 % Please edit documentation in R/datasim.R
 \name{simulate_poisson_gene_data}
 \alias{simulate_poisson_gene_data}
-\title{Simulate ...}
+\title{Simulate Gene-Expression Data with Absolute Expression Changes}
 \usage{
 simulate_poisson_gene_data(n, m, k, sparse = FALSE)
 }
@@ -22,10 +22,29 @@ a sparse matrix in compressed, column-oriented format; see
 \code{\link[Matrix]{sparseMatrix}}.}
 }
 \description{
-Simulate ...
+Simulate "gene-expression-inspired" count data from a
+  Poisson NMF model, in which topics capture "gene expression
+  programs", and the gene expression programs are characterized by
+  \emph{absolute} changes in expression rates. The way in which the
+  counts are simulated is modeled after gene expression studies in
+  which expression is measured by single-cell RNA sequencing
+  ("RNA-seq") techniques: each row of the counts matrix corresponds a
+  gene expression profile, each column corresponds to a gene, and the
+  matrix entry is a "read count" measuring expression level. The
+  factors are simulated so as to capture "realistic" changes in gene
+  expression across different cell types. See \dQuote{Details} for
+  the exact procedure used to simulate the data.
 }
 \details{
-Note that only minimal argument checking is performed;
+The counts are simulated from a Poisson NMF model; that
+  is, \code{X[i,j]} is Poisson with rate \code{Y[i,j]}, where \code{Y
+  = tcrossprod(L,F)}. Here we describe the process for generating the
+  n x k loadings matrix \code{L} and the m x k factors matrix
+  \code{F}.
+
+  \emph{Add material here.}
+
+  Note that only minimal argument checking is performed;
   the function is mainly used to test implementation of the
   topic-modeling-based differential count analysis.
 }
