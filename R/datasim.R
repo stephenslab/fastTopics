@@ -91,13 +91,23 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'   expression across different cell types. See \dQuote{Details} for
 #'   the exact procedure used to simulate the data.
 #'
-#' @details The counts are simulated from a Poisson NMF model; that
-#'   is, \code{X[i,j]} is Poisson with rate \code{Y[i,j]}, where \code{Y
-#'   = tcrossprod(L,F)}. Here we describe the process for generating the
-#'   n x k loadings matrix \code{L} and the m x k factors matrix
+#' @details Here we describe the process for generating the n x k
+#'   loadings matrix \code{L} and the m x k factors matrix
 #'   \code{F}.
+#' 
+#'   TO DO: Explain key distinguishing characteristic of the
+#'   simulation process: factors can be interpreted as Poisson rates, so
+#'   individual counts can be thought of as being generated from a
+#'   weighted mixture of "topics" with (possibly) different expression
+#'   levels. Therefore, the topics in this simulation are characterised
+#'   by \emph{absolute} changes in gene expression levels.
+#' 
+#'   Once the loadings and factors have been generated, the
+#'   counts are simulated from the Poisson NMF model; that is,
+#'   \code{X[i,j]} is Poisson with rate \code{Y[i,j]}, where \code{Y =
+#'   tcrossprod(L,F)}.
 #'
-#'   \emph{Add material here.}
+#'   TO DO: Add material here.
 #'
 #'   Note that only minimal argument checking is performed;
 #'   the function is mainly used to test implementation of the
