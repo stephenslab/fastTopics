@@ -22,18 +22,18 @@ a sparse matrix in compressed, column-oriented format; see
 \code{\link[Matrix]{sparseMatrix}}.}
 }
 \description{
-Simulate "gene-expression-inspired" count data from a
-  Poisson NMF model, in which topics capture "gene expression
-  programs", and the gene expression programs are characterized by
-  \emph{absolute} changes in expression rates. The way in which the
-  counts are simulated is modeled after gene expression studies in
-  which expression is measured by single-cell RNA sequencing
-  ("RNA-seq") techniques: each row of the counts matrix corresponds a
-  gene expression profile, each column corresponds to a gene, and the
-  matrix entry is a "read count" measuring expression level. The
-  factors are simulated so as to capture "realistic" changes in gene
-  expression across different cell types. See \dQuote{Details} for
-  the exact procedure used to simulate the data.
+Simulate count data from a Poisson NMF model, in which
+topics represent "gene expression programs", and the gene
+expression programs are characterized by \emph{absolute} changes in
+expression rates. The way in which the counts are simulated is
+modeled after gene expression studies in which expression is
+measured by single-cell RNA sequencing ("RNA-seq") techniques: each
+row of the counts matrix corresponds a gene expression profile,
+each column corresponds to a gene, and each matrix element is a
+"read count" or "UMI count" measuring expression level. Factors are
+simulated so as to capture "realistic" changes in gene expression
+across different cell types. See \dQuote{Details} for the procedure
+used to simulate factors, loadings and counts.
 }
 \details{
 Here we describe the process for generating the n x k
