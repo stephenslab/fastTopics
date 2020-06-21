@@ -21,38 +21,56 @@ greater.}
 a sparse matrix in compressed, column-oriented format; see
 \code{\link[Matrix]{sparseMatrix}}.}
 }
+\value{
+The return value is a list containing the counts matrix
+  \code{X} and the factorization, \code{F} and \code{L}, used to
+  generate the counts.
+}
 \description{
 Simulate count data from a Poisson NMF model, in which
-topics represent "gene expression programs", and the gene
-expression programs are characterized by \emph{absolute} changes in
-expression rates. The way in which the counts are simulated is
-modeled after gene expression studies in which expression is
-measured by single-cell RNA sequencing ("RNA-seq") techniques: each
-row of the counts matrix corresponds a gene expression profile,
-each column corresponds to a gene, and each matrix element is a
-"read count" or "UMI count" measuring expression level. Factors are
-simulated so as to capture "realistic" changes in gene expression
-across different cell types. See \dQuote{Details} for the procedure
-used to simulate factors, loadings and counts.
+  topics represent \dQuote{gene expression programs}, and the gene
+  expression programs are characterized by \emph{absolute} changes in
+  expression rates. (This contrasts with
+  \code{\link{simulate_multinom_gene_data}}, where the gene programs
+  are characterized by relative changes in expression levels.) The
+  way in which the counts are simulated is modeled after gene
+  expression studies in which expression is measured by single-cell
+  RNA sequencing (\dQuote{RNA-seq}) techniques: each row of the
+  counts matrix corresponds a gene expression profile, each column
+  corresponds to a gene, and each matrix element is a \dQuote{read
+  count}, or \dQuote{UMI count}, measuring expression level. Factors
+  are simulated so as to capture realistic changes in gene expression
+  across different cell types. See \dQuote{Details} for the procedure
+  used to simulate factors, loadings and counts.
 }
 \details{
 Here we describe the process for generating the n x k
   loadings matrix \code{L} and the m x k factors matrix
   \code{F}.
 
-  TO DO: Explain key distinguishing characteristic of the
-  simulation process: factors can be interpreted as Poisson rates, so
-  individual counts can be thought of as being generated from a
-  weighted mixture of "topics" with (possibly) different expression
-  levels. Therefore, the topics in this simulation are characterised
-  by \emph{absolute} changes in gene expression levels.
+  A key feature of the simulation process is that factors can be
+  interpreted as Poisson rates, so that individual counts can be thought
+  of as being generated from a weighted mixture of "topics" with
+  different gene expression rates. 
+
+  Each row of the \code{L} matrix is generated in the following
+  manner: (1) the number of nonzero topic proportions is \eqn{1
+  \leq n \leq k}, with probability proportional to \eqn{2^{-n}};
+  (2) the indices of the nonzero topic proportions are sampled
+  uniformly at random; and (3) the nonzero topic proportions are
+  sampled from the Dirichlet distribution with \eqn{alpha = 1} (so
+  that all topics are equally likely).
+
+  Each row of the factors matrix (these are also Poisson rates) are
+  generated according to the following procedure: (1) generate \eqn{u
+  = |r| - 5}, where \eqn{r ~ N(0,2)}; (2) for each topic \eqn{k},
+  generate the Poisson rates as \eqn{exp(max(t,-5))}, where \eqn{t ~
+   0.95 * N(u,s/10) + 0.05 * N(u,s)}, and \eqn{s = exp(-u/8)}.
 
   Once the loadings and factors have been generated, the
   counts are simulated from the Poisson NMF model; that is,
   \code{X[i,j]} is Poisson with rate \code{Y[i,j]}, where \code{Y =
   tcrossprod(L,F)}.
-
-  TO DO: Add material here.
 
   Note that only minimal argument checking is performed;
   the function is mainly used to test implementation of the

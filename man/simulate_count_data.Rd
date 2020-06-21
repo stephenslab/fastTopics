@@ -27,9 +27,9 @@ a sparse matrix in compressed, column-oriented format; see
 \code{\link[Matrix]{sparseMatrix}}.}
 }
 \value{
-The return value is a list containing the data matrix
+The return value is a list containing the counts matrix
   \code{X} and the factorization, \code{F} and \code{L}, used to
-  determine the Poisson rates.
+  generate the counts.
 }
 \description{
 Simulate a counts matrix \code{X} such that
