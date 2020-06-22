@@ -94,23 +94,21 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'   used to simulate factors, loadings and counts.
 #'
 #' @details Here we describe the process for generating the n x k
-#'   loadings matrix \code{L} and the m x k factors matrix
-#'   \code{F}.
-#' 
-#'   A key feature of the simulation process is that factors can be
-#'   interpreted as Poisson rates, so that individual counts can be thought
-#'   of as being generated from a weighted mixture of "topics" with
-#'   different gene expression rates. 
+#'   loadings matrix \code{L} and the m x k factors matrix \code{F}. A
+#'   key feature of the simulation process is that factors can be
+#'   interpreted as Poisson rates, so that individual counts can be
+#'   thought of as being generated from a weighted mixture of "topics"
+#'   with different gene expression rates.
 #'
 #'   Each row of the \code{L} matrix is generated in the following
 #'   manner: (1) the number of nonzero topic proportions is \eqn{1
-#'   \leq n \leq k}, with probability proportional to \eqn{2^{-n}};
+#'   \le n \le k}, with probability proportional to \eqn{2^{-n}};
 #'   (2) the indices of the nonzero topic proportions are sampled
 #'   uniformly at random; and (3) the nonzero topic proportions are
-#'   sampled from the Dirichlet distribution with \eqn{alpha = 1} (so
+#'   sampled from the Dirichlet distribution with \eqn{\alpha = 1} (so
 #'   that all topics are equally likely).
 #'
-#'   Each row of the factors matrix (these are also Poisson rates) are
+#'   Each row of the factors matrix (also Poisson rates) are
 #'   generated according to the following procedure: (1) generate \eqn{u
 #'   = |r| - 5}, where \eqn{r ~ N(0,2)}; (2) for each topic \eqn{k},
 #'   generate the Poisson rates as \eqn{exp(max(t,-5))}, where \eqn{t ~
@@ -123,7 +121,7 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'
 #'   Note that only minimal argument checking is performed;
 #'   the function is mainly used to test implementation of the
-#'   topic-modeling-based differential count analysis.
+#'   topic-model-based differential count analysis.
 #'
 #' @param n Number of rows in the simulated count matrix. It should be
 #'   at least 2.
@@ -182,9 +180,12 @@ simulate_poisson_gene_data <- function (n, m, k, sparse = FALSE) {
 #'
 #' @description Add description here.
 #' 
+#' @import Matrix
+#' @importFrom methods as
+#' 
 #' @export
 #' 
-simulate_multinom_gene_data <- function () {
+simulate_multinom_gene_data <- function (sparse = FALSE) {
   # TO DO.
 } 
 
