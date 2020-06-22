@@ -14,33 +14,42 @@
 
 \maketitle
 
-\section{Differential gene expression}
+\section{Motivation, and overview of methods}
 
-The ``log-fold change'' statistic is commonly used in microarray and
-RNA sequencing experiments to quantify expression differences between
-two conditions (e.g., \cite{cui-churchill-2003, quackenbush-2002}). To
-motivate the ideas below, I write the log-fold change for gene $j$ and
-condition $k$ as a ratio of two conditional expectations,
+The aim of this document is to derive, from first principles, a method
+for analysis of differential gene expression using a topic model, also
+known as ``grade of membership model'' \cite{dey-2017}. To motivate
+the development of the methods, we begin with the ``log-fold
+change'' statistic commonly used in microarray and RNA sequencing
+experiments to quantify expression differences between two conditions
+(e.g., \cite{cui-churchill-2003, quackenbush-2002}). The log-fold
+change for gene $j$ and condition $k$ is a ratio of two conditional
+expectations,
 \begin{equation}
 \mathsf{lfc}(j,k) \equiv
 \log_2 \frac{E[\,x_j \,|\, \mathrm{condition} = k\,]}
             {E[\,x_j \,|\, \mathrm{condition} \neq k\,]},
+\label{eq:lfc}
 \end{equation}
 where $x_j$ is the measured expression level (e.g., UMI count) of gene
-$j$. In experiments where the conditions are inferred---for example,
-by running a machine learning algorithm to cluster the expression
-profiles---this quantity could represent the difference in gene
-expression between cells inside and outside a
-cluster.\footnote{Supposing $n_k$ out of a total of $n$ gene
-  expression profiles (cells) are from condition $k$, then
-  $\mathsf{lfc}(j,k)$ can be computed as $\mathsf{lfc}(j,k) = \log_2
-  \{n_{jk}/(n_j - n_{jk}) \times (n - n_k)/n_k \}$, where $n_j$ is the
-  total expression of gene $j$ among all expression profiles, and
-  $n_{jk}$ is the total expression of $j$ among all cells in condition
-  (or cluster) $k$.}
+$j$.\footnote{Defining $x_{jk}$ as the total gene expression for gene
+  $j$ among all cells in condition $k$, $x_j$ as the total gene
+  expression for gene $j$ amon all cells, $n_k$ as the number of cells
+  in condition $k$ expression profiles, and $n$ as the total number of
+  cells, the log-fold change can be computed as $\mathsf{lfc}(j,k) =
+  \log_2 \Big\{ \frac{x_{jk}}{x_j - x_{jk}} \times \frac{n - n_k}{n_k}
+  \Big\}$.}
 
-The aim of the next sections is to define a analogue to the log-fold
-change statistic for topic modeling.
+The statistic \eqref{eq:lfc} is a measure of {\em absolute} change in
+expression level between two conditions, but sometimes it is
+preferrable to measure {\em relative} change, say, by normalizing each
+sample by the total expression. As we will see, a topic modeling
+perspective provides a natural way to analyze both absolute or
+relative changes in gene expression.
+
+\subsection{The binomial model}
+
+\subsection{The Poisson model}
 
 \section{The multinomial topic model and Poisson non-negative matrix
   factorization}

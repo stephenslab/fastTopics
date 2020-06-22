@@ -1,3 +1,14 @@
+# TO DO: Explain here what this script is for, and how to use it.
+
+# Simulate data.
+set.seed(1)
+dat <- simulate_multinom_gene_data(800,1000,4)
+X   <- dat$X
+
+stop()
+
+# OLD STUFF:
+#
 # A short script to check that my implementation of the EM algorithm
 # for fitting the "univariate" ("single-gene") binomial model gives
 # the correct result.

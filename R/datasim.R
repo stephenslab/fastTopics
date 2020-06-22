@@ -185,8 +185,19 @@ simulate_poisson_gene_data <- function (n, m, k, sparse = FALSE) {
 #' 
 #' @export
 #' 
-simulate_multinom_gene_data <- function (sparse = FALSE) {
-  # TO DO.
+simulate_multinom_gene_data <- function (n, m, k, sparse = FALSE) {
+
+  # Add row and column names to outputs.
+  rownames(X) <- paste0("i",1:n)
+  rownames(L) <- paste0("i",1:n)
+  colnames(X) <- paste0("j",1:m)
+  rownames(F) <- paste0("j",1:m)
+  colnames(F) <- paste0("k",1:k)
+  colnames(L) <- paste0("k",1:k)
+  
+  # Return a list containing: (1) the data matrix, X; (2) the factors
+  # matrix, F; and (3) the loadings matrix, L.
+  return(list(X = X,F = F,L = L))
 } 
 
 # Generate an n x m counts matrix X such that X[i,j] is Poisson with
