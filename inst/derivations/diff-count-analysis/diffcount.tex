@@ -73,10 +73,10 @@ and methods.
 We begin with a simple binomial model of gene expression given
 the proportional assignments to a topic,
 \begin{equation}
-x_i \sim \mathrm{Binom}(n_i, \pi_i),
+x_i \sim \mathrm{Binom}(s_i, \pi_i),
 \label{eq:binomial}
 \end{equation}
-where $x_i$ is the expression level of the gene in sample $i$, $n_i$
+where $x_i$ is the expression level of the gene in sample $i$, $s_i$
 is the total expression in sample $i$, and $\mathrm{Binom}(n, \theta)$
 denotes the binomial distribution with $n$ trials and success
 probability $\theta$. In this model, the binomial probabilities are
@@ -101,18 +101,55 @@ binomial probability increases linearly with topic proportion $q_i$,
 with the slope given by $\beta$. 
 
 Statistical inference with this simple binomial model implements
-differential gene expression: more specifically, $\log_2(f_1/f_0)$
-quantifies the {\em relative} log-fold change. To show this, we
-consider an alternative gene expression model:
-\begin{align}
-x
-\end{align}
-where ... [Give (relative) log-fold change statistic.] This model is
-in fact is equivalent to the binomial model \eqref{eq:binomial}, and
-therefore estimating $f_0, f_1$ in the binomial model provides an
+differential gene expression---in particular, $\log_2(f_1/f_0)$
+quantifies the {\em relative log-fold change.} To show this, consider
+the following statistical process for generating the counts $x_1,
+\ldots, x_n$:
+\vspace{1em}
+\begin{itemize}
+
+\item for $i = 1, \ldots, n$
+
+\item \begin{enumerate}
+
+  \item for $t = 1, \ldots, s_i$
+
+  \item \begin{enumerate}
+
+  \item Sample a topic, $z_{it} \sim \mathrm{Binom}(1,q_i)$.
+
+  \item Sample a gene, $w_{it} \,|\, z_{it} \sim \left\{\begin{array}{ll}
+  \mathrm{Binom}(1,f_1) & \mbox{if $z_{it} = 1$} \\
+  \mathrm{Binom}(1,f_0) & \mbox{otherwise.}
+  \end{array}\right.$
+
+  \end{enumerate}
+
+  \item $x_i \leftarrow w_{i1} + \cdots + w_{is_i}$.
+
+\end{enumerate}
+\end{itemize}
+\vspace{1em}
+In this statistical process, $f_1 = p(w_{it = 1} \,|\, z_{it} = 1)$ is
+the conditional probability that the gene is expressed given
+membership to the topic, and $f_0 = p(w_{it = 1} \,|\, z_{it} = 0)$ is
+the probability that the gene is expressed when not belonging to the
+topic. Therefore, we have
+\begin{equation}
+\log_2 \frac{f_1}{f_0} = 
+\log_2 \frac{p(w_{it = 1} \,|\, z_{it} = 1)}
+            {p(w_{it = 1} \,|\, z_{it} = 0)},
+\label{eq:lfc-binom}
+\end{equation}
+is the relative log-fold change statistic given the proportional topic
+assignments $q_1, \ldots, q_n$. The binomial model \eqref{eq:binomial}
+can in fact be derived from this statistical process, so estimating
+$f_0, f_1$ for the binomial model \eqref{eq:binomial} provides an
 estimate of the (relative) log-fold change \eqref{eq:lfc-binom}.
 
 \subsection{The Poisson model}
+
+{\em Add derivations here.}
 
 \section{The multinomial topic model and Poisson non-negative matrix
   factorization}
