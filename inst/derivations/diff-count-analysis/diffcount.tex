@@ -17,14 +17,18 @@
 \section{Motivation, and overview of methods}
 
 The aim of this document is to derive, from first principles, a method
-for analysis of differential gene expression using a topic model, also
-known as ``grade of membership model'' \cite{dey-2017}. To motivate
-the development of the methods, we begin with the ``log-fold
-change'' statistic commonly used in microarray and RNA sequencing
-experiments to quantify expression differences between two conditions
-(e.g., \cite{cui-churchill-2003, quackenbush-2002}). The log-fold
-change for gene $j$ and condition $k$ is a ratio of two conditional
-expectations,
+for analysis of differential gene expression using a topic model (also
+known as ``grade of membership model'' \cite{dey-2017}). This method
+may have other uses --- say, to identify ``key words'' in a topic
+modeling analysis of text documents --- but since our main motivation
+is analysis of gene expression data, we describe the methods with that
+application in mind.
+
+For motivation, we begin with the ``log-fold change'' statistic
+commonly used in microarray and RNA sequencing experiments to quantify
+expression differences between two conditions (e.g.,
+\cite{cui-churchill-2003, quackenbush-2002}). The log-fold change for
+gene $j$ and condition $k$ is a ratio of two conditional expectations,
 \begin{equation}
 \mathsf{lfc}(j,k) \equiv
 \log_2 \frac{E[\,x_j \,|\, \mathrm{condition} = k\,]}
@@ -33,21 +37,79 @@ expectations,
 \end{equation}
 where $x_j$ is the measured expression level (e.g., UMI count) of gene
 $j$.\footnote{Defining $x_{jk}$ as the total gene expression for gene
-  $j$ among all cells in condition $k$, $x_j$ as the total gene
-  expression for gene $j$ amon all cells, $n_k$ as the number of cells
-  in condition $k$ expression profiles, and $n$ as the total number of
-  cells, the log-fold change can be computed as $\mathsf{lfc}(j,k) =
+  $j$ among all samples (expression profiles) in condition $k$, $x_j$
+  as the total gene expression for gene $j$ in all samples, $n_k$ as
+  the number of samples in condition $k$, and $n$ as the total sample
+  size, the log-fold change can be computed as $\mathsf{lfc}(j,k) =
   \log_2 \Big\{ \frac{x_{jk}}{x_j - x_{jk}} \times \frac{n - n_k}{n_k}
   \Big\}$.}
 
 The statistic \eqref{eq:lfc} is a measure of {\em absolute} change in
-expression level between two conditions, but sometimes it is
-preferrable to measure {\em relative} change, say, by normalizing each
-sample by the total expression. As we will see, a topic modeling
-perspective provides a natural way to analyze both absolute or
-relative changes in gene expression.
+expression level between two conditions. It is often preferrable to
+measure {\em relative} change, say, change in gene expression relative
+to the total expression in each sample. As we will see, a topic
+modeling perspective provides a natural way to analyze both absolute
+or relative change in gene expression.
+
+Topic modeling brings two new twists to analysis of differential gene
+expression:
+\begin{enumerate}
+
+\item In conventional differential expression analysis, each sample is
+  assigned to a single condition; in topic modeling, the topic
+  assignments are proportional.
+
+\item In conventional differential expression analysis, all genes
+  expression measurements in a sample are assumed to be from the same
+  condition; in topic modeling, the topic assignments are made at the
+  level of genes, not samples.
+
+\end{enumerate}
+We will need to bear in mind these two points in developing the models
+and methods.
 
 \subsection{The binomial model}
+
+We begin with a simple binomial model of gene expression given
+the proportional assignments to a topic,
+\begin{equation}
+x_i \sim \mathrm{Binom}(n_i, \pi_i),
+\label{eq:binomial}
+\end{equation}
+where $x_i$ is the expression level of the gene in sample $i$, $n_i$
+is the total expression in sample $i$, and $\mathrm{Binom}(n, \theta)$
+denotes the binomial distribution with $n$ trials and success
+probability $\theta$. In this model, the binomial probabilities are
+defined as
+\begin{equation}
+\pi_i = (1 - q_i) f_0 + q_i f_i,
+\label{eq:binomial-prob}
+\end{equation}
+where $q_i \in [0,1]$ is the known proportion of sample $i$ attributed
+to the topic, and $f_0, f_1 \in [0, 1]$ are two unknowns to be
+estimated.
+
+In econometrics, this model is sometimes called a {\em linear
+  probability model} \cite{stock-watson}. This viewpoint is more
+apparent by rewriting the binomial probabilities as
+\begin{equation}
+\pi_i = \beta_0 + q_i \beta,
+\end{equation}
+where $\beta_0 = f_0$ and $\beta = f_1 - f_0 \in [-1, +1]$. This is a
+simple regression model for the binomial probability, in which the
+binomial probability increases linearly with topic proportion $q_i$,
+with the slope given by $\beta$. 
+
+Statistical inference with this simple binomial model implements
+differential gene expression: more specifically, $\log_2(f_1/f_0)$
+quantifies the {\em relative} log-fold change. Consider the following
+alternative gene expression model:
+\begin{align}
+\end{align}
+where ... [Give (relative) log-fold change statistic.] This model is
+in fact is equivalent to the binomial model \eqref{eq:binomial model},
+and therefore estimating $f_0, f_1$ in the binomial model provides an
+estimate of the (relative) log-fold change \eqref{eq:lfc-binom}.
 
 \subsection{The Poisson model}
 
