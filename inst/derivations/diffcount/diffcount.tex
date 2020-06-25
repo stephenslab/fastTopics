@@ -47,80 +47,73 @@ $j$.\footnote{Defining $x_{jk}$ as the total gene expression for gene
 The statistic \eqref{eq:lfc} is a measure of {\em absolute} change in
 expression level between two conditions. It is often preferrable to
 measure {\em relative} change, say, change in gene expression relative
-to the total expression in each sample. As we will see, a topic
-modeling perspective provides a natural way to analyze both absolute
-or relative change in gene expression.
+to the total expression in each sample \cite{bullard-2010}. As we will
+see, a topic modeling perspective provides a natural way to analyze
+either absolute or relative change in gene expression.
 
 Topic modeling brings two new twists to analysis of differential gene
 expression:
 \begin{enumerate}
 
 \item In conventional differential expression analysis, each sample is
-  assigned to a single condition; in topic modeling, the topic
-  assignments are proportional.
+  assigned to a single condition; in topic modeling, the 
+  assignments to each topic are {\em proportional.}
 
-\item In conventional differential expression analysis, all genes
-  expression measurements in a sample are assumed to be from the same
-  condition; in topic modeling, the topic assignments are made at the
-  level of genes, not samples.
+\item In conventional differential expression analysis, all expression
+  measurements in a sample are assumed to be from the same condition;
+  in topic modeling, it is the genes that are assigned to the topics,
+  not the samples.
 
 \end{enumerate}
-We will need to bear in mind these two points in developing the models
-and methods.
+These two points need to be accounted for in developing the new
+methods for differential expression analysis.
 
 \subsection{The binomial model}
 
-We begin with a simple binomial model of gene expression given
-the proportional assignments to a topic,
+We begin with a simple binomial model that predicts expression of a
+single gene given the proportional assignments to a topic:
 \begin{equation}
-x_i \sim \mathrm{Binom}(s_i, \pi_i),
+x_i \sim \mathrm{Binom}(s_i, \pi_i).
 \label{eq:binomial}
 \end{equation}
-where $x_i$ is the expression level of the gene in sample $i$, $s_i$
-is the total expression in sample $i$, and $\mathrm{Binom}(n, \theta)$
-denotes the binomial distribution with $n$ trials and success
-probability $\theta$. In this model, the binomial probabilities are
-defined as
+Here, $x_i$ is the expression level of the target geneq in sample $i$,
+$s_i$ is the total expression in sample $i$, and $\mathrm{Binom}(n,
+\theta)$ denotes the binomial distribution with $n$ trials and success
+probability $\theta$. In this simple model, the binomial probabilities
+are defined as
 \begin{equation}
-\pi_i = (1 - q_i) f_0 + q_i f_i,
+\pi_i = (1 - q_i) p_0 + q_i p_1,
 \label{eq:binomial-prob}
 \end{equation}
-where $q_i \in [0,1]$ is the known proportion of sample $i$ attributed
-to the topic, and $f_0, f_1 \in [0, 1]$ are two unknowns to be
-estimated.
-
-In econometrics, this model is sometimes called a {\em linear
-  probability model} \cite{stock-watson}. This viewpoint is more
-apparent by rewriting the binomial probabilities as
-\begin{equation}
-\pi_i = \beta_0 + q_i \beta,
-\end{equation}
-where $\beta_0 = f_0$ and $\beta = f_1 - f_0 \in [-1, +1]$. This is a
-simple regression model for the binomial probability, in which the
-binomial probability increases linearly with topic proportion $q_i$,
-with the slope given by $\beta$. 
+where $q_i \in [0,1]$ is the (known) proportion of sample $i$ that is
+attributed to the topic, and $p_0, p_1 \in [0, 1]$ are two unknowns to
+be estimated.\footnote{This is a special case of a well-studied model
+  in econometrics called the {\em linear probability model}
+  \cite{stock-watson}. The linear probability model would be typically
+  written as $\pi_i = \beta_0 + q_i \beta$, where $\beta_0 = p_0$ and
+  $\beta = p_1 - p_0 \in [-1, +1]$. This is a regression model for the
+  binomial probability $\pi_i$, in which $\pi_i$ increases linearly
+  with topic proportion $q_i$.}
 
 Statistical inference with this simple binomial model implements
-differential gene expression---in particular, $\log_2(f_1/f_0)$
-quantifies the {\em relative log-fold change.} To show this, consider
-the following statistical process for generating the counts $x_1,
-\ldots, x_n$:
+analysis of differential gene expression. In particular,
+$\log_2(p_1/p_0)$ is the {\em relative log-fold change.} To show that
+this is so, consider the following statistical process for generating
+the counts $x_1, \ldots, x_n$:
 \vspace{1em}
 \begin{itemize}
 
 \item for $i = 1, \ldots, n$
-
-\item \begin{enumerate}
+\begin{enumerate}
 
   \item for $t = 1, \ldots, s_i$
-
-  \item \begin{enumerate}
+  \begin{enumerate}
 
   \item Sample a topic, $z_{it} \sim \mathrm{Binom}(1,q_i)$.
 
   \item Sample a gene, $w_{it} \,|\, z_{it} \sim \left\{\begin{array}{ll}
-  \mathrm{Binom}(1,f_1) & \mbox{if $z_{it} = 1$} \\
-  \mathrm{Binom}(1,f_0) & \mbox{otherwise.}
+  \mathrm{Binom}(1,p_1) & \mbox{if $z_{it} = 1$} \\
+  \mathrm{Binom}(1,p_0) & \mbox{otherwise.}
   \end{array}\right.$
 
   \end{enumerate}
@@ -130,26 +123,37 @@ the following statistical process for generating the counts $x_1,
 \end{enumerate}
 \end{itemize}
 \vspace{1em}
-In this statistical process, $f_1 = p(w_{it = 1} \,|\, z_{it} = 1)$ is
+In this statistical process, $p_1 = p(w_{it} = 1 \,|\, z_{it} = 1)$ is
 the conditional probability that the gene is expressed given
-membership to the topic, and $f_0 = p(w_{it = 1} \,|\, z_{it} = 0)$ is
+membership to the topic, and $p_0 = p(w_{it} = 1 \,|\, z_{it} = 0)$ is
 the probability that the gene is expressed when not belonging to the
 topic. Therefore, we have
 \begin{equation}
-\log_2 \frac{f_1}{f_0} = 
-\log_2 \frac{p(w_{it = 1} \,|\, z_{it} = 1)}
-            {p(w_{it = 1} \,|\, z_{it} = 0)},
+\log_2 \frac{p_1}{p_0} = 
+\log_2 \frac{p(w_{it} = 1 \,|\, z_{it} = 1)}
+            {p(w_{it} = 1 \,|\, z_{it} = 0)},
 \label{eq:lfc-binom}
 \end{equation}
-is the relative log-fold change statistic given the proportional topic
-assignments $q_1, \ldots, q_n$. The binomial model \eqref{eq:binomial}
-can in fact be derived from this statistical process, so estimating
-$f_0, f_1$ for the binomial model \eqref{eq:binomial} provides an
-estimate of the (relative) log-fold change \eqref{eq:lfc-binom}.
+whicch is the relative log-fold change statistic given the
+proportional topic assignments $q_1, \ldots, q_n$. The binomial model
+\eqref{eq:binomial} can in fact be derived from this statistical
+process (proof not shown). Therefore, estimating $p_0, p_1$ for the
+binomial model \eqref{eq:binomial} provides an estimate of the
+relative log-fold change \eqref{eq:lfc-binom}.
 
 \subsection{The Poisson model}
 
-{\em Add derivations here.}
+A Poisson model similar to the binomial model \eqref{eq:binomial}
+leads to a method for estimating {\em absolute} log-fold change. We
+proceed in a similar way. The Poisson model is
+\begin{equation}
+x_i \sim \mathrm{Poisson}(\lambda_i),
+\label{eq:poisson}
+\end{equation}
+where the Poisson rates are defined as
+\begin{equation}
+\lambda_i = (1 - q_0) f_0 + q_i f_1.
+\end{equation}
 
 \section{The multinomial topic model and Poisson non-negative matrix
   factorization}

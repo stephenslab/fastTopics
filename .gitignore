@@ -12,9 +12,9 @@ inst/derivations/altsqp/altsqp.blg
 inst/derivations/altsqp/altsqp.log
 inst/derivations/altsqp/altsqp.out
 inst/derivations/altsqp/altsqp.thm
-inst/derivations/diff-count-analysis/diffcount.aux
-inst/derivations/diff-count-analysis/diffcount.bbl
-inst/derivations/diff-count-analysis/diffcount.blg
-inst/derivations/diff-count-analysis/diffcount.log
-inst/derivations/diff-count-analysis/diffcount.out
-inst/derivations/diff-count-analysis/diffcount.thm
+inst/derivations/diffcount/diffcount.aux
+inst/derivations/diffcount/diffcount.bbl
+inst/derivations/diffcount/diffcount.blg
+inst/derivations/diffcount/diffcount.log
+inst/derivations/diffcount/diffcount.out
+inst/derivations/diffcount/diffcount.thm
