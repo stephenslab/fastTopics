@@ -35,21 +35,20 @@ gene $j$ and condition $k$ is a ratio of two conditional expectations,
             {E[\,x_j \,|\, \mathrm{condition} \neq k\,]},
 \label{eq:lfc}
 \end{equation}
-where $x_j$ is the measured expression level (e.g., UMI count) of gene
+where $x_j$ is the measured expression level of gene
 $j$.\footnote{Defining $x_{jk}$ as the total gene expression for gene
   $j$ among all samples (expression profiles) in condition $k$, $x_j$
   as the total gene expression for gene $j$ in all samples, $n_k$ as
   the number of samples in condition $k$, and $n$ as the total sample
   size, the log-fold change can be computed as $\mathsf{lfc}(j,k) =
   \log_2 \Big\{ \frac{x_{jk}}{x_j - x_{jk}} \times \frac{n - n_k}{n_k}
-  \Big\}$.}
-
-The statistic \eqref{eq:lfc} is a measure of {\em absolute} change in
-expression level between two conditions. It is often preferrable to
-measure {\em relative} change, say, change in gene expression relative
-to the total expression in each sample \cite{bullard-2010}. As we will
-see, a topic modeling perspective provides a natural way to analyze
-either absolute or relative change in gene expression.
+  \Big\}$.} The way in which the expression level $x_j$ is defined can
+lead to different log-fold change statistics. For example, several
+popular methods for analyzing differential expression compare changes
+in {\em relative} expression (say, relative to total expression in a
+cell) \cite{bullard-2010, voom, DESeq2, edgeR}. As we will see, a
+topic modeling perspective provides a natural way to analyze either
+absolute or relative change in gene expression.
 
 Topic modeling brings two new twists to analysis of differential gene
 expression:
