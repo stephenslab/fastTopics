@@ -47,25 +47,16 @@ lead to different log-fold change statistics. For example, several
 popular methods for analyzing differential expression compare changes
 in {\em relative} expression (say, relative to total expression in a
 cell) \cite{bullard-2010, voom, DESeq2, edgeR}. As we will see, a
-topic modeling perspective provides a natural way to analyze either
-absolute or relative change in gene expression.
+topic modeling perspective provides a natural way to analyze
+differential gene expression when comparing either relative or
+absolute expression levels.
 
-Topic modeling brings two new twists to analysis of differential gene
-expression:
-\begin{enumerate}
-
-\item In conventional differential expression analysis, each sample is
-  assigned to a single condition; in topic modeling, the 
-  assignments to each topic are {\em proportional.}
-
-\item In conventional differential expression analysis, all expression
-  measurements in a sample are assumed to be from the same condition;
-  in topic modeling, it is the genes that are assigned to the topics,
-  not the samples.
-
-\end{enumerate}
-These two points need to be accounted for in developing the new
-methods for differential expression analysis.
+Topic modeling brings a new twist to analysis of differential gene
+expression: In conventional differential expression analysis, each
+sample is assigned to a single condition; in topic modeling, the
+assignments to each topic are {\em proportional.} This needs to be
+accounted for in developing the new methods for differential
+expression analysis.
 
 \subsection{The binomial model}
 
