@@ -118,15 +118,16 @@ the counts $x_1, \ldots, x_n$:
 
   \end{enumerate}
 
-  \item $x_i \leftarrow w_{i1} + \cdots + w_{is_i}$.
+  \item Generate the final gene count, 
+  $x_i \leftarrow w_{i1} + \cdots + w_{is_i}$.
 
 \end{enumerate}
 \end{itemize}
-\vspace{1em}
-In this statistical process, $p_1 = p(w_{it} = 1 \,|\, z_{it} = 1)$ is
-the conditional probability that the gene is expressed given
-membership to the topic, and $p_0 = p(w_{it} = 1 \,|\, z_{it} = 0)$ is
-the probability that the gene is expressed when not belonging to the
+\vspace{1em} In this statistical process, $q_i = p(z_{it} = 1)$ is the
+topic probability, $p_1 = p(w_{it} = 1 \,|\, z_{it} = 1)$ is the
+conditional probability that the gene is expressed given membership to
+the topic, and $p_0 = p(w_{it} = 1 \,|\, z_{it} = 0)$ is the
+probability that the gene is expressed when not belonging to the
 topic. Therefore, we have
 \begin{equation}
 \log_2 \frac{p_1}{p_0} = 
@@ -153,7 +154,7 @@ x_i \sim \mathrm{Poisson}(\lambda_i),
 \end{equation}
 in which the Poisson rates are defined as
 \begin{equation}
-\lambda_i = (1 - q_0) f_0 + q_i f_1,
+\lambda_i = (1 - q_i) f_0 + q_i f_1,
 \end{equation}
 and the unknowns to be estimated are $f_0, f_1 \geq 0$.  In the
 following, we show that $\log_2(f_1/f_0)$ is the absolute log-fold
@@ -163,9 +164,39 @@ Consider the following process for generating the counts $x_1, \ldots,
 x_n$:
 \begin{itemize}
 
-\item Add item here.
+\item for $i = 1, \ldots, n$
+\begin{enumerate}
 
+\item $a_i \sim \mathrm{Poisson}(f_1)$ 
+\hfill Sample the within-topic gene count. \hspace{2em}
+
+\item $b_i \sim \mathrm{Poisson}(f_0)$ 
+\hfill Sample the outside-topic gene count. \hspace{2em}
+
+\item $a_i' \sim \mathrm{Binom}(a_i, q_i)$ 
+\hfill Subsample the within-topic genes. \hspace{2em}
+
+\item $b_i' \sim \mathrm{Binom}(b_i, 1-q_i)$ 
+\hfill Subsample the outside-topic genes. \hspace{2em}
+
+\item $x_i \leftarrow a_i' + b_i'$ 
+\hfill Generate the final gene count. \hspace{2em}
+
+\end{enumerate}
 \end{itemize}
+In this generative process, $f_1 = E[a_i]$ represents the
+within-topic gene rate, and $f_0 = E[b_i]$ is the outside-topic gene
+rate, and therefore 
+\begin{equation}
+\log_2 \frac{f_1}{f_0} = \log_2 \frac{E[a_i]}{E[b_i]}
+\label{eq:lfc-poisson}
+\end{equation}
+is the {\em absolute log-fold change statistic given proportional
+  topic assignments $q_1, \ldots, q_n$.} The Poisson model
+\eqref{eq:poisson} can be derived from this statistical process, and
+so estimating $f_0, f_1$ for the Poisson model \eqref{eq:poisson}
+provides an estimate of the absolute log-fold change
+\eqref{eq:lfc-poisson}.
 
 \section{The multinomial topic model and Poisson non-negative matrix
   factorization}
