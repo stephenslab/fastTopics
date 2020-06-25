@@ -182,11 +182,15 @@ rate, and therefore
 \label{eq:lfc-poisson}
 \end{equation}
 is the {\em absolute log-fold change statistic given proportional
-  topic assignments $q_1, \ldots, q_n$.} The Poisson model
-\eqref{eq:poisson} can be derived from this statistical process, and
-so estimating $f_0, f_1$ for the Poisson model \eqref{eq:poisson}
-provides an estimate of the absolute log-fold change
-\eqref{eq:lfc-poisson}.
+  topic assignments $q_1, \ldots, q_n$.} For intuition, when all the
+topic proportions $q_i$ are 0 or 1, this statistical process simplify
+to $x_i \sim \mathrm{Poisson}(f_1)$ if $q_i = 1$, and $x_i \sim
+\mathrm{Poisson}(f_0)$ if $q_i = 0$, and so \eqref{eq:lfc-poisson} would
+reduce to the ratio of the mean expression levels inside and outside
+the topic. The Poisson model \eqref{eq:poisson} can be derived from
+this statistical process, and so estimating $f_0, f_1$ for the Poisson
+model \eqref{eq:poisson} provides an estimate of the absolute log-fold
+change \eqref{eq:lfc-poisson}.
 
 In summary, we will use the binomial model \eqref{eq:binomial} to
 implement the relative log-fold change analysis, and the Poisson model
