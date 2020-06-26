@@ -87,9 +87,9 @@ be estimated.\footnote{This is a special case of a well-studied model
 
 Statistical inference with this simple binomial model implements
 analysis of differential gene expression. In particular,
-$\log_2(p_1/p_0)$ is the {\em relative log-fold change.} To show that
-this is so, consider the following statistical process for generating
-the counts $x_1, \ldots, x_n$:
+$\log_2(p_1/p_0)$ is the {\em log-fold change in relative expression.}
+To show that this is so, consider the following statistical process
+for generating the counts $x_1, \ldots, x_n$:
 \vspace{1em}
 \begin{itemize}
 
@@ -125,19 +125,19 @@ topic. Therefore, we have
             {p(w_{it} = 1 \,|\, z_{it} = 0)}.
 \label{eq:lfc-binom}
 \end{equation}
-{\em This is the relative log-fold change statistic given proportional
-  topic assignments $q_1, \ldots, q_n$.} The binomial model
-\eqref{eq:binomial} can in fact be derived from this statistical
-process (proof not shown). Therefore, estimating $p_0, p_1$ for the
-binomial model \eqref{eq:binomial} provides an estimate of the
-relative log-fold change \eqref{eq:lfc-binom}.
+{\em This is the log-fold change statistic for relative expression
+  given proportional topic assignments $q_1, \ldots, q_n$.} The
+binomial model \eqref{eq:binomial} can in fact be derived from this
+statistical process (proof not shown). Therefore, estimating $p_0,
+p_1$ for the binomial model \eqref{eq:binomial} provides an estimate
+of the log-fold change \eqref{eq:lfc-binom}.
 
 \subsection{The Poisson model}
 
 A Poisson model similar to the binomial model \eqref{eq:binomial}
-leads to a method for estimating {\em absolute} log-fold change. We
-proceed in a similar way. The Poisson model predicts expression $x_i$
-given the topic proportions $q_i$:
+leads to a method for estimating log-fold change in absolute
+expression levels. We proceed in a similar way. The Poisson model
+predicts expression $x_i$ given the topic proportions $q_i$:
 \begin{equation}
 x_i \sim \mathrm{Poisson}(\lambda_i),
 \label{eq:poisson}
@@ -147,8 +147,8 @@ in which the Poisson rates are defined as
 \lambda_i = (1 - q_i) f_0 + q_i f_1,
 \end{equation}
 and the unknowns to be estimated are $f_0, f_1 \geq 0$.  In the
-following, we show that $\log_2(f_1/f_0)$ is the absolute log-fold
-change.
+following, we show that $\log_2(f_1/f_0)$ is the log-fold change in
+absolute expression.
 
 Consider the following process for generating the counts $x_1, \ldots,
 x_n$:
@@ -181,22 +181,22 @@ rate, and therefore
 \log_2 \frac{f_1}{f_0} = \log_2 \frac{E[a_i]}{E[b_i]}
 \label{eq:lfc-poisson}
 \end{equation}
-is the {\em absolute log-fold change statistic given proportional
-  topic assignments $q_1, \ldots, q_n$.} For intuition, when all the
-topic proportions $q_i$ are 0 or 1, this statistical process simplify
-to $x_i \sim \mathrm{Poisson}(f_1)$ if $q_i = 1$, and $x_i \sim
-\mathrm{Poisson}(f_0)$ if $q_i = 0$, and so \eqref{eq:lfc-poisson} would
-reduce to the ratio of the mean expression levels inside and outside
-the topic. The Poisson model \eqref{eq:poisson} can be derived from
-this statistical process, and so estimating $f_0, f_1$ for the Poisson
-model \eqref{eq:poisson} provides an estimate of the absolute log-fold
-change \eqref{eq:lfc-poisson}.
+is the {\em log-fold change statistic in absolute expression given
+  proportional topic assignments $q_1, \ldots, q_n$.} For intuition,
+when all the topic proportions $q_i$ are 0 or 1, this statistical
+process simplify to $x_i \sim \mathrm{Poisson}(f_1)$ if $q_i = 1$, and
+$x_i \sim \mathrm{Poisson}(f_0)$ if $q_i = 0$, and so
+\eqref{eq:lfc-poisson} would reduce to the ratio of the mean
+expression levels inside and outside the topic. The Poisson model
+\eqref{eq:poisson} can be derived from this statistical process, and
+so estimating $f_0, f_1$ for the Poisson model \eqref{eq:poisson}
+provides an estimate of the log-fold change \eqref{eq:lfc-poisson}.
 
 In summary, we will use the binomial model \eqref{eq:binomial} to
-implement the relative log-fold change analysis, and the Poisson model
-\eqref{eq:poisson} to implement the absolute log-fold change
-analysis. The next sections derive the mathematical expressions
-needed to implement these two analyses.
+implement the log-fold change analysis for relative expression, and
+the Poisson model \eqref{eq:poisson} to implement the log-fold change
+analysis for absolute expression. The next sections derive the
+mathematical expressions needed to implement these two analyses.
 
 \section{Binomial model derivations}
 
