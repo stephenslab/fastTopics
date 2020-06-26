@@ -69,8 +69,15 @@ x_i \sim \mathrm{Binom}(s_i, \pi_i).
 Here, $x_i$ is the expression level of the target gene in sample $i$,
 $s_i$ is the total expression in sample $i$, and $\mathrm{Binom}(n,
 \theta)$ denotes the binomial distribution with $n$ trials and success
-probability $\theta$. In this simple model, the binomial probabilities
-are defined as
+probability $\theta$.\footnote{Note that $s_i$ does not need to be the
+  total expression in sample $i$; for example, some have proposed
+  setting $s_i$ to some pre-defined quantile of the sample's nonzero
+  count distribution (e.g., \cite{bullard-2010}). This approach has
+  been motivated in settings where a small number of genes are much
+  more highly expressed than the others, and therefore these few genes
+  have a large effect relative expression levels. The only constraint
+  on $s_i$ is that it cannot be smaller than $x_i$.} In this simple
+model, the binomial probabilities are defined as
 \begin{equation}
 \pi_i = (1 - q_i) p_0 + q_i p_1,
 \label{eq:binomial-prob}
