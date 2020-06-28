@@ -13,7 +13,7 @@ loglik_poisson <- function (x, u, e = 1e-15)
 # single-count Poisson model: x ~ Poisson(s*u), with u given by u =
 # f0*(1-q) + f1*q. Parameters f0, f1 are estimated, and vectors s, q
 # are provided. The likelihood is maximized by optim with method =
-# "L-BFGS-B".
+# "BFGS".
 #
 # Input arguments f0 and f1 are initial estimates of the parameters.
 # Input "control" is a list of control parameters passed to optim.
@@ -32,38 +32,40 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   q <- pmin(q,1-e)
 
   # This is used to computes the negative log-likelihood, in which par
-  # = c(f0,f1).
+  # = exp(c(f0,f1)).
   f <- function (par) {
-    u <- get_poisson_rates(s,q,par[1],par[2])
+    par <- exp(par)
+    u   <- get_poisson_rates(s,q,par[1],par[2])
     return(-loglik_poisson(x,u,e))
   }
   
   # Returns the gradient of the negative log-likelihood, in which par
-  # = c(f0,f1).
+  # = exp(c(f0,f1)).
   g <- function (par) {
-    u <- get_poisson_rates(s,q,par[1],par[2])
-    y <- (u - x)/(u + e)
-    return(c(sum(y*(1-q)),sum(y*q)))
+    par <- exp(par)
+    u   <- get_poisson_rates(s,q,par[1],par[2])
+    y   <- (u - x)/(u + e)
+    return(exp(par) * c(sum(y*(1-q)),sum(y*q)))
   }
   
-  # Fit the Poisson rates f0, f1 using the limited-memory quasi-Newton
-  # method implemented in optim.
-  out <- optim(c(f0,f1),f,g,method = "L-BFGS-B",lower = c(0,0),
-               upper = c(Inf,Inf),control = control)
+  # Fit the Poisson rates f0, f1 using the BFGS quasi-Newton method
+  # implemented in optim.
+  out <- optim(c(f0,f1),f,g,method = "BFGS",control = control)
 
   # Output the MLEs of f0 and f1, and the other "optim" outputs.
+  out$par        <- exp(out$par)
   names(out$par) <- c("f0","f1")
   return(out)
 }
 
-# TO DO: Revise this description.
-#
 # Perform EM updates to compute maximum-likelihood estimates (MLEs) of
-# parameters (p0, p1) in the binomial topic model. Specifically, the
-# binomial topic model is x ~ Binom(n,p), where the binomial success
-# rates are p = q*p1 + (1-q)*p0, and n = x + y. Input argument "e" is
-# a small positive number added to the likelihood and gradient to
-# avoid NaNs; specifically, logarithms of zero and division by zero.
+# the parameters in the single-count Poisson model: x ~ Poisson(s*u),
+# with u given by u = f0*(1-q) + f1*q. Parameters f0, f1 are
+# estimated, and vectors s, q are provided.
+#
+# Input arguments f0 and f1 are initial estimates of the parameters.
+# Input argument "e" is a small positive scalar added to the
+# denominator in the E-step to avoid division by zero.
 fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, numiter = 40, e = 1e-15) {
 
   # Make sure none of the topic proportions are exactly zero or
