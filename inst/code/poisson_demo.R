@@ -11,13 +11,19 @@ X   <- dat$X
 L   <- dat$L
 
 # Fit a Poisson non-negative matrix factorization to the data.
-F0 <- matrix(0,m,k)
-F1 <- matrix(0,m,k)
+F0   <- matrix(0,m,k)
+F1   <- matrix(0,m,k)
+F0em <- matrix(0,m,k)
+F1em <- matrix(0,m,k)
 for (i in 1:m)
   for (j in 1:k) {
-    out     <- fit_poisson_optim(X[,i],s,L[,j])
-    F0[i,j] <- out$par["f0"]
-    F1[i,j] <- out$par["f1"]
+    out1      <- fit_poisson_optim(X[,i],s,L[,j])
+    out2      <- fit_poisson_em(X[,i],s,L[,j])
+    F0[i,j]   <- out1$par["f0"]
+    F1[i,j]   <- out1$par["f1"]
+    F0em[i,j] <- out2$par["f0"]
+    F1em[i,j] <- out2$par["f1"]
+    stop()
   }
 
 # For the selected topic (i), compare f1 estimates against the Poisson
