@@ -72,8 +72,8 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, numiter = 40, e = 1e-15) {
   q <- pmin(q,1-e)
 
   # Precalculations.
-  w0 <- s*(1-q)
-  w1 <- s*q
+  a <- s*(1-q)
+  b <- s*q
   
   # Monitor progress by computing the log-likelihood at each iteration.
   loglik <- rep(0,numiter)
@@ -81,16 +81,16 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, numiter = 40, e = 1e-15) {
 
     # E-STEP
     # ------
-    u  <- w0*f0 + w1*f1 + e 
-    z0 <- x*w0*f0 + e
-    z1 <- x*w1*f1 + e
-    z0 <- z0/u
-    z1 <- z1/u
+    z0 <- a*f0
+    z1 <- b*f1
+    u  <- z0 + z1 + e
+    z0 <- x*z0/u
+    z1 <- x*z1/u
     
     # M-STEP
     # ------
-    f0 <- sum(z0)/sum(w0)
-    f1 <- sum(z1)/sum(w1)
+    f0 <- sum(z0)/sum(a)
+    f1 <- sum(z1)/sum(b)
     
     # Compute the log-likelihood at the current estimates of the model
     # parameters (ignoring terms that don't depend on f0 or f1).

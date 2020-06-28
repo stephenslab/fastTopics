@@ -16,3 +16,7 @@ out1 <- fit_poisson_optim(x,s,q)
 
 # Fit the model parameters, f0 and f1, using the EM algorithm.
 out2 <- fit_poisson_em(x,s,q)
+
+# Compare the log-likelihood at each of the solutions.
+cat(sprintf("optim: %0.2f\n",-out1$value))
+cat(sprintf("EM:    %0.2f\n",max(out2$loglik)))
