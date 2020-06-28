@@ -13,7 +13,7 @@ loglik_poisson <- function (x, u, e = 1e-15)
 # single-count Poisson model: x ~ Poisson(s*u), with u given by u =
 # f0*(1-q) + f1*q. Parameters f0, f1 are estimated, and vectors s, q
 # are provided. The likelihood is maximized by optim with method =
-# "BFGS".
+# "L-BFGS-B".
 #
 # Input arguments f0 and f1 are initial estimates of the parameters.
 # Input "control" is a list of control parameters passed to optim.
@@ -31,29 +31,28 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   q <- pmax(q,e)
   q <- pmin(q,1-e)
 
-  # This is used to computes the negative log-likelihood, in which par
-  # = exp(c(f0,f1)).
+  # This is used to computes the negative log-likelihood, in which
+  # par = c(f0,f1).
   f <- function (par) {
-    par <- exp(par)
     u   <- get_poisson_rates(s,q,par[1],par[2])
     return(-loglik_poisson(x,u,e))
   }
   
-  # Returns the gradient of the negative log-likelihood, in which par
-  # = exp(c(f0,f1)).
+  # Returns the gradient of the negative log-likelihood, in which
+  # par = c(f0,f1).
   g <- function (par) {
-    par <- exp(par)
     u   <- get_poisson_rates(s,q,par[1],par[2])
     y   <- (u - x)/(u + e)
-    return(exp(par) * c(sum(y*(1-q)),sum(y*q)))
+    return(c(sum(y*s*(1-q)),sum(y*s*q)))
   }
   
-  # Fit the Poisson rates f0, f1 using the BFGS quasi-Newton method
+  # Fit the Poisson rates f0, f1 using the L-BFGS-B quasi-Newton method
   # implemented in optim.
-  out <- optim(c(f0,f1),f,g,method = "BFGS",control = control)
+  out <- optim(c(f0,f1),f,g,method = "L-BFGS-B",lower = c(0,0),
+               control = control)
 
   # Output the MLEs of f0 and f1, and the other "optim" outputs.
-  out$par        <- exp(out$par)
+  out$par        <- out$par
   names(out$par) <- c("f0","f1")
   return(out)
 }

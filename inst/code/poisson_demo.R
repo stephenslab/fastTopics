@@ -32,7 +32,7 @@ for (i in 1:m)
 # Check that EM and optim produce the same, or nearly the same,
 # estimates of the model parameters, f0 and f1.
 e <- 1e-3
-plot(F1optim + e ,F1em + e,pch = 20,log = "xy")
+plot(F1optim + e,F1em + e,pch = 20,log = "xy")
 abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 
 # Compare the EM and optim log-likelihoods.
