@@ -4,7 +4,7 @@
 \alias{simulate_poisson_gene_data}
 \title{Simulate Gene-Expression Data with Absolute Expression Changes}
 \usage{
-simulate_poisson_gene_data(n, m, k, sparse = FALSE)
+simulate_poisson_gene_data(n, m, k, s, sparse = FALSE)
 }
 \arguments{
 \item{n}{Number of rows in the simulated count matrix. It should be
@@ -17,14 +17,19 @@ be at least 2.}
 individual Poisson rates. The number of topics should be 2 or
 greater.}
 
+\item{s}{A vector of "size factors"; each row of the loadings
+matrix \code{L} is scaled by the entries of \code{s} before
+generating the counts. This should be a vector of length n
+containing only positive values.}
+
 \item{sparse}{If \code{sparse = TRUE}, convert the counts matrix to
 a sparse matrix in compressed, column-oriented format; see
 \code{\link[Matrix]{sparseMatrix}}.}
 }
 \value{
 The return value is a list containing the counts matrix
-  \code{X} and the factorization, \code{F} and \code{L}, used to
-  generate the counts.
+\code{X} and size factors \code{s} and factorization, \code{F},
+\code{L}, used to generate the counts.
 }
 \description{
 Simulate count data from a Poisson NMF model, in which

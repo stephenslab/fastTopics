@@ -133,20 +133,25 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'   individual Poisson rates. The number of topics should be 2 or
 #'   greater.
 #'
+#' @param s A vector of "size factors"; each row of the loadings
+#'   matrix \code{L} is scaled by the entries of \code{s} before
+#'   generating the counts. This should be a vector of length n
+#'   containing only positive values.
+#' 
 #' @param sparse If \code{sparse = TRUE}, convert the counts matrix to
 #'   a sparse matrix in compressed, column-oriented format; see
 #'   \code{\link[Matrix]{sparseMatrix}}.
 #'
 #' @return The return value is a list containing the counts matrix
-#'   \code{X} and the factorization, \code{F} and \code{L}, used to
-#'   generate the counts.
+#' \code{X} and size factors \code{s} and factorization, \code{F},
+#' \code{L}, used to generate the counts.
 #'
 #' @import Matrix
 #' @importFrom methods as
 #' 
 #' @export
 #'
-simulate_poisson_gene_data <- function (n, m, k, sparse = FALSE) {
+simulate_poisson_gene_data <- function (n, m, k, s, sparse = FALSE) {
 
   # Check inputs.
   if (!(is.scalar(n) & all(n >= 2)))
@@ -156,10 +161,14 @@ simulate_poisson_gene_data <- function (n, m, k, sparse = FALSE) {
   if (!(is.scalar(k) & all(k >= 2)))
     stop("Input argument \"k\" should be 2 or greater")
 
+  # If the "size factors" (s) are missing, set them to 1.
+  if (missing(s))
+    s <- rep(1,n)
+  
   # Simulate the data.
   F <- generate_poisson_rates(m,k)
   L <- generate_topic_proportions(n,k)
-  X <- generate_poisson_nmf_counts(F,L)
+  X <- generate_poisson_nmf_counts(F,s*L)
   if (sparse)
     X <- as(X,"dgCMatrix")
 
@@ -172,8 +181,8 @@ simulate_poisson_gene_data <- function (n, m, k, sparse = FALSE) {
   colnames(L) <- paste0("k",1:k)
   
   # Return a list containing: (1) the data matrix, X; (2) the factors
-  # matrix, F; and (3) the loadings matrix, L.
-  return(list(X = X,F = F,L = L))
+  # matrix, F; (3) the loadings matrix, L; and (4) the "size factors", s.
+  return(list(X = X,F = F,L = L,s = s))
 }
 
 #' @title Add Title Here.

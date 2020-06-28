@@ -4,7 +4,7 @@
 \alias{simulate_multinom_gene_data}
 \title{Add Title Here.}
 \usage{
-simulate_multinom_gene_data(sparse = FALSE)
+simulate_multinom_gene_data(n, m, k, sparse = FALSE)
 }
 \description{
 Add description here.

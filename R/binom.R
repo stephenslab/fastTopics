@@ -2,7 +2,7 @@
 pbinom <- function (p0, p1, q)
   q*p1 + (1-q)*p0
     
-# This return the same value as dbinom(x,x+y,p), except that terms
+# This should give the same result as dbinom(x,x+y,p), except that terms
 # that do not depend on the success probabilities p are ignored.
 loglik_binom <- function (x, y, p, e = 1e-15)
   return(sum(x*log(p+e) + y*log(1-p+e)))
