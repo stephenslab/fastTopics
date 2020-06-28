@@ -34,16 +34,16 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   # This is used to computes the negative log-likelihood, in which
   # par = c(f0,f1).
   f <- function (par) {
-    u   <- get_poisson_rates(s,q,par[1],par[2])
+    u <- get_poisson_rates(s,q,par[1],par[2])
     return(-loglik_poisson(x,u,e))
   }
   
   # Returns the gradient of the negative log-likelihood, in which
   # par = c(f0,f1).
   g <- function (par) {
-    u   <- get_poisson_rates(s,q,par[1],par[2])
-    y   <- (u - x)/(u + e)
-    return(c(sum(y*s*(1-q)),sum(y*s*q)))
+    u <- get_poisson_rates(s,q,par[1],par[2])
+    y <- s*(u - x)/(u + e)
+    return(c(sum(y*(1-q)),sum(y*q)))
   }
   
   # Fit the Poisson rates f0, f1 using the L-BFGS-B quasi-Newton method
