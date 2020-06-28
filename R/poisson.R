@@ -9,6 +9,78 @@ get_poisson_rates <- function (s, q, f0, f1)
 loglik_poisson <- function (x, u, e = 1e-15)
   return(sum(x*log(u+e) - u))
 
+# TO DO: Explain here what this function does, and how to use it.
+fit_univar_poisson_models <-
+  function (X, L, method = c("em-rcpp","em","optim"), e = 1e-15,
+            numiter.em = 40, control.optim = list(factr = 1e-14,maxit = 100),
+            verbose = TRUE) {
+  method <- match.arg(method)
+
+  # Get the number of topics (k) and the number of columns of X (m).
+  m <- ncol(X)
+  k <- ncol(L)
+  
+  # Compute maximum-likelihood estimates (MLEs) of the Poisson model
+  # parameters (f0,f1) each topic, and for each column of of the
+  # counts matrix, X.
+  if (method == "optim")
+    out <- fit_univar_poisson_models_optim(X,L,e,control.optim,verbose)
+  else if (method == "em") {
+    out <- fit_univar_poisson_models_em(X,L,e,numiter.em,verbose)
+  } else if (method == "em-rcpp") {
+    # TO DO.
+  }
+  return(out)
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+#
+#' @importFrom progress progress_bar
+fit_univar_poisson_models_optim <- function (X, L, e, control, verbose)  {
+  m      <- ncol(X)
+  k      <- ncol(L)
+  F0     <- matrix(0,m,k)
+  F1     <- matrix(0,m,k)
+  loglik <- matrix(0,m,k)
+  if (verbose)
+    pb <- progress_bar$new(total = m)
+  for (i in 1:m) {
+    if (verbose)
+      pb$tick()
+    for (j in 1:k) {
+      out <- fit_poisson_optim(X[,i],s,L[,j],e = e,control = control)
+      F0[i,j]     <- out$par["f0"]
+      F1[i,j]     <- out$par["f1"]
+      loglik[i,j] <- -out$value
+    }
+  }
+  return(list(F0 = F0,F1 = F1,loglik = loglik))
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+#
+#' @importFrom progress progress_bar
+fit_univar_poisson_models_em <- function (X, L, e, numiter, verbose) {
+  m      <- ncol(X)
+  k      <- ncol(L)
+  F0     <- matrix(0,m,k)
+  F1     <- matrix(0,m,k)
+  loglik <- matrix(0,m,k)
+  if (verbose)
+    pb <- progress_bar$new(total = m)
+  for (i in 1:m) {
+    if (verbose)
+      pb$tick()
+    for (j in 1:k) {
+      out <- fit_poisson_em(X[,i],s,L[,j],e = e,numiter = numiter)
+      F0[i,j]     <- out$f["f0"]
+      F1[i,j]     <- out$f["f1"]
+      loglik[i,j] <- max(out$loglik)
+    }
+  }
+  return(list(F0 = F0,F1 = F1,loglik = loglik))
+}
+
 # Compute maximum-likelihood estimates (MLEs) of the parameters in the
 # single-count Poisson model: x ~ Poisson(s*u), with u given by u =
 # f0*(1-q) + f1*q. Parameters f0, f1 are estimated, and vectors s, q
@@ -65,7 +137,7 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
 # Input arguments f0 and f1 are initial estimates of the parameters.
 # Input argument "e" is a small positive scalar added to the
 # denominator in the E-step to avoid division by zero.
-fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, numiter = 40, e = 1e-15) {
+fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15, numiter = 40) {
 
   # Make sure none of the topic proportions are exactly zero or
   # exactly one.
@@ -104,4 +176,11 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, numiter = 40, e = 1e-15) {
   f        <- c(f0,f1)
   names(f) <- c("f0","f1")
   return(list(f = f,loglik = loglik))
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+#
+#' @importFrom pracma quad2d
+compute_poisson_logbf <- function (x, s, q, f0, f1, e = 1e-15) {
+
 }
