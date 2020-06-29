@@ -4,10 +4,10 @@ get_poisson_rates <- function (s, q, f0, f1)
   s*((1-q)*f0 + q*f1)
 
 # This should give the same, or nearly the same, result as
-# sum(dpois(x,u,log = TRUE)), except that terms that do not depend on
+# sum(dpois(x,y,log = TRUE)), except that terms that do not depend on
 # the Poisson rates u are discarded.
-loglik_poisson <- function (x, u, e = 1e-15)
-  return(sum(x*log(u+e) - u))
+loglik_poisson <- function (x, y, e = 1e-15)
+  return(sum(x*log(y+e) - y))
 
 # For each column of the counts matrix, and for each topic, compute
 # maximum-likelihood estimates (MLEs) of the parameters in the
@@ -110,8 +110,8 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   # This is used to computes the negative log-likelihood, in which
   # par = c(f0,f1).
   f <- function (par) {
-    u <- get_poisson_rates(s,q,par[1],par[2])
-    return(-loglik_poisson(x,u,e))
+    su <- get_poisson_rates(s,q,par[1],par[2])
+    return(-loglik_poisson(x,su,e))
   }
   
   # Returns the gradient of the negative log-likelihood, in which
@@ -167,8 +167,8 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15, numiter = 40) {
     
     # Compute the log-likelihood at the current estimates of the model
     # parameters (ignoring terms that don't depend on f0 or f1).
-    u            <- get_poisson_rates(s,q,f0,f1)
-    loglik[iter] <- loglik_poisson(x,u,e)
+    su           <- get_poisson_rates(s,q,f0,f1)
+    loglik[iter] <- loglik_poisson(x,su,e)
   }
 
   # Output the estimates of f0 and f1, and the log-likelihood at each EM
