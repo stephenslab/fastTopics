@@ -1,6 +1,8 @@
 to do
 =====
 
++ Add tests for differential count analysis functions.
+
 + Write function(s) to simulate data sets for testing differential
   gene expression analysis.
 

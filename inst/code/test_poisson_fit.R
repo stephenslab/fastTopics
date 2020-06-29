@@ -17,6 +17,10 @@ out1 <- fit_poisson_optim(x,s,q)
 # Fit the model parameters, f0 and f1, using the EM algorithm.
 out2 <- fit_poisson_em(x,s,q)
 
+# Fit the model parameters, f0 and f1, using the C++ implementation of
+# the EM algorithm.
+# TO DO.
+
 # Compare the estimates against the values used to simulate the data.
 print(data.frame(true  = c(f0,f1),
                  optim = out1$par,

@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.3-104
+Version: 0.3-105
 Date: 2020-06-28
 Title: Fast Optimization Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
@@ -46,7 +46,8 @@ Suggests:
 LinkingTo:
     Rcpp,
     RcppParallel,
-    RcppArmadillo
+    RcppArmadillo,
+    RcppProgress
 Remotes: linxihui/NNLM
 LazyData: true
 NeedsCompilation: yes

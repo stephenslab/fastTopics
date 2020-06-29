@@ -81,6 +81,14 @@ ccd_kl_update2_rcpp <- function(L, u, w, x0, numiter, e) {
     .Call('_fastTopics_ccd_kl_update2_rcpp', PACKAGE = 'fastTopics', L, u, w, x0, numiter, e)
 }
 
+fit_univar_poisson_models_em_rcpp <- function(X, L, s, e, numiter, verbose) {
+    .Call('_fastTopics_fit_univar_poisson_models_em_rcpp', PACKAGE = 'fastTopics', X, L, s, e, numiter, verbose)
+}
+
+fit_poisson_em_rcpp <- function(x, s, q, f0, f1, e, numiter) {
+    .Call('_fastTopics_fit_poisson_em_rcpp', PACKAGE = 'fastTopics', x, s, q, f0, f1, e, numiter)
+}
+
 scd_update_factors_rcpp <- function(A, W, H, j, numiter, e) {
     .Call('_fastTopics_scd_update_factors_rcpp', PACKAGE = 'fastTopics', A, W, H, j, numiter, e)
 }

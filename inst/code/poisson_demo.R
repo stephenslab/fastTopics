@@ -11,8 +11,8 @@ X   <- dat$X
 L   <- dat$L
 
 # Fit a Poisson model to each combination of gene j and topic k.
-out.em    <- fit_univar_poisson_models(X,L,method = "em")
-out.optim <- fit_univar_poisson_models(X,L,method = "optim")
+out.em    <- fit_univar_poisson_models(X,L,s,method = "em")
+out.optim <- fit_univar_poisson_models(X,L,s,method = "optim")
 
 # Check that EM and optim produce the same, or nearly the same,
 # estimates of the model parameters, f0 and f1.
