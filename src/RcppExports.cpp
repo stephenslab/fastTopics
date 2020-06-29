@@ -319,7 +319,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // fit_poisson_em_rcpp
-arma::vec fit_poisson_em_rcpp(const arma::vec& x, const arma::vec& s, const arma::vec& q, double f0, double f1, double e, unsigned int numiter);
+List fit_poisson_em_rcpp(const arma::vec& x, const arma::vec& s, const arma::vec& q, double f0, double f1, double e, unsigned int numiter);
 RcppExport SEXP _fastTopics_fit_poisson_em_rcpp(SEXP xSEXP, SEXP sSEXP, SEXP qSEXP, SEXP f0SEXP, SEXP f1SEXP, SEXP eSEXP, SEXP numiterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

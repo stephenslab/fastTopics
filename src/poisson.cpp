@@ -7,6 +7,11 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
+void get_poisson_rates (const vec& s, const vec& q, double f0, double f1, 
+			vec& u);
+
+double loglik_poisson (const vec& x, const vec& u, double e);
+
 void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0, 
 		     double& f1, vec& loglik, double e, unsigned int numiter);
 
@@ -53,10 +58,29 @@ List fit_univar_poisson_models_em_rcpp (const arma::mat& X,
 // TO DO: Explain here what this function does, and how to use it.
 //
 // [[Rcpp::export]]
-arma::vec fit_poisson_em_rcpp (const arma::vec& x, const arma::vec& s,
-			       const arma::vec& q, double f0, double f1,
-			       double e, unsigned int numiter) {
+List fit_poisson_em_rcpp (const arma::vec& x, const arma::vec& s,
+			  const arma::vec& q, double f0, double f1,
+			  double e, unsigned int numiter) {
+  vec loglik(numiter);
+  fit_poisson_em(x,s,q,f0,f1,loglik,e,numiter);
+  return List::create(Named("f0")     = f0,
+		      Named("f1")     = f1,
+		      Named("loglik") = loglik);
+}
 
+// Compute the Poisson rates given the size factors (s), topic
+// proportions (q), and parameters (f0, f1) of the Poisson model.
+void get_poisson_rates (const vec& s, const vec& q, double f0, double f1, 
+			vec& u) {
+  u = s % (f0*(1-q) + f1*q);
+}
+
+// This should give the same, or nearly the same, result as
+// sum(dpois(x,u,log = TRUE)), except that terms that do not depend on
+// the Poisson rates (u) are discarded.
+double loglik_poisson (const vec& x, const vec& u, double e) {
+  double y = sum(x % log(u + e)) - sum(u);
+  return y;
 }
 
 // TO DO: Explain here what this function is for, and how to use it.
@@ -95,8 +119,8 @@ void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0,
     f1 = sum(z1)/sum(b);
 
     // Compute the log-likelihood at the current estimates of the
-    // model parameters (ignoring terms that don't depend on f0 or
-    // f1).
-    // TO DO.
+    // model parameters (ignoring terms that don't depend on f0 or f1).
+    get_poisson_rates(s,q,f0,f1,u);
+    loglik[iter] = loglik_poisson(x,u,e);
   }
 }
