@@ -117,8 +117,8 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   # Returns the gradient of the negative log-likelihood, in which
   # par = c(f0,f1).
   g <- function (par) {
-    u <- get_poisson_rates(s,q,par[1],par[2])
-    y <- s*(u - x)/(u + e)
+    u <- get_poisson_rates(s,q,par[1],par[2])/s
+    y <- (s*u - x)/(u + e)
     return(c(sum(y*(1-q)),sum(y*q)))
   }
   
@@ -144,8 +144,8 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15, numiter = 40) {
 
   # Store a couple pre-calculations to simplify the calculations
   # below.
-  a <- s*(1-q)
-  b <- s*q
+  a <- sum(s*(1-q))
+  b <- sum(s*q)
   
   # Perform the EM updates. Progress is monitored by computing the
   # log-likelihood at each iteration.
@@ -154,16 +154,16 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15, numiter = 40) {
 
     # E-STEP
     # ------
-    z0 <- f0*a
-    z1 <- f1*b
+    z0 <- f0*(1-q)
+    z1 <- f1*q
     u  <- z0 + z1 + e
-    z0 <- z0*x/u
-    z1 <- z1*x/u
+    z0 <- x*z0/u
+    z1 <- x*z1/u
     
     # M-STEP
     # ------
-    f0 <- sum(z0)/sum(a)
-    f1 <- sum(z1)/sum(b)
+    f0 <- sum(z0)/a
+    f1 <- sum(z1)/b
     
     # Compute the log-likelihood at the current estimates of the model
     # parameters (ignoring terms that don't depend on f0 or f1).

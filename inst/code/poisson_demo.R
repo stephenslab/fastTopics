@@ -21,8 +21,7 @@ plot(out.optim$F1 + e,out.em$F1 + e,pch = 20,log = "xy")
 abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 
 # Compare the EM and optim log-likelihoods.
-print(quantile((out.em$loglik - out.optim$loglik)/out.optim$loglik,
-               seq(0,1,0.25)))
+print(range((out.em$loglik - out.optim$loglik)/out.optim$loglik))
 
 # For the selected topic (i), compare f1 estimates against the Poisson
 # rates used to simulate the data.

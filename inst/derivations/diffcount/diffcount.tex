@@ -254,40 +254,38 @@ Poisson models.
 \section{Poisson model derivations}
 
 To derive a fitting algorithm for the Poisson model
-\eqref{eq:poisson}, we begin with the expression for the
-log-likelihood,
+\eqref{eq:poisson}, we begin with the log-likelihood,
 \begin{equation}
 \ell(f_0, f_1) \equiv \log p(x \,|\, f_0, f_1) = 
-\sum_{i=1}^n x_i \log \hat{\lambda}_i - \hat{\lambda}_i +
+\sum_{i=1}^n x_i \log (t_i \lambda_i) - t_i \lambda_i +
 \mbox{const,}
 \label{eq:loglik-poisson}
 \end{equation}
-where we have introduced notation $\hat{\lambda}_i \equiv t_i
-\lambda_i$ to simplify the expressions below, and ``const'' here
-includes all terms that do not depend on $f_0$ or $f_1$. The partial
-derivatives of the log-likelihood are
+in which the ``const'' captures all terms that do not depend on $f_0$
+or $f_1$. The partial derivatives of the log-likelihood are
 \begin{align}
 \frac{\partial\ell}{f_0} &= 
-\sum_{i=1}^n \frac{x_i - \hat{\lambda}_i}{\hat{\lambda}_i} \times t_i(1-q_i) \\
+\sum_{i=1}^n \frac{x_i - t_i\lambda_i}{\lambda_i} \times (1-q_i) \\
 \frac{\partial\ell}{f_1} &= 
-\sum_{i=1}^n \frac{x_i - \hat{\lambda}_i}{\hat{\lambda}_i} \times t_iq_i.
+\sum_{i=1}^n \frac{x_i - t_i\lambda_i}{\lambda_i} \times q_i.
 \end{align}
 
-There is also a simple EM algorithm for fitting the Poison model
+There is a simple EM algorithm for fitting the Poison model
 \eqref{eq:poisson}. The key is to introduce latent variables $a_i \sim
 \mathrm{Poisson}(t_i (1-q_i) f_0)$ and $b_i \sim \mathrm{Poisson}(t_i
-q_i f_1)$, then work with the expected complete log-likelihood $E[\,\log
-  p(x, a, b \,|\, f_0, f_1)\,]$. The ``M-step'' updates work out to
+q_i f_1)$, then work with the expected complete log-likelihood
+$E[\,\log p(x, a, b \,|\, f_0, f_1)\,]$. The ``M-step'' updates work
+out to
 \begin{align}
 f_0 &= \frac{\sum_{i=1}^n \phi_i}{\sum_{i=1}^n t_i(1-q_i)} \\
 f_1 &= \frac{\sum_{i=1}^n \gamma_i}{\sum_{i=1}^n t_i q_i},
 \end{align}
-where we have introduced shorthand for the posterior expectations of
+where we have introduced notation for the posterior expectations of
 the latent variables, $\phi_i \equiv E[a_i]$ and $\gamma_i \equiv
-E[b_i]$. The posterior expectations are computed in the ``E-step'':
+E[b_i]$. These posterior expectations are computed in the ``E-step'':
 \begin{align}
-\phi_i   &= x_i t_i (1 - q_i) f_0 / \hat{\lambda}_i \\
-\gamma_i &= x_i t_i q_i f_1 / \hat{\lambda}_i.
+\phi_i   &= x_i (1 - q_i) f_0 / \lambda_i \\
+\gamma_i &= x_i q_i f_1 / \lambda_i.
 \end{align}
 This completes the description of the EM algorithm for the Poisson
 model.
