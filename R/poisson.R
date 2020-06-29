@@ -13,9 +13,11 @@ loglik_poisson <- function (x, y, e = 1e-15)
 # maximum-likelihood estimates (MLEs) of the parameters in the
 # single-count (univariate) Poisson model.
 fit_univar_poisson_models <-
-  function (X, L, s = rep(1,nrow(X)), method = c("em-rcpp","em","optim"),
+  function (X, L, s = rep(1,nrow(X)),
+            method = c("em-rcpp","em","optim"),
             e = 1e-15, numiter.em = 40,
-            control.optim = list(factr = 1e-14,maxit = 100), verbose = TRUE) {
+            control.optim = list(factr = 1e-14,maxit = 100),
+            verbose = TRUE) {
   method <- match.arg(method)
 
   # Get the number of topics (k) and the number of columns of X (m).

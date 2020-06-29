@@ -11,7 +11,7 @@ X   <- dat$X
 L   <- dat$L
 
 # Fit a Poisson model to each combination of gene j and topic k.
-t1 <- system.time(out.em  <- fit_univar_poisson_models(X,L,s,method="em"))
+t1 <- system.time(out.em <- fit_univar_poisson_models(X,L,s,method="em"))
 t2 <- system.time(out.em2 <- fit_univar_poisson_models(X,L,s,method="em-rcpp"))
 t3 <- system.time(out.optim <- fit_univar_poisson_models(X,L,s,method="optim"))
 print(t1)

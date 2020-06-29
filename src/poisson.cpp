@@ -22,7 +22,7 @@ void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s,
 
 // FUNCTION DEFINITIONS
 // --------------------
-// TO DO: Explain here what this function does, and how to use it.
+// This implements fit_univar_poisson_models for method = "em-rcpp".
 //
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(RcppProgress)]]
@@ -134,7 +134,13 @@ void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0,
   }
 }
 
-// TO DO: Explain here what this function is for, and how to use it.
+// Compute MLEs of the Poisson model parameters for each (j,k)
+// combination, where j is a row of the counts matrix, X, and k is a
+// topic (column of the L matrix). The parameter estimates are stored
+// in F0, F1, and the log-likelihoods achieved at these estimates are
+// stored in loglik; each of these should be m x k matrices, where m
+// is the number of columns in the counts matrix, and k is the number
+// of topics.
 void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s, 
 				   mat& F0, mat& F1, mat& loglik, double e, 
 				   unsigned int numiter, bool verbose) {
@@ -153,9 +159,13 @@ void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s,
   vec    u(n);
   double f0, f1;
 
+
   // Repeat for each column of the counts matrix, X, and for each
   // topic.
+  Progress pb(m,verbose);
   for (unsigned int i = 0; i < m; i++) {
+    pb.increment();
+    checkUserInterrupt();
     for (unsigned int j = 0; j < k; j++) {
       f0 = 1;
       f1 = 1;
@@ -165,5 +175,4 @@ void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s,
       loglik(i,j) = ll(numiter - 1);
     }
   }
-  
 }
