@@ -8,7 +8,7 @@ using namespace arma;
 // FUNCTION DECLARATIONS
 // ---------------------
 void get_poisson_rates (const vec& s, const vec& q, double f0, double f1, 
-			vec& u);
+			vec& su);
 
 double loglik_poisson (const vec& x, const vec& u, double e);
 
@@ -55,7 +55,7 @@ List fit_univar_poisson_models_em_rcpp (const arma::mat& X,
 		      Named("loglik") = loglik);
 }
 
-// TO DO: Explain here what this function does, and how to use it.
+// This is mainly used to test the fit_poisson_em function.
 //
 // [[Rcpp::export]]
 List fit_poisson_em_rcpp (const arma::vec& x, const arma::vec& s,
@@ -71,19 +71,28 @@ List fit_poisson_em_rcpp (const arma::vec& x, const arma::vec& s,
 // Compute the Poisson rates given the size factors (s), topic
 // proportions (q), and parameters (f0, f1) of the Poisson model.
 void get_poisson_rates (const vec& s, const vec& q, double f0, double f1, 
-			vec& u) {
-  u = s % (f0*(1-q) + f1*q);
+			vec& su) {
+  su = s % (f0*(1-q) + f1*q);
 }
 
 // This should give the same, or nearly the same, result as
 // sum(dpois(x,u,log = TRUE)), except that terms that do not depend on
-// the Poisson rates (u) are discarded.
+// the Poisson rates (u) are disregarded.
 double loglik_poisson (const vec& x, const vec& u, double e) {
   double y = sum(x % log(u + e)) - sum(u);
   return y;
 }
 
-// TO DO: Explain here what this function is for, and how to use it.
+// Perform EM updates to compute maximum-likelihood estimates (MLEs)
+// of the parameters in the single-count Poisson model: x ~
+// Poisson(s*u), with u given by u = f0*(1-q) + f1*q. Parameters f0,
+// f1 are estimated, and vectors s, q are provided. Input arguments f0
+// and f1 are initial estimates of the parameters. Input argument "e"
+// is a small positive scalar added to the denominator in the E-step
+// to avoid division by zero.
+//
+// This should give the same result as the R function of the same name.
+//
 void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0, 
 		     double& f1, vec& loglik, double e, unsigned int numiter) {
 
@@ -98,8 +107,8 @@ void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0,
 
   // Store a couple pre-calculations to simplify the calculations
   // below.
-  vec a = s % (1-q);
-  vec b = s % q;
+  double a = sum(s % (1-q));
+  double b = sum(s % q);
 
   // Perform the EM updates. Progress is monitored by computing the
   // log-likelihood at each iteration.
@@ -107,16 +116,16 @@ void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0,
 
     // E-STEP
     // ------
-    z0  = f0*a;
-    z1  = f1*b;
+    z0  = f0*(1-q);
+    z1  = f1*q;
     u   = z0 + z1 + e;
     z0 %= x/u;
     z1 %= x/u;
 
     // M-STEP
     // ------
-    f0 = sum(z0)/sum(a);
-    f1 = sum(z1)/sum(b);
+    f0 = sum(z0)/a;
+    f1 = sum(z1)/b;
 
     // Compute the log-likelihood at the current estimates of the
     // model parameters (ignoring terms that don't depend on f0 or f1).

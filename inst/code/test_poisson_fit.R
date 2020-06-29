@@ -23,9 +23,9 @@ out3 <- fit_poisson_em_rcpp(x,s,q,1,1,1e-15,40)
 print(max(abs(out2$loglik - out3$loglik)))
 
 # Compare the estimates against the values used to simulate the data.
-print(data.frame(true  = c(f0,f1),
-                 optim = out1$par,
-                 em    = out2$f,
+print(data.frame(true    = c(f0,f1),
+                 optim   = out1$par,
+                 em      = out2$f,
                  em_rcpp = with(out3,c(f0,f1))))
 
 # Compare the log-likelihood at each of the solutions.

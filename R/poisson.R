@@ -5,13 +5,13 @@ get_poisson_rates <- function (s, q, f0, f1)
 
 # This should give the same, or nearly the same, result as
 # sum(dpois(x,y,log = TRUE)), except that terms that do not depend on
-# the Poisson rates u are discarded.
+# the Poisson rates u are disregarded.
 loglik_poisson <- function (x, y, e = 1e-15)
   return(sum(x*log(y+e) - y))
 
 # For each column of the counts matrix, and for each topic, compute
 # maximum-likelihood estimates (MLEs) of the parameters in the
-# single-count ("univariate") Poisson model.
+# single-count (univariate) Poisson model.
 fit_univar_poisson_models <-
   function (X, L, s = rep(1,nrow(X)), method = c("em-rcpp","em","optim"),
             e = 1e-15, numiter.em = 40,
