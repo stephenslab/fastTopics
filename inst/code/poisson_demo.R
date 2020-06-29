@@ -11,8 +11,19 @@ X   <- dat$X
 L   <- dat$L
 
 # Fit a Poisson model to each combination of gene j and topic k.
-out.em    <- fit_univar_poisson_models(X,L,s,method = "em")
-out.optim <- fit_univar_poisson_models(X,L,s,method = "optim")
+t1 <- system.time(out.em  <- fit_univar_poisson_models(X,L,s,method="em"))
+t2 <- system.time(out.em2 <- fit_univar_poisson_models(X,L,s,method="em-rcpp"))
+t3 <- system.time(out.optim <- fit_univar_poisson_models(X,L,s,method="optim"))
+print(t1)
+print(t2)
+print(t3)
+
+# Check that the R and C++ implementations of the EM algorithm produce
+# the same, or nearly the same, likelihoods and estimates of the model
+# parameters, f0 and f1.
+print(max(abs(out.em$F0 - out.em2$F0)))
+print(max(abs(out.em$F1 - out.em2$F1)))
+print(max(abs(out.em$loglik - out.em2$loglik)))
 
 # Check that EM and optim produce the same, or nearly the same,
 # estimates of the model parameters, f0 and f1.

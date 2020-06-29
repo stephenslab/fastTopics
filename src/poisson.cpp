@@ -13,7 +13,12 @@ void get_poisson_rates (const vec& s, const vec& q, double f0, double f1,
 double loglik_poisson (const vec& x, const vec& u, double e);
 
 void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0, 
-		     double& f1, vec& loglik, double e, unsigned int numiter);
+		     double& f1, vec& z0, vec& z1, vec& u, vec& loglik, 
+		     double e, unsigned int numiter);
+
+void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s, 
+				   mat& F0, mat& F1, mat& loglik, double e, 
+				   unsigned int numiter, bool verbose);
 
 // FUNCTION DEFINITIONS
 // --------------------
@@ -28,25 +33,21 @@ List fit_univar_poisson_models_em_rcpp (const arma::mat& X,
 					unsigned int numiter,
 					bool verbose) {
 
-  // Get the number of columns of the counts matrix (m), and the
-  // number of topics (k).
+  // Get the number of columns of the counts matrix (m) and the number
+  // of topics (k).
   unsigned int m = X.n_cols;
   unsigned int k = L.n_cols;
 
   // Initialize the outputs.
-  mat F0(m,k,fill::ones);
-  mat F1(m,k,fill::ones);
+  mat F0(m,k);
+  mat F1(m,k);
   mat loglik(m,k);
 
-  // Repeat for each column of the counts matrix, X, and for each
-  // topic.
-  double f0, f1;
-  for (unsigned int i = 0; i < m; i++) {
-    for (unsigned int j = 0; j < k; j++) {
-      // loglik(i,j) = fit_poisson_em(X[,i],s,L[,j],e = e,numiter = numiter)
-    }
-  }
-  
+  // Compute MLEs of the Poisson model parameters for each (j,k)
+  // combination, where j is a row of the counts matrix, X, and k is a
+  // topic (column of the L matrix).
+  fit_univar_poisson_models_em(X,L,s,F0,F1,loglik,e,numiter,verbose);
+
   // Output the MLEs of the Poisson model parameters (F0, F1), and the
   // values of the Poisson model log-likelihood attained at those
   // parameters.
@@ -61,8 +62,12 @@ List fit_univar_poisson_models_em_rcpp (const arma::mat& X,
 List fit_poisson_em_rcpp (const arma::vec& x, const arma::vec& s,
 			  const arma::vec& q, double f0, double f1,
 			  double e, unsigned int numiter) {
+  unsigned int n = x.n_elem;
   vec loglik(numiter);
-  fit_poisson_em(x,s,q,f0,f1,loglik,e,numiter);
+  vec z0(n);
+  vec z1(n);
+  vec u(n);
+  fit_poisson_em(x,s,q,f0,f1,z0,z1,u,loglik,e,numiter);
   return List::create(Named("f0")     = f0,
 		      Named("f1")     = f1,
 		      Named("loglik") = loglik);
@@ -91,19 +96,14 @@ double loglik_poisson (const vec& x, const vec& u, double e) {
 // is a small positive scalar added to the denominator in the E-step
 // to avoid division by zero.
 //
+// Vectors z0, z1 and u are used to store the E-step calculations.
+// They should each be a vector of the same length as x.
+//
 // This should give the same result as the R function of the same name.
 //
 void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0, 
-		     double& f1, vec& loglik, double e, unsigned int numiter) {
-
-  // Get the number of samples.
-  unsigned int n = x.n_elem;
-
-  // These vectors are used to store the posterior expectations
-  // computed in the E-step.
-  vec z0(n);
-  vec z1(n);
-  vec u(n);
+		     double& f1, vec& z0, vec& z1, vec& u, vec& loglik, 
+		     double e, unsigned int numiter) {
 
   // Store a couple pre-calculations to simplify the calculations
   // below.
@@ -132,4 +132,38 @@ void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0,
     get_poisson_rates(s,q,f0,f1,u);
     loglik[iter] = loglik_poisson(x,u,e);
   }
+}
+
+// TO DO: Explain here what this function is for, and how to use it.
+void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s, 
+				   mat& F0, mat& F1, mat& loglik, double e, 
+				   unsigned int numiter, bool verbose) {
+
+  // Get the number of rows (n) and columns (m) of the counts matrix, X,
+  // and get the number of topics (k).
+  unsigned int n = X.n_rows;
+  unsigned int m = X.n_cols;
+  unsigned int k = L.n_cols;
+
+  // These variables are used to store the results from a single call
+  // to fit_poisson_em.
+  vec    ll(numiter);
+  vec    z0(n);
+  vec    z1(n);
+  vec    u(n);
+  double f0, f1;
+
+  // Repeat for each column of the counts matrix, X, and for each
+  // topic.
+  for (unsigned int i = 0; i < m; i++) {
+    for (unsigned int j = 0; j < k; j++) {
+      f0 = 1;
+      f1 = 1;
+      fit_poisson_em(X.col(i),s,L.col(j),f0,f1,z0,z1,u,ll,e,numiter);
+      F0(i,j)     = f0;
+      F1(i,j)     = f1;
+      loglik(i,j) = ll(numiter - 1);
+    }
+  }
+  
 }

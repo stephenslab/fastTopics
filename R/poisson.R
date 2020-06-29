@@ -37,9 +37,8 @@ fit_univar_poisson_models <-
   } else if (method == "em-rcpp") {
     if (is.sparse.matrix(X)) {
       # TO DO.
-    } else {
-      # TO DO.
-    }
+    } else
+      out <- fit_univar_poisson_models_em_rcpp(X,L,s,e,numiter.em,verbose)
   }
   return(out)
 }
