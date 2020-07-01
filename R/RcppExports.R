@@ -85,6 +85,10 @@ fit_univar_poisson_models_em_rcpp <- function(X, L, s, e, numiter, verbose) {
     .Call('_fastTopics_fit_univar_poisson_models_em_rcpp', PACKAGE = 'fastTopics', X, L, s, e, numiter, verbose)
 }
 
+fit_univar_poisson_models_em_sparse_rcpp <- function(X, L, s, e, numiter, verbose) {
+    .Call('_fastTopics_fit_univar_poisson_models_em_sparse_rcpp', PACKAGE = 'fastTopics', X, L, s, e, numiter, verbose)
+}
+
 fit_poisson_em_rcpp <- function(x, s, q, f0, f1, e, numiter) {
     .Call('_fastTopics_fit_poisson_em_rcpp', PACKAGE = 'fastTopics', x, s, q, f0, f1, e, numiter)
 }

@@ -1,6 +1,7 @@
 #include <RcppArmadillo.h>
 #include <progress.hpp>
 #include <progress_bar.hpp>
+#include "misc.h"
 
 using namespace Rcpp;
 using namespace arma;
@@ -25,9 +26,15 @@ void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s,
 				   mat& F0, mat& F1, mat& loglik, double e, 
 				   unsigned int numiter, bool verbose);
 
+void fit_univar_poisson_models_em_sparse (const sp_mat& X, const mat& L, 
+					  const vec& s, mat& F0, mat& F1, 
+					  mat& loglik, double e, 
+					  unsigned int numiter, bool verbose);
+
 // FUNCTION DEFINITIONS
 // --------------------
-// This implements fit_univar_poisson_models for method = "em-rcpp".
+// This implements fit_univar_poisson_models for method = "em-rcpp",
+// with *dense* counts matrix X.
 //
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(RcppProgress)]]
@@ -52,6 +59,41 @@ List fit_univar_poisson_models_em_rcpp (const arma::mat& X,
   // combination, where j is a row of the counts matrix, X, and k is a
   // topic (column of the L matrix).
   fit_univar_poisson_models_em(X,L,s,F0,F1,loglik,e,numiter,verbose);
+
+  // Output the MLEs of the Poisson model parameters (F0, F1), and the
+  // values of the Poisson model log-likelihood attained at those
+  // parameters.
+  return List::create(Named("F0")     = F0,
+                      Named("F1")     = F1,
+		      Named("loglik") = loglik);
+}
+
+// This implements fit_univar_poisson_models for method = "em-rcpp",
+// with *sparse* counts matrix X.
+//
+// [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::depends(RcppProgress)]]
+// [[Rcpp::export]]
+List fit_univar_poisson_models_em_sparse_rcpp (const arma::sp_mat& X, 
+					       const arma::mat& L,
+					       const arma::vec& s, double e,
+					       unsigned int numiter,
+					       bool verbose) {
+
+  // Get the number of columns of the counts matrix (m) and the number
+  // of topics (k).
+  unsigned int m = X.n_cols;
+  unsigned int k = L.n_cols;
+
+  // Initialize the outputs.
+  mat F0(m,k);
+  mat F1(m,k);
+  mat loglik(m,k);
+
+  // Compute MLEs of the Poisson model parameters for each (j,k)
+  // combination, where j is a row of the counts matrix, X, and k is a
+  // topic (column of the L matrix).
+  fit_univar_poisson_models_em_sparse(X,L,s,F0,F1,loglik,e,numiter,verbose);
 
   // Output the MLEs of the Poisson model parameters (F0, F1), and the
   // values of the Poisson model log-likelihood attained at those
@@ -230,6 +272,59 @@ void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s,
       f0 = 1;
       f1 = 1;
       fit_poisson_em(X.col(i),s,L.col(j),f0,f1,z0,z1,u,ll,e,numiter);
+      F0(i,j)     = f0;
+      F1(i,j)     = f1;
+      loglik(i,j) = ll(numiter - 1);
+    }
+  }
+}
+
+// This does the same thing as fit_univar_poisson_models_em, in which
+// the counts matrix X is sparse.
+void fit_univar_poisson_models_em_sparse (const sp_mat& X, const mat& L, 
+					  const vec& s, mat& F0, mat& F1, 
+					  mat& loglik, double e, 
+					  unsigned int numiter, bool verbose) {
+
+  // Get the number of rows (n) and columns (m) of the counts matrix, X,
+  // and get the number of topics (k).
+  unsigned int n = X.n_rows;
+  unsigned int m = X.n_cols;
+  unsigned int k = L.n_cols;
+
+  // Compute, for each topic (j), the "a" and "b" inputs to
+  // fit_poisson_em_sparse.
+  vec a(k);
+  vec b(k);
+  vec q(n);
+  for (unsigned int j = 0; j < k; j++) {
+    q    = L.col(j);
+    a(j) = sum(s % (1-q));
+    b(j) = sum(s % q);
+  }
+
+  // Repeat for each column of the counts matrix, X, and for each
+  // topic.
+  Progress pb(m,verbose);
+  vec      ll(numiter);
+  double   f0, f1;
+  for (unsigned int i = 0; i < m; i++) {
+    vec          x  = nonzeros(X.col(i));
+    unsigned int n1 = x.n_elem;
+    uvec r(n1);
+    getcolnonzeros(X,r,i);
+    vec si = s(r);
+    vec qi(n1);
+    vec z0(n1);
+    vec z1(n1);
+    vec u(n1);
+    pb.increment();
+    checkUserInterrupt();
+    for (unsigned int j = 0; j < k; j++) {
+      f0 = 1;
+      f1 = 1;
+      getcolelems(L,r,j,qi);
+      fit_poisson_em_sparse(x,si,qi,a(j),b(j),f0,f1,z0,z1,u,ll,e,numiter);
       F0(i,j)     = f0;
       F1(i,j)     = f1;
       loglik(i,j) = ll(numiter - 1);
