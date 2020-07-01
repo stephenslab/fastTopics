@@ -279,8 +279,8 @@ void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s,
   }
 }
 
-// This does the same thing as fit_univar_poisson_models_em, in which
-// the counts matrix X is sparse.
+// This implements the EM algorithm for the case when the counts
+// matrix, X, is sparse.
 void fit_univar_poisson_models_em_sparse (const sp_mat& X, const mat& L, 
 					  const vec& s, mat& F0, mat& F1, 
 					  mat& loglik, double e, 
@@ -292,8 +292,8 @@ void fit_univar_poisson_models_em_sparse (const sp_mat& X, const mat& L,
   unsigned int m = X.n_cols;
   unsigned int k = L.n_cols;
 
-  // Compute, for each topic (j), the "a" and "b" inputs to
-  // fit_poisson_em_sparse.
+  // Pre-calculate, for each topic (j), the "a" and "b" inputs
+  // required for fit_poisson_em_sparse.
   vec a(k);
   vec b(k);
   vec q(n);
@@ -309,21 +309,28 @@ void fit_univar_poisson_models_em_sparse (const sp_mat& X, const mat& L,
   vec      ll(numiter);
   double   f0, f1;
   for (unsigned int i = 0; i < m; i++) {
+
+    // Extract the count data from the ith column, and set up other
+    // data structures for running fit_poisson_em_sparse.
     vec          x  = nonzeros(X.col(i));
     unsigned int n1 = x.n_elem;
     uvec r(n1);
     getcolnonzeros(X,r,i);
-    vec si = s(r);
-    vec qi(n1);
-    vec z0(n1);
-    vec z1(n1);
-    vec u(n1);
+    vec  si = s(r);
+    vec  qi(n1);
+    vec  z0(n1);
+    vec  z1(n1);
+    vec  u(n1);
     pb.increment();
     checkUserInterrupt();
     for (unsigned int j = 0; j < k; j++) {
+
+      // Extract the topic proportions corresponding to the nonzero counts.
+      getcolelems(L,r,j,qi);
+
+      // Perform the EM updates.
       f0 = 1;
       f1 = 1;
-      getcolelems(L,r,j,qi);
       fit_poisson_em_sparse(x,si,qi,a(j),b(j),f0,f1,z0,z1,u,ll,e,numiter);
       F0(i,j)     = f0;
       F1(i,j)     = f1;
