@@ -16,6 +16,11 @@ void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0,
 		     double& f1, vec& z0, vec& z1, vec& u, vec& loglik, 
 		     double e, unsigned int numiter);
 
+void fit_poisson_em_sparse (const vec& x, const vec& s, const vec& q,
+			    double a, double b, double& f0, double& f1, 
+			    vec& z0, vec& z1, vec& u, vec& loglik, double e, 
+			    unsigned int numiter);
+
 void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s, 
 				   mat& F0, mat& F1, mat& loglik, double e, 
 				   unsigned int numiter, bool verbose);
@@ -68,6 +73,24 @@ List fit_poisson_em_rcpp (const arma::vec& x, const arma::vec& s,
   vec z1(n);
   vec u(n);
   fit_poisson_em(x,s,q,f0,f1,z0,z1,u,loglik,e,numiter);
+  return List::create(Named("f0")     = f0,
+		      Named("f1")     = f1,
+		      Named("loglik") = loglik);
+}
+
+// This is mainly used to test the fit_poisson_em function.
+//
+// [[Rcpp::export]]
+List fit_poisson_em_sparse_rcpp (const arma::vec& x, const arma::vec& s,
+				 const arma::vec& q, double a, double b, 
+				 double f0, double f1, double e, 
+				 unsigned int numiter) {
+  unsigned int n = x.n_elem;
+  vec loglik(numiter);
+  vec z0(n);
+  vec z1(n);
+  vec u(n);
+  fit_poisson_em_sparse(x,s,q,a,b,f0,f1,z0,z1,u,loglik,e,numiter);
   return List::create(Named("f0")     = f0,
 		      Named("f1")     = f1,
 		      Named("loglik") = loglik);
@@ -134,6 +157,44 @@ void fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0,
   }
 }
 
+// This does the same thing as fit_poisson_em, except that the
+// computations are better suited to spare matrices; see function
+// fit_poisson_em for details. Input vector x need only contain the
+// nonzero counts; inputs s and q should contain the entries
+// corresponding to the nonzero counts in x. Input arguments z0, z1
+// and u should be vectors of the same length as x. And input
+// arguments a and b should be equal to a = sum(s*(1-q)) and b =
+// sum(s*q), where s and q are the vectors corresponding to all
+// counts, including the nonzero counts.
+void fit_poisson_em_sparse (const vec& x, const vec& s, const vec& q,
+			    double a, double b, double& f0, double& f1, 
+			    vec& z0, vec& z1, vec& u, vec& loglik, double e, 
+			    unsigned int numiter) {
+
+  // Perform the EM updates. Progress is monitored by computing the
+  // log-likelihood at each iteration.
+  for (unsigned int iter = 0; iter < numiter; iter++) {
+
+    // E-STEP
+    // ------
+    z0  = f0*(1-q);
+    z1  = f1*q;
+    u   = z0 + z1 + e;
+    z0 %= x/u;
+    z1 %= x/u;
+
+    // M-STEP
+    // ------
+    f0 = sum(z0)/a;
+    f1 = sum(z1)/b;
+
+    // Compute the log-likelihood at the current estimates of the
+    // model parameters (ignoring terms that don't depend on f0 or f1).
+    get_poisson_rates(s,q,f0,f1,u);
+    loglik[iter] = sum(x % log(u + e)) - (f0*a + f1*b);
+  }
+}
+
 // Compute MLEs of the Poisson model parameters for each (j,k)
 // combination, where j is a row of the counts matrix, X, and k is a
 // topic (column of the L matrix). The parameter estimates are stored
@@ -158,7 +219,6 @@ void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s,
   vec    z1(n);
   vec    u(n);
   double f0, f1;
-
 
   // Repeat for each column of the counts matrix, X, and for each
   // topic.

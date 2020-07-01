@@ -335,6 +335,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// fit_poisson_em_sparse_rcpp
+List fit_poisson_em_sparse_rcpp(const arma::vec& x, const arma::vec& s, const arma::vec& q, double a, double b, double f0, double f1, double e, unsigned int numiter);
+RcppExport SEXP _fastTopics_fit_poisson_em_sparse_rcpp(SEXP xSEXP, SEXP sSEXP, SEXP qSEXP, SEXP aSEXP, SEXP bSEXP, SEXP f0SEXP, SEXP f1SEXP, SEXP eSEXP, SEXP numiterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type s(sSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type q(qSEXP);
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    Rcpp::traits::input_parameter< double >::type f0(f0SEXP);
+    Rcpp::traits::input_parameter< double >::type f1(f1SEXP);
+    Rcpp::traits::input_parameter< double >::type e(eSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type numiter(numiterSEXP);
+    rcpp_result_gen = Rcpp::wrap(fit_poisson_em_sparse_rcpp(x, s, q, a, b, f0, f1, e, numiter));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scd_update_factors_rcpp
 arma::mat scd_update_factors_rcpp(const arma::mat& A, const arma::mat& W, const arma::mat& H, const arma::vec& j, unsigned int numiter, double e);
 RcppExport SEXP _fastTopics_scd_update_factors_rcpp(SEXP ASEXP, SEXP WSEXP, SEXP HSEXP, SEXP jSEXP, SEXP numiterSEXP, SEXP eSEXP) {
@@ -423,6 +442,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_ccd_kl_update2_rcpp", (DL_FUNC) &_fastTopics_ccd_kl_update2_rcpp, 6},
     {"_fastTopics_fit_univar_poisson_models_em_rcpp", (DL_FUNC) &_fastTopics_fit_univar_poisson_models_em_rcpp, 6},
     {"_fastTopics_fit_poisson_em_rcpp", (DL_FUNC) &_fastTopics_fit_poisson_em_rcpp, 7},
+    {"_fastTopics_fit_poisson_em_sparse_rcpp", (DL_FUNC) &_fastTopics_fit_poisson_em_sparse_rcpp, 9},
     {"_fastTopics_scd_update_factors_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_rcpp, 6},
     {"_fastTopics_scd_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_sparse_rcpp, 6},
     {"_fastTopics_scd_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_parallel_rcpp, 6},
