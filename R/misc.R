@@ -1,11 +1,16 @@
-# Compute the upper triangular Cholesky factor for a 2 x 2 matrix.
-# Should give the same output as chol(A).
-chol2x2 <- function (A) {
-  a <- sqrt(A[1,1])
-  b <- A[1,2]/a
-  c <- sqrt(A[2,2] - b^2)
-  return(rbind(c(a,b),
-               c(0,c)))
+# For symmetric, invertible matrix A, returns the same result as
+# sqrt(solve(A)[2,2]). For example,
+#
+#   A <- rbind(c(3,-1),
+#              c(-1,5))
+#   sqrt(solve(A)[2,2]) - sqrtinv2x2(A)
+#
+# should give zero.
+sqrtinv2x2 <- function (A) {
+  a <- A[1,1]
+  b <- A[2,1]
+  c <- A[2,2]
+  return(1/sqrt(c - b^2/a))
 }
 
 # Return true if x is a compressed, sparse, column-oriented numeric
