@@ -312,9 +312,22 @@ can be implemented using {\tt glm} in R with {\tt family =
   poisson(link = "identity")}, and therefore can be used to verify our
 calculations.
 
+Under the Laplace approximation to the likelihood at the MLE
+$(\hat{b}_0, \hat{b})$, the covariance matrix is $-H^{-1}$, where $H$
+is the $2 \times 2$ matrix of second-order partial derivatives,
+\begin{equation*}
+\frac{\partial^2\ell}{\partial b_0^2} = 
+-\sum_{i=1}^n \frac{x_i}{u_i^2}, \qquad
+\frac{\partial^2\ell}{\partial b^2} = 
+-\sum_{i=1}^n \frac{x_i q_i^2}{u_i^2}, \qquad
+\frac{\partial^2\ell}{\partial b_0 \partial b} = 
+-\sum_{i=1}^n \frac{x_i q_i}{u_i^2}.
+\end{equation*}
+This result can be used to obtain the standard errors and $z$-scores
+for $\hat{b}_0$ and $\hat{b}$.
+
 Definitions and derivations used for $z$-score calculations:
 \begin{align}
-\beta     &\equiv \log\frac{f_1}{f_0} \\
 \lambda_i &= f_0\{1 - q_i(1-e^{\beta})\} \\
 \frac{\partial\ell}{f_0} &= 
 \sum_{i=1}^n \frac{x_i - t_i\lambda_i}{\lambda_i} \times (1-q_i) \\
