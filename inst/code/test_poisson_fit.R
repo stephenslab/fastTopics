@@ -3,10 +3,10 @@
 
 # Simulate a Poisson data set.
 set.seed(1)
-n  <- 200
+n  <- 2000 # 200
 f0 <- 0.1
 f1 <- 1
-s  <- sample(10,n,replace = TRUE)
+s  <- rep(1,n) # sample(10,n,replace = TRUE)
 q  <- runif(n)
 u  <- (1-q)*f0 + q*f1
 x  <- rpois(n,s*u)
@@ -39,3 +39,11 @@ print(data.frame(true        = c(f0,f1),
 # Compare the log-likelihood at each of the solutions.
 cat(sprintf("optim: %0.2f\n",-out1$value))
 cat(sprintf("EM:    %0.2f\n",max(out2$loglik)))
+
+# Compute z-score for b in ...
+dat <- data.frame(x = x,q = q)
+fit <- glm(x ~ q,family = poisson(link = "identity"),data = dat,
+           control = list(epsilon = 1e-15,maxit = 1000))
+
+# Compute log-fold change statistic and z-score.
+# TO DO.
