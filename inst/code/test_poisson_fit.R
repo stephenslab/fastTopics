@@ -3,10 +3,10 @@
 
 # Simulate a Poisson data set.
 set.seed(1)
-n  <- 2000 # 200
+n  <- 200
 f0 <- 0.1
 f1 <- 1
-s  <- rep(1,n) # sample(10,n,replace = TRUE)
+s  <- sample(10,n,replace = TRUE)
 q  <- runif(n)
 u  <- (1-q)*f0 + q*f1
 x  <- rpois(n,s*u)
@@ -29,8 +29,17 @@ out4 <- fit_poisson_em_sparse_rcpp(x[i],s[i],q[i],sum(s*(1-q)),sum(s*q),
                                    1,1,1e-15,40)
 print(max(abs(out2$loglik - out4$loglik)))
 
+# Finally, fit the model parameters using glm with family =
+# poisson(link = "identity").
+f0  <- out2$f["f0"]
+f1  <- out2$f["f1"]
+dat <- data.frame(x = x,b0 = s,b = s*q)
+fit <- glm(x ~ b0 + b - 1,family = poisson(link = "identity"),data = dat,
+           start = c(f0,f1 - f0),control = list(epsilon = 1e-15,maxit = 100))
+
 # Compare the estimates against the values used to simulate the data.
 print(data.frame(true        = c(f0,f1),
+                 glm         = c(b0,b),
                  optim       = out1$par,
                  em          = out2$f,
                  rcpp        = with(out3,c(f0,f1)),
@@ -40,10 +49,18 @@ print(data.frame(true        = c(f0,f1),
 cat(sprintf("optim: %0.2f\n",-out1$value))
 cat(sprintf("EM:    %0.2f\n",max(out2$loglik)))
 
-# Compute z-score for b in ...
-dat <- data.frame(x = x,q = q)
-fit <- glm(x ~ q,family = poisson(link = "identity"),data = dat,
-           control = list(epsilon = 1e-15,maxit = 1000))
-
-# Compute log-fold change statistic and z-score.
+# Calculate the z-scores for the glm (with identity link)
+# parameterization, and compare against the internal glm calculations.
+b0 <- coef(fit)["b0"]
+b  <- coef(fit)["b"]
+u  <- b0 + q*b
+se <- sqrt(diag(solve(rbind(c(sum(x/u^2),sum(x*q/u^2)),
+                            c(sum(x*q/u^2),sum(x*(q/u)^2))))))
+z  <- coef(fit)/se
+cat("standard errors:\n")
+print(data.frame(glm = summary(fit)$coefficients[,"Std. Error"],se = se))
+cat("z-scores:\n")
+print(data.frame(glm = summary(fit)$coefficients[,"z value"],z = z))
+            
+# Calculate the z-scores for the "log-fold change" parameterization.
 # TO DO.

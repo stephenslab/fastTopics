@@ -1,3 +1,13 @@
+# Compute the upper triangular Cholesky factor for a 2 x 2 matrix.
+# Should give the same output as chol(A).
+chol2x2 <- function (A) {
+  a <- sqrt(A[1,1])
+  b <- A[1,2]/a
+  c <- sqrt(A[2,2] - b^2)
+  return(rbind(c(a,b),
+               c(0,c)))
+}
+
 # Return true if x is a compressed, sparse, column-oriented numeric
 # matrix.
 is.sparse.matrix <- function (x)

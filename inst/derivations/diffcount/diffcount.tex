@@ -30,7 +30,7 @@ expression differences between two conditions (e.g.,
 \cite{cui-churchill-2003, quackenbush-2002}). The log-fold change for
 gene $j$ and condition $k$ is a ratio of two conditional expectations,
 \begin{equation}
-\mathsf{lfc}(j,k) \equiv
+\beta_{jk} \equiv
 \log_2 \frac{E[\,x_j \,|\, \mathrm{condition} = k\,]}
             {E[\,x_j \,|\, \mathrm{condition} \neq k\,]},
 \label{eq:lfc}
@@ -40,8 +40,8 @@ $j$.\footnote{Defining $x_{jk}$ as the total gene expression for gene
   $j$ among all samples (expression profiles) in condition $k$, $x_j$
   as the total gene expression for gene $j$ in all samples, $n_k$ as
   the number of samples in condition $k$, and $n$ as the total sample
-  size, the log-fold change can be computed as $\mathsf{lfc}(j,k) =
-  \log_2 \Big\{ \frac{x_{jk}}{x_j - x_{jk}} \times \frac{n - n_k}{n_k}
+  size, the log-fold change can be computed as $\beta_{jk} = \log_2
+  \Big\{ \frac{x_{jk}}{x_j - x_{jk}} \times \frac{n - n_k}{n_k}
   \Big\}$.} The way in which the expression level $x_j$ is defined can
 lead to different log-fold change statistics. For example, several
 popular methods for analyzing differential expression compare changes
@@ -77,19 +77,19 @@ are defined as
 \end{equation}
 where $q_i \in [0,1]$ is the (known) proportion of sample $i$ that is
 attributed to the topic, and $p_0, p_1 \in [0, 1]$ are two unknowns to
-be estimated.\footnote{This is a special case of a well-studied model
-  in econometrics called the {\em linear probability model}
-  \cite{stock-watson}. The linear probability model would be typically
-  written as $\pi_i = \beta_0 + q_i \beta$, where $\beta_0 = p_0$ and
-  $\beta = p_1 - p_0 \in [-1, +1]$. This is a regression model for the
-  binomial probability $\pi_i$, in which $\pi_i$ increases linearly
-  with topic proportion $q_i$.}
+be estimated.\footnote{This is a special case of the {\em linear
+    probability model} in econometrics called \cite{stock-watson}. The
+  linear probability model would be typically written as $\pi_i = b_0
+  + q_i b$, where $b_0 = p_0$ and $n = p_1 - p_0 \in [-1, +1]$. This
+  is a regression model for the binomial probability $\pi_i$, in which
+  $\pi_i$ increases linearly with topic proportion $q_i$.}
 
 Statistical inference with this simple binomial model implements
 analysis of differential gene expression. In particular,
-$\log_2(p_1/p_0)$ is the {\em log-fold change in relative expression.}
-To show that this is so, consider the following statistical process
-for generating the counts $x_1, \ldots, x_n$:
+$\beta^{\mathsf{rel}} \equiv \log_2(p_1/p_0)$ is the {\em log-fold
+  change in relative expression.} To show that this is so, consider
+the following statistical process for generating the counts $x_1,
+\ldots, x_n$:
 \vspace{1em}
 \begin{itemize}
 
@@ -120,8 +120,8 @@ the topic, and $p_0 = p(w_{it} = 1 \,|\, z_{it} = 0)$ is the
 probability that the gene is expressed when not belonging to the
 topic. Therefore, we have
 \begin{equation}
-\log_2 \frac{p_1}{p_0} = 
-\log_2 \frac{p(w_{it} = 1 \,|\, z_{it} = 1)}
+\beta^{\mathsf{rel}} \equiv \log_2 \frac{p_1}{p_0}  
+= \log_2 \frac{p(w_{it} = 1 \,|\, z_{it} = 1)}
             {p(w_{it} = 1 \,|\, z_{it} = 0)}.
 \label{eq:lfc-binom}
 \end{equation}
@@ -164,7 +164,8 @@ more flexibility; for now, assume $t_i = 1$ for all $i = 1, \ldots,
 n$.) Observe that, unlike the binomial model, the unknowns for the
 Poisson model are not constrained to be in $[0, 1]$, and so they
 cannot represent probabilities. In the following, we show that
-$\log_2(f_1/f_0)$ is the log-fold change in absolute expression.
+$\beta^{\mathsf{abs}} \equiv \log_2(f_1/f_0)$ is the log-fold change
+in absolute expression.
 
 Consider the following process for generating the counts $x_1, \ldots,
 x_n$:
@@ -194,6 +195,7 @@ In this generative process, $f_1 = E[a_i]$ represents the
 within-topic gene rate, and $f_0 = E[b_i]$ is the outside-topic gene
 rate, and therefore 
 \begin{equation}
+\beta^{\mathsf{abs}} \equiv 
 \log_2 \frac{f_1}{f_0} = \log_2 \frac{E[a_i]}{E[b_i]}
 \label{eq:lfc-poisson}
 \end{equation}
@@ -253,8 +255,8 @@ Poisson models.
 
 \section{Poisson model derivations}
 
-To derive a fitting algorithm for the Poisson model
-\eqref{eq:poisson}, we begin with the log-likelihood,
+To derive an algorithm for computing MLEs of $f_0, f_1$ in the Poisson
+model \eqref{eq:poisson}, we begin with the log-likelihood,
 \begin{equation}
 \ell(f_0, f_1) \equiv \log p(x \,|\, f_0, f_1) = 
 \sum_{i=1}^n x_i \log (t_i \lambda_i) - t_i \lambda_i +
@@ -262,15 +264,25 @@ To derive a fitting algorithm for the Poisson model
 \label{eq:loglik-poisson}
 \end{equation}
 in which the ``const'' captures all terms that do not depend on $f_0$
-or $f_1$. The partial derivatives of the log-likelihood are
+or $f_1$. A useful identity is that the partial derivative of the
+log-likelihood with respect to $\lambda_i$ is
+\begin{equation*}
+\frac{\partial\ell}{\partial\lambda_i} = \frac{x_i}{\lambda_i} - t_i.
+\end{equation*}
+Making use of this result, the partial derivatives of the
+log-likelihood with respect to the model parameters $f_0$ and $f_1$
+are
 \begin{align}
 \frac{\partial\ell}{f_0} &= 
-\sum_{i=1}^n \frac{x_i - t_i\lambda_i}{\lambda_i} \times (1-q_i) \\
+\sum_{i=1}^n (x_i/\lambda_i - t_i) \times (1-q_i) \\
 \frac{\partial\ell}{f_1} &= 
-\sum_{i=1}^n \frac{x_i - t_i\lambda_i}{\lambda_i} \times q_i.
+\sum_{i=1}^n (x_i/\lambda_i - t_i) \times q_i.
 \end{align}
+We use a quasi-Newton method implemented in the R function {\tt
+  optim} to minimize the negative log-likelihood
+\eqref{eq:loglik-poisson}.
 
-There is a simple EM algorithm for fitting the Poison model
+We also implement a simple EM algorithm for fitting the Poison model
 \eqref{eq:poisson}. The key is to introduce latent variables $a_i \sim
 \mathrm{Poisson}(t_i (1-q_i) f_0)$ and $b_i \sim \mathrm{Poisson}(t_i
 q_i f_1)$, then work with the expected complete log-likelihood
@@ -290,7 +302,17 @@ E[b_i]$. These posterior expectations are computed in the ``E-step'':
 This completes the description of the EM algorithm for the Poisson
 model.
 
-Definitions and derivations used for z-score calculations:
+Once we have obtained MLEs of $f_0$ and $f_1$, we would also like to
+characterize uncertainty in these estimates---that is, compute the
+standard error (s.e.). In particular, we are interested in the s.e. of
+the log-fold change statistic, $\beta^{\mathsf{abs}}$. As an
+intermediate step, we consider the parameterization $\lambda_i = b_0 +
+q_i b$, where $b = f_1 - f_0$ and $b_0 = f_0$. This parameterization
+can be implemented using {\tt glm} in R with {\tt family =
+  poisson(link = "identity")}, and therefore can be used to verify our
+calculations.
+
+Definitions and derivations used for $z$-score calculations:
 \begin{align}
 \beta     &\equiv \log\frac{f_1}{f_0} \\
 \lambda_i &= f_0\{1 - q_i(1-e^{\beta})\} \\
