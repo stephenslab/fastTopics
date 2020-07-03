@@ -1,7 +1,7 @@
-# Compute the Poisson rates given the size factors (s), topic
-# proportions (q), and parameters (f0, f1) of the Poisson model.
-get_poisson_rates <- function (s, q, f0, f1)
-  s*((1-q)*f0 + q*f1)
+# Compute the Poisson rates given the topic proportions (q) and
+# parameters (f0, f1) of the Poisson model.
+get_poisson_rates <- function (q, f0, f1)
+  (1-q)*f0 + q*f1
 
 # This should give the same, or nearly the same, result as
 # sum(dpois(x,y,log = TRUE)), except that terms that do not depend on
@@ -112,14 +112,14 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   # This is used to computes the negative log-likelihood, in which
   # par = c(f0,f1).
   f <- function (par) {
-    su <- get_poisson_rates(s,q,par[1],par[2])
-    return(-loglik_poisson(x,su,e))
+    u <- get_poisson_rates(q,par[1],par[2])
+    return(-loglik_poisson(x,s*u,e))
   }
   
   # Returns the gradient of the negative log-likelihood, in which
   # par = c(f0,f1).
   g <- function (par) {
-    u <- get_poisson_rates(s,q,par[1],par[2])/s
+    u <- get_poisson_rates(q,par[1],par[2])
     y <- (s*u - x)/(u + e)
     return(c(sum(y*(1-q)),sum(y*q)))
   }
@@ -169,8 +169,8 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15, numiter = 40) {
     
     # Compute the log-likelihood at the current estimates of the model
     # parameters (ignoring terms that don't depend on f0 or f1).
-    su           <- get_poisson_rates(s,q,f0,f1)
-    loglik[iter] <- loglik_poisson(x,su,e)
+    u            <- get_poisson_rates(q,f0,f1)
+    loglik[iter] <- loglik_poisson(x,s*u,e)
   }
 
   # Output the estimates of f0 and f1, and the log-likelihood at each EM
