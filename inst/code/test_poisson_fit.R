@@ -76,52 +76,65 @@ print(data.frame(glm = summary(fit)$coefficients[,"z value"],z = z))
 cat("p-values:\n")
 print(data.frame(glm = summary(fit)$coefficients[,"Pr(>|z|)"],pval = pval))
 
-stop()
-
 # Calculate the z-scores for the "log-fold change" parameterization.
 # TO DO.
 
 # GRADIENT & HESSIAN CALCULATIONS
 # -------------------------------
+f0 <- 0.11
+f1 <- 1.2
+
 # First-order derivatives w.r.t. f0, f1.
 f <- function (par) {
-  u <- get_poisson_rates(s,q,par[1],par[2])
-  return(loglik_poisson(x,u,1e-15))
-}
-u <- get_poisson_rates(s,q,f0,f1)/s
-y <- (x/u - s)
-c(sum(y*(1-q)),
-  sum(y*q))
-grad(f,c(f0,f1))
-
-# First-order derivatives w.r.t. f0, beta.
-f <- function (par) {
-  u <- par[1]*(1 - q*(1 - exp(par[2])))
+  f0 <- par[1]
+  f1 <- par[2]
+  u  <- get_poisson_rates(q,f0,f1)
   return(loglik_poisson(x,s*u,1e-15))
 }
-beta <- log(f1/f0)
-u <- f0*(1 - q*(1 - exp(beta)))
-c(sum(x - s*u)/f0,
-  f1*sum(q*(x/u - s)))
-grad(f,c(f0,beta))
+u <- get_poisson_rates(q,f0,f1)
+y <- (x/u - s)
+print(cbind(c(sum(y*(1-q)),sum(y*q)),
+            grad(f,c(f0,f1))))
+
+# First-order derivatives w.r.t. f0, beta.
+get_poisson_rates2 <- function (q, f0, b)
+  f0*(1 - q*(1 - exp(b)))
+f <- function (par) {
+  f0 <- par[1]
+  b  <- par[2]
+  u  <- get_poisson_rates2(q,f0,b)
+  return(loglik_poisson(x,s*u,1e-15))
+}
+b <- log(f1/f0)
+u <- get_poisson_rates2(q,f0,b)
+print(cbind(c(sum(x - s*u)/f0,f1*sum(q*(x/u - s))),
+            grad(f,c(f0,b))))
+
+f0 <- out2$f["f0"]
+f1 <- out2$f["f1"]
+b  <- log(f1/f0)
 
 # Second-order derivatives w.r.t. f0, beta.
 g <- function (par) {
-  u <- par[1]*(1 - q*(1 - exp(par[2])))
-  return(sum(x - s*u)/par[1])
+  f0 <- par[1]
+  b  <- par[2]
+  u  <- get_poisson_rates2(q,f0,b)
+  return(sum(x - s*u)/f0)
 }
-c(-sum(x)/f0^2,
-  -f1/f0*sum(s*q))
-grad(g,c(f0,beta))
+print(cbind(c(-sum(x)/f0^2,-f1/f0*sum(s*q)),
+            grad(g,c(f0,b))))
 
+# Second-order derivatives w.r.t. f0, beta.
 g <- function (par) {
-  u  <- par[1]*(1 - q*(1 - exp(par[2])))
-  f1 <- par[1]*exp(par[2])
+  f0 <- par[1]
+  b  <- par[2]
+  u  <- get_poisson_rates2(q,f0,b)
+  f1 <- f0*exp(b)
   return(f1*sum(q*(x/u - s)))
 }
-c(-f1/f0*sum(s*q),
-  -f1*sum(q*(s - f0*x*(1-q)/u^2)))
-grad(g,c(f0,beta))
+u <- get_poisson_rates2(q,f0,b)
+print(cbind(c(-f1/f0*sum(s*q),-f1*sum(q*(s - f0*x*(1-q)/u^2))),
+            grad(g,c(f0,b))))
 
-# At MLE:
--f1^2*sum(x*(q/u)^2)
+# At the MLE, the second-order derivatives simplify:
+print(-f1^2*sum(x*(q/u)^2))
