@@ -282,6 +282,8 @@ We use a quasi-Newton method implemented in the R function {\tt
   optim} to minimize the negative log-likelihood
 \eqref{eq:loglik-poisson}.
 
+\subsection{EM for Poisson model} 
+
 We also implement a simple EM algorithm for fitting the Poison model
 \eqref{eq:poisson}. The key is to introduce latent variables $a_i \sim
 \mathrm{Poisson}(t_i (1-q_i) f_0)$ and $b_i \sim \mathrm{Poisson}(t_i
@@ -302,15 +304,17 @@ E[b_i]$. These posterior expectations are computed in the ``E-step'':
 This completes the description of the EM algorithm for the Poisson
 model.
 
+\subsection{glm identity parameterization}
+
 Once we have obtained MLEs of $f_0$ and $f_1$, we would also like to
 characterize uncertainty in these estimates---that is, compute the
 standard error (s.e.). In particular, we are interested in the s.e. of
 the log-fold change statistic, $\beta^{\mathsf{abs}}$. As an
-intermediate step, we consider the parameterization $\lambda_i = b_0 +
-q_i b$, where $b = f_1 - f_0$ and $b_0 = f_0$. This parameterization
-can be implemented using {\tt glm} in R with {\tt family =
-  poisson(link = "identity")}, and therefore can be used to verify our
-calculations.
+intermediate step, we consider the ``glm identity'' parameterization
+$\lambda_i = b_0 + q_i b$, where $b = f_1 - f_0$ and $b_0 = f_0$. This
+parameterization can be implemented using {\tt glm} in R with {\tt
+  family = poisson(link = "identity")}, and therefore can be used to
+verify our calculations.
 
 Under the Laplace approximation to the likelihood at the MLE
 $(\hat{b}_0, \hat{b})$, the covariance matrix is $-H^{-1}$, where $H$
@@ -326,19 +330,28 @@ is the $2 \times 2$ matrix of second-order partial derivatives,
 This result can be used to obtain the standard errors and $z$-scores
 for $\hat{b}_0$ and $\hat{b}$.
 
-Definitions and derivations used for $z$-score calculations:
+\subsection{Log-fold change parameterization}
+
+More definitions and derivations used for $z$-score calculations:
 \begin{align}
-\lambda_i &= f_0\{1 - q_i(1-e^{\beta})\} \\
-\frac{\partial\ell}{f_0} &= 
-\sum_{i=1}^n \frac{x_i - t_i\lambda_i}{\lambda_i} \times (1-q_i) \\
-\frac{\partial\ell}{\beta} &= 
-\sum_{i=1}^n \frac{x_i - t_i\lambda_i}{\lambda_i} \times q_i f_1 \\
+\lambda_i &= f_0 \times \{1 - q_i(1-e^{\beta})\} \\
+\frac{\partial\ell}{f_0} &= \frac{1}{f_0} \sum_{i=1}^n 
+x_i - t_i\lambda_i \\
+\frac{\partial\ell}{\beta} &= f_1 \sum_{i=1}^n 
+(x_i/\lambda_i - t_i) \times q_i \\
 \frac{\partial^2\ell}{f_0^2} &=
--\sum_{i=1}^n x_i \times \left(\frac{1-q_i}{\lambda_i}\right)^2 \\
-\frac{\partial^2\ell}{\beta^2} &= \\
+-\frac{1}{f_0^2} \sum_{i=1}^n x_i \\
+\frac{\partial^2\ell}{\beta^2} &= 
+-f_1 \sum_{i=1}^n q_i(t_i - f_0 x_i(1-q_i)/\lambda_i^2) \\
 \frac{\partial^2\ell}{f_0\partial\beta} &= 
--\sum_{i=1}^n x_i \times \frac{(1-q_i) q_i f_1}{\lambda_i^2}
+-\frac{f_1}{f_0} \sum_{i=1}^n t_i q_i.
 \end{align}
+Note that at the MLE, the gradient of the log-likelihood with respect
+to $\beta$ vanishes, and so we have one useful simplification at the
+MLE:
+\begin{equation}
+\frac{\partial^2\ell}{\beta^2} = -f_1^2 \sum_{i=1}^n x_i (q_i/\lambda_i)^2.
+\end{equation}
 
 \section{The multinomial topic model and Poisson non-negative matrix
   factorization}
