@@ -9,6 +9,18 @@ get_poisson_rates <- function (q, f0, f1)
 loglik_poisson <- function (x, y, e = 1e-15)
   return(sum(x*log(y+e) - y))
 
+# TO DO: Explain here what this function does, and how to use it.
+compute_poisson_zscore <- function (x, q, f0, f1) {
+  b   <- log(f1/f0)
+  u   <- get_poisson_rates(q,f0,f1)
+  se  <- sqrt(diag(solve(rbind(c(sum(x)/f0^2,f1/f0*sum(s*q)),
+                               c(f1/f0*sum(s*q),f1^2*sum(x*(q/u)^2))))))
+  se  <- se[2]
+  out <- c(b/log(2),se/log(2),b/se)
+  names(out) <- c("beta","se","z")
+  return(out)
+}
+
 # For each column of the counts matrix, and for each topic, compute
 # maximum-likelihood estimates (MLEs) of the parameters in the
 # single-count (univariate) Poisson model.

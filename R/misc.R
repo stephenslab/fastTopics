@@ -1,17 +1,8 @@
-# For symmetric, invertible matrix A, returns the same result as
-# sqrt(solve(A)[2,2]). For example,
+# Compute two-tailed p-value from z-score.
 #
-#   A <- rbind(c(3,-1),
-#              c(-1,5))
-#   sqrt(solve(A)[2,2]) - sqrtinv2x2(A)
-#
-# should give zero.
-sqrtinv2x2 <- function (A) {
-  a <- A[1,1]
-  b <- A[2,1]
-  c <- A[2,2]
-  return(1/sqrt(c - b^2/a))
-}
+#' @importFrom stats pnorm
+pfromz <- function (z)
+  2*pnorm(-abs(z))
 
 # Return true if x is a compressed, sparse, column-oriented numeric
 # matrix.
