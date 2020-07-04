@@ -12,7 +12,8 @@ loglik_poisson <- function (x, y, e = 1e-15)
 # Given the counts (x), topic proportions (q), "size factors" (s), and
 # estimates of the the model parameters, f0 and f1, return: (1) the
 # (base-2) log-fold change statistic beta = log2(f1/f0), the standard
-# error of the log-fold change (se), and the z-score (z).
+# error of the log-fold change (se), the z-score (z), and the
+# two-tailed p-value computed from the z-score (pval).
 compute_poisson_zscore <- function (x, q, s, f0, f1) {
 
   # Compute the standard error (s.e.). The last line should give the
@@ -32,17 +33,25 @@ compute_poisson_zscore <- function (x, q, s, f0, f1) {
     se <- sqrt(a)/(f1*sqrt(a*c - b^2))
 
   # Return the (base-2) log-fold change statistic (beta), the standard
-  # error of the log-fold change (se), and the z-score (z).
+  # error of the log-fold change (se), the z-score (z), and the
+  # two-sided p-value.
   b   <- log(f1/f0)
-  out <- c(b/log(2),se/log(2),b/se)
-  names(out) <- c("beta","se","z")
+  z   <- b/se
+  out <- c(b/log(2),se/log(2),z,pfromz(z))
+  names(out) <- c("beta","se","z","pval")
   return(out)
 }
 
 # TO DO: Explain here what this function does, and how to use it.
-compute_univar_poisson_zscores <- function (X, L, s = rep(1,nrow(X)), F0, F1,
+compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
                                             version = c("Rcpp","R")) {
-
+  version <- match.arg(version)
+  if (version == "R") {
+    # TO DO.
+  } else if (version == "Rcpp") {
+    # TO DO.
+  }
+  
   # Return ...
   return(list(beta = beta,se = se,Z = Z,pval = pval))
 }
