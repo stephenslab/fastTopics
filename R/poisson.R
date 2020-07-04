@@ -44,10 +44,11 @@ compute_poisson_zscore <- function (x, q, s, f0, f1) {
 
 # TO DO: Explain here what this function does, and how to use it.
 compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
-                                            test_version = FALSE) {
-  if (test_version) {
+                                            version = c("Rcpp","R")) {
+  version <- match.arg(version)
+  if (version == "R") {
     # TO DO.
-  } else
+  } else if (version == "Rcpp") {
     # TO DO.
   }
   
