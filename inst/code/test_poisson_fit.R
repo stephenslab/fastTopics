@@ -5,7 +5,7 @@ library(pracma)
 
 # Simulate a Poisson data set.
 set.seed(1)
-n  <- 200
+n  <- 40
 f0 <- 0.1
 f1 <- 1
 s  <- sample(10,n,replace = TRUE)
@@ -45,8 +45,7 @@ b0  <- coef(fit)["b0"]
 b   <- coef(fit)["b"]
 
 # Compare the estimates against the values used to simulate the data.
-print(data.frame(true        = c(f0,f1),
-                 glm         = c(b0,b + b0),
+print(data.frame(glm         = c(b0,b + b0),
                  optim       = out1$par,
                  em          = out2$f,
                  rcpp        = with(out3,c(f0,f1)),
@@ -77,7 +76,19 @@ cat("p-values:\n")
 print(data.frame(glm = summary(fit)$coefficients[,"Pr(>|z|)"],pval = pval))
 
 # Calculate the z-scores for the "log-fold change" parameterization.
-# TO DO.
+f0 <- out2$f["f0"]
+f1 <- out2$f["f1"]
+b  <- log(f1/f0)
+u  <- get_poisson_rates(q,f0,f1)
+se <- sqrt(diag(solve(rbind(c(sum(x)/f0^2,f1/f0*sum(s*q)),
+                            c(f1/f0*sum(s*q),f1^2*sum(x*(q/u)^2))))))
+z  <- c(f0,b)/se
+pval <- 2*pnorm(-abs(z))
+print(data.frame(mle  = c(f0,b/log(2)),
+                 se   = se/c(1,log(2)),
+                 z    = z,
+                 pval = pval,
+                 row.names = c("f0","beta")))
 
 # GRADIENT & HESSIAN CALCULATIONS
 # -------------------------------
@@ -136,5 +147,5 @@ u <- get_poisson_rates2(q,f0,b)
 print(cbind(c(-f1/f0*sum(s*q),-f1*sum(q*(s - f0*x*(1-q)/u^2))),
             grad(g,c(f0,b))))
 
-# At the MLE, the second-order derivatives simplify:
+# At the MLE, the second-order derivatives simplify.
 print(-f1^2*sum(x*(q/u)^2))

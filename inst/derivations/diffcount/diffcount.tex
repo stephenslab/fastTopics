@@ -334,6 +334,8 @@ for $\hat{b}_0$ and $\hat{b}$.
 
 More definitions and derivations used for $z$-score calculations:
 \begin{align}
+\beta &\equiv \log \frac{f_1}{f_0}, \qquad 
+\beta^{\mathsf{abs}} = \frac{\beta}{\log 2} \\
 \lambda_i &= f_0 \times \{1 - q_i(1-e^{\beta})\} \\
 \frac{\partial\ell}{f_0} &= \frac{1}{f_0} \sum_{i=1}^n 
 x_i - t_i\lambda_i \\
@@ -343,7 +345,7 @@ x_i - t_i\lambda_i \\
 -\frac{1}{f_0^2} \sum_{i=1}^n x_i \\
 \frac{\partial^2\ell}{\beta^2} &= 
 -f_1 \sum_{i=1}^n t_i q_i - x_i f_0 q_i (1-q_i)/\lambda_i^2 \\
-\frac{\partial^2\ell}{f_0\partial\beta} &= 
+\frac{\partial^2\ell}{\partial f_0 \partial\beta} &= 
 -\frac{f_1}{f_0} \sum_{i=1}^n t_i q_i.
 \end{align}
 Note that at the MLE, the gradient of the log-likelihood with respect
