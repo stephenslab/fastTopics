@@ -89,8 +89,8 @@ print(data.frame(mle  = c(f0,b/log(2)),
                  z    = z,
                  pval = pval,
                  row.names = c("f0","beta")))
-print(compute_poisson_zscore(x,q,f0,f1))
-stop()
+print(compute_poisson_zscore(x,q,s,f0,f1))
+print(log2(f1/f0))
 
 # GRADIENT & HESSIAN CALCULATIONS
 # -------------------------------

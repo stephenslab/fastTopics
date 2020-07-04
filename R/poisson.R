@@ -9,16 +9,42 @@ get_poisson_rates <- function (q, f0, f1)
 loglik_poisson <- function (x, y, e = 1e-15)
   return(sum(x*log(y+e) - y))
 
-# TO DO: Explain here what this function does, and how to use it.
-compute_poisson_zscore <- function (x, q, f0, f1) {
+# Given the counts (x), topic proportions (q), "size factors" (s), and
+# estimates of the the model parameters, f0 and f1, return: (1) the
+# (base-2) log-fold change statistic beta = log2(f1/f0), the standard
+# error of the log-fold change (se), and the z-score (z).
+compute_poisson_zscore <- function (x, q, s, f0, f1) {
+
+  # Compute the standard error (s.e.). The last line should give the
+  # same result, but the computation is done in a more numerically
+  # stable way.
+  #
+  #   se <- sqrt(diag(solve(rbind(c(a/f0^2,f1/f0*b),
+  #                               c(f1/f0*b,f1^2*c)))))[2]
+  #  
+  u <- get_poisson_rates(q,f0,f1)
+  a <- sum(x)
+  b <- sum(s*q)
+  c <- sum(x*(q/u)^2)
+  if (f1 <= 0 | a <= 0 | a*c < b^2)
+    se <- Inf
+  else
+    se <- sqrt(a)/(f1*sqrt(a*c - b^2))
+
+  # Return the (base-2) log-fold change statistic (beta), the standard
+  # error of the log-fold change (se), and the z-score (z).
   b   <- log(f1/f0)
-  u   <- get_poisson_rates(q,f0,f1)
-  se  <- sqrt(diag(solve(rbind(c(sum(x)/f0^2,f1/f0*sum(s*q)),
-                               c(f1/f0*sum(s*q),f1^2*sum(x*(q/u)^2))))))
-  se  <- se[2]
   out <- c(b/log(2),se/log(2),b/se)
   names(out) <- c("beta","se","z")
   return(out)
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+compute_univar_poisson_zscores <- function (X, L, s = rep(1,nrow(X)), F0, F1,
+                                            version = c("Rcpp","R")) {
+
+  # Return ...
+  return(list(beta = beta,se = se,Z = Z,pval = pval))
 }
 
 # For each column of the counts matrix, and for each topic, compute
