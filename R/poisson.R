@@ -59,8 +59,10 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e = 1e-15) {
 # the number of topics: (base-2) log-fold change statistics (beta);
 # their standard errors (se); z-scores (z); and two-tailed p-values
 # computed from the z-score (pval).
+#
+#' @importFrom progress progress_bar
 compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
-                                            e = 1e-15) {
+                                            e = 1e-15, verbose = TRUE) {
 
   # Get the number of columns in the counts matrix (m) and the number
   # of topics (k).
@@ -75,7 +77,11 @@ compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
 
   # For each column of the counts matrix and for for each topic,
   # compute the z-score for the log-fold change statistic.
-  for (i in 1:m)
+  if (verbose)
+    pb <- progress_bar$new(total = m)
+  for (i in 1:m) {
+    if (verbose)
+      pb$tick()
     for (j in 1:k) {
       out       <- compute_poisson_zscore(X[,i],L[,j],s,F0[i,j],F1[i,j])
       beta[i,j] <- out["beta"]
@@ -83,6 +89,7 @@ compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
       Z[i,j]    <- out["z"]
       pval[i,j] <- out["pval"]
     }
+  }
 
   # Return the (base-2) log-fold change statistics (beta), their
   # standard errors (se), the z-scores (z), and the two-sided

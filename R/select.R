@@ -23,7 +23,7 @@
 #' @importFrom dplyr select
 #'
 #' @method select multinom_topic_model_fit
-#'  
+#'
 #' @export
 #' 
 select.multinom_topic_model_fit <- function (.data, loadings, ...) {

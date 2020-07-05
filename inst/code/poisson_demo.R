@@ -58,7 +58,7 @@ plot(rowMeans(dat$F[,-i]) + e,out.em$F0[,i] + e,pch = 20,log = "xy",
      xlab = "true f0 (approx)",ylab = "estimated f0")
 abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 
-# Compute the log-fold change and Z-score for each gene k and topic k.
+# Compute the log-fold change and Z-score for each gene j and topic k.
 out <- compute_univar_poisson_zscores(X,L,out.em$F0,out.em$F1,s)
 
 # Here we show that the Z-score varies (predictably) with the log-fold
@@ -84,4 +84,3 @@ print(ggplot(pdat,aes(x = beta,y = abs(z),fill = log10(x))) +
   scale_fill_gradient2(low = "skyblue",mid = "gold",
                        high = "orangered",midpoint = 0) +
   theme_cowplot(12))
-
