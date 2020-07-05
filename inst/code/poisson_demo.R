@@ -1,5 +1,7 @@
 # TO DO: Explain here what this script is for, and how to use it.
 library(Matrix)
+library(ggplot2)
+library(cowplot)
 
 # Simulate data.
 set.seed(1)
@@ -24,7 +26,7 @@ print(t4)
 
 # Check that the R and C++ implementations of the EM algorithm produce
 # the same, or nearly the same, likelihoods and estimates of the model
-# parameters, f0 and f1.
+# parameters (f0, f1).
 print(max(abs(out.em$F0 - out.em2$F0)))
 print(max(abs(out.em$F0 - out.em3$F0)))
 print(max(abs(out.em$F1 - out.em2$F1)))
@@ -41,14 +43,14 @@ abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 # Compare the EM and optim log-likelihoods.
 print(range((out.em$loglik - out.optim$loglik)/out.optim$loglik))
 
-# For the selected topic (i), compare f1 estimates against the Poisson
+# For the selected topic, compare f1 estimates against the Poisson
 # rates used to simulate the data.
-i <- 3
+i <- 1
 plot(dat$F[,i] + e,out.em$F1[,i] + e,pch = 20,log = "xy",
      xlab = "true f1",ylab = "estimated f1")
 abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 
-# For the selected topic (i), compare f0 estimates against the Poisson
+# For the selected topic, compare f0 estimates against the Poisson
 # rates used to simulate the data. Since there is no "f0" used to
 # simulate the data, here we approximate f0 by taking the average of
 # the Poisson rates across all topics other than topic i.
@@ -56,4 +58,30 @@ plot(rowMeans(dat$F[,-i]) + e,out.em$F0[,i] + e,pch = 20,log = "xy",
      xlab = "true f0 (approx)",ylab = "estimated f0")
 abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 
+# Compute the log-fold change and Z-score for each gene k and topic k.
+out <- compute_univar_poisson_zscores(X,L,out.em$F0,out.em$F1,s)
+
+# Here we show that the Z-score varies (predictably) with the log-fold
+# change estimate and the average expression level.
+pdat <- data.frame(x = colMeans(X),beta = out$beta[,i],z = out$Z[,i])
+pdat <- subset(pdat,beta > -5)
+print(ggplot(pdat,aes(x = x,y = beta,fill = z)) +
+  geom_point(size = 2,shape = 21,color = "white") +
+  geom_abline(intercept = 0,slope = 0,color = "gray",linetype = "dotted") +
+  scale_x_continuous(trans = "log10") +
+  scale_fill_gradient2(low = "darkblue",mid = "skyblue",
+                       high = "orangered",midpoint = 0) +
+  labs(x = "average expression",y = "log-fold change",fill = "z-score") +
+  theme_cowplot(12))
+
+# Show a traditional volcano plot, in which log-fold change is shown
+# on the x-axis, and the z-score is shown on the y-axis. To illustrate
+# the impact of overall gene expression level on the z-scores, the
+# (log) average expression level is shown by a colour gradient.
+print(ggplot(pdat,aes(x = beta,y = abs(z),fill = log10(x))) +
+  geom_point(size = 2,shape = 21,color = "white") +
+  labs(x = "log-fold change",y = "|z-score|",fill = "log10(avg.exp.)") +
+  scale_fill_gradient2(low = "skyblue",mid = "gold",
+                       high = "orangered",midpoint = 0) +
+  theme_cowplot(12))
 
