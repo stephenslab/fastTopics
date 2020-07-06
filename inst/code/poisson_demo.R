@@ -59,7 +59,12 @@ plot(rowMeans(dat$F[,-i]) + e,out.em$F0[,i] + e,pch = 20,log = "xy",
 abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 
 # Compute the log-fold change and Z-score for each gene j and topic k.
-out <- compute_univar_poisson_zscores(X,L,out.em$F0,out.em$F1,s)
+out1 <- compute_univar_poisson_zscores(X,L,out.em$F0,out.em$F1,s)
+out2 <- compute_univar_poisson_zscores_fast(X,L,out.em$F0,out.em$F1,s)
+print(max(abs(out1$beta - out2$beta)))
+print(max(abs(out1$se   - out2$se),na.rm = TRUE))
+print(max(abs(out1$Z    - out2$Z)))
+print(max(abs(out1$pval - out2$pval)))
 
 # Here we show that the Z-score varies (predictably) with the log-fold
 # change estimate and the average expression level.

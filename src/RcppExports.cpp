@@ -334,6 +334,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_poisson_precision_beta_sparse_rcpp
+arma::mat compute_poisson_precision_beta_sparse_rcpp(const arma::mat& X, const arma::mat& L, const arma::mat& F0, const arma::mat& F1);
+RcppExport SEXP _fastTopics_compute_poisson_precision_beta_sparse_rcpp(SEXP XSEXP, SEXP LSEXP, SEXP F0SEXP, SEXP F1SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type F0(F0SEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type F1(F1SEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_poisson_precision_beta_sparse_rcpp(X, L, F0, F1));
+    return rcpp_result_gen;
+END_RCPP
+}
 // fit_poisson_em_rcpp
 List fit_poisson_em_rcpp(const arma::vec& x, const arma::vec& s, const arma::vec& q, double f0, double f1, double e, unsigned int numiter);
 RcppExport SEXP _fastTopics_fit_poisson_em_rcpp(SEXP xSEXP, SEXP sSEXP, SEXP qSEXP, SEXP f0SEXP, SEXP f1SEXP, SEXP eSEXP, SEXP numiterSEXP) {
@@ -458,6 +472,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_ccd_kl_update2_rcpp", (DL_FUNC) &_fastTopics_ccd_kl_update2_rcpp, 6},
     {"_fastTopics_fit_univar_poisson_models_em_rcpp", (DL_FUNC) &_fastTopics_fit_univar_poisson_models_em_rcpp, 6},
     {"_fastTopics_fit_univar_poisson_models_em_sparse_rcpp", (DL_FUNC) &_fastTopics_fit_univar_poisson_models_em_sparse_rcpp, 6},
+    {"_fastTopics_compute_poisson_precision_beta_sparse_rcpp", (DL_FUNC) &_fastTopics_compute_poisson_precision_beta_sparse_rcpp, 4},
     {"_fastTopics_fit_poisson_em_rcpp", (DL_FUNC) &_fastTopics_fit_poisson_em_rcpp, 7},
     {"_fastTopics_fit_poisson_em_sparse_rcpp", (DL_FUNC) &_fastTopics_fit_poisson_em_sparse_rcpp, 9},
     {"_fastTopics_scd_update_factors_rcpp", (DL_FUNC) &_fastTopics_scd_update_factors_rcpp, 6},

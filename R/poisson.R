@@ -9,94 +9,6 @@ get_poisson_rates <- function (q, f0, f1)
 loglik_poisson <- function (x, y, e = 1e-15)
   return(sum(x*log(y+e) - y))
 
-# Given the counts (x), topic proportions (q), "size factors" (s), and
-# estimates of the Poisson model parameters, f0 and f1, return: (1)
-# the (base-2) log-fold change statistic beta = log2(f1/f0), the
-# standard error of the log-fold change (se), the z-score (z), and the
-# two-tailed p-value computed from the z-score (pval).
-compute_poisson_zscore <- function (x, q, s, f0, f1, e = 1e-15) {
-
-  # Ensure that the Poisson model parameters f0, f1 are positive.
-  f0 <- max(f0,e)
-  f1 <- max(f1,e)
-    
-  # Compute the standard error. The last line should give the same
-  # result as this line of code, but the computation is done in a more
-  # numerically stable way:
-  #
-  #   se <- sqrt(diag(solve(rbind(c(a/f0^2,f1/f0*b),
-  #                               c(f1/f0*b,f1^2*c)))))[2]
-  #  
-  u <- get_poisson_rates(q,f0,f1)
-  a <- sum(x)
-  b <- sum(s*q)
-  c <- sum(x*(q/u)^2)
-  if (f1 <= 0 | a <= 0 | a*c < b^2)
-    se <- Inf
-  else
-    se <- sqrt(a)/(f1*sqrt(a*c - b^2))
-
-  # Return the (base-2) log-fold change statistic (beta), the standard
-  # error of the log-fold change (se), the z-score (z), and the
-  # two-tailed p-value (pval).
-  b   <- log(f1/f0)
-  z   <- b/se
-  out <- c(b/log(2),se/log(2),z,pfromz(z))
-  names(out) <- c("beta","se","z","pval")
-  return(out)
-}
-
-# Compute z-scores and other statistics given maximum-likelihood
-# estimates (MLEs) of the Poisson model parameters, f0 and f1, for
-# each topic, and each count (column of the counts matrix). The inputs
-# are the n x m counts matrix (X), the m x k matrix of topic
-# proportions (L), and two m x k matrices containing MLEs of the
-# Poisson model parameters (F0, F1). There are also two optional
-# arguments: s, a vector of length n containing the "size factors" (by
-# default, they are all 1); and s, a small, positive constant used to
-# prevent any of the calculations giving Inf or NaN. The outputs are
-# all m x k matrices, where m is the number of columns in X, and k is
-# the number of topics: (base-2) log-fold change statistics (beta);
-# their standard errors (se); z-scores (z); and two-tailed p-values
-# computed from the z-score (pval).
-#
-#' @importFrom progress progress_bar
-compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
-                                            e = 1e-15, verbose = TRUE) {
-
-  # Get the number of columns in the counts matrix (m) and the number
-  # of topics (k).
-  m <- nrow(F0)
-  k <- ncol(F0)
-
-  # Initialize storage for the outputs.
-  beta <- matrix(0,m,k)
-  se   <- matrix(0,m,k)
-  Z    <- matrix(0,m,k)
-  pval <- matrix(0,m,k)
-
-  # For each column of the counts matrix and for for each topic,
-  # compute the z-score for the log-fold change statistic.
-  if (verbose)
-    pb <- progress_bar$new(total = m)
-  for (i in 1:m) {
-    if (verbose)
-      pb$tick()
-    for (j in 1:k) {
-      out       <- compute_poisson_zscore(X[,i],L[,j],s,F0[i,j],F1[i,j])
-      beta[i,j] <- out["beta"]
-      se[i,j]   <- out["se"]
-      Z[i,j]    <- out["z"]
-      pval[i,j] <- out["pval"]
-    }
-  }
-
-  # Return the (base-2) log-fold change statistics (beta), their
-  # standard errors (se), the z-scores (z), and the two-sided
-  # p-values (pval).
-  return(list(beta = beta,se = se,Z = Z,pval = pval))
-}
-
 # For each column of the counts matrix, and for each topic, compute
 # maximum-likelihood estimates (MLEs) of the parameters in the
 # single-count (univariate) Poisson model.
@@ -268,3 +180,132 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15, numiter = 40) {
   return(list(f = f,loglik = loglik))
 }
 
+# Compute z-scores and other statistics given maximum-likelihood
+# estimates (MLEs) of the Poisson model parameters, f0 and f1, for
+# each topic, and each count (column of the counts matrix). The inputs
+# are the n x m counts matrix (X), the m x k matrix of topic
+# proportions (L), and two m x k matrices containing MLEs of the
+# Poisson model parameters (F0, F1). There are also two optional
+# arguments: s, a vector of length n containing the "size factors" (by
+# default, they are all 1); and s, a small, positive constant used to
+# prevent any of the calculations giving Inf or NaN. The outputs are
+# all m x k matrices, where m is the number of columns in X, and k is
+# the number of topics: (base-2) log-fold change statistics (beta);
+# their standard errors (se); z-scores (z); and two-tailed p-values
+# computed from the z-score (pval).
+compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
+                                            e = 1e-15) {
+
+  # Get the number of columns in the counts matrix (m) and the number
+  # of topics (k).
+  m <- nrow(F0)
+  k <- ncol(F0)
+
+  # Initialize storage for the outputs.
+  beta <- matrix(0,m,k)
+  se   <- matrix(0,m,k)
+  Z    <- matrix(0,m,k)
+  pval <- matrix(0,m,k)
+
+  # For each column of the counts matrix and for for each topic,
+  # compute the z-score for the log-fold change statistic.
+  for (i in 1:m)
+    for (j in 1:k) {
+      out       <- compute_poisson_zscore(X[,i],L[,j],s,F0[i,j],F1[i,j])
+      beta[i,j] <- out["beta"]
+      se[i,j]   <- out["se"]
+      Z[i,j]    <- out["z"]
+      pval[i,j] <- out["pval"]
+    }
+
+  # Return the (base-2) log-fold change statistics (beta), their
+  # standard errors (se), the z-scores (z), and the two-sided
+  # p-values (pval).
+  return(list(beta = beta,se = se,Z = Z,pval = pval))
+}
+
+# This does the same thing as compute_univar_poisson_zscores, but the
+# computation is implemented much more efficiently.
+compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
+                                                 s = rep(1,nrow(X)),
+                                                 e = 1e-15) {
+
+  # Get the number of columns in the counts matrix (m) and the number
+  # of topics (k).
+  m <- nrow(F0)
+  k <- ncol(F0)
+    
+  # Ensure that the Poisson model parameters (f0,f1) are positive.
+  F0 <- pmax(F0,e)
+  F1 <- pmax(F1,e)
+
+  # Compute the standard errors.
+  if (is.sparse.matrix(X)) {
+    # TO DO: u <- get_poisson_rates(q,f0,f1)
+    # TO DO: c <- sum(x * (q/u)^2)
+  } else {
+    c <- matrix(0,m,k)
+    for (i in 1:k) {
+      q     <- L[,i]
+      f0    <- F0[,i]
+      f1    <- F1[,i]
+      u     <- outer(1-q,f0) + outer(q,f1)
+      c[,i] <- colSums(X*(q/u)^2)
+    }
+  }
+  a  <- matrix(colSums(X),m,k)
+  b  <- matrix(colSums(s*L),m,k,byrow = TRUE)
+  se <- suppressWarnings(sqrt(a)/(F1*sqrt(a*c - b^2)))
+  se[a*c < b^2] <- NA
+
+  # Return the (base-2) log-fold change statistics (beta), the
+  # standard errors (se), the z-scores (Z), and the two-tailed
+  # p-values (pval).
+  b <- log(F1/F0)
+  Z <- b/se
+  Z[is.na(se)] <- 0
+  return(list(beta = b/log(2),
+              se   = se/log(2),
+              Z    = Z,
+              pval = pfromz(Z)))
+}
+
+# Given the counts (x), topic proportions (q), "size factors" (s), and
+# estimates of the Poisson model parameters, f0 and f1, return: (1)
+# the (base-2) log-fold change statistic beta = log2(f1/f0), the
+# standard error of the log-fold change (se), the z-score (z), and the
+# two-tailed p-value computed from the z-score (pval).
+compute_poisson_zscore <- function (x, q, s, f0, f1, e = 1e-15) {
+
+  # Ensure that the Poisson model parameters (f0,f1) are positive.
+  f0 <- max(f0,e)
+  f1 <- max(f1,e)
+    
+  # Compute the standard error. The last line should give the same
+  # result as this line of code, but the computation is done in a more
+  # numerically stable way:
+  #
+  #   se <- sqrt(diag(solve(rbind(c(a/f0^2,f1/f0*b),
+  #                               c(f1/f0*b,f1^2*c)))))[2]
+  #  
+  u  <- get_poisson_rates(q,f0,f1)
+  a  <- sum(x)
+  b  <- sum(s*q)
+  c  <- sum(x*(q/u)^2)
+  if (a*c < b^2)
+    se <- NA
+  else
+    se <- sqrt(a)/(f1*sqrt(a*c - b^2))
+
+  # Return the (base-2) log-fold change statistic (beta), the standard
+  # error of the log-fold change (se), the z-score (z), and the
+  # two-tailed p-value (pval).
+  b <- log(f1/f0)
+  if (is.na(se))
+    z <- 0
+  else
+    z <- b/se
+  out <- c(b/log(2),se/log(2),z,pfromz(z))
+  names(out) <- c("beta","se","z","pval")
+  return(out)
+}
