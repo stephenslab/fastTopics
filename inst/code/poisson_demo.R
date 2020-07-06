@@ -61,14 +61,19 @@ abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 # Compute the log-fold change and Z-score for each gene j and topic k.
 out1 <- compute_univar_poisson_zscores(X,L,out.em$F0,out.em$F1,s)
 out2 <- compute_univar_poisson_zscores_fast(X,L,out.em$F0,out.em$F1,s)
+out3 <- compute_univar_poisson_zscores_fast(Y,L,out.em$F0,out.em$F1,s)
 print(max(abs(out1$beta - out2$beta)))
-print(max(abs(out1$se   - out2$se),na.rm = TRUE))
+print(max(abs(out1$se   - out2$se)/out2$se,na.rm = TRUE))
 print(max(abs(out1$Z    - out2$Z)))
 print(max(abs(out1$pval - out2$pval)))
+print(max(abs(out1$beta - out3$beta)))
+print(max(abs(out1$se   - out3$se)/out1$se,na.rm = TRUE))
+print(max(abs(out1$Z    - out3$Z)))
+print(max(abs(out1$pval - out3$pval)))
 
 # Here we show that the Z-score varies (predictably) with the log-fold
 # change estimate and the average expression level.
-pdat <- data.frame(x = colMeans(X),beta = out$beta[,i],z = out$Z[,i])
+pdat <- data.frame(x = colMeans(X),beta = out1$beta[,i],z = out1$Z[,i])
 pdat <- subset(pdat,beta > -5)
 print(ggplot(pdat,aes(x = x,y = beta,fill = z)) +
   geom_point(size = 2,shape = 21,color = "white") +

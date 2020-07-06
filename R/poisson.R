@@ -226,6 +226,9 @@ compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
 
 # This does the same thing as compute_univar_poisson_zscores, but the
 # computation is implemented much more efficiently.
+#
+#' @importFrom Matrix sparseMatrix
+#' @importFrom Matrix colSums
 compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
                                                  s = rep(1,nrow(X)),
                                                  e = 1e-15) {
@@ -240,15 +243,19 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
   F1 <- pmax(F1,e)
 
   # Compute the standard errors.
-  if (is.sparse.matrix(X)) {
-    # TO DO: u <- get_poisson_rates(q,f0,f1)
-    # TO DO: c <- sum(x * (q/u)^2)
-  } else {
-    c <- matrix(0,m,k)
-    for (i in 1:k) {
-      q     <- L[,i]
-      f0    <- F0[,i]
-      f1    <- F1[,i]
+  c <- matrix(0,m,k)
+  for (i in 1:k) {
+    q  <- L[,i]
+    f0 <- F0[,i]
+    f1 <- F1[,i]
+    if (is.sparse.matrix(X)) {
+      d     <- summary(X)
+      q     <- q[d$i]
+      u     <- (1-q)*f0[d$j] + q*f1[d$j]
+      d$x   <- d$x*(q/u)^2
+      Y     <- sparseMatrix(i = d$i,j = d$j,x = d$x,dims = dim(X))
+      c[,i] <- colSums(Y)
+    } else {
       u     <- outer(1-q,f0) + outer(q,f1)
       c[,i] <- colSums(X*(q/u)^2)
     }
