@@ -214,7 +214,7 @@ compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
       out       <- compute_poisson_zscore(X[,i],L[,j],s,F0[i,j],F1[i,j])
       beta[i,j] <- out["beta"]
       se[i,j]   <- out["se"]
-      Z[i,j]    <- out["z"]
+      Z[i,j]    <- out["Z"]
       pval[i,j] <- out["pval"]
     }
 
@@ -243,38 +243,18 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
   F1 <- pmax(F1,e)
 
   # Compute the standard errors.
-  c <- matrix(0,m,k)
-  for (i in 1:k) {
-    q  <- L[,i]
-    f0 <- F0[,i]
-    f1 <- F1[,i]
-    if (is.sparse.matrix(X)) {
-      d     <- summary(X)
-      q     <- q[d$i]
-      u     <- (1-q)*f0[d$j] + q*f1[d$j]
-      d$x   <- d$x*(q/u)^2
-      Y     <- sparseMatrix(i = d$i,j = d$j,x = d$x,dims = dim(X))
-      c[,i] <- colSums(Y)
-    } else {
-      u     <- outer(1-q,f0) + outer(q,f1)
-      c[,i] <- colSums(X*(q/u)^2)
-    }
-  }
-  a  <- matrix(colSums(X),m,k)
-  b  <- matrix(colSums(s*L),m,k,byrow = TRUE)
-  se <- suppressWarnings(sqrt(a)/(F1*sqrt(a*c - b^2)))
-  se[a*c < b^2] <- NA
+  a <- matrix(colSums(X),m,k)
+  b <- matrix(colSums(s*L),m,k,byrow = TRUE)
+  if (is.sparse.matrix(X))
+    c <- compute_poisson_beta_stat_sparse(X,L,F0,F1)
+  else
+    c <- compute_poisson_beta_stat(X,L,F0,F1)
+  se <- compute_poisson_beta_se(F1,a,b,c)
 
   # Return the (base-2) log-fold change statistics (beta), the
   # standard errors (se), the z-scores (Z), and the two-tailed
   # p-values (pval).
-  b <- log(F1/F0)
-  Z <- b/se
-  Z[is.na(se)] <- 0
-  return(list(beta = b/log(2),
-              se   = se/log(2),
-              Z    = Z,
-              pval = pfromz(Z)))
+  return(compute_poisson_zscore_helper(F0,F1,se))
 }
 
 # Given the counts (x), topic proportions (q), "size factors" (s), and
@@ -299,20 +279,72 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e = 1e-15) {
   a  <- sum(x)
   b  <- sum(s*q)
   c  <- sum(x*(q/u)^2)
-  if (a*c < b^2)
-    se <- NA
-  else
-    se <- sqrt(a)/(f1*sqrt(a*c - b^2))
+  se <- compute_poisson_beta_se(f1,a,b,c)
 
   # Return the (base-2) log-fold change statistic (beta), the standard
   # error of the log-fold change (se), the z-score (z), and the
   # two-tailed p-value (pval).
-  b <- log(f1/f0)
-  if (is.na(se))
-    z <- 0
-  else
-    z <- b/se
-  out <- c(b/log(2),se/log(2),z,pfromz(z))
-  names(out) <- c("beta","se","z","pval")
-  return(out)
+  return(unlist(compute_poisson_zscore_helper(f0,f1,se)))
 }
+
+# This is used by compute_univar_poisson_zscores_fast to compute the
+# precisions for the log-fold change statistics (beta) when X is a
+# dense matrix.
+compute_poisson_beta_stat <- function (X, L, F0, F1) {
+  m <- nrow(F0)
+  k <- ncol(F0)
+  c <- matrix(0,m,k)
+  for (i in 1:k) {
+    u     <- outer(1 - L[,i],F0[,i]) + outer(L[,i],F1[,i])
+    c[,i] <- colSums(X*(L[,i]/u)^2)
+  }
+  return(c)
+}
+
+# This is used by compute_univar_poisson_zscores_fast to compute the
+# precisions for the log-fold change statistics (beta) when X is a
+# sparse matrix.
+#
+#' @importFrom Matrix colSums
+compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
+  m <- nrow(F0)
+  K <- ncol(F0)
+  c <- matrix(0,m,K)
+  for (k in 1:K) {
+    f0    <- F0[,k]
+    f1    <- F1[,k]
+    out   <- summary(X)
+    i     <- out$i
+    j     <- out$j
+    x     <- out$x
+    u     <- (1 - L[i,k])*F0[j,k] + L[i,k]*F1[j,k]
+    c[,k] <- colSums(sparseMatrix(i = i,j = j,x = x*(L[i,k]/u)^2,
+                                  dims = dim(X)))
+  }
+  return(c)
+}
+  
+# This is used by compute_poisson_zscore and
+# compute_univar_poisson_zscores_fast to compute the standard error of
+# the log-fold change statistics (beta) given the summary statstics
+# (a, b, c). The inputs may be scalars, vectors or matrices.
+compute_poisson_beta_se <- function (f1, a, b, c) {
+  se <- suppressWarnings(sqrt(a)/(f1*sqrt(a*c - b^2)))
+  se[a*c < b^2] <- NA
+  return(se)
+}
+
+# This is used by compute_poisson_zscore and
+# compute_univar_poisson_zscores_fast to prepare the final outputs for
+# those two functions.
+compute_poisson_zscore_helper <- function (f0, f1, se) {
+  b <- log(f1/f0)
+  Z <- b/se
+  Z[is.na(se)] <- 0
+  return(list(beta = b/log(2),
+              se   = se/log(2),
+              Z    = Z,
+              pval = pfromz(Z)))
+}
+     
+
