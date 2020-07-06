@@ -332,11 +332,14 @@ for $\hat{b}_0$ and $\hat{b}$.
 
 \subsection{Log-fold change parameterization}
 
-More definitions and derivations used for $z$-score calculations:
+Here we derive the s.e. for the MLE of $\beta \equiv \log (f_1/f_0)$. 
+With this new parameterization, the Poisson rates are
+\begin{equation}
+\lambda_i = f_0 \times \{1 - q_i(1-e^{\beta})\}
+\end{equation}
+The second-order partial derivatives needed to compute the $2 \times
+2$ Hessian are
 \begin{align}
-\beta &\equiv \log \frac{f_1}{f_0}, \qquad 
-\beta^{\mathsf{abs}} = \frac{\beta}{\log 2} \\
-\lambda_i &= f_0 \times \{1 - q_i(1-e^{\beta})\} \\
 \frac{\partial\ell}{f_0} &= \frac{1}{f_0} \sum_{i=1}^n 
 x_i - t_i\lambda_i \\
 \frac{\partial\ell}{\beta} &= f_1 \sum_{i=1}^n 
@@ -348,22 +351,27 @@ x_i - t_i\lambda_i \\
 \frac{\partial^2\ell}{\partial f_0 \partial\beta} &= 
 -\frac{f_1}{f_0} \sum_{i=1}^n t_i q_i.
 \end{align}
-Note that at the MLE, the gradient of the log-likelihood with respect
-to $\beta$ vanishes, and so we have one useful simplification at the
-MLE:
+The expression for $\frac{\partial^2\ell}{\partial f_0 \partial\beta}$
+is the more complicated one, but fortuately it simplifies at the MLE,
+$\beta = \hat{\beta}$ (at the MLE, the gradient of the log-likelihood
+with respect to $\beta$ vanishes):
 \begin{equation}
 \frac{\partial^2\ell}{\beta^2} = -f_1^2 \sum_{i=1}^n x_i (q_i/\lambda_i)^2.
 \end{equation}
 Therefore, at the MLE $\beta = \hat{\beta}$, the standard error is
 \begin{equation}
-\mathrm{se}(\hat{\beta}) = \frac{1}{f_1} \times \sqrt{\frac{a}{ac - d^2}},
+\mathrm{se}(\hat{\beta}) = \frac{1}{f_1} \times 
+\sqrt{\frac{\bar{a}}{\bar{a} \times \bar{c} - \bar{b}^2}},
 \end{equation}
 where I've defined
-\begin{align*}
-a &= \\
-c &= \\
-d &= 
-\end{align*}
+\begin{equation*}
+\bar{a} = \sum_{i=1}^n x_i, \qquad
+\bar{b} = \sum_{i=1}^n t_i q_i, \qquad
+\bar{c} = \sum_{i=1}^n x_i (q_i/\lambda_i)^2.
+\end{equation*}
+The s.e. and $z$-score for the absolute log-fold change statistic
+$\beta^{\mathsf{abs}} = \beta/\log 2$ follows
+straightforwardly from this result.
 
 \section{The multinomial topic model and Poisson non-negative matrix
   factorization}
