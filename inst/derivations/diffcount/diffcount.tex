@@ -296,7 +296,10 @@ f_1 &= \frac{\sum_{i=1}^n \gamma_i}{\sum_{i=1}^n t_i q_i},
 \end{align}
 where we have introduced notation for the posterior expectations of
 the latent variables, $\phi_i \equiv E[a_i]$ and $\gamma_i \equiv
-E[b_i]$. These posterior expectations are computed in the ``E-step'':
+E[b_i]$. It can be shown that the posterior distribution of $(a_i,
+b_i)$ is multinomial with number of trials $x_i$ and event
+probabilities proportional to $(1-q_i) f_0$ and $q_i f_1$. So the
+posterior expectations computed in the ``E-step'' are
 \begin{align}
 \phi_i   &= x_i (1 - q_i) f_0 / \lambda_i \\
 \gamma_i &= x_i q_i f_1 / \lambda_i.
@@ -321,11 +324,11 @@ $(\hat{b}_0, \hat{b})$, the covariance matrix is $-H^{-1}$, where $H$
 is the $2 \times 2$ matrix of second-order partial derivatives,
 \begin{equation*}
 \frac{\partial^2\ell}{\partial b_0^2} = 
--\sum_{i=1}^n \frac{x_i}{u_i^2}, \qquad
+-\sum_{i=1}^n \frac{x_i}{\lambda_i^2}, \qquad
 \frac{\partial^2\ell}{\partial b^2} = 
--\sum_{i=1}^n \frac{x_i q_i^2}{u_i^2}, \qquad
+-\sum_{i=1}^n \frac{x_i q_i^2}{\lambda_i^2}, \qquad
 \frac{\partial^2\ell}{\partial b_0 \partial b} = 
--\sum_{i=1}^n \frac{x_i q_i}{u_i^2}.
+-\sum_{i=1}^n \frac{x_i q_i}{\lambda_i^2}.
 \end{equation*}
 This result can be used to obtain the standard errors and $z$-scores
 for $\hat{b}_0$ and $\hat{b}$.
@@ -372,156 +375,6 @@ where I've defined
 The s.e. and $z$-score for the absolute log-fold change statistic
 $\beta^{\mathsf{abs}} = \beta/\log 2$ follows
 straightforwardly from this result.
-
-\section{The multinomial topic model and Poisson non-negative matrix
-  factorization}
-
-Here we briefly describe the multinomial topic model, and its
-connection to Poisson non-negative matrix factorization (Poisson NMF).
-
-We begin with the ``bag of words'' description, which was used to
-describe the LDA model \cite{blei-2003}. In this view, each document
-(or gene expression profile) $i$ is represented as a vector of
-terms/genes, $w_i = (w_{i1}, \ldots, w_{is_i})$, where $s_i$ is the
-size of document $i$. (The order of the words or genes appearing in
-this vector doesn't matter, hence the ``bag of words.'') Each $w_{it}
-\in \{1, \ldots, m\}$ is term/gene $j$ with probability
-$p(w_{it} = j \,|\, z_{it} = k) = f_{jk}$, in which we have introduced
-$z_{it}$, a variable indicating which topic $k \in \{1, \ldots, K\}$
-the word/gene is drawn from. The topic indicator variables for
-document $i$ are in turn generated according to $p(z_{it} = k) =
-l_{ik}$.
-
-This process also defines a {\em multinomial} model for an $n \times
-m$ matrix of counts $x_{ij}$:
-\begin{equation}
-x_{i1}, \ldots, x_{im} \sim
-\mathrm{Multinom}(x_{i1}, \ldots, x_{im}; s_i, \pi_i),
-\end{equation}
-where $x_{ij} = \sum_{t=1}^{s_i} \delta_j(w_{it})$ is the number of
-times term/gene $j$ appears in document/cell $i$, and the
-probabilities $\pi_{ij}$ are weighted sums of the ``factors''
-$f_{jk}$,
-\begin{equation}
-\pi_{ij} = \sum_{k=1}^K l_{ik} f_{jk}.
-\end{equation}
-The log-likelihood for the multinomial topic model, ignoring terms
-that do not depend on the model parameters, has a simple expression:
-\begin{equation}
-\log p(x) = \sum_{i=1}^n \sum_{j=1}^m
-x_{ij} \log({\textstyle \sum_{k=1}^K l_{ik} f_{jk}}).
-\end{equation}
-
-As we have shown elsewhere, the multinomial topic model is closely
-related to a Poisson non-negative matrix factorization of the count
-data,
-\begin{equation}
-x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}),
-\end{equation}
-where $\lambda_{ij} = \sum_{k=1}^K \hat{l}_{ik} \hat{f}_{jk}$. Given a
-Poisson NMF fit, an equivalent multinomial topic model can be easily
-recovered, as we have shown elsewhere.
-
-\section{Gene expression differences in topics}
-
-Returning to the question of assessing differential gene expression,
-there are two new twists when done in the context of topic modeling:
-\begin{enumerate}
-  
-\item The cluster (topic) assignments are probabilistic.
-
-\item The cluster assignments are made at the level of genes, not
-  cells.
-
-\end{enumerate}
-I propose a log-fold change statistic to address these two points. It
-compares the probability of gene $j$ occurring ($w = j$) given topic
-$k$ ($z = k$) versus the probability given assignment a topic other
-than $k$ ($z \neq k$):
-\begin{equation}
-\mathsf{lfc}^{\mathsf{topics}}(j,k) \equiv
-\log_2 \frac{p(w = j \,|\, z = k)}
-            {p(w = j \,|\, z \neq k)}.
-\end{equation}
-For a given gene $j$ and topic $k$, $\mathsf{lfc}(j,k)$ can be
-calculated as
-\begin{align}
-\mathsf{lfc}^{\mathsf{topics}}(j,k) &=
-\log_2 \left\{ \frac{p(w = j, z = k)}
-                    {p(w = j, z \neq k)} \times
-               \frac{p(z \neq k)}{p(z = k)} \right\} \nonumber \\
-&= \log_2 \left\{ 
-\frac{\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) \, \phi_{ijkt}}
-     {\sum_{i=1}^n \sum_{t=1}^{s_i} \delta_j(w_{it}) (1 - \phi_{ijkt})}
-\right. \nonumber \\ 
-& \qquad \qquad \times \left. \frac{\sum_{i=1}^n \sum_{j'=1}^m \sum_{t=1}^{s_i} 
-             \delta_{j'}(w_{it}) (1-\phi_{ij'kt})}
-            {\sum_{i=1}^n \sum_{j'=1}^m \sum_{t=1}^{s_i} \delta_{j'}(w_{it}) 
-             \, \phi_{ij'kt}} \right\},
-\label{eq:lfc-topic}
-\end{align}
-where $\phi_{ijkt}$ denotes the posterior probability of $z_{it} = k$
-given $w_{it} = j$,
-\begin{align}
-\phi_{ijkt} &\equiv p(z_{it} = k \,|\, w_{it} = j) \nonumber \\
-&= \frac{p(w_{it} = j \,|\, z_{it} = k) \, p(z_{it} = k)}
-        {\sum_{k'=1}^K p(w_{it} = j \,|\, z_{it} = k') \, p(z_{it} = k')} 
-   \nonumber \\
-&= \frac{l_{ik} f_{jk}}
-        {\sum_{k'=1}^K l_{ik'} f_{jk'}}.
-\end{align}
-Since the topic assignments $z_{it}$ do not depend on $t$---that is,
-we can drop the ``$t$'' subscript from the $\phi_{ijkt}$'s---the expression
-for the {\em lfc} simplifies:
-\begin{equation}
-\mathsf{lfc}^{\mathsf{topics}}(j,k) = \log_2 \left\{ 
-\frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
-     {\sum_{i=1}^n x_{ij} (1 - \phi_{ijk})}
-     \times \frac{\sum_{i=1}^n \sum_{j'=1}^m x_{ij'} (1-\phi_{ij'k})}
-                 {\sum_{i=1}^n \sum_{j'=1}^m x_{ij'} \phi_{ij'k}} \right\}.
-\end{equation}
-
-At the maximum-likelihood solution (MLE) of the $l_{ik}$'s and $f_{jk}$'s,
-the {\em lfc} statistic simplifies further:
-\begin{equation}
-\mathsf{lfc}^{\mathsf{topics}}(j,k) = 
-\log_2 \left\{ \frac{\sum_{i=1}^n x_{ij} \, \phi_{ijk}}
-                    {\sum_{i=1}^n x_{ij} (1 - \phi_{ijk})} \times
-               \frac{\sum_{i=1}^n s_i (1 - l_{ik})}
-                    {\sum_{i=1}^n s_i l_{ik}} \right\}.
-\label{eq:lfc-topic-mle}
-\end{equation}
-This is because, at the MLE, the loadings $l_{ik}$, $k = 1, \ldots,
-K$, for a given document/cell $i$ should be equal to the average of
-the weighted counts $\frac{1}{s_i} \sum_{j=1}^m x_{ij} \phi_{ijk}$. 
-
-Finally, it is convenient that the {\em lfc} (\ref{eq:lfc-topic},
-\ref{eq:lfc-topic-mle}) will be the same if we replace the multinomial
-topic model parameters $l_{ik}$ and $f_{jk}$ with the corresponding
-parameters of the Poisson NMF, $\hat{l}_{ik}$ and $\hat{f}_{jk}$
-(proof not given). From the derivation of the EM algorithm for Poisson
-NMF, this identity holds at the MLE:
-\begin{equation*}
-\hat{f}_{jk} = \frac{\sum_{i=1}^n \phi_{ijk}}{\sum_{i=1}^n \hat{l}_{ik}}.
-\end{equation*}
-Plugging this relationship into \eqref{eq:lfc-topic-mle}, we obtain
-the following simple expression for the log-fold change:
-\begin{equation}
-\mathsf{lfc}^{\mathsf{topics}}(j,k) = 
-\log_2 \left\{ 
-\frac{\hat{f}_{jk} \sum_{i=1}^n \hat{l}_{ik}}
-     {\sum_{k' \neq k} \hat{f}_{jk'} \sum_{i=1}^n \hat{l}_{ik'}} \times
-\frac{\sum_{i=1}^n s_i (1 - \hat{l}_{ik})}
-     {\sum_{i=1}^n s_i \hat{l}_{ik}} \right\}.
-\label{eq:lfc-topic-mle-2}
-\end{equation}
-What is nice about this about this expression is that it can be
-computed without seeing the data. It is also plain to see from this
-expression that to arrive at a log-fold change, one must weight the
-factors $f_{jk}$ by the sample-wide topic probabilities $\sum_i
-l_{ik}$ across This same expression also works with the for the
-parameters of multinomial topic model $l_{ik}, f_{jk}$, again, so long
-as they are MLEs (proof not shown).
 
 \bibliographystyle{siamplain}
 \bibliography{diffcount}
