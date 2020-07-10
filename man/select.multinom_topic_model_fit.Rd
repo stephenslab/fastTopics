@@ -15,7 +15,7 @@ class \dQuote{multinom_topic_model_fit}, such as an output from
 to rows of the counts matrix. If not specified, all loadings are
 returned.}
 
-\item{...}{Other arguments passed to the generic select function.}
+\item{\dots}{Other arguments passed to the generic select function.}
 }
 \value{
 A multinomial topic model fit containing the selected

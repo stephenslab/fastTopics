@@ -130,7 +130,6 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
                control = control)
 
   # Output the MLEs of f0 and f1, and the other "optim" outputs.
-  out$par        <- out$par
   names(out$par) <- c("f0","f1")
   return(out)
 }

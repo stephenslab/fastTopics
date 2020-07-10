@@ -12,7 +12,7 @@
 #'   to rows of the counts matrix. If not specified, all loadings are
 #'   returned.
 #' 
-#' @param ... Other arguments passed to the generic select function.
+#' @param \dots Other arguments passed to the generic select function.
 #' 
 #' @return A multinomial topic model fit containing the selected
 #'   loadings only.

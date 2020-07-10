@@ -24,6 +24,8 @@ print(t2)
 print(t3)
 print(t4)
 
+out.em <- fit_univar_poisson_models(X,L,rowSums(X),method = "em-rcpp")
+
 # Check that the R and C++ implementations of the EM algorithm produce
 # the same, or nearly the same, likelihoods and estimates of the model
 # parameters (f0, f1).
