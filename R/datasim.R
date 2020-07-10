@@ -75,15 +75,17 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
   return(list(X = X,F = F,L = L))
 }
 
-#' @title Simulate Gene-Expression Data from Poisson NMF Model
+#' @rdname simulate_gene_data
+#' 
+#' @title Simulate Gene Expression Data from Poisson NMF or Multinomial
+#'   Topic Model
 #'
-#' @description Simulate count data from a Poisson NMF model, in which
-#'   topics represent \dQuote{gene expression programs}, and gene
-#'   expression programs are characterized by absolute changes in
-#'   expression rates (contrast with
-#'   \code{\link{simulate_multinom_gene_data}})). The way in which the
-#'   counts are simulated is modeled after gene expression studies in
-#'   which expression is measured by single-cell RNA sequencing
+#' @description Simulate count data from a Poisson NMF model or
+#'   Multinomial Topic Model, in which topics represent \dQuote{gene
+#'   expression programs}, and gene expression programs are
+#'   characterized by different rates of expression. The way in which
+#'   the counts are simulated is modeled after gene expression studies
+#'   in which expression is measured by single-cell RNA sequencing
 #'   (\dQuote{RNA-seq}) techniques: each row of the counts matrix
 #'   corresponds a gene expression profile, each column corresponds to a
 #'   gene, and each matrix element is a \dQuote{read count}, or
@@ -93,11 +95,7 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'   used to simulate factors, loadings and counts.
 #'
 #' @details Here we describe the process for generating the n x k
-#'   loadings matrix \code{L} and the m x k factors matrix \code{F}. A
-#'   key feature of the simulation process is that factors can be
-#'   interpreted as Poisson rates, so that individual counts can be
-#'   thought of as being generated from a weighted mixture of "topics"
-#'   with different gene expression rates.
+#'   loadings matrix \code{L} and the m x k factors matrix \code{F}.
 #'
 #'   Each row of the \code{L} matrix is generated in the following
 #'   manner: (1) the number of nonzero topic proportions is \eqn{1
@@ -107,30 +105,36 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'   sampled from the Dirichlet distribution with \eqn{\alpha = 1} (so
 #'   that all topics are equally likely).
 #'
-#'   Each row of the factors matrix (also Poisson rates) are
-#'   generated according to the following procedure: (1) generate \eqn{u
-#'   = |r| - 5}, where \eqn{r ~ N(0,2)}; (2) for each topic \eqn{k},
-#'   generate the Poisson rates as \eqn{exp(max(t,-5))}, where \eqn{t ~
-#'    0.95 * N(u,s/10) + 0.05 * N(u,s)}, and \eqn{s = exp(-u/8)}.
+#'   Each row of the factors matrix are generated according to the
+#'   following procedure: (1) generate \eqn{u = |r| - 5}, where \eqn{r ~
+#'   N(0,2)}; (2) for each topic \eqn{k}, generate the Poisson rates as
+#'   \eqn{exp(max(t,-5))}, where \eqn{t ~ 0.95 * N(u,s/10) + 0.05 *
+#'   N(u,s)}, and \eqn{s = exp(-u/8)}. Factors can be interpreted as
+#'   Poisson rates or multinomial probabilities, so that individual
+#'   counts can be viewed as being generated from a weighted mixture
+#'   of "topics" with different rates or probabilities.
 #' 
-#'   Once the loadings and factors have been generated, the
-#'   counts are simulated from the Poisson NMF model; that is,
-#'   \code{X[i,j]} is Poisson with rate \code{Y[i,j]}, where \code{Y =
-#'   tcrossprod(L,F)}.
+#'   Once the loadings and factors have been generated, the counts are
+#'   simulated from either the Poisson NMF or multinomial topic model:
+#'   for the former, \code{X[i,j]} is Poisson with rate \code{Y[i,j]},
+#'   where \code{Y = tcrossprod(L,F)}; for the latter, \code{X[i,]} is
+#'   multinomial with size \code{s[i]} and with class probabilities
+#'   \code{P[i,]}, where \code{P = tcrossprod(L,F)}. For the multinomial
+#'   model only, the sizes \code{s} are randomly generated as \code{s =
+#'   10^rnorm(n,3,0.2)}.
 #'
 #'   Note that only minimal argument checking is performed;
 #'   the function is mainly used to test implementation of the
 #'   topic-model-based differential count analysis.
+#' 
+#' @param n Number of rows in the simulated count matrix. Should be at
+#'   least 2.
 #'
-#' @param n Number of rows in the simulated count matrix. It should be
+#' @param m Number of columns in the simulated count matrix. Should be
 #'   at least 2.
 #'
-#' @param m Number of columns in the simulated count matrix. It should
-#'   be at least 2.
-#'
-#' @param k Number of factors, or "topics", used to generate the
-#'   individual Poisson rates. The number of topics should be 2 or
-#'   greater.
+#' @param k Number of factors, or "topics", used to generate the data.
+#'   Should be 2 or more.
 #'
 #' @param s A vector of "size factors"; each row of the loadings
 #'   matrix \code{L} is scaled by the entries of \code{s} before
@@ -141,10 +145,14 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'   a sparse matrix in compressed, column-oriented format; see
 #'   \code{\link[Matrix]{sparseMatrix}}.
 #'
-#' @return The return value is a list containing the counts matrix
-#'   \code{X}, and the size factors \code{s} and factorization,
-#'   \code{F}, \code{L}, used to generate the counts.
-#'
+#' @return \code{simulate_poisson_gene_data} returns a list containing
+#'   the counts matrix \code{X}, and the size factors \code{s} and
+#'   factorization, \code{F}, \code{L}, used to generate the counts.
+#'   \code{simulate_multinom_gene_data} returns a list containing the
+#'   counts matrix \code{X}, and the topic proportions \code{L} and
+#'   factors (gene probabilities, or relative gene expression levels)
+#'   \code{F} used to generate the counts.
+#' 
 #' @import Matrix
 #' @importFrom methods as
 #' 
@@ -184,30 +192,8 @@ simulate_poisson_gene_data <- function (n, m, k, s, sparse = FALSE) {
   return(list(X = X,F = F,L = L,s = s))
 }
 
-#' @title Simulate Gene-Expression Data from Multinomial Topic Model
-#'
-#' @description Add description here.
-#'
-#' @details Add details here.
+#' @rdname simulate_gene_data
 #' 
-#' @param n Number of rows in the simulated count matrix. Should be
-#'   at least 2.
-#'
-#' @param m Number of columns in the simulated count matrix. Should
-#'   be at least 2.
-#'
-#' @param k Number of factors, or "topics", used to generate the
-#'   data. Should be 2 or greater.
-#'
-#' @return The return value is a list containing the counts matrix
-#'   \code{X}, and the topic proportions \code{L} and factors (gene
-#'   probabilities, or relative gene expression levels) \code{F} used to
-#'   generate the counts.
-#' 
-#' @param sparse If \code{sparse = TRUE}, convert the counts matrix to
-#'   a sparse matrix in compressed, column-oriented format; see
-#'   \code{\link[Matrix]{sparseMatrix}}.
-#'
 #' @import Matrix
 #' @importFrom methods as
 #' @importFrom stats rnorm
