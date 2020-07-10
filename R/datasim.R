@@ -200,8 +200,7 @@ simulate_poisson_gene_data <- function (n, m, k, s, sparse = FALSE) {
 #'   data. Should be 2 or greater.
 #'
 #' @return The return value is a list containing the counts matrix
-#'   \code{X}, and the "document sizes" (or total expression levels)
-#'   \code{s}, topic proportions \code{L} and factors (gene
+#'   \code{X}, and the topic proportions \code{L} and factors (gene
 #'   probabilities, or relative gene expression levels) \code{F} used to
 #'   generate the counts.
 #' 
@@ -226,9 +225,10 @@ simulate_multinom_gene_data <- function (n, m, k, sparse = FALSE) {
     stop("Input argument \"k\" should be 2 or greater")
   
   # Simulate the data.
-  s <- rnorm(n,3,0.2)
+  s <- ceiling(10^rnorm(n,3,0.2))
   L <- generate_topic_proportions(n,k)
-  # F <- ...
+  F <- normalize.cols(generate_poisson_rates(m, k))
+  X <- generate_multinom_topic_model_counts(F,L,s)
   if (sparse)
     X <- as(X,"dgCMatrix")
   
@@ -241,9 +241,8 @@ simulate_multinom_gene_data <- function (n, m, k, sparse = FALSE) {
   colnames(L) <- paste0("k",1:k)
   
   # Return a list containing: (1) the data matrix, X; (2) the factors
-  # matrix, F; (3) the loadings matrix, L; and (4) the document
-  # sizes, s.
-  return(list(X = X,F = F,L = L,s = s))
+  # matrix, F; and (3) the loadings matrix, L.
+  return(list(X = X,F = F,L = L))
 } 
 
 # Generate an n x m counts matrix X such that X[i,j] is Poisson with
@@ -254,6 +253,21 @@ generate_poisson_nmf_counts <- function (F, L) {
   n <- nrow(L)
   m <- nrow(F)
   return(matrix(as.double(rpois(n*m,tcrossprod(L,F))),n,m))
+}
+
+# Generate an n x m counts matrix X such that X[i,j] is multinomial
+# with size = s[i] and multinomial probabilities P[i,], where P =
+# tcrossprod(L,F).
+#
+#' @importFrom stats rmultinom
+generate_multinom_topic_model_counts <- function (F, L, s) {
+  n <- nrow(L)
+  m <- nrow(F)
+  X <- matrix(0,n,m)
+  P <- tcrossprod(L,F)
+  for (i in 1:n)
+    X[i,] <- rmultinom(1,s[i],P[i,])
+  return(X)
 }
 
 # For each sample (row), generate the topic proportions ("loadings")
