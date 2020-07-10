@@ -2,18 +2,36 @@
 % Please edit documentation in R/diffcount.R
 \name{diff_count_analysis}
 \alias{diff_count_analysis}
-\title{Add Title Here}
+\title{Differential Count Analysis with a Multinomial Topic Model}
 \usage{
-diff_count_analysis(X, fit)
+diff_count_analysis(
+  fit,
+  X,
+  s = rowSums(X),
+  numiter = 40,
+  e = 1e-15,
+  verbose = TRUE
+)
 }
 \arguments{
+\item{fit}{Describe input argument "fit" here.}
+
 \item{X}{Describe input argument "X" here.}
 
-\item{fit}{Describe input argument "fit" here.}
+\item{s}{Describe input argument "s" here.}
+
+\item{numiter}{Describe input argument "numiter" here.}
+
+\item{e}{Desribe input argument "e" here.}
+
+\item{verbose}{Describe input argument "verbose" here.}
 }
 \value{
 Describe the return value here.
 }
 \description{
 Describe function here.
+}
+\details{
+Add details here.
 }
