@@ -6,19 +6,6 @@
 
 using namespace Rcpp;
 
-// binom_stats_rcpp
-List binom_stats_rcpp(const arma::mat& X, const arma::mat& F, const arma::mat& L);
-RcppExport SEXP _fastTopics_binom_stats_rcpp(SEXP XSEXP, SEXP FSEXP, SEXP LSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type F(FSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
-    rcpp_result_gen = Rcpp::wrap(binom_stats_rcpp(X, F, L));
-    return rcpp_result_gen;
-END_RCPP
-}
 // ccd_update_factors_rcpp
 arma::mat ccd_update_factors_rcpp(const arma::mat& V, const arma::mat& W, arma::mat& H, double e);
 RcppExport SEXP _fastTopics_ccd_update_factors_rcpp(SEXP VSEXP, SEXP WSEXP, SEXP HSEXP, SEXP eSEXP) {
@@ -450,7 +437,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fastTopics_binom_stats_rcpp", (DL_FUNC) &_fastTopics_binom_stats_rcpp, 3},
     {"_fastTopics_ccd_update_factors_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_rcpp, 4},
     {"_fastTopics_ccd_update_factors_sparse_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_sparse_rcpp, 4},
     {"_fastTopics_ccd_update_factors_parallel_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_parallel_rcpp, 4},
