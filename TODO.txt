@@ -3,11 +3,7 @@ to do
 
 + Add tests for differential count analysis functions.
 
-+ Write function(s) to simulate data sets for testing differential
-  gene expression analysis.
-
-+ Implement function to compute estimates of term-frequency log-ratios
-  (tflrs), s.e.'s and Z-scores.
++ Implement simulate_multinom_gene_data.
 
 + Implement simple "volcano" plot ("volcano_plot").
 
@@ -18,17 +14,18 @@ to do
 
 + Update the pkgdown site.
   
-+ Create vignette illustrating the "relative" and "absolute"
-  differential gene expression analyses on a simulated data set.
++ Create vignette illustrating differential gene expression analyses
+  on a simulated data set.
 
 + Create vignette giving more details about the different optimization
   algorithms. (Then simplify the fit_poisson_nmf example.)
 
++ Create vignette illustrating application of fastTopics to gene
+  expression (single-cell RNA-seq) data, with a focus on visualizing
+  the results, and implementing differential expression analysis using
+  the fitted topic model.
+
 + Create vignette illustrating application of fastTopics to text data,
   with a focus on the different ways to visualize the results.
-
-+ Create vignette illustrating application of fastTopics to gene
-  expression (single-cell RNA-seq) data, with a focus on the different
-  ways to visualize the results.
 
 + Add CITATION.

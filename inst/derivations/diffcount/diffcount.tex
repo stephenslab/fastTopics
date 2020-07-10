@@ -24,6 +24,13 @@ modeling analysis of text documents --- but since our main motivation
 is analysis of gene expression data, we describe the methods with that
 application in mind.
 
+Topic modeling brings a new twist to analysis of differential gene
+expression: In conventional differential expression analysis, each
+sample is assigned to a single condition; in topic modeling, the
+assignments to each topic are {\em proportional.} This needs to be
+accounted for in developing the new methods for differential
+expression analysis.
+
 For motivation, we begin with the ``log-fold change'' statistic
 commonly used in microarray and RNA sequencing experiments to quantify
 expression differences between two conditions (e.g.,
@@ -51,17 +58,11 @@ topic modeling perspective provides a natural way to analyze
 differential gene expression when comparing either relative or
 absolute expression levels.
 
-Topic modeling brings a new twist to analysis of differential gene
-expression: In conventional differential expression analysis, each
-sample is assigned to a single condition; in topic modeling, the
-assignments to each topic are {\em proportional.} This needs to be
-accounted for in developing the new methods for differential
-expression analysis.
+\section{A binomial model}
 
-\subsection{The binomial model}
-
-We begin with a simple binomial model that predicts expression of a
-single gene given the proportional assignments to a topic:
+To develop the methods, we begin with a simple binomial model that
+predicts expression of a single gene given the proportional
+assignments to a topic:
 \begin{equation}
 x_i \sim \mathrm{Binom}(s_i, \pi_i).
 \label{eq:binomial}
@@ -85,11 +86,10 @@ be estimated.\footnote{This is a special case of the {\em linear
   $\pi_i$ increases linearly with topic proportion $q_i$.}
 
 Statistical inference with this simple binomial model implements
-analysis of differential gene expression. In particular,
-$\beta^{\mathsf{rel}} \equiv \log_2(p_1/p_0)$ is the {\em log-fold
-  change in relative expression.} To show that this is so, consider
-the following statistical process for generating the counts $x_1,
-\ldots, x_n$:
+analysis of differential gene expression. In particular, $\beta \equiv
+\log_2(p_1/p_0)$ is the {\em log-fold change in relative expression.}
+To show that this is so, consider the following statistical process
+for generating the counts $x_1, \ldots, x_n$:
 \vspace{1em}
 \begin{itemize}
 
@@ -120,7 +120,7 @@ the topic, and $p_0 = p(w_{it} = 1 \,|\, z_{it} = 0)$ is the
 probability that the gene is expressed when not belonging to the
 topic. Therefore, we have
 \begin{equation}
-\beta^{\mathsf{rel}} \equiv \log_2 \frac{p_1}{p_0}  
+\beta \equiv \log_2 \frac{p_1}{p_0}  
 = \log_2 \frac{p(w_{it} = 1 \,|\, z_{it} = 1)}
             {p(w_{it} = 1 \,|\, z_{it} = 0)}.
 \label{eq:lfc-binom}
@@ -144,12 +144,17 @@ is quite flexible, and can accommodate different relative differential
 expression analyses defines the $s_i$'s. The only constraint on $s_i$
 is that it cannot be smaller than $x_i$.
 
-\subsection{The Poisson model}
+\section{A Poisson model}
 
-A Poisson model similar to the binomial model \eqref{eq:binomial}
-leads to a method for estimating log-fold change in absolute
-expression levels. We proceed in a similar way. The Poisson model
-predicts expression $x_i$ given the topic proportions $q_i$:
+The Poisson likelihood with rate $\lambda = n\theta$ closely
+approximates the Binomial likelihood $\mathrm{Binom}(n, \theta)$ when
+$\theta$ is small and $n$ is large. (The Poisson arises as the
+limiting distribution of the binomial as $n \rightarrow \infty, \pi
+\rightarrow 0, n\pi \rightarrow \lambda$.) This is usually the case in
+gene expression studies; the total gene expression is large, whereas
+the contribution of each gene is small, even for genes with the
+highest levels of expression. This suggests a Poisson model of
+expression $x_i$ given topic proportions $q_i$:
 \begin{equation}
 x_i \sim \mathrm{Poisson}(t_i \lambda_i),
 \label{eq:poisson}
@@ -158,100 +163,19 @@ in which the Poisson rates are defined as
 \begin{equation}
 \lambda_i = (1 - q_i) f_0 + q_i f_1,
 \end{equation}
-and the two unknowns to be estimated are $f_0, f_1 \geq 0$. (The
-scalars $t_i > 0$ are additional ``size factors'' that give the model
-more flexibility; for now, assume $t_i = 1$ for all $i = 1, \ldots,
-n$.) Observe that, unlike the binomial model, the unknowns for the
-Poisson model are not constrained to be in $[0, 1]$, and so they
-cannot represent probabilities. In the following, we show that
-$\beta^{\mathsf{abs}} \equiv \log_2(f_1/f_0)$ is the log-fold change
-in absolute expression.
-
-Consider the following process for generating the counts $x_1, \ldots,
-x_n$:
-\begin{itemize}
-
-\item for $i = 1, \ldots, n$
-\begin{enumerate}
-
-\item $a_i \sim \mathrm{Poisson}(f_1)$ 
-\hfill Sample the within-topic gene count. \hspace{2em}
-
-\item $b_i \sim \mathrm{Poisson}(f_0)$ 
-\hfill Sample the outside-topic gene count. \hspace{2em}
-
-\item $a_i' \sim \mathrm{Binom}(a_i, q_i)$ 
-\hfill Subsample the within-topic genes. \hspace{2em}
-
-\item $b_i' \sim \mathrm{Binom}(b_i, 1-q_i)$ 
-\hfill Subsample the outside-topic genes. \hspace{2em}
-
-\item $x_i \leftarrow a_i' + b_i'$ 
-\hfill Generate the final gene count. \hspace{2em}
-
-\end{enumerate}
-\end{itemize}
-In this generative process, $f_1 = E[a_i]$ represents the
-within-topic gene rate, and $f_0 = E[b_i]$ is the outside-topic gene
-rate, and therefore 
-\begin{equation}
-\beta^{\mathsf{abs}} \equiv 
-\log_2 \frac{f_1}{f_0} = \log_2 \frac{E[a_i]}{E[b_i]}
-\label{eq:lfc-poisson}
-\end{equation}
-is the {\em log-fold change statistic in absolute expression given
-  proportional topic assignments $q_1, \ldots, q_n$.} For intuition,
-when all the topic proportions $q_i$ are 0 or 1, this statistical
-process simplify to $x_i \sim \mathrm{Poisson}(f_1)$ if $q_i = 1$, and
-$x_i \sim \mathrm{Poisson}(f_0)$ if $q_i = 0$, and so
-\eqref{eq:lfc-poisson} would reduce to the ratio of the mean
-expression levels inside and outside the topic. The Poisson model
-\eqref{eq:poisson} can be derived from this statistical process, and
-so estimating $f_0, f_1$ for the Poisson model \eqref{eq:poisson}
-provides an estimate of the log-fold change \eqref{eq:lfc-poisson}.
-
-A practical question is the choice of size factors $t_i$. In the
-standard analysis, one would set $t_i = 1$ for all $i = 1, \ldots, n$,
-but there may be situations in which other settings for $t_i$ are
-warranted. For example, you may know in advance that one one of the
-samples, say, the first sample, $i = 1$, due to some technical error,
-produced twice as much gene expression (say, two cells were
-accidentally combined into one during sample preparation, and so
-expression was measured in both). With $t_1 = 1$, this sample would
-bias the log-fold change statistics, whereas setting $t_1 = 2$ would
-``correct'' this bias.
-
-\subsection{Binomial vs. Poisson: which to use}
-
-The binomial model \eqref{eq:binomial} would be used to implement the
-log-fold change analysis for relative expression, and the Poisson
-model \eqref{eq:poisson} would implement the log-fold change analysis
-for absolute expression. There is, as we have already established in
-related writeups, a close relationship between the Poisson and
-binomial models (the binomial being a special case of the
-multinomial), and in fact we have exploited that close relationship to
-use fast non-negative matrix algorithms to fit the multinomial topic
-model. In particular, it can be shown that the likelihood for the
-binomial model \eqref{eq:binomial} is the same as the likelihood for
-this Poisson model:
+and the two unknowns to be estimated are $f_0, f_1 \geq 0$. Observe
+that, unlike the binomial model, the unknowns for the Poisson model
+are not constrained to be in $[0, 1]$, and so they do not necessarily
+represent probabilities. However, by setting $t_i = s_i$, we have that
 \begin{align*}
-x_i &\sim \mathrm{Poisson}(s_i \pi_i) \\
-y_i &\sim \mathrm{Poisson}(s_i(1-\pi_i)),
+f_0 &\approx p_0 \\
+f_1 &\approx p_1,
 \end{align*}
-where $y_i = s_i - x_i$. So the key difference between the relative
-and absolute expression analyses is actually not the use of the
-Poisson or binomial, {\em but the way in which the models are
-  parameterized.} This difference in parameterization leads to
-analysis of absolute or relative expression. Therefore, we prefer to
-keep the development of the Poisson and binomial models separate.
+when $p_0, p_1$ are close to zero and all $s_i$ are large. (See the
+Appendix for an alternative motivation of the Poisson model.)
 
-The next sections derive the mathematical expressions needed to
-implement differential count analysis based on the binomial and
-Poisson models.
-
-\section{Binomial model derivations}
-
-{\em Add derivations here.}
+In the next section, we derive the mathematical expressions needed to
+implement differential count analysis based on the Poisson model.
 
 \section{Poisson model derivations}
 
@@ -312,12 +236,11 @@ model.
 Once we have obtained MLEs of $f_0$ and $f_1$, we would also like to
 characterize uncertainty in these estimates---that is, compute the
 standard error (s.e.). In particular, we are interested in the s.e. of
-the log-fold change statistic, $\beta^{\mathsf{abs}}$. As an
-intermediate step, we consider the ``glm identity'' parameterization
-$\lambda_i = b_0 + q_i b$, where $b = f_1 - f_0$ and $b_0 = f_0$. This
-parameterization can be implemented using {\tt glm} in R with {\tt
-  family = poisson(link = "identity")}, and therefore can be used to
-verify our calculations.
+the log-fold change statistic, $\beta$. As an intermediate step, we
+consider the ``glm identity'' parameterization $\lambda_i = b_0 + q_i
+b$, where $b = f_1 - f_0$ and $b_0 = f_0$. This parameterization can
+be implemented using {\tt glm} in R with {\tt family = poisson(link =
+  "identity")}, and therefore can be used to verify our calculations.
 
 Under the Laplace approximation to the likelihood at the MLE
 $(\hat{b}_0, \hat{b})$, the covariance matrix is $-H^{-1}$, where $H$
@@ -335,8 +258,11 @@ for $\hat{b}_0$ and $\hat{b}$.
 
 \subsection{Log-fold change parameterization}
 
-Here we derive the s.e. for the MLE of $\beta \equiv \log (f_1/f_0)$. 
-With this new parameterization, the Poisson rates are
+Here we derive the s.e. for the MLE of $\beta \equiv \log
+(f_1/f_0)$. (For convenience, we use the natural logarithm here rather
+than the base-2 logarithm; to obtain the base-2 log-fold change
+statistic and its s.e., divide by $\log 2$.) With this new
+parameterization, the Poisson rates are
 \begin{equation}
 \lambda_i = f_0 \times \{1 - q_i(1-e^{\beta})\}
 \end{equation}
@@ -372,9 +298,55 @@ where I've defined
 \bar{b} = \sum_{i=1}^n t_i q_i, \qquad
 \bar{c} = \sum_{i=1}^n x_i (q_i/\lambda_i)^2.
 \end{equation*}
-The s.e. and $z$-score for the absolute log-fold change statistic
-$\beta^{\mathsf{abs}} = \beta/\log 2$ follows
-straightforwardly from this result.
+From this, the $z$-score is recovered as $z =
+\hat{\beta}/se(\hat{\beta})$.
+
+\appendix
+
+\section{More on Poisson model}
+
+Consider the following process for generating the counts $x_1, \ldots,
+x_n$:
+\begin{itemize}
+
+\item for $i = 1, \ldots, n$
+\begin{enumerate}
+
+\item $a_i \sim \mathrm{Poisson}(f_1)$ 
+\hfill Sample the within-topic gene count. \hspace{2em}
+
+\item $b_i \sim \mathrm{Poisson}(f_0)$ 
+\hfill Sample the outside-topic gene count. \hspace{2em}
+
+\item $a_i' \sim \mathrm{Binom}(a_i, q_i)$ 
+\hfill Subsample the within-topic genes. \hspace{2em}
+
+\item $b_i' \sim \mathrm{Binom}(b_i, 1-q_i)$ 
+\hfill Subsample the outside-topic genes. \hspace{2em}
+
+\item $x_i \leftarrow a_i' + b_i'$ 
+\hfill Generate the final gene count. \hspace{2em}
+
+\end{enumerate}
+\end{itemize}
+In this generative process, $f_1 = E[a_i]$ represents the
+within-topic gene rate, and $f_0 = E[b_i]$ is the outside-topic gene
+rate, and therefore 
+\begin{equation}
+\beta^{\mathsf{abs}} \equiv 
+\log_2 \frac{f_1}{f_0} = \log_2 \frac{E[a_i]}{E[b_i]}
+\label{eq:lfc-poisson}
+\end{equation}
+is the {\em log-fold change statistic in (absolute) expression given
+  proportional topic assignments $q_1, \ldots, q_n$.} For intuition,
+when all the topic proportions $q_i$ are 0 or 1, this statistical
+process simplify to $x_i \sim \mathrm{Poisson}(f_1)$ if $q_i = 1$, and
+$x_i \sim \mathrm{Poisson}(f_0)$ if $q_i = 0$, and so
+\eqref{eq:lfc-poisson} would reduce to the ratio of the mean
+expression levels inside and outside the topic. The Poisson model
+\eqref{eq:poisson} can be derived from this statistical process, and
+so estimating $f_0, f_1$ for the Poisson model \eqref{eq:poisson}
+provides an estimate of the log-fold change \eqref{eq:lfc-poisson}.
 
 \bibliographystyle{siamplain}
 \bibliography{diffcount}

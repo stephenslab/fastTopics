@@ -1,12 +1,13 @@
-# SCRIPT PARAMETERS
+# Small script to illustrate the Poisson approximation to the binomial
+# likelihood.
+
+# Simulate binomial data.
+set.seed(1)
 n <- 1000
 p <- 0.1
-
-# SIMULATE BINOMIAL DATA
-set.seed(1)
 x <- rbinom(1,n,p)
 
-# PLOT BINOMIAL & POISSON LIKELIHOOD SURFACES
+# Plot binomial and Poisson likelihoods.
 p  <- seq(0,0.25,length.out = 1000)
 f1 <- dbinom(x,n,p,log = TRUE)
 f2 <- dpois(x,n*p,log = TRUE)
