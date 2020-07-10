@@ -75,21 +75,20 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
   return(list(X = X,F = F,L = L))
 }
 
-#' @title Simulate Gene-Expression Data with Absolute Expression Changes
+#' @title Simulate Gene-Expression Data from Poisson NMF Model
 #'
 #' @description Simulate count data from a Poisson NMF model, in which
-#'   topics represent \dQuote{gene expression programs}, and the gene
-#'   expression programs are characterized by \emph{absolute} changes in
-#'   expression rates. (This contrasts with
-#'   \code{\link{simulate_multinom_gene_data}}, where the gene programs
-#'   are characterized by relative changes in expression levels.) The
-#'   way in which the counts are simulated is modeled after gene
-#'   expression studies in which expression is measured by single-cell
-#'   RNA sequencing (\dQuote{RNA-seq}) techniques: each row of the
-#'   counts matrix corresponds a gene expression profile, each column
-#'   corresponds to a gene, and each matrix element is a \dQuote{read
-#'   count}, or \dQuote{UMI count}, measuring expression level. Factors
-#'   are simulated so as to capture realistic changes in gene expression
+#'   topics represent \dQuote{gene expression programs}, and gene
+#'   expression programs are characterized by absolute changes in
+#'   expression rates (contrast with
+#'   \code{\link{simulate_multinom_gene_data}})). The way in which the
+#'   counts are simulated is modeled after gene expression studies in
+#'   which expression is measured by single-cell RNA sequencing
+#'   (\dQuote{RNA-seq}) techniques: each row of the counts matrix
+#'   corresponds a gene expression profile, each column corresponds to a
+#'   gene, and each matrix element is a \dQuote{read count}, or
+#'   \dQuote{UMI count}, measuring expression level. Factors are
+#'   simulated so as to capture realistic changes in gene expression
 #'   across different cell types. See \dQuote{Details} for the procedure
 #'   used to simulate factors, loadings and counts.
 #'
@@ -143,8 +142,8 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'   \code{\link[Matrix]{sparseMatrix}}.
 #'
 #' @return The return value is a list containing the counts matrix
-#' \code{X} and size factors \code{s} and factorization, \code{F},
-#' \code{L}, used to generate the counts.
+#'   \code{X}, and the size factors \code{s} and factorization,
+#'   \code{F}, \code{L}, used to generate the counts.
 #'
 #' @import Matrix
 #' @importFrom methods as
@@ -185,17 +184,54 @@ simulate_poisson_gene_data <- function (n, m, k, s, sparse = FALSE) {
   return(list(X = X,F = F,L = L,s = s))
 }
 
-#' @title Add Title Here.
+#' @title Simulate Gene-Expression Data from Multinomial Topic Model
 #'
 #' @description Add description here.
+#'
+#' @details Add details here.
 #' 
+#' @param n Number of rows in the simulated count matrix. Should be
+#'   at least 2.
+#'
+#' @param m Number of columns in the simulated count matrix. Should
+#'   be at least 2.
+#'
+#' @param k Number of factors, or "topics", used to generate the
+#'   data. Should be 2 or greater.
+#'
+#' @return The return value is a list containing the counts matrix
+#'   \code{X}, and the "document sizes" (or total expression levels)
+#'   \code{s}, topic proportions \code{L} and factors (gene
+#'   probabilities, or relative gene expression levels) \code{F} used to
+#'   generate the counts.
+#' 
+#' @param sparse If \code{sparse = TRUE}, convert the counts matrix to
+#'   a sparse matrix in compressed, column-oriented format; see
+#'   \code{\link[Matrix]{sparseMatrix}}.
+#'
 #' @import Matrix
 #' @importFrom methods as
+#' @importFrom stats rnorm
 #' 
 #' @export
 #' 
 simulate_multinom_gene_data <- function (n, m, k, sparse = FALSE) {
 
+  # Check inputs.
+  if (!(is.scalar(n) & all(n >= 2)))
+    stop("Input argument \"n\" should be 2 or greater")
+  if (!(is.scalar(m) & all(m >= 2)))
+    stop("Input argument \"m\" should be 2 or greater")
+  if (!(is.scalar(k) & all(k >= 2)))
+    stop("Input argument \"k\" should be 2 or greater")
+  
+  # Simulate the data.
+  s <- rnorm(n,3,0.2)
+  L <- generate_topic_proportions(n,k)
+  # F <- ...
+  if (sparse)
+    X <- as(X,"dgCMatrix")
+  
   # Add row and column names to outputs.
   rownames(X) <- paste0("i",1:n)
   rownames(L) <- paste0("i",1:n)
@@ -205,8 +241,9 @@ simulate_multinom_gene_data <- function (n, m, k, sparse = FALSE) {
   colnames(L) <- paste0("k",1:k)
   
   # Return a list containing: (1) the data matrix, X; (2) the factors
-  # matrix, F; and (3) the loadings matrix, L.
-  return(list(X = X,F = F,L = L))
+  # matrix, F; (3) the loadings matrix, L; and (4) the document
+  # sizes, s.
+  return(list(X = X,F = F,L = L,s = s))
 } 
 
 # Generate an n x m counts matrix X such that X[i,j] is Poisson with

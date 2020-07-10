@@ -2,7 +2,7 @@
 % Please edit documentation in R/datasim.R
 \name{simulate_poisson_gene_data}
 \alias{simulate_poisson_gene_data}
-\title{Simulate Gene-Expression Data with Absolute Expression Changes}
+\title{Simulate Gene-Expression Data from Poisson NMF Model}
 \usage{
 simulate_poisson_gene_data(n, m, k, s, sparse = FALSE)
 }
@@ -28,23 +28,22 @@ a sparse matrix in compressed, column-oriented format; see
 }
 \value{
 The return value is a list containing the counts matrix
-\code{X} and size factors \code{s} and factorization, \code{F},
-\code{L}, used to generate the counts.
+  \code{X}, and the size factors \code{s} and factorization,
+  \code{F}, \code{L}, used to generate the counts.
 }
 \description{
 Simulate count data from a Poisson NMF model, in which
-  topics represent \dQuote{gene expression programs}, and the gene
-  expression programs are characterized by \emph{absolute} changes in
-  expression rates. (This contrasts with
-  \code{\link{simulate_multinom_gene_data}}, where the gene programs
-  are characterized by relative changes in expression levels.) The
-  way in which the counts are simulated is modeled after gene
-  expression studies in which expression is measured by single-cell
-  RNA sequencing (\dQuote{RNA-seq}) techniques: each row of the
-  counts matrix corresponds a gene expression profile, each column
-  corresponds to a gene, and each matrix element is a \dQuote{read
-  count}, or \dQuote{UMI count}, measuring expression level. Factors
-  are simulated so as to capture realistic changes in gene expression
+  topics represent \dQuote{gene expression programs}, and gene
+  expression programs are characterized by absolute changes in
+  expression rates (contrast with
+  \code{\link{simulate_multinom_gene_data}})). The way in which the
+  counts are simulated is modeled after gene expression studies in
+  which expression is measured by single-cell RNA sequencing
+  (\dQuote{RNA-seq}) techniques: each row of the counts matrix
+  corresponds a gene expression profile, each column corresponds to a
+  gene, and each matrix element is a \dQuote{read count}, or
+  \dQuote{UMI count}, measuring expression level. Factors are
+  simulated so as to capture realistic changes in gene expression
   across different cell types. See \dQuote{Details} for the procedure
   used to simulate factors, loadings and counts.
 }

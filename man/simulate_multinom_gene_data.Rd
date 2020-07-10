@@ -2,10 +2,34 @@
 % Please edit documentation in R/datasim.R
 \name{simulate_multinom_gene_data}
 \alias{simulate_multinom_gene_data}
-\title{Add Title Here.}
+\title{Simulate Gene-Expression Data from Multinomial Topic Model}
 \usage{
 simulate_multinom_gene_data(n, m, k, sparse = FALSE)
 }
+\arguments{
+\item{n}{Number of rows in the simulated count matrix. Should be
+at least 2.}
+
+\item{m}{Number of columns in the simulated count matrix. Should
+be at least 2.}
+
+\item{k}{Number of factors, or "topics", used to generate the
+data. Should be 2 or greater.}
+
+\item{sparse}{If \code{sparse = TRUE}, convert the counts matrix to
+a sparse matrix in compressed, column-oriented format; see
+\code{\link[Matrix]{sparseMatrix}}.}
+}
+\value{
+The return value is a list containing the counts matrix
+  \code{X}, and the "document sizes" (or total expression levels)
+  \code{s}, topic proportions \code{L} and factors (gene
+  probabilities, or relative gene expression levels) \code{F} used to
+  generate the counts.
+}
 \description{
 Add description here.
+}
+\details{
+Add details here.
 }

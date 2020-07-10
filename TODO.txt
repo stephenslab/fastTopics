@@ -3,7 +3,7 @@ to do
 
 + Implement simulate_multinom_gene_data.
 
-+ Implement binom_demo.R test script.
++ Implement multinom_demo.R test script.
 
 + Add comments summarizing script poisson_demo.R.
 
