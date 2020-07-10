@@ -1,17 +1,9 @@
 to do
 =====
 
-+ Implement simulate_multinom_gene_data.
-
-+ Implement multinom_demo.R test script.
-
-+ Add comments summarizing script poisson_demo.R.
-
-+ Add ccomments summarizing script binom_demo.R.
++ Implement "diff_count_analysis" function.
 
 + Add tests for differential count analysis functions.
-
-+ Implement "diff_count_analysis" function.
 
 + Implement simple "volcano" plot ("volcano_plot").
 

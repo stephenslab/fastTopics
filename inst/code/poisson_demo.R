@@ -1,4 +1,5 @@
-# TO DO: Explain here what this script is for, and how to use it.
+# Short script to verify implementation of the differential count
+# analysis methods applied to data simulated from a Poisson NMF model.
 library(Matrix)
 library(ggplot2)
 library(cowplot)
