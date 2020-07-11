@@ -36,7 +36,7 @@ avoid logarithms of zero and division by zero.}
 printed to the console.}
 }
 \value{
-The return value is a list with 6 list elements, each an m
+The return value is a list with six list elements, each an m
 x k matrix, where m is the number of rows in the counts matrix, and
 k is the number of topics:
 
@@ -53,8 +53,48 @@ k is the number of topics:
 \item{pval}{Two-tailed p-values computed from the z-scores.}
 }
 \description{
-Describe function here.
+Implements methods for analysis of differential count
+  expression using a topic model. These methods are motivated by gene
+  expression studies, but could have other uses, such as identiying
+  \dQuote{key words} in topics derived from text documents.
 }
 \details{
-Add details here.
+The methods are based on the following univariate
+(\dQuote{single-count}) Poisson model: \deqn{x_i ~ Poisson(s_i
+\lambda_i),} in which the Poisson rates are defined as
+\deqn{\lambda_i = (1 - q_i) f_0 + q_i f_1,} and where the two
+unknowns to be estimated are \eqn{f_0, f_1 > 0.} This model is
+applied separately to each count (column of the counts matrix), and
+to each topic k. The \eqn{q_i}'s are the topic probabilities for a
+given topic. An EM algorithm is used to compute maximum-likelihood
+estimates (MLEs) of the two unknowns.
+
+The log-fold change statistics are defined as the log-ratio of the
+two Poisson rate parameters, \eqn{\beta = \log_2(f_1/f_0)}. This
+statistic measures the increase (or decrease) in occurence in one
+topic compared to all other topics. The use of the base-2 logarithm
+comes from the convention used in gene expression studies.
+
+When each \eqn{s_i} (specified by input argument \code{s}) is equal
+the total count for sample i (this is the default setting in
+\code{diff_count_analysis}), the Poisson model will closely
+approximate a binomial model of the count data, so that the Poisson
+model parameters \eqn{f_0, f_1} represent binomial
+probabilities. In this case, \eqn{\betq} represents the log-fold
+change in \emph{relative} occurrence. (This Poisson approximation
+to the binomial is most accurate when the total counts
+\code{rowSums(X)} are large and \eqn{f_0, f_1} are small.)
+
+Other choices for \code{s} are possible, and implement different
+normalization schemes for the counts, and different interpretations
+of the log-fold change statistics. Setting \code{s} to all ones
+implements the differential count analysis with no normalization,
+and \eqn{\beta} represents the log-fold change in \emph{absolute}
+occurrence. This choice could be appropriate in settings where the
+total count is well-controlled across samples (rows of \code{X}).
+
+The standard error and z-score calculations are based on a Laplace
+approximation to the likelihood at the MLE. This is the same
+strategy used to compute standard errors and z-scores in
+\code{\link[stats]{glm}}.
 }
