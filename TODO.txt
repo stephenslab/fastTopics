@@ -1,7 +1,7 @@
 to do
 =====
 
-+ Implement "diff_count_analysis" function.
++ Fill out roxygen2 docs for "diff_count_analysis".
 
 + Add tests for differential count analysis functions.
 

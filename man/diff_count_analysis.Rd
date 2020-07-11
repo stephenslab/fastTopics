@@ -36,7 +36,21 @@ avoid logarithms of zero and division by zero.}
 printed to the console.}
 }
 \value{
-Describe the return value here.
+The return value is a list with 6 list elements, each an m
+x k matrix, where m is the number of rows in the counts matrix, and
+k is the number of topics:
+
+\item{F0}{Estimates of the Poisson model parameters \eqn{f_0}.}
+
+\item{F1}{Estimates of the Poisson model parameters \eqn{f_1}.}
+
+\item{beta}{Log-fold change estimates, \code{beta = log2(F1/F0)}.}
+
+\item{se}{Standard errors for the log-fold change estimates.}
+
+\item{Z}{Log-fold change z-scores.}
+
+\item{pval}{Two-tailed p-values computed from the z-scores.}
 }
 \description{
 Describe function here.
