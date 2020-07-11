@@ -353,7 +353,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 
   # CHECK & PROCESS INPUTS
   # ----------------------
-  # Check input argument "X".
+  # Check and process input argument "X".
   if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-127).\n")
+    cat("(fastTopics 0.3-128).\n")
   }
   
   # INITIALIZE ESTIMATES

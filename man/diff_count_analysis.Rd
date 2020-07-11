@@ -8,23 +8,32 @@ diff_count_analysis(
   fit,
   X,
   s = rowSums(X),
-  numiter = 40,
+  numiter = 100,
   e = 1e-15,
   verbose = TRUE
 )
 }
 \arguments{
-\item{fit}{Describe input argument "fit" here.}
+\item{fit}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
+as input, the corresponding multinomial topic model fit is
+automatically recovered using \code{link{poisson2multinom}}.}
 
-\item{X}{Describe input argument "X" here.}
+\item{X}{The n x m counts matrix. It can be a sparse matrix (class
+\code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).}
 
-\item{s}{Describe input argument "s" here.}
+\item{s}{A numeric vector of length n determining how the rates are
+scaled in the Poisson model. See \dQuote{Details} for guidance on
+the choice of \code{s}.}
 
-\item{numiter}{Describe input argument "numiter" here.}
+\item{numiter}{The number of EM updates performed to compute the
+maximum-likelihood estimates of the Poisson model parameters.}
 
-\item{e}{Desribe input argument "e" here.}
+\item{e}{A small, positive scalar included in some computations to
+avoid logarithms of zero and division by zero.}
 
-\item{verbose}{Describe input argument "verbose" here.}
+\item{verbose}{When \code{verbose = TRUE}, progress information is
+printed to the console.}
 }
 \value{
 Describe the return value here.

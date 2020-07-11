@@ -3,11 +3,11 @@
 #' @description Simulate a counts matrix \code{X} such that
 #'   \code{X[i,j]} is Poisson with rate (mean) \code{Y[i,j]}, where
 #'   \code{Y = tcrossprod(L,F)}, \code{L} is an n x k loadings
-#'   ("activations") matrix, and \code{F} is an m x k factors ("basis
-#'   vectors") matrix. The entries of matrix \code{L} are drawn
-#'   uniformly at random between 0 and \code{lmax}, and the entries of
-#'   matrix \code{F} are drawn uniformly at random between 0 and
-#'   \code{fmax}.
+#'   (\dQuote{activations}) matrix, and \code{F} is an m x k factors
+#'   (\dQuote{basis vectors}) matrix. The entries of matrix \code{L} are
+#'   drawn uniformly at random between 0 and \code{lmax}, and the
+#'   entries of matrix \code{F} are drawn uniformly at random between 0
+#'   and \code{fmax}.
 #'
 #' @details Note that only minimal argument checking is performed. This
 #'   function is mainly used to simulate small data sets for the examples
@@ -19,8 +19,8 @@
 #' @param m Number of columns in simulated count matrix. The number of
 #'   columns should be at least 2.
 #'
-#' @param k Number of factors, or "topics", used to determine Poisson
-#'   rates. The number of topics should be 1 or more.
+#' @param k Number of factors, or \dQuote{topics}, used to determine
+#'   Poisson rates. The number of topics should be 1 or more.
 #'
 #' @param fmax Factors are drawn uniformly at random between 0 and
 #'   \code{fmax}.
@@ -112,7 +112,7 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'   N(u,s)}, and \eqn{s = exp(-u/8)}. Factors can be interpreted as
 #'   Poisson rates or multinomial probabilities, so that individual
 #'   counts can be viewed as being generated from a weighted mixture
-#'   of "topics" with different rates or probabilities.
+#'   of \dQuote{topics} with different rates or probabilities.
 #' 
 #'   Once the loadings and factors have been generated, the counts are
 #'   simulated from either the Poisson NMF or multinomial topic model:
@@ -133,12 +133,12 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #' @param m Number of columns in the simulated count matrix. Should be
 #'   at least 2.
 #'
-#' @param k Number of factors, or "topics", used to generate the data.
-#'   Should be 2 or more.
+#' @param k Number of factors, or \dQuote{topics}, used to generate
+#'   the data. Should be 2 or more.
 #'
-#' @param s A vector of "size factors"; each row of the loadings
-#'   matrix \code{L} is scaled by the entries of \code{s} before
-#'   generating the counts. This should be a vector of length n
+#' @param s A vector of \dQuote{size factors}; each row of the
+#'   loadings matrix \code{L} is scaled by the entries of \code{s}
+#'   before generating the counts. This should be a vector of length n
 #'   containing only positive values.
 #' 
 #' @param sparse If \code{sparse = TRUE}, convert the counts matrix to

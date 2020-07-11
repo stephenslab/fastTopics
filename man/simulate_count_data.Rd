@@ -13,8 +13,8 @@ rows should be at least 2.}
 \item{m}{Number of columns in simulated count matrix. The number of
 columns should be at least 2.}
 
-\item{k}{Number of factors, or "topics", used to determine Poisson
-rates. The number of topics should be 1 or more.}
+\item{k}{Number of factors, or \dQuote{topics}, used to determine
+Poisson rates. The number of topics should be 1 or more.}
 
 \item{fmax}{Factors are drawn uniformly at random between 0 and
 \code{fmax}.}
@@ -35,11 +35,11 @@ The return value is a list containing the counts matrix
 Simulate a counts matrix \code{X} such that
   \code{X[i,j]} is Poisson with rate (mean) \code{Y[i,j]}, where
   \code{Y = tcrossprod(L,F)}, \code{L} is an n x k loadings
-  ("activations") matrix, and \code{F} is an m x k factors ("basis
-  vectors") matrix. The entries of matrix \code{L} are drawn
-  uniformly at random between 0 and \code{lmax}, and the entries of
-  matrix \code{F} are drawn uniformly at random between 0 and
-  \code{fmax}.
+  (\dQuote{activations}) matrix, and \code{F} is an m x k factors
+  (\dQuote{basis vectors}) matrix. The entries of matrix \code{L} are
+  drawn uniformly at random between 0 and \code{lmax}, and the
+  entries of matrix \code{F} are drawn uniformly at random between 0
+  and \code{fmax}.
 }
 \details{
 Note that only minimal argument checking is performed. This

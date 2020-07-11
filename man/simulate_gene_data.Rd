@@ -17,12 +17,12 @@ least 2.}
 \item{m}{Number of columns in the simulated count matrix. Should be
 at least 2.}
 
-\item{k}{Number of factors, or "topics", used to generate the data.
-Should be 2 or more.}
+\item{k}{Number of factors, or \dQuote{topics}, used to generate
+the data. Should be 2 or more.}
 
-\item{s}{A vector of "size factors"; each row of the loadings
-matrix \code{L} is scaled by the entries of \code{s} before
-generating the counts. This should be a vector of length n
+\item{s}{A vector of \dQuote{size factors}; each row of the
+loadings matrix \code{L} is scaled by the entries of \code{s}
+before generating the counts. This should be a vector of length n
 containing only positive values.}
 
 \item{sparse}{If \code{sparse = TRUE}, convert the counts matrix to
@@ -72,7 +72,7 @@ Here we describe the process for generating the n x k
   N(u,s)}, and \eqn{s = exp(-u/8)}. Factors can be interpreted as
   Poisson rates or multinomial probabilities, so that individual
   counts can be viewed as being generated from a weighted mixture
-  of "topics" with different rates or probabilities.
+  of \dQuote{topics} with different rates or probabilities.
 
   Once the loadings and factors have been generated, the counts are
   simulated from either the Poisson NMF or multinomial topic model:
