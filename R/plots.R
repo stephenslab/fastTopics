@@ -350,6 +350,65 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
     theme(axis.text.x = element_text(angle = 45,hjust = 1),
           plot.title  = element_text(size = font.size,face = "plain"))
 
+#' @rdname volcano_plot
+#'
+#' @title Add Title Here
+#'
+#' @description Add description here.
+#'
+#' @details Add details here.
+#'
+#' @param diff_count_result Describe input argument "fit" here.
+#'
+#' @return Describe the return value here.
+#'
+#' @export
+#' 
+volcano_plot <- function (diff_count_result, k,
+                          ggplot_call = volcano_plot_ggplot_call) {
+    
+  # Check and process input arguments.
+  # TO DO.
+
+  if (length(k) == 1) {
+
+    # Compile data for volcano plot.
+    dat <- data.frame(beta = diff_count_result$beta[,k],
+                      z    = abs(diff_count_result$Z[,k]))
+      
+    # Create the volcano plot.
+    return(ggplot_call(dat))
+  } else {
+
+    # Create a volcano plot for each selected topic, and combine them
+    # using plot_grid. This is done by recursively calling volcano_plot.
+    # TO DO.
+  }
+}
+
+#' @rdname volcano_plot
+#'
+#' @param dat Describe input argument "dat" here.
+#'
+#' @param font.size Describe input argument "font.size" here.
+#'
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 scale_y_continuous
+#' @importFrom ggplot2 labs
+#' @importFrom cowplot theme_cowplot
+#' 
+#' @export
+#' 
+volcano_plot_ggplot_call <- function (dat, font.size = 9) 
+  ggplot(dat,aes_string(x = "beta",y = "z")) +
+    geom_point(color = "white",fill = "black",stroke = 0.3,shape = 21,
+               na.rm = TRUE) +
+    scale_y_continuous(trans = "sqrt") +
+    labs(x = "log-fold change",y = "|z-score|") +
+    theme_cowplot(font.size)
+
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model
 #'
 #' @description Computes a low-dimensional embededding of the data from

@@ -1,6 +1,8 @@
 to do
 =====
 
++ Implement S3 plot method for topic_model_diff_count class.
+
 + Implement simple "volcano" plot ("volcano_plot").
 
 + Implement simple *interactive* "volcano" plot using plotly
