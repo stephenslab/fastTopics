@@ -37,7 +37,7 @@ abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 
 # Here we show that the Z-score varies (predictably) with the log-fold
 # change estimate and the average expression level.
-pdat <- data.frame(x = colMeans(X),beta = out$beta[,i],z = out$Z[,i])
+pdat <- data.frame(x = out$colmeans,beta = out$beta[,i],z = out$Z[,i])
 print(ggplot(pdat,aes(x = x,y = beta,fill = z)) +
   geom_point(size = 2,shape = 21,color = "white") +
   geom_abline(intercept = 0,slope = 0,color = "black",linetype = "dotted") +

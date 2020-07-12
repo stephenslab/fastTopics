@@ -36,9 +36,12 @@ avoid logarithms of zero and division by zero.}
 printed to the console.}
 }
 \value{
-The return value is a list with six list elements, each an m
-x k matrix, where m is the number of rows in the counts matrix, and
-k is the number of topics:
+The return value is a list with six m x k matrices, where m
+is the number of rows in the counts matrix, and k is the number of
+topics, and an additional vector:
+
+\item{colmeans}{A vector of length m containing the count averages
+  (\code{colMeans(X)}).}
 
 \item{F0}{Estimates of the Poisson model parameters \eqn{f_0}.}
 

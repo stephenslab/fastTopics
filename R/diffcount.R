@@ -65,9 +65,12 @@
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
 #'
-#' @return The return value is a list with six list elements, each an m
-#' x k matrix, where m is the number of rows in the counts matrix, and
-#' k is the number of topics:
+#' @return The return value is a list with six m x k matrices, where m
+#' is the number of rows in the counts matrix, and k is the number of
+#' topics, and an additional vector:
+#'
+#' \item{colmeans}{A vector of length m containing the count averages
+#'   (\code{colMeans(X)}).}
 #'
 #' \item{F0}{Estimates of the Poisson model parameters \eqn{f_0}.}
 #'
@@ -80,8 +83,9 @@
 #' \item{Z}{Log-fold change z-scores.}
 #'
 #' \item{pval}{Two-tailed p-values computed from the z-scores.}
-#' 
+#'
 #' @importFrom Matrix rowSums
+#' @importFrom Matrix colMeans
 #' 
 #' @export
 #' 
@@ -133,7 +137,9 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   if (verbose)
     cat("Computing log-fold change statistics.\n")
   out <- compute_univar_poisson_zscores_fast(X,fit$L,F0,F1,s,e)
-  out <- c(list(F0 = F0,F1 = F1),out)
+
+  # Compute the per-column averages.
+  out <- c(list(colmeans = colMeans(X),F0 = F0,F1 = F1),out)
 
   # Adopt the row and column name used in "fit".
   rownames(out$F0)   <- rownames(fit$F)
@@ -148,7 +154,7 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   colnames(out$se)   <- colnames(fit$F)
   colnames(out$Z)    <- colnames(fit$F)
   colnames(out$pval) <- colnames(fit$F)
-  
+
   # Return the Poisson model MLEs and the log-fold change statistics.
   class(out) <- c("topic_model_diff_count","list")
   return(out)
