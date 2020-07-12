@@ -133,9 +133,23 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   if (verbose)
     cat("Computing log-fold change statistics.\n")
   out <- compute_univar_poisson_zscores_fast(X,fit$L,F0,F1,s,e)
-
-  # Return the Poisson model MLEs and the log-fold change statistics.
   out <- c(list(F0 = F0,F1 = F1),out)
+
+  # Adopt the row and column name used in "fit".
+  rownames(out$F0)   <- rownames(fit$F)
+  rownames(out$F1)   <- rownames(fit$F)
+  rownames(out$beta) <- rownames(fit$F)
+  rownames(out$se)   <- rownames(fit$F)
+  rownames(out$Z)    <- rownames(fit$F)
+  rownames(out$pval) <- rownames(fit$F)
+  colnames(out$F0)   <- colnames(fit$F)
+  colnames(out$F1)   <- colnames(fit$F)
+  colnames(out$beta) <- colnames(fit$F)
+  colnames(out$se)   <- colnames(fit$F)
+  colnames(out$Z)    <- colnames(fit$F)
+  colnames(out$pval) <- colnames(fit$F)
+  
+  # Return the Poisson model MLEs and the log-fold change statistics.
   class(out) <- c("topic_model_diff_count","list")
   return(out)
 }

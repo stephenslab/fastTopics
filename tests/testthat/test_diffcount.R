@@ -17,9 +17,9 @@ test_that(paste("All variants of fit_univar_poisson_models and",
 
   # Fit the univariate Poisson models using optim and EM.
   capture.output(fit1 <- fit_univar_poisson_models(X,L,s,method = "optim"))
-  capture.output(fit2 <- fit_univar_poisson_models(X,L,s,method = "em"))
-  capture.output(fit3 <- fit_univar_poisson_models(X,L,s,method = "em-rcpp"))
-  capture.output(fit4 <- fit_univar_poisson_models(Y,L,s,method = "em-rcpp"))
+  fit2 <- fit_univar_poisson_models(X,L,s,method = "em",verbose = FALSE)
+  fit3 <- fit_univar_poisson_models(X,L,s,method = "em-rcpp",verbose = FALSE)
+  fit4 <- fit_univar_poisson_models(Y,L,s,method = "em-rcpp",verbose = FALSE)
 
   # All four implementations should produce the same, or nearly the
   # same, estimates of the model parameters.
@@ -31,8 +31,8 @@ test_that(paste("All variants of fit_univar_poisson_models and",
   expect_equal(fit2$F1,fit4$F1,scale = 1,tolerance = 1e-15)
 
   # Compute the log-fold change statistics.
-  F0   <- fit2$F0
-  F1   <- fit2$F1
+  F0 <- fit2$F0
+  F1 <- fit2$F1
   out1 <- compute_univar_poisson_zscores(X,L,F0,F1,s)
   out2 <- compute_univar_poisson_zscores_fast(X,L,F0,F1,s)
   out3 <- compute_univar_poisson_zscores_fast(Y,L,F0,F1,s)
@@ -44,4 +44,27 @@ test_that(paste("All variants of fit_univar_poisson_models and",
   out3["se"] <- NULL
   expect_equal(out1,out2,scale = 1,tolerance = 1e-8)
   expect_equal(out1,out3,scale = 1,tolerance = 1e-8)
+})
+
+test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
+                "true probabilities (relative gene expression levels) when",
+                "provided with the true topic proportions"),{
+
+  # Simulate gene expression data.
+  set.seed(1)
+  n   <- 800
+  m   <- 1000
+  k   <- 4
+  dat <- simulate_multinom_gene_data(n,m,k,sparse = TRUE)
+  X   <- dat$X
+  L   <- dat$L
+
+  # Fit a Poisson model (approximating a binomial model) to each gene
+  # and topic, and compute the log-fold change statistics.
+  fit <- init_poisson_nmf(X,L = L,init.method = "random")
+  ans <- diff_count_analysis(fit,X,verbose = FALSE)
+
+  # The f1 estimates should be close to the multinomial probabilities
+  # that were used to simulate the data.
+  expect_equal(dat$F,ans$F1,scale = 1,tolerance = 1e-4)
 })
