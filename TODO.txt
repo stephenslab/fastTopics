@@ -1,7 +1,7 @@
 to do
 =====
 
-+ Add tests for Poisson (and binomial) model fitting.
++ Verify the row and column names of the diff_count_analysis outputs.
 
 + Add tests for differential count analysis functions.
 
