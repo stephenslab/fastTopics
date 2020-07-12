@@ -1,8 +1,6 @@
 to do
 =====
 
-+ Add test for warning in diff_count_analysis.
-
 + Implement simple "volcano" plot ("volcano_plot").
 
 + Implement simple *interactive* "volcano" plot using plotly
