@@ -1,6 +1,8 @@
 to do
 =====
 
++ Add tests for Poisson (and binomial) model fitting.
+
 + Add tests for differential count analysis functions.
 
 + Implement simple "volcano" plot ("volcano_plot").

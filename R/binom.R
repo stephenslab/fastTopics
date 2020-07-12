@@ -56,7 +56,7 @@ fit_binom_optim <- function (x, s, q, p0 = 0.5, p1 = 0.5, e = 1e-15,
 # rates are p = (1-q)*p0 + q*p1. Input argument "e" is a small
 # positive number added to the likelihood and gradient to avoid NaNs;
 # specifically, logarithms of zero and division by zero.
-fit_binom_em <- function (x, s, q, p0 = 0.5, p1 = 0.5, numiter = 40,
+fit_binom_em <- function (x, s, q, p0 = 0.5, p1 = 0.5, numiter = 100,
                           e = 1e-15) {
 
   # Monitor progress by computing the log-likelihood at each iteration.

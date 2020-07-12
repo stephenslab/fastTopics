@@ -36,11 +36,9 @@ print(max(abs(out2$loglik - out4$loglik)))
 # Finally, fit the model parameters using glm with family =
 # poisson(link = "identity"). Note that the parameterization is
 # slightly different: b0 = f0 and b = f1 - f0.
-f0  <- out2$f["f0"]
-f1  <- out2$f["f1"]
 dat <- data.frame(x = x,b0 = s,b = s*q)
 fit <- glm(x ~ b0 + b - 1,family = poisson(link = "identity"),data = dat,
-           start = c(f0,f1 - f0),control = list(epsilon = 1e-15,maxit = 100))
+           start = c(f0,f1 - f0))
 b0  <- coef(fit)["b0"]
 b   <- coef(fit)["b"]
 

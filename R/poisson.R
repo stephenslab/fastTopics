@@ -15,7 +15,7 @@ loglik_poisson <- function (x, y, e = 1e-15)
 fit_univar_poisson_models <-
   function (X, L, s = rep(1,nrow(X)),
             method = c("em-rcpp","em","optim"),
-            e = 1e-15, numiter.em = 40,
+            e = 1e-15, numiter.em = 100,
             control.optim = list(factr = 1e-14,maxit = 100),
             verbose = TRUE) {
   method <- match.arg(method)
@@ -141,7 +141,8 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
 # are initial estimates of the parameters. Input argument "e" is a
 # small positive scalar added to the denominator in the E-step to
 # avoid division by zero.
-fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15, numiter = 40) {
+fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
+                            numiter = 100) {
 
   # Store a couple pre-calculations to simplify the calculations
   # below.
