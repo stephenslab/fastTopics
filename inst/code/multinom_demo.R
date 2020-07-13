@@ -51,9 +51,4 @@ print(ggplot(pdat,aes(x = x,y = beta,fill = z)) +
 # on the x-axis, and the z-score is shown on the y-axis. To illustrate
 # the impact of overall gene expression level on the z-scores, the
 # (log) average expression level is shown by a colour gradient.
-print(ggplot(pdat,aes(x = beta,y = abs(z),fill = log10(x))) +
-  geom_point(size = 1.5,shape = 21,color = "white") +
-  labs(x = "log-fold change",y = "|z-score|",fill = "log10(avg.exp.)") +
-  scale_fill_gradient2(low = "skyblue",mid = "gold",
-                       high = "orangered",midpoint = 0) +
-  theme_cowplot(12))
+print(volcano_plot(out,k = 1))

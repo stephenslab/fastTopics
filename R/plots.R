@@ -354,20 +354,28 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' @title Volcano Plot
 #'
-#' @description Create a "volcano" plot, in which relative gene
-#'   expression (x-axis), as measured by the log-fold change (lfc), is
-#'   plotted against the z-score, or some other measure of support
-#'   (y-axis). Points above a specified z-score quantile are labeled by
-#'   the gene symbol. Since this scatterplot can have very many points
-#'   (one for every gene), optional arguments "cutoff" and "n0" can be
-#'   adjusted to control the number of points shown. The "cutoff"
-#'   argument is a number between 0 and 1 controlling the quantile along
-#'   the Y axis at which the points are thinned; the "n0" controls the
-#'   number of points to randomly sample from the "thinned" part of the
-#'   plot.
+#' @description Create one or more "volcano" plots to visualize the
+#'   results of a differential count analysis using a topic model. A
+#'   volcano plot is a scatterplot in which the log-fold change,
+#'   estimated using a multinomial topic model, is plotted against the
+#'   magnitude of the z-score. 
 #'
-#' @details Add details here.
+#' @details The colour of the points is varied by the
+#' average count, on the logarithmic scale; since the evidence
+#' (z-score) typically increases with more observed counts, the
+#' variables with smallest average counts should usually appear toward
+#' the bottom of the volcano plot. Only points above a specified
+#' z-score quantile are labeled.
 #'
+#' To better accommodate situations in which some z-scores
+#' are much larger than all the others, the z-scores are plotted on
+#' the square-root scale. To change this, as well as other aspects, of
+#' the plot, replace \code{volcano_plot_ggplot_call} with your own
+#' function; see input argument \dQuote{ggplot_call}.
+#'
+#' The \dQuote{ggrepel} package is used to arrange the labels in a
+#' visually attractive manner.
+#' 
 #' @param diff_count_result An object of class
 #'   \dQuote{topic_model_diff_count}, usually an output from
 #'   \code{\link{diff_count_analysis}}.
@@ -390,9 +398,9 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   labeled in the volcano plot. \code{link[ggrepel]{geom_text_repel}}
 #'   will attempt to label all points when \code{label_above_quantile = 0}.
 #' 
-#' @param plot_grid_call The function used to create the plot. Replace
-#'   \code{volcano_plot_ggplot_call} with your own function to
-#'   customize the appearance of the plot.
+#' @param ggplot_call The function used to create the plot. Replace
+#'   \code{volcano_plot_ggplot_call} with your own function to customize
+#'   the appearance of the plot.
 #'
 #' @param plot_grid_call When multiple topics are selected, this is
 #'   the function used to arrange the plots into a grid using

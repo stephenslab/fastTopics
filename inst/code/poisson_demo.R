@@ -95,5 +95,3 @@ print(ggplot(pdat,aes(x = beta,y = abs(z),fill = log10(x))) +
   scale_fill_gradient2(low = "skyblue",mid = "gold",
                        high = "orangered",midpoint = 0) +
   theme_cowplot(12))
-
-

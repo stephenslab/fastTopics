@@ -1,12 +1,14 @@
 to do
 =====
 
-+ Implement simple "volcano" plot ("volcano_plot").
++ Allow for plotting (-log10) p-values or z-scores in volcano_plot
+  (that is, choose what measure of support to use). This should be
+  controlled by input argument "y".
 
 + Implement simple *interactive* "volcano" plot using plotly
   ("volcano_plotly")
 
-+ Add test(s) for volcano_plotly.
++ Add test(s) for volcano_plot and volcano_plotly.
 
 + Run R CMD check --as-cran and fix WARNINGs & NOTEs.
 
