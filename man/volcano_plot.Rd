@@ -51,7 +51,17 @@ Only used to determine the plot title.}
 A \code{ggplot} object.
 }
 \description{
-Add description here.
+Create a "volcano-like" plot, in which relative gene
+  expression (x-axis), as measured by the log-fold change (lfc), is
+  plotted against the z-score, or some other measure of support
+  (y-axis). Points above a specified z-score quantile are labeled by
+  the gene symbol. Since this scatterplot can have very many points
+  (one for every gene), optional arguments "cutoff" and "n0" can be
+  adjusted to control the number of points shown. The "cutoff"
+  argument is a number between 0 and 1 controlling the quantile along
+  the Y axis at which the points are thinned; the "n0" controls the
+  number of points to randomly sample from the "thinned" part of the
+  plot.
 }
 \details{
 Add details here.

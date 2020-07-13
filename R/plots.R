@@ -409,8 +409,8 @@ volcano_plot <-
   if (missing(k))
     k <- seq(1,ncol(diff_count_result$beta))
   if (missing(labels)) {
-    if (!is.null(rownames(diff_count_res$beta)))
-      labels <- rownames(diff_count_res$beta)
+    if (!is.null(rownames(diff_count_result$beta)))
+      labels <- rownames(diff_count_result$beta)
     else
       labels <- as.character(seq(1,nrow(diff_count_result$beta)))
   }

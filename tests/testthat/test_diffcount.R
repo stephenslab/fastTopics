@@ -67,4 +67,8 @@ test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
   # The f1 estimates should be close to the multinomial probabilities
   # that were used to simulate the data.
   expect_equal(dat$F,ans$F1,scale = 1,tolerance = 1e-4)
+
+  # Create a volcano plot from the diff_count_analysis output.
+  p <- volcano_plot(ans)
+  expect_s3_class(p,"ggplot")
 })
