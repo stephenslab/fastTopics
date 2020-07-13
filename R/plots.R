@@ -354,7 +354,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' @title Volcano Plot
 #'
-#' @description Create a "volcano-like" plot, in which relative gene
+#' @description Create a "volcano" plot, in which relative gene
 #'   expression (x-axis), as measured by the log-fold change (lfc), is
 #'   plotted against the z-score, or some other measure of support
 #'   (y-axis). Points above a specified z-score quantile are labeled by
@@ -375,10 +375,20 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' @param k The topic, or topics, selected by number or name. When not
 #'   specified, all topics are plotted.
 #'
-#' @param betamax Describe input argument "betamax" here.
+#' @param labels Character vector specifying how the points in the
+#'   volcano plot are labeled. This should be a character vector with
+#'   one entry per log-fold change statistic (row of
+#'   \code{diff_count_result$beta}). When not specified, the row names
+#'   of \code{diff_count_result$beta} are used, if available. Labels are
+#'   added to the plot using \code{link[ggrepel]{geom_text_repel}}.
+#' 
+#' @param betamax Truncate the log-fold change statistics
+#'   (\code{beta}) by this amount. Any statistics greater in magnitude
+#'   than \code{betamax} are set to \code{betamax} or \code{-betamax}.
 #'
-#' @param label_above_quantile Describe inputargument
-#'   "label_above_quantile" here.
+#' @param label_above_quantile Only z-scores above this quantile are
+#'   labeled in the volcano plot. \code{link[ggrepel]{geom_text_repel}}
+#'   will attempt to label all points when \code{label_above_quantile = 0}.
 #' 
 #' @param plot_grid_call The function used to create the plot. Replace
 #'   \code{volcano_plot_ggplot_call} with your own function to
@@ -406,23 +416,29 @@ volcano_plot <-
   if (!inherits(diff_count_result,"topic_model_diff_count"))
     stop("Input \"diff_count_result\" should be an object of class ",
          "\"topic_model_diff_count\"")
+  beta <- diff_count_result$beta
   if (missing(k))
-    k <- seq(1,ncol(diff_count_result$beta))
+    k <- seq(1,ncol(beta))
   if (missing(labels)) {
-    if (!is.null(rownames(diff_count_result$beta)))
-      labels <- rownames(diff_count_result$beta)
+    if (!is.null(rownames(beta)))
+      labels <- rownames(beta)
     else
-      labels <- as.character(seq(1,nrow(diff_count_result$beta)))
+      labels <- as.character(seq(1,nrow(beta)))
   }
-  
+  if (!(is.character(labels) & length(labels) == nrow(beta)))
+    stop("Input argument \"labels\", when specified, should be a character ",
+         "vector with one entry per log-fold change statistic (column of ",
+         "the counts matrix)")
+
   if (length(k) == 1) {
 
     # Compile data for volcano plot.
-    dat <- data.frame(mean  = log10(diff_count_result$colmeans),
-                      beta  = diff_count_result$beta[,k],
-                      z     = abs(diff_count_result$Z[,k]),
-                      label = labels,
-                      stringsAsFactors = FALSE)
+    dat <- with(diff_count_result,
+                data.frame(mean  = log10(colmeans),
+                           beta  = beta[,k],
+                           z     = abs(Z[,k]),
+                           label = labels,
+                           stringsAsFactors = FALSE))
     dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
     z0  <- quantile(dat$z,label_above_quantile)
     dat$label[dat$z < z0] <- ""
@@ -445,12 +461,14 @@ volcano_plot <-
 
 #' @rdname volcano_plot
 #'
-#' @param dat Describe input argument "dat" here.
+#' @param dat A data frame passed as input to
+#'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
+#'   \dQuote{beta}, \dQuote{mean}, \dQuote{z} and \dQuote{label}.
 #'
 #' @param topic.label The name or number of the topic being plotted.
 #'   Only used to determine the plot title.
 #' 
-#' @param font.size Describe input argument "font.size" here.
+#' @param font.size Font size used in plot.
 #'
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string

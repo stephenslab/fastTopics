@@ -28,22 +28,34 @@ volcano_plot_ggplot_call(dat, topic.label, font.size = 9)
 \item{k}{The topic, or topics, selected by number or name. When not
 specified, all topics are plotted.}
 
-\item{betamax}{Describe input argument "betamax" here.}
+\item{labels}{Character vector specifying how the points in the
+volcano plot are labeled. This should be a character vector with
+one entry per log-fold change statistic (row of
+\code{diff_count_result$beta}). When not specified, the row names
+of \code{diff_count_result$beta} are used, if available. Labels are
+added to the plot using \code{link[ggrepel]{geom_text_repel}}.}
 
-\item{label_above_quantile}{Describe inputargument
-"label_above_quantile" here.}
+\item{betamax}{Truncate the log-fold change statistics
+(\code{beta}) by this amount. Any statistics greater in magnitude
+than \code{betamax} are set to \code{betamax} or \code{-betamax}.}
+
+\item{label_above_quantile}{Only z-scores above this quantile are
+labeled in the volcano plot. \code{link[ggrepel]{geom_text_repel}}
+will attempt to label all points when \code{label_above_quantile = 0}.}
 
 \item{plot_grid_call}{When multiple topics are selected, this is
 the function used to arrange the plots into a grid using
 \code{\link[cowplot]{plot_grid}}. It should be a function accepting
 a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
-\item{dat}{Describe input argument "dat" here.}
+\item{dat}{A data frame passed as input to
+\code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
+\dQuote{beta}, \dQuote{mean}, \dQuote{z} and \dQuote{label}.}
 
 \item{topic.label}{The name or number of the topic being plotted.
 Only used to determine the plot title.}
 
-\item{font.size}{Describe input argument "font.size" here.}
+\item{font.size}{Font size used in plot.}
 
 \item{x}{Describe input argument "x" here.}
 }
@@ -51,7 +63,7 @@ Only used to determine the plot title.}
 A \code{ggplot} object.
 }
 \description{
-Create a "volcano-like" plot, in which relative gene
+Create a "volcano" plot, in which relative gene
   expression (x-axis), as measured by the log-fold change (lfc), is
   plotted against the z-score, or some other measure of support
   (y-axis). Points above a specified z-score quantile are labeled by

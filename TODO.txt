@@ -8,6 +8,8 @@ to do
 
 + Add test(s) for volcano_plotly.
 
++ Run R CMD check --as-cran and fix WARNINGs & NOTEs.
+
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.

@@ -66,7 +66,7 @@
 #'   printed to the console.
 #'
 #' @return The return value is a list with six m x k matrices, where m
-#' is the number of rows in the counts matrix, and k is the number of
+#' is the number of columns in the counts matrix, and k is the number of
 #' topics, and an additional vector:
 #'
 #' \item{colmeans}{A vector of length m containing the count averages
