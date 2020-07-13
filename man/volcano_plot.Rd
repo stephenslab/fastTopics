@@ -3,21 +3,52 @@
 \name{volcano_plot}
 \alias{volcano_plot}
 \alias{volcano_plot_ggplot_call}
-\title{Add Title Here}
+\alias{plot.topic_model_diff_count}
+\title{Volcano Plot}
 \usage{
-volcano_plot(diff_count_result, k, ggplot_call = volcano_plot_ggplot_call)
+volcano_plot(
+  diff_count_result,
+  k,
+  labels,
+  betamax = 10,
+  label_above_quantile = 0.99,
+  ggplot_call = volcano_plot_ggplot_call,
+  plot_grid_call = function(plots) do.call(plot_grid, plots)
+)
 
-volcano_plot_ggplot_call(dat, font.size = 9)
+volcano_plot_ggplot_call(dat, topic.label, font.size = 9)
+
+\method{plot}{topic_model_diff_count}(x, ...)
 }
 \arguments{
-\item{diff_count_result}{Describe input argument "fit" here.}
+\item{diff_count_result}{An object of class
+\dQuote{topic_model_diff_count}, usually an output from
+\code{\link{diff_count_analysis}}.}
+
+\item{k}{The topic, or topics, selected by number or name. When not
+specified, all topics are plotted.}
+
+\item{betamax}{Describe input argument "betamax" here.}
+
+\item{label_above_quantile}{Describe inputargument
+"label_above_quantile" here.}
+
+\item{plot_grid_call}{When multiple topics are selected, this is
+the function used to arrange the plots into a grid using
+\code{\link[cowplot]{plot_grid}}. It should be a function accepting
+a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
 \item{dat}{Describe input argument "dat" here.}
 
+\item{topic.label}{The name or number of the topic being plotted.
+Only used to determine the plot title.}
+
 \item{font.size}{Describe input argument "font.size" here.}
+
+\item{x}{Describe input argument "x" here.}
 }
 \value{
-Describe the return value here.
+A \code{ggplot} object.
 }
 \description{
 Add description here.

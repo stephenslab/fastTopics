@@ -316,7 +316,7 @@ loadings_plot <-
     plots <- vector("list",m)
     names(plots) <- k
     for (i in 1:m)
-      plots[[i]] <- loadings_plot(fit,x,k[i],ggplot_call)
+      plots[[i]] <- loadings_plot(fit,x,k[i],ggplot_call,NULL)
     return(plot_grid_call(plots))
   }
 }
@@ -327,8 +327,8 @@ loadings_plot <-
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
 #'   \dQuote{x} and \dQuote{loading}.
 #'
-#' @param topic.label The name or number of the topic being plotted;
-#' it is only used to determine the plot title.
+#' @param topic.label The name or number of the topic being plotted.
+#'   Only used to determine the plot title.
 #' 
 #' @param font.size Font size used in plot.
 #' 
@@ -352,37 +352,94 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 
 #' @rdname volcano_plot
 #'
-#' @title Add Title Here
+#' @title Volcano Plot
 #'
-#' @description Add description here.
+#' @description Create a "volcano-like" plot, in which relative gene
+#'   expression (x-axis), as measured by the log-fold change (lfc), is
+#'   plotted against the z-score, or some other measure of support
+#'   (y-axis). Points above a specified z-score quantile are labeled by
+#'   the gene symbol. Since this scatterplot can have very many points
+#'   (one for every gene), optional arguments "cutoff" and "n0" can be
+#'   adjusted to control the number of points shown. The "cutoff"
+#'   argument is a number between 0 and 1 controlling the quantile along
+#'   the Y axis at which the points are thinned; the "n0" controls the
+#'   number of points to randomly sample from the "thinned" part of the
+#'   plot.
 #'
 #' @details Add details here.
 #'
-#' @param diff_count_result Describe input argument "fit" here.
+#' @param diff_count_result An object of class
+#'   \dQuote{topic_model_diff_count}, usually an output from
+#'   \code{\link{diff_count_analysis}}.
 #'
-#' @return Describe the return value here.
+#' @param k The topic, or topics, selected by number or name. When not
+#'   specified, all topics are plotted.
+#'
+#' @param betamax Describe input argument "betamax" here.
+#'
+#' @param label_above_quantile Describe inputargument
+#'   "label_above_quantile" here.
+#' 
+#' @param plot_grid_call The function used to create the plot. Replace
+#'   \code{volcano_plot_ggplot_call} with your own function to
+#'   customize the appearance of the plot.
+#'
+#' @param plot_grid_call When multiple topics are selected, this is
+#'   the function used to arrange the plots into a grid using
+#'   \code{\link[cowplot]{plot_grid}}. It should be a function accepting
+#'   a single argument, \code{plots}, a list of \code{ggplot} objects.
+#'
+#' @return A \code{ggplot} object.
+#'
+#' @importFrom stats quantile
+#' @importFrom cowplot plot_grid
 #'
 #' @export
 #' 
-volcano_plot <- function (diff_count_result, k,
-                          ggplot_call = volcano_plot_ggplot_call) {
+volcano_plot <-
+  function (diff_count_result, k, labels, betamax = 10,
+            label_above_quantile = 0.99,
+            ggplot_call = volcano_plot_ggplot_call,
+            plot_grid_call = function (plots) do.call(plot_grid,plots)) {
     
   # Check and process input arguments.
-  # TO DO.
-
+  if (!inherits(diff_count_result,"topic_model_diff_count"))
+    stop("Input \"diff_count_result\" should be an object of class ",
+         "\"topic_model_diff_count\"")
+  if (missing(k))
+    k <- seq(1,ncol(diff_count_result$beta))
+  if (missing(labels)) {
+    if (!is.null(rownames(diff_count_res$beta)))
+      labels <- rownames(diff_count_res$beta)
+    else
+      labels <- as.character(seq(1,nrow(diff_count_result$beta)))
+  }
+  
   if (length(k) == 1) {
 
     # Compile data for volcano plot.
-    dat <- data.frame(beta = diff_count_result$beta[,k],
-                      z    = abs(diff_count_result$Z[,k]))
-      
+    dat <- data.frame(mean  = log10(diff_count_result$colmeans),
+                      beta  = diff_count_result$beta[,k],
+                      z     = abs(diff_count_result$Z[,k]),
+                      label = labels,
+                      stringsAsFactors = FALSE)
+    dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
+    z0  <- quantile(dat$z,label_above_quantile)
+    dat$label[dat$z < z0] <- ""
+    
     # Create the volcano plot.
-    return(ggplot_call(dat))
+    return(ggplot_call(dat,k))
   } else {
 
     # Create a volcano plot for each selected topic, and combine them
     # using plot_grid. This is done by recursively calling volcano_plot.
-    # TO DO.
+    m     <- length(k)
+    plots <- vector("list",m)
+    names(plots) <- k
+    for (i in 1:m)
+      plots[[i]] <- volcano_plot(diff_count_result,k[i],labels,betamax,
+                                 label_above_quantile,ggplot_call,NULL)
+    return(plot_grid_call(plots))
   }
 }
 
@@ -390,24 +447,49 @@ volcano_plot <- function (diff_count_result, k,
 #'
 #' @param dat Describe input argument "dat" here.
 #'
+#' @param topic.label The name or number of the topic being plotted.
+#'   Only used to determine the plot title.
+#' 
 #' @param font.size Describe input argument "font.size" here.
 #'
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
 #' @importFrom ggplot2 geom_point
 #' @importFrom ggplot2 scale_y_continuous
+#' @importFrom ggplot2 scale_fill_gradient2
 #' @importFrom ggplot2 labs
+#' @importFrom ggrepel geom_text_repel
 #' @importFrom cowplot theme_cowplot
 #' 
 #' @export
 #' 
-volcano_plot_ggplot_call <- function (dat, font.size = 9) 
-  ggplot(dat,aes_string(x = "beta",y = "z")) +
-    geom_point(color = "white",fill = "black",stroke = 0.3,shape = 21,
-               na.rm = TRUE) +
-    scale_y_continuous(trans = "sqrt") +
-    labs(x = "log-fold change",y = "|z-score|") +
+volcano_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
+  ggplot(dat,aes_string(x = "beta",y = "z",fill = "mean",label = "label")) +
+    geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
+    scale_y_continuous(trans = "sqrt",
+      breaks = c(0,1,2,5,10,20,50,100,200,500,1000,2000,5000)) +
+    scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
+                         midpoint = mean(range(dat$mean))) +
+    geom_text_repel(color = "black",size = 2.25,fontface = "italic",
+                    box.padding = 0.1,point.padding = 0.1,
+                    segment.color = "black",segment.size = 0.25,
+                    na.rm = TRUE) +
+    labs(x = "log-fold change",y = "|z-score|",fill = "log10 mean",
+         title = paste("topic",topic.label)) +
     theme_cowplot(font.size)
+
+#' @rdname volcano_plot
+#'
+#' @param x Describe input argument "x" here.
+#'
+#' @importFrom graphics plot
+#' 
+#' @method plot topic_model_diff_count
+#'
+#' @export
+#'
+plot.topic_model_diff_count <- function (x, ...)
+  volcano_plot(x,...)
 
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model
 #'
@@ -669,7 +751,7 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
     theme_cowplot(font.size) +
     theme(plot.title = element_text(size = font.size,face = "plain"))
 
-#' Structure Plot
+#' @title Structure Plot
 #'
 #' @description Create a "Structure plot" from a multinomial topic
 #'   model fit. The Structure plot represents the estimated topic
@@ -822,7 +904,7 @@ structure_plot <-
 
 #' @rdname structure_plot
 #'
-#' @param fit An object of class \dQuote{poisson_nmf_fit} or
+#' @param x An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
 #'   as input, the corresponding multinomial topic model fit is
 #'   automatically recovered using \code{link{poisson2multinom}}.

@@ -39,8 +39,8 @@ a single argument, \code{plots}, a list of \code{ggplot} objects.}
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
 \dQuote{x} and \dQuote{loading}.}
 
-\item{topic.label}{The name or number of the topic being plotted;
-it is only used to determine the plot title.}
+\item{topic.label}{The name or number of the topic being plotted.
+Only used to determine the plot title.}
 
 \item{font.size}{Font size used in plot.}
 }

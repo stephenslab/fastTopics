@@ -72,6 +72,11 @@ customize the appearance of the plot.}
 (for the \code{plot} method) or \code{\link{tsne_from_topics}} (for
 function \code{structure_plot}).}
 
+\item{x}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
+as input, the corresponding multinomial topic model fit is
+automatically recovered using \code{link{poisson2multinom}}.}
+
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
 "sample", "topic" and "prop": column "sample" contains the
