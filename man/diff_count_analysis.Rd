@@ -53,7 +53,7 @@ topics, and an additional vector:
 
 \item{Z}{Log-fold change z-scores.}
 
-\item{pval}{Two-tailed p-values computed from the z-scores.}
+\item{pval}{-log10 two-tailed p-values computed from the z-scores.}
 }
 \description{
 Implements methods for analysis of differential count

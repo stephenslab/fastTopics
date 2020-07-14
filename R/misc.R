@@ -4,6 +4,12 @@
 pfromz <- function (z)
   2*pnorm(-abs(z))
 
+# Compute log10 two-tailed p-value from z-score.
+#
+#' @importFrom stats pnorm
+lpfromz <- function (z)
+  (log(2) + pnorm(-abs(z),log.p = TRUE))/log(10)
+
 # Return true if x is a compressed, sparse, column-oriented numeric
 # matrix.
 is.sparse.matrix <- function (x)

@@ -10,13 +10,14 @@ volcano_plot(
   diff_count_result,
   k,
   labels,
+  y = c("zscore", "pvalue"),
   betamax = 10,
   label_above_quantile = 0.99,
   ggplot_call = volcano_plot_ggplot_call,
   plot_grid_call = function(plots) do.call(plot_grid, plots)
 )
 
-volcano_plot_ggplot_call(dat, topic.label, font.size = 9)
+volcano_plot_ggplot_call(dat, y.label, topic.label, font.size = 9)
 
 \method{plot}{topic_model_diff_count}(x, ...)
 }
@@ -35,13 +36,16 @@ one entry per log-fold change statistic (row of
 of \code{diff_count_result$beta} are used, if available. Labels are
 added to the plot using \code{link[ggrepel]{geom_text_repel}}.}
 
+\item{y}{Describe input argument "y" here.}
+
 \item{betamax}{Truncate the log-fold change statistics
 (\code{beta}) by this amount. Any statistics greater in magnitude
 than \code{betamax} are set to \code{betamax} or \code{-betamax}.}
 
-\item{label_above_quantile}{Only z-scores above this quantile are
-labeled in the volcano plot. \code{link[ggrepel]{geom_text_repel}}
-will attempt to label all points when \code{label_above_quantile = 0}.}
+\item{label_above_quantile}{Only z-scores or p-values (depending on
+choice of \code{y}) above this quantile are labeled in the volcano
+plot. \code{link[ggrepel]{geom_text_repel}} will attempt to label
+all points when \code{label_above_quantile = 0}.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{volcano_plot_ggplot_call} with your own function to customize
@@ -54,7 +58,9 @@ a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-\dQuote{beta}, \dQuote{mean}, \dQuote{z} and \dQuote{label}.}
+\dQuote{beta}, \dQuote{mean}, \dQuote{y} and \dQuote{label}.}
+
+\item{y.label}{Description of input argument "y.label" goes here.}
 
 \item{topic.label}{The name or number of the topic being plotted.
 Only used to determine the plot title.}

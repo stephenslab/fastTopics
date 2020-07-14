@@ -68,7 +68,9 @@ test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
   # that were used to simulate the data.
   expect_equal(dat$F,ans$F1,scale = 1,tolerance = 1e-4)
 
-  # Create a volcano plot from the diff_count_analysis output.
-  p <- volcano_plot(ans)
-  expect_s3_class(p,"ggplot")
+  # Create volcano plots from the diff_count_analysis output.
+  p1 <- volcano_plot(ans,y = "zscore")
+  p2 <- volcano_plot(ans,y = "pvalue")
+  expect_s3_class(p1,"ggplot")
+  expect_s3_class(p2,"ggplot")
 })

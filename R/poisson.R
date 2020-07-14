@@ -344,7 +344,7 @@ compute_poisson_zscore_helper <- function (f0, f1, se) {
   return(list(beta = b/log(2),
               se   = se/log(2),
               Z    = Z,
-              pval = pfromz(Z)))
+              pval = -lpfromz(Z)))
 }
      
 

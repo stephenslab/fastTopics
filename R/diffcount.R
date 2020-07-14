@@ -82,7 +82,7 @@
 #'
 #' \item{Z}{Log-fold change z-scores.}
 #'
-#' \item{pval}{Two-tailed p-values computed from the z-scores.}
+#' \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
 #'
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colMeans

@@ -389,14 +389,17 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   \code{diff_count_result$beta}). When not specified, the row names
 #'   of \code{diff_count_result$beta} are used, if available. Labels are
 #'   added to the plot using \code{link[ggrepel]{geom_text_repel}}.
+#'
+#' @param y Describe input argument "y" here.
 #' 
 #' @param betamax Truncate the log-fold change statistics
 #'   (\code{beta}) by this amount. Any statistics greater in magnitude
 #'   than \code{betamax} are set to \code{betamax} or \code{-betamax}.
 #'
-#' @param label_above_quantile Only z-scores above this quantile are
-#'   labeled in the volcano plot. \code{link[ggrepel]{geom_text_repel}}
-#'   will attempt to label all points when \code{label_above_quantile = 0}.
+#' @param label_above_quantile Only z-scores or p-values (depending on
+#'   choice of \code{y}) above this quantile are labeled in the volcano
+#'   plot. \code{link[ggrepel]{geom_text_repel}} will attempt to label
+#'   all points when \code{label_above_quantile = 0}.
 #' 
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{volcano_plot_ggplot_call} with your own function to customize
@@ -415,12 +418,13 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' @export
 #' 
 volcano_plot <-
-  function (diff_count_result, k, labels, betamax = 10,
-            label_above_quantile = 0.99,
+  function (diff_count_result, k, labels, y = c("zscore", "pvalue"),
+            betamax = 10, label_above_quantile = 0.99,
             ggplot_call = volcano_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots)) {
     
   # Check and process input arguments.
+  y <- match.arg(y)
   if (!inherits(diff_count_result,"topic_model_diff_count"))
     stop("Input \"diff_count_result\" should be an object of class ",
          "\"topic_model_diff_count\"")
@@ -442,17 +446,24 @@ volcano_plot <-
 
     # Compile data for volcano plot.
     dat <- with(diff_count_result,
-                data.frame(mean  = log10(colmeans),
+                data.frame(label = labels,
+                           mean  = log10(colmeans),
                            beta  = beta[,k],
-                           z     = abs(Z[,k]),
-                           label = labels,
+                           y     = 0,
                            stringsAsFactors = FALSE))
+    if (y == "zscore") {
+      dat$y   <- abs(diff_count_result$Z[,k])
+      y.label <- "|z-score|"
+    } else if (y == "pvalue") {
+      dat$y   <- diff_count_result$pval[,k]
+      y.label <- "-log10 p-value"
+    }
     dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
-    z0  <- quantile(dat$z,label_above_quantile)
-    dat$label[dat$z < z0] <- ""
+    y0  <- quantile(dat$y,label_above_quantile)
+    dat$label[dat$y < y0] <- ""
     
     # Create the volcano plot.
-    return(ggplot_call(dat,k))
+    return(ggplot_call(dat,y.label,k))
   } else {
 
     # Create a volcano plot for each selected topic, and combine them
@@ -461,7 +472,7 @@ volcano_plot <-
     plots <- vector("list",m)
     names(plots) <- k
     for (i in 1:m)
-      plots[[i]] <- volcano_plot(diff_count_result,k[i],labels,betamax,
+      plots[[i]] <- volcano_plot(diff_count_result,k[i],labels,y,betamax,
                                  label_above_quantile,ggplot_call,NULL)
     return(plot_grid_call(plots))
   }
@@ -471,8 +482,10 @@ volcano_plot <-
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   \dQuote{beta}, \dQuote{mean}, \dQuote{z} and \dQuote{label}.
+#'   \dQuote{beta}, \dQuote{mean}, \dQuote{y} and \dQuote{label}.
 #'
+#' @param y.label Description of input argument "y.label" goes here.
+#' 
 #' @param topic.label The name or number of the topic being plotted.
 #'   Only used to determine the plot title.
 #' 
@@ -489,18 +502,18 @@ volcano_plot <-
 #' 
 #' @export
 #' 
-volcano_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
-  ggplot(dat,aes_string(x = "beta",y = "z",fill = "mean",label = "label")) +
+volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
+  ggplot(dat,aes_string(x = "beta",y = "y",fill = "mean",label = "label")) +
     geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
     scale_y_continuous(trans = "sqrt",
-      breaks = c(0,1,2,5,10,20,50,100,200,500,1000,2000,5000)) +
+      breaks = c(0,1,2,5,10,20,50,100,200,500,1e3,2e3,5e3,1e4,2e4,5e4)) +
     scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
                          midpoint = mean(range(dat$mean))) +
     geom_text_repel(color = "black",size = 2.25,fontface = "italic",
                     box.padding = 0.1,point.padding = 0.1,
                     segment.color = "black",segment.size = 0.25,
                     na.rm = TRUE) +
-    labs(x = "log-fold change",y = "|z-score|",fill = "log10 mean",
+    labs(x = "log-fold change",y = y.label,fill = "log10 mean",
          title = paste("topic",topic.label)) +
     theme_cowplot(font.size)
 
