@@ -358,20 +358,21 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   results of a differential count analysis using a topic model. A
 #'   volcano plot is a scatterplot in which the log-fold change,
 #'   estimated using a multinomial topic model, is plotted against the
-#'   magnitude of the z-score. 
+#'   p-value or z-score. 
 #'
-#' @details The colour of the points is varied by the
-#' average count, on the logarithmic scale; since the evidence
-#' (z-score) typically increases with more observed counts, the
-#' variables with smallest average counts should usually appear toward
-#' the bottom of the volcano plot. Only points above a specified
-#' z-score quantile are labeled.
+#' @details The colour of the points is varied by the average count,
+#' on the logarithmic scale; since the evidence (z-score or p-value)
+#' typically increases with more observed counts, the variables with
+#' smallest average counts should usually appear toward the bottom of
+#' the volcano plot. Only points above a specified z-score (or
+#' p-value) quantile are labeled.
 #'
-#' To better accommodate situations in which some z-scores
-#' are much larger than all the others, the z-scores are plotted on
-#' the square-root scale. To change this, as well as other aspects, of
-#' the plot, replace \code{volcano_plot_ggplot_call} with your own
-#' function; see input argument \dQuote{ggplot_call}.
+#' To better accommodate situations in which some z-scores (or
+#' p-values) are much larger than all the others, the z-scores and
+#' -log10 p-values are plotted on the square-root scale. To change
+#' this, as well as other aspects, of the plot, replace
+#' \code{volcano_plot_ggplot_call} with your own function; see input
+#' argument \dQuote{ggplot_call}.
 #'
 #' The \dQuote{ggrepel} package is used to arrange the labels in a
 #' visually attractive manner.
@@ -390,7 +391,9 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   of \code{diff_count_result$beta} are used, if available. Labels are
 #'   added to the plot using \code{link[ggrepel]{geom_text_repel}}.
 #'
-#' @param y Describe input argument "y" here.
+#' @param y The measure of support to plot in the y-axis: use \code{y
+#'   = "zscore"} to plot the z-score magnitudes; use \code{y = "pvalue"}
+#'   to plot the -log1 p-values.
 #' 
 #' @param betamax Truncate the log-fold change statistics
 #'   (\code{beta}) by this amount. Any statistics greater in magnitude
