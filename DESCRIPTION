@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.3-140
-Date: 2020-07-13
+Version: 0.3-141
+Date: 2020-07-14
 Title: Fast Optimization Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
 Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
@@ -35,7 +35,9 @@ Imports:
     progress,
     ggplot2,
     ggrepel,
-    cowplot
+    cowplot,
+    plotly,
+    htmlwidgets
 Suggests:
     NNLM,
     REBayes,

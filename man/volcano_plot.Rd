@@ -4,6 +4,7 @@
 \alias{volcano_plot}
 \alias{volcano_plot_ggplot_call}
 \alias{plot.topic_model_diff_count}
+\alias{volcano_plotly}
 \title{Volcano Plot}
 \usage{
 volcano_plot(
@@ -13,6 +14,8 @@ volcano_plot(
   y = c("zscore", "pvalue"),
   betamax = 10,
   label_above_quantile = 0.99,
+  subsample_below_quantile = 0,
+  subsample_rate = 0.1,
   ggplot_call = volcano_plot_ggplot_call,
   plot_grid_call = function(plots) do.call(plot_grid, plots)
 )
@@ -20,6 +23,14 @@ volcano_plot(
 volcano_plot_ggplot_call(dat, y.label, topic.label, font.size = 9)
 
 \method{plot}{topic_model_diff_count}(x, ...)
+
+volcano_plotly(
+  diff_count_result,
+  k,
+  labels,
+  y = c("zscore", "pvalue"),
+  betamax = 10
+)
 }
 \arguments{
 \item{diff_count_result}{An object of class
@@ -48,6 +59,17 @@ than \code{betamax} are set to \code{betamax} or \code{-betamax}.}
 choice of \code{y}) above this quantile are labeled in the volcano
 plot. \code{link[ggrepel]{geom_text_repel}} will attempt to label
 all points when \code{label_above_quantile = 0}.}
+
+\item{subsample_below_quantile}{A number between 0 and 1. If
+greater than zero, log-fold change statistics with z-scores or
+p-values below this quantile will be subsampled according to
+\code{subsample_rate}. This is useful for large data sets to to
+reduce the number of points plotted.}
+
+\item{subsample_rate}{A number between 0 and 1 giving the
+proportion of log-fold change statistics with "small" z-scores that
+are included in the plot, uniformly at random. This is only used if
+\code{subsample_below_quantile} is greater than zero.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{volcano_plot_ggplot_call} with your own function to customize
@@ -80,6 +102,8 @@ Create one or more "volcano" plots to visualize the
   volcano plot is a scatterplot in which the log-fold change,
   estimated using a multinomial topic model, is plotted against the
   p-value or z-score.
+
+Description goes here.
 }
 \details{
 The colour of the points is varied by the average count,

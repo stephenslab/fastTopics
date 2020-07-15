@@ -403,6 +403,17 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   choice of \code{y}) above this quantile are labeled in the volcano
 #'   plot. \code{link[ggrepel]{geom_text_repel}} will attempt to label
 #'   all points when \code{label_above_quantile = 0}.
+#'
+#' @param subsample_below_quantile A number between 0 and 1. If
+#'   greater than zero, log-fold change statistics with z-scores or
+#'   p-values below this quantile will be subsampled according to
+#'   \code{subsample_rate}. This is useful for large data sets to to
+#'   reduce the number of points plotted.
+#'
+#' @param subsample_rate A number between 0 and 1 giving the
+#'   proportion of log-fold change statistics with "small" z-scores that
+#'   are included in the plot, uniformly at random. This is only used if
+#'   \code{subsample_below_quantile} is greater than zero.
 #' 
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{volcano_plot_ggplot_call} with your own function to customize
@@ -415,7 +426,6 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' @return A \code{ggplot} object.
 #'
-#' @importFrom stats quantile
 #' @importFrom cowplot plot_grid
 #'
 #' @export
@@ -423,6 +433,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 volcano_plot <-
   function (diff_count_result, k, labels, y = c("zscore", "pvalue"),
             betamax = 10, label_above_quantile = 0.99,
+            subsample_below_quantile = 0, subsample_rate = 0.1,
             ggplot_call = volcano_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots)) {
     
@@ -446,26 +457,13 @@ volcano_plot <-
          "the counts matrix)")
 
   if (length(k) == 1) {
-
-    # Compile data for volcano plot.
-    dat <- with(diff_count_result,
-                data.frame(label = labels,
-                           mean  = log10(colmeans),
-                           beta  = beta[,k],
-                           y     = 0,
-                           stringsAsFactors = FALSE))
-    if (y == "zscore") {
-      dat$y   <- abs(diff_count_result$Z[,k])
+    if (y == "zscore")
       y.label <- "|z-score|"
-    } else if (y == "pvalue") {
-      dat$y   <- diff_count_result$pval[,k]
+    else if (y == "pvalue")
       y.label <- "-log10 p-value"
-    }
-    dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
-    y0  <- quantile(dat$y,label_above_quantile)
-    dat$label[dat$y < y0] <- ""
-    
-    # Create the volcano plot.
+    dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
+                                     label_above_quantile,
+                                     subsample_below_quantile,subsample_rate)
     return(ggplot_call(dat,y.label,k))
   } else {
 
@@ -532,6 +530,51 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
 #'
 plot.topic_model_diff_count <- function (x, ...)
   volcano_plot(x,...)
+
+#' @rdname volcano_plot
+#'
+#' @description Description goes here.
+#' 
+#' @export
+#' 
+volcano_plotly <- function (diff_count_result, k, labels,
+                            y = c("zscore", "pvalue"), betamax = 10) {
+
+}
+
+# This is used by volcano_plot and volcano_plotly to compile the data
+# frame passed to ggplot.
+#
+#' @importFrom stats quantile
+compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
+                                       betamax, label_above_quantile,
+                                       subsample_below_quantile,
+                                       subsample_rate) {
+  dat <- with(diff_count_result,
+                data.frame(label = labels,
+                           mean  = log10(colmeans),
+                           beta  = beta[,k],
+                           y     = 0,
+                           stringsAsFactors = FALSE))
+  if (y == "zscore")
+    dat$y <- abs(diff_count_result$Z[,k])
+  else if (y == "pvalue")
+    dat$y <- diff_count_result$pval[,k]
+  dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
+  y0 <- quantile(dat$y,label_above_quantile)
+  dat$label[dat$y < y0] <- ""
+  if (subsample_below_quantile > 0) {
+    y0    <- quantile(dat$y,subsample_below_quantile)
+    rows1 <- which(dat$y >= y0)
+    rows2 <- which(dat$y < y0)
+    rows2 <- sample(rows2,ceiling(subsample_rate * length(rows2)))
+    rows  <- sort(c(rows1,rows2))
+    message(sprintf("%d out of %d data points will be included in plot",
+                    length(rows),nrow(dat)))
+    dat   <- dat[rows,]
+  }
+  return(dat)
+}
 
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model
 #'
