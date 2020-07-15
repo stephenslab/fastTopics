@@ -481,6 +481,67 @@ volcano_plot <-
 
 #' @rdname volcano_plot
 #'
+#' @param x Describe input argument "x" here.
+#'
+#' @importFrom graphics plot
+#' 
+#' @method plot topic_model_diff_count
+#'
+#' @export
+#'
+plot.topic_model_diff_count <- function (x, ...)
+  volcano_plot(x,...)
+
+#' @rdname volcano_plot
+#'
+#' @description Description goes here.
+#'
+#' @param width Describe input argument "width" here.
+#'
+#' @param height Describe input argument "height" here.
+#'
+#' @param plot_ly_call Describe input argument "plot_ly_call" here.
+#' 
+#' @export
+#' 
+volcano_plotly <- function (diff_count_result, k, file, labels,
+                            y = c("zscore", "pvalue"), betamax = 10,
+                            subsample_below_quantile = 0,
+                            subsample_rate = 0.1, width = 600, height = 500,
+                            plot_ly_call = volcano_plot_ly_call) {
+
+  # Check and process input arguments.
+  y <- match.arg(y)
+  if (!inherits(diff_count_result,"topic_model_diff_count"))
+    stop("Input \"diff_count_result\" should be an object of class ",
+         "\"topic_model_diff_count\"")
+  beta <- diff_count_result$beta
+  if (missing(labels)) {
+    if (!is.null(rownames(beta)))
+      labels <- rownames(beta)
+    else
+      labels <- as.character(seq(1,nrow(beta)))
+  }
+  if (!(is.character(labels) & length(labels) == nrow(beta)))
+    stop("Input argument \"labels\", when specified, should be a character ",
+         "vector with one entry per log-fold change statistic (column of ",
+         "the counts matrix)")
+
+  # Compile the plotting data.
+  dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
+                                   0,subsample_below_quantile,subsample_rate)
+
+  # Create the interactive volcano plot using plotly.
+  if (y == "zscore")
+    y.label <- "|z-score|"
+  else if (y == "pvalue")
+    y.label <- "-log10 p-value"
+  out <- volcano_plot_ly_call(dat,y.label,height,width)
+  return(out)
+}
+
+#' @rdname volcano_plot
+#'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
 #'   \dQuote{beta}, \dQuote{mean}, \dQuote{y} and \dQuote{label}.
@@ -514,33 +575,41 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
                     box.padding = 0.1,point.padding = 0.1,
                     segment.color = "black",segment.size = 0.25,
                     na.rm = TRUE) +
-    labs(x = "log-fold change",y = y.label,fill = "log10 mean",
+    labs(x = "log-fold change (\u03b2)",y = y.label,fill = "log10 mean",
          title = paste("topic",topic.label)) +
     theme_cowplot(font.size)
 
 #' @rdname volcano_plot
 #'
-#' @param x Describe input argument "x" here.
+#' @param width Describe input argument "width" here.
 #'
-#' @importFrom graphics plot
+#' @param height Describe input argument "height" here.
 #' 
-#' @method plot topic_model_diff_count
-#'
-#' @export
-#'
-plot.topic_model_diff_count <- function (x, ...)
-  volcano_plot(x,...)
-
-#' @rdname volcano_plot
-#'
-#' @description Description goes here.
+#' @importFrom plotly plot_ly
+#' @importFrom plotly hide_colorbar
+#' @importFrom plotly layout
 #' 
 #' @export
 #' 
-volcano_plotly <- function (diff_count_result, k, labels,
-                            y = c("zscore", "pvalue"), betamax = 10) {
-
-}
+volcano_plot_ly_call <- function (dat, y.label, width, height)
+  plot_ly(data = dat,x = ~beta,y = ~sqrt(y),color = ~mean,
+          colors = c("deepskyblue","gold","orangered"),
+          text = ~sprintf(paste0("%s\nmean: %0.3f\n\u03b2: %+0.3f\n",
+                                 "s.e.: %0.3f\nz: %+0.3f\n-log10p: %0.2f"),
+                          label,10^mean,beta,se,z,pval),
+          type = "scatter",mode = "markers",hoverinfo = "text",
+          width = width,height = height,
+          marker = list(line = list(color = "white",width = 1),size = 7.5)) %>%
+          hide_colorbar() %>% 
+          layout(xaxis = list(title = "log-fold change (\u03b2)",
+                              zeroline = FALSE,showgrid = FALSE),
+                 yaxis = list(title = paste("sqrt",y.label),
+                              zeroline = FALSE,showgrid = FALSE),
+                 hoverlabel = list(bgcolor = "white",bordercolor = "black",
+                                   font = list(color = "black",
+                                               family = "arial",size = 12)),
+                 font = list(family = "arial",size = 12),
+                 showlegend = FALSE)
 
 # This is used by volcano_plot and volcano_plotly to compile the data
 # frame passed to ggplot.
@@ -554,6 +623,9 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
                 data.frame(label = labels,
                            mean  = log10(colmeans),
                            beta  = beta[,k],
+                           se    = se[,k],
+                           z     = Z[,k],
+                           pval  = pval[,k],
                            y     = 0,
                            stringsAsFactors = FALSE))
   if (y == "zscore")

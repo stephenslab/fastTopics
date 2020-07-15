@@ -2,9 +2,10 @@
 % Please edit documentation in R/plots.R
 \name{volcano_plot}
 \alias{volcano_plot}
-\alias{volcano_plot_ggplot_call}
 \alias{plot.topic_model_diff_count}
 \alias{volcano_plotly}
+\alias{volcano_plot_ggplot_call}
+\alias{volcano_plot_ly_call}
 \title{Volcano Plot}
 \usage{
 volcano_plot(
@@ -20,17 +21,25 @@ volcano_plot(
   plot_grid_call = function(plots) do.call(plot_grid, plots)
 )
 
-volcano_plot_ggplot_call(dat, y.label, topic.label, font.size = 9)
-
 \method{plot}{topic_model_diff_count}(x, ...)
 
 volcano_plotly(
   diff_count_result,
   k,
+  file,
   labels,
   y = c("zscore", "pvalue"),
-  betamax = 10
+  betamax = 10,
+  subsample_below_quantile = 0,
+  subsample_rate = 0.1,
+  width = 600,
+  height = 500,
+  plot_ly_call = volcano_plot_ly_call
 )
+
+volcano_plot_ggplot_call(dat, y.label, topic.label, font.size = 9)
+
+volcano_plot_ly_call(dat, y.label, width, height)
 }
 \arguments{
 \item{diff_count_result}{An object of class
@@ -80,6 +89,14 @@ the function used to arrange the plots into a grid using
 \code{\link[cowplot]{plot_grid}}. It should be a function accepting
 a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
+\item{x}{Describe input argument "x" here.}
+
+\item{width}{Describe input argument "width" here.}
+
+\item{height}{Describe input argument "height" here.}
+
+\item{plot_ly_call}{Describe input argument "plot_ly_call" here.}
+
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
 \dQuote{beta}, \dQuote{mean}, \dQuote{y} and \dQuote{label}.}
@@ -90,8 +107,6 @@ a single argument, \code{plots}, a list of \code{ggplot} objects.}
 Only used to determine the plot title.}
 
 \item{font.size}{Font size used in plot.}
-
-\item{x}{Describe input argument "x" here.}
 }
 \value{
 A \code{ggplot} object.
