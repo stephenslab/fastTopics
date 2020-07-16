@@ -512,6 +512,8 @@ plot.topic_model_diff_count <- function (x, ...)
 #' @param height Height of the plot in pixels. Passed as argument
 #'   \dQuote{height} to \code{\link[plotly]{plot_ly}}.
 #'
+#' @param title The text used for the plot title.
+#'
 #' @param plot_ly_call The function used to create the plot. Replace
 #'   \code{volcano_plot_ly_call} with your own function to customize
 #'   the appearance of the interactive plot.
@@ -524,6 +526,7 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
                             y = c("zscore", "pvalue"), betamax = 10,
                             subsample_below_quantile = 0,
                             subsample_rate = 0.1, width = 600, height = 500,
+                            title = paste("topic",k),
                             plot_ly_call = volcano_plot_ly_call) {
 
   # Check and process input arguments.
@@ -552,9 +555,9 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
     y.label <- "|z-score|"
   else if (y == "pvalue")
     y.label <- "-log10 p-value"
-  p <- volcano_plot_ly_call(dat,y.label,height,width)
+  p <- volcano_plot_ly_call(dat,y.label,title,height,width)
   if (!missing(file))
-    saveWidget(p,file,selfcontained = TRUE)
+    saveWidget(p,file,selfcontained = TRUE,title = title)
   return(p)
 }
 
@@ -606,7 +609,7 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
 #' 
 #' @export
 #' 
-volcano_plot_ly_call <- function (dat, y.label, width, height) {
+volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
   p <- plot_ly(data = dat,x = ~beta,y = ~sqrt(y),color = ~mean,
           colors = c("deepskyblue","gold","orangered"),
           text = ~sprintf(paste0("%s\nmean: %0.3f\n\u03b2: %+0.3f\n",
@@ -620,11 +623,11 @@ volcano_plot_ly_call <- function (dat, y.label, width, height) {
                              zeroline = FALSE,showgrid = FALSE),
               yaxis = list(title = paste("sqrt",y.label),
                            zeroline = FALSE,showgrid = FALSE),
-               hoverlabel = list(bgcolor = "white",bordercolor = "black",
-                                 font = list(color = "black",family = "arial",
-                                             size = 12)),
-               font = list(family = "arial",size = 12),
-               showlegend = FALSE)
+              hoverlabel = list(bgcolor = "white",bordercolor = "black",
+                                font = list(color = "black",family = "arial",
+                                            size = 12)),
+              font = list(family = "arial",size = 12),
+              showlegend = FALSE,title = title)
   return(p)
 }
 

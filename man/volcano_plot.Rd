@@ -34,12 +34,13 @@ volcano_plotly(
   subsample_rate = 0.1,
   width = 600,
   height = 500,
+  title = paste("topic", k),
   plot_ly_call = volcano_plot_ly_call
 )
 
 volcano_plot_ggplot_call(dat, y.label, topic.label, font.size = 9)
 
-volcano_plot_ly_call(dat, y.label, width, height)
+volcano_plot_ly_call(dat, y.label, title, width, height)
 }
 \arguments{
 \item{diff_count_result}{An object of class
@@ -103,6 +104,8 @@ file using \code{\link[htmlwidgets]{saveWidget}}.}
 \item{height}{Height of the plot in pixels. Passed as argument
 \dQuote{height} to \code{\link[plotly]{plot_ly}}.}
 
+\item{title}{The text used for the plot title.}
+
 \item{plot_ly_call}{The function used to create the plot. Replace
 \code{volcano_plot_ly_call} with your own function to customize
 the appearance of the interactive plot.}
@@ -149,5 +152,6 @@ visually attractive manner.
 
 Use interactive volcano plot is created using the \dQuote{plotly}
 package. The "hover text" shows the label (see input argument
-\dQuote{labels}) and detailed log-fold change statistics.
+\dQuote{labels}) and detailed log-fold change statistics as they
+were calculated by \code{\link{diff_count_analysis}}.
 }
