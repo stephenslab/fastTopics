@@ -92,6 +92,8 @@ a single argument, \code{plots}, a list of \code{ggplot} objects.}
 \item{x}{An object of class \dQuote{topic_model_diff_count},
 usually an output from \code{\link{diff_count_analysis}}.}
 
+\item{\dots}{Additional arguments passed to \code{volcano_plot}.}
+
 \item{file}{Save the interactive volcano plot to this HTML
 file using \code{\link[htmlwidgets]{saveWidget}}.}
 

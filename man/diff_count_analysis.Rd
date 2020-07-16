@@ -83,7 +83,7 @@ the total count for sample i (this is the default setting in
 \code{diff_count_analysis}), the Poisson model will closely
 approximate a binomial model of the count data, so that the Poisson
 model parameters \eqn{f_0, f_1} represent binomial
-probabilities. In this case, \eqn{\betq} represents the log-fold
+probabilities. In this case, \eqn{\beta} represents the log-fold
 change in \emph{relative} occurrence. (This Poisson approximation
 to the binomial is most accurate when the total counts
 \code{rowSums(X)} are large and \eqn{f_0, f_1} are small.)

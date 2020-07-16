@@ -211,10 +211,10 @@ plot_loglik_vs_rank <- function (fits,
                                  ggplot_call = loglik_vs_rank_ggplot_call) {
   n   <- length(fits)
   names(fits) <- paste0("fit",1:n)
-  dat <- compare_poisson_nmf_fits(fits)[c("k","loglik.diff")]
-  dat <- transform(dat,k = factor(k))
-  y   <- tapply(dat$loglik.diff,dat$k,max)
-  dat <- data.frame(x = as.numeric(names(y)),y = y)
+  dat   <- compare_poisson_nmf_fits(fits)[c("k","loglik.diff")]
+  dat$k <- factor(dat$k)
+  y     <- tapply(dat$loglik.diff,dat$k,max)
+  dat   <- data.frame(x = as.numeric(names(y)),y = y)
   return(loglik_vs_rank_ggplot_call(dat))
 }
 
@@ -379,7 +379,8 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' Use interactive volcano plot is created using the \dQuote{plotly}
 #' package. The "hover text" shows the label (see input argument
-#' \dQuote{labels}) and detailed log-fold change statistics.
+#' \dQuote{labels}) and detailed log-fold change statistics as they
+#' were calculated by \code{\link{diff_count_analysis}}.
 #' 
 #' @param diff_count_result An object of class
 #'   \dQuote{topic_model_diff_count}, usually an output from
@@ -489,6 +490,8 @@ volcano_plot <-
 #' @param x An object of class \dQuote{topic_model_diff_count},
 #'   usually an output from \code{\link{diff_count_analysis}}.
 #'
+#' @param \dots Additional arguments passed to \code{volcano_plot}.
+#' 
 #' @importFrom graphics plot
 #' 
 #' @method plot topic_model_diff_count
@@ -549,10 +552,10 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
     y.label <- "|z-score|"
   else if (y == "pvalue")
     y.label <- "-log10 p-value"
-  out <- volcano_plot_ly_call(dat,y.label,height,width)
+  p <- volcano_plot_ly_call(dat,y.label,height,width)
   if (!missing(file))
-    saveWidget(out,file,selfcontained = TRUE)
-  return(out)
+    saveWidget(p,file,selfcontained = TRUE)
+  return(p)
 }
 
 #' @rdname volcano_plot
@@ -603,25 +606,27 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
 #' 
 #' @export
 #' 
-volcano_plot_ly_call <- function (dat, y.label, width, height)
-  plot_ly(data = dat,x = ~beta,y = ~sqrt(y),color = ~mean,
+volcano_plot_ly_call <- function (dat, y.label, width, height) {
+  p <- plot_ly(data = dat,x = ~beta,y = ~sqrt(y),color = ~mean,
           colors = c("deepskyblue","gold","orangered"),
           text = ~sprintf(paste0("%s\nmean: %0.3f\n\u03b2: %+0.3f\n",
                                  "s.e.: %0.3f\nz: %+0.3f\n-log10p: %0.2f"),
                           label,10^mean,beta,se,z,pval),
           type = "scatter",mode = "markers",hoverinfo = "text",
           width = width,height = height,
-          marker = list(line = list(color = "white",width = 1),size = 7.5)) %>%
-          hide_colorbar() %>% 
-          layout(xaxis = list(title = "log-fold change (\u03b2)",
-                              zeroline = FALSE,showgrid = FALSE),
-                 yaxis = list(title = paste("sqrt",y.label),
-                              zeroline = FALSE,showgrid = FALSE),
-                 hoverlabel = list(bgcolor = "white",bordercolor = "black",
-                                   font = list(color = "black",
-                                               family = "arial",size = 12)),
-                 font = list(family = "arial",size = 12),
-                 showlegend = FALSE)
+          marker = list(line = list(color = "white",width = 1),size = 7.5))
+  p <- hide_colorbar(p)
+  p <- layout(p,xaxis = list(title = "log-fold change (\u03b2)",
+                             zeroline = FALSE,showgrid = FALSE),
+              yaxis = list(title = paste("sqrt",y.label),
+                           zeroline = FALSE,showgrid = FALSE),
+               hoverlabel = list(bgcolor = "white",bordercolor = "black",
+                                 font = list(color = "black",family = "arial",
+                                             size = 12)),
+               font = list(family = "arial",size = 12),
+               showlegend = FALSE)
+  return(p)
+}
 
 # This is used by volcano_plot and volcano_plotly to compile the data
 # frame passed to ggplot.
