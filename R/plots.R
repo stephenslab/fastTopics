@@ -376,6 +376,10 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' The \dQuote{ggrepel} package is used to arrange the labels in a
 #' visually attractive manner.
+#'
+#' Use interactive volcano plot is created using the \dQuote{plotly}
+#' package. The "hover text" shows the label (see input argument
+#' \dQuote{labels}) and detailed log-fold change statistics.
 #' 
 #' @param diff_count_result An object of class
 #'   \dQuote{topic_model_diff_count}, usually an output from
@@ -424,7 +428,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   \code{\link[cowplot]{plot_grid}}. It should be a function accepting
 #'   a single argument, \code{plots}, a list of \code{ggplot} objects.
 #'
-#' @return A \code{ggplot} object.
+#' @return A \code{ggplot} object or a \code{plotly} object.
 #'
 #' @importFrom cowplot plot_grid
 #'
@@ -474,14 +478,16 @@ volcano_plot <-
     names(plots) <- k
     for (i in 1:m)
       plots[[i]] <- volcano_plot(diff_count_result,k[i],labels,y,betamax,
-                                 label_above_quantile,ggplot_call,NULL)
+                                 label_above_quantile,subsample_below_quantile,
+                                 subsample_rate,ggplot_call,NULL)
     return(plot_grid_call(plots))
   }
 }
 
 #' @rdname volcano_plot
 #'
-#' @param x Describe input argument "x" here.
+#' @param x An object of class \dQuote{topic_model_diff_count},
+#'   usually an output from \code{\link{diff_count_analysis}}.
 #'
 #' @importFrom graphics plot
 #' 
@@ -494,13 +500,20 @@ plot.topic_model_diff_count <- function (x, ...)
 
 #' @rdname volcano_plot
 #'
-#' @description Description goes here.
+#' @param file Save the interactive volcano plot to this HTML
+#'   file using \code{\link[htmlwidgets]{saveWidget}}.
+#' 
+#' @param width Width of the plot in pixels. Passed as argument
+#'   \dQuote{width} to \code{\link[plotly]{plot_ly}}.
 #'
-#' @param width Describe input argument "width" here.
+#' @param height Height of the plot in pixels. Passed as argument
+#'   \dQuote{height} to \code{\link[plotly]{plot_ly}}.
 #'
-#' @param height Describe input argument "height" here.
+#' @param plot_ly_call The function used to create the plot. Replace
+#'   \code{volcano_plot_ly_call} with your own function to customize
+#'   the appearance of the interactive plot.
 #'
-#' @param plot_ly_call Describe input argument "plot_ly_call" here.
+#' @importFrom htmlwidgets saveWidget
 #' 
 #' @export
 #' 
@@ -537,6 +550,8 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
   else if (y == "pvalue")
     y.label <- "-log10 p-value"
   out <- volcano_plot_ly_call(dat,y.label,height,width)
+  if (!missing(file))
+    saveWidget(out,file,selfcontained = TRUE)
   return(out)
 }
 
@@ -544,9 +559,10 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   \dQuote{beta}, \dQuote{mean}, \dQuote{y} and \dQuote{label}.
-#'
-#' @param y.label Description of input argument "y.label" goes here.
+#'   \dQuote{label}, \dQuote{mean}, \dQuote{beta}, \dQuote{se},
+#'   \dQuote{z}, \dQuote{pval} and \dQuote{label}.
+#' 
+#' @param y.label Label to use in the plot for \dQuote{dat$y}.
 #' 
 #' @param topic.label The name or number of the topic being plotted.
 #'   Only used to determine the plot title.
@@ -581,10 +597,6 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
 
 #' @rdname volcano_plot
 #'
-#' @param width Describe input argument "width" here.
-#'
-#' @param height Describe input argument "height" here.
-#' 
 #' @importFrom plotly plot_ly
 #' @importFrom plotly hide_colorbar
 #' @importFrom plotly layout

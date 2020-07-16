@@ -71,6 +71,10 @@ test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
   # Create volcano plots from the diff_count_analysis output.
   p1 <- volcano_plot(ans,y = "zscore")
   p2 <- volcano_plot(ans,y = "pvalue")
+  p3 <- volcano_plotly(ans,k = 1,y = "zscore")
+  p4 <- volcano_plotly(ans,k = 1,y = "pvalue")
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
+  expect_s3_class(p3,"plotly")
+  expect_s3_class(p4,"plotly")
 })

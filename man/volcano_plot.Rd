@@ -89,19 +89,28 @@ the function used to arrange the plots into a grid using
 \code{\link[cowplot]{plot_grid}}. It should be a function accepting
 a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
-\item{x}{Describe input argument "x" here.}
+\item{x}{An object of class \dQuote{topic_model_diff_count},
+usually an output from \code{\link{diff_count_analysis}}.}
 
-\item{width}{Describe input argument "width" here.}
+\item{file}{Save the interactive volcano plot to this HTML
+file using \code{\link[htmlwidgets]{saveWidget}}.}
 
-\item{height}{Describe input argument "height" here.}
+\item{width}{Width of the plot in pixels. Passed as argument
+\dQuote{width} to \code{\link[plotly]{plot_ly}}.}
 
-\item{plot_ly_call}{Describe input argument "plot_ly_call" here.}
+\item{height}{Height of the plot in pixels. Passed as argument
+\dQuote{height} to \code{\link[plotly]{plot_ly}}.}
+
+\item{plot_ly_call}{The function used to create the plot. Replace
+\code{volcano_plot_ly_call} with your own function to customize
+the appearance of the interactive plot.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-\dQuote{beta}, \dQuote{mean}, \dQuote{y} and \dQuote{label}.}
+\dQuote{label}, \dQuote{mean}, \dQuote{beta}, \dQuote{se},
+\dQuote{z}, \dQuote{pval} and \dQuote{label}.}
 
-\item{y.label}{Description of input argument "y.label" goes here.}
+\item{y.label}{Label to use in the plot for \dQuote{dat$y}.}
 
 \item{topic.label}{The name or number of the topic being plotted.
 Only used to determine the plot title.}
@@ -109,7 +118,7 @@ Only used to determine the plot title.}
 \item{font.size}{Font size used in plot.}
 }
 \value{
-A \code{ggplot} object.
+A \code{ggplot} object or a \code{plotly} object.
 }
 \description{
 Create one or more "volcano" plots to visualize the
@@ -117,8 +126,6 @@ Create one or more "volcano" plots to visualize the
   volcano plot is a scatterplot in which the log-fold change,
   estimated using a multinomial topic model, is plotted against the
   p-value or z-score.
-
-Description goes here.
 }
 \details{
 The colour of the points is varied by the average count,
@@ -137,4 +144,8 @@ argument \dQuote{ggplot_call}.
 
 The \dQuote{ggrepel} package is used to arrange the labels in a
 visually attractive manner.
+
+Use interactive volcano plot is created using the \dQuote{plotly}
+package. The "hover text" shows the label (see input argument
+\dQuote{labels}) and detailed log-fold change statistics.
 }
