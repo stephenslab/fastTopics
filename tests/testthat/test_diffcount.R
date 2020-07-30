@@ -25,10 +25,10 @@ test_that(paste("All variants of fit_univar_poisson_models and",
   # same, estimates of the model parameters.
   expect_equal(fit1$F0,fit2$F0,scale = 1,tolerance = 1e-4)
   expect_equal(fit1$F1,fit2$F1,scale = 1,tolerance = 1e-4)
-  expect_equal(fit2$F0,fit3$F0,scale = 1,tolerance = 1e-8)
-  expect_equal(fit2$F1,fit3$F1,scale = 1,tolerance = 1e-8)
-  expect_equal(fit2$F0,fit4$F0,scale = 1,tolerance = 1e-8)
-  expect_equal(fit2$F1,fit4$F1,scale = 1,tolerance = 1e-8)
+  expect_equal(fit2$F0,fit3$F0,scale = 1,tolerance = 1e-7)
+  expect_equal(fit2$F1,fit3$F1,scale = 1,tolerance = 1e-7)
+  expect_equal(fit2$F0,fit4$F0,scale = 1,tolerance = 1e-7)
+  expect_equal(fit2$F1,fit4$F1,scale = 1,tolerance = 1e-7)
 
   # Compute the log-fold change statistics.
   F0 <- fit2$F0

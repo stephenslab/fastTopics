@@ -118,11 +118,12 @@ List fit_poisson_em_rcpp (const arma::vec& x, const arma::vec& s,
   vec z0(n);
   vec z1(n);
   vec u(n);
-  double loglik = fit_poisson_em(x,s,q,f0,f1,z0,z1,u,e,numiter,tol);
+  unsigned int t = numiter;
+  double loglik = fit_poisson_em(x,s,q,f0,f1,z0,z1,u,e,t,tol);
   return List::create(Named("f0")      = f0,
 		      Named("f1")      = f1,
 		      Named("loglik")  = loglik,
-		      Named("numiter") = numiter);
+		      Named("numiter") = t);
 }
 
 // This is mainly used to test the fit_poisson_em function.
@@ -136,11 +137,12 @@ List fit_poisson_em_sparse_rcpp (const arma::vec& x, const arma::vec& s,
   vec z0(n);
   vec z1(n);
   vec u(n);
-  double loglik = fit_poisson_em_sparse(x,s,q,a,b,f0,f1,z0,z1,u,e,numiter,tol);
+  unsigned int t = numiter;
+  double loglik = fit_poisson_em_sparse(x,s,q,a,b,f0,f1,z0,z1,u,e,t,tol);
   return List::create(Named("f0")      = f0,
 		      Named("f1")      = f1,
 		      Named("loglik")  = loglik,
-		      Named("numiter") = numiter);
+		      Named("numiter") = t);
 }
 
 // Compute the Poisson rates given the size factors (s), topic
