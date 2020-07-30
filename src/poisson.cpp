@@ -103,20 +103,6 @@ List fit_univar_poisson_models_em_sparse_rcpp (const arma::sp_mat& X,
 		      Named("loglik") = loglik);
 }
 
-// TO DO: Explain here what this function is for, and how to use it.
-//
-// [[Rcpp::export]]
-arma::mat compute_poisson_precision_beta_sparse_rcpp (const arma::mat& X, 
-						      const arma::mat& L,
-						      const arma::mat& F0, 
-						      const arma::mat& F1) {
-  unsigned int m = F0.n_rows;
-  unsigned int k = F0.n_cols;
-  mat Y(m,k);
-  // TO DO.
-  return Y;
-}
-
 // This is mainly used to test the fit_poisson_em function.
 //
 // [[Rcpp::export]]
