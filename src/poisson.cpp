@@ -209,7 +209,10 @@ double fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0,
     f1 = sum(z1)/b;
 
     // Stop early if the parameters have not changed much.
-    if (abs(f0 - f00) < tol && abs(f1 - f10) < tol) {
+    if ((f0 - f00) < tol && 
+	(f00 - f0) < tol && 
+	(f1 - f10) < tol &&
+	(f10 - f1) < tol) {
 
       // Update "numiter" to reflect the number of EM updates actually
       // performed.
@@ -266,7 +269,10 @@ double fit_poisson_em_sparse (const vec& x, const vec& s, const vec& q,
     f1 = sum(z1)/b;
 
     // Stop early if the parameters have not changed much.
-    if (abs(f0 - f00) < tol && abs(f1 - f10) < tol) {
+    if ((f0 - f00) < tol && 
+	(f00 - f0) < tol && 
+	(f1 - f10) < tol &&
+	(f10 - f1) < tol) {
 
       // Update "numiter" to reflect the number of EM updates actually
       // performed.
