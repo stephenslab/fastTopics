@@ -1,6 +1,10 @@
 to do
 =====
 
++ Implemented multithreaded computations for diff_count_analysis.
+
++ Add test(s) for diff_count_analysis with nc > 1.
+
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.

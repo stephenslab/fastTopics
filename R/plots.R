@@ -611,13 +611,13 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
 #' 
 volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
   p <- plot_ly(data = dat,x = ~beta,y = ~sqrt(y),color = ~mean,
-          colors = c("deepskyblue","gold","orangered"),
-          text = ~sprintf(paste0("%s\nmean: %0.3f\n\u03b2: %+0.3f\n",
-                                 "s.e.: %0.3f\nz: %+0.3f\n-log10p: %0.2f"),
-                          label,10^mean,beta,se,z,pval),
-          type = "scatter",mode = "markers",hoverinfo = "text",
-          width = width,height = height,
-          marker = list(line = list(color = "white",width = 1),size = 7.5))
+               colors = c("deepskyblue","gold","orangered"),
+               text = ~sprintf(paste0("%s\nmean: %0.3f\n\u03b2: %+0.3f\n",
+                                      "s.e.: %0.3f\nz: %+0.3f\n-log10p: %0.2f"),
+                               label,10^mean,beta,se,z,pval),
+               type = "scatter",mode = "markers",hoverinfo = "text",
+               width = width,height = height,
+               marker = list(line = list(color = "white",width = 1),size = 7.5))
   p <- hide_colorbar(p)
   p <- layout(p,xaxis = list(title = "log-fold change (\u03b2)",
                              zeroline = FALSE,showgrid = FALSE),
