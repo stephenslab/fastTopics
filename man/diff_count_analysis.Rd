@@ -30,7 +30,9 @@ the choice of \code{s}.}
 \item{numiter}{The number of EM updates performed to compute the
 maximum-likelihood estimates of the Poisson model parameters.}
 
-\item{tol}{Describe input argument "tol" here.}
+\item{tol}{When \code{tol > 0}, the EM algorithm for computing
+maximum-likelihood estimates will be stopped early when the largest
+change between two successive updates is less than \code{tol}.}
 
 \item{e}{A small, positive scalar included in some computations to
 avoid logarithms of zero and division by zero.}

@@ -59,7 +59,9 @@
 #' @param numiter The number of EM updates performed to compute the
 #'   maximum-likelihood estimates of the Poisson model parameters.
 #'
-#' @param tol Describe input argument "tol" here.
+#' @param tol When \code{tol > 0}, the EM algorithm for computing
+#'   maximum-likelihood estimates will be stopped early when the largest
+#'   change between two successive updates is less than \code{tol}.
 #' 
 #' @param e A small, positive scalar included in some computations to
 #'   avoid logarithms of zero and division by zero.
