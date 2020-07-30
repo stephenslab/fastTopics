@@ -59,6 +59,8 @@
 #' @param numiter The number of EM updates performed to compute the
 #'   maximum-likelihood estimates of the Poisson model parameters.
 #'
+#' @param tol Describe input argument "tol" here.
+#' 
 #' @param e A small, positive scalar included in some computations to
 #'   avoid logarithms of zero and division by zero.
 #'
@@ -90,7 +92,7 @@
 #' @export
 #' 
 diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
-                                 e = 1e-15, verbose = TRUE) {
+                                 tol = 1e-8, e = 1e-15, verbose = TRUE) {
 
   # CHECK & PROCESS INPUTS
   # ----------------------
@@ -122,7 +124,7 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   # Fit the univariate ("single-count") Poisson models.
   if (verbose)
     cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
-  out <- fit_univar_poisson_models(X,fit$L,s,"em-rcpp",e,numiter,
+  out <- fit_univar_poisson_models(X,fit$L,s,"em-rcpp",e,numiter,tol,
                                    verbose = verbose)
   F0 <- out$F0
   F1 <- out$F1

@@ -15,7 +15,7 @@ loglik_poisson <- function (x, y, e = 1e-15)
 fit_univar_poisson_models <-
   function (X, L, s = rep(1,nrow(X)),
             method = c("em-rcpp","em","optim"),
-            e = 1e-15, numiter.em = 100,
+            e = 1e-15, numiter.em = 100, tol.em = 1e-8,
             control.optim = list(factr = 1e-14,maxit = 100),
             verbose = TRUE) {
   method <- match.arg(method)
@@ -39,9 +39,10 @@ fit_univar_poisson_models <-
   } else if (method == "em-rcpp") {
     if (is.sparse.matrix(X))
       out <- fit_univar_poisson_models_em_sparse_rcpp(X,L,s,e,numiter.em,
-                                                      verbose)
+                                                      tol.em,verbose)
     else
-      out <- fit_univar_poisson_models_em_rcpp(X,L,s,e,numiter.em,verbose)
+      out <- fit_univar_poisson_models_em_rcpp(X,L,s,e,numiter.em,tol.em,
+                                               verbose)
   }
   return(out)
 }
@@ -153,7 +154,7 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   # log-likelihood at each iteration.
   loglik <- rep(0,numiter)
   for (iter in 1:numiter) {
-
+    
     # E-STEP
     # ------
     z0 <- f0*(1-q)
@@ -166,7 +167,7 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
     # ------
     f0 <- sum(z0)/a
     f1 <- sum(z1)/b
-    
+
     # Compute the log-likelihood at the current estimates of the model
     # parameters (ignoring terms that don't depend on f0 or f1).
     u            <- get_poisson_rates(q,f0,f1)

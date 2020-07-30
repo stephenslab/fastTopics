@@ -27,13 +27,13 @@ test_that(paste("fastTopics methods recover the same model fits as glm",
   out2 <- fit_poisson_em(x,s,q)
 
   # Fit the model using the C++ EM implementation,
-  out3 <- fit_poisson_em_rcpp(x,s,q,1,1,1e-15,100)
+  out3 <- fit_poisson_em_rcpp(x,s,q,1,1,1e-15,100,1e-8)
 
   # Fit the model using the C++ implementation of the EM algorithm
   # that is better suited for sparse counts.
   i    <- which(x > 0)
   out4 <- fit_poisson_em_sparse_rcpp(x[i],s[i],q[i],sum(s*(1-q)),sum(s*q),
-                                     1,1,1e-15,100)
+                                     1,1,1e-15,100,1e-8)
 
   # The glm fit and all four fastTopics methods should produce the
   # same, or nearly the same, estimates of f0 and f1.

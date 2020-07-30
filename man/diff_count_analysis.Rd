@@ -9,6 +9,7 @@ diff_count_analysis(
   X,
   s = rowSums(X),
   numiter = 100,
+  tol = 1e-08,
   e = 1e-15,
   verbose = TRUE
 )
@@ -28,6 +29,8 @@ the choice of \code{s}.}
 
 \item{numiter}{The number of EM updates performed to compute the
 maximum-likelihood estimates of the Poisson model parameters.}
+
+\item{tol}{Describe input argument "tol" here.}
 
 \item{e}{A small, positive scalar included in some computations to
 avoid logarithms of zero and division by zero.}
