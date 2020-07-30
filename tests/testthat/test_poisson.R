@@ -43,6 +43,10 @@ test_that(paste("fastTopics methods recover the same model fits as glm",
                     scale = 1,tolerance = 1e-4)
   expect_equivalent(cumsum(coef(fit)),with(out4,c(f0,f1)),
                     scale = 1,tolerance = 1e-4)
+
+  # The likelihood should be the same in all EM implementations.
+  expect_equal(tail(out2$loglik,n = 1),out3$loglik,scale = 1,tolerance = 1e-8)
+  expect_equal(tail(out2$loglik,n = 1),out4$loglik,scale = 1,tolerance = 1e-8)
 })
 
 test_that(paste("fit_poisson_em gives nearly the same result as fit_binom_em",

@@ -24,14 +24,15 @@ out2 <- fit_poisson_em(x,s,q)
 # Fit the model parameters, f0 and f1, using the C++ implementation of
 # the EM algorithm, and compare against the fit_poisson_em output.
 out3 <- fit_poisson_em_rcpp(x,s,q,1,1,1e-15,40)
-print(max(abs(out2$loglik - out3$loglik)))
 
 # Fit the model parameters, f0 and f1, using the C++ implementation of
 # the EM algorithm that is better suited for sparse counts.
 i    <- which(x > 0)
 out4 <- fit_poisson_em_sparse_rcpp(x[i],s[i],q[i],sum(s*(1-q)),sum(s*q),
                                    1,1,1e-15,40)
-print(max(abs(out2$loglik - out4$loglik)))
+print(tail(out2$loglik,n = 1),digits = 12)
+print(out3$loglik,digits = 12)
+print(out4$loglik,digits = 12)
 
 # Finally, fit the model parameters using glm with family =
 # poisson(link = "identity"). Note that the parameterization is
