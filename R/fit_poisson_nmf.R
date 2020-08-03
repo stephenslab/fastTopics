@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-153).\n")
+    cat("(fastTopics 0.3-154).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -556,18 +556,30 @@ init_poisson_nmf <-
       # Initialize the factors using the "Topic SCORE" algorithm.
       if (verbose)
         cat("Initializing factors using Topic SCORE algorithm.\n")
-      F <- topic_score(X,k)
+      F <- tryCatch(topic_score(X,k),
+                    error = function (e) {
+                      warning("Topic SCORE failure occurred; reverting to ",
+                              "init.method == \"random\"")
+                      return(NULL)
+                    })
+      if (is.null(F)) {
 
-      # Fit the loadings by running a small number of sequential
-      # co-ordinate descent (SCD) updates.
-      if (verbose)
-        cat(sprintf("Initializing loadings by running %d SCD updates.\n",
-                    control$init.numiter))
-      control$nc <- initialize.multithreading(control$nc)
-      s <- rowSums(X)
-      L <- matrix(s,n,k)
-      L <- scd_update_loadings(X,L,t(F),1:n,control$init.numiter,
-                               control$nc,control$eps)
+        # The Topic SCORE algorithm failed; generate a random
+        # initialization instead.
+        F <- rand(m,k)
+        L <- rand(n,k)
+      } else {
+        # Fit the loadings by running a small number of sequential
+        # co-ordinate descent (SCD) updates.
+        if (verbose)
+          cat(sprintf("Initializing loadings by running %d SCD updates.\n",
+                      control$init.numiter))
+        control$nc <- initialize.multithreading(control$nc)
+        s <- rowSums(X)
+        L <- matrix(s,n,k)
+        L <- scd_update_loadings(X,L,t(F),1:n,control$init.numiter,
+                                 control$nc,control$eps)
+      }
     }
     rownames(F) <- colnames(X)
     rownames(L) <- rownames(X)
