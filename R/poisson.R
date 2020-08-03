@@ -108,7 +108,7 @@ fit_univar_poisson_models_em <- function (X, L, s, e, numiter, verbose) {
 #' @importFrom stats optim
 #' 
 fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
-                               control = list(factr = 1e-14, maxit = 100)) {
+                               control = list(factr = 1e5, maxit = 100)) {
 
   # This is used to computes the negative log-likelihood, in which
   # par = c(f0,f1).
@@ -127,7 +127,7 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   
   # Fit the Poisson rates f0, f1 using the L-BFGS-B quasi-Newton method
   # implemented in optim.
-  out <- optim(c(f0,f1),f,g,method = "L-BFGS-B",lower = c(0,0),
+  out <- optim(c(f0,f1),f,g,method = "L-BFGS-B",lower = c(e,e),
                control = control)
 
   # Output the MLEs of f0 and f1, and the other "optim" outputs.

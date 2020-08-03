@@ -30,6 +30,12 @@ test_that(paste("All variants of fit_univar_poisson_models and",
   expect_equal(fit2$F0,fit4$F0,scale = 1,tolerance = 1e-8)
   expect_equal(fit2$F1,fit4$F1,scale = 1,tolerance = 1e-8)
 
+  # Additionally, the likelihood calculations should be the same, or
+  # nearly the same.
+  expect_equal(fit1$loglik,fit2$loglik,scale = 1,tolerance = 1e-3)
+  expect_equal(fit2$loglik,fit3$loglik,scale = 1,tolerance = 1e-6)
+  expect_equal(fit2$loglik,fit4$loglik,scale = 1,tolerance = 1e-6)
+
   # Compute the log-fold change statistics.
   F0 <- fit2$F0
   F1 <- fit2$F1
