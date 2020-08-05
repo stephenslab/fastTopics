@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-156).\n")
+    cat("(fastTopics 0.3-157).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -558,8 +558,8 @@ init_poisson_nmf <-
         cat("Initializing factors using Topic SCORE algorithm.\n")
       F <- tryCatch(topic_score(X,k),
                     error = function (e) {
-                      warning("Topic SCORE failure occurred; reverting to ",
-                              "init.method == \"random\"")
+                      warning("Topic SCORE failure occurred; falling back ",
+                              "to init.method == \"random\"")
                       return(NULL)
                     })
       if (is.null(F)) {

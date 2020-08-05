@@ -50,7 +50,7 @@ topic_score <- function (X, k, k0 = ifelse(k < 10,ceiling(1.5*k),k + 2),
   return(normalize.cols(A))
 }
 
-# The Vertex Hunting algorithm for Topic-SCORE.  It finds a simplex
+# The Vertex Hunting algorithm for Topic-SCORE. It finds a simplex
 # with k vertices that best approximates the given p data points in a
 # (k-1) dimensional space.
 #
@@ -68,7 +68,6 @@ vertex_hunting <- function (R, k0, m) {
   k <- ncol(R) + 1
   
   # Step 2a.
-  # X <- KMeans_rcpp(R,m,initializer = "kmeans++")$centroids
   X <- kmeans(R,m,iter.max = 100)$centers
 
   # Step 2b'.
@@ -94,8 +93,11 @@ vertex_hunting <- function (R, k0, m) {
   n <- ncol(B)
   v <- rep(0,n)
   for (i in 1:n)
-    for (j in 1:k0)
-      v[i] <- max(simplex_dist(X[j,],X[B[,i],,drop = FALSE]),v[i])
+    for (j in 1:k0) {
+      u <- tryCatch(simplex_dist(X[j,],X[B[,i],,drop = FALSE]),
+                    error = function (e) Inf)
+      v[i] <- max(u,v[i])
+    }
   i <- which.min(v)
   return(X[B[,i],])
 }
@@ -111,7 +113,7 @@ simplex_dist <- function (x, V) {
   A  <- cbind(diag(n-1),-1)
   VV <- A %*% V
   M  <- tcrossprod(VV)
-  d  <- VV %*% (x - v)
+  d  <- drop(VV %*% (x - v))
   b0 <- rep(0,n)
   b0[n] <- -1
   f  <- solve.QP(M,d,A,b0)$value
