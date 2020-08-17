@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Peter Carbonetto" />
+
+
+<title>Topic modeling vs. clustering of gene expression data: an illustration</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">single-cell topics</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Overview</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Topic modeling vs. clustering of gene expression data: an illustration</h1>
+<h4 class="author">Peter Carbonetto</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-08-15
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>single-cell-topics/analysis/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2.9000). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed1code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(1)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed1code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(1)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabsinglecelltopicstree0410543e8e1dcf652d6d29a36a4e410b23a04726targetblank0410543a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/stephenslab/single-cell-topics/tree/0410543e8e1dcf652d6d29a36a4e410b23a04726" target="_blank">0410543</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabsinglecelltopicstree0410543e8e1dcf652d6d29a36a4e410b23a04726targetblank0410543a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/stephenslab/single-cell-topics/tree/0410543e8e1dcf652d6d29a36a4e410b23a04726" target="_blank">0410543</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    data/droplet.RData
+    Ignored:    data/pbmc_68k.RData
+    Ignored:    data/pulseseq.RData
+    Ignored:    output/droplet/fits-droplet.RData
+    Ignored:    output/droplet/rds/
+    Ignored:    output/pbmc-68k/fits-pbmc-68k.RData
+    Ignored:    output/pbmc-68k/rds/
+    Ignored:    output/pbmc-purified/fits-pbmc-purified.RData
+    Ignored:    output/pulseseq/fits-pulseseq.RData
+    Ignored:    output/pulseseq/rds/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/topics_vs_clusters.Rmd</code>) and HTML (<code>docs/topics_vs_clusters.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/0410543e8e1dcf652d6d29a36a4e410b23a04726/analysis/topics_vs_clusters.Rmd" target="_blank">0410543</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/7abadbfc46dddb3233611ce8a9eafbf40b96720d/docs/topics_vs_clusters.html" target="_blank">7abadbf</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+Fixed typo in topics_vs_clusters.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/f5a988ff3cdfad3cd7df82835f530e456cad0f30/analysis/topics_vs_clusters.Rmd" target="_blank">f5a988f</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/9588789aa8edfb09b7aa7cce249fb1bcfcd7a7f2/docs/topics_vs_clusters.html" target="_blank">9588789</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+Revisions to the text of the topics_vs_clusters vignette.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/b9a4eba286b9bcd231e90898c29db61afac1399a/analysis/topics_vs_clusters.Rmd" target="_blank">b9a4eba</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/184b6da606eb3dff25cedf22c7f5a3f7692e6ea1/docs/topics_vs_clusters.html" target="_blank">184b6da</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/3fda980278eaef58b08e62c5a8ea6f690585ba78/analysis/topics_vs_clusters.Rmd" target="_blank">3fda980</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/b1bebb45a3c276ebb0bf8ee8b119ea566b86240c/docs/topics_vs_clusters.html" target="_blank">b1bebb4</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+Added yet more explanatory text to topics_vs_clusters vignette.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/1d69d0d7ad40fc6f34b39021b6cd07eef79c4cfa/analysis/topics_vs_clusters.Rmd" target="_blank">1d69d0d</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/67417022985b5525c538de5ff25ab7dbd3bcaa3c/docs/topics_vs_clusters.html" target="_blank">6741702</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+Added more explanatory text to topics_vs_clusters vignette.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/bc8b4ac7584b5ab541a5e12e3d02e430170b0fb2/analysis/topics_vs_clusters.Rmd" target="_blank">bc8b4ac</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/20f0fb38e4e4bfabfd712b21d83ce6c929563dcc/docs/topics_vs_clusters.html" target="_blank">20f0fb3</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+Added explanatory text to topics_vs_clusters vignette.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/4accb518dc29916116397682a00be989a9a63ac2/analysis/topics_vs_clusters.Rmd" target="_blank">4accb51</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/4e5418870667fb04af67e6f5f499e1a8af7404b8/analysis/topics_vs_clusters.Rmd" target="_blank">4e54188</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-15
+</td>
+<td>
+Added introductory text to topics_vs_clusters.Rmd.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/97331e9e4a0a63c1685fba2f6a7cb4e96e79834f/docs/topics_vs_clusters.html" target="_blank">97331e9</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Amended plots in topics_vs_clusters analysis.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/77a0c2aebad8e6d0c052d0ff6ab3300b586fe703/analysis/topics_vs_clusters.Rmd" target="_blank">77a0c2a</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Implemented plot_tsnee and plot_pca functions in functions_for_topics_vs_clusters.R.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/77a0c2aebad8e6d0c052d0ff6ab3300b586fe703/docs/topics_vs_clusters.html" target="_blank">77a0c2a</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Implemented plot_tsnee and plot_pca functions in functions_for_topics_vs_clusters.R.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/e17f5853ec804d3041a96f119f87fda7a1210c43/docs/topics_vs_clusters.html" target="_blank">e17f585</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Re-built the topics_vs_clusters analysis with the new t-SNE and PCA
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/ffbfdc8c8d0448288ffdaf7e1b6095162db237b8/analysis/topics_vs_clusters.Rmd" target="_blank">ffbfdc8</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/85b22a1fb07e625abd11eb1bea7fbc31db49e4fc/analysis/topics_vs_clusters.Rmd" target="_blank">85b22a1</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Implemented function plot_tsne for topics_vs_clusters.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/85b22a1fb07e625abd11eb1bea7fbc31db49e4fc/docs/topics_vs_clusters.html" target="_blank">85b22a1</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Implemented function plot_tsne for topics_vs_clusters.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/c6f10e32f86179debd20004c287691eeb9d6bea4/analysis/topics_vs_clusters.Rmd" target="_blank">c6f10e3</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Added tsne plot to topics_vs_clusters vignette.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/a3115f21cd3c191ac173b0cda4682c5bf900d97d/analysis/topics_vs_clusters.Rmd" target="_blank">a3115f2</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Working on topics_vs_clusters vignette.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/303c6e4aedbee78e2892100c7d111b67d41532f0/docs/topics_vs_clusters.html" target="_blank">303c6e4</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/41b9d8a487fbffcc681161f890de309888069e74/analysis/topics_vs_clusters.Rmd" target="_blank">41b9d8a</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/f255c6fed89637c69db5bd090ef80e0726ce44fe/docs/topics_vs_clusters.html" target="_blank">f255c6f</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Fixed R Markdown syntax issue in topics_vs_clusters.Rmd.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/00eec70cea3c1e860ad9e1835a1d0dc749623561/analysis/topics_vs_clusters.Rmd" target="_blank">00eec70</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/stephenslab/single-cell-topics/9c37c094aec0c8345a30edff26e551d19aa99534/docs/topics_vs_clusters.html" target="_blank">9c37c09</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+First build of topics_vs_clusters analysis.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/f904dbb3b8030428e615652cce773944df2f1db9/analysis/topics_vs_clusters.Rmd" target="_blank">f904dbb</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+wflow_publish(“topics_vs_clusters.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/9e116710fc46fda29a8e7632496bfe05b196ece2/analysis/topics_vs_clusters.Rmd" target="_blank">9e11671</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+<td>
+Added Poisson NMF model fitting to topics_vs_clusters.R.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/4ff4d889d24bc45b2e8a3774f60427b89e2be395/analysis/topics_vs_clusters.Rmd" target="_blank">4ff4d88</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-12
+</td>
+<td>
+Created topics_vs_clusters.Rmd.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>Clustering methods are widely used to discover interesting substructure in bulk or single-cell RNA sequencing (“RNA-seq”) data. An alternative is to use a topic model, which explains each sample (an expression profile) as a mixture of “gene programs” that are estimated from the data. In a topic modeling analysis, the gene expression programs are the topics.</p>
+<p>In this short vignette, we show that a topic model picks up a very different kind of substructure that cannot be identified by (hard) clustering methods.</p>
+<pre class="r"><code>library(ggplot2)
+library(cowplot)
+library(Ternary)
+library(Rtsne)
+library(fastTopics)
+source(&quot;../code/functions_for_topics_vs_clusters.R&quot;)</code></pre>
+<p>Simulate a “toy” gene expression data set from the multinomial topic model. Each sample—here, a vector of 400 counts—is generated as a mixture of three gene programs (the topics in the topic model). In particular, samples are mostly generated by either a single gene program or an approximately equal mixture of the three gene programs.</p>
+<pre class="r"><code>set.seed(1)
+X &lt;- simulate_toy_gene_data(n = 400,m = 40,k = 3,s = 1000)$X</code></pre>
+<div id="topic-modeling-analysis" class="section level2">
+<h2>Topic modeling analysis</h2>
+<p>To illustrate a topic modeling analysis, we fit a multinomial topic model to these data,</p>
+<pre class="r"><code>fit &lt;- fit_poisson_nmf(X,k = 3,numiter = 100,verbose = FALSE,
+                       control = list(extrapolate = TRUE))
+fit &lt;- poisson2multinom(fit)</code></pre>
+<p>then we plot the estimated topic proportions.</p>
+<pre class="r"><code>par(mar = c(0,0,0,0))
+create_ternary_plot(fit$L)</code></pre>
+<p><img src="figure/topics_vs_clusters.Rmd/plot-topic-proportions-1.png" width="360" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot-topic-proportions-1">
+Past versions of plot-topic-proportions-1.png
+</button>
+</p>
+<div id="fig-plot-topic-proportions-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/85b22a1fb07e625abd11eb1bea7fbc31db49e4fc/docs/figure/topics_vs_clusters.Rmd/plot-topic-proportions-1.png" target="_blank">85b22a1</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/303c6e4aedbee78e2892100c7d111b67d41532f0/docs/figure/topics_vs_clusters.Rmd/plot-topic-proportions-1.png" target="_blank">303c6e4</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>We observe in this plot that the estimated topic model recaptures the simulation: according to the model, samples are primarily explained by a single gene program, or by an approximately equal mixture of three gene programs.</p>
+</div>
+<div id="clustering-analysis" class="section level2">
+<h2>Clustering analysis</h2>
+<p>To illustrate a clustering analysis, we use the <em>t</em>-SNE algorithm to project the samples onto a 2-d embedding.</p>
+<pre class="r"><code>tsne1 &lt;- Rtsne(X,2,pca = FALSE,normalize = FALSE)
+plot_tsne(tsne1)</code></pre>
+<p><img src="figure/topics_vs_clusters.Rmd/tsne-from-counts-1-1.png" width="360" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-tsne-from-counts-1-1">
+Past versions of tsne-from-counts-1-1.png
+</button>
+</p>
+<div id="fig-tsne-from-counts-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/97331e9e4a0a63c1685fba2f6a7cb4e96e79834f/docs/figure/topics_vs_clusters.Rmd/tsne-from-counts-1-1.png" target="_blank">97331e9</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>This 2-d projection immediately suggests four clusters. (In practice, one could automate the clustering of these data using a community detection method such as the Louvain algorithm, or by applying <span class="math inline">\(k\)</span>-means to the <span class="math inline">\(t\)</span>-SNE projection.)</p>
+<p>Although the clustering is correct—there are indeed four clusters—it fails to reveal any insight into the relationship between these clusters. In particular, the distribution of genes in the middle cluster is an equal mixture of the gene distributions in the other clusters. This is a limitation of any clustering method that does not allow for partial membership to clusters.</p>
+<p>To further understand this point, we label each sample by the topic with the highest estimated weight:</p>
+<pre class="r"><code>plot_tsne_with_topics(tsne1,fit$L)</code></pre>
+<p><img src="figure/topics_vs_clusters.Rmd/tsne-from-counts-2-1.png" width="360" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-tsne-from-counts-2-1">
+Past versions of tsne-from-counts-2-1.png
+</button>
+</p>
+<div id="fig-tsne-from-counts-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/97331e9e4a0a63c1685fba2f6a7cb4e96e79834f/docs/figure/topics_vs_clusters.Rmd/tsne-from-counts-2-1.png" target="_blank">97331e9</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>In general, a clustering will align closely with the topic modeling whenever the samples can be largely explained by a single topic or gene program. Outside this setting, topic modeling and clustering can reveal very different sorts of substructure, so a topic modeling analysis should not be expected to recapture the results of a clustering analysis, and vice versa.</p>
+</div>
+<div id="inferring-clusters-from-the-topic-model" class="section level2">
+<h2>Inferring clusters from the topic model</h2>
+<p>Despite this limitation of the clustering methods, it can nonetheless be useful to identify the clusters exhibiting markedly different gene expression patterns. This can also be done within a topic modeling analysis: the topic model contains enough information to identify these clusters, at least in the artificial setting where the data are simulated from a topic model.</p>
+<p>For example, a 2-d <em>t</em>-SNE projection of the topic proportions reveals the same four clusters:</p>
+<pre class="r"><code>tsne2 &lt;- Rtsne(fit$L,2,pca = FALSE,normalize = FALSE)
+plot_tsne_with_topics(tsne2,fit$L)</code></pre>
+<p><img src="figure/topics_vs_clusters.Rmd/tsne-from-loadings-1.png" width="360" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-tsne-from-loadings-1">
+Past versions of tsne-from-loadings-1.png
+</button>
+</p>
+<div id="fig-tsne-from-loadings-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/97331e9e4a0a63c1685fba2f6a7cb4e96e79834f/docs/figure/topics_vs_clusters.Rmd/tsne-from-loadings-1.png" target="_blank">97331e9</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Or we can achieve a similar result using PCA:</p>
+<pre class="r"><code>pca &lt;- prcomp(fit$L,center = TRUE,scale = FALSE)
+plot_pca(pca,fit$L)</code></pre>
+<p><img src="figure/topics_vs_clusters.Rmd/pca-from-loadings-1.png" width="360" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-pca-from-loadings-1">
+Past versions of pca-from-loadings-1.png
+</button>
+</p>
+<div id="fig-pca-from-loadings-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/stephenslab/single-cell-topics/blob/97331e9e4a0a63c1685fba2f6a7cb4e96e79834f/docs/figure/topics_vs_clusters.Rmd/pca-from-loadings-1.png" target="_blank">97331e9</a>
+</td>
+<td>
+Peter Carbonetto
+</td>
+<td>
+2020-08-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>In short, the topic modeling analysis retains the benefits of the clustering analysis, while revealing additional substructure that cannot be identified by standard clustering methods.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()
+# R version 3.6.2 (2019-12-12)
+# Platform: x86_64-apple-darwin15.6.0 (64-bit)
+# Running under: macOS Catalina 10.15.5
+# 
+# Matrix products: default
+# BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+# LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+# 
+# locale:
+# [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+# 
+# attached base packages:
+# [1] stats     graphics  grDevices utils     datasets  methods   base     
+# 
+# other attached packages:
+# [1] fastTopics_0.3-145 Rtsne_0.15         Ternary_1.1.4      cowplot_1.0.0     
+# [5] ggplot2_3.3.0     
+# 
+# loaded via a namespace (and not attached):
+#  [1] ggrepel_0.9.0        Rcpp_1.0.3           lattice_0.20-38     
+#  [4] tidyr_1.0.0          prettyunits_1.1.1    assertthat_0.2.1    
+#  [7] zeallot_0.1.0        rprojroot_1.3-2      digest_0.6.23       
+# [10] R6_2.4.1             backports_1.1.5      MatrixModels_0.4-1  
+# [13] evaluate_0.14        coda_0.19-3          httr_1.4.1          
+# [16] pillar_1.4.3         rlang_0.4.5          progress_1.2.2      
+# [19] lazyeval_0.2.2       data.table_1.12.8    irlba_2.3.3         
+# [22] SparseM_1.78         whisker_0.4          Matrix_1.2-18       
+# [25] rmarkdown_2.3        labeling_0.3         stringr_1.4.0       
+# [28] htmlwidgets_1.5.1    munsell_0.5.0        compiler_3.6.2      
+# [31] httpuv_1.5.2         xfun_0.11            pkgconfig_2.0.3     
+# [34] mcmc_0.9-6           htmltools_0.4.0      tidyselect_0.2.5    
+# [37] tibble_2.1.3         workflowr_1.6.2.9000 quadprog_1.5-8      
+# [40] viridisLite_0.3.0    crayon_1.3.4         dplyr_0.8.3         
+# [43] withr_2.1.2          later_1.0.0          MASS_7.3-51.4       
+# [46] grid_3.6.2           jsonlite_1.6         gtable_0.3.0        
+# [49] lifecycle_0.1.0      git2r_0.26.1         magrittr_1.5        
+# [52] scales_1.1.0         RcppParallel_4.4.4   stringi_1.4.3       
+# [55] farver_2.0.1         fs_1.3.1             promises_1.1.0      
+# [58] vctrs_0.2.1          tools_3.6.2          glue_1.3.1          
+# [61] purrr_0.3.3          hms_0.5.2            yaml_2.2.0          
+# [64] colorspace_1.4-1     plotly_4.9.2         knitr_1.26          
+# [67] quantreg_5.54        MCMCpack_1.4-5</code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
