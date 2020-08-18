@@ -75,6 +75,79 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
   return(list(X = X,F = F,L = L))
 }
 
+#' @title Simulate "Toy" Gene Expression Data
+#' 
+#' @description Simulate gene expression data (UMI counts) under a
+#'   "toy" expression model. Samples (expression profiles) are drawn
+#'   from a multinomial topic model in which topics are "gene programs".
+#' 
+#' @details The topic proportions are generated as follows. With
+#' probability 0.9, one proportion is one, or close to one, and the
+#' remaining are zero, or close to zero; that is, the counts are
+#' primarily generated from a single gene program. Otherwise (wtth
+#' probability 0.1), the topic proportions are roughly equal.
+#'
+#' Gene frequencies are drawn uniformly at random from [0,1].
+#'
+#' @param n The number of samples (gene expression profiles) to
+#'   simulate.
+#'
+#' @param m The number of counts (genes) to simulate.
+#'
+#' @param k The number of topics ("gene programs") used to simulate
+#'   the data.
+#'
+#' @param s A scalar specifying the total expression of each sample;
+#'   it specifies the "size" parameter in the calls to
+#'   \code{\link[stats]{rmultinom}}.
+#'
+#' @return The return value is a list containing the counts matrix
+#'   \code{X}, and the gene frequencies \code{F} and topic proportions
+#'   \code{L} used to generate the counts.
+#'
+#' @importFrom stats runif
+#' @importFrom stats rnorm
+#' @importFrom stats rmultinom
+#' 
+#' @export
+#' 
+simulate_toy_gene_data <- function (n, m, k, s) {
+
+  # Generate the "gene programs"; that is, the m x k matrix of gene
+  # frequencies.
+  F <- matrix(runif(m*k),m,k)
+
+  # Generate the topic proportions.
+  L <- matrix(0,n,k)
+  for (i in 1:n) {
+    if (runif(1) < 0.9) {
+      x <- rep(0,k)
+      x[sample(k,1)] <- 1
+    } else
+      x <- rep(1/k,k)
+    x     <- x + abs(rnorm(k,0,0.15))
+    L[i,] <- x/sum(x)
+  }
+
+  # Simulate the n x m counts matrix from the multinomial topic model.
+  X <- matrix(0,n,m)
+  P <- tcrossprod(L,F)
+  for (i in 1:n)
+    X[i,] <- rmultinom(1,s,P[i,])
+
+  # Add row and column names to the outputs.
+  rownames(X) <- paste("s",1:n)
+  rownames(L) <- paste("s",1:n)
+  colnames(X) <- paste("g",1:m)
+  rownames(F) <- paste("g",1:m)
+  colnames(L) <- paste("k",1:k)
+  colnames(F) <- paste("k",1:k)
+  
+  # Outputs the n x m counts matrix (X), and the gene frequencies
+  # (F) and topic proportions (L) used to generate counts.
+  return(list(X = X,F = F,L = L))
+}
+
 #' @rdname simulate_gene_data
 #' 
 #' @title Simulate Gene Expression Data from Poisson NMF or Multinomial

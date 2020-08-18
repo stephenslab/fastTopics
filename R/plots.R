@@ -668,6 +668,33 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
   return(dat)
 }
 
+#' @title Title Goes Here.
+#'
+#' @description Description of function goes here.
+#'
+#' @param fit Describe input argument "fit" here.
+#'
+#' @param k Describe input argument "k" here.
+#'
+#' @param out.pca Describe input argument "out.pca" here.
+#'
+#' @param pcs Describe input argument "pcs" here.
+#' 
+#' @param ggplot_call Describe input argument "k" here.
+#'
+#' @param plot_grid_call Describe input argument "plot_grid_call" here.
+#'
+#' @return Describe return value here.
+#' 
+#' @export
+#' 
+pca_plot <-
+  function (fit, k, out.pca, pcs = 1:2,
+            ggplot_call = tsne_plot_ggplot_call,
+            plot_grid_call = function (plots) do.call(plot_grid,plots), ...) {
+
+}
+
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model
 #'
 #' @description Computes a low-dimensional embededding of the data from
