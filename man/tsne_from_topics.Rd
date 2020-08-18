@@ -14,6 +14,7 @@ tsne_from_topics(
   perplexity = 100,
   theta = 0.1,
   max_iter = 1000,
+  eta = 200,
   verbose = TRUE,
   ...
 )
@@ -58,6 +59,9 @@ argument \dQuote{theta} to \code{\link[Rtsne]{Rtsne}}.}
 \item{max_iter}{Maximum number of t-SNE iterations; passed as
 argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.}
 
+\item{eta}{t-SNE learning rate parameter; passed as argument
+\dQuote{eta} to \code{\link[Rtsne]{Rtsne}}.}
+
 \item{verbose}{If \code{verbose = TRUE}, progress updates are
 printed; passed as argument \dQuote{verbose} to
 \code{\link[Rtsne]{Rtsne}}.}
@@ -83,7 +87,14 @@ This is a lightweight interface for rapidly producing
   defaults with settings that are more suitable for visualizing the
   structure of a matrix factorization or topic model (e.g., the PCA
   step in \code{Rtsne} is activated by default, but disabled in
-  \code{tsne_from_topics}).
+  \code{tsne_from_topics}). See Kobak and Berens (2019) for guidance
+  on choosing t-SNE settings such as the "perplexity" and learning
+  rate (\code{eta}).
+}
+\references{
+Kobak, D. and Berens, P. (2019). The art of using t-SNE for
+single-cell transcriptomics. \emph{Nature Communications} \bold{10},
+5416. \url{https://doi.org/10.1038/s41467-019-13056-x}
 }
 \seealso{
 \code{\link[Rtsne]{Rtsne}}

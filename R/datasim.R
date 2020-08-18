@@ -213,7 +213,7 @@ simulate_multinom_gene_data <- function (n, m, k, sparse = FALSE) {
   # Simulate the data.
   s <- ceiling(10^rnorm(n,3,0.2))
   L <- generate_topic_proportions(n,k)
-  F <- normalize.cols(generate_poisson_rates(m, k))
+  F <- normalize.cols(generate_poisson_rates(m,k))
   X <- generate_multinom_topic_model_counts(F,L,s)
   if (sparse)
     X <- as(X,"dgCMatrix")

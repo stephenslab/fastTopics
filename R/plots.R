@@ -680,7 +680,9 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #'   defaults with settings that are more suitable for visualizing the
 #'   structure of a matrix factorization or topic model (e.g., the PCA
 #'   step in \code{Rtsne} is activated by default, but disabled in
-#'   \code{tsne_from_topics}).
+#'   \code{tsne_from_topics}). See Kobak and Berens (2019) for guidance
+#'   on choosing t-SNE settings such as the "perplexity" and learning
+#'   rate (\code{eta}).
 #' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #' \dQuote{multinom_topic_model_fit}.
@@ -721,6 +723,9 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #' @param max_iter Maximum number of t-SNE iterations; passed as
 #'   argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.
 #'
+#' @param eta t-SNE learning rate parameter; passed as argument
+#'   \dQuote{eta} to \code{\link[Rtsne]{Rtsne}}.
+#' 
 #' @param verbose If \code{verbose = TRUE}, progress updates are
 #'   printed; passed as argument \dQuote{verbose} to
 #'   \code{\link[Rtsne]{Rtsne}}.
@@ -733,6 +738,12 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #'   loadings matrix, and \code{d = dims}; \code{rows}, the rows of the
 #'   loadings matrix included in the t-SNE embedding.
 #'
+#' @references
+#'
+#' Kobak, D. and Berens, P. (2019). The art of using t-SNE for
+#' single-cell transcriptomics. \emph{Nature Communications} \bold{10},
+#' 5416. \url{https://doi.org/10.1038/s41467-019-13056-x}
+#' 
 #' @seealso \code{\link[Rtsne]{Rtsne}}
 #' 
 #' @importFrom Rtsne Rtsne
@@ -741,8 +752,8 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #' 
 tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
                               pca = FALSE, normalize = FALSE, perplexity = 100,
-                              theta = 0.1, max_iter = 1000, verbose = TRUE,
-                              ...) {
+                              theta = 0.1, max_iter = 1000, eta = 200,
+                              verbose = TRUE, ...) {
     
   # Check and process input arguments.
   if (!(inherits(fit,"poisson_nmf_fit") |
