@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • fastTopics</title>
+<title>Plot Log-Likelihood Versus Poisson NMF Rank — plot_loglik_vs_rank • fastTopics</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,11 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Plot Log-Likelihood Versus Poisson NMF Rank — plot_loglik_vs_rank" />
+<meta property="og:description" content="Create a plot showing the improvement in the
+  log-likelihood as the rank of the matrix factorization or
+  the number of topics (&amp;#8220;k&amp;#8221;) increases." />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -54,7 +58,7 @@
   </head>
 
   <body>
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -100,18 +104,61 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Plot Log-Likelihood Versus Poisson NMF Rank</h1>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
+    <div class="hidden name"><code>plot_loglik_vs_rank.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="relationship.html">Exploring the close relationship between topic modeling and non-negative matrix factorization for count data</a></li>
-        <li><a href="topics_vs_clusters.html">Topic modeling vs. clustering of gene expression data: an illustration</a></li>
-      </ul>
+    <div class="ref-description">
+    <p>Create a plot showing the improvement in the
+  log-likelihood as the rank of the matrix factorization or
+  the number of topics (&#8220;k&#8221;) increases.</p>
     </div>
+
+    <pre class="usage"><span class='fu'>plot_loglik_vs_rank</span>(<span class='no'>fits</span>, <span class='kw'>ggplot_call</span> <span class='kw'>=</span> <span class='no'>loglik_vs_rank_ggplot_call</span>)
+
+<span class='fu'>loglik_vs_rank_ggplot_call</span>(<span class='no'>dat</span>, <span class='kw'>font.size</span> <span class='kw'>=</span> <span class='fl'>9</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>fits</th>
+      <td><p>A list with two more list elements, in which each list
+element is an object of class <code>"poisson_nmf_fit"</code>. If two or
+more Poisson NMF fits shares the same rank, the largest
+log-likelihood is plotted.</p></td>
+    </tr>
+    <tr>
+      <th>ggplot_call</th>
+      <td><p>The function used to create the plot. Replace
+<code>loglik_vs_rank_ggplot_call</code> with your own function to
+customize the appearance of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>dat</th>
+      <td><p>A data frame passed as input to
+<code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></code>, containing, at a minimum, columns
+&#8220;x&#8221; and &#8220;y&#8221;.</p></td>
+    </tr>
+    <tr>
+      <th>font.size</th>
+      <td><p>Font size used in plot.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A <code>ggplot</code> object.</p>
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#value">Value</a></li>
+    </ul>
+
   </div>
 </div>
 

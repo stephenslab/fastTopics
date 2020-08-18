@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.32</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.159</span>
       </span>
     </div>
 
@@ -127,15 +127,15 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="fit_poisson_nmf.html">fit_poisson_nmf()</a></code> <code><a href="fit_poisson_nmf.html">init_poisson_nmf()</a></code> <code><a href="fit_poisson_nmf.html">fit_poisson_nmf_control_default()</a></code> </p>
+          <p><code><a href="diff_count_analysis.html">diff_count_analysis()</a></code> </p>
         </td>
-        <td><p>Fit or Re-fit Poisson Non-negative Matrix Factorization</p></td>
+        <td><p>Differential Count Analysis with a Multinomial Topic Model</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="fit_topics.html">fit_topics()</a></code> </p>
+          <p><code><a href="fit_poisson_nmf.html">fit_poisson_nmf()</a></code> <code><a href="fit_poisson_nmf.html">init_poisson_nmf()</a></code> <code><a href="fit_poisson_nmf.html">fit_poisson_nmf_control_default()</a></code> </p>
         </td>
-        <td><p>Add title here.</p></td>
+        <td><p>Fit or Re-fit Poisson Non-negative Matrix Factorization</p></td>
       </tr><tr>
         
         <td>
@@ -145,10 +145,28 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="loadings_plot.html">loadings_plot()</a></code> <code><a href="loadings_plot.html">loadings_plot_ggplot_call()</a></code> </p>
+        </td>
+        <td><p>Loadings Plot</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="multinom2poisson.html">multinom2poisson()</a></code> </p>
         </td>
         <td><p>Get Poisson Non-Negative Matrix Factorization from Multinomial
   Topic Model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="pca_plot.html">pca_plot()</a></code> </p>
+        </td>
+        <td><p>Title Goes Here.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_loglik_vs_rank.html">plot_loglik_vs_rank()</a></code> <code><a href="plot_loglik_vs_rank.html">loglik_vs_rank_ggplot_call()</a></code> </p>
+        </td>
+        <td><p>Plot Log-Likelihood Versus Poisson NMF Rank</p></td>
       </tr><tr>
         
         <td>
@@ -165,15 +183,58 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="select.poisson_nmf_fit.html">select(<i>&lt;poisson_nmf_fit&gt;</i>)</a></code> </p>
+          <p><code><a href="select.multinom_topic_model_fit.html">select(<i>&lt;multinom_topic_model_fit&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Extract or Re-order Poisson NMF Factors and Loadings</p></td>
+        <td><p>Extract or Re-order Multinomial Topic Model Loadings</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="simulate_count_data.html">simulate_count_data()</a></code> </p>
         </td>
         <td><p>Simulate Count Data from Poisson NMF Model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="simulate_gene_data.html">simulate_poisson_gene_data()</a></code> <code><a href="simulate_gene_data.html">simulate_multinom_gene_data()</a></code> </p>
+        </td>
+        <td><p>Simulate Gene Expression Data from Poisson NMF or Multinomial
+  Topic Model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="simulate_toy_gene_data.html">simulate_toy_gene_data()</a></code> </p>
+        </td>
+        <td><p>Simulate "Toy" Gene Expression Data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="structure_plot.html">structure_plot()</a></code> <code><a href="structure_plot.html">plot(<i>&lt;poisson_nmf_fit&gt;</i>)</a></code> <code><a href="structure_plot.html">plot(<i>&lt;multinom_topic_model_fit&gt;</i>)</a></code> <code><a href="structure_plot.html">structure_plot_ggplot_call()</a></code> </p>
+        </td>
+        <td><p>Structure Plot</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="summary.poisson_nmf_fit.html">summary(<i>&lt;poisson_nmf_fit&gt;</i>)</a></code> <code><a href="summary.poisson_nmf_fit.html">summary(<i>&lt;multinom_topic_model_fit&gt;</i>)</a></code> <code><a href="summary.poisson_nmf_fit.html">print(<i>&lt;summary.poisson_nmf_fit&gt;</i>)</a></code> <code><a href="summary.poisson_nmf_fit.html">print(<i>&lt;summary.multinom_topic_model_fit&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Summarize Poisson NMF or Multinomial Topic Model Fit</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="tsne_from_topics.html">tsne_from_topics()</a></code> </p>
+        </td>
+        <td><p>t-SNE from Poisson NMF or Multinomial Topic Model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="tsne_plot.html">tsne_plot()</a></code> <code><a href="tsne_plot.html">tsne_plot_ggplot_call()</a></code> </p>
+        </td>
+        <td><p>t-SNE Plot</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="volcano_plot.html">volcano_plot()</a></code> <code><a href="volcano_plot.html">plot(<i>&lt;topic_model_diff_count&gt;</i>)</a></code> <code><a href="volcano_plot.html">volcano_plotly()</a></code> <code><a href="volcano_plot.html">volcano_plot_ggplot_call()</a></code> <code><a href="volcano_plot.html">volcano_plot_ly_call()</a></code> </p>
+        </td>
+        <td><p>Volcano Plot</p></td>
       </tr>
     </tbody>
     </table>

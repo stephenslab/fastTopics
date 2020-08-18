@@ -75,7 +75,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.32</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.159</span>
       </span>
     </div>
 
@@ -131,7 +131,7 @@
   <span class='kw'>update.factors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>1</span>, <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='no'>X</span>)),
   <span class='kw'>update.loadings</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>1</span>, <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>X</span>)),
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"scd"</span>, <span class='st'>"em"</span>, <span class='st'>"mu"</span>, <span class='st'>"ccd"</span>),
-  <span class='kw'>init_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"topicscore"</span>, <span class='st'>"random"</span>),
+  <span class='kw'>init.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"topicscore"</span>, <span class='st'>"random"</span>),
   <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )
@@ -141,7 +141,7 @@
   <span class='no'>F</span>,
   <span class='no'>L</span>,
   <span class='no'>k</span>,
-  <span class='kw'>init_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"topicscore"</span>, <span class='st'>"random"</span>),
+  <span class='kw'>init.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"topicscore"</span>, <span class='st'>"random"</span>),
   <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
   <span class='kw'>betamax</span> <span class='kw'>=</span> <span class='fl'>0.99</span>,
   <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
@@ -208,11 +208,11 @@ and cyclic co-ordinate descent (CCD), <code>method = "ccd"</code>. See
 &#8216;Details&#8217; for a detailed description of these methods.</p></td>
     </tr>
     <tr>
-      <th>init_method</th>
+      <th>init.method</th>
       <td><p>The method used to initialize the factors and
-loadings. When <code>init_method = "random"</code>, the factors and
+loadings. When <code>init.method = "random"</code>, the factors and
 loadings are initialized uniformly at random; when
-<code>init_method = "topicscore"</code>, the factors are initialized
+<code>init.method = "topicscore"</code>, the factors are initialized
 using the (very fast) Topic SCORE algorithm (Ke &amp; Wang, 2017), and
 the loadings are initialized by running a small number of SCD
 updates. This input argument is ignored if initial estimates of the
@@ -235,22 +235,23 @@ of the <code>progress</code> return value.</p></td>
     <tr>
       <th>F</th>
       <td><p>An optional argument giving is the initial estimate of the
-factors (also sometimes called the "basis vectors"). It should be
-an m x k matrix, where m is the number of columns in the counts
-matrix <code>X</code>, and k &gt; 1 is the rank of the matrix factorization
-(equivalently, the number of "topics"). All entries of <code>F</code>
-should be non-negative. When not provided, input argument <code>k</code>
-should be specified instead.</p></td>
+factors (also sometimes called the &#8220;basis vectors&#8221;). It
+should be an m x k matrix, where m is the number of columns in the
+counts matrix <code>X</code>, and k &gt; 1 is the rank of the matrix
+factorization (equivalently, the number of &#8220;topics&#8221;). All
+entries of <code>F</code> should be non-negative. When <code>F</code> and
+<code>L</code> are not provided, input argument <code>k</code> should be
+specified instead.</p></td>
     </tr>
     <tr>
       <th>L</th>
       <td><p>An optional argument giving the initial estimate of the
-loadings (also sometimes called the "activations"). It should an n
-x k matrix, where n is the number of rows in the counts matrix
-<code>X</code>, and k &gt; 1 is the rank of the matrix factorization
-(equivalently, the number of "topics"). All entries of <code>L</code>
-should be non-negative. When not provided, input argument <code>k</code>
-should be specified instead.</p></td>
+loadings (also sometimes called the &#8220;activations&#8221;). It
+should an n x k matrix, where n is the number of rows in the counts
+matrix <code>X</code>, and k &gt; 1 is the rank of the matrix factorization
+(equivalently, the number of &#8220;topics&#8221;). All entries of
+<code>L</code> should be non-negative. When <code>F</code> and <code>L</code> are not
+provided, input argument <code>k</code> should be specified instead.</p></td>
     </tr>
     <tr>
       <th>beta</th>
@@ -434,7 +435,7 @@ algorithm settings (as they are defined by
 
 <p>An additional setting, <code>control$init.numter</code>, controls the
 number of sequential co-ordinate descent (SCD) updates that are
-performed to initialize the loadings matrix when <code>init_method
+performed to initialize the loadings matrix when <code>init.method
 = "topicscore"</code>.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
@@ -484,11 +485,16 @@ performed to initialize the loadings matrix when <code>init_method
                            <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'>
 <span class='no'>clrs</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"royalblue"</span>,<span class='st'>"skyblue"</span>,<span class='st'>"darkorange"</span>,<span class='st'>"darkmagenta"</span>)
 <span class='no'>fits</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mu</span> <span class='kw'>=</span> <span class='no'>fit.mu</span>,<span class='kw'>em</span> <span class='kw'>=</span> <span class='no'>fit.em</span>,<span class='kw'>ccd</span> <span class='kw'>=</span> <span class='no'>fit.ccd</span>,<span class='kw'>scd</span> <span class='kw'>=</span> <span class='no'>fit.scd</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>),<span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;     k     loglik       dev           res runtime nonzeros.f nonzeros.l
-#&gt; mu  3 -8311.8504 7710.9891 1.2912032e-02   0.360 0.87333333 0.82500000
-#&gt; em  3 -8311.7470 7710.7824 1.2676139e-04   0.524 0.87000000 0.82083333
-#&gt; ccd 3 -8311.7470 7710.7824 8.3176076e-07   0.396 0.87000000 0.82083333
-#&gt; scd 3 -8311.7470 7710.7824 3.9232468e-08   0.443 0.87000000 0.82083333</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>)</div><div class='img'><img src='fit_poisson_nmf-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"res"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>)</div><div class='img'><img src='fit_poisson_nmf-2.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>),<span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;     k     loglik       dev loglik.diff   dev.diff           res nonzeros.f
+#&gt; mu  3 -8311.8504 7710.9891  0.00000000 0.00000000 1.2912032e-02 0.87333333
+#&gt; em  3 -8311.7470 7710.7824  0.10335505 0.20671009 1.2676139e-04 0.87000000
+#&gt; ccd 3 -8311.7470 7710.7824  0.10335425 0.20670850 8.3176076e-07 0.87000000
+#&gt; scd 3 -8311.7470 7710.7824  0.10335860 0.20671720 3.9232468e-08 0.87000000
+#&gt;     nonzeros.l numiter runtime
+#&gt; mu  0.82500000     420   0.346
+#&gt; em  0.82083333     420   0.561
+#&gt; ccd 0.82083333     320   0.364
+#&gt; scd 0.82083333     320   0.382</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>)</div><div class='img'><img src='fit_poisson_nmf-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"res"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>)</div><div class='img'><img src='fit_poisson_nmf-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># All algorithms except the multiplicative updates can handle</span>
 <span class='co'># sparse matrices as well as dense ones.</span>
 <span class='no'>Y</span> <span class='kw'>&lt;-</span> <span class='fu'>as</span>(<span class='no'>X</span>,<span class='st'>"dgCMatrix"</span>)
@@ -497,13 +503,20 @@ performed to initialize the loadings matrix when <code>init_method
                               <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>1</span>),<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fit.scd.sp</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>Y</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>300</span>,
                               <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fits</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>em</span> <span class='kw'>=</span> <span class='no'>fit.em</span>,<span class='kw'>ccd</span> <span class='kw'>=</span> <span class='no'>fit.ccd</span>,<span class='kw'>scd</span> <span class='kw'>=</span> <span class='no'>fit.scd</span>,<span class='kw'>em.sp</span> <span class='kw'>=</span> <span class='no'>fit.em.sp</span>,
              <span class='kw'>ccd.sp</span> <span class='kw'>=</span> <span class='no'>fit.ccd.sp</span>,<span class='kw'>scd.sp</span> <span class='kw'>=</span> <span class='no'>fit.scd.sp</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>),<span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;        k    loglik       dev           res runtime nonzeros.f nonzeros.l
-#&gt; em     3 -8311.747 7710.7824 1.2676139e-04   0.524       0.87 0.82083333
-#&gt; ccd    3 -8311.747 7710.7824 8.3176076e-07   0.396       0.87 0.82083333
-#&gt; scd    3 -8311.747 7710.7824 3.9232468e-08   0.443       0.87 0.82083333
-#&gt; em.sp  3 -8311.747 7710.7824 1.2676139e-04   0.596       0.87 0.82083333
-#&gt; ccd.sp 3 -8311.747 7710.7824 8.3176066e-07   0.345       0.87 0.82083333
-#&gt; scd.sp 3 -8311.747 7710.7824 3.9232447e-08   0.363       0.87 0.82083333</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>[-<span class='fl'>1</span>],
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>),<span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;        k    loglik       dev   loglik.diff      dev.diff           res
+#&gt; em     3 -8311.747 7710.7824 7.9538950e-07 1.5907772e-06 1.2676139e-04
+#&gt; ccd    3 -8311.747 7710.7824 0.0000000e+00 0.0000000e+00 8.3176076e-07
+#&gt; scd    3 -8311.747 7710.7824 4.3520595e-06 8.7041171e-06 3.9232468e-08
+#&gt; em.sp  3 -8311.747 7710.7824 7.9538950e-07 1.5907772e-06 1.2676139e-04
+#&gt; ccd.sp 3 -8311.747 7710.7824 1.8189894e-12 1.8189894e-12 8.3176066e-07
+#&gt; scd.sp 3 -8311.747 7710.7824 4.3520595e-06 8.7041190e-06 3.9232447e-08
+#&gt;        nonzeros.f nonzeros.l numiter runtime
+#&gt; em           0.87 0.82083333     420   0.561
+#&gt; ccd          0.87 0.82083333     320   0.364
+#&gt; scd          0.87 0.82083333     320   0.382
+#&gt; em.sp        0.87 0.82083333     420   0.432
+#&gt; ccd.sp       0.87 0.82083333     320   0.342
+#&gt; scd.sp       0.87 0.82083333     320   0.407</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>[-<span class='fl'>1</span>],
                           <span class='kw'>shapes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>19</span>,<span class='fl'>21</span>),<span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>3</span>))</div><div class='img'><img src='fit_poisson_nmf-3.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># The "extrapolated" updates can sometimes produce much better fits.</span>
 <span class='no'>fit.ccd.ex</span> <span class='kw'>&lt;-</span>
@@ -513,11 +526,16 @@ performed to initialize the loadings matrix when <code>init_method
   <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>300</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,
                   <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>extrapolate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='input'><span class='no'>fits</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>ccd</span> <span class='kw'>=</span> <span class='no'>fit.ccd</span>,<span class='kw'>scd</span> <span class='kw'>=</span> <span class='no'>fit.scd</span>,<span class='kw'>ccd.ex</span> <span class='kw'>=</span> <span class='no'>fit.ccd.ex</span>,
              <span class='kw'>scd.ex</span> <span class='kw'>=</span> <span class='no'>fit.scd.ex</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>),<span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;        k    loglik       dev           res runtime nonzeros.f nonzeros.l
-#&gt; ccd    3 -8311.747 7710.7824 8.3176076e-07   0.396       0.87 0.82083333
-#&gt; scd    3 -8311.747 7710.7824 3.9232468e-08   0.443       0.87 0.82083333
-#&gt; ccd.ex 3 -8311.747 7710.7824 7.4923322e-07   0.389       0.87 0.82083333
-#&gt; scd.ex 3 -8311.747 7710.7824 6.2896711e-08   0.397       0.87 0.82083333</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>[<span class='fl'>3</span>:<span class='fl'>4</span>],
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>),<span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;        k    loglik       dev   loglik.diff      dev.diff           res
+#&gt; ccd    3 -8311.747 7710.7824 0.0000000e+00 0.0000000e+00 8.3176076e-07
+#&gt; scd    3 -8311.747 7710.7824 4.3520595e-06 8.7041171e-06 3.9232468e-08
+#&gt; ccd.ex 3 -8311.747 7710.7824 0.0000000e+00 0.0000000e+00 7.4923322e-07
+#&gt; scd.ex 3 -8311.747 7710.7824 4.3520595e-06 8.7041171e-06 6.2896711e-08
+#&gt;        nonzeros.f nonzeros.l numiter runtime
+#&gt; ccd          0.87 0.82083333     320   0.364
+#&gt; scd          0.87 0.82083333     320   0.382
+#&gt; ccd.ex       0.87 0.82083333     320   0.377
+#&gt; scd.ex       0.87 0.82083333     320   0.499</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>[<span class='fl'>3</span>:<span class='fl'>4</span>],
                           <span class='kw'>shapes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>19</span>,<span class='fl'>21</span>),<span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>2</span>))</div><div class='img'><img src='fit_poisson_nmf-4.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"res"</span>,<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>clrs</span>[<span class='fl'>3</span>:<span class='fl'>4</span>],
                           <span class='kw'>shapes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>19</span>,<span class='fl'>21</span>),<span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>2</span>))</div><div class='img'><img src='fit_poisson_nmf-5.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>

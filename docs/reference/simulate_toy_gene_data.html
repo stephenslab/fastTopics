@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • fastTopics</title>
+<title>Simulate "Toy" Gene Expression Data — simulate_toy_gene_data • fastTopics</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,11 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Simulate "Toy" Gene Expression Data — simulate_toy_gene_data" />
+<meta property="og:description" content="Simulate gene expression data (UMI counts) under a
+  &quot;toy&quot; expression model. Samples (expression profiles) are drawn
+  from a multinomial topic model in which topics are &quot;gene programs&quot;." />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -54,7 +58,7 @@
   </head>
 
   <body>
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -100,18 +104,67 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Simulate "Toy" Gene Expression Data</h1>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/datasim.R'><code>R/datasim.R</code></a></small>
+    <div class="hidden name"><code>simulate_toy_gene_data.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="relationship.html">Exploring the close relationship between topic modeling and non-negative matrix factorization for count data</a></li>
-        <li><a href="topics_vs_clusters.html">Topic modeling vs. clustering of gene expression data: an illustration</a></li>
-      </ul>
+    <div class="ref-description">
+    <p>Simulate gene expression data (UMI counts) under a
+  "toy" expression model. Samples (expression profiles) are drawn
+  from a multinomial topic model in which topics are "gene programs".</p>
     </div>
+
+    <pre class="usage"><span class='fu'>simulate_toy_gene_data</span>(<span class='no'>n</span>, <span class='no'>m</span>, <span class='no'>k</span>, <span class='no'>s</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>n</th>
+      <td><p>The number of samples (gene expression profiles) to
+simulate.</p></td>
+    </tr>
+    <tr>
+      <th>m</th>
+      <td><p>The number of counts (genes) to simulate.</p></td>
+    </tr>
+    <tr>
+      <th>k</th>
+      <td><p>The number of topics ("gene programs") used to simulate
+the data.</p></td>
+    </tr>
+    <tr>
+      <th>s</th>
+      <td><p>A scalar specifying the total expression of each sample;
+it specifies the "size" parameter in the calls to
+<code><a href='https://rdrr.io/r/stats/Multinom.html'>rmultinom</a></code>.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>The return value is a list containing the counts matrix
+  <code>X</code>, and the gene frequencies <code>F</code> and topic proportions
+  <code>L</code> used to generate the counts.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The topic proportions are generated as follows. With
+probability 0.9, one proportion is one, or close to one, and the
+remaining are zero, or close to zero; that is, the counts are
+primarily generated from a single gene program. Otherwise (wtth
+probability 0.1), the topic proportions are roughly equal.</p>
+<p>Gene frequencies are drawn uniformly at random from [0,1].</p>
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
+    </ul>
+
   </div>
 </div>
 

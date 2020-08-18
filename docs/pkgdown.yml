@@ -3,4 +3,5 @@ pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
   relationship: relationship.html
+  topics_vs_clusters: topics_vs_clusters.html
 

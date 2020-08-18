@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Simulate Count Data from Poisson NMF Model — simulate_count_data • fastTopics</title>
+<title>Loadings Plot — loadings_plot • fastTopics</title>
 
 
 <!-- jquery -->
@@ -35,15 +35,10 @@
 
 
 
-<meta property="og:title" content="Simulate Count Data from Poisson NMF Model — simulate_count_data" />
-<meta property="og:description" content="Simulate a counts matrix X such that
-  X[i,j] is Poisson with rate (mean) Y[i,j], where
-  Y = tcrossprod(L,F), L is an n x k loadings
-  (&amp;#8220;activations&amp;#8221;) matrix, and F is an m x k factors
-  (&amp;#8220;basis vectors&amp;#8221;) matrix. The entries of matrix L are
-  drawn uniformly at random between 0 and lmax, and the
-  entries of matrix F are drawn uniformly at random between 0
-  and fmax." />
+<meta property="og:title" content="Loadings Plot — loadings_plot" />
+<meta property="og:description" content="Generate one or more barcharts to visualize the
+  relationship between the loadings, or topic proportions, and a
+  selected categorical variable (a factor)." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -109,70 +104,90 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Simulate Count Data from Poisson NMF Model</h1>
-    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/datasim.R'><code>R/datasim.R</code></a></small>
-    <div class="hidden name"><code>simulate_count_data.Rd</code></div>
+    <h1>Loadings Plot</h1>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
+    <div class="hidden name"><code>loadings_plot.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Simulate a counts matrix <code>X</code> such that
-  <code>X[i,j]</code> is Poisson with rate (mean) <code>Y[i,j]</code>, where
-  <code>Y = tcrossprod(L,F)</code>, <code>L</code> is an n x k loadings
-  (&#8220;activations&#8221;) matrix, and <code>F</code> is an m x k factors
-  (&#8220;basis vectors&#8221;) matrix. The entries of matrix <code>L</code> are
-  drawn uniformly at random between 0 and <code>lmax</code>, and the
-  entries of matrix <code>F</code> are drawn uniformly at random between 0
-  and <code>fmax</code>.</p>
+    <p>Generate one or more barcharts to visualize the
+  relationship between the loadings, or topic proportions, and a
+  selected categorical variable (a factor).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>simulate_count_data</span>(<span class='no'>n</span>, <span class='no'>m</span>, <span class='no'>k</span>, <span class='kw'>fmax</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>lmax</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>sparse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>loadings_plot</span>(
+  <span class='no'>fit</span>,
+  <span class='no'>x</span>,
+  <span class='no'>k</span>,
+  <span class='kw'>ggplot_call</span> <span class='kw'>=</span> <span class='no'>loadings_plot_ggplot_call</span>,
+  <span class='kw'>plot_grid_call</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>plots</span>) <span class='fu'><a href='https://rdrr.io/r/base/do.call.html'>do.call</a></span>(<span class='no'>plot_grid</span>, <span class='no'>plots</span>)
+)
+
+<span class='fu'>loadings_plot_ggplot_call</span>(<span class='no'>dat</span>, <span class='no'>topic.label</span>, <span class='kw'>font.size</span> <span class='kw'>=</span> <span class='fl'>9</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>n</th>
-      <td><p>Number of rows in simulated count matrix. The number of
-rows should be at least 2.</p></td>
+      <th>fit</th>
+      <td><p>An object of class &#8220;poisson_nmf_fit&#8221; or
+&#8220;multinom_topic_model_fit&#8221;.</p></td>
     </tr>
     <tr>
-      <th>m</th>
-      <td><p>Number of columns in simulated count matrix. The number of
-columns should be at least 2.</p></td>
+      <th>x</th>
+      <td><p>A categorical variable represented as a
+<code><a href='https://rdrr.io/r/base/factor.html'>factor</a></code>. It should have the same number of elements as
+the number of rows in <code>fit$L</code>.</p></td>
     </tr>
     <tr>
       <th>k</th>
-      <td><p>Number of factors, or &#8220;topics&#8221;, used to determine
-Poisson rates. The number of topics should be 1 or more.</p></td>
+      <td><p>The topic, or topics, selected by number or name. When not
+specified, all topics are plotted.</p></td>
     </tr>
     <tr>
-      <th>fmax</th>
-      <td><p>Factors are drawn uniformly at random between 0 and
-<code>fmax</code>.</p></td>
+      <th>ggplot_call</th>
+      <td><p>The function used to create the plot. Replace
+<code>loadings_plot_ggplot_call</code> with your own function to
+customize the appearance of the plot.</p></td>
     </tr>
     <tr>
-      <th>lmax</th>
-      <td><p>Loadings are drawn uniformly at random between 0 and
-<code>lmax</code>.</p></td>
+      <th>plot_grid_call</th>
+      <td><p>When multiple topics are selected, this is
+the function used to arrange the plots into a grid using
+<code><a href='https://rdrr.io/pkg/cowplot/man/plot_grid.html'>plot_grid</a></code>. It should be a function accepting
+a single argument, <code>plots</code>, a list of <code>ggplot</code> objects.</p></td>
     </tr>
     <tr>
-      <th>sparse</th>
-      <td><p>If <code>sparse = TRUE</code>, convert the counts matrix to
-a sparse matrix in compressed, column-oriented format; see
-<code><a href='https://rdrr.io/pkg/Matrix/man/sparseMatrix.html'>sparseMatrix</a></code>.</p></td>
+      <th>dat</th>
+      <td><p>A data frame passed as input to
+<code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></code>, containing, at a minimum, columns
+&#8220;x&#8221; and &#8220;loading&#8221;.</p></td>
+    </tr>
+    <tr>
+      <th>topic.label</th>
+      <td><p>The name or number of the topic being plotted.
+Only used to determine the plot title.</p></td>
+    </tr>
+    <tr>
+      <th>font.size</th>
+      <td><p>Font size used in plot.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The return value is a list containing the counts matrix
-  <code>X</code> and the factorization, <code>F</code> and <code>L</code>, used to
-  generate the counts.</p>
+    <p>A <code>ggplot</code> object.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Note that only minimal argument checking is performed. This
-  function is mainly used to simulate small data sets for the examples
-  and package tests.</p>
+    <p>This is a lightweight interface primarily intended to
+  expedite creation of boxplots for investigating relationships
+  between topics and a categorical variables of interest without
+  having to spend a great deal of time worrying about the plotting
+  settings; most of the "heavy lifting" is done by ggplot2
+  (specifically, function <code><a href='https://ggplot2.tidyverse.org/reference/geom_boxplot.html'>geom_boxplot</a></code> in the
+  ggplot2 package). For more control over the plot's appearance, the
+  plot can be customized by modifying the <code>ggplot_call</code>
+  and <code>plot_grid_call</code> arguments.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

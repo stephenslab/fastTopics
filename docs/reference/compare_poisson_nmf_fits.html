@@ -70,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.32</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.159</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Summarize and Compare Poisson NMF Model Fits</h1>
-    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/utils.R'><code>R/utils.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/summary.R'><code>R/summary.R</code></a></small>
     <div class="hidden name"><code>compare_poisson_nmf_fits.Rd</code></div>
     </div>
 
@@ -142,11 +142,20 @@ with the following columns:</p>
   indicate that the solution is close to a local maximum, or
   stationary point, of the likelihood.</p></dd>
 
+<dt>loglik.diff</dt><dd><p>The improvement in the log-likelihood relative
+  to the model fit with the smallest log-likelihood.</p></dd>
+
+<dt>dev.diff</dt><dd><p>The improvement in the deviance relative to the
+  model fit with the largest deviance.</p></dd>
+
 <dt>nonzeros.f</dt><dd><p>The rate of nonzeros in the factors matrix, as
   determined by <code>control$zero.threshold</code>.</p></dd>
 
 <dt>nonzeros.l</dt><dd><p>The rate of nonzeros in the loadings matrix, as
   determined by <code>control$zero.threshold</code>.</p></dd>
+
+<dt>numiter</dt><dd><p>The number of loadings and/or factor updates
+  performed.</p></dd>
 
 <dt>runtime</dt><dd><p>The total runtime (in s) of the model fitting
   updates.</p></dd>

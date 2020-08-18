@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Simulate Count Data from Poisson NMF Model — simulate_count_data • fastTopics</title>
+<title>Summarize Poisson NMF or Multinomial Topic Model Fit — summary.poisson_nmf_fit • fastTopics</title>
 
 
 <!-- jquery -->
@@ -35,15 +35,9 @@
 
 
 
-<meta property="og:title" content="Simulate Count Data from Poisson NMF Model — simulate_count_data" />
-<meta property="og:description" content="Simulate a counts matrix X such that
-  X[i,j] is Poisson with rate (mean) Y[i,j], where
-  Y = tcrossprod(L,F), L is an n x k loadings
-  (&amp;#8220;activations&amp;#8221;) matrix, and F is an m x k factors
-  (&amp;#8220;basis vectors&amp;#8221;) matrix. The entries of matrix L are
-  drawn uniformly at random between 0 and lmax, and the
-  entries of matrix F are drawn uniformly at random between 0
-  and fmax." />
+<meta property="og:title" content="Summarize Poisson NMF or Multinomial Topic Model Fit — summary.poisson_nmf_fit" />
+<meta property="og:description" content="summary method for the &amp;#8220;poisson_nmf_fit&amp;#8221;
+  and &amp;#8220;multinom_topic_model_fit&amp;#8221; classes." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -109,70 +103,89 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Simulate Count Data from Poisson NMF Model</h1>
-    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/datasim.R'><code>R/datasim.R</code></a></small>
-    <div class="hidden name"><code>simulate_count_data.Rd</code></div>
+    <h1>Summarize Poisson NMF or Multinomial Topic Model Fit</h1>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/summary.R'><code>R/summary.R</code></a></small>
+    <div class="hidden name"><code>summary.poisson_nmf_fit.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Simulate a counts matrix <code>X</code> such that
-  <code>X[i,j]</code> is Poisson with rate (mean) <code>Y[i,j]</code>, where
-  <code>Y = tcrossprod(L,F)</code>, <code>L</code> is an n x k loadings
-  (&#8220;activations&#8221;) matrix, and <code>F</code> is an m x k factors
-  (&#8220;basis vectors&#8221;) matrix. The entries of matrix <code>L</code> are
-  drawn uniformly at random between 0 and <code>lmax</code>, and the
-  entries of matrix <code>F</code> are drawn uniformly at random between 0
-  and <code>fmax</code>.</p>
+    <p><code>summary</code> method for the &#8220;poisson_nmf_fit&#8221;
+  and &#8220;multinom_topic_model_fit&#8221; classes.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>simulate_count_data</span>(<span class='no'>n</span>, <span class='no'>m</span>, <span class='no'>k</span>, <span class='kw'>fmax</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>lmax</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>sparse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='co'># S3 method for poisson_nmf_fit</span>
+<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for multinom_topic_model_fit</span>
+<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for summary.poisson_nmf_fit</span>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for summary.multinom_topic_model_fit</span>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>n</th>
-      <td><p>Number of rows in simulated count matrix. The number of
-rows should be at least 2.</p></td>
+      <th>object</th>
+      <td><p>An object of class &#8220;poisson_nmf_fit&#8221; or
+&#8220;multinom_topic_model_fit&#8221;. The former is usually the result
+of calling <code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code>; the latter is usually the
+result of calling <code>link{poisson2multinom}</code>.</p></td>
     </tr>
     <tr>
-      <th>m</th>
-      <td><p>Number of columns in simulated count matrix. The number of
-columns should be at least 2.</p></td>
+      <th>...</th>
+      <td><p>Additional arguments passed to the generic <code>summary</code>
+or <code>print.summary</code> method.</p></td>
     </tr>
     <tr>
-      <th>k</th>
-      <td><p>Number of factors, or &#8220;topics&#8221;, used to determine
-Poisson rates. The number of topics should be 1 or more.</p></td>
-    </tr>
-    <tr>
-      <th>fmax</th>
-      <td><p>Factors are drawn uniformly at random between 0 and
-<code>fmax</code>.</p></td>
-    </tr>
-    <tr>
-      <th>lmax</th>
-      <td><p>Loadings are drawn uniformly at random between 0 and
-<code>lmax</code>.</p></td>
-    </tr>
-    <tr>
-      <th>sparse</th>
-      <td><p>If <code>sparse = TRUE</code>, convert the counts matrix to
-a sparse matrix in compressed, column-oriented format; see
-<code><a href='https://rdrr.io/pkg/Matrix/man/sparseMatrix.html'>sparseMatrix</a></code>.</p></td>
+      <th>x</th>
+      <td><p>An object of class &#8220;summary.poisson_nmf_fit&#8221;,
+usually a result of a call to <code>summary.poisson_nmf_fit</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The return value is a list containing the counts matrix
-  <code>X</code> and the factorization, <code>F</code> and <code>L</code>, used to
-  generate the counts.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <p>The functions <code>summary.poisson_nmf_fit</code> and
+<code>summary.multinom_topic_model_fit</code> compute and return a list
+of statistics summarizing the model fit. The returned list
+includes the following elements:</p>
+<dt>n</dt><dd><p>The number of rows in the counts matrix, typically the
+  number of samples.</p></dd>
 
-    <p>Note that only minimal argument checking is performed. This
-  function is mainly used to simulate small data sets for the examples
-  and package tests.</p>
+<dt>m</dt><dd><p>The number of columns in the counts matrix, typically the
+  number of observed counts per sample.</p></dd>
+
+<dt>k</dt><dd><p>The rank of the Poisson non-negative matrix factorizataion
+  or, equivalently, the number of topics.</p></dd>
+
+<dt>s</dt><dd><p>A vector of length n giving the "size factor" estimates;
+  these estimates should be equal, or close to, the total counts in
+  each row of the counts matrix.</p></dd>
+
+<dt>numiter</dt><dd><p>The number of loadings and/or factor updates
+  performed.</p></dd>
+
+<dt>loglik</dt><dd><p>The log-likelihood attained by the model fit.</p></dd>
+
+<dt>dev</dt><dd><p>The deviance attained by the model fit.</p></dd>
+
+<dt>res</dt><dd><p>The maximum residual of the Karush-Kuhn-Tucker (KKT)
+  first-order optimality conditions. This can be used to assess
+  convergence of the updates to a (local) solution.</p></dd>
+
+<dt>topic.proportions</dt><dd><p>Matrix giving a high-level summary of the
+topic proportions, in which rows correspond to topics, and columns
+are proportion ranges.</p></dd>
+
+<dt>topic.reps</dt><dd><p>A matrix in which the ith row gives the topic
+  proportions for the sample "most representative" of topic i; by
+  "most representative", we mean the row (or sample) with the
+  highest proportion of counts drawn from the topic i.</p></dd>
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -180,7 +193,6 @@ a sparse matrix in compressed, column-oriented format; see
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>

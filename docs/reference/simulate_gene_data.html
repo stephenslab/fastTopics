@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Simulate Count Data from Poisson NMF Model — simulate_count_data • fastTopics</title>
+<title>Simulate Gene Expression Data from Poisson NMF or Multinomial
+  Topic Model — simulate_poisson_gene_data • fastTopics</title>
 
 
 <!-- jquery -->
@@ -35,15 +36,21 @@
 
 
 
-<meta property="og:title" content="Simulate Count Data from Poisson NMF Model — simulate_count_data" />
-<meta property="og:description" content="Simulate a counts matrix X such that
-  X[i,j] is Poisson with rate (mean) Y[i,j], where
-  Y = tcrossprod(L,F), L is an n x k loadings
-  (&amp;#8220;activations&amp;#8221;) matrix, and F is an m x k factors
-  (&amp;#8220;basis vectors&amp;#8221;) matrix. The entries of matrix L are
-  drawn uniformly at random between 0 and lmax, and the
-  entries of matrix F are drawn uniformly at random between 0
-  and fmax." />
+<meta property="og:title" content="Simulate Gene Expression Data from Poisson NMF or Multinomial
+  Topic Model — simulate_poisson_gene_data" />
+<meta property="og:description" content="Simulate count data from a Poisson NMF model or
+  Multinomial Topic Model, in which topics represent &amp;#8220;gene
+  expression programs&amp;#8221;, and gene expression programs are
+  characterized by different rates of expression. The way in which
+  the counts are simulated is modeled after gene expression studies
+  in which expression is measured by single-cell RNA sequencing
+  (&amp;#8220;RNA-seq&amp;#8221;) techniques: each row of the counts matrix
+  corresponds a gene expression profile, each column corresponds to a
+  gene, and each matrix element is a &amp;#8220;read count&amp;#8221;, or
+  &amp;#8220;UMI count&amp;#8221;, measuring expression level. Factors are
+  simulated so as to capture realistic changes in gene expression
+  across different cell types. See &amp;#8220;Details&amp;#8221; for the procedure
+  used to simulate factors, loadings and counts." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -109,51 +116,56 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Simulate Count Data from Poisson NMF Model</h1>
+    <h1>Simulate Gene Expression Data from Poisson NMF or Multinomial
+  Topic Model</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/datasim.R'><code>R/datasim.R</code></a></small>
-    <div class="hidden name"><code>simulate_count_data.Rd</code></div>
+    <div class="hidden name"><code>simulate_gene_data.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Simulate a counts matrix <code>X</code> such that
-  <code>X[i,j]</code> is Poisson with rate (mean) <code>Y[i,j]</code>, where
-  <code>Y = tcrossprod(L,F)</code>, <code>L</code> is an n x k loadings
-  (&#8220;activations&#8221;) matrix, and <code>F</code> is an m x k factors
-  (&#8220;basis vectors&#8221;) matrix. The entries of matrix <code>L</code> are
-  drawn uniformly at random between 0 and <code>lmax</code>, and the
-  entries of matrix <code>F</code> are drawn uniformly at random between 0
-  and <code>fmax</code>.</p>
+    <p>Simulate count data from a Poisson NMF model or
+  Multinomial Topic Model, in which topics represent &#8220;gene
+  expression programs&#8221;, and gene expression programs are
+  characterized by different rates of expression. The way in which
+  the counts are simulated is modeled after gene expression studies
+  in which expression is measured by single-cell RNA sequencing
+  (&#8220;RNA-seq&#8221;) techniques: each row of the counts matrix
+  corresponds a gene expression profile, each column corresponds to a
+  gene, and each matrix element is a &#8220;read count&#8221;, or
+  &#8220;UMI count&#8221;, measuring expression level. Factors are
+  simulated so as to capture realistic changes in gene expression
+  across different cell types. See &#8220;Details&#8221; for the procedure
+  used to simulate factors, loadings and counts.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>simulate_count_data</span>(<span class='no'>n</span>, <span class='no'>m</span>, <span class='no'>k</span>, <span class='kw'>fmax</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>lmax</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>sparse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>simulate_poisson_gene_data</span>(<span class='no'>n</span>, <span class='no'>m</span>, <span class='no'>k</span>, <span class='no'>s</span>, <span class='kw'>sparse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='fu'>simulate_multinom_gene_data</span>(<span class='no'>n</span>, <span class='no'>m</span>, <span class='no'>k</span>, <span class='kw'>sparse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>n</th>
-      <td><p>Number of rows in simulated count matrix. The number of
-rows should be at least 2.</p></td>
+      <td><p>Number of rows in the simulated count matrix. Should be at
+least 2.</p></td>
     </tr>
     <tr>
       <th>m</th>
-      <td><p>Number of columns in simulated count matrix. The number of
-columns should be at least 2.</p></td>
+      <td><p>Number of columns in the simulated count matrix. Should be
+at least 2.</p></td>
     </tr>
     <tr>
       <th>k</th>
-      <td><p>Number of factors, or &#8220;topics&#8221;, used to determine
-Poisson rates. The number of topics should be 1 or more.</p></td>
+      <td><p>Number of factors, or &#8220;topics&#8221;, used to generate
+the data. Should be 2 or more.</p></td>
     </tr>
     <tr>
-      <th>fmax</th>
-      <td><p>Factors are drawn uniformly at random between 0 and
-<code>fmax</code>.</p></td>
-    </tr>
-    <tr>
-      <th>lmax</th>
-      <td><p>Loadings are drawn uniformly at random between 0 and
-<code>lmax</code>.</p></td>
+      <th>s</th>
+      <td><p>A vector of &#8220;size factors&#8221;; each row of the
+loadings matrix <code>L</code> is scaled by the entries of <code>s</code>
+before generating the counts. This should be a vector of length n
+containing only positive values.</p></td>
     </tr>
     <tr>
       <th>sparse</th>
@@ -165,14 +177,43 @@ a sparse matrix in compressed, column-oriented format; see
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The return value is a list containing the counts matrix
-  <code>X</code> and the factorization, <code>F</code> and <code>L</code>, used to
-  generate the counts.</p>
+    <p><code>simulate_poisson_gene_data</code> returns a list containing
+  the counts matrix <code>X</code>, and the size factors <code>s</code> and
+  factorization, <code>F</code>, <code>L</code>, used to generate the counts.
+  <code>simulate_multinom_gene_data</code> returns a list containing the
+  counts matrix <code>X</code>, and the topic proportions <code>L</code> and
+  factors (gene probabilities, or relative gene expression levels)
+  <code>F</code> used to generate the counts.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Note that only minimal argument checking is performed. This
-  function is mainly used to simulate small data sets for the examples
-  and package tests.</p>
+    <p>Here we describe the process for generating the n x k
+  loadings matrix <code>L</code> and the m x k factors matrix <code>F</code>.</p>
+<p>Each row of the <code>L</code> matrix is generated in the following
+  manner: (1) the number of nonzero topic proportions is \(1
+  \le n \le k\), with probability proportional to \(2^{-n}\);
+  (2) the indices of the nonzero topic proportions are sampled
+  uniformly at random; and (3) the nonzero topic proportions are
+  sampled from the Dirichlet distribution with \(\alpha = 1\) (so
+  that all topics are equally likely).</p>
+<p>Each row of the factors matrix are generated according to the
+  following procedure: (1) generate \(u = |r| - 5\), where \(r ~
+  N(0,2)\); (2) for each topic \(k\), generate the Poisson rates as
+  \(exp(max(t,-5))\), where \(t ~ 0.95 * N(u,s/10) + 0.05 *
+  N(u,s)\), and \(s = exp(-u/8)\). Factors can be interpreted as
+  Poisson rates or multinomial probabilities, so that individual
+  counts can be viewed as being generated from a weighted mixture
+  of &#8220;topics&#8221; with different rates or probabilities.</p>
+<p>Once the loadings and factors have been generated, the counts are
+  simulated from either the Poisson NMF or multinomial topic model:
+  for the former, <code>X[i,j]</code> is Poisson with rate <code>Y[i,j]</code>,
+  where <code>Y = tcrossprod(L,F)</code>; for the latter, <code>X[i,]</code> is
+  multinomial with size <code>s[i]</code> and with class probabilities
+  <code>P[i,]</code>, where <code>P = tcrossprod(L,F)</code>. For the multinomial
+  model only, the sizes <code>s</code> are randomly generated as <code>s =
+  10^rnorm(n,3,0.2)</code>.</p>
+<p>Note that only minimal argument checking is performed;
+  the function is mainly used to test implementation of the
+  topic-model-based differential count analysis.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
