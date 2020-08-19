@@ -2,33 +2,64 @@
 % Please edit documentation in R/plots.R
 \name{pca_plot}
 \alias{pca_plot}
-\title{Title Goes Here.}
+\alias{pca_plot_ggplot_call}
+\title{PCA Plot.}
 \usage{
 pca_plot(
   fit,
   k,
   out.pca,
   pcs = 1:2,
-  ggplot_call = tsne_plot_ggplot_call,
+  ggplot_call = pca_plot_ggplot_call,
   plot_grid_call = function(plots) do.call(plot_grid, plots),
   ...
 )
+
+pca_plot_ggplot_call(dat, pcs, topic.label, font.size = 9)
 }
 \arguments{
-\item{fit}{Describe input argument "fit" here.}
+\item{fit}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}.}
 
-\item{k}{Describe input argument "k" here.}
+\item{k}{The topic, or topics, selected by number or name. One plot
+is created per selected topic. When not specified, all topics are
+plotted.}
 
-\item{out.pca}{Describe input argument "out.pca" here.}
+\item{out.pca}{A list containing the result of a principal
+components analysis, typically the result of calling
+\code{\link[stats]{prcomp}} or a comparable function such as
+\code{rpca} from the rsvd package. It should be a list object
+containing, at a minimum, a list matrix or data frame "x" storing
+the rotated data. If not provided, principal components will be
+computed automatically by calling \code{\link[stats]{prcomp}}.}
 
-\item{pcs}{Describe input argument "pcs" here.}
+\item{pcs}{Character of length two specifying the two principal
+components to be plotted.}
 
-\item{ggplot_call}{Describe input argument "k" here.}
+\item{ggplot_call}{The function used to create the plot. Replace
+\code{pca_plot_ggplot_call} with your own function to customize the
+appearance of the plot.}
 
-\item{plot_grid_call}{Describe input argument "plot_grid_call" here.}
+\item{plot_grid_call}{When multiple topics are selected, this is
+the function used to arrange the plots into a grid using
+\code{\link[cowplot]{plot_grid}}. It should be a function accepting
+a single argument, \code{plots}, a list of \code{ggplot} objects.}
+
+\item{\dots}{Additional arguments passed to
+\code{\link[stats]{prcomp}}. These arguments are only used if
+\code{out.pca} is not provided.}
+
+\item{dat}{A data frame passed as input to
+\code{\link[ggplot2]{ggplot}}, containing, at a minimum, a
+"loading" column, and the principal components to be plotted.}
+
+\item{topic.label}{The name or number of the topic being plotted;
+it is only used to determine the plot title.}
+
+\item{font.size}{Font size used in plot.}
 }
 \value{
-Describe return value here.
+A \code{ggplot} object.
 }
 \description{
 Description of function goes here.
