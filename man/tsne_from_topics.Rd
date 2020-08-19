@@ -76,20 +76,25 @@ A list with two list elements: \code{Y}, an n x d matrix
   loadings matrix included in the t-SNE embedding.
 }
 \description{
-Computes a low-dimensional embededding of the data from
-  the estimated loadings or topic proportions using the t-SNE
-  nonlinear dimensionality reduction method.
+Computes a low-dimensional nonlinear embededding of
+the data from the estimated loadings or topic proportions using the
+t-SNE nonlinear dimensionality reduction method.
 }
 \details{
 This is a lightweight interface for rapidly producing
-  t-SNE embeddings from matrix factorizations or multinomial topic
-  models; in particular, \code{tsne_from_topics} replaces the t-SNE
-  defaults with settings that are more suitable for visualizing the
-  structure of a matrix factorization or topic model (e.g., the PCA
-  step in \code{Rtsne} is activated by default, but disabled in
-  \code{tsne_from_topics}). See Kobak and Berens (2019) for guidance
-  on choosing t-SNE settings such as the "perplexity" and learning
-  rate (\code{eta}).
+t-SNE embeddings from matrix factorizations or multinomial topic
+models; in particular, \code{tsne_from_topics} replaces the t-SNE
+defaults with settings that are more suitable for visualizing the
+structure of a matrix factorization or topic model (e.g., the PCA
+step in \code{Rtsne} is activated by default, but disabled in
+\code{tsne_from_topics}). See Kobak and Berens (2019) for guidance
+on choosing t-SNE settings such as the "perplexity" and learning
+rate (\code{eta}).
+
+Note that since \code{tsne_plot} uses a \emph{nonlinear}
+transformation of the data, distances between points are less
+interpretable than a linear transformation visualized using
+\code{pca_plot} for example.
 }
 \references{
 Kobak, D. and Berens, P. (2019). The art of using t-SNE for

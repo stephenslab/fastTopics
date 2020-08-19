@@ -668,11 +668,25 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
   return(dat)
 }
 
-#' @title PCA Plot.
+#' @title PCA Plot
 #'
-#' @description Description of function goes here.
+#' @description Visualize the "structure" of the Poisson NMF loadings
+#'   ("activations") or the multinomial topic proportions by projection
+#'   onto two principal components. Samples in the projection are
+#'   colored according to the their loadings or topic proportions.
 #'
-#' @detail Add more details here.
+#' @details This is a lightweight interface for rapidly producing PCA
+#' plots from a Poisson non-negative matrix factorization or
+#' multinomial topic model. The plotting is implemented using
+#' ggplot2. For more control over the plot's appearance, the plot can
+#' be customized by modifying the \code{ggplot_call} and
+#' \code{plot_grid_call} arguments. If not provided, the principal
+#' components are computed using \code{\link[stats]{prcomp}}.
+#'
+#' Note that since principal components are a \emph{linear} projection
+#' ("rotation") of the data, distances between points are much more
+#' interpretable than nonlinear embedding methods such as t-SNE (as
+#' visualized using \code{tsne_plot}).
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
@@ -783,20 +797,25 @@ pca_plot_ggplot_call <- function (dat, pcs, topic.label, font.size = 9)
 
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model
 #'
-#' @description Computes a low-dimensional embededding of the data from
-#'   the estimated loadings or topic proportions using the t-SNE
-#'   nonlinear dimensionality reduction method.
+#' @description Computes a low-dimensional nonlinear embededding of
+#' the data from the estimated loadings or topic proportions using the
+#' t-SNE nonlinear dimensionality reduction method.
 #'
 #' @details This is a lightweight interface for rapidly producing
-#'   t-SNE embeddings from matrix factorizations or multinomial topic
-#'   models; in particular, \code{tsne_from_topics} replaces the t-SNE
-#'   defaults with settings that are more suitable for visualizing the
-#'   structure of a matrix factorization or topic model (e.g., the PCA
-#'   step in \code{Rtsne} is activated by default, but disabled in
-#'   \code{tsne_from_topics}). See Kobak and Berens (2019) for guidance
-#'   on choosing t-SNE settings such as the "perplexity" and learning
-#'   rate (\code{eta}).
-#' 
+#' t-SNE embeddings from matrix factorizations or multinomial topic
+#' models; in particular, \code{tsne_from_topics} replaces the t-SNE
+#' defaults with settings that are more suitable for visualizing the
+#' structure of a matrix factorization or topic model (e.g., the PCA
+#' step in \code{Rtsne} is activated by default, but disabled in
+#' \code{tsne_from_topics}). See Kobak and Berens (2019) for guidance
+#' on choosing t-SNE settings such as the "perplexity" and learning
+#' rate (\code{eta}).
+#'
+#' Note that since \code{tsne_plot} uses a \emph{nonlinear}
+#' transformation of the data, distances between points are less
+#' interpretable than a linear transformation visualized using
+#' \code{pca_plot} for example.
+#'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #' \dQuote{multinom_topic_model_fit}.
 #'

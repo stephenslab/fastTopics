@@ -3,7 +3,7 @@
 \name{pca_plot}
 \alias{pca_plot}
 \alias{pca_plot_ggplot_call}
-\title{PCA Plot.}
+\title{PCA Plot}
 \usage{
 pca_plot(
   fit,
@@ -62,5 +62,22 @@ it is only used to determine the plot title.}
 A \code{ggplot} object.
 }
 \description{
-Description of function goes here.
+Visualize the "structure" of the Poisson NMF loadings
+  ("activations") or the multinomial topic proportions by projection
+  onto two principal components. Samples in the projection are
+  colored according to the their loadings or topic proportions.
+}
+\details{
+This is a lightweight interface for rapidly producing PCA
+plots from a Poisson non-negative matrix factorization or
+multinomial topic model. The plotting is implemented using
+ggplot2. For more control over the plot's appearance, the plot can
+be customized by modifying the \code{ggplot_call} and
+\code{plot_grid_call} arguments. If not provided, the principal
+components are computed using \code{\link[stats]{prcomp}}.
+
+Note that since principal components are a \emph{linear} projection
+("rotation") of the data, distances between points are much more
+interpretable than nonlinear embedding methods such as t-SNE (as
+visualized using \code{tsne_plot}).
 }
