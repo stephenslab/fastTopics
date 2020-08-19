@@ -1,6 +1,12 @@
 to do
 =====
 
++ Implement pca_plot.
+
++ Fill out @description and @details in pca_plot.
+
++ Add tests for pca_plot.
+
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.

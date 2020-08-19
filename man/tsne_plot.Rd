@@ -81,11 +81,10 @@ Visualize the "structure" of the Poisson NMF loadings
 This is a lightweight interface primarily intended to
   expedite creation of scatterplots for visualizing the loadings or
   topic proportions in 2-d; most of the "heavy lifting" is done by
-  ggplot2 (specifically, function \code{\link[ggplot2]{geom_boxplot}}
-  in the ggplot2 package). The 2-d embedding itself is computed by
-  invoking function \code{\link{tsne_from_topics}} (unless the "tsne"
-  input is provided). For more control over the plot's appearance,
-  the plot can be customized by modifying the \code{ggplot_call} and
+  ggplot2. The 2-d embedding itself is computed by invoking function
+  \code{\link{tsne_from_topics}} (unless the "tsne" input is
+  provided). For more control over the plot's appearance, the plot
+  can be customized by modifying the \code{ggplot_call} and
   \code{plot_grid_call} arguments.
 
   An effective 2-d visualization may also necessitate some fine-tunning

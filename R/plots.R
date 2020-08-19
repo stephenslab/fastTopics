@@ -668,32 +668,118 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
   return(dat)
 }
 
-#' @title Title Goes Here.
+#' @title PCA Plot.
 #'
 #' @description Description of function goes here.
 #'
-#' @param fit Describe input argument "fit" here.
+#' @detail Add more details here.
 #'
-#' @param k Describe input argument "k" here.
+#' @param fit An object of class \dQuote{poisson_nmf_fit} or
+#'   \dQuote{multinom_topic_model_fit}.
 #'
-#' @param out.pca Describe input argument "out.pca" here.
+#' @param k The topic, or topics, selected by number or name. One plot
+#'   is created per selected topic. When not specified, all topics are
+#'   plotted.
 #'
-#' @param pcs Describe input argument "pcs" here.
+#' @param out.pca A list containing the result of a principal
+#'   components analysis, typically the result of calling
+#'   \code{\link[stats]{prcomp}} or a comparable function such as
+#'   \code{rpca} from the rsvd package. It should be a list object
+#'   containing, at a minimum, a list matrix or data frame "x" storing
+#'   the rotated data. If not provided, principal components will be
+#'   computed automatically by calling \code{\link[stats]{prcomp}}.
+#'
+#' @param pcs The two principal components (PCs) to be plotted,
+#'   specified by name or number.
 #' 
-#' @param ggplot_call Describe input argument "k" here.
+#' @param ggplot_call The function used to create the plot. Replace
+#'   \code{pca_plot_ggplot_call} with your own function to customize the
+#'   appearance of the plot.
 #'
-#' @param plot_grid_call Describe input argument "plot_grid_call" here.
+#' @param plot_grid_call When multiple topics are selected, this is
+#'   the function used to arrange the plots into a grid using
+#'   \code{\link[cowplot]{plot_grid}}. It should be a function accepting
+#'   a single argument, \code{plots}, a list of \code{ggplot} objects.
+#' 
+#' @param \dots Additional arguments passed to
+#'   \code{\link[stats]{prcomp}}. These arguments are only used if
+#'   \code{out.pca} is not provided.
+#' 
+#' @return A \code{ggplot} object.
 #'
-#' @return Describe return value here.
+#' @importFrom stats prcomp
 #' 
 #' @export
 #' 
 pca_plot <-
-  function (fit, k, out.pca, pcs = 1:2,
-            ggplot_call = tsne_plot_ggplot_call,
+  function (fit, k, out.pca, pcs = 1:2, ggplot_call = pca_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots), ...) {
 
+  # Check and process inputs.
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "\"multinom_topic_model_fit\"")
+  if (missing(k))
+    k <- seq(1,ncol(fit$L))
+
+  # If necessary, compute the principal components using prcomp.
+  if (missing(out.pca))
+    out.pca <- prcomp(fit$L,...)
+
+  if (length(k) == 1) {
+      
+    # Prepare the data for plotting.
+    if (is.numeric(pcs))
+      pcs <- colnames(out.pca$x)[pcs]
+    dat <- as.data.frame(cbind(out.pca$x[,pcs],fit$L[,k]))
+    names(dat) <- c(pcs,"loading")
+    
+    # Create the PCA plot.
+    return(pca_plot_ggplot_call(dat,pcs,k))
+  } else {
+
+    # Create a PCA plot for each selected topic, and combine them
+    # using plot_grid. This is done by recursively calling pca_plot.
+    m     <- length(k)
+    plots <- vector("list",m)
+    names(plots) <- k
+    for (i in 1:m)
+      plots[[i]] <- pca_plot(fit,k[i],out.pca,pcs,ggplot_call,
+                             plot_grid_call,...)
+    return(plot_grid_call(plots))
+  }
 }
+
+#' @rdname pca_plot
+#'
+#' @param dat A data frame passed as input to
+#' \code{\link[ggplot2]{ggplot}}, containing, at a minimum, a
+#' "loading" column, and the principal components to be plotted.
+#'
+#' @param pcs Character of length two specifying the two principal
+#'   components to be plotted.
+#' 
+#' @param topic.label The name or number of the topic being plotted;
+#'   it is only used to determine the plot title.
+#' 
+#' @param font.size Font size used in plot.
+#'
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 geom_point
+#' @importFrom cowplot theme_cowplot
+#' 
+#' @export
+#' 
+pca_plot_ggplot_call <- function (dat, pcs, topic.label, font.size = 9)
+  ggplot(dat,aes_string(x = pcs[1],y = pcs[2],fill = "loading")) +
+    geom_point(shape = 21,color = "white",stroke = 0.3) +
+    scale_fill_gradient2(low = "lightskyblue",mid = "gold",high = "orangered",
+                         midpoint = mean(range(dat$loading))) +
+    labs(x = pcs[1],y = pcs[2],title = paste("topic",topic.label)) +
+    theme_cowplot(font.size) +
+    theme(plot.title = element_text(size = font.size,face = "plain"))
 
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model
 #'
@@ -824,11 +910,10 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
 #' @details This is a lightweight interface primarily intended to
 #'   expedite creation of scatterplots for visualizing the loadings or
 #'   topic proportions in 2-d; most of the "heavy lifting" is done by
-#'   ggplot2 (specifically, function \code{\link[ggplot2]{geom_boxplot}}
-#'   in the ggplot2 package). The 2-d embedding itself is computed by
-#'   invoking function \code{\link{tsne_from_topics}} (unless the "tsne"
-#'   input is provided). For more control over the plot's appearance,
-#'   the plot can be customized by modifying the \code{ggplot_call} and
+#'   ggplot2. The 2-d embedding itself is computed by invoking function
+#'   \code{\link{tsne_from_topics}} (unless the "tsne" input is
+#'   provided). For more control over the plot's appearance, the plot
+#'   can be customized by modifying the \code{ggplot_call} and
 #'   \code{plot_grid_call} arguments.
 #'
 #'   An effective 2-d visualization may also necessitate some fine-tunning
@@ -923,7 +1008,7 @@ tsne_plot <-
   } else {
 
     # Create a t-SNE plot for each selected topic, and combine them
-    # using plot_grid. This is done by recursively calling loadings_plot.
+    # using plot_grid. This is done by recursively calling tsne_plot.
     m     <- length(k)
     plots <- vector("list",m)
     names(plots) <- k
