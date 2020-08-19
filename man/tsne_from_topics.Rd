@@ -11,7 +11,7 @@ tsne_from_topics(
   scaling = NULL,
   pca = FALSE,
   normalize = FALSE,
-  perplexity = 100,
+  perplexity = min(100, (min(n, nrow(fit$L)) - 1)/3 - 1),
   theta = 0.1,
   max_iter = 1000,
   eta = 200,
@@ -49,9 +49,10 @@ passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.}
 t-SNE; passed as argument \dQuote{normalize} to
 \code{\link[Rtsne]{Rtsne}}.}
 
-\item{perplexity}{t-SNE perplexity parameter; passed as
-argument \dQuote{perplexity} to \code{\link[Rtsne]{Rtsne}}. Note
-that the default setting may not work for smaller data sets.}
+\item{perplexity}{t-SNE perplexity parameter; passed as argument
+\dQuote{perplexity} to \code{\link[Rtsne]{Rtsne}}. Note that the
+default setting is automatically adapted for smaller data sets 
+since the perplexity is constrained by the size of the data set.}
 
 \item{theta}{t-SNE speed/accuracy trade-off parameter; passed as
 argument \dQuote{theta} to \code{\link[Rtsne]{Rtsne}}.}

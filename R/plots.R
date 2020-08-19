@@ -845,9 +845,10 @@ pca_plot_ggplot_call <- function (dat, pcs, topic.label, font.size = 9)
 #'   t-SNE; passed as argument \dQuote{normalize} to
 #'   \code{\link[Rtsne]{Rtsne}}.
 #'
-#' @param perplexity t-SNE perplexity parameter; passed as
-#'   argument \dQuote{perplexity} to \code{\link[Rtsne]{Rtsne}}. Note
-#'   that the default setting may not work for smaller data sets.
+#' @param perplexity t-SNE perplexity parameter; passed as argument
+#'   \dQuote{perplexity} to \code{\link[Rtsne]{Rtsne}}. Note that the
+#'   default setting is automatically adapted for smaller data sets 
+#'   since the perplexity is constrained by the size of the data set.
 #'
 #' @param theta t-SNE speed/accuracy trade-off parameter; passed as
 #'   argument \dQuote{theta} to \code{\link[Rtsne]{Rtsne}}.
@@ -883,7 +884,8 @@ pca_plot_ggplot_call <- function (dat, pcs, topic.label, font.size = 9)
 #' @export
 #' 
 tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
-                              pca = FALSE, normalize = FALSE, perplexity = 100,
+                              pca = FALSE, normalize = FALSE,
+                              perplexity = min(100,(min(n,nrow(fit$L)) - 1)/3 - 1),
                               theta = 0.1, max_iter = 1000, eta = 200,
                               verbose = TRUE, ...) {
     
