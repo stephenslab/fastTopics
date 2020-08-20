@@ -1,8 +1,10 @@
+#' @rdname select_loadings
+#'
 #' @title Extract or Re-order Multinomial Topic Model Loadings
 #'
 #' @description This function can be used to extract estimates for a
 #'   subset of the count data, or to re-order the rows of the loadings
-#'   matrix.
+#'   (topic proportions) matrix in a multinomial topic model fit.
 #'
 #' @param .data Multinomial Topic Model fit; that is, an object of
 #'   class \dQuote{multinom_topic_model_fit}, such as an output from
@@ -22,11 +24,20 @@
 #'
 #' @importFrom dplyr select
 #'
+#' @aliases select
+#' 
 #' @method select multinom_topic_model_fit
 #'
 #' @export
 #' 
-select.multinom_topic_model_fit <- function (.data, loadings, ...) {
+select.multinom_topic_model_fit <- function (.data, loadings, ...)
+  select_loadings(.data,loadings,...)
+
+#' @rdname select_loadings
+#'
+#' @export
+#'
+select_loadings <- function (.data, loadings, ...) {
   n <- nrow(.data$L)
   if (missing(loadings))
     loadings <- 1:n
@@ -37,4 +48,3 @@ select.multinom_topic_model_fit <- function (.data, loadings, ...) {
   },error = function (e) stop("Invalid selection of loadings"))
   return(.data)
 }
-

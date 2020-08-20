@@ -15,12 +15,14 @@ test_that(paste("Select S3 method correctly subsets and re-orders the",
     fit <- poisson2multinom(fit_poisson_nmf(X,k = k,numiter = 20,
                                             method = "em")))
   
-  # Select and re-order factors and loadings by number.
+  # Select and re-order factors and loadings by number (here, we use
+  # the "select_loadings" function).
   n0   <- 40
   rows <- sample(n,n0)
-  fit1 <- select(fit,rows)
+  fit1 <- select_loadings(fit,rows)
 
-  # Select and re-order factors and loadings by name.
+  # Select and re-order factors and loadings by name (here, we use the
+  # "select" S3 method).
   rows <- rownames(X)[rows]
   fit2 <- select(fit,rows)
   

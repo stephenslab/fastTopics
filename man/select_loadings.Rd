@@ -2,9 +2,13 @@
 % Please edit documentation in R/select.R
 \name{select.multinom_topic_model_fit}
 \alias{select.multinom_topic_model_fit}
+\alias{select}
+\alias{select_loadings}
 \title{Extract or Re-order Multinomial Topic Model Loadings}
 \usage{
 \method{select}{multinom_topic_model_fit}(.data, loadings, ...)
+
+select_loadings(.data, loadings, ...)
 }
 \arguments{
 \item{.data}{Multinomial Topic Model fit; that is, an object of
@@ -24,7 +28,7 @@ A multinomial topic model fit containing the selected
 \description{
 This function can be used to extract estimates for a
   subset of the count data, or to re-order the rows of the loadings
-  matrix.
+  (topic proportions) matrix in a multinomial topic model fit.
 }
 \seealso{
 \code{\link{fit_poisson_nmf}},
