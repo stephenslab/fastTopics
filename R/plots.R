@@ -883,9 +883,10 @@ pca_plot_ggplot_call <- function (dat, pcs, topic.label, font.size = 9)
 #' 
 #' @export
 #' 
-tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL, pca = FALSE,
-                              normalize = FALSE, perplexity = 100, theta = 0.1,
-                              max_iter = 1000, eta = 200, verbose = TRUE, ...) {
+tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
+                              pca = FALSE, normalize = FALSE,
+                              perplexity = 100, theta = 0.1, max_iter = 1000,
+                              eta = 200, verbose = TRUE, ...) {
     
   # Check and process input arguments.
   if (!(inherits(fit,"poisson_nmf_fit") |
@@ -1202,14 +1203,12 @@ structure_plot <-
   num_groups <- length(groups)
   if (missing(topics))
     topics <- order(colMeans(fit$L))
-  if (length(perplexity) == 1) {
-    perplexity        <- rep(perplexity,num_groups)
-    names(perplexity) <- groups
-  }
-  if (length(eta) == 1) {
-    eta        <- rep(eta,num_groups)
-    names(eta) <- groups
-  }
+  if (length(perplexity) == 1)
+    perplexity <- rep(perplexity,num_groups)
+  if (length(eta) == 1)
+    eta <- rep(eta,num_groups)
+  names(perplexity) <- groups
+  names(eta)        <- groups
   if (num_groups == 1) {
 
     # If the ordering of the rows is not provided, determine an
@@ -1237,7 +1236,8 @@ structure_plot <-
       n    <- round(n/n0*table(grouping))
       for (j in levels(grouping)) {
         i    <- which(grouping == j)
-        out  <- tsne_from_topics(select(fit,i),1,n[j],perplexity = perplexity[j],
+        out  <- tsne_from_topics(select(fit,i),1,n[j],
+                                 perplexity = perplexity[j],
                                  eta = eta[j],...)
         rows <- c(rows,i[out$rows[order(out$Y)]])
       }
