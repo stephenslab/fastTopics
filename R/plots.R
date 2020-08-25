@@ -845,10 +845,10 @@ pca_plot_ggplot_call <- function (dat, pcs, topic.label, font.size = 9)
 #'   t-SNE; passed as argument \dQuote{normalize} to
 #'   \code{\link[Rtsne]{Rtsne}}.
 #'
-#' @param perplexity t-SNE perplexity parameter; passed as argument
-#'   \dQuote{perplexity} to \code{\link[Rtsne]{Rtsne}}. Note that the
-#'   default setting is automatically adapted for smaller data sets 
-#'   since the perplexity is constrained by the size of the data set.
+#' @param perplexity t-SNE perplexity parameter, passed as argument
+#'   \dQuote{perplexity} to \code{\link[Rtsne]{Rtsne}}. The perplexity
+#'   is automatically revised if it is too large; see
+#'   \code{\link[Rtsne]{Rtsne}} for more information. 
 #'
 #' @param theta t-SNE speed/accuracy trade-off parameter; passed as
 #'   argument \dQuote{theta} to \code{\link[Rtsne]{Rtsne}}.
@@ -883,18 +883,16 @@ pca_plot_ggplot_call <- function (dat, pcs, topic.label, font.size = 9)
 #' 
 #' @export
 #' 
-tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
-                              pca = FALSE, normalize = FALSE,
-                              perplexity = min(100,(min(n,nrow(fit$L)) - 1)/3 - 1),
-                              theta = 0.1, max_iter = 1000, eta = 200,
-                              verbose = TRUE, ...) {
+tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL, pca = FALSE,
+                              normalize = FALSE, perplexity = 100, theta = 0.1,
+                              max_iter = 1000, eta = 200, verbose = TRUE, ...) {
     
   # Check and process input arguments.
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
          "\"multinom_topic_model_fit\"")
-  
+
   # Randomly subsample, if necessary.
   n0 <- nrow(fit$L)
   if (n < n0)
@@ -908,6 +906,16 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
   if (!is.null(scaling))
     L <- scale.cols(L,scaling)
 
+  # Adjust the perplexity if it is too large for the number of samples.
+  n  <- nrow(L)
+  p0 <- floor((n - 1)/3) - 1
+  if (perplexity > p0) {
+    message(sprintf(paste("Perplexity automatically changed to %d because",
+                          "original setting of %d was too large for the",
+                          "number of samples (%d)"),p0,perplexity,n))
+    perplexity <- p0
+  }
+  
   # Compute the t-SNE embedding.
   out <- Rtsne(L,dims,pca = pca,normalize = normalize,perplexity = perplexity,
                theta = theta,max_iter = max_iter,verbose = verbose,...)
@@ -1123,8 +1131,9 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' 
 #' @param topics Top-to-bottom ordering of the topics in the structure
 #'   plot; topics[1] is shown on the top, topics[2] is shown next, and
-#'   so on. The default is \code{topics = 1:k}, where \code{k} is the
-#'   number of topics (columns of \code{fit$L}).
+#'   so on. If the ordering of the topics is not specified, the topics
+#'   are automaticcally ordered so that the topics with the greatest
+#'   "mass" are at shown at the bottom of the plot.
 #' 
 #' @param colors Colors used to draw topics in Structure plot:
 #'   \code{colors[1]} is the colour used to draw \code{topics[1]},
@@ -1134,6 +1143,18 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' @param gap The horizontal spacing between groups. Ignored if
 #'   \code{grouping} is not provided.
+#'
+#' @param perplexity t-SNE perplexity parameter, passed as argument
+#'   \dQuote{perplexity} to \code{\link{tsne_from_topics}}. When
+#'   code{grouping} is provided, \code{perplexity} may be a vector of
+#'   settings of length equal to \code{levels(grouping)}, which allows
+#'   for a different t-SNE perplexity setting for each group.
+#'
+#' @param eta t-SNE learning rate parameter, passed as argument
+#'   \dQuote{eta} to \code{\link{tsne_from_topics}}. When
+#'   code{grouping} is provided, \code{eta} may be a vector of
+#'   settings of length equal to \code{levels(grouping)}, which allows
+#'   for a different t-SNE learning rate for each group.
 #' 
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{structure_plot_ggplot_call} with your own function to
@@ -1163,7 +1184,8 @@ structure_plot <-
             colors = c("#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3",
                        "#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd",
                        "#ccebc5","#ffed6f"),
-            gap = 1, ggplot_call = structure_plot_ggplot_call, ...) {
+            gap = 1, perplexity = 100, eta = 200,
+            ggplot_call = structure_plot_ggplot_call, ...) {
 
   # Check and process inputs.
   if (!(inherits(fit,"poisson_nmf_fit") |
@@ -1174,19 +1196,27 @@ structure_plot <-
     fit <- poisson2multinom(fit)
   n0 <- nrow(fit$L)
   k  <- ncol(fit$L)
-  if (missing(topics))
-    topics <- 1:k
   if (missing(grouping))
     grouping <- factor(rep(1,n0))
-  ng <- nlevels(grouping)
- 
-  if (ng == 1) {
+  groups     <- levels(grouping)
+  num_groups <- length(groups)
+  if (missing(topics))
+    topics <- order(colMeans(fit$L))
+  if (length(perplexity) == 1) {
+    perplexity        <- rep(perplexity,num_groups)
+    names(perplexity) <- groups
+  }
+  if (length(eta) == 1) {
+    eta        <- rep(eta,num_groups)
+    names(eta) <- groups
+  }
+  if (num_groups == 1) {
 
     # If the ordering of the rows is not provided, determine an
     # ordering by computing a 1-d embedding from the topic
     # proportions.
     if (missing(rows)) {
-      out  <- tsne_from_topics(fit,1,n,...)
+      out  <- tsne_from_topics(fit,1,n,perplexity = perplexity,eta = eta,...)
       rows <- out$rows[order(out$Y)]
     }
 
@@ -1207,7 +1237,8 @@ structure_plot <-
       n    <- round(n/n0*table(grouping))
       for (j in levels(grouping)) {
         i    <- which(grouping == j)
-        out  <- tsne_from_topics(select(fit,i),1,n[j],...)
+        out  <- tsne_from_topics(select(fit,i),1,n[j],perplexity = perplexity[j],
+                                 eta = eta[j],...)
         rows <- c(rows,i[out$rows[order(out$Y)]])
       }
     }

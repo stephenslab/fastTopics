@@ -16,6 +16,8 @@ structure_plot(
   colors = c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462",
     "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"),
   gap = 1,
+  perplexity = 100,
+  eta = 200,
   ggplot_call = structure_plot_ggplot_call,
   ...
 )
@@ -52,8 +54,9 @@ to the 1-d t-SNE embedding.}
 
 \item{topics}{Top-to-bottom ordering of the topics in the structure
 plot; topics[1] is shown on the top, topics[2] is shown next, and
-so on. The default is \code{topics = 1:k}, where \code{k} is the
-number of topics (columns of \code{fit$L}).}
+so on. If the ordering of the topics is not specified, the topics
+are automaticcally ordered so that the topics with the greatest
+"mass" are at shown at the bottom of the plot.}
 
 \item{colors}{Colors used to draw topics in Structure plot:
 \code{colors[1]} is the colour used to draw \code{topics[1]},
@@ -63,6 +66,18 @@ so on. The default colour setting is the from
 
 \item{gap}{The horizontal spacing between groups. Ignored if
 \code{grouping} is not provided.}
+
+\item{perplexity}{t-SNE perplexity parameter, passed as argument
+\dQuote{perplexity} to \code{\link{tsne_from_topics}}. When
+code{grouping} is provided, \code{perplexity} may be a vector of
+settings of length equal to \code{levels(grouping)}, which allows
+for a different t-SNE perplexity setting for each group.}
+
+\item{eta}{t-SNE learning rate parameter, passed as argument
+\dQuote{eta} to \code{\link{tsne_from_topics}}. When
+code{grouping} is provided, \code{eta} may be a vector of
+settings of length equal to \code{levels(grouping)}, which allows
+for a different t-SNE learning rate for each group.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{structure_plot_ggplot_call} with your own function to
