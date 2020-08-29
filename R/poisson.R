@@ -49,7 +49,7 @@ fit_univar_poisson_models <-
 
 # Produces the same result as fit_univar_poisson_models for the
 # special case when the topic proportions matrix, L, is entirely zeros
-# and ones.
+# and ones (the "hard" here refers to a "hard clustering").
 fit_univar_poisson_models_hard <- function (X, L, s = rep(1,nrow(X)),
                                             e = 1e-15) {
   m  <- ncol(X)
@@ -359,7 +359,7 @@ compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
 # (a, b, c). The inputs may be scalars, vectors or matrices.
 compute_poisson_beta_se <- function (f1, a, b, c) {
   se <- suppressWarnings(sqrt(a)/(f1*sqrt(a*c - b^2)))
-  se[a*c < b^2] <- NA
+  se[a*c <= b^2] <- NA
   return(se)
 }
 

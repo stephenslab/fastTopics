@@ -81,6 +81,41 @@ test_that(paste("fit_univar_poisson_models produces same result as",
   expect_equal(fit1$loglik,fit2$loglik,scale = 1,tolerance = 1e-12)
 })
 
+test_that(paste("When all the topic proportions are exactly zero or exactly",
+                "one, the result of diff_count_analysis is nearly the same",
+                "as when all the topic proportions are all almost exactly",
+                 "zero or one"),{
+
+  # Simulate gene expression data.
+  set.seed(1)
+  n   <- 100
+  m   <- 200
+  k   <- 4
+  s   <- 10^runif(n,-1,1)
+  dat <- simulate_poisson_gene_data(n,m,k,s)
+  X   <- dat$X
+  Y   <- as(X,"dgCMatrix")
+  L   <- force_hard_topic_assignments(dat$L)
+  
+  # Fit a Poisson model (approximating a binomial model) to each gene
+  # and topic, and compute the log-fold change statistics.
+  fit1   <- init_poisson_nmf(X,L = L,init.method = "random",
+                             control = list(minval = 1e-8))
+  fit2   <- fit1
+  fit2$L <- round(fit2$L)
+  out1   <- diff_count_analysis(fit1,X,verbose = FALSE)
+  out2   <- diff_count_analysis(fit2,X,verbose = FALSE)
+
+  # The outputted statistics should be the same in both calls to
+  # diff_count_analysis (ignore the standard errors, as these can be
+  # unstable).
+  expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-8)
+  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-8)
+  expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 1e-6)
+  expect_equal(out1$Z,   out2$Z,   scale = 1,tolerance = 1e-5)
+  expect_equal(out1$pval,out2$pval,scale = 1,tolerance = 1e-6)
+})
+
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
                 "true probabilities (relative gene expression levels) when",
                 "provided with the true topic proportions"),{

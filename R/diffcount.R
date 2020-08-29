@@ -123,11 +123,16 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   m <- nrow(fit$F)
   k <- ncol(fit$F)
   
-  # Fit the univariate ("single-count") Poisson models.
+  # Fit the univariate ("single-count") Poisson models. If all the
+  # topic proportions are zeros or ones, we can use the faster
+  # function fit_univar_poisson_models_hard.
   if (verbose)
     cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
-  out <- fit_univar_poisson_models(X,fit$L,s,"em-rcpp",e,numiter,tol,
-                                   verbose = verbose)
+  if (max(pmin(fit$L,1 - fit$L)) == 0)
+    out <- fit_univar_poisson_models_hard(X,fit$L,s,e)
+  else
+    out <- fit_univar_poisson_models(X,fit$L,s,"em-rcpp",e,numiter,tol,
+                                     verbose = verbose)
   F0 <- out$F0
   F1 <- out$F1
   if (all(s == rowSums(X)))

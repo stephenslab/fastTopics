@@ -3,6 +3,7 @@
 \name{fit_poisson_nmf}
 \alias{fit_poisson_nmf}
 \alias{init_poisson_nmf}
+\alias{init_poisson_nmf_from_clusters}
 \alias{fit_poisson_nmf_control_default}
 \title{Fit or Re-fit Poisson Non-negative Matrix Factorization}
 \usage{
@@ -30,6 +31,8 @@ init_poisson_nmf(
   control = list(),
   verbose = TRUE
 )
+
+init_poisson_nmf_from_clusters(X, clusters, ...)
 
 fit_poisson_nmf_control_default()
 }
@@ -116,6 +119,8 @@ provided, input argument \code{k} should be specified instead.}
 \item{betamax}{Initial setting for the upper bound on the
 extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 of Ang & Gillis (2019).}
+
+\item{clusters}{Describe input argument "clusters" here.}
 }
 \value{
 Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}

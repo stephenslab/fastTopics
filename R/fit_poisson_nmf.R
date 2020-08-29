@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-166).\n")
+    cat("(fastTopics 0.3-167).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -571,7 +571,8 @@ init_poisson_nmf <-
               "instead.\n")
         F <- rand(m,k)
         L <- rand(n,k)
-      } else {
+    } else {
+        
         # Fit the loadings by running a small number of sequential
         # co-ordinate descent (SCD) updates.
         if (verbose)
@@ -647,6 +648,17 @@ init_poisson_nmf <-
               progress  = progress)
   class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
+}
+
+
+#' @rdname fit_poisson_nmf
+#'
+#' @param clusters Describe input argument "clusters" here.
+#' 
+#' @export
+#' 
+init_poisson_nmf_from_clusters <- function (X, clusters, ...) {
+  return(init_poisson_nmf(X,F,L...))
 }
 
 # This implements the core part of fit_poisson_nmf.
