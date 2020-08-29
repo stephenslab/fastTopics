@@ -202,9 +202,15 @@ are
 \frac{\partial\ell}{f_1} &= 
 \sum_{i=1}^n (x_i/\lambda_i - t_i) \times q_i.
 \end{align}
-We use a quasi-Newton method implemented in the R function {\tt
-  optim} to minimize the negative log-likelihood
-\eqref{eq:loglik-poisson}.
+We use a quasi-Newton method implemented in the R function {\tt optim}
+to minimize the negative log-likelihood
+\eqref{eq:loglik-poisson}. Note that in the special case in which all
+the topic proportions are either 0 or 1, the MLEs have a simple
+closed-form solution:
+\begin{align}
+f_0 &= \frac{\sum_{i=1}^n (1 - q_i) x_i}{\sum_{i=1}^n (1 - q_i) t_i} \\
+f_1 &= \frac{\sum_{i=1}^n q_i x_i}{\sum_{i=1}^n q_i t_i} 
+\end{align}
 
 \subsection{EM for Poisson model} 
 
