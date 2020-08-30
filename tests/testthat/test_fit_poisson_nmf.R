@@ -14,8 +14,8 @@ test_that(paste("init_poisson_nmf works when both F, L are provided, and",
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
-  out  <- generate_test_data(80,100,3)
-  X    <- out$X
+  out <- generate_test_data(80,100,3)
+  X   <- out$X
 
   # Initialize the Poisson NMF fit in different ways.
   fit0 <- init_poisson_nmf(X,F = out$F,L = out$L)
@@ -29,6 +29,39 @@ test_that(paste("init_poisson_nmf works when both F, L are provided, and",
   expect_s3_class(fit2,"poisson_nmf_fit")
   expect_s3_class(fit3,"poisson_nmf_fit")
   expect_s3_class(fit4,"poisson_nmf_fit")
+})
+
+test_that("init_poisson_nmf_from_clustering correctly estimates factors",{
+
+  # Simulate a "toy" gene expression data set.
+  set.seed(1)
+  k   <- 3
+  out <- simulate_toy_gene_data(n = 400,m = 40,k = k,s = 1000)
+  X   <- out$X
+  Y   <- as(X,"dgCMatrix")
+
+  # Force "hard" topic assignments, and fit the factors matrix naively
+  # using the SCD updates.
+  fit0 <- init_poisson_nmf(X,init.method = "random",
+                           L = rowSums(X)*force_hard_topic_assignments(out$L))
+  capture.output(fit1 <- fit_poisson_nmf(X,fit0 = fit0,update.loadings = NULL,
+                                         numiter = 20,method = "scd"))
+
+  # Estimate the factors matrix more intelligently using
+  # init_poisson_nmf_from_clustering.
+  clusters <- factor(apply(out$L,1,which.max))
+  levels(clusters) <- paste0("k",1:k)
+  fit2 <- init_poisson_nmf_from_clustering(X,clusters)
+  fit3 <- init_poisson_nmf_from_clustering(Y,clusters)
+  fit2 <- with(fit2,rescale.factors(F,L))
+  fit3 <- with(fit3,rescale.factors(F,L))
+
+  # Both approaches should result in nearly the same estimates for the
+  # factors and loadings matrices.
+  expect_equal(fit1$L,fit2$L,scale = 1,tolerance = 1e-8)
+  expect_equal(fit1$L,fit3$L,scale = 1,tolerance = 1e-8)
+  expect_equal(fit1$F,fit2$F,scale = 1,tolerance = 1e-8)
+  expect_equal(fit1$F,fit3$F,scale = 1,tolerance = 1e-8)
 })
 
 test_that(paste("fit$progress$loglik and fit$progress$dev agree with",

@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-167).\n")
+    cat("(fastTopics 0.3-168).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -499,6 +499,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #'   extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 #'   of Ang & Gillis (2019).
 #'
+#' @importFrom Matrix rowSums
+#' 
 #' @export
 #' 
 init_poisson_nmf <-
@@ -650,15 +652,35 @@ init_poisson_nmf <-
   return(fit)
 }
 
-
 #' @rdname fit_poisson_nmf
 #'
 #' @param clusters Describe input argument "clusters" here.
+#'
+#' @importFrom Matrix rowSums
 #' 
 #' @export
 #' 
-init_poisson_nmf_from_clusters <- function (X, clusters, ...) {
-  return(init_poisson_nmf(X,F,L...))
+init_poisson_nmf_from_clustering <- function (X, clusters, ...) {
+  n <- nrow(X)
+  m <- ncol(X)  
+  k <- nlevels(clusters)
+  L <- matrix(0,n,k)
+  rownames(L) <- rownames(X)
+  colnames(L) <- levels(clusters)
+  for (j in levels(clusters)) {
+    i      <- which(clusters == j)
+    L[i,j] <- 1
+  }
+  L <- rowSums(X) * L
+  F <- matrix(0,m,k)
+  rownames(F) <- colnames(X)
+  colnames(F) <- levels(clusters)
+  for (j in levels(clusters)) {
+    rows <- which(clusters == j)
+    for (i in 1:m)
+      F[i,j] <- sum(X[rows,i])/sum(L[rows,j])
+  }
+  return(init_poisson_nmf(X,F,L,...))
 }
 
 # This implements the core part of fit_poisson_nmf.

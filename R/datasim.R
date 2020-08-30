@@ -136,12 +136,12 @@ simulate_toy_gene_data <- function (n, m, k, s) {
     X[i,] <- rmultinom(1,s,P[i,])
 
   # Add row and column names to the outputs.
-  rownames(X) <- paste("s",1:n)
-  rownames(L) <- paste("s",1:n)
-  colnames(X) <- paste("g",1:m)
-  rownames(F) <- paste("g",1:m)
-  colnames(L) <- paste("k",1:k)
-  colnames(F) <- paste("k",1:k)
+  rownames(X) <- paste0("s",1:n)
+  rownames(L) <- paste0("s",1:n)
+  colnames(X) <- paste0("g",1:m)
+  rownames(F) <- paste0("g",1:m)
+  colnames(L) <- paste0("k",1:k)
+  colnames(F) <- paste0("k",1:k)
   
   # Outputs the n x m counts matrix (X), and the gene frequencies
   # (F) and topic proportions (L) used to generate counts.

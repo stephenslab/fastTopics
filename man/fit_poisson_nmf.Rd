@@ -3,7 +3,7 @@
 \name{fit_poisson_nmf}
 \alias{fit_poisson_nmf}
 \alias{init_poisson_nmf}
-\alias{init_poisson_nmf_from_clusters}
+\alias{init_poisson_nmf_from_clustering}
 \alias{fit_poisson_nmf_control_default}
 \title{Fit or Re-fit Poisson Non-negative Matrix Factorization}
 \usage{
@@ -32,7 +32,7 @@ init_poisson_nmf(
   verbose = TRUE
 )
 
-init_poisson_nmf_from_clusters(X, clusters, ...)
+init_poisson_nmf_from_clustering(X, clusters, ...)
 
 fit_poisson_nmf_control_default()
 }

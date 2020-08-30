@@ -1,6 +1,12 @@
 to do
 =====
 
++ Implement init_poisson_nmf_from_clustering.
+
++ Fill out roxygen2 docs for init_poisson_nmf_from_clustering.
+
++ Add test(s) for init_poisson_nmf_from_clustering.
+
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.

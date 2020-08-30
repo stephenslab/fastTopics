@@ -48,8 +48,8 @@ fit_univar_poisson_models <-
 }
 
 # Produces the same result as fit_univar_poisson_models for the
-# special case when the topic proportions matrix, L, is entirely zeros
-# and ones (the "hard" here refers to a "hard clustering").
+# special case of "hard" topic assignments---that is, when the topic
+# proportions matrix, L, is entirely zeros and ones.
 fit_univar_poisson_models_hard <- function (X, L, s = rep(1,nrow(X)),
                                             e = 1e-15) {
   m  <- ncol(X)
