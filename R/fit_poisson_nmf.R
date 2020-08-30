@@ -438,7 +438,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-169).\n")
+    cat("(fastTopics 0.3-170).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -661,6 +661,7 @@ init_poisson_nmf <-
 #' @param \dots Additional arguments passed to \code{init_poisson_nmf}.
 #' 
 #' @importFrom Matrix rowSums
+#' @importFrom Matrix colSums
 #' 
 #' @export
 #' 
@@ -679,7 +680,9 @@ init_poisson_nmf_from_clustering <- function (X, clusters, ...) {
   if (!(is.factor(clusters) & length(clusters) == n))
     stop("Input argument \"clusters\" should be a factor with one entry ",
          "for each row of \"X\"")
-
+  if (any(table(clusters) == 0))
+    stop("Each level must appear at least once in factor \"clusters\"")
+  
   # Initialize the loadings matrix from the clustering.
   k           <- nlevels(clusters)
   L           <- matrix(0,n,k)
@@ -697,11 +700,10 @@ init_poisson_nmf_from_clustering <- function (X, clusters, ...) {
   rownames(F) <- colnames(X)
   colnames(F) <- levels(clusters)
   for (j in levels(clusters)) {
-    rows <- which(clusters == j)
-    for (i in 1:m)
-      F[i,j] <- sum(X[rows,i])/sum(L[rows,j])
+    i     <- which(clusters == j)
+    F[,j] <- colSums(X[i,])/sum(L[i,j])
   }
-
+  
   # Output the Poisson NMF fit object.
   return(init_poisson_nmf(X,F,L,...))
 }

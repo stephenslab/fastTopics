@@ -126,10 +126,11 @@ the rows of \code{X}.}
 \item{\dots}{Additional arguments passed to \code{init_poisson_nmf}.}
 }
 \value{
-Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}
-return an object capturing the optimization algorithm state (for
-\code{init_poisson_nmf}, this is the initial state). It is a list
-with the following elements:
+\code{init_poisson_nmf},
+\code{init_poisson_nmf_from_clustering} and \code{fit_poisson_nmf}
+all return an object capturing the optimization algorithm state
+(for \code{init_poisson_nmf}, this is the initial state). It is a
+list with the following elements:
 
 \item{F}{A matrix containing the current best estimates of the
   factors.}
