@@ -1,8 +1,6 @@
 to do
 =====
 
-+ Implement init_poisson_nmf_from_clustering.
-
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.

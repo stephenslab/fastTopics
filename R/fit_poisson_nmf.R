@@ -684,8 +684,8 @@ init_poisson_nmf_from_clustering <- function (X, clusters, ...) {
     stop("Each level must appear at least once in factor \"clusters\"")
   
   # Initialize the loadings matrix from the clustering.
-  k           <- nlevels(clusters)
-  L           <- matrix(0,n,k)
+  k <- nlevels(clusters)
+  L <- matrix(0,n,k)
   rownames(L) <- rownames(X)
   colnames(L) <- levels(clusters)
   for (j in levels(clusters)) {
@@ -696,7 +696,7 @@ init_poisson_nmf_from_clustering <- function (X, clusters, ...) {
 
   # Initialize the factors matrix; the MLEs are available in
   # closed-form in this case.
-  F           <- matrix(0,m,k)
+  F <- matrix(0,m,k)
   rownames(F) <- colnames(X)
   colnames(F) <- levels(clusters)
   for (j in levels(clusters)) {
