@@ -55,7 +55,7 @@
 #' promote numerical stability.
 #'
 #' \emph{TO DO:} Mention that both the log-likelihood (or deviance)
-#' and residuals of the KKT system are used to monitor
+#' and residuals of the KKT system can be used to monitor
 #' progress. Explain what are the KKT conditions, and that the
 #' residuals should vanish at a solution.
 #' 
@@ -179,10 +179,11 @@
 #'   iteration. For interpretation of the columns, see the description
 #'   of the \code{progress} return value.
 #'
-#' @return Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}
-#' return an object capturing the optimization algorithm state (for
-#' \code{init_poisson_nmf}, this is the initial state). It is a list
-#' with the following elements:
+#' @return \code{init_poisson_nmf},
+#' \code{init_poisson_nmf_from_clustering} and \code{fit_poisson_nmf}
+#' all return an object capturing the optimization algorithm state
+#' (for \code{init_poisson_nmf}, this is the initial state). It is a
+#' list with the following elements:
 #'
 #' \item{F}{A matrix containing the current best estimates of the
 #'   factors.}
@@ -277,7 +278,7 @@
 #'   and imputation. \emph{bioRxiv} doi:10.1101/321802.
 #'
 #'   Ke, Z. & Wang, M. (2017). A new SVD approach to optimal topic
-#'   estimation. \emph{ArXiv} \url{http://arxiv.org/abs/1704.07016}
+#'   estimation. \emph{arXiv} \url{http://arxiv.org/abs/1704.07016}
 #'
 #' @examples
 #' # Simulate a 80 x 100 data set.
@@ -437,7 +438,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-168).\n")
+    cat("(fastTopics 0.3-169).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -654,17 +655,34 @@ init_poisson_nmf <-
 
 #' @rdname fit_poisson_nmf
 #'
-#' @param clusters Describe input argument "clusters" here.
+#' @param clusters A factor specifying a grouping, or clustering, of
+#'   the rows of \code{X}.
 #'
+#' @param \dots Additional arguments passed to \code{init_poisson_nmf}.
+#' 
 #' @importFrom Matrix rowSums
 #' 
 #' @export
 #' 
 init_poisson_nmf_from_clustering <- function (X, clusters, ...) {
+
+  # Check input X.
+  if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
+    stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
+         "a \"dgCMatrix\")")
+
+  # Get the number of rows (n) and columns (m) of the data matrix,
   n <- nrow(X)
-  m <- ncol(X)  
-  k <- nlevels(clusters)
-  L <- matrix(0,n,k)
+  m <- ncol(X)
+  
+  # Check "clusters" input.
+  if (!(is.factor(clusters) & length(clusters) == n))
+    stop("Input argument \"clusters\" should be a factor with one entry ",
+         "for each row of \"X\"")
+
+  # Initialize the loadings matrix from the clustering.
+  k           <- nlevels(clusters)
+  L           <- matrix(0,n,k)
   rownames(L) <- rownames(X)
   colnames(L) <- levels(clusters)
   for (j in levels(clusters)) {
@@ -672,7 +690,10 @@ init_poisson_nmf_from_clustering <- function (X, clusters, ...) {
     L[i,j] <- 1
   }
   L <- rowSums(X) * L
-  F <- matrix(0,m,k)
+
+  # Initialize the factors matrix; the MLEs are available in
+  # closed-form in this case.
+  F           <- matrix(0,m,k)
   rownames(F) <- colnames(X)
   colnames(F) <- levels(clusters)
   for (j in levels(clusters)) {
@@ -680,6 +701,8 @@ init_poisson_nmf_from_clustering <- function (X, clusters, ...) {
     for (i in 1:m)
       F[i,j] <- sum(X[rows,i])/sum(L[rows,j])
   }
+
+  # Output the Poisson NMF fit object.
   return(init_poisson_nmf(X,F,L,...))
 }
 

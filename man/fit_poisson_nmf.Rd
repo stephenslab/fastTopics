@@ -120,7 +120,10 @@ provided, input argument \code{k} should be specified instead.}
 extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 of Ang & Gillis (2019).}
 
-\item{clusters}{Describe input argument "clusters" here.}
+\item{clusters}{A factor specifying a grouping, or clustering, of
+the rows of \code{X}.}
+
+\item{\dots}{Additional arguments passed to \code{init_poisson_nmf}.}
 }
 \value{
 Both \code{init_poisson_nmf} and \code{fit_poisson_nmf}
@@ -244,7 +247,7 @@ An additional re-scaling step is performed after each update to
 promote numerical stability.
 
 \emph{TO DO:} Mention that both the log-likelihood (or deviance)
-and residuals of the KKT system are used to monitor
+and residuals of the KKT system can be used to monitor
 progress. Explain what are the KKT conditions, and that the
 residuals should vanish at a solution.
 
@@ -402,5 +405,5 @@ Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
   and imputation. \emph{bioRxiv} doi:10.1101/321802.
 
   Ke, Z. & Wang, M. (2017). A new SVD approach to optimal topic
-  estimation. \emph{ArXiv} \url{http://arxiv.org/abs/1704.07016}
+  estimation. \emph{arXiv} \url{http://arxiv.org/abs/1704.07016}
 }
