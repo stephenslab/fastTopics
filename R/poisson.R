@@ -50,27 +50,22 @@ fit_univar_poisson_models <-
 # Produces the same result as fit_univar_poisson_models for the
 # special case of "hard" topic assignments---that is, when the topic
 # proportions matrix, L, is entirely zeros and ones.
+#
+#' @importFrom Matrix colSums
 fit_univar_poisson_models_hard <- function (X, L, s = rep(1,nrow(X)),
                                             e = 1e-15) {
-  m  <- ncol(X)
-  k  <- ncol(L)
-  F0 <- matrix(0,m,k)
-  F1 <- matrix(0,m,k)
+  m      <- ncol(X)
+  k      <- ncol(L)
+  F0     <- matrix(0,m,k)
+  F1     <- matrix(0,m,k)
   loglik <- matrix(0,m,k)
   for (j in 1:k) {
-    for (i in 1:m) {
-      a       <- which(L[,j] == 0)
-      b       <- which(L[,j] == 1)
-      f0      <- sum(X[a,i])/sum(s[a])
-      f1      <- sum(X[b,i])/sum(s[b])
-      u0      <- f0*s[a]
-      u1      <- f1*s[b]
-      F0[i,j] <- f0
-      F1[i,j] <- f1
-      loglik[i,j] <- sum(X[a,i]*log(u0+e) - u0) +
-                     sum(X[b,i]*log(u1+e) - u1)
-          
-    } 
+    i0         <- which(L[,j] == 0)
+    i1         <- which(L[,j] == 1)
+    F0[,j]     <- colSums(X[i0,])/sum(s[i0])
+    F1[,j]     <- colSums(X[i1,])/sum(s[i1])
+    loglik[,j] <- -(cost(t(X[i0,]),F0[,j],s[i0],e,"poisson") +
+                    cost(t(X[i1,]),F1[,j],s[i1],e,"poisson"))
   }
   return(list(F0 = F0,F1 = F1,loglik = loglik))
 }

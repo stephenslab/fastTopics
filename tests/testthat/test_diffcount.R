@@ -54,7 +54,8 @@ test_that(paste("All variants of fit_univar_poisson_models and",
 
 test_that(paste("fit_univar_poisson_models produces same result as",
                 "fit_univar_poisson_models_hard when L is a matrix",
-                "entirely of zeros and ones"),{
+                "with hard topic assignments only (that is, entirely",
+                "zeros and ones)"),{
     
   # Simulate gene expression data.
   set.seed(1)
@@ -73,18 +74,22 @@ test_that(paste("fit_univar_poisson_models produces same result as",
   # Estimate the univariate Poisson model parameters assuming all the
   # topic proportions are zeros and ones.
   fit2 <- fit_univar_poisson_models_hard(X,L,s)
+  fit3 <- fit_univar_poisson_models_hard(Y,L,s)
 
   # Both methods should produce the same parameter estimates, and the
   # same log-likelihood values.
   expect_equal(fit1$F0,fit2$F0,scale = 1,tolerance = 1e-15)
+  expect_equal(fit1$F0,fit3$F0,scale = 1,tolerance = 1e-15)
   expect_equal(fit1$F1,fit2$F1,scale = 1,tolernace = 1e-15)
-  expect_equal(fit1$loglik,fit2$loglik,scale = 1,tolerance = 1e-12)
+  expect_equal(fit1$F1,fit3$F1,scale = 1,tolernace = 1e-15)
+  expect_equal(fit1$loglik,fit2$loglik,scale = 1,tolerance = 1e-13)
+  expect_equal(fit1$loglik,fit3$loglik,scale = 1,tolerance = 1e-13)
 })
 
 test_that(paste("When all the topic proportions are exactly zero or exactly",
                 "one, the result of diff_count_analysis is nearly the same",
                 "as when all the topic proportions are all almost exactly",
-                 "zero or one"),{
+                "zero or one"),{
 
   # Simulate gene expression data.
   set.seed(1)

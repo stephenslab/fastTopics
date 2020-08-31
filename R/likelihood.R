@@ -92,6 +92,13 @@ deviance_poisson_nmf <- function (X, fit, e = 1e-8)
 cost <- function (X, A, B, e = 1e-8, family = c("poisson","multinom"),
                   version) {
 
+  # For the special case of a rank-1 factorization, A and B may need
+  # to be vectors, in which case we need to force them to be matrices.
+  if (!is.matrix(A))
+    A <- matrix(A)
+  if (!is.matrix(B))
+    B <- matrix(B,1,ncol(X))
+    
   # Check and process "model" and "version" input arguments.
   family  <- match.arg(family)
   poisson <- family == "poisson"
