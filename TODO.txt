@@ -1,9 +1,6 @@
 to do
 =====
 
-+ Update roxygen2 docs to reflect addition of
-  fit_univar_poisson_models_hard.
-
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.

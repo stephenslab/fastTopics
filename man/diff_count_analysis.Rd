@@ -62,9 +62,12 @@ topics, and an additional vector:
 }
 \description{
 Implements methods for analysis of differential count
-  expression using a topic model. These methods are motivated by gene
-  expression studies, but could have other uses, such as identiying
-  \dQuote{key words} in topics derived from text documents.
+expression using a topic model. These methods are motivated by gene
+expression studies, but could have other uses, such as identifying
+\dQuote{key words} in topics derived from text documents. A special
+case of "hard" topic assignments is also implemented---that is, the
+topic proportions are all zeros and ones---which involves greatly
+simplified (and faster) calculations.
 }
 \details{
 The methods are based on the following univariate
