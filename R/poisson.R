@@ -56,6 +56,7 @@ fit_univar_poisson_models_hard <- function (X, L, s = rep(1,nrow(X)),
                                             e = 1e-15) {
   m      <- ncol(X)
   k      <- ncol(L)
+  L      <- round(L)
   F0     <- matrix(0,m,k)
   F1     <- matrix(0,m,k)
   loglik <- matrix(0,m,k)

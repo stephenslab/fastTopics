@@ -101,24 +101,31 @@ test_that(paste("When all the topic proportions are exactly zero or exactly",
   X   <- dat$X
   Y   <- as(X,"dgCMatrix")
   L   <- force_hard_topic_assignments(dat$L)
+  clusters         <- factor(apply(dat$L,1,which.max))
+  levels(clusters) <- paste0("k",1:k)
   
   # Fit a Poisson model (approximating a binomial model) to each gene
   # and topic, and compute the log-fold change statistics.
-  fit1   <- init_poisson_nmf(X,L = L,init.method = "random",
-                             control = list(minval = 1e-8))
-  fit2   <- fit1
-  fit2$L <- round(fit2$L)
-  out1   <- diff_count_analysis(fit1,X,verbose = FALSE)
-  out2   <- diff_count_analysis(fit2,X,verbose = FALSE)
+  fit1 <- init_poisson_nmf(X,L = rowSums(X)*L,init.method = "random",
+                           control = list(minval = 1e-8))
+  fit2 <- init_poisson_nmf_from_clustering(X,clusters)
+  out1 <- diff_count_analysis(fit1,X,verbose = FALSE)
+  out2 <- suppressMessages(diff_count_analysis(fit2,X,verbose = FALSE))
+  out3 <- suppressMessages(diff_count_analysis(fit2,Y,verbose = FALSE))
 
   # The outputted statistics should be the same in both calls to
   # diff_count_analysis (ignore the standard errors, as these can be
   # unstable).
-  expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 1e-6)
+  expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-10)
+  expect_equal(out1$F0,  out3$F0,  scale = 1,tolerance = 1e-10)
+  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e108)
+  expect_equal(out1$F1,  out3$F1,  scale = 1,tolerance = 1e108)
+  expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 1e-8)
+  expect_equal(out1$beta,out3$beta,scale = 1,tolerance = 1e-8)
   expect_equal(out1$Z,   out2$Z,   scale = 1,tolerance = 1e-5)
-  expect_equal(out1$pval,out2$pval,scale = 1,tolerance = 1e-6)
+  expect_equal(out1$Z,   out3$Z,   scale = 1,tolerance = 1e-5)
+  expect_equal(out1$pval,out2$pval,scale = 1,tolerance = 1e-5)
+  expect_equal(out1$pval,out3$pval,scale = 1,tolerance = 1e-5)
 })
 
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
