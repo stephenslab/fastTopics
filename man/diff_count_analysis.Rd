@@ -18,7 +18,7 @@ diff_count_analysis(
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
 \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
 as input, the corresponding multinomial topic model fit is
-automatically recovered using \code{link{poisson2multinom}}.}
+automatically recovered using \code{\link{poisson2multinom}}.}
 
 \item{X}{The n x m counts matrix. It can be a sparse matrix (class
 \code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).}
