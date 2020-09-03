@@ -20,7 +20,7 @@
 #' @importFrom irlba irlba
 #' 
 topic_score <- function (X, k, k0 = ifelse(k < 10,ceiling(1.5*k),k + 2),
-                         m = 3*k, Mquantile = 0) {
+                         m = 3*k, nstart = 4, Mquantile = 0) {
 
   # M0 = D0*1/n, where D0(j,i) is the expected frequency of word j
   # in document i.
@@ -36,7 +36,7 @@ topic_score <- function (X, k, k0 = ifelse(k < 10,ceiling(1.5*k),k + 2),
   R  <- V[,-1,drop = FALSE]/v1
   
   # Step 2: Perform "Vertex Hunting".
-  V <- vertex_hunting(R,k0,m)
+  V <- vertex_hunting(R,k0,m,nstart)
   
   # Step 3: Recover the normalized topic matrix (NTM).
   P <- cbind(R,1) %*% solve(cbind(V,1))
@@ -64,11 +64,11 @@ topic_score <- function (X, k, k0 = ifelse(k < 10,ceiling(1.5*k),k + 2),
 #' @importFrom utils combn
 #' @importFrom stats kmeans
 #' 
-vertex_hunting <- function (R, k0, m) {
+vertex_hunting <- function (R, k0, m, nstart) {
   k <- ncol(R) + 1
   
   # Step 2a.
-  X <- kmeans(R,m,iter.max = 100)$centers
+  X <- kmeans(R,m,iter.max = 100,nstart = nstart)$centers
 
   # Step 2b'.
   Y  <- tcrossprod(X)
