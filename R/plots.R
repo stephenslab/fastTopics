@@ -394,7 +394,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   one entry per log-fold change statistic (row of
 #'   \code{diff_count_result$beta}). When not specified, the row names
 #'   of \code{diff_count_result$beta} are used, if available. Labels are
-#'   added to the plot using \code{link[ggrepel]{geom_text_repel}}.
+#'   added to the plot using \code{\link[ggrepel]{geom_text_repel}}.
 #'
 #' @param y The measure of support to plot in the y-axis: use \code{y
 #'   = "zscore"} to plot the z-score magnitudes; use \code{y = "pvalue"}
@@ -406,7 +406,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' @param label_above_quantile Only z-scores or p-values (depending on
 #'   choice of \code{y}) above this quantile are labeled in the volcano
-#'   plot. \code{link[ggrepel]{geom_text_repel}} will attempt to label
+#'   plot. \code{\link[ggrepel]{geom_text_repel}} will attempt to label
 #'   all points when \code{label_above_quantile = 0}.
 #'
 #' @param subsample_below_quantile A number between 0 and 1. If
@@ -1110,7 +1110,7 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
 #'   as input, the corresponding multinomial topic model fit is
-#'   automatically recovered using \code{link{poisson2multinom}}.
+#'   automatically recovered using \code{\link{poisson2multinom}}.
 #'
 #' @param n The maximum number of samples (rows of the loadings
 #'   matrix) to include in the plot. Including large numbers (e.g.,
@@ -1259,7 +1259,7 @@ structure_plot <-
 #' @param x An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
 #'   as input, the corresponding multinomial topic model fit is
-#'   automatically recovered using \code{link{poisson2multinom}}.
+#'   automatically recovered using \code{\link{poisson2multinom}}.
 #'
 #' @importFrom graphics plot
 #' 

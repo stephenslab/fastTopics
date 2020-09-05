@@ -32,7 +32,7 @@ structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 9)
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
 \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
 as input, the corresponding multinomial topic model fit is
-automatically recovered using \code{link{poisson2multinom}}.}
+automatically recovered using \code{\link{poisson2multinom}}.}
 
 \item{n}{The maximum number of samples (rows of the loadings
 matrix) to include in the plot. Including large numbers (e.g.,
@@ -90,7 +90,7 @@ function \code{structure_plot}).}
 \item{x}{An object of class \dQuote{poisson_nmf_fit} or
 \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
 as input, the corresponding multinomial topic model fit is
-automatically recovered using \code{link{poisson2multinom}}.}
+automatically recovered using \code{\link{poisson2multinom}}.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns

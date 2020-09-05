@@ -55,7 +55,7 @@ volcano plot are labeled. This should be a character vector with
 one entry per log-fold change statistic (row of
 \code{diff_count_result$beta}). When not specified, the row names
 of \code{diff_count_result$beta} are used, if available. Labels are
-added to the plot using \code{link[ggrepel]{geom_text_repel}}.}
+added to the plot using \code{\link[ggrepel]{geom_text_repel}}.}
 
 \item{y}{The measure of support to plot in the y-axis: use \code{y
 = "zscore"} to plot the z-score magnitudes; use \code{y = "pvalue"}
@@ -67,7 +67,7 @@ than \code{betamax} are set to \code{betamax} or \code{-betamax}.}
 
 \item{label_above_quantile}{Only z-scores or p-values (depending on
 choice of \code{y}) above this quantile are labeled in the volcano
-plot. \code{link[ggrepel]{geom_text_repel}} will attempt to label
+plot. \code{\link[ggrepel]{geom_text_repel}} will attempt to label
 all points when \code{label_above_quantile = 0}.}
 
 \item{subsample_below_quantile}{A number between 0 and 1. If
