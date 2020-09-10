@@ -69,6 +69,12 @@
 #' @param e A small, positive scalar included in some computations to
 #'   avoid logarithms of zero and division by zero.
 #'
+#' @param betamax Since the calculation of the standard deviations and
+#'   z-scores can be numerically unstable for large log-fold change
+#'   estimates, particularly in large data sets, an upper limit on the
+#'   estimated log-fold change can be used to improve the numerical
+#'   accuracy of the calculations.
+#' 
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
 #'
@@ -97,7 +103,8 @@
 #' @export
 #' 
 diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
-                                 tol = 1e-8, e = 1e-15, verbose = TRUE) {
+                                 tol = 1e-8, e = 1e-15, betamax = 10,
+                                 verbose = TRUE) {
 
   # CHECK & PROCESS INPUTS
   # ----------------------
@@ -145,6 +152,11 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
       warning("One or more F0, F1 estimates are close to or greater than 1, ",
               "so Poisson approximation to binomial may be poor; see ",
               "help(diff_count_analysis) for more information")
+
+  # Due to numerical instability of some calculations, log-fold
+  # changes (beta) surpassing a threshold are set to this threshold.
+  i     <- which(log2(F1/F0) > betamax)
+  F1[i] <- 2^betamax*F0[i]
   
   # Compute the log-fold change statistics, including standard errors
   # and z-scores.

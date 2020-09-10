@@ -305,7 +305,7 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e = 1e-15) {
   b  <- sum(s*q)
   c  <- sum(x*(q/u)^2)
   se <- compute_poisson_beta_se(f1,a,b,c)
-
+  
   # Return the (base-2) log-fold change statistic (beta), the standard
   # error of the log-fold change (se), the z-score (z), and the
   # two-tailed p-value (pval).

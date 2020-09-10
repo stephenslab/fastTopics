@@ -11,6 +11,7 @@ diff_count_analysis(
   numiter = 100,
   tol = 1e-08,
   e = 1e-15,
+  betamax = 10,
   verbose = TRUE
 )
 }
@@ -36,6 +37,12 @@ change between two successive updates is less than \code{tol}.}
 
 \item{e}{A small, positive scalar included in some computations to
 avoid logarithms of zero and division by zero.}
+
+\item{betamax}{Since the calculation of the standard deviations and
+z-scores can be numerically unstable for large log-fold change
+estimates, particularly in large data sets, an upper limit on the
+estimated log-fold change can be used to improve the numerical
+accuracy of the calculations.}
 
 \item{verbose}{When \code{verbose = TRUE}, progress information is
 printed to the console.}

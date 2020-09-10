@@ -136,7 +136,7 @@ g <- function (par) {
 print(cbind(c(-sum(x)/f0^2,-f1/f0*sum(s*q)),
             grad(g,c(f0,b))))
 
-# Second-order derivatives w.r.t. f0, beta.
+# More second-order derivatives w.r.t. f0, beta.
 g <- function (par) {
   f0 <- par[1]
   b  <- par[2]
