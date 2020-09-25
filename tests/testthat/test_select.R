@@ -1,7 +1,8 @@
 context("select")
 
 test_that(paste("Select S3 method correctly subsets and re-orders the",
-                "factors and loadings in a small example"),{
+                "factors and loadings in a small example; also check ",
+                "merge_topics"),{
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
@@ -33,4 +34,13 @@ test_that(paste("Select S3 method correctly subsets and re-orders the",
 
   # An error is thrown when the selected loadings do not exist.
   expect_error(select(fit,loadings = n + 1))
+
+  # Check that merge_topics does the right thing.
+  fit3 <- merge_topics(fit2,k = 1:2)
+  fit4 <- merge_topics(fit2,k = c("k1","k2"))
+  expect_equal(dim(fit3$F),c(100,2))
+  expect_equal(dim(fit3$L),c(40,2))
+  expect_equal(colnames(fit3$F),c("k3","k1+k2"))
+  expect_equal(colnames(fit3$L),c("k3","k1+k2"))
+  expect_equal(fit3,fit4)
 })
