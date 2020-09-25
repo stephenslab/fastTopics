@@ -1,6 +1,9 @@
 to do
 =====
 
++ Contribute to SeuratWrappers:
+  https://github.com/satijalab/seurat-wrappers
+
 + Implement backtracking line search option for SCD algorithm.
 
 + Update the pkgdown site.
