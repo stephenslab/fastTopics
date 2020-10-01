@@ -1,6 +1,8 @@
 to do
 =====
 
++ Fix bug in volcano_plot when some entries of colmeans are zero.
+
 + Implement pca_hexbin_plot.
 
 + Make pca_plot more flexible: allow for varying colour by other
