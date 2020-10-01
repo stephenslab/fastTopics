@@ -103,9 +103,9 @@ initialize.multithreading <- function (n) {
 }
 
 # For a Poisson non-negative matrix factorization with rank = 1, the
-# maximum-likelihood estimate (MLE) has a closed-form (up to a scaling
-# factor); this function returns the MLE subject to the constraint
-# that mean(F) = mean(L).
+# maximum-likelihood estimate (MLE) has a closed-form solution (up to
+# a scaling factor); this function returns the MLE subject to the
+# constraint that mean(F) = mean(L).
 #
 #' @importFrom Matrix rowMeans
 #' @importFrom Matrix colMeans

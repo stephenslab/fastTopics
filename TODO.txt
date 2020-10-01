@@ -1,6 +1,12 @@
 to do
 =====
 
++ Implement pca_hexbin_plot.
+
++ Make pca_plot more flexible: allow for varying colour by other
+  discrete (e.g., cluster labels) and continuous (e.g., counts)
+  variables, or no label.
+
 + Contribute to SeuratWrappers:
   https://github.com/satijalab/seurat-wrappers
 
