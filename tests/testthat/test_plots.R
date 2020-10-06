@@ -16,7 +16,7 @@ test_that("Test that plot_loglik_vs_rank works",{
   expect_s3_class(out,"ggplot")
 })
 
-test_that("Test that pca_plot works",{
+test_that("Test that pca_plot and pca_hexbin_plot work",{
   set.seed(1)
   X    <- simulate_toy_gene_data(n = 400,m = 40,k = 3,s = 1000)$X
   capture.output(fit1 <- fit_poisson_nmf(X,k = 3,numiter = 100,
@@ -26,8 +26,12 @@ test_that("Test that pca_plot works",{
   # Test pca_plot.
   out1 <- pca_plot(fit1)
   out2 <- pca_plot(fit2)
+  out3 <- pca_hexbin_plot(fit2)
+  out4 <- pca_hexbin_plot(fit2)
   expect_s3_class(out1,"ggplot")
   expect_s3_class(out2,"ggplot")
+  expect_s3_class(out3,"ggplot")
+  expect_s3_class(out4,"ggplot")
 })
 
 test_that("Test that other plotting functions work",{

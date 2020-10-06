@@ -138,7 +138,8 @@ on the logarithmic scale; since the evidence (z-score or p-value)
 typically increases with more observed counts, the variables with
 smallest average counts should usually appear toward the bottom of
 the volcano plot. Only points above a specified z-score (or
-p-value) quantile are labeled.
+p-value) quantile are labeled. Note that points with an average
+count of zero or less are not shown.
 
 To better accommodate situations in which some z-scores (or
 p-values) are much larger than all the others, the z-scores and

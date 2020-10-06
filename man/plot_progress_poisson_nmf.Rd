@@ -16,7 +16,7 @@ plot_progress_poisson_nmf(
   shapes = 19,
   fills = "white",
   e = 0.01,
-  theme = function() theme_cowplot(font_size = 12)
+  theme = function() theme_cowplot(12)
 )
 }
 \arguments{

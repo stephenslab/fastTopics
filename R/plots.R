@@ -84,7 +84,7 @@ plot_progress_poisson_nmf <-
             colors = c("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2",
                        "#D55E00","#CC79A7"),
             linetypes = "solid", linesizes = 0.5, shapes = 19, fills = "white",
-            e = 0.01, theme = function() theme_cowplot(font_size = 12)) {
+            e = 0.01, theme = function() theme_cowplot(12)) {
 
   # CHECK & PROCESS INPUTS
   # ----------------------
@@ -243,7 +243,7 @@ loglik_vs_rank_ggplot_call <- function (dat, font.size = 9)
          scale_x_continuous(breaks = dat$x) +
          labs(x = "rank, or number of topics (k)",
               y = "log-likelihood difference") +
-         theme_cowplot(font_size = font.size))
+         theme_cowplot(font.size))
 
 #' @rdname loadings_plot
 #' 
@@ -365,7 +365,8 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' typically increases with more observed counts, the variables with
 #' smallest average counts should usually appear toward the bottom of
 #' the volcano plot. Only points above a specified z-score (or
-#' p-value) quantile are labeled.
+#' p-value) quantile are labeled. Note that points with an average
+#' count of zero or less are not shown.
 #'
 #' To better accommodate situations in which some z-scores (or
 #' p-values) are much larger than all the others, the z-scores and
@@ -592,7 +593,7 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
     scale_y_continuous(trans = "sqrt",
       breaks = c(0,1,2,5,10,20,50,100,200,500,1e3,2e3,5e3,1e4,2e4,5e4)) +
     scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
-                         midpoint = mean(range(dat$mean))) +
+                         na.value = "gainsboro",midpoint = 0) +
     geom_text_repel(color = "black",size = 2.25,fontface = "italic",
                     segment.color = "black",segment.size = 0.25,
                     na.rm = TRUE) +
@@ -640,7 +641,7 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
                                        subsample_rate) {
   dat <- with(diff_count_result,
                 data.frame(label = labels,
-                           mean  = log10(colmeans),
+                           mean  = colmeans,
                            beta  = beta[,k],
                            se    = se[,k],
                            z     = Z[,k],
@@ -651,6 +652,9 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
     dat$y <- abs(diff_count_result$Z[,k])
   else if (y == "pvalue")
     dat$y <- diff_count_result$pval[,k]
+  rows     <- which(dat$mean > 0)
+  dat      <- dat[rows,]
+  dat$mean <- log10(dat$mean)
   dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
   y0 <- quantile(dat$y,label_above_quantile)
   dat$label[dat$y < y0] <- ""
@@ -671,8 +675,9 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #'
 #' @description Visualize the "structure" of the Poisson NMF loadings
 #'   ("activations") or the multinomial topic proportions by projection
-#'   onto two principal components. Samples in the projection are
-#'   colored according to the their loadings or topic proportions.
+#'   onto two principal components (PCs). \code{plot_hexbin_plot} is
+#'   most useful for visualizing the PCs of a data set with thousands of
+#'   samples, or more.
 #'
 #' @details This is a lightweight interface for rapidly producing PCA
 #' plots from a Poisson non-negative matrix factorization or
@@ -683,9 +688,9 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #' components are computed using \code{\link[stats]{prcomp}}.
 #'
 #' Note that since principal components are a \emph{linear} projection
-#' ("rotation") of the data, distances between points are much more
+#' ("rotation") of the data, distances between points can bee more
 #' interpretable than nonlinear embedding methods such as t-SNE (as
-#' visualized using \code{tsne_plot}).
+#' visualized using \code{tsne_plot}) and UMAP.
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
@@ -706,8 +711,8 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #'   specified by name or number.
 #' 
 #' @param ggplot_call The function used to create the plot. Replace
-#'   \code{pca_plot_ggplot_call} with your own function to customize the
-#'   appearance of the plot.
+#'   \code{pca_plot_ggplot_call} or \code{pca_hexbin_plot_ggplot_call}
+#'   with your own function to customize the appearance of the plot.
 #'
 #' @param plot_grid_call When multiple topics are selected, this is
 #'   the function used to arrange the plots into a grid using
@@ -767,12 +772,10 @@ pca_plot <-
 #' @rdname pca_plot
 #'
 #' @param dat A data frame passed as input to
-#' \code{\link[ggplot2]{ggplot}}, containing, at a minimum, a
-#' "loading" column, and the principal components to be plotted.
+#'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, the
+#'   principal components to be plotted. The data frame passed to
+#'   \code{pca_plot_ggplot_call} should also have a "loading" column.
 #'
-#' @param pcs Character of length two specifying the two principal
-#'   components to be plotted.
-#' 
 #' @param topic.label The name or number of the topic being plotted;
 #'   it is only used to determine the plot title.
 #' 
@@ -792,6 +795,66 @@ pca_plot_ggplot_call <- function (dat, pcs, topic.label, font.size = 9)
                          midpoint = mean(range(dat$loading))) +
     labs(x = pcs[1],y = pcs[2],title = paste("topic",topic.label)) +
     theme_cowplot(font.size) +
+    theme(plot.title = element_text(size = font.size,face = "plain"))
+
+#' @rdname pca_plot
+#'
+#' @param bins Number of bins used to create hexagonal 2-d
+#'   histogram. Passed as the "bins" argument to
+#'   \code{\link[ggplot2]{stat_bin_hex}}.
+#'
+#' @param breaks To produce the hexagonal histogram, the counts are
+#'   subdivided into intervals based on \code{breaks}. Passed as the
+#'   "breaks" argument to \code{\link{cut}}.
+#' 
+#' @export
+#' 
+pca_hexbin_plot <- function (fit, out.pca, pcs = 1:2, bins = 40,
+                             breaks = c(0,1,10,100,1000,Inf),
+                             ggplot_call = pca_hexbin_plot_ggplot_call,
+                             ...) {
+  # Check and process inputs.
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "\"multinom_topic_model_fit\"")
+
+  # If necessary, compute the principal components using prcomp.
+  if (missing(out.pca))
+    out.pca <- prcomp(fit$L,...)
+
+  # Prepare the data for plotting.
+  dat <- as.data.frame(prcomp(fit$L)$x)
+  if (is.numeric(pcs))
+    pcs <- names(dat)[pcs]
+  
+  # Create the PCA plot.
+  return(pca_hexbin_plot_ggplot_call(dat,pcs,bins,breaks))
+}
+
+#' @rdname pca_plot
+#'
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 aes_q
+#' @importFrom ggplot2 after_stat
+#' @importFrom ggplot2 stat_bin_hex
+#' @importFrom ggplot2 scale_fill_manual
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_text
+#' @importFrom cowplot theme_cowplot
+#' 
+#' @export
+#' 
+pca_hexbin_plot_ggplot_call <- function (dat, pcs, bins, breaks, font.size = 9)
+  ggplot(dat,aes_string(x = pcs[1],y = pcs[2])) +
+    stat_bin_hex(mapping = aes_q(fill = quote(cut(after_stat(count),breaks))),
+                                 bins = bins) +
+    scale_fill_manual(values = c("gainsboro","lightskyblue","gold","orange",
+                                 "magenta")) +
+    labs(x = pcs[1],y = pcs[2],fill = "count") +
+    theme_cowplot(font_size = font.size) +
     theme(plot.title = element_text(size = font.size,face = "plain"))
 
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model

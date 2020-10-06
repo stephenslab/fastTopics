@@ -1,13 +1,13 @@
 to do
 =====
 
-+ Fix bug in volcano_plot when some entries of colmeans are zero.
-
-+ Implement pca_hexbin_plot.
-
 + Make pca_plot more flexible: allow for varying colour by other
   discrete (e.g., cluster labels) and continuous (e.g., counts)
   variables, or no label.
+
++ Create new tests for pca_plot.
+
++ Update DESCRIPTION (particularly the Description field).
 
 + Contribute to SeuratWrappers:
   https://github.com/satijalab/seurat-wrappers
