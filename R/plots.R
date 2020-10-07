@@ -761,7 +761,7 @@ pca_plot <-
   }
 
   # Process input "fill".
-  fill.label <- substitute(fill)
+  fill.label <- deparse(substitute(fill))
   if (!(is.numeric(fill) | all(fill == "loading") | all(fill == "none")))
     fill <- factor(fill)
   
