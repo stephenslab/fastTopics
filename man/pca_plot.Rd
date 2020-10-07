@@ -12,12 +12,19 @@ pca_plot(
   k,
   out.pca,
   pcs = 1:2,
+  fill = "loading",
   ggplot_call = pca_plot_ggplot_call,
   plot_grid_call = function(plots) do.call(plot_grid, plots),
   ...
 )
 
-pca_plot_ggplot_call(dat, pcs, topic.label, font.size = 9)
+pca_plot_ggplot_call(
+  dat,
+  pcs,
+  fill.type = c("loading", "numeric", "factor", "none"),
+  fill.label,
+  font.size = 9
+)
 
 pca_hexbin_plot(
   fit,
@@ -35,61 +42,75 @@ pca_hexbin_plot_ggplot_call(dat, pcs, bins, breaks, font.size = 9)
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
 \dQuote{multinom_topic_model_fit}.}
 
-\item{k}{The topic, or topics, selected by number or name. One plot
-is created per selected topic. When not specified, all topics are
-plotted.}
+\item{k}{The topic, or topics, selected by number or name. When
+\code{fill = "loading"}, one plot is created per selected topic;
+when \code{fill = "loading"} and \code{k} is not specified, all
+topics are plotted.}
 
 \item{out.pca}{A list containing the result of a principal
 components analysis, typically the result of calling
 \code{\link[stats]{prcomp}} or a comparable function such as
 \code{rpca} from the rsvd package. It should be a list object
-containing, at a minimum, a list matrix or data frame "x" storing
-the rotated data. If not provided, principal components will be
-computed automatically by calling \code{\link[stats]{prcomp}}.}
+containing, at a minimum, a list matrix or data frame
+\code{out.pca$x} storing the rotated data. If not provided,
+principal components will be computed automatically by calling
+\code{\link[stats]{prcomp}}.}
 
 \item{pcs}{The two principal components (PCs) to be plotted,
 specified by name or number.}
+
+\item{fill}{The quantity to map onto the fill colour of the points
+in the PCA plot. Set \code{fill = "loading"} to vary the fill
+colour according to the loadings (or topic proportions) of the
+select topic, or topics. Alternatively, \code{fill} may be set to a
+data vector with one entry per row of \code{fit$L}, in which case
+these data are mapped to the fill colour of the points. When
+\code{fill = "none"}, the fill colour is not varied.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{pca_plot_ggplot_call} or \code{pca_hexbin_plot_ggplot_call}
 with your own function to customize the appearance of the plot.}
 
-\item{plot_grid_call}{When multiple topics are selected, this is
-the function used to arrange the plots into a grid using
-\code{\link[cowplot]{plot_grid}}. It should be a function accepting
-a single argument, \code{plots}, a list of \code{ggplot} objects.}
+\item{plot_grid_call}{When multiple topics (\code{k}) are selected,
+and \code{fill = "loading"}, this is the function used to arrange the
+plots into a grid using \code{\link[cowplot]{plot_grid}}. It should
+be a function accepting a single argument, \code{plots}, a list of
+\code{ggplot} objects.}
 
 \item{\dots}{Additional arguments passed to
-\code{\link[stats]{prcomp}}. These arguments are only used if
-\code{out.pca} is not provided.}
+\code{\link[stats]{prcomp}}. These additional arguments are only
+used if \code{out.pca} is not provided.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, the
 principal components to be plotted. The data frame passed to
-\code{pca_plot_ggplot_call} should also have a "loading" column.}
+\code{pca_plot_ggplot_call} should also have a \dQuote{y} column,
+which is mapped to the fill colour of the points in the plot.}
 
-\item{topic.label}{The name or number of the topic being plotted;
-it is only used to determine the plot title.}
+\item{fill.type}{The type of variable mapped to fill colour. The
+fill colour is not varied when \code{fill.type = "none"}.}
+
+\item{fill.label}{The label used for the fill colour legend.}
 
 \item{font.size}{Font size used in plot.}
 
 \item{bins}{Number of bins used to create hexagonal 2-d
-histogram. Passed as the "bins" argument to
+histogram. Passed as the \dQuote{bins} argument to
 \code{\link[ggplot2]{stat_bin_hex}}.}
 
 \item{breaks}{To produce the hexagonal histogram, the counts are
 subdivided into intervals based on \code{breaks}. Passed as the
-"breaks" argument to \code{\link{cut}}.}
+\dQuote{breaks} argument to \code{\link{cut}}.}
 }
 \value{
 A \code{ggplot} object.
 }
 \description{
-Visualize the "structure" of the Poisson NMF loadings
-  ("activations") or the multinomial topic proportions by projection
-  onto two principal components (PCs). \code{plot_hexbin_plot} is
-  most useful for visualizing the PCs of a data set with thousands of
-  samples, or more.
+Visualize the structure of the Poisson NMF loadings
+  (\dQuote{activations}) or the multinomial topic proportions by
+  projection onto principal components (PCs). \code{plot_hexbin_plot}
+  is most useful for visualizing the PCs of a data set with thousands
+  of samples, or more.
 }
 \details{
 This is a lightweight interface for rapidly producing PCA
@@ -101,7 +122,7 @@ be customized by modifying the \code{ggplot_call} and
 components are computed using \code{\link[stats]{prcomp}}.
 
 Note that since principal components are a \emph{linear} projection
-("rotation") of the data, distances between points can bee more
-interpretable than nonlinear embedding methods such as t-SNE (as
-visualized using \code{tsne_plot}) and UMAP.
+(\dQuote{rotation}) of the data, distances between points can bee
+more interpretable than nonlinear embedding methods such as t-SNE
+(as visualized using \code{tsne_plot}) and UMAP.
 }

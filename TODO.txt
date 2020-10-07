@@ -1,12 +1,6 @@
 to do
 =====
 
-+ Make pca_plot more flexible: allow for varying colour by other
-  discrete (e.g., cluster labels) and continuous (e.g., counts)
-  variables, or no label.
-
-+ Create new tests for pca_plot.
-
 + Update DESCRIPTION (particularly the Description field).
 
 + Contribute to SeuratWrappers:

@@ -46,12 +46,12 @@
 #' @param shapes Shapes used to draw points at the selected
 #'   iterations; passed as the \code{values} input to
 #'   \code{\link[ggplot2]{scale_shape_manual}}. If fewer shapes than
-#'   "fits" are given, the shapes are recycled.
+#'   \dQuote{fits} are given, the shapes are recycled.
 #' 
 #' @param fills Fill colours used to draw points at the selected
 #'   iterations; passed as the \code{values} input to
 #'   \code{\link[ggplot2]{scale_fill_manual}}. If fewer fill colours
-#'   than "fits", are given, the fill colours are recycled.
+#'   than \dQuote{fits} are given, the fill colours are recycled.
 #' 
 #' @param e A small, positive number added to the vertical axis (for
 #'   \code{y = "loglik"} and \code{y = "dev"} only) so that the
@@ -673,11 +673,11 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 
 #' @title PCA Plot
 #'
-#' @description Visualize the "structure" of the Poisson NMF loadings
-#'   ("activations") or the multinomial topic proportions by projection
-#'   onto two principal components (PCs). \code{plot_hexbin_plot} is
-#'   most useful for visualizing the PCs of a data set with thousands of
-#'   samples, or more.
+#' @description Visualize the structure of the Poisson NMF loadings
+#'   (\dQuote{activations}) or the multinomial topic proportions by
+#'   projection onto principal components (PCs). \code{plot_hexbin_plot}
+#'   is most useful for visualizing the PCs of a data set with thousands
+#'   of samples, or more.
 #'
 #' @details This is a lightweight interface for rapidly producing PCA
 #' plots from a Poisson non-negative matrix factorization or
@@ -688,40 +688,51 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #' components are computed using \code{\link[stats]{prcomp}}.
 #'
 #' Note that since principal components are a \emph{linear} projection
-#' ("rotation") of the data, distances between points can bee more
-#' interpretable than nonlinear embedding methods such as t-SNE (as
-#' visualized using \code{tsne_plot}) and UMAP.
+#' (\dQuote{rotation}) of the data, distances between points can bee
+#' more interpretable than nonlinear embedding methods such as t-SNE
+#' (as visualized using \code{tsne_plot}) and UMAP.
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
 #'
-#' @param k The topic, or topics, selected by number or name. One plot
-#'   is created per selected topic. When not specified, all topics are
-#'   plotted.
+#' @param k The topic, or topics, selected by number or name. When
+#'   \code{fill = "loading"}, one plot is created per selected topic;
+#'   when \code{fill = "loading"} and \code{k} is not specified, all
+#'   topics are plotted.
 #'
 #' @param out.pca A list containing the result of a principal
 #'   components analysis, typically the result of calling
 #'   \code{\link[stats]{prcomp}} or a comparable function such as
 #'   \code{rpca} from the rsvd package. It should be a list object
-#'   containing, at a minimum, a list matrix or data frame "x" storing
-#'   the rotated data. If not provided, principal components will be
-#'   computed automatically by calling \code{\link[stats]{prcomp}}.
+#'   containing, at a minimum, a list matrix or data frame
+#'   \code{out.pca$x} storing the rotated data. If not provided,
+#'   principal components will be computed automatically by calling
+#'   \code{\link[stats]{prcomp}}.
 #'
 #' @param pcs The two principal components (PCs) to be plotted,
 #'   specified by name or number.
+#'
+#' @param fill The quantity to map onto the fill colour of the points
+#'   in the PCA plot. Set \code{fill = "loading"} to vary the fill
+#'   colour according to the loadings (or topic proportions) of the
+#'   select topic, or topics. Alternatively, \code{fill} may be set to a
+#'   data vector with one entry per row of \code{fit$L}, in which case
+#'   these data are mapped to the fill colour of the points. When
+#'   \code{fill = "none"}, the fill colour is not varied.
 #' 
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{pca_plot_ggplot_call} or \code{pca_hexbin_plot_ggplot_call}
 #'   with your own function to customize the appearance of the plot.
 #'
-#' @param plot_grid_call When multiple topics are selected, this is
-#'   the function used to arrange the plots into a grid using
-#'   \code{\link[cowplot]{plot_grid}}. It should be a function accepting
-#'   a single argument, \code{plots}, a list of \code{ggplot} objects.
+#' @param plot_grid_call When multiple topics (\code{k}) are selected,
+#'   and \code{fill = "loading"}, this is the function used to arrange the
+#'   plots into a grid using \code{\link[cowplot]{plot_grid}}. It should
+#'   be a function accepting a single argument, \code{plots}, a list of
+#'   \code{ggplot} objects.
 #' 
 #' @param \dots Additional arguments passed to
-#'   \code{\link[stats]{prcomp}}. These arguments are only used if
-#'   \code{out.pca} is not provided.
+#'   \code{\link[stats]{prcomp}}. These additional arguments are only
+#'   used if \code{out.pca} is not provided.
 #' 
 #' @return A \code{ggplot} object.
 #'
@@ -730,32 +741,35 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #' @export
 #' 
 pca_plot <-
-  function (fit, k, out.pca, pcs = 1:2, ggplot_call = pca_plot_ggplot_call,
-            plot_grid_call = function (plots) do.call(plot_grid,plots), ...) {
+  function (fit, k, out.pca, pcs = 1:2, fill = "loading",
+            ggplot_call = pca_plot_ggplot_call,
+            plot_grid_call = function (plots) do.call(plot_grid,plots),
+            ...) {
 
-  # Check and process inputs.
+  # Check and process input "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
          "\"multinom_topic_model_fit\"")
-  if (missing(k))
-    k <- seq(1,ncol(fit$L))
 
+  # Process input "k". 
+  if (missing(k)) {
+    if (all(fill == "loading"))
+      k <- seq(1,ncol(fit$L))
+    else
+      k <- 1
+  }
+
+  # Process input "fill".
+  fill.label <- substitute(fill)
+  if (!(is.numeric(fill) | all(fill == "loading") | all(fill == "none")))
+    fill <- factor(fill)
+  
   # If necessary, compute the principal components using prcomp.
   if (missing(out.pca))
     out.pca <- prcomp(fit$L,...)
 
-  if (length(k) == 1) {
-      
-    # Prepare the data for plotting.
-    if (is.numeric(pcs))
-      pcs <- colnames(out.pca$x)[pcs]
-    dat <- as.data.frame(cbind(out.pca$x[,pcs],fit$L[,k]))
-    names(dat) <- c(pcs,"loading")
-    
-    # Create the PCA plot.
-    return(pca_plot_ggplot_call(dat,pcs,k))
-  } else {
+  if (length(k) > 1) {
 
     # Create a PCA plot for each selected topic, and combine them
     # using plot_grid. This is done by recursively calling pca_plot.
@@ -763,9 +777,36 @@ pca_plot <-
     plots <- vector("list",m)
     names(plots) <- k
     for (i in 1:m)
-      plots[[i]] <- pca_plot(fit,k[i],out.pca,pcs,ggplot_call,
+      plots[[i]] <- pca_plot(fit,k[i],out.pca,pcs,fill,ggplot_call,
                              plot_grid_call,...)
     return(plot_grid_call(plots))
+  } else {
+      
+    # Get the data (y) mapped to fill colour.
+    y <- factor(rep("none",nrow(fit$L)))
+    fill.type  <- "none"
+    if (length(fill) == 1) {
+      if (fill == "loading") {
+        y          <- fit$L[,k]
+        fill.type  <- "loading"
+        fill.label <- paste("topic",k)
+      }
+    } else {
+      y <- fill
+      if (is.numeric(y))
+        fill.type <- "numeric"
+      else if (is.factor(y))
+        fill.type <- "factor"
+    }
+
+    # Prepare the data for plotting.
+    if (is.numeric(pcs))
+      pcs <- colnames(out.pca$x)[pcs]
+    dat <- cbind(as.data.frame(out.pca$x[,pcs]),y)
+    names(dat) <- c(pcs,"y")
+    
+    # Create the PCA plot.
+    return(pca_plot_ggplot_call(dat,pcs,fill.type,fill.label))
   }
 }
 
@@ -774,38 +815,64 @@ pca_plot <-
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, the
 #'   principal components to be plotted. The data frame passed to
-#'   \code{pca_plot_ggplot_call} should also have a "loading" column.
+#'   \code{pca_plot_ggplot_call} should also have a \dQuote{y} column,
+#'   which is mapped to the fill colour of the points in the plot.
 #'
-#' @param topic.label The name or number of the topic being plotted;
-#'   it is only used to determine the plot title.
+#' @param fill.type The type of variable mapped to fill colour. The
+#'   fill colour is not varied when \code{fill.type = "none"}.
+#' 
+#' @param fill.label The label used for the fill colour legend.
 #' 
 #' @param font.size Font size used in plot.
 #'
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
 #' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 scale_fill_manual
+#' @importFrom ggplot2 scale_fill_gradient2
+#' @importFrom ggplot2 scale_fill_gradientn
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_text
 #' @importFrom cowplot theme_cowplot
 #' 
 #' @export
 #' 
-pca_plot_ggplot_call <- function (dat, pcs, topic.label, font.size = 9)
-  ggplot(dat,aes_string(x = pcs[1],y = pcs[2],fill = "loading")) +
+pca_plot_ggplot_call <-
+  function (dat, pcs, fill.type = c("loading","numeric","factor","none"),
+            fill.label, font.size = 9) {
+  fill.type <- match.arg(fill.type)
+  p <- ggplot(dat,aes_string(x = pcs[1],y = pcs[2],fill = "y")) +
     geom_point(shape = 21,color = "white",stroke = 0.3) +
-    scale_fill_gradient2(low = "lightskyblue",mid = "gold",high = "orangered",
-                         midpoint = mean(range(dat$loading))) +
-    labs(x = pcs[1],y = pcs[2],title = paste("topic",topic.label)) +
+    labs(x = pcs[1],y = pcs[2],fill = fill.label) +
     theme_cowplot(font.size) +
     theme(plot.title = element_text(size = font.size,face = "plain"))
+  if (fill.type == "loading")
+    p <- p + scale_fill_gradient2(low = "lightskyblue",mid = "gold",
+                                  high = "orangered",
+                                  midpoint = mean(range(dat$y)))
+  else if (fill.type == "numeric")
+    p <- p + scale_fill_gradientn(na.value = "lightskyblue",
+                                  colors = c("skyblue","gold","darkorange",
+                                             "magenta"))
+  else if (fill.type == "factor")
+    p <- p + scale_fill_manual(values = c("#e41a1c","#377eb8","#4daf4a",
+                                          "#984ea3","#ff7f00","#ffff33",
+                                          "#a65628","#f781bf","#999999"))
+  else if (fill.type == "none")
+    p <- p + scale_fill_manual(values = "black",guide = "none")
+  return(p)
+}
 
 #' @rdname pca_plot
 #'
 #' @param bins Number of bins used to create hexagonal 2-d
-#'   histogram. Passed as the "bins" argument to
+#'   histogram. Passed as the \dQuote{bins} argument to
 #'   \code{\link[ggplot2]{stat_bin_hex}}.
 #'
 #' @param breaks To produce the hexagonal histogram, the counts are
 #'   subdivided into intervals based on \code{breaks}. Passed as the
-#'   "breaks" argument to \code{\link{cut}}.
+#'   \dQuote{breaks} argument to \code{\link{cut}}.
 #' 
 #' @export
 #' 
@@ -1202,7 +1269,7 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   \code{colors[1]} is the colour used to draw \code{topics[1]},
 #'   \code{colors[2]} is the colour used to draw \code{topics[2]}, and
 #'   so on. The default colour setting is the from
-#'   \url{https://colorbrewer2.org} (qualitative data, "12-class Set3").
+#'   \url{https://colorbrewer2.org} (qualitative data, "9-class Set1").
 #'
 #' @param gap The horizontal spacing between groups. Ignored if
 #'   \code{grouping} is not provided.
@@ -1243,10 +1310,9 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' @export
 #'
 structure_plot <-
-  function (fit, n = 2000, rows, grouping, topics, 
-            colors = c("#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3",
-                       "#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd",
-                       "#ccebc5","#ffed6f"),
+  function (fit, n = 2000, rows, grouping, topics,
+            colors = c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
+                       "#ffff33","#a65628","#f781bf","#999999"),
             gap = 1, perplexity = 100, eta = 200,
             ggplot_call = structure_plot_ggplot_call, ...) {
 

@@ -13,8 +13,8 @@ structure_plot(
   rows,
   grouping,
   topics,
-  colors = c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462",
-    "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"),
+  colors = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
+    "#a65628", "#f781bf", "#999999"),
   gap = 1,
   perplexity = 100,
   eta = 200,
@@ -62,7 +62,7 @@ are automaticcally ordered so that the topics with the greatest
 \code{colors[1]} is the colour used to draw \code{topics[1]},
 \code{colors[2]} is the colour used to draw \code{topics[2]}, and
 so on. The default colour setting is the from
-\url{https://colorbrewer2.org} (qualitative data, "12-class Set3").}
+\url{https://colorbrewer2.org} (qualitative data, "9-class Set1").}
 
 \item{gap}{The horizontal spacing between groups. Ignored if
 \code{grouping} is not provided.}

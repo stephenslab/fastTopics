@@ -54,12 +54,12 @@ If fewer line sizes than "fits" are given, the line sizes are
 \item{shapes}{Shapes used to draw points at the selected
 iterations; passed as the \code{values} input to
 \code{\link[ggplot2]{scale_shape_manual}}. If fewer shapes than
-"fits" are given, the shapes are recycled.}
+\dQuote{fits} are given, the shapes are recycled.}
 
 \item{fills}{Fill colours used to draw points at the selected
 iterations; passed as the \code{values} input to
 \code{\link[ggplot2]{scale_fill_manual}}. If fewer fill colours
-than "fits", are given, the fill colours are recycled.}
+than \dQuote{fits} are given, the fill colours are recycled.}
 
 \item{e}{A small, positive number added to the vertical axis (for
 \code{y = "loglik"} and \code{y = "dev"} only) so that the
