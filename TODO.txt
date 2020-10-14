@@ -1,9 +1,11 @@
 to do
 =====
 
-+ Implement "t" S3 method to transpose rows and columns of a Poisson NMF fit.
++ Implement "t" S3 method to transpose rows and columns of a Poisson
+  NMF fit.
 
-+ Refactor pca_plot and tsne_plot code.
++ Refactor pca_plot, pca_hexbin_plot and tsne_plot code, and redesign
+  interface.
 
 + Consider implementing umap_plot and umap_from_topics, and allow for
   using UMAP instead of t-SNE in the Structure plot.

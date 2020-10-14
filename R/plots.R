@@ -891,7 +891,7 @@ pca_hexbin_plot <- function (fit, out.pca, pcs = 1:2, bins = 40,
     out.pca <- prcomp(fit$L,...)
 
   # Prepare the data for plotting.
-  dat <- as.data.frame(prcomp(fit$L)$x)
+  dat <- as.data.frame(out.pca$x)
   if (is.numeric(pcs))
     pcs <- names(dat)[pcs]
   
