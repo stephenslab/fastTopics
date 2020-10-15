@@ -767,7 +767,8 @@ pca_plot <-
   # Process input "fill".
   fill.label <- deparse(substitute(fill))
   if (!(is.numeric(fill) | all(fill == "loading") | all(fill == "none")))
-    fill <- factor(fill)
+    if (!is.factor(fill))
+      fill <- factor(fill)
   
   # If necessary, compute the principal components using prcomp.
   if (missing(out.pca))
@@ -862,7 +863,8 @@ pca_plot_ggplot_call <-
   else if (fill.type == "factor")
     p <- p + scale_fill_manual(values = c("#e41a1c","#377eb8","#4daf4a",
                                           "#984ea3","#ff7f00","#ffff33",
-                                          "#a65628","#f781bf","#999999"))
+                                          "#a65628","#f781bf","#999999"),
+                               drop = FALSE)
   else if (fill.type == "none")
     p <- p + scale_fill_manual(values = "black",guide = "none")
   return(p)
