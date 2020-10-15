@@ -408,7 +408,8 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' @param label_above_quantile Only z-scores or p-values (depending on
 #'   choice of \code{y}) above this quantile are labeled in the volcano
 #'   plot. \code{\link[ggrepel]{geom_text_repel}} will attempt to label
-#'   all points when \code{label_above_quantile = 0}.
+#'   all points when \code{label_above_quantile = 0}. When
+#'   \code{label_above_quantile = Inf}, no points are labeled.
 #'
 #' @param subsample_below_quantile A number between 0 and 1. If
 #'   greater than zero, log-fold change statistics with z-scores or
@@ -656,7 +657,10 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
   dat      <- dat[rows,]
   dat$mean <- log10(dat$mean)
   dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
-  y0 <- quantile(dat$y,label_above_quantile)
+  if (is.infinite(label_above_quantile))
+    y0 <- Inf
+  else
+    y0 <- quantile(dat$y,label_above_quantile)
   dat$label[dat$y < y0] <- ""
   if (subsample_below_quantile > 0) {
     y0    <- quantile(dat$y,subsample_below_quantile)
