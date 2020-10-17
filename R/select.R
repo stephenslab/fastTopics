@@ -45,6 +45,7 @@ select_loadings <- function (.data, loadings, ...) {
     .data$L  <- .data$L[loadings,,drop = FALSE]
     .data$Ln <- .data$Ln[loadings,,drop = FALSE]
     .data$Ly <- .data$Ly[loadings,,drop = FALSE]
+    .data$s  <- .data$s[loadings]
   },error = function (e) stop("Invalid selection of loadings"))
   return(.data)
 }

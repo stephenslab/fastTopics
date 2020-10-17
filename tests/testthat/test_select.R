@@ -30,7 +30,10 @@ test_that(paste("Select S3 method correctly subsets and re-orders the",
   # Check the outputted Poisson NMF fits.
   expect_equal(dim(fit1$L),c(n0,k))
   expect_equal(dim(fit2$L),c(n0,k))
+  expect_equal(length(fit1$s),n0)
+  expect_equal(length(fit2$s),n0)
   expect_equal(rownames(fit2$L),rows)
+  expect_equal(names(fit2$s),rows)
 
   # An error is thrown when the selected loadings do not exist.
   expect_error(select(fit,loadings = n + 1))
