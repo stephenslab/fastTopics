@@ -42,7 +42,7 @@ for (i in 1:numiter) {
 
   # Optionally, perform backtracking line search to determine a
   # suitable step size.
-    p <- -g/h
+  p <- -g/h
   if (line.search) {
     if (p >= -e)
       s <- 1
