@@ -1,6 +1,8 @@
 to do
 =====
 
++ Remove inst/derivations/diffcount.
+
 + Update DESCRIPTION (particularly the Description field).
 
 + Implement "t" S3 method to transpose the rows and columns of a
