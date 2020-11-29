@@ -811,7 +811,7 @@ pca_plot <-
     names(dat) <- c(pcs,"y")
     
     # Create the PCA plot.
-    return(pca_plot_ggplot_call(dat,pcs,fill.type,fill.label))
+    return(ggplot_call(dat,pcs,fill.type,fill.label))
   }
 }
 
@@ -902,7 +902,7 @@ pca_hexbin_plot <- function (fit, out.pca, pcs = 1:2, bins = 40,
     pcs <- names(dat)[pcs]
   
   # Create the PCA plot.
-  return(pca_hexbin_plot_ggplot_call(dat,pcs,bins,breaks))
+  return(ggplot_call(dat,pcs,bins,breaks))
 }
 
 #' @rdname pca_plot
