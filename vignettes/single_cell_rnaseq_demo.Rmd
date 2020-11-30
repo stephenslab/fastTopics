@@ -22,20 +22,23 @@ knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
 *Add text here.*
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
+library(Matrix)
 library(fastTopics)
+library(ggplot2)
+library(cowplot)
 ```
-
 
 We set the seed so that the results can be reproduced.
 
 ```{r set-seed}
 set.seed(1)
 ```
-*Describe data, and mention that the data are sparse.*
+
+*Describe data, and mention that the data are stored as a sparse matrix.*
 
 ```{r load-data}
 data(pbmc_4k)
-dim(data)
+dim(counts)
 cat("Nonzero rate:",100*mean(counts > 0),"\n")
 ```
 
@@ -47,30 +50,30 @@ of the cells (or, more generally, remove columns that do not vary).
 j      <- which(colSums(counts > 0) >= 1)
 genes  <- genes[j,]
 counts <- counts[,j]
+dim(counts)
 ```
 
 Fit multinomial topic model
 ---------------------------
 
-Fit the Poisson NMF model by running 100 EM updates.
+Explain why we first fit a Poisson NMF model. Also explain nuances of
+Poisson NMF optimization. Fit the Poisson NMF model by running 100 EM
+updates, then refine the fit by rnning 100 extrapolated SCD updates.
+(Note that this can take several minutes to run; we have saved the
+output of this call to avoid having to wait.)
 
-```{r fit-poisson-nm, eval=FALSEf}
+```{r fit-poisson-nm, eval=FALSE}
 fit0 <- fit_poisson_nmf(counts,k = 6,numiter = 100,method = "em",
                            control = list(numiter = 4,nc = 2))
-```
-
-Refine the fit by running 100 extrapolated SCD updates.
-
-```{r refine-fit-poisson-nmf, eval=FALSE}
-fit <- fit_poisson_nmf(counts,fit0 = fit0,numiter = 100,method = "scd",
-                       control = list(extrapolate = TRUE,numiter = 4,nc = 2))
+fit  <- fit_poisson_nmf(counts,fit0 = fit0,numiter = 100,method = "scd",
+                        control = list(extrapolate = TRUE,numiter = 4,nc = 2))
 ```
 
 Plot improvement in the solution over time.
 
 ```{r plot-loglik, fig.height=3, fig.width=3}
-p1 <- plot_progress_poisson_nmf(fit,x = "iter")
-print(p1)
+plot_progress_poisson_nmf(fit,x = "iter",add.point.every = 10,
+                          colors = "black")
 ```
 
 Recover the multinomial topic model.
@@ -83,12 +86,42 @@ Identify clusters from PCs
 --------------------------
 
 Here we define clusters by manually inspecting the principal
-components (PCs) of the topic proportions. (Other approaches may be
+components (PCs) of the mixture proportions. (Other approaches may be
 applied to the task of identifying clusters.)
+
+These two plots show the projection of the cells onto the top 4 PCs:
+
+```{r pca-1, fig.width=6, fig.height=2}
+plot_grid(pca_plot(fit_multinom,pcs = 1:2,fill = "none"),
+          pca_plot(fit_multinom,pcs = 3:4,fill = "none"))
+```
+
+In some areas of the the PCA plot, there are many---sometimes
+hundreds---of cells squeezed into a very tight space, so it can
+helpful to instead visualize the *density* of the cells in the PC
+projection:
+
+```{r pca-2, fig.width=6, fig.height=2}
+plot_grid(pca_hexbin_plot(fit_multinom,pcs = 1:2,bins = 24),
+          pca_hexbin_plot(fit_multinom,pcs = 3:4,bins = 24))
+```
+
+TO DO: Define clusters from PCA plots.
+
+Structure plot
+--------------
+
+The structure plot summarizes the mixture proportions of the cells in
+each of the 6 clusters:
+
+TO DO: Add Structure plot here.
 
 TO DO: Remove "cluster" column from `pbmc_4k` data.
 
 Annotate topics and clusters
 ----------------------------
+
+Here is where we use `diff_count_analysis` to interpret selected
+clusters and topics.
 
 [Use "topic" and "factor" interchangeably here.]
