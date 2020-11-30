@@ -12,6 +12,8 @@ vignette: >
 Here we illustrate the use of **fastTopics** to infer structure in
 single-cell RNA-seq data.
 
+*Outline analysis pipeline here.*
+
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
                       fig.align = "center",dpi = 120)
@@ -80,8 +82,13 @@ fit_multinom <- poisson2multinom(fit)
 Identify clusters from PCs
 --------------------------
 
-Here we perform principal components analysis (PCA) on the topic
-proportions to identify clusters in the data.
-
+Here we define clusters by manually inspecting the principal
+components (PCs) of the topic proportions. (Other approaches may be
+applied to the task of identifying clusters.)
 
 TO DO: Remove "cluster" column from `pbmc_4k` data.
+
+Annotate topics and clusters
+----------------------------
+
+[Use "topic" and "factor" interchangeably here.]
