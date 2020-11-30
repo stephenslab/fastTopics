@@ -1,7 +1,9 @@
 to do
 =====
 
-+ Remove inst/derivations/diffcount.
++ Update README.
+
++ Remove files in inst/derivations/diffcount.
 
 + Update DESCRIPTION (particularly the Description field).
 
@@ -20,9 +22,6 @@ to do
 
 + Update the pkgdown site.
   
-+ Create vignette illustrating differential gene expression analyses
-  on a simulated data set.
-
 + Create vignette giving more details about the different optimization
   algorithms. (Then simplify the fit_poisson_nmf example.)
 

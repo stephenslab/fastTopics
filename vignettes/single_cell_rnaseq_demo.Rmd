@@ -1,0 +1,87 @@
+---
+title: Illustration of fastTopics applied to single-cell RNA-seq data
+author: Peter Carbonetto
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{fastTopics single-cell RNA-seq demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Here we illustrate the use of **fastTopics** to infer structure in
+single-cell RNA-seq data.
+
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
+                      fig.align = "center",dpi = 120)
+```
+
+*Add text here.*
+
+```{r load-pkgs, message=FALSE, warning=FALSE}
+library(fastTopics)
+```
+
+
+We set the seed so that the results can be reproduced.
+
+```{r set-seed}
+set.seed(1)
+```
+*Describe data, and mention that the data are sparse.*
+
+```{r load-data}
+data(pbmc_4k)
+dim(data)
+cat("Nonzero rate:",100*mean(counts > 0),"\n")
+```
+
+No normalization or transformation of the counts is needed. The only
+step that is needed is to remove genes that are not expressed in any
+of the cells (or, more generally, remove columns that do not vary).
+
+```{r filter-genes}
+j      <- which(colSums(counts > 0) >= 1)
+genes  <- genes[j,]
+counts <- counts[,j]
+```
+
+Fit multinomial topic model
+---------------------------
+
+Fit the Poisson NMF model by running 100 EM updates.
+
+```{r fit-poisson-nm, eval=FALSEf}
+fit0 <- fit_poisson_nmf(counts,k = 6,numiter = 100,method = "em",
+                           control = list(numiter = 4,nc = 2))
+```
+
+Refine the fit by running 100 extrapolated SCD updates.
+
+```{r refine-fit-poisson-nmf, eval=FALSE}
+fit <- fit_poisson_nmf(counts,fit0 = fit0,numiter = 100,method = "scd",
+                       control = list(extrapolate = TRUE,numiter = 4,nc = 2))
+```
+
+Plot improvement in the solution over time.
+
+```{r plot-loglik, fig.height=3, fig.width=3}
+p1 <- plot_progress_poisson_nmf(fit,x = "iter")
+print(p1)
+```
+
+Recover the multinomial topic model.
+
+```{r poisson2multinom}
+fit_multinom <- poisson2multinom(fit)
+```
+
+Identify clusters from PCs
+--------------------------
+
+Here we perform principal components analysis (PCA) on the topic
+proportions to identify clusters in the data.
+
+
+TO DO: Remove "cluster" column from `pbmc_4k` data.
