@@ -21,7 +21,7 @@ consists of five steps:
 3. Recover the multinomial topic model from the Poisson NMF model fit.
 
 4. Identify clusters from principal components (PCs) of the mixture
-   proportions matrix
+   proportions matrix.
 
 5. Annotate selected clusters and topics by performing a differential
    expression analysis.
@@ -46,8 +46,8 @@ We set the seed so that the results can be reproduced.
 set.seed(1)
 ```
 
-Load and prepare data
----------------------
+1. Load and prepare data
+------------------------
 
 Load the single-cell RNA-seq data. This data set combines reference
 transcriptome profiles generated from 10 different bead-enriched
@@ -82,35 +82,57 @@ The data are indeed sparse---most of the counts are zero:
 mean(counts > 0)
 ```
 
-Fit Poisson NMF model
----------------------
+2. Fit Poisson NMF model
+------------------------
 
-```{r load-fit, include=FALSE}
+By exploiting the relationship between the multinomial topic model and
+non-negative matrix factorization---we have a vignette explaining this
+relationship---we leverage fast NMF optimization algorithms to fit the
+multinomial topic model. This can take several minutes to run, so we
+have saved the output of the `fit_poisson_nmf` code:
+
+```{r load-fit}
 fit <- pbmc_4k$fit
 ```
 
-Explain why we first fit a Poisson NMF model. Also explain nuances of
-Poisson NMF optimization. Fit the Poisson NMF model by running 100 EM
-updates, then refine the fit by rnning 100 extrapolated SCD updates.
-(Note that this can take several minutes to run; we have saved the
-output of this call to avoid having to wait.)
+Otherwise, if you would like to see the Poisson NMF model fitting in
+action, try running the code in this next code chunk. (This was the
+exact code that was used to generate the stored result.) Note that you
+may want to change `control$nc`, which controls the number of threads
+in the TBB multithreaded computations, according to the number of
+processors available on your computer.
 
 ```{r fit-poisson-nm, eval=FALSE}
 fit0 <- fit_poisson_nmf(counts,k = 6,numiter = 100,method = "em",
-                           control = list(numiter = 4,nc = 2))
+                        control = list(numiter = 4,nc = 2))
 fit  <- fit_poisson_nmf(counts,fit0 = fit0,numiter = 100,method = "scd",
                         control = list(extrapolate = TRUE,numiter = 4,nc = 2))
 ```
 
-Plot improvement in the solution over time.
+Judging by this plot showing the change in the log-likelihood over
+time, the iterates get very close to a solution---that is, a
+local maximum of the likelihood---after about 150 iterations.
 
-```{r plot-loglik, fig.height=3, fig.width=4}
+```{r plot-loglik, fig.height=2.5, fig.width=3.5}
 plot_progress_poisson_nmf(fit,x = "iter",add.point.every = 10,
                           colors = "black")
 ```
 
-Recover multinomial topic model
--------------------------------
+Here we briefly give some guidance on the model fitting, and explain
+the optimization settings used in the code above.
+
+We have found that the EM algorithm initially makes rapid progress
+toward a solution, but this convergence slows considerably as the
+iterates approach the solution. Therefore, we have found it helpful to
+first perform EM updates, then refine the fit using SCD updates. In
+our experience, this refinement step works best using the SCD updates
+combined with the "extrapolation" scheme.
+
+For larger data sets, more than 200 updates may be needed to arrive at
+a good solution.
+
+3. Recover multinomial topic model
+----------------------------------
 
 Recover the multinomial topic model.
 
