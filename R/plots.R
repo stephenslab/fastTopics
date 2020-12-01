@@ -594,7 +594,8 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
     scale_y_continuous(trans = "sqrt",
       breaks = c(0,1,2,5,10,20,50,100,200,500,1e3,2e3,5e3,1e4,2e4,5e4)) +
     scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
-                         na.value = "gainsboro",midpoint = 0) +
+                         na.value = "gainsboro",
+                         midpoint = mean(range(dat$mean))) +
     geom_text_repel(color = "black",size = 2.25,fontface = "italic",
                     segment.color = "black",segment.size = 0.25,
                     na.rm = TRUE) +

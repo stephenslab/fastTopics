@@ -1,5 +1,5 @@
 ---
-title: Illustration of fastTopics applied to single-cell RNA-seq data
+title: Analysis of single-cell RNA-seq data using fastTopics: an illustration
 author: Peter Carbonetto
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -31,7 +31,8 @@ knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
                       fig.align = "center",dpi = 120)
 ```
 
-*Add text here.*
+In addition to the Matrix and fastTopics packages, we also use ggplot2
+and cowplot to visualize the results of the topic modeling analysis.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
@@ -113,7 +114,7 @@ Judging by this plot showing the change in the log-likelihood over
 time, the iterates get very close to a solution---that is, a
 local maximum of the likelihood---after about 150 iterations.
 
-```{r plot-loglik, fig.height=2.5, fig.width=3.5}
+```{r plot-loglik, fig.height=2, fig.width=3.5}
 plot_progress_poisson_nmf(fit,x = "iter",add.point.every = 10,
                           colors = "black")
 ```
@@ -134,37 +135,74 @@ a good solution.
 3. Recover multinomial topic model
 ----------------------------------
 
-Recover the multinomial topic model.
+Once we have fit a Poisson NMF model, the multinomial topic model is
+easly recovered by a simple reparameterization:
 
 ```{r poisson2multinom}
 fit_multinom <- poisson2multinom(fit)
 ```
 
-Identify clusters from PCs
---------------------------
+4. Identify clusters
+--------------------
 
-Here we define clusters by manually inspecting the principal
-components (PCs) of the mixture proportions. (Other approaches may be
-applied to the task of identifying clusters.)
+Having obtained the multinomial topic model, we now analyze the
+mixture proportions matrix, `fit_multinom$L`. We begin this analysis
+by identifying clusters from the principal components (PCs) of the
+mixture proportions. *Note that we could plot the loadings matrix from
+the NMF instead, but explain why this is not recommended for
+expression data.*
 
-These two plots show the projection of the cells onto the top 4 PCs:
+The next two plots show the projection of the cells onto the top 4 PCs:
 
-```{r pca-1, fig.width=6, fig.height=2}
-plot_grid(pca_plot(fit_multinom,pcs = 1:2,fill = "none"),
-          pca_plot(fit_multinom,pcs = 3:4,fill = "none"))
+```{r pca-1, fig.width=4.5, fig.height=2}
+p1 <- pca_plot(fit_multinom,pcs = 1:2,fill = "none")
+p2 <- pca_plot(fit_multinom,pcs = 3:4,fill = "none")
+plot_grid(p1,p2)
 ```
 
 In some areas of the the PCA plot, there are many---sometimes
-hundreds---of cells squeezed into a very tight space, so it can
-helpful to instead visualize the *density* of the cells in the PC
+hundreds---of cells squeezed into a very tight space. In such cases,
+it can be more effective to plot the density of the cells in the PC
 projection:
 
-```{r pca-2, fig.width=6, fig.height=2}
-plot_grid(pca_hexbin_plot(fit_multinom,pcs = 1:2,bins = 24),
-          pca_hexbin_plot(fit_multinom,pcs = 3:4,bins = 24))
+```{r pca-2, fig.width=5.75, fig.height=1.75}
+p3 <- pca_hexbin_plot(fit_multinom,pcs = 1:2,bins = 24)
+p4 <- pca_hexbin_plot(fit_multinom,pcs = 3:4,bins = 24)
+plot_grid(p3,p4)
 ```
 
-TO DO: Define clusters from PCA plots.
+Based on these plots, we subdivide the cells into 6 clusters. (This
+happens to be the same as $K$, the number of factors or topics, but in
+general there may be more clusters than $K$, or fewer.)
+
+```{r pca-3, fig.width=5.75, fig.height=2, message=FALSE}
+n   <- nrow(counts)
+pca <- prcomp(fit_multinom$L)$x
+clusters <- rep("CD8+",n)
+pc1 <- pca[,1]
+pc2 <- pca[,2]
+pc3 <- pca[,3]
+pc4 <- pca[,4]
+clusters[pc2 > 0] <- "T"
+clusters[pc2 < -0.3] <- "NK"
+clusters[pc2 > pc1 + 0.6] <- "B"
+clusters[pc3 > 0.15] <- "CD34+"
+clusters[pc4 < -0.6] <- "CD14+"
+clusters <- factor(clusters)
+cluster_colors <- c("dodgerblue",  # B-cells
+                    "forestgreen", # CD14+
+                    "darkmagenta", # CD34+ 
+                    "red",         # CD8+
+                    "skyblue",     # NK
+                    "darkorange")  # T-cells
+p5 <- pca_plot(fit_multinom,pcs = 1:2,fill = clusters) +
+  scale_fill_manual(values = cluster_colors)
+p6 <- pca_plot(fit_multinom,pcs = 3:4,fill = clusters) +
+  scale_fill_manual(values = cluster_colors)
+plot_grid(p5,p6)
+```
+
+*Add text here.*
 
 Structure plot
 --------------
@@ -172,9 +210,14 @@ Structure plot
 The structure plot summarizes the mixture proportions of the cells in
 each of the 6 clusters:
 
-TO DO: Add Structure plot here.
+```{r structure-plot, fig.width=5.75, fig.height=1.5, message=FALSE, results="hide"}
+topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue","gold",
+                  "darkorange")
+structure_plot(fit_multinom,grouping = clusters,topics = 1:6,
+               colors = topic_colors,gap = 25)
+```
 
-TO DO: Remove "cluster" column from `pbmc_4k` data.
+*Add text here explaining how the Structure plot works.*
 
 Annotate topics and clusters
 ----------------------------
@@ -182,6 +225,11 @@ Annotate topics and clusters
 Here is where we use `diff_count_analysis` to interpret selected
 clusters and topics.
 
-[Use "topic" and "factor" interchangeably here.]
+```{r volcano-plots, eval=FALSE}
+ans <- diff_count_analysis(fit_multinom,counts)
+volcano_plot(ans,k = 5,labels = genes$symbol)
+```
+
+TO DO: Demonstrate how to create interactive volcano plot.
 
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
