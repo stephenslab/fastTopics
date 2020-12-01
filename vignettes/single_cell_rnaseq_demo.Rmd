@@ -10,9 +10,18 @@ vignette: >
 ---
 
 Here we illustrate the use of **fastTopics** to infer structure in
-single-cell RNA-seq data.
+single-cell RNA-seq data. There are four steps in our analysis:
 
-*Outline analysis pipeline here.*
+1. Fit a Poisson non-negative matrix factorization (NMF) to the UMI
+   count data.
+
+2. Recover the multinomial topic model from the Poisson NMF model fit.
+
+3. Identify clusters from principal components (PCs) of the mixture
+   proportions matrix
+
+4. Annotate selected clusters and topics by performing a differential
+   expression analysis.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
@@ -33,6 +42,9 @@ We set the seed so that the results can be reproduced.
 ```{r set-seed}
 set.seed(1)
 ```
+
+Load and prepare data
+---------------------
 
 *Describe data, and mention that the data are stored as a sparse matrix.*
 
