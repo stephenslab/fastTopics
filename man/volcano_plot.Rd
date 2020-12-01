@@ -68,7 +68,8 @@ than \code{betamax} are set to \code{betamax} or \code{-betamax}.}
 \item{label_above_quantile}{Only z-scores or p-values (depending on
 choice of \code{y}) above this quantile are labeled in the volcano
 plot. \code{\link[ggrepel]{geom_text_repel}} will attempt to label
-all points when \code{label_above_quantile = 0}.}
+all points when \code{label_above_quantile = 0}. When
+\code{label_above_quantile = Inf}, no points are labeled.}
 
 \item{subsample_below_quantile}{A number between 0 and 1. If
 greater than zero, log-fold change statistics with z-scores or

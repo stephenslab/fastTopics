@@ -261,7 +261,7 @@ algorithm settings (as they are defined by
 
 \item{\code{numiter}}{Number of "inner loop" iterations to run when
   performing and update of the factors or loadings. This must be set
-  to 1 for \code{method = "mu"} and, \code{method = "ccd"}.}
+  to 1 for \code{method = "mu"} and \code{method = "ccd"}.}
 
 \item{\code{nc}}{Number of RcppParallel threads to use for the
   updates. When \code{nc} is \code{NA}, the default number of threads
@@ -273,7 +273,7 @@ algorithm settings (as they are defined by
   the multiplicative updates. The safeguarded updates are implemented
   as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
   where \code{F1} and \code{L1} are the factors and loadings matrices
-  obtained by applying an update. Thi is motivated by Theorem 1 of
+  obtained by applying an update. This is motivated by Theorem 1 of
   Gillis & Glineur (2012). Setting \code{minval = 0} is allowed, but
   some methods are not guaranteed to converge to a stationary point
   without this safeguard, and a warning will be given in this case.}
@@ -308,7 +308,7 @@ algorithm settings (as they are defined by
   entries that are less than or equal to \code{zero.threshold} are
   considered to be exactly zero.}}
 
-An additional setting, \code{control$init.numter}, controls the
+An additional setting, \code{control$init.numiter}, controls the
 number of sequential co-ordinate descent (SCD) updates that are
 performed to initialize the loadings matrix when \code{init.method
 = "topicscore"}.

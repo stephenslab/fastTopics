@@ -50,7 +50,9 @@ Load and prepare data
 
 ```{r load-data}
 data(pbmc_4k)
-dim(counts)
+samples <- pbmc_4k$samples
+genes   <- pbmc_4k$genes
+counts  <- pbmc_4k$counts
 cat("Nonzero rate:",100*mean(counts > 0),"\n")
 ```
 
