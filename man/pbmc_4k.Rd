@@ -28,13 +28,13 @@
 \description{
 These data are a selection of the reference
   transcriptome profiles generated via single-cell RNA sequencing
-  (RNA-seq) of 10 bead-enriched subpopulations, described in Zheng
-  \emph{et al} (2017). The data are unique molecular identifier (UMI)
-  counts for 21,952 genes in 3,774 cells. Since the majority of the
-  UMI counts are zero, they are efficiently stored as a 3,774 x
-  21,952 sparse matrix. These data are used in the vignette
-  illustrating how fastTopics can be used to analyze to single-cell
-  RNA-seq data.
+  (RNA-seq) of 10 bead-enriched subpopulations of PBMCs (Donor A),
+  described in Zheng \emph{et al} (2017). The data are unique
+  molecular identifier (UMI) counts for 21,952 genes in 3,774
+  cells. Since the majority of the UMI counts are zero, they are
+  efficiently stored as a 3,774 x 21,952 sparse matrix. These data
+  are used in the vignette illustrating how fastTopics can be used to
+  analyze to single-cell RNA-seq data.
 }
 \examples{
 library(Matrix)

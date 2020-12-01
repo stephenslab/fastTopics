@@ -11,17 +11,19 @@ vignette: >
 
 Here we illustrate the use of **fastTopics** to infer structure in a
 population of cells from single-cell RNA-seq data. The analysis
-consists of four steps:
+consists of five steps:
 
-1. Fit a Poisson non-negative matrix factorization (NMF) to the UMI
+1. Load and prepare the count data.
+
+2. Fit a Poisson non-negative matrix factorization (NMF) to the UMI
    count data.
 
-2. Recover the multinomial topic model from the Poisson NMF model fit.
+3. Recover the multinomial topic model from the Poisson NMF model fit.
 
-3. Identify clusters from principal components (PCs) of the mixture
+4. Identify clusters from principal components (PCs) of the mixture
    proportions matrix
 
-4. Annotate selected clusters and topics by performing a differential
+5. Annotate selected clusters and topics by performing a differential
    expression analysis.
 
 ```{r knitr-opts, include=FALSE}
@@ -47,7 +49,12 @@ set.seed(1)
 Load and prepare data
 ---------------------
 
-*Describe data, and mention that the data are stored as a sparse matrix.*
+Load the single-cell RNA-seq data. This data set combines reference
+transcriptome profiles generated from 10 different bead-enriched
+subpopulations of PBMCs (Donor A) as described in
+[Zheng *et al* (2017)][zheng-2017]. The UMI counts are stored as an $n
+\times m$ sparse matrix, where $n$ is the number of cells and $m$ is
+the number of genes.
 
 ```{r load-data}
 data(pbmc_4k)
@@ -55,7 +62,6 @@ samples <- pbmc_4k$samples
 genes   <- pbmc_4k$genes
 counts  <- pbmc_4k$counts
 dim(counts)
-cat("Proportion of UMI counts that are not zero:",100*mean(counts > 0),"\n")
 ```
 
 No normalization or transformation of the UMI counts is needed. The
@@ -70,8 +76,14 @@ counts <- counts[,j]
 dim(counts)
 ```
 
-Fit multinomial topic model
----------------------------
+The data are indeed sparse---most of the counts are zero:
+
+```{r nonzeros}
+mean(counts > 0)
+```
+
+Fit Poisson NMF model
+---------------------
 
 ```{r load-fit, include=FALSE}
 fit <- pbmc_4k$fit
@@ -92,10 +104,13 @@ fit  <- fit_poisson_nmf(counts,fit0 = fit0,numiter = 100,method = "scd",
 
 Plot improvement in the solution over time.
 
-```{r plot-loglik, fig.height=3, fig.width=3}
+```{r plot-loglik, fig.height=3, fig.width=4}
 plot_progress_poisson_nmf(fit,x = "iter",add.point.every = 10,
                           colors = "black")
 ```
+
+Recover multinomial topic model
+-------------------------------
 
 Recover the multinomial topic model.
 
@@ -146,3 +161,5 @@ Here is where we use `diff_count_analysis` to interpret selected
 clusters and topics.
 
 [Use "topic" and "factor" interchangeably here.]
+
+[zheng-2017]: https://doi.org/10.1038/ncomms14049
