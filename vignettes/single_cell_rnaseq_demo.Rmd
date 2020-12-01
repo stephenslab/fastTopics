@@ -10,8 +10,8 @@ vignette: >
 ---
 
 Here we illustrate the use of **fastTopics** to infer structure in a
-population of cells from single-cell RNA-seq data. The analysis
-consists of five steps:
+population of cells from single-cell RNA-seq data. A basic analysis
+consists of these five steps:
 
 1. Load and prepare the count data.
 
@@ -25,6 +25,9 @@ consists of five steps:
 
 5. Annotate selected clusters and topics by performing a differential
    expression analysis.
+
+We show how fastTopics can be used to quickly implement each of these
+steps.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
