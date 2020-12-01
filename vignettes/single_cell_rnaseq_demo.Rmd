@@ -9,8 +9,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Here we illustrate the use of **fastTopics** to infer structure in
-single-cell RNA-seq data. There are four steps in our analysis:
+Here we illustrate the use of **fastTopics** to infer structure in a
+population of cells from single-cell RNA-seq data. The analysis
+consists of four steps:
 
 1. Fit a Poisson non-negative matrix factorization (NMF) to the UMI
    count data.
@@ -53,12 +54,14 @@ data(pbmc_4k)
 samples <- pbmc_4k$samples
 genes   <- pbmc_4k$genes
 counts  <- pbmc_4k$counts
-cat("Nonzero rate:",100*mean(counts > 0),"\n")
+dim(counts)
+cat("Proportion of UMI counts that are not zero:",100*mean(counts > 0),"\n")
 ```
 
-No normalization or transformation of the counts is needed. The only
-step that is needed is to remove genes that are not expressed in any
-of the cells (or, more generally, remove columns that do not vary).
+No normalization or transformation of the UMI counts is needed. The
+only processing step needed is to remove genes that are not expressed
+in any of the cells (more generally, we should remove columns that do
+not vary).
 
 ```{r filter-genes}
 j      <- which(colSums(counts > 0) >= 1)
@@ -69,6 +72,10 @@ dim(counts)
 
 Fit multinomial topic model
 ---------------------------
+
+```{r load-fit, include=FALSE}
+fit <- pbmc_4k$fit
+```
 
 Explain why we first fit a Poisson NMF model. Also explain nuances of
 Poisson NMF optimization. Fit the Poisson NMF model by running 100 EM
