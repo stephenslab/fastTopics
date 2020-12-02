@@ -20,8 +20,7 @@ consists of these five steps:
 
 3. Recover the multinomial topic model from the Poisson NMF model fit.
 
-4. Identify clusters from principal components (PCs) of the mixture
-   proportions matrix.
+4. Analyze structure in the mixture proportions matrix.
 
 5. Annotate selected clusters and topics by performing a differential
    expression analysis.
@@ -34,8 +33,8 @@ knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
                       fig.align = "center",dpi = 120)
 ```
 
-In addition to the Matrix and fastTopics packages, we also use ggplot2
-and cowplot to visualize the results of the topic modeling analysis.
+Beyond fastTopics and the Matrixx package, we use ggplot2 and cowplot
+to visualize the results of the topic modeling analysis.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
@@ -69,9 +68,9 @@ dim(counts)
 ```
 
 No normalization or transformation of the UMI counts is needed. The
-only processing step needed is to remove genes that are not expressed
-in any of the cells (more generally, we should remove columns that do
-not vary).
+only pre-processing step we take is removing genes that are not
+expressed in any of the cells (more generally, you should remove
+columns in the counts matrix that do not vary).
 
 ```{r filter-genes}
 j      <- which(colSums(counts > 0) >= 1)
@@ -90,21 +89,17 @@ Fit Poisson NMF model
 ---------------------
 
 By exploiting the relationship between the multinomial topic model and
-non-negative matrix factorization---we have a vignette explaining this
-relationship---we leverage fast NMF optimization algorithms to fit the
-multinomial topic model. This can take several minutes to run, so we
-have saved the output of the `fit_poisson_nmf` code:
+non-negative matrix factorization (we have a vignette elaborating on
+this relationship), we leverage fast NMF optimization algorithms to
+fit the multinomial topic model. This can take several minutes to run,
+so we have saved the output of the `fit_poisson_nmf` code:
 
 ```{r load-fit}
 fit <- pbmc_4k$fit
 ```
 
-Otherwise, if you would like to see the Poisson NMF model fitting in
-action, try running the code in this next code chunk. (This was the
-exact code that was used to generate the stored result.) Note that you
-may want to change `control$nc`, which controls the number of threads
-in the TBB multithreaded computations, according to the number of
-processors available on your computer.
+If you would like to see the Poisson NMF model fitting in action, try
+running this next code chunk:
 
 ```{r fit-poisson-nm, eval=FALSE}
 fit0 <- fit_poisson_nmf(counts,k = 6,numiter = 100,method = "em",
@@ -113,42 +108,55 @@ fit  <- fit_poisson_nmf(counts,fit0 = fit0,numiter = 100,method = "scd",
                         control = list(extrapolate = TRUE,numiter = 4,nc = 2))
 ```
 
+(This is the code that was used to generate the stored result.) Note
+that you may want to change `control$nc`, which controls the number of
+threads in the TBB multithreaded computations, according to the number
+of processors available on your computer.
+
 Judging by this plot showing the change in the log-likelihood over
-time, the iterates get very close to a solution---that is, a
-local maximum of the likelihood---after about 150 iterations.
+time, the iterates get very close to a solution---that is, they arrive
+at a local maximum of the likelihood---after about 150 iterations.
 
 ```{r plot-loglik, fig.height=2, fig.width=3.5}
 plot_progress_poisson_nmf(fit,x = "iter",add.point.every = 10,
                           colors = "black")
 ```
 
-Here we briefly give some guidance on the model fitting, and explain
-the optimization settings used in the code above.
+Here we briefly give some general guidance on the model fitting step,
+and explain the model fitting settings used in the code above.
 
 We have found that the EM algorithm initially makes rapid progress
 toward a solution, but this convergence slows considerably as the
 iterates approach the solution. Therefore, we have found it helpful to
 first perform EM updates, then refine the fit using SCD updates. In
-our experience, this refinement step works best using the SCD updates
-combined with the "extrapolation" scheme.
+our experience, this refinement step works best using extrapolated SCD
+updates.
 
-For larger data sets, more than 200 updates may be needed to arrive at
-a good solution.
+For larger data sets, more than 200 updates may be needed to obtain a
+good fit.
 
 Recover multinomial topic model
 -------------------------------
 
 Once we have fit a Poisson NMF model, the multinomial topic model is
-easly recovered by a simple reparameterization:
+easly recovered by a reparameterization:
 
 ```{r poisson2multinom}
 fit_multinom <- poisson2multinom(fit)
 ```
 
-Structure plot---a first attempt
---------------------------------
+Visualize mixture proportions with a Structure plot
+---------------------------------------------------
 
-*Add text and code here.*
+*Add text here.*
+
+```{r structure-plot, fig.width=5.5, fig.height=1.5, results="hide"}
+topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue","gold",
+                  "darkorange")
+structure_plot(fit_multinom,topics = 1:6,colors = topic_colors)
+```
+
+*Add more text.*
 
 Identify clusters
 -----------------
@@ -218,9 +226,7 @@ Structure plot
 The structure plot summarizes the mixture proportions of the cells in
 each of the 6 clusters:
 
-```{r structure-plot, fig.width=5.75, fig.height=1.5, message=FALSE, results="hide"}
-topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue","gold",
-                  "darkorange")
+```{r structure-plot-better, fig.width=5.75, fig.height=1.5, message=FALSE, results="hide"}
 structure_plot(fit_multinom,grouping = clusters,topics = 1:6,
                colors = topic_colors,gap = 25)
 ```
