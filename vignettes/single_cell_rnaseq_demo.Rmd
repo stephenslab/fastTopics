@@ -50,8 +50,8 @@ We set the seed so that the results can be reproduced.
 set.seed(1)
 ```
 
-1. Load and prepare data
-------------------------
+Load and prepare data
+---------------------
 
 Load the single-cell RNA-seq data. This data set combines reference
 transcriptome profiles generated from 10 different bead-enriched
@@ -86,8 +86,8 @@ The data are indeed sparse---most of the counts are zero:
 mean(counts > 0)
 ```
 
-2. Fit Poisson NMF model
-------------------------
+Fit Poisson NMF model
+---------------------
 
 By exploiting the relationship between the multinomial topic model and
 non-negative matrix factorization---we have a vignette explaining this
@@ -135,8 +135,8 @@ combined with the "extrapolation" scheme.
 For larger data sets, more than 200 updates may be needed to arrive at
 a good solution.
 
-3. Recover multinomial topic model
-----------------------------------
+Recover multinomial topic model
+-------------------------------
 
 Once we have fit a Poisson NMF model, the multinomial topic model is
 easly recovered by a simple reparameterization:
@@ -145,8 +145,13 @@ easly recovered by a simple reparameterization:
 fit_multinom <- poisson2multinom(fit)
 ```
 
-4. Identify clusters
---------------------
+Structure plot---a first attempt
+--------------------------------
+
+*Add text and code here.*
+
+Identify clusters
+-----------------
 
 Having obtained the multinomial topic model, we now analyze the
 mixture proportions matrix, `fit_multinom$L`. We begin this analysis
