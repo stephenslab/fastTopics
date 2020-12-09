@@ -1,5 +1,5 @@
 ---
-title: Analysis of single-cell RNA-seq data using fastTopics: an illustration
+title: "Analysis of single-cell RNA-seq data using fastTopics: an illustration"
 author: Peter Carbonetto
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -25,16 +25,16 @@ consists of these five steps:
 5. Annotate selected clusters and topics by performing a differential
    expression analysis.
 
-We show how fastTopics can be used to quickly implement each of these
-steps.
+Here we walk through these steps of the analysis, and show how
+fastTopics can be used to quickly implement each of these steps.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
                       fig.align = "center",dpi = 120)
 ```
 
-Beyond fastTopics and the Matrixx package, we use ggplot2 and cowplot
-to visualize the results of the topic modeling analysis.
+Beyond fastTopics, we use the Matrix package to load the sparse counts
+matrix, and we use the ggplot2 and cowplot packages to create plots.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
@@ -145,18 +145,80 @@ easly recovered by a reparameterization:
 fit_multinom <- poisson2multinom(fit)
 ```
 
-Visualize mixture proportions with a Structure plot
----------------------------------------------------
+Identify clusters
+-----------------
+
+```{r pca-plot-1}
+set.seed(1)
+pca <- prcomp(fit_multinom$L)
+ans <- kmeans(pca$x,centers = 6,iter.max = 100)
+clusters <- ans$cluster
+clusters[clusters == 3] <- 1
+clusters <- factor(clusters)
+levels(clusters) <- c("T","CD14+","B","CD34+","NK")
+cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","gray")
+p1 <- pca_plot(fit_multinom,pcs = 1:2,fill = clusters) +
+  scale_fill_manual(values = cluster_colors)
+p2 <- pca_plot(fit_multinom,pcs = 3:4,fill = clusters) +
+  scale_fill_manual(values = cluster_colors)
+plot_grid(p1,p2)
+```
+
+Summarize substructure with a Structure plot
+--------------------------------------------
 
 *Add text here.*
 
-```{r structure-plot, fig.width=5.5, fig.height=1.5, results="hide"}
-topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue","gold",
-                  "darkorange")
-structure_plot(fit_multinom,topics = 1:6,colors = topic_colors)
+```{r structure-plot-1, fig.width=5.5, fig.height=1.5, results="hide"}
+topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
+                  "gold","darkorange")
+p3 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors)
+print(p3)
 ```
 
-*Add more text.*
+*Add more text here.*
+
+```{r structure-plot-2, fig.width=5.5, fig.height=1.5, results="hide"}
+p4 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
+                     grouping = clusters,gap = 20)
+print(p4)
+```
+
+*Add even more text here*.
+
+```{r pca-plot-1}
+clusters <- as.character(clusters)
+clusters[clusters == "T" & fit_multinom$L[,1] > 0.1] <- "CD8+"
+clusters <- factor(clusters)
+cluster_colors <- c("dodgerblue","forestgreen","darkmagenta","red",
+                    "gray","gold")
+p5 <- pca_plot(fit_multinom,pcs = 1:2,fill = clusters) +
+  scale_fill_manual(values = cluster_colors)
+p6 <- pca_plot(fit_multinom,pcs = 3:4,fill = clusters) +
+  scale_fill_manual(values = cluster_colors)
+plot_grid(p5,p6)
+```
+
+*Add further text here.*
+
+```{r structure-plot-3, fig.width=5.5, fig.height=1.5, results="hide"}
+p7 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
+                     grouping = clusters,gap = 20)
+print(p7)
+```
+
+Annotate topics and clusters
+----------------------------
+
+Here is where we use `diff_count_analysis` to interpret selected
+clusters and topics.
+
+```{r volcano-plots, eval=FALSE}
+ans <- diff_count_analysis(fit_multinom,counts)
+volcano_plot(ans,k = 5,labels = genes$symbol)
+```
+
+TO DO: Demonstrate how to create interactive volcano plot.
 
 Identify clusters
 -----------------
@@ -232,18 +294,5 @@ structure_plot(fit_multinom,grouping = clusters,topics = 1:6,
 ```
 
 *Add text here explaining how the Structure plot works.*
-
-Annotate topics and clusters
-----------------------------
-
-Here is where we use `diff_count_analysis` to interpret selected
-clusters and topics.
-
-```{r volcano-plots, eval=FALSE}
-ans <- diff_count_analysis(fit_multinom,counts)
-volcano_plot(ans,k = 5,labels = genes$symbol)
-```
-
-TO DO: Demonstrate how to create interactive volcano plot.
 
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
