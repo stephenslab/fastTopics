@@ -2,9 +2,11 @@
 title: "Analysis of single-cell RNA-seq data using fastTopics: an illustration"
 author: Peter Carbonetto
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  html_document:
+    theme: readable
 vignette: >
-  %\VignetteIndexEntry{fastTopics single-cell RNA-seq demo}
+  %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using fastTopics: an illustration}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,7 +20,8 @@ steps:
 2. Fit a Poisson non-negative matrix factorization (NMF) to the UMI
    count data.
 
-3. Recover the multinomial topic model from the Poisson NMF model fit.
+3. Recover the multinomial topic model---also called the multinomial
+   "grade-of-membership" model---from the Poisson NMF model fit.
 
 4. Analyze structure in the estimated mixture proportions matrix.
 
@@ -91,8 +94,13 @@ Fit Poisson NMF model
 By exploiting the relationship between the multinomial topic model and
 non-negative matrix factorization (we have a vignette elaborating on
 this relationship), we leverage fast NMF optimization algorithms to
-fit the multinomial topic model. Although fast, this can still take
-several minutes to run, or more, so we have saved a "pre-fitted" model:
+fit the multinomial topic model.
+
+We chose $K = 6$ factors. In practice, you will likely want to explore
+the results from different settings of $K$.
+
+Since the model fitting can take several minutes to run, or more, we
+have saved a pre-fitted model:
 
 ```{r load-fit}
 fit <- pbmc_4k$fit
@@ -118,17 +126,21 @@ about 150 iterations.
 
 ```{r plot-loglik, fig.height=2, fig.width=3.5}
 plot_progress_poisson_nmf(fit,x = "iter",add.point.every = 10,
-                          colors = "black")
+                          colors = "black") +
+  theme_cowplot(font_size = 10)
 ```
 
-*Some general guidance on model fitting.* We have found that the EM
-algorithm initially makes rapid progress toward a solution. However,
-this convergence slows considerably as the iterates approach the
-solution, and close to a solution we have found that other algorithms
-work much better. Therefore, we have found that a two-stage model
-fitting approach works well: first perform EM updates, then refine the
-fit using extrapolated SCD updates. For larger data sets, do not be
-surprised if more than 200 updates are needed to obtain a good fit.
+**Some general guidance on model fitting.** We have found that the EM
+algorithm initially makes rapid progress toward a solution, but this
+convergence slows considerably as the iterates approach the solution.
+Close to a solution, we have found that other algorithms make much
+more rapid progress than EM. Therefore, we have taken a two-stage
+approach to model fitting: first, we perform EM updates; second, we
+refine the fit using extrapolated SCD updates (we also tried
+extrapolated CCD updates, and updates without extrapolation, and we
+found that the extrapolated SCD updates almost always worked best).
+For larger data sets, more than 200 updates may be needed to obtain a
+good fit.
 
 Recover multinomial topic model
 -------------------------------
@@ -140,29 +152,79 @@ easly recovered by a reparameterization:
 fit_multinom <- poisson2multinom(fit)
 ```
 
-Identify clusters
------------------
+Identify clusters from mixture proportions
+------------------------------------------
 
-```{r pca-plot-1}
+The key strength of fastTopics is its flexibility to capture a variety
+of structure, from distinct clusters (e.g., cell types) to continuous
+structure. Here, we show how the multinomial topic model fit can be
+used to identify clusters of cells, and later we will expand on this.
+
+Here we apply the most basic and most widely used clustering method,
+*k*-means, to the mixture proportions matrix, $L$. We experimented
+with different numbers of clusters and we found that 6 clusters worked
+best in this example. Note that *k*-means is sensitive to (random)
+initialization, so we set the seed.
+
+```{r clustering-1}
 set.seed(1)
-pca <- prcomp(fit_multinom$L)
-ans <- kmeans(pca$x,centers = 6,iter.max = 100)
-clusters <- ans$cluster
+clusters <- kmeans(fit_multinom$L,centers = 6,iter.max = 100)$cluster
+```
+
+In some cases, it may be better to apply *k*-means to the principal
+components (PCs) of the mixture proportions. The PCs can easily be
+computed using `prcomp`.
+
+You will find that some visual inspection followed by manual
+refinement may be needed to get the "right" clustering, regardless of
+whether *k*-means or another clustering algorithm is used. Here, we
+found that *k*-means split the largest cluster into two subclusters.
+After merging these two subclusters, we ended up with 5 clusters:
+
+```{r clustering-2}
 clusters[clusters == 3] <- 1
 clusters <- factor(clusters)
+summary(clusters)
+```
+
+With the benefit of hindsight, we know that these 5 clusters
+correspond to 5 cell types: B-cells, T-cells, natural killer (NK)
+cellls, CD14+ monoytes and CD34+ cells. For clarity of presentation,
+we label the clusters by these cell types, but noting that labeling
+the clusters is not usually not possible until downstream analyses
+have been conducted.
+
+The clustering of the cells is mostly evident from the first two PCs of
+the mixture proportions:
+
+```{r pca-1, fig.width=6.25, fig.height=2, message=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
 cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","gray")
-p1 <- pca_plot(fit_multinom,pcs = 1:2,fill = clusters) +
+p1 <- pca_plot(fit_multinom,fill = clusters) +
   scale_fill_manual(values = cluster_colors)
-p2 <- pca_plot(fit_multinom,pcs = 3:4,fill = clusters) +
-  scale_fill_manual(values = cluster_colors)
-plot_grid(p1,p2)
+p2 <- pca_hexbin_plot(fit_multinom)
+plot_grid(p1,p2,rel_widths = c(9,10))
 ```
+
+These PC plots help to illuminate the clustering and other
+substructure.  The PC density plot is particularly helpful when the
+plot contains thousands of cells, many of which overlap each other in
+the scatterplog. Here we use a "hexbin" plot to visualize the density
+of the cells projected onto the top two PCs.
+
+From the density plot, observe that the NK cells and T-cells form two
+clusters that are less distinct than the others. In particular, there
+is some ambiguity in how the cells should be assigned to the two
+clusters.
+
+The clustering of the B-cells and CD34+ cells is more clear in PCs
+3 and 4.
 
 Summarize substructure with a Structure plot
 --------------------------------------------
 
-*Add text here.*
+A much more versatile tool for visualizing the mixture proportions is
+the Structure plot. Here is the simplest example of a Structure plot:
 
 ```{r structure-plot-1, fig.width=5.5, fig.height=1.5, results="hide"}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
@@ -171,7 +233,8 @@ p3 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors)
 print(p3)
 ```
 
-*Add more text here.*
+Here the colours were chosen to correspond to the clusters shown in
+the plots above.
 
 ```{r structure-plot-2, fig.width=5.5, fig.height=1.5, results="hide"}
 p4 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
@@ -227,18 +290,18 @@ expression data.*
 
 The next two plots show the projection of the cells onto the top 4 PCs:
 
-```{r pca-1, fig.width=4.5, fig.height=2}
+```{r, fig.width=4.5, fig.height=2, eval=FALSE}
 p1 <- pca_plot(fit_multinom,pcs = 1:2,fill = "none")
 p2 <- pca_plot(fit_multinom,pcs = 3:4,fill = "none")
 plot_grid(p1,p2)
 ```
 
-vIn some areas of the the PCA plot, there are many---sometimes
+In some areas of the the PCA plot, there are many---sometimes
 hundreds---of cells squeezed into a very tight space. In such cases,
 it can be more effective to plot the density of the cells in the PC
 projection:
 
-```{r pca-2, fig.width=5.75, fig.height=1.75}
+```{r, fig.width=5.75, fig.height=1.75, eval=FALSE}
 p3 <- pca_hexbin_plot(fit_multinom,pcs = 1:2,bins = 24)
 p4 <- pca_hexbin_plot(fit_multinom,pcs = 3:4,bins = 24)
 plot_grid(p3,p4)
@@ -248,7 +311,7 @@ Based on these plots, we subdivide the cells into 6 clusters. (This
 happens to be the same as $K$, the number of factors or topics, but in
 general there may be more clusters than $K$, or fewer.)
 
-```{r pca-3, fig.width=5.75, fig.height=2, message=FALSE}
+```{r pca-3, fig.width=5.75, fig.height=2, message=FALSE, eval=FALSE}
 n   <- nrow(counts)
 pca <- prcomp(fit_multinom$L)$x
 clusters <- rep("CD8+",n)
@@ -283,7 +346,7 @@ Structure plot
 The structure plot summarizes the mixture proportions of the cells in
 each of the 6 clusters:
 
-```{r structure-plot-better, fig.width=5.75, fig.height=1.5, message=FALSE, results="hide"}
+```{r structure-plot-better, fig.width=5.75, fig.height=1.5, message=FALSE, results="hide", eval=FALSE}
 structure_plot(fit_multinom,grouping = clusters,topics = 1:6,
                colors = topic_colors,gap = 25)
 ```
