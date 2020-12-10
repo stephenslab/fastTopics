@@ -9,9 +9,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Here we illustrate the use of **fastTopics** to infer structure in a
-population of cells from single-cell RNA-seq data. A basic analysis
-consists of these five steps:
+Here we illustrate the use of **fastTopics** to infer structure from
+single-cell RNA-seq data. A basic analysis consists of the following
+steps:
 
 1. Load and prepare the count data.
 
@@ -20,21 +20,21 @@ consists of these five steps:
 
 3. Recover the multinomial topic model from the Poisson NMF model fit.
 
-4. Analyze structure in the mixture proportions matrix.
+4. Analyze structure in the estimated mixture proportions matrix.
 
-5. Annotate selected clusters and topics by performing a differential
-   expression analysis.
+5. Annotate selected clusters and factors by examining genes that
+   are highly differentially expressed among clusters or factors.
 
-Here we walk through these steps of the analysis, and show how
-fastTopics can be used to quickly implement each of these steps.
+In this vignette, we walk through each of these steps, and demonstrate
+how fastTopics is used to implement the steps.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
                       fig.align = "center",dpi = 120)
 ```
 
-Beyond fastTopics, we use the Matrix package to load the sparse counts
-matrix, and we use the ggplot2 and cowplot packages to create plots.
+Begin by loading the packages used below. The ggplot2 and cowplot
+packages are used to create some of the plots.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
@@ -43,7 +43,7 @@ library(ggplot2)
 library(cowplot)
 ```
 
-We set the seed so that the results can be reproduced.
+Set the seed so that the results can be reproduced.
 
 ```{r set-seed}
 set.seed(1)
@@ -52,12 +52,7 @@ set.seed(1)
 Load and prepare data
 ---------------------
 
-Load the single-cell RNA-seq data. This data set combines reference
-transcriptome profiles generated from 10 different bead-enriched
-subpopulations of PBMCs (Donor A) as described in
-[Zheng *et al* (2017)][zheng-2017]. The UMI counts are stored as an $n
-\times m$ sparse matrix, where $n$ is the number of cells and $m$ is
-the number of genes.
+Load the single-cell RNA-seq data:
 
 ```{r load-data}
 data(pbmc_4k)
@@ -67,10 +62,15 @@ counts  <- pbmc_4k$counts
 dim(counts)
 ```
 
+This data set is made up of reference transcriptome profiles that were
+generated from 10 different bead-enriched subpopulations of PBMCs
+(Donor A), as described in [Zheng *et al* (2017)][zheng-2017]. The UMI
+counts are stored as an $n \times m$ sparse matrix, where $n$ is the
+number of cells and $m$ is the number of genes.
+
 No normalization or transformation of the UMI counts is needed. The
-only pre-processing step we take is removing genes that are not
-expressed in any of the cells (more generally, you should remove
-columns in the counts matrix that do not vary).
+only pre-processing step we take is to remove genes that are not
+expressed in any of the cells.
 
 ```{r filter-genes}
 j      <- which(colSums(counts > 0) >= 1)
@@ -79,7 +79,7 @@ counts <- counts[,j]
 dim(counts)
 ```
 
-The data are indeed sparse---most of the counts are zero:
+As expected, most (>95%) of the UMI counts are zero:
 
 ```{r nonzeros}
 mean(counts > 0)
@@ -91,15 +91,14 @@ Fit Poisson NMF model
 By exploiting the relationship between the multinomial topic model and
 non-negative matrix factorization (we have a vignette elaborating on
 this relationship), we leverage fast NMF optimization algorithms to
-fit the multinomial topic model. This can take several minutes to run,
-so we have saved the output of the `fit_poisson_nmf` code:
+fit the multinomial topic model. Although fast, this can still take
+several minutes to run, or more, so we have saved a "pre-fitted" model:
 
 ```{r load-fit}
 fit <- pbmc_4k$fit
 ```
 
-If you would like to see the Poisson NMF model fitting in action, try
-running this next code chunk:
+If you would like to see the model fitting in action, run this code:
 
 ```{r fit-poisson-nm, eval=FALSE}
 fit0 <- fit_poisson_nmf(counts,k = 6,numiter = 100,method = "em",
@@ -108,32 +107,28 @@ fit  <- fit_poisson_nmf(counts,fit0 = fit0,numiter = 100,method = "scd",
                         control = list(extrapolate = TRUE,numiter = 4,nc = 2))
 ```
 
-(This is the code that was used to generate the stored result.) Note
-that you may want to change `control$nc`, which controls the number of
-threads in the TBB multithreaded computations, according to the number
-of processors available on your computer.
+(This is the code that was used to generate the stored result.) Before
+running this code, may want to change `control$nc`. This controls the
+number of threads in the TBB multithreaded computations, and for best
+performance this should be set to the number of availablle processors.
 
 Judging by this plot showing the change in the log-likelihood over
-time, the iterates get very close to a solution---that is, they arrive
-at a local maximum of the likelihood---after about 150 iterations.
+time, the iterates get close to a maxium-likelihood solution after
+about 150 iterations.
 
 ```{r plot-loglik, fig.height=2, fig.width=3.5}
 plot_progress_poisson_nmf(fit,x = "iter",add.point.every = 10,
                           colors = "black")
 ```
 
-Here we briefly give some general guidance on the model fitting step,
-and explain the model fitting settings used in the code above.
-
-We have found that the EM algorithm initially makes rapid progress
-toward a solution, but this convergence slows considerably as the
-iterates approach the solution. Therefore, we have found it helpful to
-first perform EM updates, then refine the fit using SCD updates. In
-our experience, this refinement step works best using extrapolated SCD
-updates.
-
-For larger data sets, more than 200 updates may be needed to obtain a
-good fit.
+*Some general guidance on model fitting.* We have found that the EM
+algorithm initially makes rapid progress toward a solution. However,
+this convergence slows considerably as the iterates approach the
+solution, and close to a solution we have found that other algorithms
+work much better. Therefore, we have found that a two-stage model
+fitting approach works well: first perform EM updates, then refine the
+fit using extrapolated SCD updates. For larger data sets, do not be
+surprised if more than 200 updates are needed to obtain a good fit.
 
 Recover multinomial topic model
 -------------------------------
@@ -186,7 +181,7 @@ print(p4)
 
 *Add even more text here*.
 
-```{r pca-plot-1}
+```{r pca-plot-2}
 clusters <- as.character(clusters)
 clusters[clusters == "T" & fit_multinom$L[,1] > 0.1] <- "CD8+"
 clusters <- factor(clusters)
@@ -207,8 +202,8 @@ p7 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
 print(p7)
 ```
 
-Annotate topics and clusters
-----------------------------
+Annotate factors and clusters using differential gene expression
+---------------------------------------------------------------
 
 Here is where we use `diff_count_analysis` to interpret selected
 clusters and topics.
@@ -238,7 +233,7 @@ p2 <- pca_plot(fit_multinom,pcs = 3:4,fill = "none")
 plot_grid(p1,p2)
 ```
 
-In some areas of the the PCA plot, there are many---sometimes
+vIn some areas of the the PCA plot, there are many---sometimes
 hundreds---of cells squeezed into a very tight space. In such cases,
 it can be more effective to plot the density of the cells in the PC
 projection:
