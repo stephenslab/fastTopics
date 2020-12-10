@@ -199,7 +199,7 @@ the mixture proportions:
 
 ```{r pca-1, fig.width=6.25, fig.height=2, message=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
-cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","gray")
+cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
 p1 <- pca_plot(fit_multinom,fill = clusters) +
   scale_fill_manual(values = cluster_colors)
 p2 <- pca_hexbin_plot(fit_multinom)
@@ -254,34 +254,51 @@ characterised by a single pattern of gene expression (a factor),
 whereas expression in NK and T cells is less distinct, and is
 reflected in the sharing of factor 6 among NK and T cells.
 
+The versality of the Structure plot can also present a challenge,
+particularly for cell populations with more complex or fine-scale
+structure. Therefore, it may take some effort---and creativity---to
+create a Structure plot that effectively highlights the structure in
+the data. A simple way to improve the Structure plot is to arrange the
+cells by their assignment to the 5 clusters:
+
 ```{r structure-plot-2, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 p4 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
                      grouping = clusters,gap = 25)
 print(p4)
 ```
 
-*Add even more text here*.
+This second Structure plot helps to highlight heterogeneity within the
+clusters, particularly within the T cells. Notably, within the T cell
+cluster there is a subset of cells with a distinctive combination of
+topics, in particular with sizeable contributions from the "NK cells"
+factor (factor 1, light blue)---this is the same subset of cells that
+sit in between the concentrated clumps of NK and T-cell in the PCA
+hexbin plot above. To highlight this subset of cells, which turn out
+to correspond to CD8+ cells, so we label this T cell subset as "CD8+".
 
-```{r pca-plot-2}
+```{r clustering-3}
 clusters <- as.character(clusters)
 clusters[clusters == "T" & fit_multinom$L[,1] > 0.1] <- "CD8+"
 clusters <- factor(clusters)
-cluster_colors <- c("dodgerblue","forestgreen","darkmagenta","red",
-                    "gray","gold")
-p5 <- pca_plot(fit_multinom,pcs = 1:2,fill = clusters) +
-  scale_fill_manual(values = cluster_colors)
-p6 <- pca_plot(fit_multinom,pcs = 3:4,fill = clusters) +
-  scale_fill_manual(values = cluster_colors)
-plot_grid(p5,p6)
+summary(clusters)
 ```
 
-*Add further text here.*
+This is the new Structure plot with the cells subdivided into 6
+subsets:
 
-```{r structure-plot-3, fig.width=5.5, fig.height=1.5, results="hide"}
-p7 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
-                     grouping = clusters,gap = 20)
-print(p7)
+```{r structure-plot-3, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
+p5 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
+                     grouping = clusters,gap = 25)
+print(p5)
 ```
+
+It is clear from this Structure plot that some subsets form distinct
+clusters (CD14+, CD34+ and B cells) because expression factors
+uniquely occur in these clusters, whereas others (CD8+, NK and T
+cells) are less distinct, with somewhat arbitrary cluster boundaries,
+and this is reflected in contributions of shared factors. For the less
+distinct clusters, the clustering is nonetheless useful for guiding
+the eye in the Structure plots toward interesting patterns.
 
 Annotate factors and clusters using differential gene expression
 ---------------------------------------------------------------
@@ -295,80 +312,5 @@ volcano_plot(ans,k = 5,labels = genes$symbol)
 ```
 
 TO DO: Demonstrate how to create interactive volcano plot.
-
-Identify clusters
------------------
-
-Having obtained the multinomial topic model, we now analyze the
-mixture proportions matrix, `fit_multinom$L`. We begin this analysis
-by identifying clusters from the principal components (PCs) of the
-mixture proportions. *Note that we could plot the loadings matrix from
-the NMF instead, but explain why this is not recommended for
-expression data.*
-
-The next two plots show the projection of the cells onto the top 4 PCs:
-
-```{r, fig.width=4.5, fig.height=2, eval=FALSE}
-p1 <- pca_plot(fit_multinom,pcs = 1:2,fill = "none")
-p2 <- pca_plot(fit_multinom,pcs = 3:4,fill = "none")
-plot_grid(p1,p2)
-```
-
-In some areas of the the PCA plot, there are many---sometimes
-hundreds---of cells squeezed into a very tight space. In such cases,
-it can be more effective to plot the density of the cells in the PC
-projection:
-
-```{r, fig.width=5.75, fig.height=1.75, eval=FALSE}
-p3 <- pca_hexbin_plot(fit_multinom,pcs = 1:2,bins = 24)
-p4 <- pca_hexbin_plot(fit_multinom,pcs = 3:4,bins = 24)
-plot_grid(p3,p4)
-```
-
-Based on these plots, we subdivide the cells into 6 clusters. (This
-happens to be the same as $K$, the number of factors or topics, but in
-general there may be more clusters than $K$, or fewer.)
-
-```{r pca-3, fig.width=5.75, fig.height=2, message=FALSE, eval=FALSE}
-n   <- nrow(counts)
-pca <- prcomp(fit_multinom$L)$x
-clusters <- rep("CD8+",n)
-pc1 <- pca[,1]
-pc2 <- pca[,2]
-pc3 <- pca[,3]
-pc4 <- pca[,4]
-clusters[pc2 > 0] <- "T"
-clusters[pc2 < -0.3] <- "NK"
-clusters[pc2 > pc1 + 0.6] <- "B"
-clusters[pc3 > 0.15] <- "CD34+"
-clusters[pc4 < -0.6] <- "CD14+"
-clusters <- factor(clusters)
-cluster_colors <- c("dodgerblue",  # B cells
-                    "forestgreen", # CD14+
-                    "darkmagenta", # CD34+ 
-                    "red",         # CD8+
-                    "skyblue",     # NK
-                    "darkorange")  # T cells
-p5 <- pca_plot(fit_multinom,pcs = 1:2,fill = clusters) +
-  scale_fill_manual(values = cluster_colors)
-p6 <- pca_plot(fit_multinom,pcs = 3:4,fill = clusters) +
-  scale_fill_manual(values = cluster_colors)
-plot_grid(p5,p6)
-```
-
-*Add text here.*
-
-Structure plot
---------------
-
-The structure plot summarizes the mixture proportions of the cells in
-each of the 6 clusters:
-
-```{r structure-plot-better, fig.width=5.75, fig.height=1.5, message=FALSE, results="hide", eval=FALSE}
-structure_plot(fit_multinom,grouping = clusters,topics = 1:6,
-               colors = topic_colors,gap = 25)
-```
-
-*Add text here explaining how the Structure plot works.*
 
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
