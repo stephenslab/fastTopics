@@ -188,7 +188,7 @@ summary(clusters)
 ```
 
 With the benefit of hindsight, we know that these 5 clusters
-correspond to 5 cell types: B-cells, T-cells, natural killer (NK)
+correspond to 5 cell types: B cells, T cells, natural killer (NK)
 cellls, CD14+ monoytes and CD34+ cells. For clarity of presentation,
 we label the clusters by these cell types, but noting that labeling
 the clusters is not usually not possible until downstream analyses
@@ -212,33 +212,51 @@ plot contains thousands of cells, many of which overlap each other in
 the scatterplog. Here we use a "hexbin" plot to visualize the density
 of the cells projected onto the top two PCs.
 
-From the density plot, observe that the NK cells and T-cells form two
+From the density plot, observe that the NK cells and T cells form two
 clusters that are less distinct than the others. In particular, there
 is some ambiguity in how the cells should be assigned to the two
 clusters.
 
-The clustering of the B-cells and CD34+ cells is more clear in PCs
+The clustering of the B cells and CD34+ cells is more clear in PCs
 3 and 4.
 
 Summarize substructure with a Structure plot
 --------------------------------------------
 
-A much more versatile tool for visualizing the mixture proportions is
+A much more versatile tool for exploring the mixture proportions is
 the Structure plot. Here is the simplest example of a Structure plot:
 
-```{r structure-plot-1, fig.width=5.5, fig.height=1.5, results="hide"}
+```{r structure-plot-1, fig.width=6.5, fig.height=1.5, results="hide"}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
 p3 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors)
 print(p3)
 ```
 
-Here the colours were chosen to correspond to the clusters shown in
-the plots above.
+This is effectively a stacked bar chart, in which each bar corresponds
+to a cell, and each colour corresponds to a factor, or "topic". Since
+the mixture proportions for each cell sum to 1, the stacked bars all
+have the same height of 1.
 
-```{r structure-plot-2, fig.width=5.5, fig.height=1.5, results="hide"}
+By default, `structure_plot` shows a random subset of 2,000 cells. The
+cells are automatically ordered by computing a 1-d *t*-SNE embedding
+on this random subset, then ordering the cells according to their
+arrangement on this 1-d embedding. (There are options in
+`structure_plot` to override this automatic behaviour.)
+
+The colours were chosen to correspond to the clusters shown in the
+plots above.
+
+Here we see that a lot of information about the structure in the data
+is compressed into a single plot. In particular, the B cells (blue),
+CD14+ monocytes (green) and CD34+ cells (purple) are each largely
+characterised by a single pattern of gene expression (a factor),
+whereas expression in NK and T cells is less distinct, and is
+reflected in the sharing of factor 6 among NK and T cells.
+
+```{r structure-plot-2, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 p4 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
-                     grouping = clusters,gap = 20)
+                     grouping = clusters,gap = 25)
 print(p4)
 ```
 
@@ -325,12 +343,12 @@ clusters[pc2 > pc1 + 0.6] <- "B"
 clusters[pc3 > 0.15] <- "CD34+"
 clusters[pc4 < -0.6] <- "CD14+"
 clusters <- factor(clusters)
-cluster_colors <- c("dodgerblue",  # B-cells
+cluster_colors <- c("dodgerblue",  # B cells
                     "forestgreen", # CD14+
                     "darkmagenta", # CD34+ 
                     "red",         # CD8+
                     "skyblue",     # NK
-                    "darkorange")  # T-cells
+                    "darkorange")  # T cells
 p5 <- pca_plot(fit_multinom,pcs = 1:2,fill = clusters) +
   scale_fill_manual(values = cluster_colors)
 p6 <- pca_plot(fit_multinom,pcs = 3:4,fill = clusters) +
