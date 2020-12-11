@@ -200,7 +200,8 @@ noting that, in most practical settings, labeling the clusters is not
 usually not possible until downstream analyses have been conducted.
 
 The clustering of the cells is mostly evident from the top two PCs of
-the mixture proportions:
+the mixture proportions (CD14+ and CD34+ cells separate much more
+clearly in PCs 3 and 4):
 
 ```{r pca-1, fig.width=6.25, fig.height=2, message=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
@@ -211,9 +212,8 @@ p2 <- pca_hexbin_plot(fit_multinom,bins = 24)
 plot_grid(p1,p2,rel_widths = c(9,10))
 ```
 
-These PCA plots illuminate the clusters and other substructure. The
-PCA "hexbin" density plot can be helpful when there are many
-overlapping cells in the PCA plot.
+The PCA "hexbin" density plot is most helpful when there are many
+overlapping data points in the PCA plot.
 
 Summarize substructure with a Structure plot
 --------------------------------------------
@@ -255,38 +255,29 @@ p4 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
 print(p4)
 ```
 
-This second Structure plot helps to highlight heterogeneity within the
-clusters, particularly within the T cells. Notably, within the T cell
-cluster there is a subset of cells with a distinctive combination of
-topics, in particular with sizeable contributions from the "NK cells"
-factor (factor 1, light blue)---this is the same subset of cells that
-sit in between the concentrated clumps of NK and T-cell in the PCA
-hexbin plot above. To highlight this subset of cells, which turn out
-to correspond to CD8+ cells, so we label this T cell subset as "CD8+".
+This second Structure plot better highlights heterogeneity within the
+clusters, particularly the T cells. Within the T cell cluster, there
+is a distinctive subset of cells with sizeable contributions from the
+"NK cells" factor (factor 1, light blue). These are the same cells
+that sit in between the dense clumps of NK and T cells in the PCA plot
+above. To highlight this subset of cells----which turn out to be CD8+
+cells---we define a new cluster, and create a new Structure plot with
+the 6 clusters:
 
-```{r clustering-3}
+```{r structure-plot-3, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 clusters <- as.character(clusters)
 clusters[clusters == "T" & fit_multinom$L[,1] > 0.1] <- "CD8+"
 clusters <- factor(clusters)
-summary(clusters)
-```
-
-This is the new Structure plot with the cells subdivided into 6
-subsets:
-
-```{r structure-plot-3, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 p5 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
                      grouping = clusters,gap = 25)
 print(p5)
 ```
 
-It is clear from this Structure plot that some subsets form distinct
-clusters (CD14+, CD34+ and B cells) because expression factors
-uniquely occur in these clusters, whereas others (CD8+, NK and T
-cells) are less distinct, with somewhat arbitrary cluster boundaries,
-and this is reflected in contributions of shared factors. For the less
-distinct clusters, the clustering is nonetheless useful for guiding
-the eye in the Structure plots toward interesting patterns.
+Even if the boundaries between the less distinct T, NK and CD8+
+clusters are somewhat arbitrary, subdividing these cells into clusters
+is nonetheless useful for guiding the eye toward interesting patterns
+in the mixture proportions, such as the continuous variation in topics
+5 and 6 within the T cells cluster.
 
 Annotate factors and clusters using differential gene expression
 ----------------------------------------------------------------
