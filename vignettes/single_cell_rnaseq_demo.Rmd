@@ -155,8 +155,8 @@ easly recovered by a reparameterization:
 fit_multinom <- poisson2multinom(fit)
 ```
 
-Identify clusters from mixture proportions
-------------------------------------------
+Identify clusters
+-----------------
 
 The topic or grade-of-membership model is able to capture a variety of
 structure, from discrete (clusters) to continuous. We begin by showing
@@ -215,8 +215,8 @@ plot_grid(p1,p2,rel_widths = c(9,10))
 The PCA "hexbin" density plot is most helpful when there are many
 overlapping data points in the PCA plot.
 
-Summarize substructure with a Structure plot
---------------------------------------------
+Visualize mixture proportions using a Structure plot
+----------------------------------------------------
 
 A much more versatile tool for exploring the mixture proportions is
 the Structure plot. Here is a basic example:
@@ -279,8 +279,8 @@ is nonetheless useful for guiding the eye toward interesting patterns
 in the mixture proportions, such as the continuous variation in topics
 5 and 6 within the T cells cluster.
 
-Annotate factors and clusters using differential gene expression
-----------------------------------------------------------------
+Annotate factors and clusters by differential expression analysis
+-----------------------------------------------------------------
 
 Here is where we use `diff_count_analysis` to interpret selected
 clusters and topics.
