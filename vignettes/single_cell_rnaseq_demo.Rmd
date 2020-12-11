@@ -44,6 +44,7 @@ packages are used to create some of the plots.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
+library(dplyr)
 library(fastTopics)
 library(ggplot2)
 library(cowplot)
@@ -200,8 +201,7 @@ noting that, in most practical settings, labeling the clusters is not
 usually not possible until downstream analyses have been conducted.
 
 The clustering of the cells is mostly evident from the top two PCs of
-the mixture proportions (CD14+ and CD34+ cells separate much more
-clearly in PCs 3 and 4):
+the mixture proportions:
 
 ```{r pca-1, fig.width=6.25, fig.height=2, message=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
@@ -211,6 +211,12 @@ p1 <- pca_plot(fit_multinom,fill = clusters) +
 p2 <- pca_hexbin_plot(fit_multinom,bins = 24)
 plot_grid(p1,p2,rel_widths = c(9,10))
 ```
+
+Examining the projection of the cells onto PCs 1 and 2, the B cells
+cluster is the most distinct, while the NK and T cell clusters are
+much less distinct, and arguably it is incorrect to call them
+"clusters". (The CD14+ and CD34+ cells separate much more clearly in
+PCs 3 and 4.)
 
 The PCA "hexbin" density plot is most helpful when there are many
 overlapping data points in the PCA plot.
@@ -279,17 +285,101 @@ is nonetheless useful for guiding the eye toward interesting patterns
 in the mixture proportions, such as the continuous variation in topics
 5 and 6 within the T cells cluster.
 
-Annotate factors and clusters by differential expression analysis
------------------------------------------------------------------
+Annotate clusters
+-----------------
+
+In this last part of the analysis, we perform an analysis of
+differential expression, and use the results of this analysis to
+annotate clusters and factors ("topics"). We begin by analyzing
+differential expression in the 6 clusters.
+
+```{r diff-count-analysis-clusters}
+fit_clusters <- init_poisson_nmf_from_clustering(counts,clusters)
+diff_count_clusters <- diff_count_analysis(fit_clusters,counts)
+```
 
 Here is where we use `diff_count_analysis` to interpret selected
 clusters and topics.
 
-```{r volcano-plots, eval=FALSE}
-ans <- diff_count_analysis(fit_multinom,counts)
-volcano_plot(ans,k = 5,labels = genes$symbol)
+*Add text here.*
+
+```{r volcano-plot-bcell-cluster, fig.height=3, fig.width=3}
+p6 <- volcano_plot(diff_count_clusters,k = "B",label_above_quantile = 0.998,
+                   labels = genes$symbol)
+print(p6)
 ```
 
-TO DO: Demonstrate how to create interactive volcano plot.
+*Add text here.*
+
+```{r volcano-plot-tcell-cluster, fig.height=3, fig.width=3}
+p7 <- volcano_plot(diff_count_clusters,k = "T",label_above_quantile = 0.998,
+                   labels = genes$symbol)
+print(p7)
+```
+
+*Add text here.*
+
+```{r volcano-plot-nk-cluster, fig.height=3, fig.width=3}
+p8 <- volcano_plot(diff_count_clusters,k = "NK",label_above_quantile = 0.998,
+                   labels = genes$symbol)
+print(p8)
+```
+
+Annotate topics
+---------------
+
+*Add text here.*
+
+```{r diff-count-analysis-topics}
+diff_count_topics <- diff_count_analysis(fit,counts)
+```
+
+*Add text here.*
+
+```{r volcano-plot-bcell-topic, fig.height=3, fig.width=3}
+p9 <- volcano_plot(diff_count_topics,k = 4,label_above_quantile = 0.998,
+                   labels = genes$symbol)
+print(p9)
+```
+
+*Add text here.*
+
+```{r scatterplot-1, fig.height=3, fig.width=3}
+j <- which(abs(diff_count_clusters$Z[,"B"]) > 4 &
+           abs(diff_count_topics$Z[,4]) > 4)
+pdat <- data.frame(cluster = diff_count_clusters$beta[j,"B"],
+                   topic = diff_count_topics$beta[j,4])
+p10 <- ggplot(pdat,aes(x = cluster,y = topic)) +
+  geom_point(shape = 21,fill = "dodgerblue",color = "white") +
+  geom_abline(slope = 1,intercept = 0,color = "magenta",linetype = "dotted") +
+  theme_cowplot(font_size = 10)
+print(p10)
+```
+
+Explain that there is no single topic for T cells.
+
+*Add text here.*
+
+```{r volcano-plot-nk-topic, fig.height=3, fig.width=3}
+p11 <- volcano_plot(diff_count_topics,k = 1,label_above_quantile = 0.998,
+                    labels = genes$symbol)
+print(p11)
+```
+
+*Add text here.*
+
+```{r volcano-plot-cd4, fig.height=3, fig.width=3}
+i <- which(clusters == "T")
+fit_t <- select(fit_multinom,loadings = i)
+diff_count_t <- diff_count_analysis(fit_t,counts[i,])
+p12 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.99,
+                    labels = genes$symbol)
+print(p12)
+```
+
+TO DO: Create an interactive volcano plot.
+
+```{r volcano-plotly}
+```
 
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
