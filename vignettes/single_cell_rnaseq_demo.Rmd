@@ -11,7 +11,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Here we illustrate the use of **fastTopics** to infer structure from
+Here we illustrate the use of fastTopics to infer structure from
 single-cell RNA-seq data. A basic analysis consists of the following
 steps:
 
@@ -28,8 +28,11 @@ steps:
 5. Annotate selected clusters and factors by examining genes that
    are highly differentially expressed among clusters or factors.
 
-In this vignette, we walk through each of these steps, and demonstrate
-how fastTopics is used to implement the steps.
+In this vignette, we walk through each of these steps and demonstrate
+how to implement these steps using fastTopics. In other exploratory
+analyses, these steps might not be strictly sequential---for example,
+the annotation in Step 5 may inform the exploration of substructure in
+Step 4.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
@@ -99,8 +102,8 @@ fit the multinomial topic model.
 We chose $K = 6$ factors. In practice, you will likely want to explore
 the results from different settings of $K$.
 
-Since the model fitting can take several minutes to run, or more, we
-have saved a pre-fitted model:
+Since the model fitting can take several minutes to run, or perhaps
+more, we have saved a pre-fitted model:
 
 ```{r load-fit}
 fit <- pbmc_4k$fit
@@ -120,7 +123,7 @@ running this code, may want to change `control$nc`. This controls the
 number of threads in the TBB multithreaded computations, and for best
 performance this should be set to the number of availablle processors.
 
-Judging by this plot showing the change in the log-likelihood over
+Judging by this plot which shows the change in the log-likelihood over
 time, the iterates get close to a maxium-likelihood solution after
 about 150 iterations.
 
@@ -155,31 +158,32 @@ fit_multinom <- poisson2multinom(fit)
 Identify clusters from mixture proportions
 ------------------------------------------
 
-The key strength of fastTopics is its flexibility to capture a variety
-of structure, from distinct clusters (e.g., cell types) to continuous
-structure. Here, we show how the multinomial topic model fit can be
-used to identify clusters of cells, and later we will expand on this.
+The topic or grade-of-membership model is able to capture a variety of
+structure, from discrete (clusters) to continuous. We begin by showing
+how the model can be used to identify clusters.
 
-Here we apply the most basic and most widely used clustering method,
-*k*-means, to the mixture proportions matrix, $L$. We experimented
-with different numbers of clusters and we found that 6 clusters worked
-best in this example. Note that *k*-means is sensitive to (random)
-initialization, so we set the seed.
+Here we apply the simplest clustering method, *k*-means, to the
+mixture proportions matrix, $L$. We experimented with different
+numbers of clusters and we found that 6 clusters worked best in this
+example. Note that *k*-means is sensitive to (random) initialization,
+so we set the seed.
 
 ```{r clustering-1}
 set.seed(1)
 clusters <- kmeans(fit_multinom$L,centers = 6,iter.max = 100)$cluster
 ```
 
-In some cases, it may be better to apply *k*-means to the principal
-components (PCs) of the mixture proportions. The PCs can easily be
-computed using `prcomp`.
+Note that, in some cases, it may be better to apply *k*-means to the
+principal components (PCs) of the mixture proportions, rather than the
+mixture proportions directly. The PCs can easily be computed using
+`prcomp`.
 
 You will find that some visual inspection followed by manual
 refinement may be needed to get the "right" clustering, regardless of
-whether *k*-means or another clustering algorithm is used. Here, we
-found that *k*-means split the largest cluster into two subclusters.
-After merging these two subclusters, we ended up with 5 clusters:
+whether *k*-means or another clustering algorithm is used. By visual
+inspection, we found that *k*-means split the largest cluster into two
+subclusters. After merging these two subclusters, we ended up with 5
+clusters:
 
 ```{r clustering-2}
 clusters[clusters == 3] <- 1
@@ -189,12 +193,13 @@ summary(clusters)
 
 With the benefit of hindsight, we know that these 5 clusters
 correspond to 5 cell types: B cells, T cells, natural killer (NK)
-cellls, CD14+ monoytes and CD34+ cells. For clarity of presentation,
-we label the clusters by these cell types, but noting that labeling
-the clusters is not usually not possible until downstream analyses
-have been conducted.
+cellls, CD14+ monoytes and CD34+ cells. (Below we show how to annotate
+these clusters by performing a differential expression analysis.) For
+clarity of presentation, we label the clusters by these cell types,
+noting that, in most practical settings, labeling the clusters is not
+usually not possible until downstream analyses have been conducted.
 
-The clustering of the cells is mostly evident from the first two PCs of
+The clustering of the cells is mostly evident from the top two PCs of
 the mixture proportions:
 
 ```{r pca-1, fig.width=6.25, fig.height=2, message=FALSE}
@@ -202,29 +207,19 @@ levels(clusters) <- c("T","CD14+","B","CD34+","NK")
 cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
 p1 <- pca_plot(fit_multinom,fill = clusters) +
   scale_fill_manual(values = cluster_colors)
-p2 <- pca_hexbin_plot(fit_multinom)
+p2 <- pca_hexbin_plot(fit_multinom,bins = 24)
 plot_grid(p1,p2,rel_widths = c(9,10))
 ```
 
-These PC plots help to illuminate the clustering and other
-substructure.  The PC density plot is particularly helpful when the
-plot contains thousands of cells, many of which overlap each other in
-the scatterplog. Here we use a "hexbin" plot to visualize the density
-of the cells projected onto the top two PCs.
-
-From the density plot, observe that the NK cells and T cells form two
-clusters that are less distinct than the others. In particular, there
-is some ambiguity in how the cells should be assigned to the two
-clusters.
-
-The clustering of the B cells and CD34+ cells is more clear in PCs
-3 and 4.
+These PCA plots illuminate the clusters and other substructure. The
+PCA "hexbin" density plot can be helpful when there are many
+overlapping cells in the PCA plot.
 
 Summarize substructure with a Structure plot
 --------------------------------------------
 
 A much more versatile tool for exploring the mixture proportions is
-the Structure plot. Here is the simplest example of a Structure plot:
+the Structure plot. Here is a basic example:
 
 ```{r structure-plot-1, fig.width=6.5, fig.height=1.5, results="hide"}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
@@ -233,33 +228,26 @@ p3 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors)
 print(p3)
 ```
 
-This is effectively a stacked bar chart, in which each bar corresponds
-to a cell, and each colour corresponds to a factor, or "topic". Since
-the mixture proportions for each cell sum to 1, the stacked bars all
-have the same height of 1.
+The Structure plot is effectively a stacked bar chart, in which each
+bar corresponds to a cell, and each colour corresponds to a factor (or
+"topic"). Since the mixture proportions for each cell sum to 1, the
+stacked bars all have a height of 1.
 
-By default, `structure_plot` shows a random subset of 2,000 cells. The
-cells are automatically ordered by computing a 1-d *t*-SNE embedding
-on this random subset, then ordering the cells according to their
-arrangement on this 1-d embedding. (There are options in
-`structure_plot` to override this automatic behaviour.)
+The colours in the Structure plot were chosen to correspond to the
+clusters shown in the plots above.
 
-The colours were chosen to correspond to the clusters shown in the
-plots above.
-
-Here we see that a lot of information about the structure in the data
-is compressed into a single plot. In particular, the B cells (blue),
-CD14+ monocytes (green) and CD34+ cells (purple) are each largely
-characterised by a single pattern of gene expression (a factor),
-whereas expression in NK and T cells is less distinct, and is
-reflected in the sharing of factor 6 among NK and T cells.
+The clustering of the cells into B cells (blue), CD14+ monocytes
+(green) and CD34+ cells (purple) is evident from this plot; they are
+each largely characterised by a single factor. The NK and T cells is
+less distinct, and this is reflected by more sharing of factors (in
+particular, factor 6) among NK and T cells.
 
 The versality of the Structure plot can also present a challenge,
 particularly for cell populations with more complex or fine-scale
-structure. Therefore, it may take some effort---and creativity---to
-create a Structure plot that effectively highlights the structure in
-the data. A simple way to improve the Structure plot is to arrange the
-cells by their assignment to the 5 clusters:
+structure. It may therefore take some effort and creativity to create
+a Structure plot that effectively highlights the structure in the
+data. A simple way we can improve the Structure plot here is to
+arrange the cells by their assignment to the 5 clusters:
 
 ```{r structure-plot-2, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 p4 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
@@ -301,7 +289,7 @@ distinct clusters, the clustering is nonetheless useful for guiding
 the eye in the Structure plots toward interesting patterns.
 
 Annotate factors and clusters using differential gene expression
----------------------------------------------------------------
+----------------------------------------------------------------
 
 Here is where we use `diff_count_analysis` to interpret selected
 clusters and topics.
