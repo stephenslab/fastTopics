@@ -71,13 +71,15 @@ example("fit_poisson_nmf")
 
 ## Credits
 
-The fastTopics R package was developed by [Peter Carbonetto][peter] at
-the [University of Chicago][uchicago], with guidance from
-[Matthew Stephens][matthew].
+The fastTopics R package was developed by [Peter Carbonetto][peter],
+[Kevin Luo][kevin], [Kushal Dey][kushal] and
+[Matthew Stephens][matthew] at the [University of Chicago][uchicago].
 
 [mit-license]: https://opensource.org/licenses/mit-license.html
 [issues]: https://github.com/stephenslab/fastTopics/issues
 [peter]: https://pcarbo.github.io
+[kevin]: https://github.com/kevinlkx
+[kushal]: https://github.com/kkdey
 [matthew]: http://stephenslab.uchicago.edu
 [uchicago]: https://www.uchicago.edu
 [cran]: https://cran.r-project.org

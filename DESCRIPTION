@@ -7,6 +7,8 @@ Title: Fast Optimization Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
 Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
                     email="peter.carbonetto@gmail.com"),
+             person("Kevin","Luo",email="kaixuan@uchicago.edu",role="aut"),
+             person("Kushal","Dey",email="kkdey@uchicago.edu",role="aut"),
              person("Matthew","Stephens",role="aut"))
 URL: https://github.com/stephenslab/fastTopics
 BugReports: https://github.com/stephenslab/fastTopics/issues
