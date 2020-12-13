@@ -285,48 +285,48 @@ is nonetheless useful for guiding the eye toward interesting patterns
 in the mixture proportions, such as the continuous variation in topics
 5 and 6 within the T cells cluster.
 
-Annotate clusters
------------------
+Annotate clusters by top differentially expressed genes
+-------------------------------------------------------
 
-In this last part of the analysis, we perform an analysis of
-differential expression, and use the results of this analysis to
-annotate clusters and factors ("topics"). We begin by analyzing
-differential expression in the 6 clusters.
+In this remaining parts of the analysis, we perform a differential
+expression analysis, and use the results of this analysis to annotate
+clusters and factors ("topics"). We begin by analyzing differential
+expression in the 6 clusters.
+
+Since `diff_count_analysis` in fastTopics performs differential
+expression analysis for a multinomial topic model, here we implement
+the analysis for the clusters by treating the clustering as a topic
+model in which all the mixture proportions are 0 or 1.
 
 ```{r diff-count-analysis-clusters}
 fit_clusters <- init_poisson_nmf_from_clustering(counts,clusters)
 diff_count_clusters <- diff_count_analysis(fit_clusters,counts)
 ```
 
-Here is where we use `diff_count_analysis` to interpret selected
-clusters and topics.
+The results of the differential expresison analysis can be visualized
+using a "volcano plot", which shows, for each gene, the (base-2)
+log-fold change in the x-axis against the support for differential
+expression (*z*-score magnitude) in the y-axis. In volcano plot for
+the "B" cluster, top genes include *CD79A*, an established "marker
+gene" for B cells:
 
-*Add text here.*
-
-```{r volcano-plot-bcell-cluster, fig.height=3, fig.width=3}
+```{r volcano-plot-bcell-cluster, fig.height=3.5, fig.width=4}
 p6 <- volcano_plot(diff_count_clusters,k = "B",label_above_quantile = 0.998,
                    labels = genes$symbol)
 print(p6)
 ```
 
-*Add text here.*
+Likewise, *CD3D*, a marker gene for T cells, is one of the top genes
+in the "T" cluster volcano plot:
 
-```{r volcano-plot-tcell-cluster, fig.height=3, fig.width=3}
+```{r volcano-plot-tcell-cluster, fig.height=3.5, fig.width=4}
 p7 <- volcano_plot(diff_count_clusters,k = "T",label_above_quantile = 0.998,
                    labels = genes$symbol)
 print(p7)
 ```
 
-*Add text here.*
-
-```{r volcano-plot-nk-cluster, fig.height=3, fig.width=3}
-p8 <- volcano_plot(diff_count_clusters,k = "NK",label_above_quantile = 0.998,
-                   labels = genes$symbol)
-print(p8)
-```
-
-Annotate topics
----------------
+Annotate topics by top differentially expressed genes
+-----------------------------------------------------
 
 *Add text here.*
 
@@ -336,24 +336,10 @@ diff_count_topics <- diff_count_analysis(fit,counts)
 
 *Add text here.*
 
-```{r volcano-plot-bcell-topic, fig.height=3, fig.width=3}
+```{r volcano-plot-bcell-topic, fig.height=3.4, fig.width=4}
 p9 <- volcano_plot(diff_count_topics,k = 4,label_above_quantile = 0.998,
                    labels = genes$symbol)
 print(p9)
-```
-
-*Add text here.*
-
-```{r scatterplot-1, fig.height=3, fig.width=3}
-j <- which(abs(diff_count_clusters$Z[,"B"]) > 4 &
-           abs(diff_count_topics$Z[,4]) > 4)
-pdat <- data.frame(cluster = diff_count_clusters$beta[j,"B"],
-                   topic = diff_count_topics$beta[j,4])
-p10 <- ggplot(pdat,aes(x = cluster,y = topic)) +
-  geom_point(shape = 21,fill = "dodgerblue",color = "white") +
-  geom_abline(slope = 1,intercept = 0,color = "magenta",linetype = "dotted") +
-  theme_cowplot(font_size = 10)
-print(p10)
 ```
 
 Explain that there is no single topic for T cells.
