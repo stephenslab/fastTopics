@@ -281,63 +281,34 @@
 #'   estimation. \emph{arXiv} \url{http://arxiv.org/abs/1704.07016}
 #'
 #' @examples
-#' # Simulate a 80 x 100 data set.
+#' # Simulate a (sparse) 80 x 100 counts matrix.
 #' library(Matrix)
 #' set.seed(1)
-#' X <- simulate_count_data(80,100,3)$X
-#'
-#' # Run 20 EM updates to find a good initialization.
-#' fit0 <- fit_poisson_nmf(X,k = 3,numiter = 20,verbose = FALSE)
-#'
-#' # The fit_poisson_nmf interface implements 4 different algorithms 
-#' # for optimizing a Poisson non-negative matrix factorization. Let's
-#' # run the different algoriths, and compare the quality of the fits.
-#' fit.mu  <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
-#'                            method = "mu",control = list(numiter = 1),
-#'                            verbose = FALSE)
-#' fit.em  <- fit_poisson_nmf(X,fit0 = fit0,numiter = 400,
-#'                            method = "em",verbose = FALSE)
-#' fit.ccd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "ccd",
-#'                            control = list(numiter = 1),verbose = FALSE)
-#' fit.scd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 300,
-#'                            method = "scd",verbose = FALSE)
-#'
-#' clrs <- c("royalblue","skyblue","darkorange","darkmagenta")
-#' fits <- list(mu = fit.mu,em = fit.em,ccd = fit.ccd,scd = fit.scd)
-#' print(compare_poisson_nmf_fits(fits),digits = 8)
-#' plot_progress_poisson_nmf(fits,y = "loglik",colors = clrs)
-#' plot_progress_poisson_nmf(fits,y = "res",colors = clrs)
-#'
-#' # All algorithms except the multiplicative updates can handle
-#' # sparse matrices as well as dense ones.
-#' Y <- as(X,"dgCMatrix")
-#' fit.em.sp  <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 400,
-#'                               method = "em",verbose = FALSE)
-#' fit.ccd.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,method = "ccd",
-#'                               control = list(numiter = 1),verbose = FALSE)
-#' fit.scd.sp <- fit_poisson_nmf(Y,fit0 = fit0,numiter = 300,
-#'                               method = "scd",verbose = FALSE)
-#' fits <- list(em = fit.em,ccd = fit.ccd,scd = fit.scd,em.sp = fit.em.sp,
-#'              ccd.sp = fit.ccd.sp,scd.sp = fit.scd.sp)
-#' print(compare_poisson_nmf_fits(fits),digits = 8)
-#' plot_progress_poisson_nmf(fits,colors = clrs[-1],
-#'                           shapes = rep(c(19,21),each = 3))
-#'
-#' # The "extrapolated" updates can sometimes produce much better fits.
-#' fit.ccd.ex <-
-#'   fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "ccd",
-#'                   control = list(numiter = 1,extrapolate = TRUE),
-#'                   verbose = FALSE)
-#' fit.scd.ex <-
-#'   fit_poisson_nmf(X,fit0 = fit0,numiter = 300,method = "scd",
-#'                   control = list(extrapolate = TRUE),verbose = FALSE)
-#' fits <- list(ccd = fit.ccd,scd = fit.scd,ccd.ex = fit.ccd.ex,
-#'              scd.ex = fit.scd.ex)
-#' print(compare_poisson_nmf_fits(fits),digits = 8)
-#' plot_progress_poisson_nmf(fits,y = "loglik",colors = clrs[3:4],
-#'                           shapes = rep(c(19,21),each = 2))
-#' plot_progress_poisson_nmf(fits,y = "res",colors = clrs[3:4],
-#'                           shapes = rep(c(19,21),each = 2))
+#' X <- simulate_count_data(80,100,k = 3,sparse = TRUE)$X
+#' 
+#' # Remove columns (words) that do not appear in any row (document).
+#' X <- X[,colSums(X > 0) > 0]
+#' 
+#' # Run 10 EM updates to find a good initialization.
+#' fit0 <- fit_poisson_nmf(X,k = 3,numiter = 10)
+#' 
+#' # Fit the Poisson NMF model by running 50 EM updates.
+#' fit_em <- fit_poisson_nmf(X,fit0 = fit0,numiter = 50,method = "em")
+#' 
+#' # Fit the Poisson NMF model by running 50 extrapolated SCD updates.
+#' fit_scd <- fit_poisson_nmf(X,fit0 = fit0,numiter = 50,method = "scd",
+#'                            control = list(extrapolate = TRUE))
+#' 
+#' # Compare the two fits.
+#' fits <- list(em = fit_em,scd = fit_scd)
+#' compare_poisson_nmf_fits(fits)
+#' plot_progress_poisson_nmf(fits,y = "loglik")
+#' plot_progress_poisson_nmf(fits,y = "res")
+#' 
+#' # Recover the topic model. After this step, the L matrix contains the
+#' # mixture proportions ("loadings"), and the F matrix contains the
+#' # word frequencies ("factors").
+#' fit_multinom <- poisson2multinom(fit_scd)
 #'
 #' @useDynLib fastTopics
 #'
@@ -438,7 +409,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-188).\n")
+    cat("(fastTopics 0.3-189).\n")
   }
   
   # INITIALIZE ESTIMATES

@@ -5,11 +5,16 @@
 [![CircleCI build status](https://circleci.com/gh/stephenslab/fastTopics.svg?style=svg)](https://circleci.com/gh/stephenslab/fastTopics)
 [![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/fastTopics)
 
-fastTopics is an R package implementing fast optimization algorithms
-for fitting topic models and (Poisson) non-negative matrix factorizations to
-count data. The methods exploit the 
-[close relationship][vignette-close-relationship] between topic
-modeling and Poisson non-negative matrix factorization.
+fastTopics is an R package implementing fast, scalable optimization
+algorithms for fitting topic models ("grade of membership" models) and
+non-negative matrix factorizations to count data. The methods exploit
+the [special relationship][vignette-close-relationship] between the
+multinomial topic model (also "probabilistic latent semantic
+indexing") and Poisson non-negative matrix factorization. The package
+provides tools to compare, annotate and visualize model fits,
+including functions to efficiently create "structure plots" and
+identify key features in topics. The fastTopics package is a successor
+to the [CountClust package][countclust].
 
 If you find a bug, or you have a question or feedback on this software,
 please post an [issue][issues].
@@ -34,36 +39,11 @@ Note that installing the package will require a C++ compiler setup
 that is appropriate for the version of R installed on your
 computer. For details, refer to the [CRAN documentation][cran].
 
-Simulate a (sparse) 80 x 100 counts matrix:
+For guidance on using fastTopics to analyze gene expression data (bulk
+RNA-seq or single-cell RNA-seq), see the [vignette][vignette-scrnaseq].
 
-```R
-library(Matrix)
-set.seed(1)
-X <- simulate_count_data(80,100,k = 3,sparse = TRUE)$X
-```
-
-Remove columns (words) that do not appear in any row (document).
-
-```R
-X <- X[,colSums(X > 0) > 0]
-```
-
-Fit the Poisson NMF model by running 200 updates (you may want to
-start with fewer iterations and see how it goes):
-
-```R
-fit <- fit_poisson_nmf(X,k = 3,numiter = 200)
-```
-
-Recover the topic model. After this step, the L matrix contains
-the topic probabilities ("loadings"), and the F matrix contains the
-word probabilities ("factors").
-
-```R
-fit.multinom <- poisson2multinom(fit)
-```
-
-For more, see the examples included with `help(fit_poisson_nmf)`:
+Also, try running the small example that illustrates the fast model
+fitting algorithms:
 
 ```R
 example("fit_poisson_nmf")
@@ -83,4 +63,6 @@ The fastTopics R package was developed by [Peter Carbonetto][peter],
 [matthew]: http://stephenslab.uchicago.edu
 [uchicago]: https://www.uchicago.edu
 [cran]: https://cran.r-project.org
+[countclust]: https://github.com/kkdey/CountClust
 [vignette-close-relationship]: https://stephenslab.github.io/fastTopics/articles/relationship.html
+[vignette-scrnaseq]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_demo.html

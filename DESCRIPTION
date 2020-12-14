@@ -1,26 +1,29 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.3-188
-Date: 2020-12-01
-Title: Fast Optimization Algorithms for Fitting Topic Models and Non-Negative
+Version: 0.3-189
+Date: 2020-12-13
+Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
 Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
                     email="peter.carbonetto@gmail.com"),
              person("Kevin","Luo",email="kaixuan@uchicago.edu",role="aut"),
              person("Kushal","Dey",email="kkdey@uchicago.edu",role="aut"),
+             person("Joyce","Hsiao",email="joyce.hsiao1@gmail.com",role="aut"),
              person("Matthew","Stephens",role="aut"))
 URL: https://github.com/stephenslab/fastTopics
 BugReports: https://github.com/stephenslab/fastTopics/issues
 Depends: R (>= 3.3.0)
 Description: Implements fast, scalable optimization algorithms for
-    fitting topic models and non-negative matrix factorizations to
-    count data. The methods exploit the close relationship between
-    topic modeling and Poisson non-negative matrix factorization. The
-    algorithms can acccommodate large, sparse count data (that is,
-    data containing a high proportion of zero counts). Additional
-    tools for quickly visualizing and interpreting model fits are
-    provided.
+    fitting topic models ("grade of membership" models) and
+    non-negative matrix factorizations to count data. The methods
+    exploit the special relationship between the multinomial topic
+    model (also "probabilistic latent semantic indexing") and Poisson
+    non-negative matrix factorization. The package provides tools to
+    compare, annotate and visualize model fits, including functions to
+    efficiently create "structure plots" and identify key features in
+    topics. The fastTopics package is a successor to the CountClust
+    package.
 License: MIT + file LICENSE
 SystemRequirements: GNU make
 Imports:

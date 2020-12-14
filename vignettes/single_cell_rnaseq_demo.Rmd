@@ -44,7 +44,6 @@ packages are used to create some of the plots.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
-library(dplyr)
 library(fastTopics)
 library(ggplot2)
 library(cowplot)
@@ -356,7 +355,7 @@ print(p11)
 
 ```{r volcano-plot-cd4, fig.height=3, fig.width=3}
 i <- which(clusters == "T")
-fit_t <- select(fit_multinom,loadings = i)
+fit_t <- select_loadings(fit_multinom,loadings = i)
 diff_count_t <- diff_count_analysis(fit_t,counts[i,])
 p12 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.99,
                     labels = genes$symbol)
