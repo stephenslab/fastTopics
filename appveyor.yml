@@ -24,7 +24,8 @@ environment:
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
 build_script:
-  - R -e install.packages(c('devtools','testthat','quadprog','MCMCpack','irlba','Rtsne','dplyr','Rcpp','RcppArmadillo','RcppParallel','RcppProgress','progress','ggplot2','ggrepel','cowplot','plotly','htmlwidgets'),head(.libPaths(),1),'http://cran.wustl.edu')
+  - R -e install.packages(c('devtools','testthat','quadprog','MCMCpack','irlba','Rtsne','dplyr','Rcpp','RcppArmadillo','RcppParallel','RcppProgress','progress','ggplot2','cowplot','plotly','htmlwidgets'),head(.libPaths(),1),'http://cran.wustl.edu')
+  - R -e devtools::install_github('slowkow/ggrepel',upgrade='never',force=TRUE)
 
 test_script:
   - travis-tool.sh run_tests
