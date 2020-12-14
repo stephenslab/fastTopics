@@ -346,25 +346,57 @@ print(p8)
 
 Note that the estimated differential expression (log-fold change) for
 this gene, and others, is much higher in the topic; 6.5 in the cluster
-vs. >10 in the topic. This suggests that the topic model better
-isolates expression patterns specific to B cells.
+vs. >10 in the topic. Due to its greater flexibility in capturing
+cells as mixtures of expression patterns, the topic model often better
+isolates expression patterns specific to a cell type.
 
-There is no single topic for T cells.
+The largest of the 6 clusters captures T cells. Unlike the B cells
+cluster, T cells are represented as a mixture of two topics. After
+merging topics 5 and 6, we can perform differential expression
+analysis on the combined topic and create a volcano plot highlighting
+the top differentially expression genes:
 
-*Add text here.*
-
-```{r volcano-plot-cd4, fig.height=3.5, fig.width=4}
-i <- which(clusters == "T")
-fit_t <- select_loadings(fit_multinom,loadings = i)
-diff_count_t <- diff_count_analysis(fit_t,counts[i,])
-p9 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
-                   labels = genes$symbol,max.overlaps = 16)
+```{r volcano-plot-tcell-topic, fig.height=3.5, fig.width=4, results="hide"}
+diff_count_merged <- diff_count_analysis(merge_topics(fit_multinom,5:6),counts)
+p9 <- volcano_plot(diff_count_merged,k = "k5+k6",label_above_quantile = 0.998,
+                   labels = genes$symbol,max.overlaps = 10)
 print(p9)
 ```
 
-TO DO: Create an interactive volcano plot.
+Like the B cells topic, the estimated log-fold change for the T-cell
+marker gene *CD3D* is much greater in the topic (>10) than the "T"
+cluster (3.5).
+
+The topics also capture continuous variation *within* the T-cell
+cluster:
+
+```{r volcano-plot-cd4, fig.height=3.5, fig.width=4, results="hide"}
+i <- which(clusters == "T")
+fit_t <- select_loadings(fit_multinom,loadings = i)
+diff_count_t <- diff_count_analysis(fit_t,counts[i,])
+p10 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
+                   labels = genes$symbol,max.overlaps = 16)
+print(p10)
+```
+
+Judging top differentially expression genes such as *CD4*, this topic
+likely corresponds to CD4+/CD8+ lineage differentiation in T cells.
+
+An interactive volcano plot
+---------------------------
+
+When the volcano plot shows many overlapping differentially expressed
+genes, like it does here for topic 5 in the T-cells cluster, it can be
+helpful to explore the results interactively. The function
+`volcano_plotly` creates an interactive plot that can be viewed in a
+Web browser:
 
 ```{r volcano-plotly}
+p11 <- volcano_plotly(diff_count_t,k = 5,"volcano_plot_t_cells.html",
+                      labels = genes$symbol)
 ```
+
+The interactive volcano plot can also be viewed
+[here](volcano_plot_t_cells.html).
 
 [zheng-2017]: https://doi.org/10.1038/ncomms14049

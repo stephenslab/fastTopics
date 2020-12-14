@@ -560,7 +560,7 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
     y.label <- "|z-score|"
   else if (y == "pvalue")
     y.label <- "-log10 p-value"
-  p <- volcano_plot_ly_call(dat,y.label,title,height,width)
+  p <- volcano_plot_ly_call(dat,y.label,title,width,height)
   if (!missing(file))
     saveWidget(p,file,selfcontained = TRUE,title = title)
   return(p)
