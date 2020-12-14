@@ -6,27 +6,31 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Title Goes Here. — pca_plot • fastTopics</title>
+<title>PCA Plot — pca_plot • fastTopics</title>
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -35,9 +39,12 @@
 
 
 
-<meta property="og:title" content="Title Goes Here. — pca_plot" />
-<meta property="og:description" content="Description of function goes here." />
-<meta name="twitter:card" content="summary" />
+<meta property="og:title" content="PCA Plot — pca_plot" />
+<meta property="og:description" content="Visualize the structure of the Poisson NMF loadings
+  (&amp;#8220;activations&amp;#8221;) or the multinomial topic proportions by
+  projection onto principal components (PCs). plot_hexbin_plot
+  is most useful for visualizing the PCs of a data set with thousands
+  of samples, or more." />
 
 
 
@@ -55,7 +62,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +76,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.159</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-191</span>
       </span>
     </div>
 
@@ -102,13 +109,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Title Goes Here.</h1>
+    <h1>PCA Plot</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
     <div class="hidden name"><code>pca_plot.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Description of function goes here.</p>
+    <p>Visualize the structure of the Poisson NMF loadings
+  (&#8220;activations&#8221;) or the multinomial topic proportions by
+  projection onto principal components (PCs). <code>plot_hexbin_plot</code>
+  is most useful for visualizing the PCs of a data set with thousands
+  of samples, or more.</p>
     </div>
 
     <pre class="usage"><span class='fu'>pca_plot</span>(
@@ -116,63 +127,161 @@
   <span class='no'>k</span>,
   <span class='no'>out.pca</span>,
   <span class='kw'>pcs</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>2</span>,
-  <span class='kw'>ggplot_call</span> <span class='kw'>=</span> <span class='no'>tsne_plot_ggplot_call</span>,
+  <span class='kw'>fill</span> <span class='kw'>=</span> <span class='st'>"loading"</span>,
+  <span class='kw'>ggplot_call</span> <span class='kw'>=</span> <span class='no'>pca_plot_ggplot_call</span>,
   <span class='kw'>plot_grid_call</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>plots</span>) <span class='fu'><a href='https://rdrr.io/r/base/do.call.html'>do.call</a></span>(<span class='no'>plot_grid</span>, <span class='no'>plots</span>),
   <span class='no'>...</span>
-)</pre>
+)
+
+<span class='fu'>pca_plot_ggplot_call</span>(
+  <span class='no'>dat</span>,
+  <span class='no'>pcs</span>,
+  <span class='kw'>fill.type</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"loading"</span>, <span class='st'>"numeric"</span>, <span class='st'>"factor"</span>, <span class='st'>"none"</span>),
+  <span class='no'>fill.label</span>,
+  <span class='kw'>font.size</span> <span class='kw'>=</span> <span class='fl'>9</span>
+)
+
+<span class='fu'>pca_hexbin_plot</span>(
+  <span class='no'>fit</span>,
+  <span class='no'>out.pca</span>,
+  <span class='kw'>pcs</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>2</span>,
+  <span class='kw'>bins</span> <span class='kw'>=</span> <span class='fl'>40</span>,
+  <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>10</span>, <span class='fl'>100</span>, <span class='fl'>1000</span>, <span class='fl'>Inf</span>),
+  <span class='kw'>ggplot_call</span> <span class='kw'>=</span> <span class='no'>pca_hexbin_plot_ggplot_call</span>,
+  <span class='no'>...</span>
+)
+
+<span class='fu'>pca_hexbin_plot_ggplot_call</span>(<span class='no'>dat</span>, <span class='no'>pcs</span>, <span class='no'>bins</span>, <span class='no'>breaks</span>, <span class='kw'>font.size</span> <span class='kw'>=</span> <span class='fl'>9</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>fit</th>
-      <td><p>Describe input argument "fit" here.</p></td>
+      <td><p>An object of class &#8220;poisson_nmf_fit&#8221; or
+&#8220;multinom_topic_model_fit&#8221;.</p></td>
     </tr>
     <tr>
       <th>k</th>
-      <td><p>Describe input argument "k" here.</p></td>
+      <td><p>The topic, or topics, selected by number or name. When
+<code>fill = "loading"</code>, one plot is created per selected topic;
+when <code>fill = "loading"</code> and <code>k</code> is not specified, all
+topics are plotted.</p></td>
     </tr>
     <tr>
       <th>out.pca</th>
-      <td><p>Describe input argument "out.pca" here.</p></td>
+      <td><p>A list containing the result of a principal
+components analysis, typically the result of calling
+<code><a href='https://rdrr.io/r/stats/prcomp.html'>prcomp</a></code> or a comparable function such as
+<code>rpca</code> from the rsvd package. It should be a list object
+containing, at a minimum, a list matrix or data frame
+<code>out.pca$x</code> storing the rotated data. If not provided,
+principal components will be computed automatically by calling
+<code><a href='https://rdrr.io/r/stats/prcomp.html'>prcomp</a></code>.</p></td>
     </tr>
     <tr>
       <th>pcs</th>
-      <td><p>Describe input argument "pcs" here.</p></td>
+      <td><p>The two principal components (PCs) to be plotted,
+specified by name or number.</p></td>
+    </tr>
+    <tr>
+      <th>fill</th>
+      <td><p>The quantity to map onto the fill colour of the points
+in the PCA plot. Set <code>fill = "loading"</code> to vary the fill
+colour according to the loadings (or topic proportions) of the
+select topic, or topics. Alternatively, <code>fill</code> may be set to a
+data vector with one entry per row of <code>fit$L</code>, in which case
+these data are mapped to the fill colour of the points. When
+<code>fill = "none"</code>, the fill colour is not varied.</p></td>
     </tr>
     <tr>
       <th>ggplot_call</th>
-      <td><p>Describe input argument "k" here.</p></td>
+      <td><p>The function used to create the plot. Replace
+<code>pca_plot_ggplot_call</code> or <code>pca_hexbin_plot_ggplot_call</code>
+with your own function to customize the appearance of the plot.</p></td>
     </tr>
     <tr>
       <th>plot_grid_call</th>
-      <td><p>Describe input argument "plot_grid_call" here.</p></td>
+      <td><p>When multiple topics (<code>k</code>) are selected,
+and <code>fill = "loading"</code>, this is the function used to arrange the
+plots into a grid using <code><a href='https://rdrr.io/pkg/cowplot/man/plot_grid.html'>plot_grid</a></code>. It should
+be a function accepting a single argument, <code>plots</code>, a list of
+<code>ggplot</code> objects.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments passed to
+<code><a href='https://rdrr.io/r/stats/prcomp.html'>prcomp</a></code>. These additional arguments are only
+used if <code>out.pca</code> is not provided.</p></td>
+    </tr>
+    <tr>
+      <th>dat</th>
+      <td><p>A data frame passed as input to
+<code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></code>, containing, at a minimum, the
+principal components to be plotted. The data frame passed to
+<code>pca_plot_ggplot_call</code> should also have a &#8220;y&#8221; column,
+which is mapped to the fill colour of the points in the plot.</p></td>
+    </tr>
+    <tr>
+      <th>fill.type</th>
+      <td><p>The type of variable mapped to fill colour. The
+fill colour is not varied when <code>fill.type = "none"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>fill.label</th>
+      <td><p>The label used for the fill colour legend.</p></td>
+    </tr>
+    <tr>
+      <th>font.size</th>
+      <td><p>Font size used in plot.</p></td>
+    </tr>
+    <tr>
+      <th>bins</th>
+      <td><p>Number of bins used to create hexagonal 2-d
+histogram. Passed as the &#8220;bins&#8221; argument to
+<code><a href='https://ggplot2.tidyverse.org/reference/geom_hex.html'>stat_bin_hex</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>breaks</th>
+      <td><p>To produce the hexagonal histogram, the counts are
+subdivided into intervals based on <code>breaks</code>. Passed as the
+&#8220;breaks&#8221; argument to <code><a href='https://rdrr.io/r/base/cut.html'>cut</a></code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Describe return value here.</p>
+    <p>A <code>ggplot</code> object.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This is a lightweight interface for rapidly producing PCA
+plots from a Poisson non-negative matrix factorization or
+multinomial topic model. The plotting is implemented using
+ggplot2. For more control over the plot's appearance, the plot can
+be customized by modifying the <code>ggplot_call</code> and
+<code>plot_grid_call</code> arguments. If not provided, the principal
+components are computed using <code><a href='https://rdrr.io/r/stats/prcomp.html'>prcomp</a></code>.</p>
+<p>Note that since principal components are a <em>linear</em> projection
+(&#8220;rotation&#8221;) of the data, distances between points can bee
+more interpretable than nonlinear embedding methods such as t-SNE
+(as visualized using <code>tsne_plot</code>) and UMAP.</p>
 
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
 
       <footer>
       <div class="copyright">
-  <p>Developed by Peter Carbonetto, Matthew Stephens.</p>
+  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

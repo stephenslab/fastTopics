@@ -5,27 +5,31 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fast Optimization Algorithms for Fitting Topic Models and Non-Negative
+<title>Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data • fastTopics</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Fast Optimization Algorithms for Fitting Topic Models and Non-Negative
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
+<script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<script src="pkgdown.js"></script><meta property="og:title" content="Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data">
-<meta property="og:description" content="Implements fast, scalable optimization algorithms for
-    fitting topic models and non-negative matrix factorizations to
-    count data. The methods exploit the close relationship between
-    topic modeling and Poisson non-negative matrix factorization. The
-    algorithms can acccommodate large, sparse count data (that is,
-    data containing a high proportion of zero counts).">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content='Implements fast, scalable optimization algorithms for
+    fitting topic models ("grade of membership" models) and
+    non-negative matrix factorizations to count data. The methods
+    exploit the special relationship between the multinomial topic
+    model (also "probabilistic latent semantic indexing") and Poisson
+    non-negative matrix factorization. The package provides tools to
+    compare, annotate and visualize model fits, including functions to
+    efficiently create "structure plots" and identify key features in
+    topics. The fastTopics package is a successor to the CountClust
+    package.'>
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,7 +42,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.159</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-191</span>
       </span>
     </div>
 
@@ -74,7 +78,7 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#fasttopics" class="anchor"></a>fastTopics</h1></div>
 
-<p>fastTopics is an R package implementing fast optimization algorithms for fitting topic models and (Poisson) non-negative matrix factorizations to count data. The methods exploit the <a href="https://stephenslab.github.io/fastTopics/articles/relationship.html">close relationship</a> between topic modeling and Poisson non-negative matrix factorization.</p>
+<p>fastTopics is an R package implementing fast, scalable optimization algorithms for fitting topic models (“grade of membership” models) and non-negative matrix factorizations to count data. The methods exploit the <a href="https://stephenslab.github.io/fastTopics/articles/relationship.html">special relationship</a> between the multinomial topic model (also “probabilistic latent semantic indexing”) and Poisson non-negative matrix factorization. The package provides tools to compare, annotate and visualize model fits, including functions to efficiently create “structure plots” and identify key features in topics. The fastTopics package is a successor to the <a href="https://github.com/kkdey/CountClust">CountClust package</a>.</p>
 <p>If you find a bug, or you have a question or feedback on this software, please post an <a href="https://github.com/stephenslab/fastTopics/issues">issue</a>.</p>
 <div id="license" class="section level2">
 <h2 class="hasAnchor">
@@ -86,35 +90,26 @@
 <h2 class="hasAnchor">
 <a href="#quick-start" class="anchor"></a>Quick Start</h2>
 <p>Install and load the package:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"stephenslab/fastTopics"</span>)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(fastTopics)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="r"><span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"stephenslab/fastTopics"</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">fastTopics</span>)</pre></div>
 <p>Note that installing the package will require a C++ compiler setup that is appropriate for the version of R installed on your computer. For details, refer to the <a href="https://cran.r-project.org">CRAN documentation</a>.</p>
-<p>Simulate a (sparse) 80 x 100 counts matrix:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Matrix)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">X &lt;-<span class="st"> </span><span class="kw"><a href="reference/simulate_count_data.html">simulate_count_data</a></span>(<span class="dv">80</span>,<span class="dv">100</span>,<span class="dt">k =</span> <span class="dv">3</span>,<span class="dt">sparse =</span> <span class="ot">TRUE</span>)<span class="op">$</span>X</a></code></pre></div>
-<p>Remove columns (words) that do not appear in any row (document).</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">X &lt;-<span class="st"> </span>X[,<span class="kw"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html">colSums</a></span>(X <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</a></code></pre></div>
-<p>Fit the Poisson NMF model by running 200 updates (you may want to start with fewer iterations and see how it goes):</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">fit &lt;-<span class="st"> </span><span class="kw"><a href="reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span>(X,<span class="dt">k =</span> <span class="dv">3</span>,<span class="dt">numiter =</span> <span class="dv">200</span>)</a></code></pre></div>
-<p>Recover the topic model. After this step, the L matrix contains the topic probabilities (“loadings”), and the F matrix contains the word probabilities (“factors”).</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">fit.multinom &lt;-<span class="st"> </span><span class="kw"><a href="reference/poisson2multinom.html">poisson2multinom</a></span>(fit)</a></code></pre></div>
-<p>For more, see the examples included with <code><a href="https://rdrr.io/r/utils/help.html">help(fit_poisson_nmf)</a></code>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/example.html">example</a></span>(<span class="st">"fit_poisson_nmf"</span>)</a></code></pre></div>
+<p>For guidance on using fastTopics to analyze gene expression data (bulk RNA-seq or single-cell RNA-seq), see the <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_demo.html">vignette</a>.</p>
+<p>Also, try running the small example that illustrates the fast model fitting algorithms:</p>
+<div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/example.html">example</a></span>(<span class="st">"fit_poisson_nmf"</span>)</pre></div>
 </div>
 <div id="credits" class="section level2">
 <h2 class="hasAnchor">
 <a href="#credits" class="anchor"></a>Credits</h2>
-<p>The fastTopics R package was developed by <a href="https://pcarbo.github.io">Peter Carbonetto</a> at the <a href="https://www.uchicago.edu">University of Chicago</a>, with guidance from <a href="http://stephenslab.uchicago.edu">Matthew Stephens</a>.</p>
+<p>The fastTopics R package was developed by <a href="https://pcarbo.github.io">Peter Carbonetto</a>, <a href="https://github.com/kevinlkx">Kevin Luo</a>, <a href="https://github.com/kkdey">Kushal Dey</a> and <a href="http://stephenslab.uchicago.edu">Matthew Stephens</a> at the <a href="https://www.uchicago.edu">University of Chicago</a>.</p>
 </div>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
 <h2>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/stephenslab/fastTopics">https://​github.com/​stephenslab/​fastTopics</a>
+<li>Browse source code at <br><a href="https://github.com/stephenslab/fastTopics/">https://​github.com/​stephenslab/​fastTopics/​</a>
 </li>
 <li>Report a bug at <br><a href="https://github.com/stephenslab/fastTopics/issues">https://​github.com/​stephenslab/​fastTopics/​issues</a>
 </li>
@@ -132,6 +127,9 @@
 <h2>Developers</h2>
 <ul class="list-unstyled">
 <li>Peter Carbonetto <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Kevin Luo <br><small class="roles"> Author </small>  </li>
+<li>Kushal Dey <br><small class="roles"> Author </small>  </li>
+<li>Joyce Hsiao <br><small class="roles"> Author </small>  </li>
 <li>Matthew Stephens <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
@@ -150,11 +148,11 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Peter Carbonetto, Matthew Stephens.</p>
+  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

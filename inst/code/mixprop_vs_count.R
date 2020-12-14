@@ -1,6 +1,10 @@
 n <- nrow(fit$L)
 k <- ncol(fit$L)
 
+count_vs_loading_plot <- function (fit) {
+
+}
+
 # CD79A
 s <- rowSums(counts)
 pdat <- data.frame(x = c(fit_multinom$L),
