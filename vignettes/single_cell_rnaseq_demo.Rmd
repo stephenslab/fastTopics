@@ -243,7 +243,7 @@ clusters shown in the plots above.
 
 The clustering of the cells into B cells (blue), CD14+ monocytes
 (green) and CD34+ cells (purple) is evident from this plot; they are
-each largely characterised by a single factor. The NK and T cells is
+each largely characterized by a single factor. The NK and T cells is
 less distinct, and this is reflected by more sharing of factors (in
 particular, factor 6) among NK and T cells.
 
@@ -265,7 +265,7 @@ clusters, particularly the T cells. Within the T cell cluster, there
 is a distinctive subset of cells with sizeable contributions from the
 "NK cells" factor (factor 1, light blue). These are the same cells
 that sit in between the dense clumps of NK and T cells in the PCA plot
-above. To highlight this subset of cells----which turn out to be CD8+
+above. To highlight this subset of cells---which turn out to be CD8+
 cells---we define a new cluster, and create a new Structure plot with
 the 6 clusters:
 
@@ -311,7 +311,7 @@ gene" for B cells:
 
 ```{r volcano-plot-bcell-cluster, fig.height=3.5, fig.width=4}
 p6 <- volcano_plot(diff_count_clusters,k = "B",label_above_quantile = 0.998,
-                   labels = genes$symbol)
+                   labels = genes$symbol,max.overlaps = 10)
 print(p6)
 ```
 
@@ -320,46 +320,46 @@ in the "T" cluster volcano plot:
 
 ```{r volcano-plot-tcell-cluster, fig.height=3.5, fig.width=4}
 p7 <- volcano_plot(diff_count_clusters,k = "T",label_above_quantile = 0.998,
-                   labels = genes$symbol)
+                   labels = genes$symbol,max.overlaps = 10)
 print(p7)
 ```
 
 Annotate topics by top differentially expressed genes
 -----------------------------------------------------
 
-*Add text here.*
+We can also use the same differential expression analysis to identify
+genes that are highly differentially expressed among the topics:
 
 ```{r diff-count-analysis-topics}
 diff_count_topics <- diff_count_analysis(fit,counts)
 ```
 
-*Add text here.*
+For example, topic 4, which is the predominant topic in the "B"
+cluster, includes the B cells marker gene *CD79A* among its top genes
+in the volcano plot:
 
-```{r volcano-plot-bcell-topic, fig.height=3.4, fig.width=4}
-p9 <- volcano_plot(diff_count_topics,k = 4,label_above_quantile = 0.998,
-                   labels = genes$symbol)
-print(p9)
+```{r volcano-plot-bcell-topic, fig.height=3.5, fig.width=4}
+p8 <- volcano_plot(diff_count_topics,k = 4,label_above_quantile = 0.998,
+                   labels = genes$symbol,max.overlaps = 10)
+print(p8)
 ```
 
-Explain that there is no single topic for T cells.
+Note that the estimated differential expression (log-fold change) for
+this gene, and others, is much higher in the topic; 6.5 in the cluster
+vs. >10 in the topic. This suggests that the topic model better
+isolates expression patterns specific to B cells.
+
+There is no single topic for T cells.
 
 *Add text here.*
 
-```{r volcano-plot-nk-topic, fig.height=3, fig.width=3}
-p11 <- volcano_plot(diff_count_topics,k = 1,label_above_quantile = 0.998,
-                    labels = genes$symbol)
-print(p11)
-```
-
-*Add text here.*
-
-```{r volcano-plot-cd4, fig.height=3, fig.width=3}
+```{r volcano-plot-cd4, fig.height=3.5, fig.width=4}
 i <- which(clusters == "T")
 fit_t <- select_loadings(fit_multinom,loadings = i)
 diff_count_t <- diff_count_analysis(fit_t,counts[i,])
-p12 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.99,
-                    labels = genes$symbol)
-print(p12)
+p9 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
+                   labels = genes$symbol,max.overlaps = 16)
+print(p9)
 ```
 
 TO DO: Create an interactive volcano plot.
