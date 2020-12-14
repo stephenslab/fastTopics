@@ -421,6 +421,9 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   proportion of log-fold change statistics with "small" z-scores that
 #'   are included in the plot, uniformly at random. This is only used if
 #'   \code{subsample_below_quantile} is greater than zero.
+#'
+#' @param max.overlaps Argument passed to
+#'   \code{\link[ggrepel]{geom_text_repel}}.
 #' 
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{volcano_plot_ggplot_call} with your own function to customize
@@ -441,7 +444,7 @@ volcano_plot <-
   function (diff_count_result, k, labels, y = c("zscore", "pvalue"),
             betamax = 10, label_above_quantile = 0.99,
             subsample_below_quantile = 0, subsample_rate = 0.1,
-            ggplot_call = volcano_plot_ggplot_call,
+            max.overlaps = Inf, ggplot_call = volcano_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots)) {
     
   # Check and process input arguments.
@@ -471,7 +474,7 @@ volcano_plot <-
     dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
                                      label_above_quantile,
                                      subsample_below_quantile,subsample_rate)
-    return(ggplot_call(dat,y.label,k))
+    return(ggplot_call(dat,y.label,k,max.overlaps))
   } else {
 
     # Create a volcano plot for each selected topic, and combine them
@@ -482,7 +485,7 @@ volcano_plot <-
     for (i in 1:m)
       plots[[i]] <- volcano_plot(diff_count_result,k[i],labels,y,betamax,
                                  label_above_quantile,subsample_below_quantile,
-                                 subsample_rate,ggplot_call,NULL)
+                                 subsample_rate,max.overlaps,ggplot_call,NULL)
     return(plot_grid_call(plots))
   }
 }
@@ -575,6 +578,9 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
 #' @param topic.label The name or number of the topic being plotted.
 #'   Only used to determine the plot title.
 #' 
+#' @param max.overlaps Argument passed to
+#'   \code{\link[ggrepel]{geom_text_repel}}.
+#' 
 #' @param font.size Font size used in plot.
 #'
 #' @importFrom ggplot2 ggplot
@@ -588,7 +594,8 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
 #' 
 #' @export
 #' 
-volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
+volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
+                                      max.overlaps = Inf, font.size = 9)
   ggplot(dat,aes_string(x = "beta",y = "y",fill = "mean",label = "label")) +
     geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
     scale_y_continuous(trans = "sqrt",
@@ -598,7 +605,7 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label, font.size = 9)
                          midpoint = mean(range(dat$mean))) +
     geom_text_repel(color = "black",size = 2.25,fontface = "italic",
                     segment.color = "black",segment.size = 0.25,
-                    na.rm = TRUE) +
+                    max.overlaps = max.overlaps,na.rm = TRUE) +
     labs(x = "log-fold change (\u03b2)",y = y.label,fill = "log10 mean",
          title = paste("topic",topic.label)) +
     theme_cowplot(font.size)

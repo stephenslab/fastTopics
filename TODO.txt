@@ -1,11 +1,7 @@
 to do
 =====
 
-+ Update README.
-
 + Remove files in inst/derivations/diffcount.
-
-+ Update DESCRIPTION (particularly the Description field).
 
 + Implement "t" S3 method to transpose the rows and columns of a
   Poisson NMF fit.
@@ -15,8 +11,7 @@ to do
   consider implementing umap_plot and umap_from_topics, and allow for
   using UMAP instead of t-SNE in the Structure plot.
 
-+ Contribute to SeuratWrappers:
-  https://github.com/satijalab/seurat-wrappers
++ Implement integrations for Seurat, Signac and/or ArchR.
 
 + Implement backtracking line search option for SCD algorithm.
 
