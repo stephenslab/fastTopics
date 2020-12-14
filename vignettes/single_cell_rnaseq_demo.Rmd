@@ -379,8 +379,9 @@ p10 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
 print(p10)
 ```
 
-Judging top differentially expression genes such as *CD4*, this topic
-likely corresponds to CD4+/CD8+ lineage differentiation in T cells.
+Judging top differentially expression genes such as *CD4* and *CCR10*,
+this topic likely corresponds to CD4+/CD8+ lineage differentiation in
+T cells.
 
 An interactive volcano plot
 ---------------------------
