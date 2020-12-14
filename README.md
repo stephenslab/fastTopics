@@ -39,8 +39,9 @@ Note that installing the package will require a C++ compiler setup
 that is appropriate for the version of R installed on your
 computer. For details, refer to the [CRAN documentation][cran].
 
-For guidance on using fastTopics to analyze gene expression data (bulk
-RNA-seq or single-cell RNA-seq), see the [vignette][vignette-scrnaseq].
+For guidance on using fastTopics to analyze gene expression data
+(single-cell or bulk RNA-seq), see the [single-cell RNA-seq
+vignette][vignette-scrnaseq].
 
 Also, try running the small example that illustrates the fast model
 fitting algorithms:
@@ -49,20 +50,22 @@ fitting algorithms:
 example("fit_poisson_nmf")
 ```
 
+See the [package documentation][pkgdown] for more information.
+
 ## Credits
 
 The fastTopics R package was developed by [Peter Carbonetto][peter],
-[Kevin Luo][kevin], [Kushal Dey][kushal] and
+Kevin Luo, Kushal Dey, Joyce Hsiao and
 [Matthew Stephens][matthew] at the [University of Chicago][uchicago].
 
 [mit-license]: https://opensource.org/licenses/mit-license.html
 [issues]: https://github.com/stephenslab/fastTopics/issues
 [peter]: https://pcarbo.github.io
 [kevin]: https://github.com/kevinlkx
-[kushal]: https://github.com/kkdey
 [matthew]: http://stephenslab.uchicago.edu
 [uchicago]: https://www.uchicago.edu
 [cran]: https://cran.r-project.org
 [countclust]: https://github.com/kkdey/CountClust
+[pkgdown]: https://stephenslab.github.io/fastTopics
 [vignette-close-relationship]: https://stephenslab.github.io/fastTopics/articles/relationship.html
 [vignette-scrnaseq]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_demo.html
