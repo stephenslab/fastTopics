@@ -19,6 +19,20 @@ to the [CountClust package][countclust].
 If you find a bug, or you have a question or feedback on this software,
 please post an [issue][issues].
 
+## Citing this work
+
+If you find the fastTopics package or any of the source code in this
+repository useful for your work, please cite:
+
+> Kushal K. Dey, Chiaowen Joyce Hsiao and Matthew Stephens (2017).
+> [Visualizing the structure of RNA-seq expression data using grade of membership models.][countclust-paper]
+> *PLoS Genetics* **13**, e1006599.
+>
+> Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao and Matthew
+> Stephens (2020). fastTopics: fast algorithms for fitting topic models
+> and non-negative matrix factorizations to count data. R package
+> version 0.3-194. [https://github.com/stephenslab/fastTopics][fasttopics]
+
 ## License
 
 Copyright (c) 2019-2020, Peter Carbonetto and Matthew Stephens.
@@ -58,6 +72,7 @@ The fastTopics R package was developed by [Peter Carbonetto][peter],
 Kevin Luo, Kushal Dey, Joyce Hsiao and
 [Matthew Stephens][matthew] at the [University of Chicago][uchicago].
 
+[fasttopics]:  https://github.com/stephenslab/fastTopics
 [mit-license]: https://opensource.org/licenses/mit-license.html
 [issues]: https://github.com/stephenslab/fastTopics/issues
 [peter]: https://pcarbo.github.io
@@ -66,6 +81,7 @@ Kevin Luo, Kushal Dey, Joyce Hsiao and
 [uchicago]: https://www.uchicago.edu
 [cran]: https://cran.r-project.org
 [countclust]: https://github.com/kkdey/CountClust
+[countclust-paper]: https://doi.org/10.1371/journal.pgen.1006599
 [pkgdown]: https://stephenslab.github.io/fastTopics
 [vignette-close-relationship]: https://stephenslab.github.io/fastTopics/articles/relationship.html
 [vignette-scrnaseq]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_demo.html
