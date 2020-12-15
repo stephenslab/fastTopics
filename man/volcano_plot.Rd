@@ -17,6 +17,7 @@ volcano_plot(
   label_above_quantile = 0.99,
   subsample_below_quantile = 0,
   subsample_rate = 0.1,
+  max.overlaps = Inf,
   ggplot_call = volcano_plot_ggplot_call,
   plot_grid_call = function(plots) do.call(plot_grid, plots)
 )
@@ -38,7 +39,13 @@ volcano_plotly(
   plot_ly_call = volcano_plot_ly_call
 )
 
-volcano_plot_ggplot_call(dat, y.label, topic.label, font.size = 9)
+volcano_plot_ggplot_call(
+  dat,
+  y.label,
+  topic.label,
+  max.overlaps = Inf,
+  font.size = 9
+)
 
 volcano_plot_ly_call(dat, y.label, title, width, height)
 }
@@ -81,6 +88,9 @@ reduce the number of points plotted.}
 proportion of log-fold change statistics with "small" z-scores that
 are included in the plot, uniformly at random. This is only used if
 \code{subsample_below_quantile} is greater than zero.}
+
+\item{max.overlaps}{Argument passed to
+\code{\link[ggrepel]{geom_text_repel}}.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{volcano_plot_ggplot_call} with your own function to customize
