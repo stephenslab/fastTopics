@@ -7,8 +7,14 @@
 fit_topic_model_simple(
   X,
   k,
+  numiter.main = 100,
+  numiter.refine = 100,
+  method.main = "em",
+  method.refine = "scd",
   init.method = c("topicscore", "random"),
   control.init = list(),
+  control.main = list(numiter = 4),
+  control.refine = list(numiter = 4, extrapolate = TRUE),
   verbose = TRUE
 )
 }
@@ -19,12 +25,24 @@ or dense matrix (class \code{"matrix"}).}
 
 \item{k}{The number of topics. Must be 2 or greater.}
 
+\item{numiter.main}{}
+
+\item{numiter.refine}{}
+
+\item{method.main}{}
+
+\item{method.refine}{}
+
 \item{init.method}{The method used to initialize the factors and
 loadings. See \code{\link{init_poisson_nmf}} for details.}
 
 \item{control.init}{A list of parameters controlling the behaviour
 of the optimization and Topic SCORE method in the call to
 \code{init_poisson_nmf}.}
+
+\item{control.main}{}
+
+\item{control.refine}{}
 
 \item{verbose}{When \code{verbose = TRUE}, information about the
 progress of the model fitting is printed to the console. See
@@ -49,6 +67,8 @@ TO DO: Add details here.
 library(Matrix)
 set.seed(1)
 X <- simulate_count_data(80,100,k = 3,sparse = TRUE)$X
+fit <- fit_topic_model_simple(X,k = 3)
+print(summary(fit))
 
 }
 \seealso{
