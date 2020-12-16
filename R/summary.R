@@ -86,6 +86,12 @@ summary.multinom_topic_model_fit <- function (object, ...) {
 #' @param x An object of class \dQuote{summary.poisson_nmf_fit},
 #'   usually a result of a call to \code{summary.poisson_nmf_fit}.
 #'
+#' @param size.factors If \code{TRUE}, show the...
+#'
+#' @param topic.props If \code{TRUE}, show the...
+#'
+#' @param topic.reps If \code{TRUE}, show the...
+#' 
 #' @param \dots Additional arguments passed to the generic \code{summary}
 #'   or \code{print.summary} method.
 #'
@@ -93,20 +99,24 @@ summary.multinom_topic_model_fit <- function (object, ...) {
 #' 
 #' @export
 #' 
-print.summary.poisson_nmf_fit <- function (x, ...) {
+print.summary.poisson_nmf_fit <- 
+  function (x, size.factors = FALSE, topic.props = FALSE,
+            topic.reps = FALSE, ...) {
   print.summary.multinom_topic_model_fit(x,...)
   return(invisible(x))
 }
 
 #' @rdname summary.poisson_nmf_fit
-#'  
+#'
 #' @method print summary.multinom_topic_model_fit
 #'
 #' @importFrom stats quantile
 #' 
 #' @export
 #'
-print.summary.multinom_topic_model_fit <- function (x, ...) {
+print.summary.multinom_topic_model_fit <-
+  function (x, size.factors = FALSE, topic.props = FALSE,
+            topic.reps = FALSE, ...) {
   k <- x$k
   cat("Model overview:\n")
   cat(sprintf("  Number of data rows, n: %d\n",x$n))
@@ -116,16 +126,23 @@ print.summary.multinom_topic_model_fit <- function (x, ...) {
   cat(sprintf("  Log-likelihood: %+0.12e\n",x$loglik))
   cat(sprintf("  Deviance: %+0.12e\n",x$dev))
   cat(sprintf("  Max KKT residual: %+0.6e\n",x$res))
-  if (!is.null(x$s)) {
+  if (!size.factors & !topic.props & !topic.reps)
+    message("Set size.factors = TRUE, topic.props = TRUE and/or ",
+            "topic.reps = TRUE in print(...) to show more informataion")
+  if (size.factors & !is.null(x$s)) {
     cat(sprintf("Size factors:\n"))
     q        <- quantile(x$s)
     names(q) <- c("Min","1Q","Median","3Q","Max")
     print(q)
   }
-  cat(sprintf("Topic proportions:\n"))
-  print(x$topic.proportions)
-  cat(sprintf("Topic representatives:\n"))
-  print(round(x$topic.reps,digits = 3))
+  if (topic.props) {
+    cat(sprintf("Topic proportions:\n"))
+    print(x$topic.proportions)
+  }
+  if (topic.reps) {
+    cat(sprintf("Topic representatives:\n"))
+    print(round(x$topic.reps,digits = 3))
+  }
   return(invisible(x))
 }
 

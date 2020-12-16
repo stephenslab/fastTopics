@@ -11,9 +11,9 @@
 
 \method{summary}{multinom_topic_model_fit}(object, ...)
 
-\method{print}{summary.poisson_nmf_fit}(x, ...)
+\method{print}{summary.poisson_nmf_fit}(x, size.factors = FALSE, topic.props = FALSE, topic.reps = FALSE, ...)
 
-\method{print}{summary.multinom_topic_model_fit}(x, ...)
+\method{print}{summary.multinom_topic_model_fit}(x, size.factors = FALSE, topic.props = FALSE, topic.reps = FALSE, ...)
 }
 \arguments{
 \item{object}{An object of class \dQuote{poisson_nmf_fit} or
@@ -26,6 +26,12 @@ or \code{print.summary} method.}
 
 \item{x}{An object of class \dQuote{summary.poisson_nmf_fit},
 usually a result of a call to \code{summary.poisson_nmf_fit}.}
+
+\item{size.factors}{If \code{TRUE}, show the...}
+
+\item{topic.props}{If \code{TRUE}, show the...}
+
+\item{topic.reps}{If \code{TRUE}, show the...}
 }
 \value{
 The functions \code{summary.poisson_nmf_fit} and

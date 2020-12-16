@@ -1,12 +1,12 @@
 #' @title Fit or Re-fit Poisson Non-negative Matrix Factorization
 #'
-#' @description This function approximates the input matrix \code{X}
-#'   by the non-negative matrix factorization \code{L \%*\% t(F)} by
+#' @description Approximate the input matrix \code{X} by the
+#'   non-negative matrix factorization \code{L \%*\% t(F)} by
 #'   nonnegative matrix factorization (NMF), in which the quality of the
 #'   approximation is measured by a \dQuote{divergence} criterion;
-#'   equivalently, it optimizes the likelihood under a Poisson model of
-#'   the count data, X. It runs a specified number of coordinate-wise
-#'   updates to fit the L and F matrices.
+#'   equivalently, optimize the likelihood under a Poisson model of the
+#'   count data, X. Function \code{fit_poisson_nmf} runs a specified
+#'   number of coordinate-wise updates to fit the L and F matrices.
 #'
 #' @details In Poisson non-negative matrix factorization (Lee & Seung,
 #' 2001), counts \eqn{x_{ij}} in the \eqn{n \times m} matrix, \eqn{X},
@@ -127,7 +127,7 @@
 #'
 #' @param k An integer 2 or greater giving the matrix rank. This
 #'   argument should only be specified if the initial fit (\code{fit0}
-#'   or \code{F, L}) s not provided.
+#'   or \code{F, L}) is not provided.
 #' 
 #' @param fit0 The initial model fit. It should be an object of class
 #'   \dQuote{poisson_nmf_fit}, such as an output from
@@ -409,7 +409,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.3-194).\n")
+    cat("(fastTopics 0.4-0).\n")
   }
   
   # INITIALIZE ESTIMATES
