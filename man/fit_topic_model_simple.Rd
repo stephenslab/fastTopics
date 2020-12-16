@@ -25,24 +25,36 @@ or dense matrix (class \code{"matrix"}).}
 
 \item{k}{The number of topics. Must be 2 or greater.}
 
-\item{numiter.main}{}
+\item{numiter.main}{Number of updates of the factors and loadings
+to perform in the main model fitting step. Should be 1 or more.}
 
-\item{numiter.refine}{}
+\item{numiter.refine}{Number of updates of the factors and loadings
+to perform in the model refinement step.}
 
-\item{method.main}{}
+\item{method.main}{The method to use for updating the factors and
+loadings in the main model fitting step. Passed as argument
+"method" to \code{\link{fit_poisson_nmf}}.}
 
-\item{method.refine}{}
+\item{method.refine}{The method to use for updating the factors in
+evthe model refinement step. Passed as argument "method"
+to \code{\link{fit_poisson_nmf}}.}
 
 \item{init.method}{The method used to initialize the factors and
 loadings. See \code{\link{init_poisson_nmf}} for details.}
 
 \item{control.init}{A list of parameters controlling the behaviour
 of the optimization and Topic SCORE method in the call to
+\code{init_poisson_nmf}. This is passed as argument "control" to
 \code{init_poisson_nmf}.}
 
-\item{control.main}{}
+\item{control.main}{A list of parameters controlling the behaviour
+of the optimization in the main model fitting step. This is passed
+as argument "control" to \code{fit_poisson_nmf}.}
 
-\item{control.refine}{}
+\item{control.refine}{A list of parameters controlling the
+behaviour of the of the optimization algorithm in the model
+refinement step. This is passed as argument "control" to
+\code{fit_poisson_nmf}.}
 
 \item{verbose}{When \code{verbose = TRUE}, information about the
 progress of the model fitting is printed to the console. See
@@ -58,10 +70,16 @@ Fits a multinomial topic model to the count data,
   hiding most of the complexities of model fitting. The default
   optimization settings used here are intended to work well in a wide
   range of data sets, although some fine-tuning may be needed for
-  more difficult cases.
+  more difficult cases. For full control, use \code{fit_poisson_nmf}.
 }
 \details{
-TO DO: Add details here.
+With the default settings, the model fitting is
+accomplished in four steps: (1) initialize the Poisson NMF model
+fit (\code{init_poisson_nmf}); (2) perform the main model fitting
+step by running 100 EM updates using \code{fit_poisson_nmf}; (3)
+refine the fit by running 100 extrapolated SCD updates, again using
+\code{fit_poisson_nmf}; and (4) recover the multinomial topic model
+by calling \code{poisson2multinom}.
 }
 \examples{
 library(Matrix)

@@ -4,9 +4,15 @@
 #'   hiding most of the complexities of model fitting. The default
 #'   optimization settings used here are intended to work well in a wide
 #'   range of data sets, although some fine-tuning may be needed for
-#'   more difficult cases.
+#'   more difficult cases. For full control, use \code{fit_poisson_nmf}.
 #'
-#' @details TO DO: Add details here.
+#' @details With the default settings, the model fitting is
+#' accomplished in four steps: (1) initialize the Poisson NMF model
+#' fit (\code{init_poisson_nmf}); (2) perform the main model fitting
+#' step by running 100 EM updates using \code{fit_poisson_nmf}; (3)
+#' refine the fit by running 100 extrapolated SCD updates, again using
+#' \code{fit_poisson_nmf}; and (4) recover the multinomial topic model
+#' by calling \code{poisson2multinom}.
 #'
 #' @param X The n x m matrix of counts; all entries of X should be
 #'   non-negative. It can be a sparse matrix (class \code{"dgCMatrix"})
@@ -14,24 +20,36 @@
 #'
 #' @param k The number of topics. Must be 2 or greater.
 #'
-#' @param numiter.main
+#' @param numiter.main Number of updates of the factors and loadings
+#'   to perform in the main model fitting step. Should be 1 or more.
 #'
-#' @param numiter.refine
+#' @param numiter.refine Number of updates of the factors and loadings
+#'   to perform in the model refinement step.
 #'
-#' @param method.main
+#' @param method.main The method to use for updating the factors and
+#'   loadings in the main model fitting step. Passed as argument
+#'   "method" to \code{\link{fit_poisson_nmf}}.
 #'
-#' @param method.refine
+#' @param method.refine The method to use for updating the factors in
+#'   evthe model refinement step. Passed as argument "method"
+#'   to \code{\link{fit_poisson_nmf}}.
 #'
 #' @param init.method The method used to initialize the factors and
 #'   loadings. See \code{\link{init_poisson_nmf}} for details.
 #'
 #' @param control.init A list of parameters controlling the behaviour
 #'   of the optimization and Topic SCORE method in the call to
+#'   \code{init_poisson_nmf}. This is passed as argument "control" to
 #'   \code{init_poisson_nmf}.
 #'
-#' @param control.main
+#' @param control.main A list of parameters controlling the behaviour
+#'   of the optimization in the main model fitting step. This is passed
+#'   as argument "control" to \code{fit_poisson_nmf}.
 #'
-#' @param control.refine
+#' @param control.refine A list of parameters controlling the
+#'   behaviour of the of the optimization algorithm in the model
+#'   refinement step. This is passed as argument "control" to
+#'   \code{fit_poisson_nmf}.
 #'
 #' @param verbose When \code{verbose = TRUE}, information about the
 #'   progress of the model fitting is printed to the console. See
@@ -64,7 +82,7 @@ fit_topic_model_simple <-
   if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
-
+  
   # If necessary, remove all-zero columns from the counts matrix.
   if (any(colSums(X > 0) == 0)) {
     i <- which(colSums(X > 0) >= 1)
