@@ -2,6 +2,7 @@
 % Please edit documentation in R/diffcount.R
 \name{diff_count_analysis}
 \alias{diff_count_analysis}
+\alias{diff_count_clusters}
 \title{Differential Count Analysis with a Multinomial Topic Model}
 \usage{
 diff_count_analysis(
@@ -12,8 +13,11 @@ diff_count_analysis(
   tol = 1e-08,
   e = 1e-15,
   betamax = 10,
+  show.message = TRUE,
   verbose = TRUE
 )
+
+diff_count_clusters(X, cluster, ...)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
@@ -44,8 +48,14 @@ estimates, particularly in large data sets, an upper limit on the
 estimated log-fold change can be used to improve the numerical
 accuracy of the calculations.}
 
+\item{show.message}{}
+
 \item{verbose}{When \code{verbose = TRUE}, progress information is
 printed to the console.}
+
+\item{cluster}{e.g., "cluster" output from k-means}
+
+\item{\dots}{}
 }
 \value{
 The return value is a list with six m x k matrices, where m

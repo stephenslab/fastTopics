@@ -298,8 +298,7 @@ the analysis for the clusters by treating the clustering as a topic
 model in which all the mixture proportions are 0 or 1.
 
 ```{r diff-count-analysis-clusters}
-fit_clusters <- init_poisson_nmf_from_clustering(counts,clusters)
-diff_count_clusters <- diff_count_analysis(fit_clusters,counts)
+diff_count_clusters <- diff_count_clusters(counts,clusters)
 ```
 
 The results of the differential expresison analysis can be visualized

@@ -75,6 +75,8 @@
 #'   estimated log-fold change can be used to improve the numerical
 #'   accuracy of the calculations.
 #' 
+#' @param show.message
+#' 
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
 #'
@@ -104,7 +106,7 @@
 #' 
 diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
                                  tol = 1e-8, e = 1e-15, betamax = 10,
-                                 verbose = TRUE) {
+                                 show.message = TRUE, verbose = TRUE) {
 
   # CHECK & PROCESS INPUTS
   # ----------------------
@@ -138,7 +140,7 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   # or one), we can use the faster fit_univar_poisson_models_hard.
   if (verbose)
     cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
-  if (max(pmin(fit$L,1 - fit$L)) <= 1e-14) {
+  if (show.message & max(pmin(fit$L,1 - fit$L)) <= 1e-14) {
     message("All topic proportions are either zero or one; using simpler ",
             "single-topic calculations for model parameter estimates")
     out <- fit_univar_poisson_models_hard(X,fit$L,s,e)
@@ -184,4 +186,19 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   # Return the Poisson model MLEs and the log-fold change statistics.
   class(out) <- c("topic_model_diff_count","list")
   return(out)
+}
+
+#' @rdname diff_count_analysis
+#'
+#' @param cluster e.g., "cluster" output from k-means
+#'
+#' @param \dots 
+#' 
+#' @export
+#'
+diff_count_clusters <- function (X, cluster, ...) {
+  if (!is.factor(cluster))
+    cluster <- factor(cluster)
+  fit <- init_poisson_nmf_from_clustering(X,cluster)
+  return(diff_count_analysis(fit,X,show.message = FALSE,...))
 }
