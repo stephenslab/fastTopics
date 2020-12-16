@@ -80,6 +80,15 @@ step by running 100 EM updates using \code{fit_poisson_nmf}; (3)
 refine the fit by running 100 extrapolated SCD updates, again using
 \code{fit_poisson_nmf}; and (4) recover the multinomial topic model
 by calling \code{poisson2multinom}.
+
+This two-stage fitting approach is based on our findings that the
+EM algorithm initially makes rapid progress toward a solution, but
+its convergence slows considerably as the iterates approach a
+solution. Close to a solution, we have found that other algorithms
+make much more rapid progress than EM; in particularly, we founr
+that the extrapolated SCD updates usually performed best).  For
+larger data sets, more updates in the main model fitting and
+refinement steps may be needed to obtain a good fit.
 }
 \examples{
 library(Matrix)
