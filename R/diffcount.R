@@ -6,7 +6,8 @@
 #' \dQuote{key words} in topics derived from text documents. A special
 #' case of "hard" topic assignments is also implemented---that is, the
 #' topic proportions are all zeros and ones---which involves greatly
-#' simplified (and faster) calculations.
+#' simplified (and faster) calculations. Use \code{diff_count_clusters}
+#' for this special case.
 #'
 #' @details The methods are based on the following univariate
 #' (\dQuote{single-count}) Poisson model: \deqn{x_i ~ Poisson(s_i
@@ -81,8 +82,9 @@
 #'   printed to the console.
 #'
 #' @return The return value is a list with six m x k matrices, where m
-#' is the number of columns in the counts matrix, and k is the number of
-#' topics, and an additional vector:
+#'   is the number of columns in the counts matrix, and k is the number
+#'   of topics (for \code{diff_count_clusters}, m is the number of
+#'   clusters), and an additional vector:
 #'
 #' \item{colmeans}{A vector of length m containing the count averages
 #'   (\code{colMeans(X)}).}
@@ -190,9 +192,13 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
 
 #' @rdname diff_count_analysis
 #'
-#' @param cluster e.g., "cluster" output from k-means
+#' @param cluster A factor, or vector that can be converted to a
+#'   factor such as an integer or character vector, giving an assignment
+#'   of samples (rows of \code{X}) to clusters. This could be, for
+#'   example, the "cluster" output from \code{\link[stats]{kmeans}}.
 #'
-#' @param \dots 
+#' @param \dots Additional arguments passed to
+#'   \code{diff_count_analysis}.
 #' 
 #' @export
 #'

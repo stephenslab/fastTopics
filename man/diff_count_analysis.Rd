@@ -53,14 +53,19 @@ accuracy of the calculations.}
 \item{verbose}{When \code{verbose = TRUE}, progress information is
 printed to the console.}
 
-\item{cluster}{e.g., "cluster" output from k-means}
+\item{cluster}{A factor, or vector that can be converted to a
+factor such as an integer or character vector, giving an assignment
+of samples (rows of \code{X}) to clusters. This could be, for
+example, the "cluster" output from \code{\link[stats]{kmeans}}.}
 
-\item{\dots}{}
+\item{\dots}{Additional arguments passed to
+\code{diff_count_analysis}.}
 }
 \value{
 The return value is a list with six m x k matrices, where m
-is the number of columns in the counts matrix, and k is the number of
-topics, and an additional vector:
+  is the number of columns in the counts matrix, and k is the number
+  of topics (for \code{diff_count_clusters}, m is the number of
+  clusters), and an additional vector:
 
 \item{colmeans}{A vector of length m containing the count averages
   (\code{colMeans(X)}).}
@@ -84,7 +89,8 @@ expression studies, but could have other uses, such as identifying
 \dQuote{key words} in topics derived from text documents. A special
 case of "hard" topic assignments is also implemented---that is, the
 topic proportions are all zeros and ones---which involves greatly
-simplified (and faster) calculations.
+simplified (and faster) calculations. Use \code{diff_count_clusters}
+for this special case.
 }
 \details{
 The methods are based on the following univariate
