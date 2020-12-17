@@ -75,12 +75,12 @@
 #' library(Matrix)
 #' set.seed(1)
 #' X <- simulate_count_data(80,100,k = 3,sparse = TRUE)$X
-#' fit <- fit_topic_model_simple(X,k = 3)
+#' fit <- fit_topic_model(X,k = 3)
 #' print(summary(fit))
 #' 
 #' @export
 #'
-fit_topic_model_simple <-
+fit_topic_model <-
   function (X, k, numiter.main = 100, numiter.refine = 100, method.main = "em",
             method.refine = "scd", init.method = c("topicscore","random"),
             control.init = list(), control.main = list(numiter = 4),
