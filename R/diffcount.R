@@ -76,7 +76,8 @@
 #'   estimated log-fold change can be used to improve the numerical
 #'   accuracy of the calculations.
 #' 
-#' @param show.message
+#' @param show.message Set \code{show.message = FALSE} to suppress a
+#'   message about calculations when mixture proportions are all 0 or 1.
 #' 
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
@@ -138,12 +139,12 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   k <- ncol(fit$F)
   
   # Fit the univariate ("single-count") Poisson models. If all the
-  # topic proportions are zeros or ones (or very close to being zero
+  # mixture proportions are zeros or ones (or very close to being zero
   # or one), we can use the faster fit_univar_poisson_models_hard.
   if (verbose)
     cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
   if (show.message & max(pmin(fit$L,1 - fit$L)) <= 1e-14) {
-    message("All topic proportions are either zero or one; using simpler ",
+    message("All mixture proportions are either zero or one; using simpler ",
             "single-topic calculations for model parameter estimates")
     out <- fit_univar_poisson_models_hard(X,fit$L,s,e)
   } else

@@ -48,7 +48,8 @@ estimates, particularly in large data sets, an upper limit on the
 estimated log-fold change can be used to improve the numerical
 accuracy of the calculations.}
 
-\item{show.message}{}
+\item{show.message}{Set \code{show.message = FALSE} to suppress a
+message about calculations when mixture proportions are all 0 or 1.}
 
 \item{verbose}{When \code{verbose = TRUE}, progress information is
 printed to the console.}
