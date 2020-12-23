@@ -6,7 +6,8 @@
 #' @param object An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. The former is usually the result
 #'   of calling \code{\link{fit_poisson_nmf}}; the latter is usually the
-#'   result of calling \code{link{poisson2multinom}}.
+#'   result of calling \code{\link{fit_topic_model}} or
+#'   \code{link{poisson2multinom}}.
 #'
 #' @method summary poisson_nmf_fit
 #'

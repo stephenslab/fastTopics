@@ -1,12 +1,12 @@
 ---
-title: "Analysis of single-cell RNA-seq data using fastTopics: an illustration"
+title: "Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts"
 author: Peter Carbonetto
 date: "`r Sys.Date()`"
 output:
   html_document:
     theme: readable
 vignette: >
-  %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using fastTopics: an illustration}
+  %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -399,4 +399,15 @@ p11 <- volcano_plotly(diff_count_t,k = 5,"volcano_plot_t_cells.html",
 The interactive volcano plot can also be viewed
 [here](volcano_plot_t_cells.html).
 
+Session info
+------------
+
+This is the version of R and the packages that were used to generate
+these results.
+
+```{r session-info}
+sessionInfo()
+```
+
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
+
