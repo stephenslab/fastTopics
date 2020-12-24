@@ -122,8 +122,9 @@ print.summary.multinom_topic_model_fit <-
   cat("Model overview:\n")
   cat(sprintf("  Number of data rows, n: %d\n",x$n))
   cat(sprintf("  Number of data cols, m: %d\n",x$m))
-  cat(sprintf("  Rank/Number of topics, k: %d\n",x$k))
-  cat(sprintf("Evaluation of fit (%d updates performed):\n",x$numiter))
+  cat(sprintf("  Rank/number of topics, k: %d\n",x$k))
+  cat(sprintf("Evaluation of Poisson NMF fit (%d updates performed):\n",
+              x$numiter))
   cat(sprintf("  Log-likelihood: %+0.12e\n",x$loglik))
   cat(sprintf("  Deviance: %+0.12e\n",x$dev))
   cat(sprintf("  Max KKT residual: %+0.6e\n",x$res))
