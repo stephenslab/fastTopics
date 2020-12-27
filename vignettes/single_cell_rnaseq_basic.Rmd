@@ -142,24 +142,75 @@ The third example is interesting because the observed expression is
 best captured by a *mixture* of topics 4 and 6.
 
 In order to make sense of these results, we first need to understand
-the meaning, or biological relevance, of the topics. We turn to this
-question next.
+the biological relevance of the topics. We turn to this question next.
 
 Interpreting the topics using available cell labels
 ---------------------------------------------------
 
-*Add text here.*
+In some situations, there may be additional information about the
+cells, such as the tissue the cells were sampled from. Here, using
+fluorescence-activated cell sorting (FACS), the cells are labeled
+according to 5 cell types, B cells, CD14+ monocytes, CD34+ cells,
+natural killer (NK) cells, and T helper cells:
 
-Interpreting the topics using estimated relative expression levels
-------------------------------------------------------------------
+```{r summary-subpop}
+summary(pbmc_4k$samples$subpop)
+```
+
+To help us understand the relationship between the cell types and the
+topics, we create a Structure plot summarizing the mixture proportions
+in each of the 5 cell types:
+
+```{r structure-plot-with-celltype-labels, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
+topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
+                  "gold","darkorange")
+p1 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
+                     grouping = pbmc_4k$samples$subpop,gap = 25)
+print(p1)
+```
+
+The Structure plot is effectively a stacked bar chart, in which each
+topic corresponds to a bar of a different colour. Since the mixture
+proportions for each cell sum to 1, the total height of the bars is
+the same for each cell, making it easier to compare across cells.
+Patterns emerge when the cells are arranged so that cells with similar
+mixture proportions are nearby each other along the horizontal
+axis. The arranging of the cells within each cell type is automated in
+`structure_plot` using the *t*-SNE method.
+
+From the Structure plot, it is evident that topics 1, 2 and 4
+correspond to the NK, CD14+ and B cell types; the expression in these
+cells is largely explained by a single topic, although NK cells do
+show more heterogeneity in expression, in which some cells "look like"
+NK cells more than others.
+
+In the CD34+ cells, we see that the mixture proportions contribute a
+lot of useful information about these cells that wasn't captured by
+the cell type labels alone. While expression in these cells is largely
+explained by topic 3, some cells appear to be mislabeled---according
+to the topic model, they should have been labeled as B cells or CD14+
+cells, and there are other cell transcriptome profiles that are best
+fit by a mixture of several topics.
+
+Finally, the T cells subpopulation is another example where the topic
+model captures interesting substructure within the cell type. In the
+Structure plot, two patterns stand out: one, most T cells are a
+mixture of two topics, 5 and 6, with a wide variation in the mixing
+proportions for these two topics; there is a distinctive subset of T
+cells that is captured by a mixture of three topics (topics 1, 5 and
+6). As we will see next, we can analyze differences in gene expression
+among the topics to help us understand what aspects of T cell
+diversity are captured by these three topics.
+
+Interpreting the topics by analyzing differences in gene expression
+-------------------------------------------------------------------
 
 TO DO: Give expression for multinomial probabilities.
 
 Evaluating the topic model
 --------------------------
 
-```{r summary-subpop}
-summary(pbmc_4k$samples$subpop)
+```{r}
 ```
 
 Old stuff
@@ -258,8 +309,6 @@ A much more versatile tool for exploring the mixture proportions is
 the Structure plot. Here is a basic example:
 
 ```{r structure-plot-1, fig.width=6.5, fig.height=1.5, results="hide", eval=FALSE}
-topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
-                  "gold","darkorange")
 p3 <- structure_plot(fit,topics = 1:6,colors = topic_colors)
 print(p3)
 ```
