@@ -5,13 +5,14 @@ date: "`r Sys.Date()`"
 output:
   html_document:
     theme: readable
+    highlight: textmate
 vignette: >
   %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-The aim of this vignette is to introduce the **basic concepts** behind
+The aim of this vignette is to introduce the basic concepts behind
 an analysis of single-cell RNA-seq data using a topic model. 
 
 ```{r knitr-opts, include=FALSE}
@@ -62,14 +63,19 @@ No need to normalize or transform
 Most analyses of UMI counts from single-cell RNA-seq involve a
 pre-processing step in which the counts are log-transformed and
 normalized. *When analyzing UMI counts with a topic model, you should
-not normalize or transform the counts.* The reason we don't need to do
-this is that "raw" counts are modeled directly (in particular, the
-counts are modeled using a multinomial distribution).
+not normalize or transform the counts.* In particcular,
+
+1. There is no need to log-transform the UMI counts---the counts
+   are modeled directly using a multinomial distribution.
+
+2. There is no need to normalize by cell-to-cell differences in
+   sequencing coverage as the (multinomial) likelihood of each cell is
+   *conditioned* on the cell's total UMI count.
 
 Many analyses use only the most highly variable genes. *We recommend
 instead using all genes.* The only exception are genes in which all
-the UMI counts are zero. These genes should be removed prior to the
-topic model analysis
+the UMI counts are zero. These genes should be removed prior to a
+topic model analysis.
 
 Fit the topic model
 -------------------
@@ -103,6 +109,59 @@ range of data sets. However, larger or more challenging data sets my
 require some fine-tuning. Topic model fitting is covered in more
 detail in a separate vignette.
 
+Understanding the topic model
+-----------------------------
+
+A key feature of the topic model is that each cell $i$ is represented
+as a *unique mixture* of the topics. This mixture is learned from the
+data. Each cell can therefore be summarized the $K$ mixture
+proportions. The mixture proportions for all cells are stored as an
+$n \times K$ matrix:
+
+```{r loadings-1}
+dim(fit$L)
+```
+
+To illustrate, here is a cell in which the pattern of expression is
+almost fully captured by the fourth topic:
+
+```{r loadings-2}
+rows <- "GATATATGTCAGTG-1-b_cells"
+round(fit$L[rows,],digits = 3)
+```
+
+Here are two more examples:
+
+```{r loadings-3}
+rows <- c("GACAGTACCTGTGA-1-memory_t",
+          "TGAAGCACACAGCT-1-b_cells")
+round(fit$L[rows,],digits = 3)
+```
+
+The third example is interesting because the observed expression is
+best captured by a *mixture* of topics 4 and 6.
+
+In order to make sense of these results, we first need to understand
+the meaning, or biological relevance, of the topics. We turn to this
+question next.
+
+Interpreting the topics using available cell labels
+---------------------------------------------------
+
+*Add text here.*
+
+Interpreting the topics using estimated relative expression levels
+------------------------------------------------------------------
+
+TO DO: Give expression for multinomial probabilities.
+
+Evaluating the topic model
+--------------------------
+
+```{r summary-subpop}
+summary(pbmc_4k$samples$subpop)
+```
+
 Old stuff
 ---------
 
@@ -126,16 +185,6 @@ how to implement these steps using fastTopics. In other exploratory
 analyses, these steps might not be strictly sequential---for example,
 the annotation in Step 5 may inform the exploration of substructure in
 Step 4.
-
-Recover multinomial topic model
--------------------------------
-
-Once we have fit a Poisson NMF model, the multinomial topic model is
-easly recovered by a reparameterization:
-
-```{r poisson2multinom, eval=FALSE}
-fit_multinom <- poisson2multinom(fit)
-```
 
 Identify clusters
 -----------------
@@ -211,7 +260,7 @@ the Structure plot. Here is a basic example:
 ```{r structure-plot-1, fig.width=6.5, fig.height=1.5, results="hide", eval=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
-p3 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors)
+p3 <- structure_plot(fit,topics = 1:6,colors = topic_colors)
 print(p3)
 ```
 
@@ -237,8 +286,8 @@ data. A simple way we can improve the Structure plot here is to
 arrange the cells by their assignment to the 5 clusters:
 
 ```{r structure-plot-2, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE, eval=FALSE}
-p4 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
-                     grouping = clusters,gap = 25)
+p4 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
+                     grouping = pbmc_4k$samples$subpop,gap = 25)
 print(p4)
 ```
 
