@@ -146,8 +146,8 @@ best captured by a *mixture* of topics 4 and 6.
 To make sense of these results, we first need to understand the
 biological relevance of the topics. We turn to this question next.
 
-Interpreting the topics using available cell labels
----------------------------------------------------
+Interpreting topics using available cell labels
+-----------------------------------------------
 
 In some cases, you may have additional information about the cells,
 such as the tissue the cells were sampled from. In the PBMC data, the
@@ -204,386 +204,146 @@ expression.
 Topics capture patterns of relative expression
 ----------------------------------------------
 
-Above, we showed that cells are represented by mixtures of topics. In
-our running example, some of the topics seem to be meaningful as they
-correspond closely to the known cell types. However, we have not yet
-explained what the topics *are* when analyzing single-cell RNA-seq
-data. Each topic in fact captures a pattern of gene expression,
-represented as a vector of $m$ relative expression levels ($m$ is the
-number of genes). The relative expression levels for all topics are
-stored as an $m \times K$ matrix:
+Above, we explained that the topic model represents cells as mixtures
+of topics. In our running example, some of the topics seem to have a
+straightforward interpretation as known cell types. More precisely,
+each topic captures an expression pattern, encoded as a vector of $m$
+relative expression levels ($m$ is the number of genes). In
+fastTopics, the relative expression levels for all topics are stored
+as an $m \times K$ matrix:
 
 ```{r factors-1}
 dim(fit$F)
 ```
 
-Because these are estimates of *relative* expression, we can directly
-compare these estimates across topics. For example, *CD79B* is
-important to B cell differentiation, so the higher relative expression
-level in topic 4 is a clue that this topic is picking up B cell
-expression patterns (we multiplied the estimates by $10^6$ to make
-them easier to read):
+Because the expression patterns are encoded by *relative expression
+levels*, the estimates of relative expression are directly comparable
+across topics. For example, gene *CD79B* is an important component of
+B cell differentiation, so we would expect higher expression in B
+cells. Indeed, this is what we find in the topic 4 (we multiplied the
+estimates by $10^6$ only to make them easier to read):
 
 ```{r factors-2}
-j <- which(pbmc_4k$genes$symbol == "CD79B")
+genes <- pbmc_4k$genes
+j <- which(genes$symbol == "CD79B")
 round(1e6 * fit$F[j,])
 ```
 
-A much stronger clue is that the B cells marker gene *CD79A* is
-uniquely expressed in topic 4:
+Expression of *CD79A*---a known marker gene for B cells---provides an
+even stronger clue, as it is uniquely expressed in topic 4:
 
 ```{r factors-3}
-j <- which(pbmc_4k$genes$symbol == "CD79A")
+j <- which(genes$symbol == "CD79A")
 round(1e6 * fit$F[j,])
 ```
 
-By contrast, genes that are highly expressed in all topics, such as
-gene *COX4I1*, provide little useful information:
+By contrast, genes that are highly expressed in all topics, e.g.,
+*COX4I1*, provide little useful information:
 
 ```{r factors-4}
-j <- which(pbmc_4k$genes$symbol == "COX4I1")
+j <- which(genes$symbol == "COX4I1")
 round(1e6 * fit$F[j,])
 ```
 
-This points to the idea that we should not look for genes with high
-relative expression levels, but rather genes that have much higher
-relative expression levels than the other topics---and more generally,
-genes with large expression differences. This idea---differential
-expression analysis---is an old idea. The next section explains how
-differential expression analysis is performed in the topic model.
+The larger point here is that the most informative genes are the genes
+with higher expression in one topic compared to the other topics (and
+more generally, genes with large differences in gene expression).
+This idea of analyzing differences in gene expression analysis is an
+old idea. The next section explains how differential expression
+analysis is performed using the topic model.
 
-Interpreting the topics by analyzing differences in gene expression
--------------------------------------------------------------------
+Interpreting topics by analyzing gene expression differences
+------------------------------------------------------------
 
 To set the stage for differential expression analysis using a topic
 model, we begin with a "classic" differential expression analysis
 using the provided cell type labels. This analysis centers on
-calculation of the "log-fold change" statistic, commonly denoted as
-$beta$. It is the (base-2) log-ratio of expression (total UMI count)
-among cells within and outside a group. Returning to the $CD79A$ and
-$CD79B$ gene examples, we see that they are indeed highly
-differentially expressed in B cells, roughly by a factor of aat least
-$2^5 = 32$ times more expressed in cells labeled as "B cell" compared
-to cells not labeled as such, and both genes are underexpressed in the
-other cell types. So our analysis supports the notion that these genes
-are very much characteristic of B cells.
+calculation of the log-fold change statistic. For a given group or
+cluster, it is defined as the (base-2) log-ratio of the average
+expression (meam UMI count) among cells belonging to the group over
+the average expression among cells not belonging to the group. For
+example, genes *CD79A* and *CD79B* are overexpressed in B cells, by a
+factor of $2^5 = 32$ times, or more; by contrast these two genes are
+underexpressed in all other cell types:
 
 ```{r diff-count-analysis-1}
 out1 <- diff_count_clusters(counts,pbmc_4k$samples$subpop)
-rbind(out1$beta[pbmc_4k$genes$symbol == "CD79A",],
-      out1$beta[pbmc_4k$genes$symbol == "CD79B",])
+rbind(out1$beta[genes$symbol == "CD79A",],
+      out1$beta[genes$symbol == "CD79B",])
 ```
 
-We have extended this differential expression analysis in the setting
-where memberships to groups are *partial*, and this analysis is
-implemented by the `diff_count_analysis` function:
+We have extended the classic differential expression analysis in a
+natural way to allow for *partial membership* to groups. This
+generalized differential expression analysis is implemented in the
+`diff_count_analysis` function:
 
 ```{r diff-count-analysis-2}
 out2 <- diff_count_analysis(fit,counts)
 ```
 
-As in the classic analysis, we get log-fold change estimates:
+As in the standard analysis, we obtain log-fold change estimates:
 
 ```{r diff-count-analysis-3}
-rbind(out2$beta[pbmc_4k$genes$symbol == "CD79A",],
-      out2$beta[pbmc_4k$genes$symbol == "CD79B",])
+rbind(out2$beta[genes$symbol == "CD79A",],
+      out2$beta[genes$symbol == "CD79B",])
 ```
 
-Both log-fold change estimates are noticeably larger in the "B cells"
-topic (topic 4). In particular, the log-fold change estimate of 10 for
-*CD79A* means that this gene is 1,000 times more expressed in topic 4
-compared to other topics. This is probably an underestimate, as this
-reflects that the gene is essentially not expressed outside the B
-cells topics, but due to finite numeric calculations we run into
-difficulties when computing ratios with zero denominators; so a
-log-fold change statistic of 10 basically means "very large".
+These log-fold change statistics can be interpreted in the same way
+(and in fact the standard log-fold change statistics emerge as a
+special case of the topic-model-based differential expression analysis
+when the all mixture proportions are 0 or 1). The log-fold change
+estimates are noticeably larger in the "B cells" topic, and
+particularly so for *CD79A*. In fact, *CD79A* is uniquely expressed in
+topic 4, so the ratio essentially has a zero denominator; since we are
+restricted to finite numeric calculations, a log-fold change statistic
+of 10 practically means "10 or larger" (by default). Due to its
+greater flexibility in capturing cells as mixtures of expression
+patterns, the topic model is often more adept at isolating expression
+patterns specific to a cell type.
 
-This is all well and fine for known genes.
+Up to this point, we have illustrated the differential expression
+analysis with known cell-type-specific genes such as *CD79A*, but
+ultimately we would like to discover genes the relevant to a given
+topic of known or unknown biological relevance.
 
-Now we need some way of ranking genes in cases where we either want to
-discover new genes for known cell types, or we do not yet know the
-biological relevance of topic Intuitively, we might want to rank by
-the log-fold change. The complication is that...
+The natural thing to do would be to rank genes by log-fold change. The
+complication is that very lowly expressed genes could also produce, by
+chance, large log-fold changes, and we would not want to rank these
+genes highly. The *volcano plot* provides a visual ranking balancing
+these two concerns: for each gene, the log-fold change is shown on the
+x-axis, and the *p*-value or *z*-score giving a measure of support for
+differential expression is shown on the *y*-axis:
 
-Volcano plot for the B cells topic:
-
-```{r volcano-plot-bcells, fig.height=3.5, fig.width=4.5}
+```{r volcano-plot-b, fig.height=3.5, fig.width=4.5}
 p2 <- volcano_plot(out2,k = 4,label_above_quantile = 0.998,
-                   labels = pbmc_4k$genes$symbol,max.overlaps = 15)
+                   labels = genes$symbol,max.overlaps = 15)
 print(p2)
 ```
+
+Typically the most interesting genes are found in the top-right
+portion of the volcano plot---that is, genes with large log-fold
+change and strong support. Indeed, many known B-cell genes such as
+*CD79A*, *CD79B* and *CD19* approach the top-right corner of the
+volcano plot for topic 4.
+
+Likewise, natural killer genes such as *NKG7* emerge at the top of the
+volcano plot for topic 1:
+
+```{r volcano-plot-nk, fig.height=3.5, fig.width=4.5}
+p3 <- volcano_plot(out2,k = 1,label_above_quantile = 0.998,
+                   labels = genes$symbol,max.overlaps = 15)
+print(p3)
+```
+
+As for the two T cell topics that capture variation *within* T
+cells 
+
 
 Evaluating the topic model
 --------------------------
 
 ```{r}
 ```
-
-Old stuff
-=========
-
-A basic analysis consists of the following steps:
-
-1. Load and prepare the count data.
-
-2. Fit a Poisson non-negative matrix factorization (NMF) to the UMI
-   count data.
-
-3. Recover the multinomial topic model---also called the multinomial
-   "grade-of-membership" model---from the Poisson NMF model fit.
-
-4. Analyze structure in the estimated mixture proportions matrix.
-
-5. Annotate selected clusters and factors by examining genes that
-   are highly differentially expressed among clusters or factors.
-
-In this vignette, we walk through each of these steps and demonstrate
-how to implement these steps using fastTopics. In other exploratory
-analyses, these steps might not be strictly sequential---for example,
-the annotation in Step 5 may inform the exploration of substructure in
-Step 4.
-
-Identify clusters
------------------
-
-The topic or grade-of-membership model is able to capture a variety of
-structure, from discrete (clusters) to continuous. We begin by showing
-how the model can be used to identify clusters.
-
-Here we apply the simplest clustering method, *k*-means, to the
-mixture proportions matrix, $L$. We experimented with different
-numbers of clusters and we found that 6 clusters worked best in this
-example. Note that *k*-means is sensitive to (random) initialization,
-so we set the seed.
-
-```{r clustering-1, eval=FALSE}
-set.seed(1)
-clusters <- kmeans(fit_multinom$L,centers = 6,iter.max = 100)$cluster
-```
-
-Note that, in some cases, it may be better to apply *k*-means to the
-principal components (PCs) of the mixture proportions, rather than the
-mixture proportions directly. The PCs can easily be computed using
-`prcomp`.
-
-You will find that some visual inspection followed by manual
-refinement may be needed to get the "right" clustering, regardless of
-whether *k*-means or another clustering algorithm is used. By visual
-inspection, we found that *k*-means split the largest cluster into two
-subclusters. After merging these two subclusters, we ended up with 5
-clusters:
-
-```{r clustering-2, eval=FALSE}
-clusters[clusters == 3] <- 1
-clusters <- factor(clusters)
-summary(clusters)
-```
-
-With the benefit of hindsight, we know that these 5 clusters
-correspond to 5 cell types: B cells, T cells, natural killer (NK)
-cellls, CD14+ monoytes and CD34+ cells. (Below we show how to annotate
-these clusters by performing a differential expression analysis.) For
-clarity of presentation, we label the clusters by these cell types,
-noting that, in most practical settings, labeling the clusters is not
-usually not possible until downstream analyses have been conducted.
-
-The clustering of the cells is mostly evident from the top two PCs of
-the mixture proportions:
-
-```{r pca-1, fig.width=6.25, fig.height=2, message=FALSE, eval=FALSE}
-levels(clusters) <- c("T","CD14+","B","CD34+","NK")
-cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
-p1 <- pca_plot(fit_multinom,fill = clusters) +
-  scale_fill_manual(values = cluster_colors)
-p2 <- pca_hexbin_plot(fit_multinom,bins = 24)
-plot_grid(p1,p2,rel_widths = c(9,10))
-```
-
-Examining the projection of the cells onto PCs 1 and 2, the B cells
-cluster is the most distinct, while the NK and T cell clusters are
-much less distinct, and arguably it is incorrect to call them
-"clusters". (The CD14+ and CD34+ cells separate much more clearly in
-PCs 3 and 4.)
-
-The PCA "hexbin" density plot is most helpful when there are many
-overlapping data points in the PCA plot.
-
-Visualize mixture proportions using a Structure plot
-----------------------------------------------------
-
-A much more versatile tool for exploring the mixture proportions is
-the Structure plot. Here is a basic example:
-
-```{r structure-plot-1, fig.width=6.5, fig.height=1.5, results="hide", eval=FALSE}
-p3 <- structure_plot(fit,topics = 1:6,colors = topic_colors)
-print(p3)
-```
-
-The Structure plot is effectively a stacked bar chart, in which each
-bar corresponds to a cell, and each colour corresponds to a factor (or
-"topic"). Since the mixture proportions for each cell sum to 1, the
-stacked bars all have a height of 1.
-
-The colours in the Structure plot were chosen to correspond to the
-clusters shown in the plots above.
-
-The clustering of the cells into B cells (blue), CD14+ monocytes
-(green) and CD34+ cells (purple) is evident from this plot; they are
-each largely characterized by a single factor. The NK and T cells is
-less distinct, and this is reflected by more sharing of factors (in
-particular, factor 6) among NK and T cells.
-
-The versality of the Structure plot can also present a challenge,
-particularly for cell populations with more complex or fine-scale
-structure. It may therefore take some effort and creativity to create
-a Structure plot that effectively highlights the structure in the
-data. A simple way we can improve the Structure plot here is to
-arrange the cells by their assignment to the 5 clusters:
-
-```{r structure-plot-2, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE, eval=FALSE}
-p4 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
-                     grouping = pbmc_4k$samples$subpop,gap = 25)
-print(p4)
-```
-
-This second Structure plot better highlights heterogeneity within the
-clusters, particularly the T cells. Within the T cell cluster, there
-is a distinctive subset of cells with sizeable contributions from the
-"NK cells" factor (factor 1, light blue). These are the same cells
-that sit in between the dense clumps of NK and T cells in the PCA plot
-above. To highlight this subset of cells---which turn out to be CD8+
-cells---we define a new cluster, and create a new Structure plot with
-the 6 clusters:
-
-```{r structure-plot-3, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE, eval=FALSE}
-clusters <- as.character(clusters)
-clusters[clusters == "T" & fit_multinom$L[,1] > 0.1] <- "CD8+"
-clusters <- factor(clusters)
-p5 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
-                     grouping = clusters,gap = 25)
-print(p5)
-```
-
-Even if the boundaries between the less distinct T, NK and CD8+
-clusters are somewhat arbitrary, subdividing these cells into clusters
-is nonetheless useful for guiding the eye toward interesting patterns
-in the mixture proportions, such as the continuous variation in topics
-5 and 6 within the T cells cluster.
-
-Annotate clusters by top differentially expressed genes
--------------------------------------------------------
-
-In this remaining parts of the analysis, we perform a differential
-expression analysis, and use the results of this analysis to annotate
-clusters and factors ("topics"). We begin by analyzing differential
-expression in the 6 clusters.
-
-Since `diff_count_analysis` in fastTopics performs differential
-expression analysis for a multinomial topic model, here we implement
-the analysis for the clusters by treating the clustering as a topic
-model in which all the mixture proportions are 0 or 1.
-
-```{r diff-count-analysis-clusters, eval=FALSE}
-diff_count_clusters <- diff_count_clusters(counts,clusters)
-```
-
-The results of the differential expresison analysis can be visualized
-using a "volcano plot", which shows, for each gene, the (base-2)
-log-fold change in the x-axis against the support for differential
-expression (*z*-score magnitude) in the y-axis. In volcano plot for
-the "B" cluster, top genes include *CD79A*, an established "marker
-gene" for B cells:
-
-```{r volcano-plot-bcell-cluster, fig.height=3.5, fig.width=4, eval=FALSE}
-p6 <- volcano_plot(diff_count_clusters,k = "B",label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 10)
-print(p6)
-```
-
-Likewise, *CD3D*, a marker gene for T cells, is one of the top genes
-in the "T" cluster volcano plot:
-
-```{r volcano-plot-tcell-cluster, fig.height=3.5, fig.width=4, eval=FALSE}
-p7 <- volcano_plot(diff_count_clusters,k = "T",label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 10)
-print(p7)
-```
-
-Annotate topics by top differentially expressed genes
------------------------------------------------------
-
-We can also use the same differential expression analysis to identify
-genes that are highly differentially expressed among the topics:
-
-```{r diff-count-analysis-topics, eval=FALSE}
-diff_count_topics <- diff_count_analysis(fit,counts)
-```
-
-For example, topic 4, which is the predominant topic in the "B"
-cluster, includes the B cells marker gene *CD79A* among its top genes
-in the volcano plot:
-
-```{r volcano-plot-bcell-topic, fig.height=3.5, fig.width=4, eval=FALSE}
-p8 <- volcano_plot(diff_count_topics,k = 4,label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 10)
-print(p8)
-```
-
-Note that the estimated differential expression (log-fold change) for
-this gene, and others, is much higher in the topic; 6.5 in the cluster
-vs. >10 in the topic. Due to its greater flexibility in capturing
-cells as mixtures of expression patterns, the topic model often better
-isolates expression patterns specific to a cell type.
-
-The largest of the 6 clusters captures T cells. Unlike the B cells
-cluster, T cells are represented as a mixture of two topics. After
-merging topics 5 and 6, we can perform differential expression
-analysis on the combined topic and create a volcano plot highlighting
-the top differentially expression genes:
-
-```{r volcano-plot-tcell-topic, fig.height=3.5, fig.width=4, results="hide", eval=FALSE}
-diff_count_merged <- diff_count_analysis(merge_topics(fit_multinom,5:6),counts)
-p9 <- volcano_plot(diff_count_merged,k = "k5+k6",label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 10)
-print(p9)
-```
-
-Like the B cells topic, the estimated log-fold change for the T-cell
-marker gene *CD3D* is much greater in the topic (>10) than the "T"
-cluster (3.5).
-
-The topics also capture continuous variation *within* the T-cell
-cluster:
-
-```{r volcano-plot-cd4, fig.height=3.5, fig.width=4, results="hide", eval=FALSE}
-i <- which(clusters == "T")
-fit_t <- select_loadings(fit_multinom,loadings = i)
-diff_count_t <- diff_count_analysis(fit_t,counts[i,])
-p10 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
-                   labels = genes$symbol,max.overlaps = 16)
-print(p10)
-```
-
-Judging top differentially expression genes such as *CD4* and *CCR10*,
-this topic likely corresponds to CD4+/CD8+ lineage differentiation in
-T cells.
-
-An interactive volcano plot
----------------------------
-
-When the volcano plot shows many overlapping differentially expressed
-genes, like it does here for topic 5 in the T-cells cluster, it can be
-helpful to explore the results interactively. The function
-`volcano_plotly` creates an interactive plot that can be viewed in a
-Web browser:
-
-```{r volcano-plotly, eval=FALSE}
-p11 <- volcano_plotly(diff_count_t,k = 5,"volcano_plot_t_cells.html",
-                      labels = genes$symbol)
-```
-
-The interactive volcano plot can also be viewed
-[here](volcano_plot_t_cells.html).
 
 Session info
 ------------
