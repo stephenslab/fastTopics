@@ -98,10 +98,10 @@ convenience, we saved the output from this call:
 fit <- pbmc_4k$fit
 ```
 
-To fit a topic model, we must specify `k`, the number of topics.
-Here, we have chosen `k = 6` topics. In most settings, a good choice
-of `k` will not be known in advance, so you will you want to explore
-the results from topic models at different settings of `k`.
+To fit a topic model, we must specify $K$, the number of topics.
+Here, we have chosen $K = 6$ topics. In most settings, a good choice
+of $K$ will not be known in advance, so you will you want to explore
+the results from topic models at different settings of $K$.
 
 There are several complexities to topic model fitting---we do not
 elaborate on these complexities here. The `fit_topic_model` interface
@@ -111,14 +111,14 @@ challenging data sets my require some fine-tuning of the model
 fitting. Model fitting is covered in more detail in a separate
 vignette.
 
-Each cell is represented as a unique mixture of the topics
-----------------------------------------------------------
+Each cell is represented as a unique mixture
+--------------------------------------------
 
 A key feature of the topic model is that each cell $i$ is represented
-as a *unique mixture* of the topics. This cell-specific mixture is
-learned from the data. Therefore, each cell can be summarized from the
-$K$ mixture proportions. In fastTopics, the mixture proportions for
-all cells are stored as an $n \times K$ matrix:
+as a *unique mixture of the topics.* Therefore, each cell can be
+summarized from the $K$ mixture proportions. This cell-specific
+mixture is learned from the data. In fastTopics, the mixture
+proportions for all cells are stored as an $n \times K$ matrix:
 
 ```{r loadings-1}
 dim(fit$L)
@@ -150,17 +150,18 @@ Interpreting the topics using available cell labels
 ---------------------------------------------------
 
 In some cases, you may have additional information about the cells,
-such as the tissue the cells were sampled from. In the PBMC data set,
-the cells were labeled using fluorescence-activated cell sorting
-(FACS). There are five labels (cell types): B cells, CD14+ monocytes,
-CD34+ cells, natural killer (NK) cells, and T helper cells.
+such as the tissue the cells were sampled from. In the PBMC data, the
+cells were labeled using fluorescence-activated cell sorting
+(FACS). Each cell is assigned one of five labels (each corresponding
+to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer
+(NK) cells, and T cells.
 
 ```{r summary-subpop}
 summary(pbmc_4k$samples$subpop)
 ```
 
-We create a Structure plot to visualize the relationship between the
-cell labels and the mixture proportions:
+To visualize the relationship between the cell labels and the mixture
+proportions, we create a Structure plot:
 
 ```{r structure-plot-with-celltype-labels, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
@@ -170,38 +171,35 @@ p1 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
 print(p1)
 ```
 
-The Structure plot is effectively a stacked bar chart, in which each
-topic corresponds to a bar of a different colour. Being *proportions*,
+The Structure plot is a simply stacked bar chart, in which each topic
+is represented as a bar of a different colour. Being *proportions*,
 the mixture proportions for each cell must sum to 1, so the total
 height of the bars is the same for all cells, which makes it easier to
-compare across cells. Patterns emerge when the cells are arranged so
-that cells with similar mixture proportions are nearby each other
-along the horizontal axis. The arranging of the cells within each cell
-type is automated in `structure_plot` using the *t*-SNE method.
+compare across cells. Patterns begin to emerge when the cells are
+arranged so that cells with similar mixture proportions are positioned
+close to each other. This arrangement is automated in `structure_plot`.
 
-From the Structure plot, it is evident that topics 1, 2 and 4
-correspond to the NK, CD14+ and B cell types; the expression in these
-cells is largely explained by a single topic, although NK cells do
-show more heterogeneity in expression, in which some cells "look like"
-NK cells more than others.
+From this Structure plot, it is evident that topics 1 (lighter blue), 2
+(green) and 4 (darker blue) closely correspond to the NK, CD14+ and B
+cell types, respectively; the expression in these cells is largely
+explained by a single topic.  NK cells show more heterogeneity in
+expression than the CD14+ and B cells.
 
-In the CD34+ cells, we see that the mixture proportions contribute a
-lot of useful information about these cells that wasn't captured by
-the cell type labels alone. While expression in these cells is largely
-explained by topic 3, some cells appear to be mislabeled---according
-to the topic model, they should have been labeled as B cells or CD14+
-cells, and there are other cell transcriptome profiles that are best
-fit by a mixture of several topics.
+The mixture proportions uncover some surprises in the cells labeled as
+"CD34+": while their expression is largely explained by topic 3
+(purple), some cells appear to be mislabeled---they should have been
+labeled as B cells or CD14+ cells. Other cells are best fit by a
+mixture of several topics.
 
-Finally, the T cells subpopulation is another example where the topic
-model captures interesting substructure within the cell type. In the
-Structure plot, two patterns stand out: one, most T cells are a
-mixture of two topics, 5 and 6, with a wide variation in the mixing
-proportions for these two topics; there is a distinctive subset of T
-cells that is captured by a mixture of three topics (topics 1, 5 and
-6). As we will see shortly, we can analyze differences in gene
-expression among the topics to help us understand what aspects of T
-cell diversity are captured by these three topics.
+Finally, the topic model captures interesting substructure within the
+T cells. Two patterns stand out from the Structure plot: first, most T
+cells are a mixture of two topics, 5 (yellow) and 6 (orange), with
+wide variation in the mixing proportions for these two topics; second,
+there is a distinctive subset of T cells that is represented as a
+mixture of three topics (topics 1, 5 and 6). To help us understand
+what aspects of T cell diversity are captured by these topics, we need
+to first understand how topics capture shared patterns of gene
+expression.
 
 Topics capture patterns of relative expression
 ----------------------------------------------
