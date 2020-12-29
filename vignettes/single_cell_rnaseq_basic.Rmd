@@ -259,15 +259,16 @@ Interpreting topics by analyzing gene expression differences
 ------------------------------------------------------------
 
 To set the stage for differential expression analysis using a topic
-model, we begin with a "classic" differential expression analysis
-using the provided cell type labels. This analysis centers on
-calculation of the log-fold change statistic. For a given group or
-cluster, it is defined as the (base-2) log-ratio of the average
-expression (meam UMI count) among cells belonging to the group over
-the average expression among cells not belonging to the group. For
-example, genes *CD79A* and *CD79B* are overexpressed in B cells, by a
-factor of $2^5 = 32$ times, or more; by contrast these two genes are
-underexpressed in all other cell types:
+model, we begin with a classic differential expression analysis using
+the available cell-type labels. This analysis centers on calculation
+of the *log-fold change* statistic. For a given group or cluster, the
+log-fold change is defined as the (base-2) log-ratio of two
+expectations: the mean expression (*i.e.*, mean UMI count) for all
+cells belonging to the specifed group over the mean expression among
+cells not belonging to the group. For example, genes *CD79A* and
+*CD79B* are overexpressed in B cells, by a factor of $2^5 = 32$ times,
+or more; by contrast these two genes are underexpressed in the other
+four cell types:
 
 ```{r diff-count-analysis-1}
 out1 <- diff_count_clusters(counts,samples$subpop)
@@ -275,47 +276,44 @@ rbind(out1$beta[genes$symbol == "CD79A",],
       out1$beta[genes$symbol == "CD79B",])
 ```
 
-We have extended the classic differential expression analysis in a
-natural way to allow for *partial membership* to groups. This
-generalized differential expression analysis is implemented in the
-`diff_count_analysis` function:
+fastTopics extends the classic differential expression analysis to
+allow for *partial membership* to groups. This generalized
+differential expression analysis is implemented in
+`diff_count_analysis`:
 
 ```{r diff-count-analysis-2}
 out2 <- diff_count_analysis(fit,counts)
 ```
 
-As in the standard analysis, we obtain log-fold change estimates:
+As in the standard analysis, it outputs estimates of log-fold change:
 
 ```{r diff-count-analysis-3}
 rbind(out2$beta[genes$symbol == "CD79A",],
       out2$beta[genes$symbol == "CD79B",])
 ```
 
-These log-fold change statistics can be interpreted in the same way
-(and in fact the standard log-fold change statistics emerge as a
-special case of the topic-model-based differential expression analysis
-when the all mixture proportions are 0 or 1). The log-fold change
-estimates are noticeably larger in the "B cells" topic, and
-particularly so for *CD79A*. In fact, *CD79A* is uniquely expressed in
-topic 4, so the ratio essentially has a zero denominator; since we are
-restricted to finite numeric calculations, a log-fold change statistic
-of 10 practically means "10 or larger" (by default). Due to its
-greater flexibility in capturing cells as mixtures of expression
-patterns, the topic model is often more adept at isolating expression
-patterns specific to a cell type.
+These log-fold change statistics have the same interpretation (the
+standard log-fold change emerges as a special case when the all
+mixture proportions are 0 or 1). The log-fold change estimates are
+noticeably larger in the B cells topic (topic 4), particularly so for
+*CD79A*. In fact, *CD79A* is *uniquely expressed* in topic 4, so the
+ratio essentially has a zero denominator; to ensure finite
+calculations, by convention a log-fold change statistic of 10 means
+"10 or larger". (This convention can be overriden in
+`diff_count_analysis` by choosing a different setting for `betamax`.)
 
 Up to this point, we have illustrated the differential expression
-analysis with known cell-type-specific genes such as *CD79A*, but
-ultimately we would like to discover genes the relevant to a given
-topic of known or unknown biological relevance.
+analysis with known genes such as *CD79A*. Ultimately, we would like
+to *discover* genes relevant to a topic (of known or unknown
+biological relevance).
 
-The natural thing to do would be to rank genes by log-fold change. The
-complication is that very lowly expressed genes could also produce, by
-chance, large log-fold changes, and we would not want to rank these
-genes highly. The *volcano plot* provides a visual ranking balancing
-these two concerns: for each gene, the log-fold change is shown on the
-x-axis, and the *p*-value or *z*-score giving a measure of support for
-differential expression is shown on the *y*-axis:
+To discover genes, a natural thing to do would be to rank candidates
+by their log-fold change. The complication is that lowly expressed
+genes could also produce, by chance, large log-fold changes, and we
+would not want to rank these genes highly. The *volcano plot* balances
+these two concerns: the log-fold change is shown on the x-axis, and
+the *p*-value or *z*-score, quantifying support for differential
+expression, is shown on the *y*-axis:
 
 ```{r volcano-plot-b, fig.height=3.5, fig.width=4.5}
 p2 <- volcano_plot(out2,k = 4,label_above_quantile = 0.998,
@@ -325,9 +323,8 @@ print(p2)
 
 Typically the most interesting genes are found in the top-right
 portion of the volcano plot---that is, genes with large log-fold
-change and strong support. Indeed, many known B-cell genes such as
-*CD79A*, *CD79B* and *CD19* approach the top-right corner of the
-volcano plot for topic 4.
+change and strong support. Indeed, B-cell genes, among them *CD79A*,
+*CD79B* and *CD19*, are near top-right corner of the volcano plot.
 
 Likewise, natural killer genes such as *NKG7* emerge at the top of the
 volcano plot for topic 1:
@@ -338,20 +335,33 @@ p3 <- volcano_plot(out2,k = 1,label_above_quantile = 0.998,
 print(p3)
 ```
 
-Interpreting the topics that capture variation *within* T cells is
-slightly more involved, so we old off on this investigation until
-Part 2.
+Interpreting the topics that capture variation within the T cells is
+a little more complicated, so we defer this investigation to Part 2.
 
 Evaluating the topic model
 --------------------------
 
-Explain that we can evaluate the fit via the likelihood.
+Another useful feature of the topic model is that we can compute a
+multinomial likelihood for each cell to evaluate how well the topic
+model "fits" the observed expression in the cell:
 
 ```{r loglik-1}
 loglik_topics <- loglik_multinom_topic_model(counts,fit)
 ```
 
-*Add text here.*
+This could be useful for comparing topic models (say, at different
+$K$), or for identifying "outlier" cells with expression that is
+poorly captured by the topic model:
+
+```{r loglik-2, fig.height=2, fig.width=3}
+p4 <- ggplot(data.frame(x = loglik_topics),aes(x)) +
+  geom_histogram(color = "black",fill = "black",bins = 64) +
+  theme_cowplot(font_size = 10) +
+  labs(x = "loglik",y = "number of cells")
+print(p4)
+```
+
+In this histogram, there is a small number of cells with 
 
 ```{r loglik-2}
 fit_clusters <- init_poisson_nmf_from_clustering(counts,samples$subpop)
@@ -368,7 +378,7 @@ p4 <- qplot(x = loglik_clusters[i],y = loglik_topics[i],color = fit$L[i,3]) +
   scale_color_gradient2(high = "deepskyblue",mid = "gold",low = "orangered",
                         midpoint = 0.5) +
   labs(x = "clustering",y = "topic model",color = "topic 3") +
-  theme_cowplot(font_size = 12)
+  theme_cowplot(font_size = 10)
 print(p4)
 ```
 
