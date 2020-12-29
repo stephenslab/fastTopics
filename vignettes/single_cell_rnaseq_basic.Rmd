@@ -338,52 +338,6 @@ print(p3)
 Interpreting the topics that capture variation within the T cells is
 a little more complicated, so we defer this investigation to Part 2.
 
-Evaluating the topic model
---------------------------
-
-Another useful feature of the topic model is that we can compute a
-multinomial likelihood for each cell to evaluate how well the topic
-model "fits" the observed expression in the cell:
-
-```{r loglik-1}
-loglik_topics <- loglik_multinom_topic_model(counts,fit)
-```
-
-This could be useful for comparing topic models (say, at different
-$K$), or for identifying "outlier" cells with expression that is
-poorly captured by the topic model:
-
-```{r loglik-2, fig.height=2, fig.width=3}
-p4 <- ggplot(data.frame(x = loglik_topics),aes(x)) +
-  geom_histogram(color = "black",fill = "black",bins = 64) +
-  theme_cowplot(font_size = 10) +
-  labs(x = "loglik",y = "number of cells")
-print(p4)
-```
-
-In this histogram, there is a small number of cells with 
-
-```{r loglik-2}
-fit_clusters <- init_poisson_nmf_from_clustering(counts,samples$subpop)
-fit_clusters <- poisson2multinom(fit_clusters)
-loglik_clusters <- loglik_multinom_topic_model(counts,fit_clusters)
-```
-
-*Add text here.*
-
-```{r loglik-3, fig.width=4, fig.height=3}
-i <- which(samples$subpop == "CD34+")
-p4 <- qplot(x = loglik_clusters[i],y = loglik_topics[i],color = fit$L[i,3]) +
-  geom_abline(slope = 1,intercept = 0,linetype = "dotted") +
-  scale_color_gradient2(high = "deepskyblue",mid = "gold",low = "orangered",
-                        midpoint = 0.5) +
-  labs(x = "clustering",y = "topic model",color = "topic 3") +
-  theme_cowplot(font_size = 10)
-print(p4)
-```
-
-*Add text here.*
-
 Session info
 ------------
 

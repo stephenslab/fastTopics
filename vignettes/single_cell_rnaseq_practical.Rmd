@@ -399,6 +399,39 @@ p11 <- volcano_plotly(diff_count_t,k = 5,"volcano_plot_t_cells.html",
 The interactive volcano plot can also be viewed
 [here](volcano_plot_t_cells.html).
 
+Evaluating fit: single cell likelihoods
+---------------------------------------
+
+Another feature of the topic model is that it provides a likelihood
+for each cell which quantifies how well the topic model "fits" the
+observed expression:
+
+```{r loglik-1}
+loglik <- loglik_multinom_topic_model(counts,fit)
+```
+
+This could be useful for comparing different topic models, say, topic
+models with different settings of $K$. It could also be used to
+isolate "outlier" cells---that is, cells with expression that is
+poorly captured by the topic model. In the PBMC data, a histogram of
+the log-likelihoods shows that the topic model provides a very small
+fit for a small number of cells:
+
+```{r loglik-2, fig.height=2, fig.width=3.5}
+p4 <- ggplot(data.frame(x = loglik),aes(x)) +
+  geom_histogram(color = "black",fill = "black",bins = 64) +
+  theme_cowplot(font_size = 10) +
+  labs(x = "loglik",y = "number of cells")
+print(p4)
+```
+
+Most of the outliers are in the CD34+ subpopulation:
+
+```{r loglik-3}
+i <- which(loglik < -5000)
+table(samples[i,"subpop"])
+```
+
 Session info
 ------------
 
