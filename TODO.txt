@@ -1,6 +1,9 @@
 to do
 =====
 
++ Re-create a "clean" pkgdown site by running clean_site() followed by
+  build_site().
+
 + Remove files in inst/derivations/diffcount.
 
 + Implement "t" S3 method to transpose the rows and columns of a
