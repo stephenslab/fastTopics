@@ -46,7 +46,8 @@ expression studies, but could have other uses, such as identifying
 &amp;#8220;key words&amp;#8221; in topics derived from text documents. A special
 case of &quot;hard&quot; topic assignments is also implemented---that is, the
 topic proportions are all zeros and ones---which involves greatly
-simplified (and faster) calculations." />
+simplified (and faster) calculations. Use diff_count_clusters
+for this special case." />
 
 
 
@@ -78,7 +79,7 @@ simplified (and faster) calculations." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-191</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-11</span>
       </span>
     </div>
 
@@ -123,7 +124,8 @@ expression studies, but could have other uses, such as identifying
 &#8220;key words&#8221; in topics derived from text documents. A special
 case of "hard" topic assignments is also implemented---that is, the
 topic proportions are all zeros and ones---which involves greatly
-simplified (and faster) calculations.</p>
+simplified (and faster) calculations. Use <code>diff_count_clusters</code>
+for this special case.</p>
     </div>
 
     <pre class="usage"><span class='fu'>diff_count_analysis</span>(
@@ -134,8 +136,11 @@ simplified (and faster) calculations.</p>
   <span class='kw'>tol</span> <span class='kw'>=</span> <span class='fl'>1e-08</span>,
   <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-15</span>,
   <span class='kw'>betamax</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>show.message</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+)
+
+<span class='fu'>diff_count_clusters</span>(<span class='no'>X</span>, <span class='no'>cluster</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -183,17 +188,35 @@ estimated log-fold change can be used to improve the numerical
 accuracy of the calculations.</p></td>
     </tr>
     <tr>
+      <th>show.message</th>
+      <td><p>Set <code>show.message = FALSE</code> to suppress a
+message about calculations when mixture proportions are all 0 or 1.</p></td>
+    </tr>
+    <tr>
       <th>verbose</th>
       <td><p>When <code>verbose = TRUE</code>, progress information is
 printed to the console.</p></td>
+    </tr>
+    <tr>
+      <th>cluster</th>
+      <td><p>A factor, or vector that can be converted to a
+factor such as an integer or character vector, giving an assignment
+of samples (rows of <code>X</code>) to clusters. This could be, for
+example, the "cluster" output from <code><a href='https://rdrr.io/r/stats/kmeans.html'>kmeans</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments passed to
+<code>diff_count_analysis</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The return value is a list with six m x k matrices, where m
-is the number of columns in the counts matrix, and k is the number of
-topics, and an additional vector:</p>
+  is the number of columns in the counts matrix, and k is the number
+  of topics (for <code>diff_count_clusters</code>, m is the number of
+  clusters), and an additional vector:</p>
 <dt>colmeans</dt><dd><p>A vector of length m containing the count averages
   (<code><a href='https://rdrr.io/r/base/colSums.html'>colMeans(X)</a></code>).</p></dd>
 
@@ -257,7 +280,7 @@ strategy used to compute standard errors and z-scores in
 
       <footer>
       <div class="copyright">
-  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao, Matthew Stephens.</p>
+  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">

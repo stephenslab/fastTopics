@@ -44,11 +44,12 @@
   transcriptome profiles generated via single-cell RNA sequencing
   (RNA-seq) of 10 bead-enriched subpopulations of PBMCs (Donor A),
   described in Zheng et al (2017). The data are unique
-  molecular identifier (UMI) counts for 21,952 genes in 3,774
-  cells. Since the majority of the UMI counts are zero, they are
-  efficiently stored as a 3,774 x 21,952 sparse matrix. These data
-  are used in the vignette illustrating how fastTopics can be used to
-  analyze to single-cell RNA-seq data." />
+  molecular identifier (UMI) counts for 16,791 genes in 3,774
+  cells. (Genes with no expression in any of the cells were removed.)
+  Since the majority of the UMI counts are zero, they are efficiently
+  stored as a 3,774 x 16,791 sparse matrix. These data are used in
+  the vignette illustrating how fastTopics can be used to analyze to
+  single-cell RNA-seq data." />
 
 
 
@@ -80,7 +81,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-191</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-11</span>
       </span>
     </div>
 
@@ -123,11 +124,12 @@
   transcriptome profiles generated via single-cell RNA sequencing
   (RNA-seq) of 10 bead-enriched subpopulations of PBMCs (Donor A),
   described in Zheng <em>et al</em> (2017). The data are unique
-  molecular identifier (UMI) counts for 21,952 genes in 3,774
-  cells. Since the majority of the UMI counts are zero, they are
-  efficiently stored as a 3,774 x 21,952 sparse matrix. These data
-  are used in the vignette illustrating how fastTopics can be used to
-  analyze to single-cell RNA-seq data.</p>
+  molecular identifier (UMI) counts for 16,791 genes in 3,774
+  cells. (Genes with no expression in any of the cells were removed.)
+  Since the majority of the UMI counts are zero, they are efficiently
+  stored as a 3,774 x 16,791 sparse matrix. These data are used in
+  the vignette illustrating how fastTopics can be used to analyze to
+  single-cell RNA-seq data.</p>
     </div>
 
 
@@ -137,13 +139,13 @@
     <p><code>pbmc_4k</code> is a list with the following elements:</p>
 <dl'>
 
-  <dt>counts</dt><dd><p>3,774 x 21,952 sparse matrix of UMI counts, with
+  <dt>counts</dt><dd><p>3,774 x 16,791 sparse matrix of UMI counts, with
      rows corresponding to samples (cells) and columns corresponding to
      genes. It is an object of class <code>"dgCMatrix"</code>).</p></dd>
 
   <dt>samples</dt><dd><p>Data frame containing information about the
     samples, including cell barcode and source FACS population
-    ("celltype").</p></dd>
+    ("celltype" and "facs_subpop").</p></dd>
 
   <dt>genes</dt><dd><p>Data frame containing information and the genes,
     including gene symbol and Ensembl identifier.</p></dd>
@@ -163,8 +165,8 @@ transcriptional profiling of single cells. <em>Nature Communications</em>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>Matrix</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>pbmc_4k</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sprintf.html'>sprintf</a></span>(<span class='st'>"Number of cells: %d\n"</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>pbmc_4k</span>$<span class='no'>counts</span>)))</div><div class='output co'>#&gt; Number of cells: 3774</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sprintf.html'>sprintf</a></span>(<span class='st'>"Number of genes: %d\n"</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='no'>pbmc_4k</span>$<span class='no'>counts</span>)))</div><div class='output co'>#&gt; Number of genes: 21952</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sprintf.html'>sprintf</a></span>(<span class='st'>"Proportion of counts that are non-zero: %0.1f%%.\n"</span>,
-            <span class='fl'>100</span>*<span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span>(<span class='no'>pbmc_4k</span>$<span class='no'>counts</span> <span class='kw'>&gt;</span> <span class='fl'>0</span>)))</div><div class='output co'>#&gt; Proportion of counts that are non-zero: 3.3%.</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sprintf.html'>sprintf</a></span>(<span class='st'>"Number of cells: %d\n"</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>pbmc_4k</span>$<span class='no'>counts</span>)))</div><div class='output co'>#&gt; Number of cells: 3774</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sprintf.html'>sprintf</a></span>(<span class='st'>"Number of genes: %d\n"</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='no'>pbmc_4k</span>$<span class='no'>counts</span>)))</div><div class='output co'>#&gt; Number of genes: 16791</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sprintf.html'>sprintf</a></span>(<span class='st'>"Proportion of counts that are non-zero: %0.1f%%.\n"</span>,
+            <span class='fl'>100</span>*<span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span>(<span class='no'>pbmc_4k</span>$<span class='no'>counts</span> <span class='kw'>&gt;</span> <span class='fl'>0</span>)))</div><div class='output co'>#&gt; Proportion of counts that are non-zero: 4.3%.</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -177,7 +179,7 @@ transcriptional profiling of single cells. <em>Nature Communications</em>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao, Matthew Stephens.</p>
+  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">

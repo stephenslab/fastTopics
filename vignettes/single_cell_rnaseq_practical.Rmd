@@ -36,7 +36,7 @@ Step 4.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
-                      fig.align = "center",dpi = 120)
+                      fig.align = "center",dpi = 120, eval=FALSE)
 ```
 
 Begin by loading the packages used below. The ggplot2 and cowplot

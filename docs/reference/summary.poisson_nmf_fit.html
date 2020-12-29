@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-191</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-11</span>
       </span>
     </div>
 
@@ -123,10 +123,10 @@
 <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for summary.poisson_nmf_fit</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='kw'>size.factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>topic.props</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>topic.reps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for summary.multinom_topic_model_fit</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='kw'>size.factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>topic.props</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>topic.reps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -136,7 +136,8 @@
       <td><p>An object of class &#8220;poisson_nmf_fit&#8221; or
 &#8220;multinom_topic_model_fit&#8221;. The former is usually the result
 of calling <code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code>; the latter is usually the
-result of calling <code>link{poisson2multinom}</code>.</p></td>
+result of calling <code><a href='fit_topic_model.html'>fit_topic_model</a></code> or
+<code>link{poisson2multinom}</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -147,6 +148,18 @@ or <code>print.summary</code> method.</p></td>
       <th>x</th>
       <td><p>An object of class &#8220;summary.poisson_nmf_fit&#8221;,
 usually a result of a call to <code>summary.poisson_nmf_fit</code>.</p></td>
+    </tr>
+    <tr>
+      <th>size.factors</th>
+      <td><p>If <code>TRUE</code>, show the...</p></td>
+    </tr>
+    <tr>
+      <th>topic.props</th>
+      <td><p>If <code>TRUE</code>, show the...</p></td>
+    </tr>
+    <tr>
+      <th>topic.reps</th>
+      <td><p>If <code>TRUE</code>, show the...</p></td>
     </tr>
     </table>
 
@@ -201,7 +214,7 @@ are proportion ranges.</p></dd>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao, Matthew Stephens.</p>
+  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">

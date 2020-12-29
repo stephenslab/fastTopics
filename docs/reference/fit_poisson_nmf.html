@@ -40,13 +40,13 @@
 
 
 <meta property="og:title" content="Fit or Re-fit Poisson Non-negative Matrix Factorization — fit_poisson_nmf" />
-<meta property="og:description" content="This function approximates the input matrix X
-  by the non-negative matrix factorization L %*% t(F) by
+<meta property="og:description" content="Approximate the input matrix X by the
+  non-negative matrix factorization L %*% t(F) by
   nonnegative matrix factorization (NMF), in which the quality of the
   approximation is measured by a &amp;#8220;divergence&amp;#8221; criterion;
-  equivalently, it optimizes the likelihood under a Poisson model of
-  the count data, X. It runs a specified number of coordinate-wise
-  updates to fit the L and F matrices." />
+  equivalently, optimize the likelihood under a Poisson model of the
+  count data, X. Function fit_poisson_nmf runs a specified
+  number of coordinate-wise updates to fit the L and F matrices." />
 
 
 
@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-191</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-11</span>
       </span>
     </div>
 
@@ -117,13 +117,13 @@
     </div>
 
     <div class="ref-description">
-    <p>This function approximates the input matrix <code>X</code>
-  by the non-negative matrix factorization <code>L %*% t(F)</code> by
+    <p>Approximate the input matrix <code>X</code> by the
+  non-negative matrix factorization <code>L %*% t(F)</code> by
   nonnegative matrix factorization (NMF), in which the quality of the
   approximation is measured by a &#8220;divergence&#8221; criterion;
-  equivalently, it optimizes the likelihood under a Poisson model of
-  the count data, X. It runs a specified number of coordinate-wise
-  updates to fit the L and F matrices.</p>
+  equivalently, optimize the likelihood under a Poisson model of the
+  count data, X. Function <code>fit_poisson_nmf</code> runs a specified
+  number of coordinate-wise updates to fit the L and F matrices.</p>
     </div>
 
     <pre class="usage"><span class='fu'>fit_poisson_nmf</span>(
@@ -169,7 +169,7 @@ or dense matrix (class <code>"matrix"</code>), with some exceptions (see
       <th>k</th>
       <td><p>An integer 2 or greater giving the matrix rank. This
 argument should only be specified if the initial fit (<code>fit0</code>
-or <code>F, L</code>) s not provided.</p></td>
+or <code>F, L</code>) is not provided.</p></td>
     </tr>
     <tr>
       <th>fit0</th>
@@ -493,7 +493,7 @@ performed to initialize the loadings matrix when <code>init.method
 <span class='co'># Run 10 EM updates to find a good initialization.</span>
 <span class='no'>fit0</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>10</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Initializing factors using Topic SCORE algorithm.
 #&gt; Initializing loadings by running 10 SCD updates.</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.
-#&gt; Running 10 SCD updates, without extrapolation (fastTopics 0.3-191).
+#&gt; Running 10 SCD updates, without extrapolation (fastTopics 0.4-11).
 #&gt; iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'| nz(F) nz(L) beta
 #&gt;    1 -8.344993376e+03 +7.77727506e+03 2.42e+00 4.2e-01 2.3e-02 0.857 0.950 0.00
 #&gt;    2 -8.327054777e+03 +7.74139786e+03 1.75e+00 1.8e-01 1.8e-01 0.860 0.925 0.00
@@ -507,7 +507,7 @@ performed to initialize the loadings matrix when <code>init.method
 #&gt;   10 -8.312323028e+03 +7.71193436e+03 2.74e-01 1.7e-02 3.3e-02 0.873 0.838 0.00</div><div class='input'>
 <span class='co'># Fit the Poisson NMF model by running 50 EM updates.</span>
 <span class='no'>fit_em</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>50</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"em"</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.
-#&gt; Running 50 EM updates, without extrapolation (fastTopics 0.3-191).
+#&gt; Running 50 EM updates, without extrapolation (fastTopics 0.4-11).
 #&gt; iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'| nz(F) nz(L) beta
 #&gt;   11 -8.312286772e+03 +7.71186185e+03 1.59e-01 4.0e-03 1.7e-02 0.873 0.838 0.00
 #&gt;   12 -8.312266752e+03 +7.71182181e+03 1.32e-01 4.7e-03 1.0e-02 0.873 0.838 0.00
@@ -562,7 +562,7 @@ performed to initialize the loadings matrix when <code>init.method
 <span class='co'># Fit the Poisson NMF model by running 50 extrapolated SCD updates.</span>
 <span class='no'>fit_scd</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>50</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,
                            <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>extrapolate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>))</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.
-#&gt; Running 50 SCD updates, with extrapolation (fastTopics 0.3-191).
+#&gt; Running 50 SCD updates, with extrapolation (fastTopics 0.4-11).
 #&gt; iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'| nz(F) nz(L) beta
 #&gt;   11 -8.312215913e+03 +7.71172013e+03 2.36e-01 2.4e-02 4.7e-02 0.870 0.833 0.55
 #&gt;   12 -8.312086577e+03 +7.71146146e+03 3.40e-01 3.9e-02 7.7e-02 0.870 0.829 0.61
@@ -620,8 +620,8 @@ performed to initialize the loadings matrix when <code>init.method
 #&gt; em  3 -8311.914 7711.116   0.0000000 0.0000000 0.0130190646  0.8733333
 #&gt; scd 3 -8311.490 7710.269   0.4238966 0.8477933 0.0008019524  0.8633333
 #&gt;     nonzeros.l numiter runtime
-#&gt; em      0.8375      60   0.065
-#&gt; scd     0.8250      60   0.073</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>)</div><div class='img'><img src='fit_poisson_nmf-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"res"</span>)</div><div class='img'><img src='fit_poisson_nmf-2.png' alt='' width='700' height='433' /></div><div class='input'>
+#&gt; em      0.8375      60   0.061
+#&gt; scd     0.8250      60   0.078</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>)</div><div class='img'><img src='fit_poisson_nmf-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"res"</span>)</div><div class='img'><img src='fit_poisson_nmf-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Recover the topic model. After this step, the L matrix contains the</span>
 <span class='co'># mixture proportions ("loadings"), and the F matrix contains the</span>
 <span class='co'># word frequencies ("factors").</span>
@@ -637,7 +637,7 @@ performed to initialize the loadings matrix when <code>init.method
 
       <footer>
       <div class="copyright">
-  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao, Matthew Stephens.</p>
+  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">

@@ -42,7 +42,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-191</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-11</span>
       </span>
     </div>
 
@@ -80,6 +80,15 @@
 
 <p>fastTopics is an R package implementing fast, scalable optimization algorithms for fitting topic models (“grade of membership” models) and non-negative matrix factorizations to count data. The methods exploit the <a href="https://stephenslab.github.io/fastTopics/articles/relationship.html">special relationship</a> between the multinomial topic model (also “probabilistic latent semantic indexing”) and Poisson non-negative matrix factorization. The package provides tools to compare, annotate and visualize model fits, including functions to efficiently create “structure plots” and identify key features in topics. The fastTopics package is a successor to the <a href="https://github.com/kkdey/CountClust">CountClust package</a>.</p>
 <p>If you find a bug, or you have a question or feedback on this software, please post an <a href="https://github.com/stephenslab/fastTopics/issues">issue</a>.</p>
+<div id="citing-this-work" class="section level2">
+<h2 class="hasAnchor">
+<a href="#citing-this-work" class="anchor"></a>Citing this work</h2>
+<p>If you find the fastTopics package or any of the source code in this repository useful for your work, please cite:</p>
+<blockquote>
+<p>Kushal K. Dey, Chiaowen Joyce Hsiao and Matthew Stephens (2017). <a href="https://doi.org/10.1371/journal.pgen.1006599">Visualizing the structure of RNA-seq expression data using grade of membership models.</a> <em>PLoS Genetics</em> <strong>13</strong>, e1006599.</p>
+<p>Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao and Matthew Stephens (2020). fastTopics: fast algorithms for fitting topic models and non-negative matrix factorizations to count data. R package version 0.3-194. <a href="https://github.com/stephenslab/fastTopics">https://github.com/stephenslab/fastTopics</a></p>
+</blockquote>
+</div>
 <div id="license" class="section level2">
 <h2 class="hasAnchor">
 <a href="#license" class="anchor"></a>License</h2>
@@ -93,14 +102,15 @@
 <div class="sourceCode" id="cb1"><pre class="r"><span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"stephenslab/fastTopics"</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">fastTopics</span>)</pre></div>
 <p>Note that installing the package will require a C++ compiler setup that is appropriate for the version of R installed on your computer. For details, refer to the <a href="https://cran.r-project.org">CRAN documentation</a>.</p>
-<p>For guidance on using fastTopics to analyze gene expression data (bulk RNA-seq or single-cell RNA-seq), see the <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_demo.html">vignette</a>.</p>
+<p>For guidance on using fastTopics to analyze gene expression data (single-cell or bulk RNA-seq), see the <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_demo.html">single-cell RNA-seq vignette</a>.</p>
 <p>Also, try running the small example that illustrates the fast model fitting algorithms:</p>
 <div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/example.html">example</a></span>(<span class="st">"fit_poisson_nmf"</span>)</pre></div>
+<p>See the <a href="https://stephenslab.github.io/fastTopics">package documentation</a> for more information.</p>
 </div>
 <div id="credits" class="section level2">
 <h2 class="hasAnchor">
 <a href="#credits" class="anchor"></a>Credits</h2>
-<p>The fastTopics R package was developed by <a href="https://pcarbo.github.io">Peter Carbonetto</a>, <a href="https://github.com/kevinlkx">Kevin Luo</a>, <a href="https://github.com/kkdey">Kushal Dey</a> and <a href="http://stephenslab.uchicago.edu">Matthew Stephens</a> at the <a href="https://www.uchicago.edu">University of Chicago</a>.</p>
+<p>The fastTopics R package was developed by <a href="https://pcarbo.github.io">Peter Carbonetto</a>, Kevin Luo, Kushal Dey, Joyce Hsiao and <a href="http://stephenslab.uchicago.edu">Matthew Stephens</a> at the <a href="https://www.uchicago.edu">University of Chicago</a>.</p>
 </div>
 </div>
   </div>
@@ -123,14 +133,20 @@
 </li>
 </ul>
 </div>
+<div class="citation">
+<h2>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html">Citing fastTopics</a></li>
+</ul>
+</div>
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
 <li>Peter Carbonetto <br><small class="roles"> Author, maintainer </small>  </li>
 <li>Kevin Luo <br><small class="roles"> Author </small>  </li>
 <li>Kushal Dey <br><small class="roles"> Author </small>  </li>
-<li>Joyce Hsiao <br><small class="roles"> Author </small>  </li>
 <li>Matthew Stephens <br><small class="roles"> Author </small>  </li>
+<li><a href="authors.html">All authors...</a></li>
 </ul>
 </div>
 
@@ -148,7 +164,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao, Matthew Stephens.</p>
+  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">

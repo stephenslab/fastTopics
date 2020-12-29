@@ -76,7 +76,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3-191</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-11</span>
       </span>
     </div>
 
@@ -131,6 +131,7 @@
   <span class='kw'>label_above_quantile</span> <span class='kw'>=</span> <span class='fl'>0.99</span>,
   <span class='kw'>subsample_below_quantile</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>subsample_rate</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>max.overlaps</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>ggplot_call</span> <span class='kw'>=</span> <span class='no'>volcano_plot_ggplot_call</span>,
   <span class='kw'>plot_grid_call</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>plots</span>) <span class='fu'><a href='https://rdrr.io/r/base/do.call.html'>do.call</a></span>(<span class='no'>plot_grid</span>, <span class='no'>plots</span>)
 )
@@ -153,7 +154,13 @@
   <span class='kw'>plot_ly_call</span> <span class='kw'>=</span> <span class='no'>volcano_plot_ly_call</span>
 )
 
-<span class='fu'>volcano_plot_ggplot_call</span>(<span class='no'>dat</span>, <span class='no'>y.label</span>, <span class='no'>topic.label</span>, <span class='kw'>font.size</span> <span class='kw'>=</span> <span class='fl'>9</span>)
+<span class='fu'>volcano_plot_ggplot_call</span>(
+  <span class='no'>dat</span>,
+  <span class='no'>y.label</span>,
+  <span class='no'>topic.label</span>,
+  <span class='kw'>max.overlaps</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>font.size</span> <span class='kw'>=</span> <span class='fl'>9</span>
+)
 
 <span class='fu'>volcano_plot_ly_call</span>(<span class='no'>dat</span>, <span class='no'>y.label</span>, <span class='no'>title</span>, <span class='no'>width</span>, <span class='no'>height</span>)</pre>
 
@@ -214,6 +221,11 @@ reduce the number of points plotted.</p></td>
 proportion of log-fold change statistics with "small" z-scores that
 are included in the plot, uniformly at random. This is only used if
 <code>subsample_below_quantile</code> is greater than zero.</p></td>
+    </tr>
+    <tr>
+      <th>max.overlaps</th>
+      <td><p>Argument passed to
+<code><a href='https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html'>geom_text_repel</a></code>.</p></td>
     </tr>
     <tr>
       <th>ggplot_call</th>
@@ -320,7 +332,7 @@ were calculated by <code><a href='diff_count_analysis.html'>diff_count_analysis<
 
       <footer>
       <div class="copyright">
-  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao, Matthew Stephens.</p>
+  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">

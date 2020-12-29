@@ -3,7 +3,8 @@ pkgdown: 1.5.1
 pkgdown_sha: fa4b76ac151cac680dc542174d126d570e411eeb
 articles:
   relationship: relationship.html
-  single_cell_rnaseq_demo: single_cell_rnaseq_demo.html
+  single_cell_rnaseq_basic: single_cell_rnaseq_basic.html
+  single_cell_rnaseq_practical: single_cell_rnaseq_practical.html
   topics_vs_clusters: topics_vs_clusters.html
-last_built: 2020-12-14T18:03Z
+last_built: 2020-12-29T05:48Z
 
