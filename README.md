@@ -84,4 +84,4 @@ Kevin Luo, Kushal Dey, Joyce Hsiao and
 [countclust-paper]: https://doi.org/10.1371/journal.pgen.1006599
 [pkgdown]: https://stephenslab.github.io/fastTopics
 [vignette-close-relationship]: https://stephenslab.github.io/fastTopics/articles/relationship.html
-[vignette-scrnaseq]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_demo.html
+[vignette-scrnaseq]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
