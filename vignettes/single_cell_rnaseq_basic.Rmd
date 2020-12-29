@@ -22,12 +22,14 @@ knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
                       fig.align = "center",dpi = 120)
 ```
 
-We begin our analysis by loading the Matrix and fastTopics
-packages. Then we set the seed so that the results can be reproduced.
+We begin our analysis by loading the packages. Then we set the seed so
+that the results can be reproduced.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
 library(fastTopics)
+library(ggplot2)
+library(cowplot)
 set.seed(1)
 ```
 
@@ -157,7 +159,8 @@ to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer
 (NK) cells, and T cells.
 
 ```{r summary-subpop}
-summary(pbmc_4k$samples$subpop)
+samples <- pbmc_4k$samples
+summary(samples$subpop)
 ```
 
 To visualize the relationship between the cell labels and the mixture
@@ -167,7 +170,7 @@ proportions, we create a Structure plot:
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
 p1 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
-                     grouping = pbmc_4k$samples$subpop,gap = 25)
+                     grouping = samples$subpop,gap = 25)
 print(p1)
 ```
 
@@ -267,7 +270,7 @@ factor of $2^5 = 32$ times, or more; by contrast these two genes are
 underexpressed in all other cell types:
 
 ```{r diff-count-analysis-1}
-out1 <- diff_count_clusters(counts,pbmc_4k$samples$subpop)
+out1 <- diff_count_clusters(counts,samples$subpop)
 rbind(out1$beta[genes$symbol == "CD79A",],
       out1$beta[genes$symbol == "CD79B",])
 ```
@@ -335,15 +338,41 @@ p3 <- volcano_plot(out2,k = 1,label_above_quantile = 0.998,
 print(p3)
 ```
 
-As for the two T cell topics that capture variation *within* T
-cells 
-
+Interpreting the topics that capture variation *within* T cells is
+slightly more involved, so we old off on this investigation until
+Part 2.
 
 Evaluating the topic model
 --------------------------
 
-```{r}
+Explain that we can evaluate the fit via the likelihood.
+
+```{r loglik-1}
+loglik_topics <- loglik_multinom_topic_model(counts,fit)
 ```
+
+*Add text here.*
+
+```{r loglik-2}
+fit_clusters <- init_poisson_nmf_from_clustering(counts,samples$subpop)
+fit_clusters <- poisson2multinom(fit_clusters)
+loglik_clusters <- loglik_multinom_topic_model(counts,fit_clusters)
+```
+
+*Add text here.*
+
+```{r loglik-3, fig.width=4, fig.height=3}
+i <- which(samples$subpop == "CD34+")
+p4 <- qplot(x = loglik_clusters[i],y = loglik_topics[i],color = fit$L[i,3]) +
+  geom_abline(slope = 1,intercept = 0,linetype = "dotted") +
+  scale_color_gradient2(high = "deepskyblue",mid = "gold",low = "orangered",
+                        midpoint = 0.5) +
+  labs(x = "clustering",y = "topic model",color = "topic 3") +
+  theme_cowplot(font_size = 12)
+print(p4)
+```
+
+*Add text here.*
 
 Session info
 ------------
