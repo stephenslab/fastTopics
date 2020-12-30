@@ -4,6 +4,9 @@ author: Peter Carbonetto
 date: "`r Sys.Date()`"
 output:
   html_document:
+    toc: yes
+    toc_float: no
+    highlight: textmate
     theme: readable
 vignette: >
   %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using a topic model, Part 2: practical implementation}
@@ -11,88 +14,69 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Here we illustrate the use of fastTopics to infer structure from
-single-cell RNA-seq data. A basic analysis consists of the following
-steps:
-
-1. Load and prepare the count data.
-
-2. Fit a Poisson non-negative matrix factorization (NMF) to the UMI
-   count data.
-
-3. Recover the multinomial topic model---also called the multinomial
-   "grade-of-membership" model---from the Poisson NMF model fit.
-
-4. Analyze structure in the estimated mixture proportions matrix.
-
-5. Annotate selected clusters and factors by examining genes that
-   are highly differentially expressed among clusters or factors.
-
-In this vignette, we walk through each of these steps and demonstrate
-how to implement these steps using fastTopics. In other exploratory
-analyses, these steps might not be strictly sequential---for example,
-the annotation in Step 5 may inform the exploration of substructure in
-Step 4.
+This vignette continues from [Part 1][vignette-part-1], where we
+introduced the basic concepts behind an analysis of single-cell
+RNA-seq data using a topic model. Here we revisit the same data set,
+giving more detailed guidance and discussing some complications that may
+arise.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
-                      fig.align = "center",dpi = 120, eval=FALSE)
+                      fig.align = "center",dpi = 120)
 ```
 
-Begin by loading the packages used below. The ggplot2 and cowplot
-packages are used to create some of the plots.
+We begin our analysis by loading the packages. Then we set the seed so
+that the results can be reproduced.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
 library(fastTopics)
 library(ggplot2)
 library(cowplot)
-```
-
-Set the seed so that the results can be reproduced.
-
-```{r set-seed}
 set.seed(1)
 ```
 
-Load and prepare data
----------------------
-
-Load the single-cell RNA-seq data:
+Now we load the data set and the $K = 6$ pre-fitted topic model.
 
 ```{r load-data}
 data(pbmc_4k)
-samples <- pbmc_4k$samples
-genes   <- pbmc_4k$genes
-counts  <- pbmc_4k$counts
-dim(counts)
+counts <- pbmc_4k$counts
+fit <- pbmc_4k$fit
 ```
 
-This data set is made up of reference transcriptome profiles that were
-generated from 10 different bead-enriched subpopulations of PBMCs
-(Donor A), as described in [Zheng *et al* (2017)][zheng-2017]. The UMI
-counts are stored as an $n \times m$ sparse matrix, where $n$ is the
-number of cells and $m$ is the number of genes.
+Assessing model fit
+-------------------
 
-No normalization or transformation of the UMI counts is needed. The
-only pre-processing step we take is to remove genes that are not
-expressed in any of the cells.
+The topic model was fitted using the `fit_topic_model` function. This
+interface hides most of the complexities of model fitting.
+Nonetheless, it is prudent to check that the model fitting has
+converged to a solution---that is, a local maximum of the likelihood
+surface. This can be done conveniently using a "progress plot":
 
-```{r filter-genes}
-j      <- which(colSums(counts > 0) >= 1)
-genes  <- genes[j,]
-counts <- counts[,j]
-dim(counts)
+```{r plot-loglik, fig.height=2, fig.width=4}
+fit_nmf <- multinom2poisson(fit)
+plot_progress_poisson_nmf(fit_nmf,x = "iter",add.point.every = 10,
+                          colors = "black") +
+  theme_cowplot(font_size = 10)
 ```
 
-As expected, most (>95%) of the UMI counts are zero:
+(Internally, `fit_topic_model` first fits a non-negative matrix
+factorization to the count data, then converts the fitted NMF to a
+topic model, so the plot shows the progress of the NMF model fit.)
+Judging by this plot, which shows the change in the log-likelihood
+over time, the iterates get close to a maxium-likelihood solution
+after about 150 iterations.
 
-```{r nonzeros}
-mean(counts > 0)
-```
+For larger or more complex data sets, more than 200 updates may be
+needed to obtain a good fit. For guidance on fine-tuning the model
+fitting, refer to the documentation for `fit_topic_model` and
+`fit_poisson_nmf`.
 
-Fit Poisson NMF model
----------------------
+Old stuff
+=========
+
+Fit topic model
+---------------
 
 By exploiting the relationship between the multinomial topic model and
 non-negative matrix factorization (we have a vignette elaborating on
@@ -105,7 +89,7 @@ the results from different settings of $K$.
 Since the model fitting can take several minutes to run, or perhaps
 more, we have saved a pre-fitted model:
 
-```{r load-fit}
+```{r load-fit, eval=FALSE}
 fit <- pbmc_4k$fit
 ```
 
@@ -123,35 +107,13 @@ running this code, may want to change `control$nc`. This controls the
 number of threads in the TBB multithreaded computations, and for best
 performance this should be set to the number of availablle processors.
 
-Judging by this plot which shows the change in the log-likelihood over
-time, the iterates get close to a maxium-likelihood solution after
-about 150 iterations.
-
-```{r plot-loglik, fig.height=2, fig.width=3.5}
-plot_progress_poisson_nmf(fit,x = "iter",add.point.every = 10,
-                          colors = "black") +
-  theme_cowplot(font_size = 10)
-```
-
-**Some general guidance on model fitting.** We have found that the EM
-algorithm initially makes rapid progress toward a solution, but this
-convergence slows considerably as the iterates approach the solution.
-Close to a solution, we have found that other algorithms make much
-more rapid progress than EM. Therefore, we have taken a two-stage
-approach to model fitting: first, we perform EM updates; second, we
-refine the fit using extrapolated SCD updates (we also tried
-extrapolated CCD updates, and updates without extrapolation, and we
-found that the extrapolated SCD updates almost always worked best).
-For larger data sets, more than 200 updates may be needed to obtain a
-good fit.
-
 Recover multinomial topic model
 -------------------------------
 
 Once we have fit a Poisson NMF model, the multinomial topic model is
 easly recovered by a reparameterization:
 
-```{r poisson2multinom}
+```{r poisson2multinom, eval=FALSE}
 fit_multinom <- poisson2multinom(fit)
 ```
 
@@ -168,7 +130,7 @@ numbers of clusters and we found that 6 clusters worked best in this
 example. Note that *k*-means is sensitive to (random) initialization,
 so we set the seed.
 
-```{r clustering-1}
+```{r clustering-1, eval=FALSE}
 set.seed(1)
 clusters <- kmeans(fit_multinom$L,centers = 6,iter.max = 100)$cluster
 ```
@@ -185,7 +147,7 @@ inspection, we found that *k*-means split the largest cluster into two
 subclusters. After merging these two subclusters, we ended up with 5
 clusters:
 
-```{r clustering-2}
+```{r clustering-2, eval=FALSE}
 clusters[clusters == 3] <- 1
 clusters <- factor(clusters)
 summary(clusters)
@@ -202,7 +164,7 @@ usually not possible until downstream analyses have been conducted.
 The clustering of the cells is mostly evident from the top two PCs of
 the mixture proportions:
 
-```{r pca-1, fig.width=6.25, fig.height=2, message=FALSE}
+```{r pca-1, fig.width=6.25, fig.height=2, message=FALSE, eval=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
 cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
 p1 <- pca_plot(fit_multinom,fill = clusters) +
@@ -226,7 +188,7 @@ Visualize mixture proportions using a Structure plot
 A much more versatile tool for exploring the mixture proportions is
 the Structure plot. Here is a basic example:
 
-```{r structure-plot-1, fig.width=6.5, fig.height=1.5, results="hide"}
+```{r structure-plot-1, fig.width=6.5, fig.height=1.5, results="hide", eval=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
 p3 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors)
@@ -254,7 +216,7 @@ a Structure plot that effectively highlights the structure in the
 data. A simple way we can improve the Structure plot here is to
 arrange the cells by their assignment to the 5 clusters:
 
-```{r structure-plot-2, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
+```{r structure-plot-2, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE, eval=FALSE}
 p4 <- structure_plot(fit_multinom,topics = 1:6,colors = topic_colors,
                      grouping = clusters,gap = 25)
 print(p4)
@@ -269,7 +231,7 @@ above. To highlight this subset of cells---which turn out to be CD8+
 cells---we define a new cluster, and create a new Structure plot with
 the 6 clusters:
 
-```{r structure-plot-3, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
+```{r structure-plot-3, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE, eval=FALSE}
 clusters <- as.character(clusters)
 clusters[clusters == "T" & fit_multinom$L[,1] > 0.1] <- "CD8+"
 clusters <- factor(clusters)
@@ -297,7 +259,7 @@ expression analysis for a multinomial topic model, here we implement
 the analysis for the clusters by treating the clustering as a topic
 model in which all the mixture proportions are 0 or 1.
 
-```{r diff-count-analysis-clusters}
+```{r diff-count-analysis-clusters, eval=FALSE}
 diff_count_clusters <- diff_count_clusters(counts,clusters)
 ```
 
@@ -308,7 +270,7 @@ expression (*z*-score magnitude) in the y-axis. In volcano plot for
 the "B" cluster, top genes include *CD79A*, an established "marker
 gene" for B cells:
 
-```{r volcano-plot-bcell-cluster, fig.height=3.5, fig.width=4}
+```{r volcano-plot-bcell-cluster, fig.height=3.5, fig.width=4, eval=FALSE}
 p6 <- volcano_plot(diff_count_clusters,k = "B",label_above_quantile = 0.998,
                    labels = genes$symbol,max.overlaps = 10)
 print(p6)
@@ -317,7 +279,7 @@ print(p6)
 Likewise, *CD3D*, a marker gene for T cells, is one of the top genes
 in the "T" cluster volcano plot:
 
-```{r volcano-plot-tcell-cluster, fig.height=3.5, fig.width=4}
+```{r volcano-plot-tcell-cluster, fig.height=3.5, fig.width=4, eval=FALSE}
 p7 <- volcano_plot(diff_count_clusters,k = "T",label_above_quantile = 0.998,
                    labels = genes$symbol,max.overlaps = 10)
 print(p7)
@@ -329,7 +291,7 @@ Annotate topics by top differentially expressed genes
 We can also use the same differential expression analysis to identify
 genes that are highly differentially expressed among the topics:
 
-```{r diff-count-analysis-topics}
+```{r diff-count-analysis-topics, eval=FALSE}
 diff_count_topics <- diff_count_analysis(fit,counts)
 ```
 
@@ -337,7 +299,7 @@ For example, topic 4, which is the predominant topic in the "B"
 cluster, includes the B cells marker gene *CD79A* among its top genes
 in the volcano plot:
 
-```{r volcano-plot-bcell-topic, fig.height=3.5, fig.width=4}
+```{r volcano-plot-bcell-topic, fig.height=3.5, fig.width=4, eval=FALSE}
 p8 <- volcano_plot(diff_count_topics,k = 4,label_above_quantile = 0.998,
                    labels = genes$symbol,max.overlaps = 10)
 print(p8)
@@ -355,7 +317,7 @@ merging topics 5 and 6, we can perform differential expression
 analysis on the combined topic and create a volcano plot highlighting
 the top differentially expression genes:
 
-```{r volcano-plot-tcell-topic, fig.height=3.5, fig.width=4, results="hide"}
+```{r volcano-plot-tcell-topic, fig.height=3.5, fig.width=4, results="hide", eval=FALSE}
 diff_count_merged <- diff_count_analysis(merge_topics(fit_multinom,5:6),counts)
 p9 <- volcano_plot(diff_count_merged,k = "k5+k6",label_above_quantile = 0.998,
                    labels = genes$symbol,max.overlaps = 10)
@@ -369,7 +331,7 @@ cluster (3.5).
 The topics also capture continuous variation *within* the T-cell
 cluster:
 
-```{r volcano-plot-cd4, fig.height=3.5, fig.width=4, results="hide"}
+```{r volcano-plot-cd4, fig.height=3.5, fig.width=4, results="hide", eval=FALSE}
 i <- which(clusters == "T")
 fit_t <- select_loadings(fit_multinom,loadings = i)
 diff_count_t <- diff_count_analysis(fit_t,counts[i,])
@@ -391,7 +353,7 @@ helpful to explore the results interactively. The function
 `volcano_plotly` creates an interactive plot that can be viewed in a
 Web browser:
 
-```{r volcano-plotly}
+```{r volcano-plotly, eval=FALSE}
 p11 <- volcano_plotly(diff_count_t,k = 5,"volcano_plot_t_cells.html",
                       labels = genes$symbol)
 ```
@@ -406,7 +368,7 @@ Another feature of the topic model is that it provides a likelihood
 for each cell which quantifies how well the topic model "fits" the
 observed expression:
 
-```{r loglik-1}
+```{r loglik-1, eval=FALSE}
 loglik <- loglik_multinom_topic_model(counts,fit)
 ```
 
@@ -417,7 +379,7 @@ poorly captured by the topic model. In the PBMC data, a histogram of
 the log-likelihoods shows that the topic model provides a very small
 fit for a small number of cells:
 
-```{r loglik-2, fig.height=2, fig.width=3.5}
+```{r loglik-2, fig.height=2, fig.width=3.5, eval=FALSE}
 p4 <- ggplot(data.frame(x = loglik),aes(x)) +
   geom_histogram(color = "black",fill = "black",bins = 64) +
   theme_cowplot(font_size = 10) +
@@ -427,7 +389,7 @@ print(p4)
 
 Most of the outliers are in the CD34+ subpopulation:
 
-```{r loglik-3}
+```{r loglik-3, eval=FALSE}
 i <- which(loglik < -5000)
 table(samples[i,"subpop"])
 ```
@@ -442,5 +404,5 @@ these results.
 sessionInfo()
 ```
 
+[vignette-part-1]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
-

@@ -86,9 +86,12 @@ EM algorithm initially makes rapid progress toward a solution, but
 its convergence slows considerably as the iterates approach a
 solution. Close to a solution, we have found that other algorithms
 make much more rapid progress than EM; in particularly, we founr
-that the extrapolated SCD updates usually performed best).  For
+that the extrapolated SCD updates usually performed best). For
 larger data sets, more updates in the main model fitting and
 refinement steps may be needed to obtain a good fit.
+
+For larger data sets, more than 200 updates may be needed to obtain
+a good fit.
 }
 \examples{
 library(Matrix)
