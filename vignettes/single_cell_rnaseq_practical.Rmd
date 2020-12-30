@@ -16,9 +16,9 @@ vignette: >
 
 This vignette continues from [Part 1][vignette-part-1], where we
 introduced the basic concepts behind an analysis of single-cell
-RNA-seq data using a topic model. Here we revisit the same data set,
-giving more detailed guidance and discussing some complications that may
-arise.
+RNA-seq data using a topic model. Here we revisit the same single-cell
+data set, giving more detailed guidance, and discussing a few 
+complications that may arise.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
@@ -48,10 +48,10 @@ Assessing model fit
 -------------------
 
 The topic model was fitted using the `fit_topic_model` function. This
-interface hides most of the complexities of model fitting.
-Nonetheless, it is prudent to check that the model fitting has
-converged to a solution---that is, a local maximum of the likelihood
-surface. This can be done conveniently using a "progress plot":
+function, as we mentioned, hides most of the complexities of model
+fitting. Nevertheless, it is a good idea to check that the model
+fitting has converged to a maximum-likelihood solution. This can be
+done conveniently using a "progress plot":
 
 ```{r plot-loglik, fig.height=2, fig.width=4}
 fit_nmf <- multinom2poisson(fit)
@@ -60,62 +60,26 @@ plot_progress_poisson_nmf(fit_nmf,x = "iter",add.point.every = 10,
   theme_cowplot(font_size = 10)
 ```
 
-(Internally, `fit_topic_model` first fits a non-negative matrix
+Internally, `fit_topic_model` first fits a non-negative matrix
 factorization to the count data, then converts the fitted NMF to a
-topic model, so the plot shows the progress of the NMF model fit.)
-Judging by this plot, which shows the change in the log-likelihood
-over time, the iterates get close to a maxium-likelihood solution
-after about 150 iterations.
+topic model, so the plot shows the progress of the NMF model fit. So
+progress is actually measured by the NMF likelihood, not the
+multinomial topic model likelihood. Judging by this plot, which shows
+the improvement in the log-likelihood over time, the iterates get
+close to a maxium-likelihood solution after about 150 iterations.
 
 For larger or more complex data sets, more than 200 updates may be
 needed to obtain a good fit. For guidance on fine-tuning the model
 fitting, refer to the documentation for `fit_topic_model` and
 `fit_poisson_nmf`.
 
+Interpreting topics without cell labels
+---------------------------------------
+
+
+
 Old stuff
 =========
-
-Fit topic model
----------------
-
-By exploiting the relationship between the multinomial topic model and
-non-negative matrix factorization (we have a vignette elaborating on
-this relationship), we leverage fast NMF optimization algorithms to
-fit the multinomial topic model.
-
-We chose $K = 6$ factors. In practice, you will likely want to explore
-the results from different settings of $K$.
-
-Since the model fitting can take several minutes to run, or perhaps
-more, we have saved a pre-fitted model:
-
-```{r load-fit, eval=FALSE}
-fit <- pbmc_4k$fit
-```
-
-If you would like to see the model fitting in action, run this code:
-
-```{r fit-poisson-nm, eval=FALSE}
-fit0 <- fit_poisson_nmf(counts,k = 6,numiter = 100,method = "em",
-                        control = list(numiter = 4,nc = 2))
-fit  <- fit_poisson_nmf(counts,fit0 = fit0,numiter = 100,method = "scd",
-                        control = list(extrapolate = TRUE,numiter = 4,nc = 2))
-```
-
-(This is the code that was used to generate the stored result.) Before
-running this code, may want to change `control$nc`. This controls the
-number of threads in the TBB multithreaded computations, and for best
-performance this should be set to the number of availablle processors.
-
-Recover multinomial topic model
--------------------------------
-
-Once we have fit a Poisson NMF model, the multinomial topic model is
-easly recovered by a reparameterization:
-
-```{r poisson2multinom, eval=FALSE}
-fit_multinom <- poisson2multinom(fit)
-```
 
 Identify clusters
 -----------------
