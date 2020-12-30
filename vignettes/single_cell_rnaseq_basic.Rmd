@@ -313,7 +313,8 @@ genes could also produce, by chance, large log-fold changes, and we
 would not want to rank these genes highly. The *volcano plot* balances
 these two concerns: the log-fold change is shown on the x-axis, and
 the *p*-value or *z*-score, quantifying support for differential
-expression, is shown on the *y*-axis:
+expression, is shown on the *y*-axis. Here is volcano plot for topic
+4:
 
 ```{r volcano-plot-b, fig.height=3.5, fig.width=4.5}
 p2 <- volcano_plot(out2,k = 4,label_above_quantile = 0.998,
@@ -324,7 +325,11 @@ print(p2)
 Typically the most interesting genes are found in the top-right
 portion of the volcano plot---that is, genes with large log-fold
 change and strong support. Indeed, B-cell genes, among them *CD79A*,
-*CD79B* and *CD19*, are near top-right corner of the volcano plot.
+*CD79B* and *CD19*, are near top-right corner of the volcano plot. 
+
+Note that the x-axis in the volcano plot ranges between -10 and 10
+because the log-fold change estimates are, by default, restricted to
+this range for numerical stability in the calculations.
 
 Likewise, natural killer genes such as *NKG7* emerge at the top of the
 volcano plot for topic 1:
