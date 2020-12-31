@@ -152,7 +152,7 @@ Interpreting topics using available cell labels
 -----------------------------------------------
 
 In some cases, you may have additional information about the cells,
-such as the tissue the cells were sampled from. In the PBMC data, the
+such as the tissue the cells were sampled from. In the PBMC 4k data, the
 cells were labeled using fluorescence-activated cell sorting
 (FACS). Each cell is assigned one of five labels (each corresponding
 to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer
