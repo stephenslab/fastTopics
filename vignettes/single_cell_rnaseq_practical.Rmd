@@ -96,28 +96,26 @@ cells (dark blue), CD14+ monocytes (green) and CD34+ cells (purple).
 
 The clustering of the NK (light blue) and T cells (mixtures of yellow
 and orange) is less distinct, and this is reflected by more sharing of
-factors (in particular, factor 6) among NK and T cells.
+topics (in particular, topics 6) among NK and T cells.
 
 Of course, without the cell labels, we cannot know that the topics
 correspond to these cell types without further downstream
 analyses---for this, we will perform a differential expression
-analysis (see below).
+analysis (continue reading).
 
 Identifying clusters from the mixture proportions
 -------------------------------------------------
 
-While the Structure plot worked fairly well for this example to depict
-the cell types and T cell diversity captured by the topics, in more
-complex data sets finer scale structure or rare cell types may not
-show up in the Structure plot. Therefore, for more complex data sets,
-additional strategies will be needed.
+In more complex data sets, fine scale structure or rare cell types may
+not show up in the Structure plot. Therefore, for more complex data
+sets, additional strategies may be needed to create an effective
+Structure plot.
 
-One strategy that we have found to be generally useful is to identify
-clusters in the mixture proportions matrix $L$. Here, we illustrate
-this idea using the simplest clustering method, *k*-means. We have had
-better success with applying $k$-means to the principal components
-(PCs) of the mixture proportions, which can be easily computed using
-`prcomp`.
+One strategy we have found to be generally useful is to identify
+clusters in the mixture proportions matrix, $L$. Here, we illustrate
+this idea using the simplest clustering method, *k*-means. Here we
+apply $k$-means to the principal components (PCs) of the mixture
+proportions, which are easily computed using `prcomp`.
 
 We previously experimented with different numbers of clusters and we
 found that 6 clusters worked best for this data set (the fact that
@@ -133,7 +131,7 @@ summary(factor(clusters))
 ```
 
 Now we create another Structure plot, arranging the cells by their
-membership to each of the 6 clusters:
+membership to these 6 clusters:
 
 ```{r structure-plot-by-cluster-1, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 p2 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
@@ -150,16 +148,15 @@ clusters[clusters == 3] <- 1
 clusters <- factor(clusters)
 ```
 
-You will find that some visual inspection followed by manual
-refinement will often be needed to get the "right" clustering,
-regardless of which clustering method is used, *k*-means or otherwise.
+Visual inspection of the clusters followed by manual refinement is
+often be needed to get the "right" clustering.
 
 With the benefit of hindsight, we know that these 5 clusters
 correspond to 5 cell types: B cells, T cells, natural killer (NK)
 cellls, CD14+ monoytes and CD34+ cells. For clarity of presentation,
 we label the clusters by these cell types, noting that, in most
 practical settings, labeling the clusters is not usually not possible
-until downstream analyses have been conducted.
+until downstream analyses have been performed.
 
 ```{r structure-plot-by-cluster-2, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
@@ -168,42 +165,42 @@ p3 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
 print(p3)
 ```
 
-This second Structure plot better highlights heterogeneity within the
-clusters, particularly the T cells. Within the T cell cluster, there
-is a distinctive subset of cells with sizeable contributions from the
-"NK cells" factor (factor 1, light blue). These are the same cells
-that sit in between the dense clumps of NK and T cells in the PCA plot
-above.
+This new Structure plot better highlights heterogeneity within the
+clusters, particularly in the T cells. Within the T cell cluster, we
+clearly see a distinctive subset of cells with sizeable contributions
+from the "NK cells" topic (topic 1, light blue).
 
-We emphasize that there is no one clustering technique that will work
-well for all data sets---in particular, we do not expect *k*-means to
-work as well in complex data sets. This is only meant to be an
-illustration of the *idea* of identifying clusters from the mixture
-proportions, and you may find that some ingenuity will be needed to
-adapt these ideas to your data set.
+For the clustering task, it can be helpful to visualize the clusters
+in PCA plots, which show the projection of the cells onto PCs of the
+mixture proportions. (Note that the CD14+ and CD34+ cells separate
+better in PCs 3 and 4.)
+
+```{r pca-plot-1, fig.width=3.5, fig.height=2.5, message=FALSE}
+cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
+p4 <- pca_plot(fit,fill = clusters) +
+  scale_fill_manual(values = cluster_colors)
+print(p4)
+```
+
+When there are many overlapping points, as is the case here, a 
+"hexbin" density plot can better reveal the clustering:
+
+```{r pca-plot-2, fig.width=3.75, fig.height=2.5, message=FALSE}
+p5 <- pca_hexbin_plot(fit,bins = 24)
+print(p5)
+```
+
+In particular, the separation of the T cells (yellow) and NK cells
+(light blue) into two clusters is much more evident in the hexbin plot.
+
+We emphasize that this is only meant to be an illustration, and
+*k*-means may not be the best clustering technique for all data sets.
+You may find that some ingenuity will be needed to identify and
+visualize finer scale structure in the mixture proportions where it
+occurs.
 
 Old stuff
 =========
-
-The clustering of the cells is mostly evident from the top two PCs of
-the mixture proportions:
-
-```{r pca-1, fig.width=6.25, fig.height=2, message=FALSE, eval=FALSE}
-cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
-p1 <- pca_plot(fit_multinom,fill = clusters) +
-  scale_fill_manual(values = cluster_colors)
-p2 <- pca_hexbin_plot(fit_multinom,bins = 24)
-plot_grid(p1,p2,rel_widths = c(9,10))
-```
-
-Examining the projection of the cells onto PCs 1 and 2, the B cells
-cluster is the most distinct, while the NK and T cell clusters are
-much less distinct, and arguably it is incorrect to call them
-"clusters". (The CD14+ and CD34+ cells separate much more clearly in
-PCs 3 and 4.)
-
-The PCA "hexbin" density plot is most helpful when there are many
-overlapping data points in the PCA plot.
 
 More on differential expression analysis
 ----------------------------------------
