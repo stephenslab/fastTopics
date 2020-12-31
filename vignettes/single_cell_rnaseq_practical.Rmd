@@ -73,16 +73,16 @@ needed to obtain a good fit. For guidance on fine-tuning the model
 fitting, refer to the documentation for `fit_topic_model` and
 `fit_poisson_nmf`.
 
-Interpreting the topics without cell labels
--------------------------------------------
+Visualizing the topics without cell labels
+------------------------------------------
 
 In Part 1, we made use of additional information about the cells to
 help us interpret the topics. In some cases, however, we may not have
 the benefit of external information to guide our investigations. Here,
 we model the *de novo* discovery of structure using a topic model.
 
-Without the cell labels, the Structure plot is still able to highlight
-some of the key substructures:
+Without the cell labels, the Structure plot can still be an effective
+tool for visualizing the mixture proportions:
 
 ```{r structure-plot-without-labels, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
@@ -93,7 +93,6 @@ print(p1)
 
 From this Structure plot, we see the clustering of the cells into B
 cells (dark blue), CD14+ monocytes (green) and CD34+ cells (purple).
-
 The clustering of the NK (light blue) and T cells (mixtures of yellow
 and orange) is less distinct, and this is reflected by more sharing of
 topics (in particular, topics 6) among NK and T cells.
