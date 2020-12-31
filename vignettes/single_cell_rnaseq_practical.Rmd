@@ -73,6 +73,39 @@ needed to obtain a good fit. For guidance on fine-tuning the model
 fitting, refer to the documentation for `fit_topic_model` and
 `fit_poisson_nmf`.
 
+Evaluating fit: single cell likelihoods
+---------------------------------------
+
+Another feature of the topic model is that it provides a likelihood
+for each cell which quantifies how well the topic model "fits" the
+observed expression:
+
+```{r loglik-1}
+loglik <- loglik_multinom_topic_model(counts,fit)
+```
+
+This could be useful for comparing different topic models, say, topic
+models with different settings of $K$. It could also be used to
+isolate "outlier" cells---that is, cells with expression that is
+poorly captured by the topic model. In the PBMC data, a histogram of
+the log-likelihoods shows that the topic model provides a very small
+fit for a small number of cells:
+
+```{r loglik-2, fig.height=2, fig.width=3.5, eval=FALSE}
+p4 <- ggplot(data.frame(x = loglik),aes(x)) +
+  geom_histogram(color = "black",fill = "black",bins = 64) +
+  theme_cowplot(font_size = 10) +
+  labs(x = "loglik",y = "number of cells")
+print(p4)
+```
+
+Most of the outliers are in the CD34+ subpopulation:
+
+```{r loglik-3, eval=FALSE}
+i <- which(loglik < -5000)
+table(samples[i,"subpop"])
+```
+
 Visualizing the topics without cell labels
 ------------------------------------------
 
@@ -198,109 +231,29 @@ You may find that some ingenuity will be needed to identify and
 visualize finer scale structure in the mixture proportions where it
 occurs.
 
-Old stuff
-=========
-
 More on differential expression analysis
 ----------------------------------------
 
-In this remaining parts of the analysis, we perform a differential
-expression analysis, and use the results of this analysis to annotate
-clusters and factors ("topics"). We begin by analyzing differential
-expression in the 6 clusters.
+In Part 1, we performed a differential expression analysis using the
+topic model, and used the resullts of this analysis to interpret topic
+1 as NK cells and topic 4 as B cells. Here, we tackle interpretation
+of the topics capturing variation in the T cells cluster.
 
-Since `diff_count_analysis` in fastTopics performs differential
-expression analysis for a multinomial topic model, here we implement
-the analysis for the clusters by treating the clustering as a topic
-model in which all the mixture proportions are 0 or 1.
+Unlike B cells and NK cells, T cells are represented as a mixture of
+two topics. After merging topics 5 and 6, we can perform differential
+expression analysis on the combined topic:
 
-```{r diff-count-analysis-clusters, eval=FALSE}
-diff_count_clusters <- diff_count_clusters(counts,clusters)
-```
-
-The results of the differential expresison analysis can be visualized
-using a "volcano plot", which shows, for each gene, the (base-2)
-log-fold change in the x-axis against the support for differential
-expression (*z*-score magnitude) in the y-axis. In volcano plot for
-the "B" cluster, top genes include *CD79A*, an established "marker
-gene" for B cells:
-
-```{r volcano-plot-bcell-cluster, fig.height=3.5, fig.width=4, eval=FALSE}
-p6 <- volcano_plot(diff_count_clusters,k = "B",label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 10)
+```{r volcano-plot-t, fig.height=3.5, fig.width=4.5, results="hide"}
+genes <- pbmc_4k$genes
+fit_merged <- merge_topics(fit,5:6)
+diff_count_merged <- diff_count_analysis(fit_merged,counts)
+p6 <- volcano_plot(diff_count_merged,k = "k5+k6",label_above_quantile = 0.998,
+                   labels = genes$symbol,max.overlaps = 16)
 print(p6)
 ```
 
-Likewise, *CD3D*, a marker gene for T cells, is one of the top genes
-in the "T" cluster volcano plot:
-
-```{r volcano-plot-tcell-cluster, fig.height=3.5, fig.width=4, eval=FALSE}
-p7 <- volcano_plot(diff_count_clusters,k = "T",label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 10)
-print(p7)
-```
-
-Annotate topics by top differentially expressed genes
------------------------------------------------------
-
-We can also use the same differential expression analysis to identify
-genes that are highly differentially expressed among the topics:
-
-```{r diff-count-analysis-topics, eval=FALSE}
-diff_count_topics <- diff_count_analysis(fit,counts)
-```
-
-For example, topic 4, which is the predominant topic in the "B"
-cluster, includes the B cells marker gene *CD79A* among its top genes
-in the volcano plot:
-
-```{r volcano-plot-bcell-topic, fig.height=3.5, fig.width=4, eval=FALSE}
-p8 <- volcano_plot(diff_count_topics,k = 4,label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 10)
-print(p8)
-```
-
-Note that the estimated differential expression (log-fold change) for
-this gene, and others, is much higher in the topic; 6.5 in the cluster
-vs. >10 in the topic. Due to its greater flexibility in capturing
-cells as mixtures of expression patterns, the topic model often better
-isolates expression patterns specific to a cell type.
-
-The largest of the 6 clusters captures T cells. Unlike the B cells
-cluster, T cells are represented as a mixture of two topics. After
-merging topics 5 and 6, we can perform differential expression
-analysis on the combined topic and create a volcano plot highlighting
-the top differentially expression genes:
-
-```{r volcano-plot-tcell-topic, fig.height=3.5, fig.width=4, results="hide", eval=FALSE}
-diff_count_merged <- diff_count_analysis(merge_topics(fit_multinom,5:6),counts)
-p9 <- volcano_plot(diff_count_merged,k = "k5+k6",label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 10)
-print(p9)
-```
-
-Like the B cells topic, the estimated log-fold change for the T-cell
-marker gene *CD3D* is much greater in the topic (>10) than the "T"
-cluster (3.5).
-
-The topics also capture continuous variation *within* the T-cell
-cluster:
-
-```{r volcano-plot-cd4, fig.height=3.5, fig.width=4, results="hide", eval=FALSE}
-i <- which(clusters == "T")
-fit_t <- select_loadings(fit_multinom,loadings = i)
-diff_count_t <- diff_count_analysis(fit_t,counts[i,])
-p10 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
-                   labels = genes$symbol,max.overlaps = 16)
-print(p10)
-```
-
-Judging top differentially expression genes such as *CD4* and *CCR10*,
-this topic likely corresponds to CD4+/CD8+ lineage differentiation in
-T cells.
-
-An interactive volcano plot
----------------------------
+The T-cell marker gene *CD3D* is one of the top genes in the combined
+T-cells topic.
 
 When the volcano plot shows many overlapping differentially expressed
 genes, like it does here for topic 5 in the T-cells cluster, it can be
@@ -316,38 +269,53 @@ p11 <- volcano_plotly(diff_count_t,k = 5,"volcano_plot_t_cells.html",
 The interactive volcano plot can also be viewed
 [here](volcano_plot_t_cells.html).
 
-Evaluating fit: single cell likelihoods
----------------------------------------
+Within the T cell cluster, there is a distinctive subset of cells with
+sizeable contributions from the "NK cells" factor (factor 1, light
+blue). The cells sit between the dense clumps of NK and T cells in the
+PCA plots above. To highlight this subset of cells---which turn out to
+be CD8+ cells---we define a new cluster:
 
-Another feature of the topic model is that it provides a likelihood
-for each cell which quantifies how well the topic model "fits" the
-observed expression:
-
-```{r loglik-1, eval=FALSE}
-loglik <- loglik_multinom_topic_model(counts,fit)
+```{r structure-plot-by-cluster-3, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
+clusters <- as.character(clusters)
+clusters[clusters == "T" & fit$L[,1] > 0.1] <- "CD8+"
+clusters <- factor(clusters)
+p7 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
+                     grouping = factor(clusters),gap = 25)
+print(p7)
 ```
 
-This could be useful for comparing different topic models, say, topic
-models with different settings of $K$. It could also be used to
-isolate "outlier" cells---that is, cells with expression that is
-poorly captured by the topic model. In the PBMC data, a histogram of
-the log-likelihoods shows that the topic model provides a very small
-fit for a small number of cells:
+Now we can perform differential expression analysis on the CD8+
+cluster, and the other clusters:
 
-```{r loglik-2, fig.height=2, fig.width=3.5, eval=FALSE}
-p4 <- ggplot(data.frame(x = loglik),aes(x)) +
-  geom_histogram(color = "black",fill = "black",bins = 64) +
-  theme_cowplot(font_size = 10) +
-  labs(x = "loglik",y = "number of cells")
-print(p4)
+```{r diff-count-analysis-clusters}
+dfc_out <- diff_count_clusters(counts,clusters)
 ```
 
-Most of the outliers are in the CD34+ subpopulation:
-
-```{r loglik-3, eval=FALSE}
-i <- which(loglik < -5000)
-table(samples[i,"subpop"])
+```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5}
+p8 <- volcano_plot(dfc_out,k = "CD8+",label_above_quantile = 0.995,
+                   labels = genes$symbol,max.overlaps = 10) +
+  ggtitle("cluster CD8+")
+print(p8)
 ```
+
+*Add text here.*
+
+Topics 5 and 6 capture continuous heterogeneity within the T cells. To
+isolate the differences in expression these two topics, we perform a
+differential expression analysis on the T cells only:
+
+```{r volcano-plot-cd4, fig.height=3.5, fig.width=4.5, results="hide"}
+i <- which(clusters == "T")
+fit_t <- select_loadings(fit,loadings = i)
+diff_count_t <- diff_count_analysis(fit_t,counts[i,])
+p8 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
+                   labels = genes$symbol,max.overlaps = 20)
+print(p8)
+```
+
+Judging by top differentially expressed genes such as *CD4* and
+*CCR10*, topic 5 likely corresponds to CD4+/CD8+ lineage
+differentiation in T cells.
 
 Session info
 ------------

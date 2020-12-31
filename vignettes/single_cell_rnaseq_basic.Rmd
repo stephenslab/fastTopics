@@ -271,9 +271,9 @@ or more; by contrast these two genes are underexpressed in the other
 four cell types:
 
 ```{r diff-count-analysis-1}
-out1 <- diff_count_clusters(counts,samples$subpop)
-rbind(out1$beta[genes$symbol == "CD79A",],
-      out1$beta[genes$symbol == "CD79B",])
+dfc_out <- diff_count_clusters(counts,samples$subpop)
+rbind(dfc_out$beta[genes$symbol == "CD79A",],
+      dfc_out$beta[genes$symbol == "CD79B",])
 ```
 
 fastTopics extends the classic differential expression analysis to
@@ -282,14 +282,14 @@ differential expression analysis is implemented in
 `diff_count_analysis`:
 
 ```{r diff-count-analysis-2}
-out2 <- diff_count_analysis(fit,counts)
+dfa_out <- diff_count_analysis(fit,counts)
 ```
 
 As in the standard analysis, it outputs estimates of log-fold change:
 
 ```{r diff-count-analysis-3}
-rbind(out2$beta[genes$symbol == "CD79A",],
-      out2$beta[genes$symbol == "CD79B",])
+rbind(dfa_out$beta[genes$symbol == "CD79A",],
+      dfa_out$beta[genes$symbol == "CD79B",])
 ```
 
 These log-fold change statistics have the same interpretation (the
@@ -317,7 +317,7 @@ expression, is shown on the *y*-axis. Here is volcano plot for topic
 4:
 
 ```{r volcano-plot-b, fig.height=3.5, fig.width=4.5}
-p2 <- volcano_plot(out2,k = 4,label_above_quantile = 0.998,
+p2 <- volcano_plot(dfa_out,k = 4,label_above_quantile = 0.998,
                    labels = genes$symbol,max.overlaps = 15)
 print(p2)
 ```
@@ -335,7 +335,7 @@ Likewise, natural killer genes such as *NKG7* emerge at the top of the
 volcano plot for topic 1:
 
 ```{r volcano-plot-nk, fig.height=3.5, fig.width=4.5}
-p3 <- volcano_plot(out2,k = 1,label_above_quantile = 0.998,
+p3 <- volcano_plot(dfa_out,k = 1,label_above_quantile = 0.998,
                    labels = genes$symbol,max.overlaps = 15)
 print(p3)
 ```
