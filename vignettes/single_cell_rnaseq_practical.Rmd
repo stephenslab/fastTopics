@@ -51,7 +51,7 @@ The topic model was fitted using the `fit_topic_model` function. This
 function, as we mentioned, hides most of the complexities of model
 fitting. Nevertheless, it is a good idea to check that the model
 fitting has converged to a maximum-likelihood solution. This can be
-done conveniently using a "progress plot":
+easily done in fastTopics:
 
 ```{r plot-loglik, fig.height=2, fig.width=4}
 fit_nmf <- multinom2poisson(fit)
@@ -62,11 +62,11 @@ plot_progress_poisson_nmf(fit_nmf,x = "iter",add.point.every = 10,
 
 Internally, `fit_topic_model` first fits a non-negative matrix
 factorization to the count data, then converts the fitted NMF to a
-topic model, so the plot shows the progress of the NMF model fit. So
-progress is actually measured by the NMF likelihood, not the
-multinomial topic model likelihood. Judging by this plot, which shows
-the improvement in the log-likelihood over time, the iterates get
-close to a maxium-likelihood solution after about 150 iterations.
+topic model, so the plot shows the improvement in the NMF model fit
+over time (improvement is measured by the NMF likelihood, not the
+multinomial topic model likelihood). Judging by this plot, the
+parameter estimates get close to a maxium-likelihood solution after
+about 150 updates.
 
 For larger or more complex data sets, more than 200 updates may be
 needed to obtain a good fit. For guidance on fine-tuning the model
@@ -111,11 +111,12 @@ Visualizing the topics without cell labels
 
 In Part 1, we made use of additional information about the cells to
 help us interpret the topics. In some cases, however, we may not have
-the benefit of external information to guide our investigations. Here,
-we model the *de novo* discovery of structure using a topic model.
+the benefit of external information to guide our explorations. In this
+section, we illustrate the *de novo* discovery of structure using a
+topic model.
 
-Without the cell labels, the Structure plot can still be an effective
-tool for visualizing the mixture proportions:
+Without the cell labels, the Structure plot can still be quite
+effective:
 
 ```{r structure-plot-without-labels, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
@@ -128,7 +129,7 @@ From this Structure plot, we see the clustering of the cells into B
 cells (dark blue), CD14+ monocytes (green) and CD34+ cells (purple).
 The clustering of the NK (light blue) and T cells (mixtures of yellow
 and orange) is less distinct, and this is reflected by more sharing of
-topics (in particular, topics 6) among NK and T cells.
+topics (mostly topic 6) among NK and T cells.
 
 Of course, without the cell labels, we cannot know that the topics
 correspond to these cell types without further downstream
@@ -138,21 +139,18 @@ analysis (continue reading).
 Identifying clusters from the mixture proportions
 -------------------------------------------------
 
-In more complex data sets, fine scale structure or rare cell types may
-not show up in the Structure plot. Therefore, for more complex data
-sets, additional strategies may be needed to create an effective
-Structure plot.
+In more complex data sets, some types of fine scale structure, or rare
+cell types, may not show up well in the Structure plot, at least
+without additional fine-tuning of the plot.
 
-One strategy we have found to be generally useful is to identify
-clusters in the mixture proportions matrix, $L$. Here, we illustrate
-this idea using the simplest clustering method, *k*-means. Here we
-apply $k$-means to the principal components (PCs) of the mixture
-proportions, which are easily computed using `prcomp`.
+One simple strategy we have found to be generally helpful is to first
+identify clusters in the mixture proportions matrix, $L$. Here, we
+illustrate this idea using *k*-means. Specifically, we apply $k$-means
+to the principal components (PCs) of the mixture proportions.
 
 We previously experimented with different numbers of clusters and we
-found that 6 clusters worked best for this data set (the fact that
-this is the same as $K$ is coincidental). Also, note that *k*-means
-can be sensitive to (random) initialization, so we set the seed before
+found that 6 clusters worked best. Note that *k*-means can be
+sensitive to (random) initialization, so we set the seed before
 running *k*-means to ensure that the output is reproducible.
 
 ```{r clustering-1}
@@ -162,8 +160,8 @@ clusters <- kmeans(pca,centers = 6,iter.max = 100)$cluster
 summary(factor(clusters))
 ```
 
-Now we create another Structure plot, arranging the cells by their
-membership to these 6 clusters:
+Now we create another Structure plot in which the cells are organized
+by their membership to the 6 clusters:
 
 ```{r structure-plot-by-cluster-1, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 p2 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
@@ -171,23 +169,24 @@ p2 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
 print(p2)
 ```
 
-The *k*-means clusters mostly look reasonable, except that the T cells
-(topics 5 and 6) seem to be rather arbitrarily split into two clusters
-(clusters 1 and 3). Therefore, we merge these two clusters:
+Judging by the Structure plot, the *k*-means clusters look sensible,
+the one exception being that the T cells (cells with high proportions
+of topics 5 and 6) seem to be rather arbitrarily split into clusters 1
+and 3. Therefore, we merge these two clusters:
 
 ```{r clustering-2}
 clusters[clusters == 3] <- 1
 clusters <- factor(clusters)
 ```
 
-Visual inspection of the clusters followed by manual refinement is
-often be needed to get the "right" clustering.
+We have found that visual inspection of the clusters followed by
+manual refinement is often be needed to get the "right" clustering.
 
 With the benefit of hindsight, we know that these 5 clusters
 correspond to 5 cell types: B cells, T cells, natural killer (NK)
 cellls, CD14+ monoytes and CD34+ cells. For clarity of presentation,
 we label the clusters by these cell types, noting that, in most
-practical settings, labeling the clusters is not usually not possible
+practical settings, labeling the clusters is usually not possible
 until downstream analyses have been performed.
 
 ```{r structure-plot-by-cluster-2, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
@@ -197,15 +196,14 @@ p3 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
 print(p3)
 ```
 
-This new Structure plot better highlights heterogeneity within the
-clusters, particularly in the T cells. Within the T cell cluster, we
-clearly see a distinctive subset of cells with sizeable contributions
-from the "NK cells" topic (topic 1, light blue).
+This new Structure plot better highlights the heterogeneity within the
+clusters, particularly in the T cells. Within the T cells cluster,
+there is distinctive subset of cells with contributions from topic 1
+(the "NK cells" topic, in light blue).
 
-For the clustering task, it can be helpful to visualize the clusters
-in PCA plots, which show the projection of the cells onto PCs of the
-mixture proportions. (Note that the CD14+ and CD34+ cells separate
-better in PCs 3 and 4.)
+For clustering, it is also sometimes helpful to visualize the clusters
+in PCA plots which show the projection of the cells onto PCs of the
+mixture proportions:
 
 ```{r pca-plot-1, fig.width=3.5, fig.height=2.5, message=FALSE}
 cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
@@ -214,22 +212,25 @@ p4 <- pca_plot(fit,fill = clusters) +
 print(p4)
 ```
 
-When there are many overlapping points, as is the case here, a 
-"hexbin" density plot can better reveal the clustering:
+(Note that the CD14+ and CD34+ cells separate better in PCs 3 and 4.)
+
+When there are many overlapping points, as is the case here, a
+plotting instead the density of the points can show the clustering
+more clearly:
 
 ```{r pca-plot-2, fig.width=3.75, fig.height=2.5, message=FALSE}
 p5 <- pca_hexbin_plot(fit,bins = 24)
 print(p5)
 ```
 
-In particular, the separation of the T cells (yellow) and NK cells
-(light blue) into two clusters is much more evident in the hexbin plot.
+In particular, the separation of the T cells and NK cells into two
+clusters is more clear in the density ("hexbin") plot.
 
-We emphasize that this is only meant to be an illustration, and
-*k*-means may not be the best clustering technique for all data sets.
-You may find that some ingenuity will be needed to identify and
-visualize finer scale structure in the mixture proportions where it
-occurs.
+We emphasize that this example is only meant to illustrating
+clustering the cells by the mixture proportions, and *k*-means may not
+be the best clustering technique for all data sets. For more complex
+data sets, some ingenuity may be required to identify and visualize
+finer scale structure.
 
 More on differential expression analysis
 ----------------------------------------
