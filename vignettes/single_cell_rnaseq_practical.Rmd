@@ -226,23 +226,24 @@ print(p5)
 In particular, the separation of the T cells and NK cells into two
 clusters is more clear in the density ("hexbin") plot.
 
-We emphasize that this example is only meant to illustrating
-clustering the cells by the mixture proportions, and *k*-means may not
-be the best clustering technique for all data sets. For more complex
-data sets, some ingenuity may be required to identify and visualize
-finer scale structure.
+This example is only meant to illustrate clustering of the cells by
+the estimated mixture proportions; *k*-means may not be the best
+clustering technique for all data sets. For more complex data sets,
+some ingenuity may be needed to identify and visualize clusters.
 
 More on differential expression analysis
 ----------------------------------------
 
 In Part 1, we performed a differential expression analysis using the
-topic model, and used the resullts of this analysis to interpret topic
-1 as NK cells and topic 4 as B cells. Here, we tackle interpretation
-of the topics capturing variation in the T cells cluster.
+topic model, and using the results of this analysis we were able to
+interpret topic 1 as NK cells and topic 4 as B cells. Here, we use
+perform differential expression analysis to tackle interpretation of
+the topics that capturing variation in the T cells cluster.
 
-Unlike B cells and NK cells, T cells are represented as a mixture of
-two topics. After merging topics 5 and 6, we can perform differential
-expression analysis on the combined topic:
+Unlike the B cells and NK cells, expression in T cells is captured by
+mixtures of two topics. To isolate T-cell-specific expression
+patterns, we perform differential expression analysis on the combined
+topic:
 
 ```{r volcano-plot-t, fig.height=3.5, fig.width=4.5, results="hide"}
 genes <- pbmc_4k$genes
@@ -253,53 +254,53 @@ p6 <- volcano_plot(diff_count_merged,k = "k5+k6",label_above_quantile = 0.998,
 print(p6)
 ```
 
-The T-cell marker gene *CD3D* is one of the top genes in the combined
-T-cells topic.
+In the volcano plot, the T-cell marker gene *CD3D* is one of the top
+genes.
 
 When the volcano plot shows many overlapping differentially expressed
-genes, like it does here for topic 5 in the T-cells cluster, it can be
-helpful to explore the results interactively. The function
-`volcano_plotly` creates an interactive plot that can be viewed in a
-Web browser:
+genes, like it does here, it can be helpful to explore the results
+interactively. The function `volcano_plotly` creates an interactive
+volcano plot that can be viewed in a Web browser:
 
-```{r volcano-plotly, eval=FALSE}
-p11 <- volcano_plotly(diff_count_t,k = 5,"volcano_plot_t_cells.html",
-                      labels = genes$symbol)
+```{r volcano-plotly}
+p7 <- volcano_plotly(diff_count_t,k = 5,file = "volcano_plot_t_cells.html",
+                     labels = genes$symbol)
 ```
 
-The interactive volcano plot can also be viewed
-[here](volcano_plot_t_cells.html).
+This call creates a new file `volcano_plot_t_cells.html`. The
+interactive volcano plot can also be viewed [here][volcano-plotly].
 
 Within the T cell cluster, there is a distinctive subset of cells with
-sizeable contributions from the "NK cells" factor (factor 1, light
-blue). The cells sit between the dense clumps of NK and T cells in the
-PCA plots above. To highlight this subset of cells---which turn out to
-be CD8+ cells---we define a new cluster:
+sizeable contributions from the "NK cells" topic (that is, topic 1,
+shown in light blue in the Structure plot). This subset of cells sits
+in between the dense clumps of NK and T cells in the PCA plots
+above. To highlight this subset of cells---which turn out to be CD8+
+cells, as we will see shortly---we define a new cluster:
 
 ```{r structure-plot-by-cluster-3, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 clusters <- as.character(clusters)
 clusters[clusters == "T" & fit$L[,1] > 0.1] <- "CD8+"
 clusters <- factor(clusters)
-p7 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
+p8 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
                      grouping = factor(clusters),gap = 25)
-print(p7)
-```
-
-Now we can perform differential expression analysis on the CD8+
-cluster, and the other clusters:
-
-```{r diff-count-analysis-clusters}
-dfc_out <- diff_count_clusters(counts,clusters)
-```
-
-```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5}
-p8 <- volcano_plot(dfc_out,k = "CD8+",label_above_quantile = 0.995,
-                   labels = genes$symbol,max.overlaps = 10) +
-  ggtitle("cluster CD8+")
 print(p8)
 ```
 
-*Add text here.*
+Now we can perform differential expression analysis on the CD8+
+cluster (as well as the other clusters) using the
+`diff_count_clusters` function, and visualize the results using a
+volcano plot:
+
+```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5, results="hide"}
+dfc_out <- diff_count_clusters(counts,clusters)
+p9 <- volcano_plot(dfc_out,k = "CD8+",label_above_quantile = 0.995,
+                   labels = genes$symbol,max.overlaps = 10) +
+  ggtitle("cluster CD8+")
+print(p9)
+```
+
+For example, *CD8A* is one of the top differentially expressed genes,
+a clue that this cluster corresponds to CD8+ cytotoxic T cells.
 
 Topics 5 and 6 capture continuous heterogeneity within the T cells. To
 isolate the differences in expression these two topics, we perform a
@@ -329,4 +330,5 @@ sessionInfo()
 ```
 
 [vignette-part-1]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
+[volcano-plotly]: https://stephenslab.github.io/fastTopics/articles/volcano_plot_t_cells.html
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
