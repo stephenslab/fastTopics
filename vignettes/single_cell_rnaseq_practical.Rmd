@@ -73,7 +73,7 @@ needed to obtain a good fit. For guidance on fine-tuning the model
 fitting, refer to the documentation for `fit_topic_model` and
 `fit_poisson_nmf`.
 
-Evaluating fit: single cell likelihoods
+Evaluating fit: single-cell likelihoods
 ---------------------------------------
 
 The topic model can be used to calculate a likelihood for each cell.

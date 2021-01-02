@@ -86,7 +86,7 @@ Fit the topic model
 
 Since no pre-processing is needed, we can move directly to the next
 step of the analysis: fitting the topic model to the UMI count
-data. This is accomplished by a single call to `fit_topic_model`:
+data. This is accomplished with a call to `fit_topic_model`:
 
 ```{r fit-topic-model, eval=FALSE}
 fit <- fit_topic_model(counts,k = 6)
