@@ -29,13 +29,13 @@ repository useful for your work, please cite:
 > *PLoS Genetics* **13**, e1006599.
 >
 > Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao and Matthew
-> Stephens (2020). fastTopics: fast algorithms for fitting topic models
+> Stephens (2021). fastTopics: fast algorithms for fitting topic models
 > and non-negative matrix factorizations to count data. R package
-> version 0.3-194. [https://github.com/stephenslab/fastTopics][fasttopics]
+> version 0.4-11. [https://github.com/stephenslab/fastTopics][fasttopics]
 
 ## License
 
-Copyright (c) 2019-2020, Peter Carbonetto and Matthew Stephens.
+Copyright (c) 2019-2021, Peter Carbonetto and Matthew Stephens.
 
 All source code and software in this repository are made available
 under the terms of the [MIT license][mit-license].
@@ -53,9 +53,9 @@ Note that installing the package will require a C++ compiler setup
 that is appropriate for the version of R installed on your
 computer. For details, refer to the [CRAN documentation][cran].
 
-For guidance on using fastTopics to analyze gene expression data
-(single-cell or bulk RNA-seq), see the [single-cell RNA-seq
-vignette][vignette-scrnaseq].
+For guidance on using fastTopics to analyze gene expression data, see
+the [single-cell RNA-seq vignette, part 1][vignette-scrnaseq-1] and
+[part 2][vignette-scrnaseq-2].
 
 Also, try running the small example that illustrates the fast model
 fitting algorithms:
@@ -84,4 +84,5 @@ Kevin Luo, Kushal Dey, Joyce Hsiao and
 [countclust-paper]: https://doi.org/10.1371/journal.pgen.1006599
 [pkgdown]: https://stephenslab.github.io/fastTopics
 [vignette-close-relationship]: https://stephenslab.github.io/fastTopics/articles/relationship.html
-[vignette-scrnaseq]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
+[vignette-scrnaseq-1]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
+[vignette-scrnaseq-2]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html
