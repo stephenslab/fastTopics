@@ -302,22 +302,21 @@ print(p9)
 For example, *CD8A* is one of the top differentially expressed genes,
 a clue that this cluster corresponds to CD8+ cytotoxic T cells.
 
-Topics 5 and 6 capture continuous heterogeneity within the T cells. To
-isolate the differences in expression these two topics, we perform a
-differential expression analysis on the T cells only:
+Finally, to isolate the differences in expression between topics 5 and
+6 capturing heterogeneity within T cells, we perform a differential
+expression analysis on the T cells only:
 
 ```{r volcano-plot-cd4, fig.height=3.5, fig.width=4.5, results="hide"}
 i <- which(clusters == "T")
 fit_t <- select_loadings(fit,loadings = i)
 diff_count_t <- diff_count_analysis(fit_t,counts[i,])
-p8 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
+p10 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
                    labels = genes$symbol,max.overlaps = 20)
-print(p8)
+print(p10)
 ```
 
-Judging by top differentially expressed genes such as *CD4* and
-*CCR10*, topic 5 likely corresponds to CD4+/CD8+ lineage
-differentiation in T cells.
+Judging by top differentially expressed genes such as *CD4*, topic 5
+likely corresponds to CD4+/CD8+ lineage differentiation in T cells.
 
 Session info
 ------------
