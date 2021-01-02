@@ -44,8 +44,8 @@ counts <- pbmc_4k$counts
 fit <- pbmc_4k$fit
 ```
 
-Assessing model fit
--------------------
+Assessing convergence of model fitting
+--------------------------------------
 
 The topic model was fitted using the `fit_topic_model` function. This
 function, as we mentioned, hides most of the complexities of model
@@ -76,34 +76,32 @@ fitting, refer to the documentation for `fit_topic_model` and
 Evaluating fit: single cell likelihoods
 ---------------------------------------
 
-Another feature of the topic model is that it provides a likelihood
-for each cell which quantifies how well the topic model "fits" the
-observed expression:
+The topic model can be used to calculate a likelihood for each cell.
 
 ```{r loglik-1}
 loglik <- loglik_multinom_topic_model(counts,fit)
 ```
 
-This could be useful for comparing different topic models, say, topic
-models with different settings of $K$. It could also be used to
-isolate "outlier" cells---that is, cells with expression that is
-poorly captured by the topic model. In the PBMC data, a histogram of
-the log-likelihoods shows that the topic model provides a very small
-fit for a small number of cells:
+This can be used to assess how well the topic model "fits" each cell.
 
-```{r loglik-2, fig.height=2, fig.width=3.5, eval=FALSE}
-p4 <- ggplot(data.frame(x = loglik),aes(x)) +
-  geom_histogram(color = "black",fill = "black",bins = 64) +
-  theme_cowplot(font_size = 10) +
-  labs(x = "loglik",y = "number of cells")
-print(p4)
+```{r loglik-2, fig.height=2, fig.width=4.5}
+pdat <- data.frame(loglik)
+ggplot(pdat,aes(loglik)) +
+  geom_histogram(bins = 64,color = "white",fill = "black") +
+  labs(y = "number of cells") +
+  theme_cowplot(font_size = 10)
 ```
 
-Most of the outliers are in the CD34+ subpopulation:
+Most of the poorly fit cells are in the CD34+ subpopulation:
 
-```{r loglik-3, eval=FALSE}
-i <- which(loglik < -5000)
-table(samples[i,"subpop"])
+```{r loglik-3, fig.height=2, fig.width=4.5}
+subpop_colors <- c("dodgerblue","forestgreen","darkmagenta","skyblue","gold")
+pdat <- data.frame(loglik = loglik,subpop = pbmc_4k$samples$subpop)
+ggplot(pdat,aes(x = loglik,fill = subpop)) +
+  geom_histogram(bins = 64,color = "white") +
+  scale_fill_manual(values = subpop_colors) +
+  labs(y = "number of cells") +
+  theme_cowplot(font_size = 10)
 ```
 
 Visualizing the topics without cell labels
@@ -121,8 +119,7 @@ effective:
 ```{r structure-plot-without-labels, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
-p1 <- structure_plot(fit,topics = 1:6,colors = topic_colors)
-print(p1)
+structure_plot(fit,topics = 1:6,colors = topic_colors)
 ```
 
 From this Structure plot, we see the clustering of the cells into B
@@ -164,9 +161,8 @@ Now we create another Structure plot in which the cells are organized
 by their membership to the 6 clusters:
 
 ```{r structure-plot-by-cluster-1, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
-p2 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
-                     grouping = factor(clusters),gap = 25)
-print(p2)
+structure_plot(fit,topics = 1:6,colors = topic_colors,
+               grouping = factor(clusters),gap = 25)
 ```
 
 Judging by the Structure plot, the *k*-means clusters look sensible,
@@ -191,9 +187,8 @@ until downstream analyses have been performed.
 
 ```{r structure-plot-by-cluster-2, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
-p3 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
-                     grouping = clusters,gap = 25)
-print(p3)
+structure_plot(fit,topics = 1:6,colors = topic_colors,
+               grouping = clusters,gap = 25)
 ```
 
 This new Structure plot better highlights the heterogeneity within the
@@ -207,9 +202,8 @@ mixture proportions:
 
 ```{r pca-plot-1, fig.width=3.5, fig.height=2.5, message=FALSE}
 cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
-p4 <- pca_plot(fit,fill = clusters) +
+pca_plot(fit,fill = clusters) +
   scale_fill_manual(values = cluster_colors)
-print(p4)
 ```
 
 (Note that the CD14+ and CD34+ cells separate better in PCs 3 and 4.)
@@ -219,8 +213,7 @@ plotting instead the density of the points can show the clustering
 more clearly:
 
 ```{r pca-plot-2, fig.width=3.75, fig.height=2.5, message=FALSE}
-p5 <- pca_hexbin_plot(fit,bins = 24)
-print(p5)
+pca_hexbin_plot(fit,bins = 24)
 ```
 
 In particular, the separation of the T cells and NK cells into two
@@ -248,10 +241,9 @@ topic:
 ```{r volcano-plot-t, fig.height=3.5, fig.width=4.5, results="hide"}
 genes <- pbmc_4k$genes
 fit_merged <- merge_topics(fit,5:6)
-diff_count_merged <- diff_count_analysis(fit_merged,counts)
-p6 <- volcano_plot(diff_count_merged,k = "k5+k6",label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 16)
-print(p6)
+dfa_merged <- diff_count_analysis(fit_merged,counts)
+volcano_plot(dfa_merged,k = "k5+k6",label_above_quantile = 0.998,
+             labels = genes$symbol,max.overlaps = 16)
 ```
 
 In the volcano plot, the T-cell marker gene *CD3D* is one of the top
@@ -263,8 +255,8 @@ interactively. The function `volcano_plotly` creates an interactive
 volcano plot that can be viewed in a Web browser:
 
 ```{r volcano-plotly}
-p7 <- volcano_plotly(diff_count_t,k = 5,file = "volcano_plot_t_cells.html",
-                     labels = genes$symbol)
+volcano_plotly(dfa_merged,k = 5,file = "volcano_plot_t_cells.html",
+               labels = genes$symbol)
 ```
 
 This call creates a new file `volcano_plot_t_cells.html`. The
@@ -281,9 +273,8 @@ cells, as we will see shortly---we define a new cluster:
 clusters <- as.character(clusters)
 clusters[clusters == "T" & fit$L[,1] > 0.1] <- "CD8+"
 clusters <- factor(clusters)
-p8 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
-                     grouping = factor(clusters),gap = 25)
-print(p8)
+structure_plot(fit,topics = 1:6,colors = topic_colors,
+               grouping = factor(clusters),gap = 25)
 ```
 
 Now we can perform differential expression analysis on the CD8+
@@ -293,10 +284,9 @@ volcano plot:
 
 ```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5, results="hide"}
 dfc_out <- diff_count_clusters(counts,clusters)
-p9 <- volcano_plot(dfc_out,k = "CD8+",label_above_quantile = 0.995,
+volcano_plot(dfc_out,k = "CD8+",label_above_quantile = 0.995,
                    labels = genes$symbol,max.overlaps = 10) +
   ggtitle("cluster CD8+")
-print(p9)
 ```
 
 For example, *CD8A* is one of the top differentially expressed genes,
@@ -310,9 +300,8 @@ expression analysis on the T cells only:
 i <- which(clusters == "T")
 fit_t <- select_loadings(fit,loadings = i)
 diff_count_t <- diff_count_analysis(fit_t,counts[i,])
-p10 <- volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
-                   labels = genes$symbol,max.overlaps = 20)
-print(p10)
+volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
+             labels = genes$symbol,max.overlaps = 20)
 ```
 
 Judging by top differentially expressed genes such as *CD4*, topic 5

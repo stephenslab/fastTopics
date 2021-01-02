@@ -169,9 +169,8 @@ proportions, we create a Structure plot:
 ```{r structure-plot-with-celltype-labels, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
-p1 <- structure_plot(fit,topics = 1:6,colors = topic_colors,
-                     grouping = samples$subpop,gap = 25)
-print(p1)
+structure_plot(fit,topics = 1:6,colors = topic_colors,
+               grouping = samples$subpop,gap = 25)
 ```
 
 The Structure plot is a simply stacked bar chart, in which each topic
@@ -317,9 +316,8 @@ expression, is shown on the *y*-axis. Here is volcano plot for topic
 4:
 
 ```{r volcano-plot-b, fig.height=3.5, fig.width=4.5}
-p2 <- volcano_plot(dfa_out,k = 4,label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 15)
-print(p2)
+volcano_plot(dfa_out,k = 4,label_above_quantile = 0.998,
+             labels = genes$symbol,max.overlaps = 15)
 ```
 
 Typically the most interesting genes are found in the top-right
@@ -335,9 +333,8 @@ Likewise, natural killer genes such as *NKG7* emerge at the top of the
 volcano plot for topic 1:
 
 ```{r volcano-plot-nk, fig.height=3.5, fig.width=4.5}
-p3 <- volcano_plot(dfa_out,k = 1,label_above_quantile = 0.998,
-                   labels = genes$symbol,max.overlaps = 15)
-print(p3)
+volcano_plot(dfa_out,k = 1,label_above_quantile = 0.998,
+             labels = genes$symbol,max.overlaps = 15)
 ```
 
 Interpreting the topics that capture variation within the T cells is
