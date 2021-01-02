@@ -94,7 +94,7 @@ ggplot(pdat,aes(loglik)) +
 
 Most of the poorly fit cells are in the CD34+ subpopulation:
 
-```{r loglik-3, fig.height=2, fig.width=4.5}
+```{r loglik-3, fig.height=2, fig.width=5.5}
 subpop_colors <- c("dodgerblue","forestgreen","darkmagenta","skyblue","gold")
 pdat <- data.frame(loglik = loglik,subpop = pbmc_4k$samples$subpop)
 ggplot(pdat,aes(x = loglik,fill = subpop)) +

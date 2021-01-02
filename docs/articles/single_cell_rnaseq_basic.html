@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2020-12-28</h4>
+            <h4 class="date">2021-01-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/single_cell_rnaseq_basic.Rmd"><code>vignettes/single_cell_rnaseq_basic.Rmd</code></a></small>
       <div class="hidden name"><code>single_cell_rnaseq_basic.Rmd</code></div>
@@ -109,7 +109,7 @@
 <div id="fit-the-topic-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fit-the-topic-model" class="anchor"></a>Fit the topic model</h2>
-<p>Since no pre-processing is needed, we can move directly to the next step of the analysis: fitting the topic model to the UMI count data. This is accomplished by a single call to <code>fit_topic_model</code>:</p>
+<p>Since no pre-processing is needed, we can move directly to the next step of the analysis: fitting the topic model to the UMI count data. This is accomplished with a call to <code>fit_topic_model</code>:</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fit_topic_model.html">fit_topic_model</a></span>(<span class="no">counts</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">6</span>)</pre></body></html></div>
 <p>This is typically the most computationally burdensome step—it may take several minutes to run <code>fit_topic_model</code> on this data set. For convenience, we saved the output from this call:</p>
 <div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">fit</span></pre></body></html></div>
@@ -140,7 +140,7 @@
 <div id="interpreting-topics-using-available-cell-labels" class="section level2">
 <h2 class="hasAnchor">
 <a href="#interpreting-topics-using-available-cell-labels" class="anchor"></a>Interpreting topics using available cell labels</h2>
-<p>In some cases, you may have additional information about the cells, such as the tissue the cells were sampled from. In the PBMC data, the cells were labeled using fluorescence-activated cell sorting (FACS). Each cell is assigned one of five labels (each corresponding to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer (NK) cells, and T cells.</p>
+<p>In some cases, you may have additional information about the cells, such as the tissue the cells were sampled from. In the PBMC 4k data, the cells were labeled using fluorescence-activated cell sorting (FACS). Each cell is assigned one of five labels (each corresponding to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer (NK) cells, and T cells.</p>
 <div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">samples</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">samples</span>
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">samples</span>$<span class="no">subpop</span>)
 <span class="co">#  B cell   CD14+   CD34+ NK cell  T cell </span>
@@ -148,9 +148,8 @@
 <p>To visualize the relationship between the cell labels and the mixture proportions, we create a Structure plot:</p>
 <div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">topic_colors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"skyblue"</span>,<span class="st">"forestgreen"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"dodgerblue"</span>,
                   <span class="st">"gold"</span>,<span class="st">"darkorange"</span>)
-<span class="no">p1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,
-                     <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">samples</span>$<span class="no">subpop</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="no">p1</span>)</pre></body></html></div>
+<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,
+               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">samples</span>$<span class="no">subpop</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_basic_files/figure-html/structure-plot-with-celltype-labels-1.png" width="900" style="display: block; margin: auto;"></p>
 <p>The Structure plot is a simply stacked bar chart, in which each topic is represented as a bar of a different colour. Being <em>proportions</em>, the mixture proportions for each cell must sum to 1, so the total height of the bars is the same for all cells, which makes it easier to compare across cells. Patterns begin to emerge when the cells are arranged so that cells with similar mixture proportions are positioned close to each other. This arrangement is automated in <code>structure_plot</code>.</p>
 <p>From this Structure plot, it is evident that topics 1 (lighter blue), 2 (green) and 4 (darker blue) closely correspond to the NK, CD14+ and B cell types, respectively; the expression in these cells is largely explained by a single topic. NK cells show more heterogeneity in expression than the CD14+ and B cells.</p>
@@ -185,36 +184,35 @@
 <h2 class="hasAnchor">
 <a href="#interpreting-topics-by-analyzing-gene-expression-differences" class="anchor"></a>Interpreting topics by analyzing gene expression differences</h2>
 <p>To set the stage for differential expression analysis using a topic model, we begin with a classic differential expression analysis using the available cell-type labels. This analysis centers on calculation of the <em>log-fold change</em> statistic. For a given group or cluster, the log-fold change is defined as the (base-2) log-ratio of two expectations: the mean expression (<em>i.e.</em>, mean UMI count) for all cells belonging to the specifed group over the mean expression among cells not belonging to the group. For example, genes <em>CD79A</em> and <em>CD79B</em> are overexpressed in B cells, by a factor of <span class="math inline">\(2^5 = 32\)</span> times, or more; by contrast these two genes are underexpressed in the other four cell types:</p>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">out1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">counts</span>,<span class="no">samples</span>$<span class="no">subpop</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">out1</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>,],
-      <span class="no">out1</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>,])
+<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">dfc_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">counts</span>,<span class="no">samples</span>$<span class="no">subpop</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">dfc_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>,],
+      <span class="no">dfc_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>,])
 <span class="co"># Fitting 16791 x 5 = 83955 univariate Poisson models.</span>
 <span class="co"># Computing log-fold change statistics.</span>
 <span class="co">#        B cell      CD14+     CD34+  NK cell    T cell</span>
 <span class="co"># [1,] 5.660683 -38.760789 -2.821295 -7.27204 -4.622270</span>
 <span class="co"># [2,] 4.937896  -4.212397 -2.619102 -2.87545 -3.467037</span></pre></body></html></div>
 <p>fastTopics extends the classic differential expression analysis to allow for <em>partial membership</em> to groups. This generalized differential expression analysis is implemented in <code>diff_count_analysis</code>:</p>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">out2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit</span>,<span class="no">counts</span>)
+<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">dfa_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit</span>,<span class="no">counts</span>)
 <span class="co"># Fitting 16791 x 6 = 100746 univariate Poisson models.</span>
 <span class="co"># Computing log-fold change statistics.</span></pre></body></html></div>
 <p>As in the standard analysis, it outputs estimates of log-fold change:</p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">out2</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>,],
-      <span class="no">out2</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>,])
+<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">dfa_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>,],
+      <span class="no">dfa_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>,])
 <span class="co">#             k1        k2        k3        k4        k5        k6</span>
 <span class="co"># [1,] -21.62260 -19.68814 -17.40304 10.000000 -13.18267 -16.11677</span>
 <span class="co"># [2,] -11.24225 -13.99581 -15.04179  6.372537 -12.24970 -15.88001</span></pre></body></html></div>
 <p>These log-fold change statistics have the same interpretation (the standard log-fold change emerges as a special case when the all mixture proportions are 0 or 1). The log-fold change estimates are noticeably larger in the B cells topic (topic 4), particularly so for <em>CD79A</em>. In fact, <em>CD79A</em> is <em>uniquely expressed</em> in topic 4, so the ratio essentially has a zero denominator; to ensure finite calculations, by convention a log-fold change statistic of 10 means “10 or larger”. (This convention can be overriden in <code>diff_count_analysis</code> by choosing a different setting for <code>betamax</code>.)</p>
 <p>Up to this point, we have illustrated the differential expression analysis with known genes such as <em>CD79A</em>. Ultimately, we would like to <em>discover</em> genes relevant to a topic (of known or unknown biological relevance).</p>
-<p>To discover genes, a natural thing to do would be to rank candidates by their log-fold change. The complication is that lowly expressed genes could also produce, by chance, large log-fold changes, and we would not want to rank these genes highly. The <em>volcano plot</em> balances these two concerns: the log-fold change is shown on the x-axis, and the <em>p</em>-value or <em>z</em>-score, quantifying support for differential expression, is shown on the <em>y</em>-axis:</p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="no">p2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">out2</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">4</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.998</span>,
-                   <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>,<span class="kw">max.overlaps</span> <span class="kw">=</span> <span class="fl">15</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="no">p2</span>)</pre></body></html></div>
+<p>To discover genes, a natural thing to do would be to rank candidates by their log-fold change. The complication is that lowly expressed genes could also produce, by chance, large log-fold changes, and we would not want to rank these genes highly. The <em>volcano plot</em> balances these two concerns: the log-fold change is shown on the x-axis, and the <em>p</em>-value or <em>z</em>-score, quantifying support for differential expression, is shown on the <em>y</em>-axis. Here is volcano plot for topic 4:</p>
+<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">4</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.998</span>,
+             <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>,<span class="kw">max.overlaps</span> <span class="kw">=</span> <span class="fl">15</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_basic_files/figure-html/volcano-plot-b-1.png" width="540" style="display: block; margin: auto;"></p>
 <p>Typically the most interesting genes are found in the top-right portion of the volcano plot—that is, genes with large log-fold change and strong support. Indeed, B-cell genes, among them <em>CD79A</em>, <em>CD79B</em> and <em>CD19</em>, are near top-right corner of the volcano plot.</p>
+<p>Note that the x-axis in the volcano plot ranges between -10 and 10 because the log-fold change estimates are, by default, restricted to this range for numerical stability in the calculations.</p>
 <p>Likewise, natural killer genes such as <em>NKG7</em> emerge at the top of the volcano plot for topic 1:</p>
-<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="no">p3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">out2</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">1</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.998</span>,
-                   <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>,<span class="kw">max.overlaps</span> <span class="kw">=</span> <span class="fl">15</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="no">p3</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">1</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.998</span>,
+             <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>,<span class="kw">max.overlaps</span> <span class="kw">=</span> <span class="fl">15</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_basic_files/figure-html/volcano-plot-nk-1.png" width="540" style="display: block; margin: auto;"></p>
 <p>Interpreting the topics that capture variation within the T cells is a little more complicated, so we defer this investigation to Part 2.</p>
 </div>
