@@ -283,7 +283,7 @@ cluster (as well as the other clusters) using the
 volcano plot:
 
 ```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5, results="hide"}
-dfc_out <- diff_count_clusters(counts,clusters)
+dfc_out <- diff_count_clusters(clusters,counts)
 volcano_plot(dfc_out,k = "CD8+",label_above_quantile = 0.995,
                    labels = genes$symbol,max.overlaps = 10) +
   ggtitle("cluster CD8+")

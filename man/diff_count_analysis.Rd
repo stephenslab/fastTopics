@@ -17,7 +17,7 @@ diff_count_analysis(
   verbose = TRUE
 )
 
-diff_count_clusters(X, cluster, ...)
+diff_count_clusters(cluster, X, ...)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or

@@ -109,8 +109,8 @@ test_that(paste("When all the topic proportions are exactly zero or exactly",
   fit1 <- init_poisson_nmf(X,L = rowSums(X)*L,init.method = "random",
                            control = list(minval = 1e-8))
   out1 <- diff_count_analysis(fit1,X,verbose = FALSE)
-  out2 <- diff_count_clusters(X,clusters,verbose = FALSE)
-  out3 <- diff_count_clusters(Y,clusters,verbose = FALSE)
+  out2 <- diff_count_clusters(clusters,X,verbose = FALSE)
+  out3 <- diff_count_clusters(clusters,Y,verbose = FALSE)
 
   # The outputted statistics should be the same in both calls to
   # diff_count_analysis (ignore the standard errors, as these can be

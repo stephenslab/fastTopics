@@ -203,7 +203,7 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
 #' 
 #' @export
 #'
-diff_count_clusters <- function (X, cluster, ...) {
+diff_count_clusters <- function (cluster, X, ...) {
   if (!is.factor(cluster))
     cluster <- factor(cluster)
   fit <- init_poisson_nmf_from_clustering(X,cluster)
