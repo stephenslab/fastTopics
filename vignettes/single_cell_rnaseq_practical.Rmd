@@ -259,12 +259,13 @@ interactively. The function `volcano_plotly` creates an interactive
 volcano plot that can be viewed in a Web browser:
 
 ```{r volcano-plotly}
-volcano_plotly(dfa_merged,k = 5,file = "volcano_plot_t_cells.html",
-               labels = genes$symbol)
+p1 <- volcano_plotly(dfa_merged,k = 5,file = "volcano_plot_t_cells.html",
+                     labels = genes$symbol)
 ```
 
 This call creates a new file `volcano_plot_t_cells.html`. The
-interactive volcano plot can also be viewed [here][volcano-plotly].
+interactive volcano plot can also be viewed [here][volcano-plotly], or
+by calling `print(p1)` in your R session.
 
 Within the T cell cluster, there is a distinctive subset of cells with
 sizeable contributions from the "NK cells" topic (that is, topic 1,

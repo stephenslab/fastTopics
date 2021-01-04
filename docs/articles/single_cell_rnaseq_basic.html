@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2021-01-02</h4>
+            <h4 class="date">2021-01-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/single_cell_rnaseq_basic.Rmd"><code>vignettes/single_cell_rnaseq_basic.Rmd</code></a></small>
       <div class="hidden name"><code>single_cell_rnaseq_basic.Rmd</code></div>
@@ -76,16 +76,17 @@
 
     
     
-<p>The aim of this vignette is to introduce the basic concepts behind an analysis of single-cell RNA-seq data using a topic model.</p>
+<p>The aim of this vignette is to introduce the basic concepts behind an analysis of single-cell RNA-seq data using a topic model, and to show how to use fastTopics to implement a topic model analysis. We introduce the basic concepts and fastTopics interface through a simple example. This first vignette is only intended to explain the topic model analysis at a high level—see <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a> for additional explanations and guidance.</p>
+<p>Since a topic model analysis is quite different from conventional analyses of single-cell RNA-seq data, in this vignette we carefully point out key differences and clarify possible misconceptions. One key difference is that a topic model is a model of <em>count data</em>, so <em>the topic model is intended to be applied directly to the count data</em> that arises from the RNA sequencing assay. This is in contrast with most methods that require careful pre-processing of the count data.</p>
 <p>We begin our analysis by loading the packages. Then we set the seed so that the results can be reproduced.</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">Matrix</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">fastTopics</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggplot2</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">cowplot</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">1</span>)</pre></body></html></div>
-<div id="the-data-set" class="section level2">
+<div id="the-example-data-set" class="section level2">
 <h2 class="hasAnchor">
-<a href="#the-data-set" class="anchor"></a>The data set</h2>
+<a href="#the-example-data-set" class="anchor"></a>The example data set</h2>
 <p>We will illustrate the concepts using a single-cell RNA-seq data set from <a href="https://doi.org/10.1038/ncomms14049">Zheng <em>et al</em> (2017)</a>. These data are reference transcriptome profiles from 10 bead-enriched subpopulations of peripheral blood mononuclear cells (PBMCs). The original data set is much larger—for this introduction, we have taken a small subset of approximately 3,700 cells.</p>
 <p>The data we will analyze are the unique molecular identifier (UMI) counts. These data are stored as an <span class="math inline">\(n \times m\)</span> sparse matrix, where <span class="math inline">\(n\)</span> is the number of cells and <span class="math inline">\(m\)</span> is the number of genes:</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">pbmc_4k</span>)
@@ -104,7 +105,7 @@
 <li><p>There is no need to log-transform the UMI counts because the counts are modeled directly using the multinomial distribution.</p></li>
 <li><p>There is no need to normalize the counts in each cell by sequencing coverage because the multinomial is <em>conditioned</em> on the cell’s total UMI count.</p></li>
 </ol>
-<p>Additionally, any analyses select only the most highly variable genes. <em>We recommend instead using all genes.</em> The only exception are genes in which all the UMI counts are zero—these genes should be removed prior to a topic model analysis.</p>
+<p>Additionally, analyses of single-cell RNA-seq data typically select only the most highly variable genes. <em>We recommend instead using all genes.</em> The only exception are genes in which all the UMI counts are zero—these genes should be removed prior to a topic model analysis.</p>
 </div>
 <div id="fit-the-topic-model" class="section level2">
 <h2 class="hasAnchor">
@@ -114,7 +115,7 @@
 <p>This is typically the most computationally burdensome step—it may take several minutes to run <code>fit_topic_model</code> on this data set. For convenience, we saved the output from this call:</p>
 <div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">fit</span></pre></body></html></div>
 <p>To fit a topic model, we must specify <span class="math inline">\(K\)</span>, the number of topics. Here, we have chosen <span class="math inline">\(K = 6\)</span> topics. In most settings, a good choice of <span class="math inline">\(K\)</span> will not be known in advance, so you will you want to explore the results from topic models at different settings of <span class="math inline">\(K\)</span>.</p>
-<p>There are several complexities to topic model fitting—we do not elaborate on these complexities here. The <code>fit_topic_model</code> interface is intended to hide most of these complexities, and it should work well for a wide range of data sets. However, larger or more challenging data sets my require some fine-tuning of the model fitting. Model fitting is covered in more detail in a separate vignette.</p>
+<p>There are several complexities to topic model fitting—we do not elaborate on these complexities here. The <code>fit_topic_model</code> interface is intended to hide most of these complexities, and it should work well for a wide range of data sets. However, larger or more challenging data sets my require some fine-tuning of the model fitting. See <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a> for more on this.</p>
 </div>
 <div id="each-cell-is-represented-as-a-unique-mixture" class="section level2">
 <h2 class="hasAnchor">
@@ -140,7 +141,7 @@
 <div id="interpreting-topics-using-available-cell-labels" class="section level2">
 <h2 class="hasAnchor">
 <a href="#interpreting-topics-using-available-cell-labels" class="anchor"></a>Interpreting topics using available cell labels</h2>
-<p>In some cases, you may have additional information about the cells, such as the tissue the cells were sampled from. In the PBMC 4k data, the cells were labeled using fluorescence-activated cell sorting (FACS). Each cell is assigned one of five labels (each corresponding to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer (NK) cells, and T cells.</p>
+<p>In some cases, you may have additional information about the cells, such as the tissue the cells were sampled from. (For tips on exploring the results when cell labels are not available, see <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a>.) In the PBMC 4k data, the cells were labeled using fluorescence-activated cell sorting (FACS). Each cell is assigned one of five labels (each corresponding to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer (NK) cells, and T cells.</p>
 <div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">samples</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">samples</span>
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">samples</span>$<span class="no">subpop</span>)
 <span class="co">#  B cell   CD14+   CD34+ NK cell  T cell </span>
@@ -184,7 +185,7 @@
 <h2 class="hasAnchor">
 <a href="#interpreting-topics-by-analyzing-gene-expression-differences" class="anchor"></a>Interpreting topics by analyzing gene expression differences</h2>
 <p>To set the stage for differential expression analysis using a topic model, we begin with a classic differential expression analysis using the available cell-type labels. This analysis centers on calculation of the <em>log-fold change</em> statistic. For a given group or cluster, the log-fold change is defined as the (base-2) log-ratio of two expectations: the mean expression (<em>i.e.</em>, mean UMI count) for all cells belonging to the specifed group over the mean expression among cells not belonging to the group. For example, genes <em>CD79A</em> and <em>CD79B</em> are overexpressed in B cells, by a factor of <span class="math inline">\(2^5 = 32\)</span> times, or more; by contrast these two genes are underexpressed in the other four cell types:</p>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">dfc_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">counts</span>,<span class="no">samples</span>$<span class="no">subpop</span>)
+<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">dfc_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">samples</span>$<span class="no">subpop</span>,<span class="no">counts</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">dfc_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>,],
       <span class="no">dfc_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>,])
 <span class="co"># Fitting 16791 x 5 = 83955 univariate Poisson models.</span>
@@ -214,7 +215,7 @@
 <div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">1</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.998</span>,
              <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>,<span class="kw">max.overlaps</span> <span class="kw">=</span> <span class="fl">15</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_basic_files/figure-html/volcano-plot-nk-1.png" width="540" style="display: block; margin: auto;"></p>
-<p>Interpreting the topics that capture variation within the T cells is a little more complicated, so we defer this investigation to Part 2.</p>
+<p>Interpreting the topics that capture variation within the T cells is a little more complicated, so we defer this investigation to <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a>.</p>
 </div>
 <div id="session-info" class="section level2">
 <h2 class="hasAnchor">
@@ -236,7 +237,7 @@
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.4-11 Matrix_1.2-18    </span>
+<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.4-13 Matrix_1.2-18    </span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
 <span class="co">#  [1] progress_1.2.2     tidyselect_0.2.5   xfun_0.11          purrr_0.3.3       </span>
