@@ -14,8 +14,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-The aim of this vignette is to introduce the basic concepts behind
-an analysis of single-cell RNA-seq data using a topic model. 
+The aim of this vignette is to introduce the basic concepts behind an
+analysis of single-cell RNA-seq data using a topic model. See
+[Part 2][vignette-part-2] for additional guidance.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
@@ -33,8 +34,8 @@ library(cowplot)
 set.seed(1)
 ```
 
-The data set
-------------
+The example data set
+--------------------
 
 We will illustrate the concepts using a single-cell RNA-seq data set
 from [Zheng *et al* (2017)][zheng-2017]. These data are reference
@@ -76,10 +77,10 @@ transform the counts.* In particular:
    coverage because the multinomial is *conditioned* on the cell's
    total UMI count.
 
-Additionally, any analyses select only the most highly variable
-genes. *We recommend instead using all genes.* The only exception are
-genes in which all the UMI counts are zero---these genes should be
-removed prior to a topic model analysis.
+Additionally, analyses of single-cell RNA-seq data typically select
+only the most highly variable genes. *We recommend instead using all
+genes.* The only exception are genes in which all the UMI counts are
+zero---these genes should be removed prior to a topic model analysis.
 
 Fit the topic model
 -------------------
@@ -110,8 +111,7 @@ elaborate on these complexities here. The `fit_topic_model` interface
 is intended to hide most of these complexities, and it should work
 well for a wide range of data sets. However, larger or more
 challenging data sets my require some fine-tuning of the model
-fitting. Model fitting is covered in more detail in a separate
-vignette.
+fitting. See [Part 2][vignette-part-2] for more on this.
 
 Each cell is represented as a unique mixture
 --------------------------------------------
@@ -152,11 +152,13 @@ Interpreting topics using available cell labels
 -----------------------------------------------
 
 In some cases, you may have additional information about the cells,
-such as the tissue the cells were sampled from. In the PBMC 4k data, the
-cells were labeled using fluorescence-activated cell sorting
-(FACS). Each cell is assigned one of five labels (each corresponding
-to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer
-(NK) cells, and T cells.
+such as the tissue the cells were sampled from. (See
+[Part 2][vignette-part-2] for how to interpret the topics when cell
+labels are unavailable.) In the PBMC 4k data, the cells were labeled
+using fluorescence-activated cell sorting (FACS). Each cell is
+assigned one of five labels (each corresponding to a cell type): B
+cells, CD14+ monocytes, CD34+ cells, natural killer (NK) cells, and T
+cells.
 
 ```{r summary-subpop}
 samples <- pbmc_4k$samples
@@ -337,8 +339,9 @@ volcano_plot(dfa_out,k = 1,label_above_quantile = 0.998,
              labels = genes$symbol,max.overlaps = 15)
 ```
 
-Interpreting the topics that capture variation within the T cells is
-a little more complicated, so we defer this investigation to Part 2.
+Interpreting the topics that capture variation within the T cells is a
+little more complicated, so we defer this investigation to
+[Part 2][vignette-part-2].
 
 Session info
 ------------
@@ -350,4 +353,5 @@ these results.
 sessionInfo()
 ```
 
+[vignette-part-2]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
