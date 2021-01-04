@@ -28,10 +28,10 @@ jobs:
             Rscript -e 'rmarkdown::pandoc_version()'
       - run:
           name: Build package
-          command: R CMD build --no-build-vignettes .
+          command: R CMD build
       - run:
           name: Check package
-          command: R CMD check --as-cran --no-manual --ignore-vignettes *tar.gz
+          command: R CMD check --as-cran --no-manual *tar.gz
       - store_artifacts:
           path: fastTopics.Rcheck/
       - save_cache:

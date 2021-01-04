@@ -15,8 +15,20 @@ vignette: >
 ---
 
 The aim of this vignette is to introduce the basic concepts behind an
-analysis of single-cell RNA-seq data using a topic model. See
-[Part 2][vignette-part-2] for additional guidance.
+analysis of single-cell RNA-seq data using a topic model, and to show
+how to use fastTopics to implement a topic model analysis. We
+introduce the basic concepts and fastTopics interface through a simple
+example. This first vignette is only intended to explain the topic
+model analysis at a high level---see [Part 2][vignette-part-2] for
+additional explanations and guidance.
+
+Since a topic model analysis is quite different from conventional
+analyses of single-cell RNA-seq data, in this vignette we carefully
+point out key differences and clarify possible misconceptions. One key
+difference is that a topic model is a model of *count data*, so *the
+topic model is intended to be applied directly to the count data* that
+arises from the RNA sequencing assay. This is in contrast with most
+methods that require careful pre-processing of the count data.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
@@ -152,9 +164,9 @@ Interpreting topics using available cell labels
 -----------------------------------------------
 
 In some cases, you may have additional information about the cells,
-such as the tissue the cells were sampled from. (See
-[Part 2][vignette-part-2] for how to interpret the topics when cell
-labels are unavailable.) In the PBMC 4k data, the cells were labeled
+such as the tissue the cells were sampled from. (For tips on exploring
+the results when cell labels are not available, see
+[Part 2][vignette-part-2].) In the PBMC 4k data, the cells were labeled
 using fluorescence-activated cell sorting (FACS). Each cell is
 assigned one of five labels (each corresponding to a cell type): B
 cells, CD14+ monocytes, CD34+ cells, natural killer (NK) cells, and T
@@ -272,7 +284,7 @@ or more; by contrast these two genes are underexpressed in the other
 four cell types:
 
 ```{r diff-count-analysis-1}
-dfc_out <- diff_count_clusters(counts,samples$subpop)
+dfc_out <- diff_count_clusters(samples$subpop,counts)
 rbind(dfc_out$beta[genes$symbol == "CD79A",],
       dfc_out$beta[genes$symbol == "CD79B",])
 ```

@@ -16,9 +16,13 @@ vignette: >
 
 This vignette continues from [Part 1][vignette-part-1], where we
 introduced the basic concepts behind an analysis of single-cell
-RNA-seq data using a topic model. Here we revisit the same single-cell
-data set, giving more detailed guidance, and discussing a few 
-complications that may arise.
+RNA-seq data using a topic model, and showed how the topic model
+analysis can be implemented in fastTopics. Here we revisit the same
+example data set, giving more detailed guidance, and discussing a few
+complications that may arise as you consider larger or more complex
+data sets. We illustrate a few strategies that could be helpful
+for improving your results, creating effective visualizations and
+extracting interesting biological insights.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
@@ -285,9 +289,12 @@ volcano plot:
 ```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5, results="hide"}
 dfc_out <- diff_count_clusters(clusters,counts)
 volcano_plot(dfc_out,k = "CD8+",label_above_quantile = 0.995,
-                   labels = genes$symbol,max.overlaps = 10) +
+             labels = genes$symbol,max.overlaps = 10) +
   ggtitle("cluster CD8+")
 ```
+
+(Recall, we also used `diff_count_clusters` in Part 1 to perform a
+basic differential expression analysis.)
 
 For example, *CD8A* is one of the top differentially expressed genes,
 a clue that this cluster corresponds to CD8+ cytotoxic T cells.
