@@ -5,7 +5,7 @@
 \alias{init_poisson_nmf}
 \alias{init_poisson_nmf_from_clustering}
 \alias{fit_poisson_nmf_control_default}
-\title{Fit or Re-fit Poisson Non-negative Matrix Factorization}
+\title{Fit Non-negative Matrix Factorization to Count Data}
 \usage{
 fit_poisson_nmf(
   X,
@@ -97,18 +97,17 @@ iteration. For interpretation of the columns, see the description
 of the \code{progress} return value.}
 
 \item{F}{An optional argument giving is the initial estimate of the
-factors (also sometimes called the \dQuote{basis vectors}). It
-should be an m x k matrix, where m is the number of columns in the
-counts matrix \code{X}, and k > 1 is the rank of the matrix
-factorization (equivalently, the number of \dQuote{topics}). All
-entries of \code{F} should be non-negative. When \code{F} and
-\code{L} are not provided, input argument \code{k} should be
-specified instead.}
+factors (also known as \dQuote{basis vectors}). It should be an m x
+k matrix, where m is the number of columns in the counts matrix
+\code{X}, and k > 1 is the rank of the matrix factorization
+(equivalently, the number of \dQuote{topics}). All entries of
+\code{F} should be non-negative. When \code{F} and \code{L} are not
+provided, input argument \code{k} should be specified instead.}
 
 \item{L}{An optional argument giving the initial estimate of the
-loadings (also sometimes called the \dQuote{activations}). It
-should an n x k matrix, where n is the number of rows in the counts
-matrix \code{X}, and k > 1 is the rank of the matrix factorization
+loadings (also known as \dQuote{activations}). It should an n x k
+matrix, where n is the number of rows in the counts matrix
+\code{X}, and k > 1 is the rank of the matrix factorization
 (equivalently, the number of \dQuote{topics}). All entries of
 \code{L} should be non-negative. When \code{F} and \code{L} are not
 provided, input argument \code{k} should be specified instead.}
@@ -193,23 +192,24 @@ list with the following elements:
 }
 \description{
 Approximate the input matrix \code{X} by the
-  non-negative matrix factorization \code{L \%*\% t(F)} by
-  nonnegative matrix factorization (NMF), in which the quality of the
-  approximation is measured by a \dQuote{divergence} criterion;
-  equivalently, optimize the likelihood under a Poisson model of the
-  count data, X. Function \code{fit_poisson_nmf} runs a specified
-  number of coordinate-wise updates to fit the L and F matrices.
+  non-negative matrix factorization \code{tcrossprod(L,F)}, in which
+  the quality of the approximation is measured by a
+  \dQuote{divergence} criterion; equivalently, optimize the
+  likelihood under a Poisson model of the count data, \code{X}, in
+  which the Poisson rates are given by \code{tcrossprod(L,F)}.
+  Function \code{fit_poisson_nmf} runs a specified number of
+  coordinate-wise updates to fit the L and F matrices.
 }
 \details{
 In Poisson non-negative matrix factorization (Lee & Seung,
 2001), counts \eqn{x_{ij}} in the \eqn{n \times m} matrix, \eqn{X},
 are modeled by the Poisson distribution: \deqn{x_{ij} \sim
 \mathrm{Poisson}(\lambda_{ij}).} Each Poisson rate,
-\eqn{\lambda_{ij}}, is a simple linear combination of parameters
+\eqn{\lambda_{ij}}, is a linear combination of parameters
 \eqn{f_{jk} \geq 0, l_{ik} \geq 0} to be fitted to the data:
-\deqn{\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk},} in which \eqn{K} is
-a user-specified tuning parameter specifying the rank of the matrix
-factorization. Function \code{fit_poisson_nmf} computes
+\deqn{\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk},} in which \eqn{K}
+is a user-specified tuning parameter specifying the rank of the
+matrix factorization. Function \code{fit_poisson_nmf} computes
 maximum-likelihood estimates (MLEs) of the parameters.  For
 additional mathematical background, and an explanation of how
 Poisson NMF is connected to topic modeling, see the vignette:
@@ -247,10 +247,17 @@ implementation is based on version 0.4-3 of the NNLM package.
 An additional re-scaling step is performed after each update to
 promote numerical stability.
 
-\emph{TO DO:} Mention that both the log-likelihood (or deviance)
-and residuals of the KKT system can be used to monitor
-progress. Explain what are the KKT conditions, and that the
-residuals should vanish at a solution.
+We use three measures of progress for the model fitting: (1)
+improvement in the log-likelihood (or deviance), (2) change in the
+model parameters, and (3) the residuals of the Karush-Kuhn-Tucker
+(KKT) first-order conditions. As the iterates approach a stationary
+point of the loss function, the change in the model parameters
+should be small, and the residuals of the KKT system should vanish.
+Use \code{\link{plot_progress_poisson_nmf}} to plot the improvement
+in the solution over time.
+
+See \code{\link{fit_topic_model}} for additional guidance on model
+fitting, particularly for large or complex data sets.
 
 The \code{control} argument is a list in which any of the
 following named components will override the default optimization
@@ -363,7 +370,7 @@ Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
   international conference on Knowledge discovery and data mining},
   p. 1064-1072
 
-  Kim, Y., Carbonetto, P., Stephens, M. and Anitescu, M. (2020) A
+  Kim, Y., Carbonetto, P., Stephens, M. and Anitescu, M. (2020). A
   fast algorithm for maximum likelihood estimation of mixture
   proportions using sequential quadratic programming. To appear in
   \emph{Journal of Computational and Graphical Statistics.}
@@ -372,10 +379,14 @@ Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
   matrix factorization. In \emph{Advances in Neural Information
   Processing Systems} \bold{13}, 556–562.
 
-  Lin, X. and Boutros, P. C. (2018). Fast nonnegative matrix
-  factorization and applications to pattern extraction, deconvolution
-  and imputation. \emph{bioRxiv} doi:10.1101/321802.
+  Lin, X. and Boutros, P. C. (2018). Optimization and expansion of
+  non-negative matrix factorization. \emph{BMC Bioinformatics}
+  \bold{21}, 7.
 
   Ke, Z. & Wang, M. (2017). A new SVD approach to optimal topic
   estimation. \emph{arXiv} \url{http://arxiv.org/abs/1704.07016}
+}
+\seealso{
+\code{\link{fit_topic_model}},
+  \code{\link{plot_progress_poisson_nmf}}
 }

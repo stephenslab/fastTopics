@@ -17,7 +17,7 @@ vignette: >
 This vignette continues from [Part 1][vignette-part-1], where we
 introduced the basic concepts behind an analysis of single-cell
 RNA-seq data using a topic model, and showed how the topic model
-analysis can be implemented in fastTopics. Here we revisit the same
+analysis can be implemented in **fastTopics**. Here we revisit the same
 example data set, giving more detailed guidance, and discussing a few
 complications that may arise as you consider larger or more complex
 data sets. We illustrate a few strategies that could be helpful
@@ -55,7 +55,7 @@ The topic model was fitted using the `fit_topic_model` function. This
 function, as we mentioned, hides most of the complexities of model
 fitting. Nevertheless, it is a good idea to check that the model
 fitting has converged to a maximum-likelihood solution. This can be
-easily done in fastTopics:
+easily done in **fastTopics**:
 
 ```{r plot-loglik, fig.height=2, fig.width=4}
 fit_nmf <- multinom2poisson(fit)

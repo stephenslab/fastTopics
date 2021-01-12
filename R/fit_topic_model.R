@@ -75,6 +75,19 @@
 #'   for details. Note that outputted likelihoods and deviances in
 #'   \code{progress} are evaluated with respect to the equivalent
 #'   Poisson NMF model.
+#'
+#' @references
+#' Dey, K. K., Hsiao, C. J. and Stephens, M. (2017). Visualizing the
+#' structure of RNA-seq expression data using grade of membership
+#' models. \emph{PLoS Genetics} \bold{13}, e1006599.
+#'
+#' Blei, D. M., Ng, A. Y. and Jordan, M. I. (2003). Latent Dirichlet
+#' allocation. \emph{Journal of Machine Learning Research} \bold{3},
+#' 993-1022.
+#'
+#' Hofmann, T. (1999). Probabilistic latent semantic indexing. In
+#' \emph{Proceedings of the 22nd International ACM SIGIR Conference},
+#' 50-57. doi:10.1145/312624.312649
 #' 
 #' @examples
 #' library(Matrix)

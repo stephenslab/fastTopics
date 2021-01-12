@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.4-16
+Version: 0.4-17
 Date: 2021-01-12
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
@@ -20,7 +20,7 @@ Description: Implements fast, scalable optimization algorithms for
     fitting topic models ("grade of membership" models) and
     non-negative matrix factorizations to count data. The methods
     exploit the special relationship between the multinomial topic
-    model (also "probabilistic latent semantic indexing") and Poisson
+    model (also, "probabilistic latent semantic indexing") and Poisson
     non-negative matrix factorization. The package provides tools to
     compare, annotate and visualize model fits, including functions to
     efficiently create "structure plots" and identify key features in
