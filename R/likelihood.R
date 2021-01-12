@@ -1,28 +1,22 @@
 #' @rdname likelihood
 #'
-#' @title Topic Model Likelihoods and Deviances
+#' @title NMF and Topic Model Likelihoods and Deviances
 #'
 #' @description Compute log-likelihoods and deviances for assessing
-#'   topic model fit or quality of a non-negative matrix factorization,
-#'   in which counts matrix X is modeled by the low-rank matrix product
-#'   L*F'.
+#'   fit of a topic model or a non-negative matrix factorization (NMF).
 #'
-#'   Function \code{cost} is mainly used internally to quickly compute
-#'   log-likelihoods and deviances, and should not be used directly
-#'   unless you know what you are doing. In particular, very little
-#'   argument checking is performed.
+#' @details Function \code{cost} is mainly for internal use to quickly
+#'   compute log-likelihoods and deviances; it should not be used
+#'   directly unless you know what you are doing. In particular, very
+#'   little argument checking is performed by \code{cost}.
 #'
 #' @param X The n x m matrix of counts or pseudocounts. It can be a
 #'   sparse matrix (class \code{"dgCMatrix"}) or dense matrix (class
 #'   \code{"matrix"}).
 #'
-#' @param fit A Poisson NMF or multinomial topic model fit. For
-#'   \code{loglik_poisson_nmf} and \code{deviance_poisson_nmf}, this
-#'   should be an object of class \dQuote{poisson_nmf_fit}, such as an
-#'   output from \code{fit_poisson_nmf}. For
-#'   \code{loglik_multinom_topic_model}, this should be_ object of class
-#'   \dQuote{multinom_topic_model_fit}, such as an output from
-#'   \code{poisson2multinom}.
+#' @param fit A Poisson NMF or multinomial topic model fit, such as an
+#'   output from \code{\link{fit_poisson_nmf}} or
+#'   \code{\link{fit_topic_model}}.
 #'
 #' @param A The n x k matrix of loadings. It should be a dense matrix.
 #'
@@ -62,7 +56,7 @@
 #'            deviance = deviance_poisson_nmf(X,fit))
 #' 
 #' # Compute multinomial log-likelihoods.
-#' loglik_multinom_topic_model(X,poisson2multinom(fit))
+#' loglik_multinom_topic_model(X,fit)
 #' 
 #' @export
 #' 
@@ -131,14 +125,16 @@ loglik_helper <- function (X, fit,
   # Verify and process input "output.type".
   output.type <- match.arg(output.type)
       
-  # Verify and process inputs X and "fit". 
-  if (output.type == "loglik.multinom") {
-    if (!inherits(fit,"multinom_topic_model_fit"))
-      stop("Input argument \"fit\" should be an object of class ",
-           "\"multinom_topic_model_fit\"")
-  } else if (!inherits(fit,"poisson_nmf_fit"))
+  # Verify and process inputs "X" and "fit". 
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
     stop("Input argument \"fit\" should be an object of class ",
-         "\"poisson_nmf_fit\"")
+         "\"multinom_topic_model_fit\" or \"multinom_topic_model_fit\"")
+  if (output.type == "loglik.multinom") {
+    if (inherits(fit,"poisson_nmf_fit"))
+      fit <- poisson2multinom(fit)
+  } else if (inherits(fit,"multinom_topic_model_fit"))
+    fit <- multinom2poisson(fit)
   verify.fit.and.count.matrix(X,fit)
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"

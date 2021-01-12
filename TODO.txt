@@ -1,8 +1,10 @@
 to do
 =====
 
-+ Rename the pbmc_4k data set because it could easily be confused with
-  "4k PBMCs from a Healthy Donor"
++ Improve argument checking using functions in verify_args.R.
+
++ Rename the pbmc_4k data set as "pbmc_facs" because pbmc_4k could
+  easily be confused with "4k PBMCs from a Healthy Donor"
   (support.10xgenomics.com/single-cell-gene-expression/datasets/1.2.0/pbmc4k)
 
 + Remove files in inst/derivations/diffcount.

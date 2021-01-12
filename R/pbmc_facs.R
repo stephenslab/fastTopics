@@ -1,6 +1,6 @@
-#' @name pbmc_4k
+#' @name pbmc_facs
 #'
-#' @title Mixture of FACS-purified PBMC Single-Cell RNA-seq data
+#' @title Mixture of 10 FACS-purified PBMC Single-Cell RNA-seq data
 #'
 #' @docType data
 #' 

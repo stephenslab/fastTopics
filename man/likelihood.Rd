@@ -5,7 +5,7 @@
 \alias{loglik_multinom_topic_model}
 \alias{deviance_poisson_nmf}
 \alias{cost}
-\title{Topic Model Likelihoods and Deviances}
+\title{NMF and Topic Model Likelihoods and Deviances}
 \usage{
 loglik_poisson_nmf(X, fit, e = 1e-08)
 
@@ -20,13 +20,9 @@ cost(X, A, B, e = 1e-08, family = c("poisson", "multinom"), version)
 sparse matrix (class \code{"dgCMatrix"}) or dense matrix (class
 \code{"matrix"}).}
 
-\item{fit}{A Poisson NMF or multinomial topic model fit. For
-\code{loglik_poisson_nmf} and \code{deviance_poisson_nmf}, this
-should be an object of class \dQuote{poisson_nmf_fit}, such as an
-output from \code{fit_poisson_nmf}. For
-\code{loglik_multinom_topic_model}, this should be_ object of class
-\dQuote{multinom_topic_model_fit}, such as an output from
-\code{poisson2multinom}.}
+\item{fit}{A Poisson NMF or multinomial topic model fit, such as an
+output from \code{\link{fit_poisson_nmf}} or
+\code{\link{fit_topic_model}}.}
 
 \item{e}{A small, non-negative number added to the terms inside the
 logarithms to avoid computing logarithms of zero. This prevents
@@ -55,14 +51,13 @@ A numeric vector with one entry per row of \code{X}.
 }
 \description{
 Compute log-likelihoods and deviances for assessing
-  topic model fit or quality of a non-negative matrix factorization,
-  in which counts matrix X is modeled by the low-rank matrix product
-  L*F'.
-
-  Function \code{cost} is mainly used internally to quickly compute
-  log-likelihoods and deviances, and should not be used directly
-  unless you know what you are doing. In particular, very little
-  argument checking is performed.
+  fit of a topic model or a non-negative matrix factorization (NMF).
+}
+\details{
+Function \code{cost} is mainly for internal use to quickly
+  compute log-likelihoods and deviances; it should not be used
+  directly unless you know what you are doing. In particular, very
+  little argument checking is performed by \code{cost}.
 }
 \examples{
 
@@ -78,6 +73,6 @@ data.frame(loglik   = loglik_poisson_nmf(X,fit),
            deviance = deviance_poisson_nmf(X,fit))
 
 # Compute multinomial log-likelihoods.
-loglik_multinom_topic_model(X,poisson2multinom(fit))
+loglik_multinom_topic_model(X,fit)
 
 }
