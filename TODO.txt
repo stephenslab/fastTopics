@@ -1,6 +1,10 @@
 to do
 =====
 
++ Rename the pbmc_4k data set because it could easily be confused with
+  "4k PBMCs from a Healthy Donor"
+  (support.10xgenomics.com/single-cell-gene-expression/datasets/1.2.0/pbmc4k)
+
 + Remove files in inst/derivations/diffcount.
 
 + Implement "t" S3 method to transpose the rows and columns of a
