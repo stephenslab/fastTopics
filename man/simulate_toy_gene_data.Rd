@@ -2,7 +2,7 @@
 % Please edit documentation in R/datasim.R
 \name{simulate_toy_gene_data}
 \alias{simulate_toy_gene_data}
-\title{Simulate "Toy" Gene Expression Data}
+\title{Simulate Toy Gene Expression Data}
 \usage{
 simulate_toy_gene_data(n, m, k, s)
 }
@@ -21,20 +21,20 @@ it specifies the "size" parameter in the calls to
 }
 \value{
 The return value is a list containing the counts matrix
-  \code{X}, and the gene frequencies \code{F} and topic proportions
+  \code{X}, and the gene frequencies \code{F} and mixture proportions
   \code{L} used to generate the counts.
 }
 \description{
 Simulate gene expression data (UMI counts) under a
-  "toy" expression model. Samples (expression profiles) are drawn
+  toy expression model. Samples (expression profiles) are drawn
   from a multinomial topic model in which topics are "gene programs".
 }
 \details{
-The topic proportions are generated as follows. With
+The mixture proportions are generated as follows. With
 probability 0.9, one proportion is one, or close to one, and the
 remaining are zero, or close to zero; that is, the counts are
 primarily generated from a single gene program. Otherwise (wtth
-probability 0.1), the topic proportions are roughly equal.
+probability 0.1), the mixture proportions are roughly equal.
 
 Gene frequencies are drawn uniformly at random from [0,1].
 }

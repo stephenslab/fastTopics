@@ -5,7 +5,7 @@
 #' expression studies, but could have other uses, such as identifying
 #' \dQuote{key words} in topics derived from text documents. A special
 #' case of "hard" topic assignments is also implemented---that is, the
-#' topic proportions are all zeros and ones---which involves greatly
+#' mixture proportions are all zeros and ones---which involves greatly
 #' simplified (and faster) calculations. Use \code{diff_count_clusters}
 #' for this special case.
 #'
@@ -120,16 +120,18 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
          "\"multinom_topic_model_fit\"")
   if (inherits(fit,"poisson_nmf_fit"))
     fit <- poisson2multinom(fit)
-
+  
   # Check and process input argument "X".
   if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
+  verify.fit.and.count.matrix(X,fit)
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
 
   # Check input argument "s".
-  if (!(length(s) == nrow(X) & all(s > 0)))
+  verify.positive.vector(s)
+  if (length(s) != nrow(X))
     stop("Input argument \"s\" should be a vector of positive numbers, with ",
          "length(s) = nrow(X)")
 

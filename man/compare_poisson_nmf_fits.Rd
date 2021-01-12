@@ -47,7 +47,7 @@ with the following columns:
 }
 \description{
 Create a table summarizing the results of fitting one
-   or more Poisson NMF models.
+   or more Poisson non-negative matrix factorizations.
 }
 \seealso{
 \code{\link{fit_poisson_nmf}},

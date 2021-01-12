@@ -85,11 +85,11 @@ The return value is a list with six m x k matrices, where m
 }
 \description{
 Implements methods for analysis of differential count
-expression using a topic model. These methods are motivated by gene
+analysis using a topic model. These methods are motivated by gene
 expression studies, but could have other uses, such as identifying
 \dQuote{key words} in topics derived from text documents. A special
 case of "hard" topic assignments is also implemented---that is, the
-topic proportions are all zeros and ones---which involves greatly
+mixture proportions are all zeros and ones---which involves greatly
 simplified (and faster) calculations. Use \code{diff_count_clusters}
 for this special case.
 }

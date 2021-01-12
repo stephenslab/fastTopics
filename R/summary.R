@@ -154,7 +154,7 @@ print.summary.multinom_topic_model_fit <-
 #' @title Summarize and Compare Poisson NMF Model Fits
 #'
 #' @description Create a table summarizing the results of fitting one
-#'    or more Poisson NMF models.
+#'    or more Poisson non-negative matrix factorizations.
 #'
 #' @param fits An object of class \code{"poisson_nmf_fit"}, or a
 #'   non-empty, named list in which each list element is an object of
@@ -205,6 +205,7 @@ compare_poisson_nmf_fits <- function (fits) {
   # Check and process input "fits". It should either be an object of
   # class poisson_nmf_fit, or a list of poisson_nmf_fit objects.
   if (inherits(fits,"poisson_nmf_fit")) {
+    verify.fit(fits)
     fit.name    <- deparse(substitute(fits))          
     fits        <- list(fits)
     names(fits) <- fit.name
@@ -219,6 +220,7 @@ compare_poisson_nmf_fits <- function (fits) {
       stop(msg)
     if (!all(nchar(names(fits)) > 0))
       stop(msg)
+    sapply(fits,verify.fit)
   }
 
   # CREATE SUMMARY TABLE

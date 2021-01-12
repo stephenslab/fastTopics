@@ -5,7 +5,7 @@
 \alias{pbmc_facs}
 \title{Mixture of 10 FACS-purified PBMC Single-Cell RNA-seq data}
 \format{
-\code{pbmc_4k} is a list with the following elements:
+\code{pbmc_facs} is a list with the following elements:
 
 \describe{
 
@@ -25,25 +25,28 @@
     how the Poisson NMF model fitting was performed.}
 }
 }
+\source{
+\url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}
+}
 \description{
 These data are a selection of the reference
   transcriptome profiles generated via single-cell RNA sequencing
   (RNA-seq) of 10 bead-enriched subpopulations of PBMCs (Donor A),
   described in Zheng \emph{et al} (2017). The data are unique
-  molecular identifier (UMI) counts for 16,791 genes in 3,774
-  cells. (Genes with no expression in any of the cells were removed.)
-  Since the majority of the UMI counts are zero, they are efficiently
+  molecular identifier (UMI) counts for 16,791 genes in 3,774 cells.
+  (Genes with no expression in any of the cells were removed.)  Since
+  the majority of the UMI counts are zero, they are efficiently
   stored as a 3,774 x 16,791 sparse matrix. These data are used in
   the vignette illustrating how fastTopics can be used to analyze to
   single-cell RNA-seq data.
 }
 \examples{
 library(Matrix)
-data(pbmc_4k)
-cat(sprintf("Number of cells: \%d\n",nrow(pbmc_4k$counts)))
-cat(sprintf("Number of genes: \%d\n",ncol(pbmc_4k$counts)))
+data(pbmc_facs)
+cat(sprintf("Number of cells: \%d\n",nrow(pbmc_facs$counts)))
+cat(sprintf("Number of genes: \%d\n",ncol(pbmc_facs$counts)))
 cat(sprintf("Proportion of counts that are non-zero: \%0.1f\%\%.\n",
-            100*mean(pbmc_4k$counts > 0)))
+            100*mean(pbmc_facs$counts > 0)))
 
 }
 \references{

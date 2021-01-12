@@ -72,10 +72,9 @@
 #' 
 #' @return A multinomial topic model fit; see
 #'   \code{\link{poisson2multinom}} and \code{\link{fit_poisson_nmf}}
-#'   for details.
-#'
-#'   ADD NOTE ABOUT log-likelihoods and deviances evaluated for
-#'   Poisson NMF model fit.
+#'   for details. Note that outputted likelihoods and deviances in
+#'   \code{progress} are evaluated with respect to the equivalent
+#'   Poisson NMF model.
 #' 
 #' @examples
 #' library(Matrix)
@@ -93,10 +92,8 @@ fit_topic_model <-
             control.refine = list(numiter = 4,extrapolate  = TRUE),
             verbose = TRUE) {
       
-  # Check inputs.
-  if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
-    stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
-         "a \"dgCMatrix\")")
+  # Check data matrix.
+  verify.count.matrix(X)
   
   # If necessary, remove all-zero columns from the counts matrix.
   if (any(colSums(X > 0) == 0)) {

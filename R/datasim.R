@@ -5,7 +5,7 @@
 #'   \code{Y = tcrossprod(L,F)}, \code{L} is an n x k loadings
 #'   (\dQuote{activations}) matrix, and \code{F} is an m x k factors
 #'   (\dQuote{basis vectors}) matrix. The entries of matrix \code{L} are
-#'   drawn uniformly at random between 0 and \code{lmax}, and the
+#'   drawn uniformly at random between zero and \code{lmax}, and the
 #'   entries of matrix \code{F} are drawn uniformly at random between 0
 #'   and \code{fmax}.
 #'
@@ -22,10 +22,10 @@
 #' @param k Number of factors, or \dQuote{topics}, used to determine
 #'   Poisson rates. The number of topics should be 1 or more.
 #'
-#' @param fmax Factors are drawn uniformly at random between 0 and
+#' @param fmax Factors are drawn uniformly at random between zero and
 #'   \code{fmax}.
 #'
-#' @param lmax Loadings are drawn uniformly at random between 0 and
+#' @param lmax Loadings are drawn uniformly at random between zero and
 #'   \code{lmax}.
 #'
 #' @param sparse If \code{sparse = TRUE}, convert the counts matrix to
@@ -75,17 +75,17 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
   return(list(X = X,F = F,L = L))
 }
 
-#' @title Simulate "Toy" Gene Expression Data
+#' @title Simulate Toy Gene Expression Data
 #' 
 #' @description Simulate gene expression data (UMI counts) under a
-#'   "toy" expression model. Samples (expression profiles) are drawn
+#'   toy expression model. Samples (expression profiles) are drawn
 #'   from a multinomial topic model in which topics are "gene programs".
 #' 
-#' @details The topic proportions are generated as follows. With
+#' @details The mixture proportions are generated as follows. With
 #' probability 0.9, one proportion is one, or close to one, and the
 #' remaining are zero, or close to zero; that is, the counts are
 #' primarily generated from a single gene program. Otherwise (wtth
-#' probability 0.1), the topic proportions are roughly equal.
+#' probability 0.1), the mixture proportions are roughly equal.
 #'
 #' Gene frequencies are drawn uniformly at random from [0,1].
 #'
@@ -102,7 +102,7 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
 #'   \code{\link[stats]{rmultinom}}.
 #'
 #' @return The return value is a list containing the counts matrix
-#'   \code{X}, and the gene frequencies \code{F} and topic proportions
+#'   \code{X}, and the gene frequencies \code{F} and mixture proportions
 #'   \code{L} used to generate the counts.
 #'
 #' @importFrom stats runif
@@ -117,7 +117,7 @@ simulate_toy_gene_data <- function (n, m, k, s) {
   # frequencies.
   F <- matrix(runif(m*k),m,k)
 
-  # Generate the topic proportions.
+  # Generate the mixture proportions.
   L <- matrix(0,n,k)
   for (i in 1:n) {
     if (runif(1) < 0.9) {
@@ -144,7 +144,7 @@ simulate_toy_gene_data <- function (n, m, k, s) {
   colnames(F) <- paste0("k",1:k)
   
   # Outputs the n x m counts matrix (X), and the gene frequencies
-  # (F) and topic proportions (L) used to generate counts.
+  # (F) and mixture proportions (L) used to generate counts.
   return(list(X = X,F = F,L = L))
 }
 
@@ -154,7 +154,7 @@ simulate_toy_gene_data <- function (n, m, k, s) {
 #'   Topic Model
 #'
 #' @description Simulate count data from a Poisson NMF model or
-#'   Multinomial Topic Model, in which topics represent \dQuote{gene
+#'   multinomial topic model, in which topics represent \dQuote{gene
 #'   expression programs}, and gene expression programs are
 #'   characterized by different rates of expression. The way in which
 #'   the counts are simulated is modeled after gene expression studies
@@ -171,10 +171,10 @@ simulate_toy_gene_data <- function (n, m, k, s) {
 #'   loadings matrix \code{L} and the m x k factors matrix \code{F}.
 #'
 #'   Each row of the \code{L} matrix is generated in the following
-#'   manner: (1) the number of nonzero topic proportions is \eqn{1
+#'   manner: (1) the number of nonzero mixture proportions is \eqn{1
 #'   \le n \le k}, with probability proportional to \eqn{2^{-n}};
-#'   (2) the indices of the nonzero topic proportions are sampled
-#'   uniformly at random; and (3) the nonzero topic proportions are
+#'   (2) the indices of the nonzero mixture proportions are sampled
+#'   uniformly at random; and (3) the nonzero mixture proportions are
 #'   sampled from the Dirichlet distribution with \eqn{\alpha = 1} (so
 #'   that all topics are equally likely).
 #'
@@ -222,7 +222,7 @@ simulate_toy_gene_data <- function (n, m, k, s) {
 #'   the counts matrix \code{X}, and the size factors \code{s} and
 #'   factorization, \code{F}, \code{L}, used to generate the counts.
 #'   \code{simulate_multinom_gene_data} returns a list containing the
-#'   counts matrix \code{X}, and the topic proportions \code{L} and
+#'   counts matrix \code{X}, and the mixture proportions \code{L} and
 #'   factors (gene probabilities, or relative gene expression levels)
 #'   \code{F} used to generate the counts.
 #' 
@@ -247,7 +247,7 @@ simulate_poisson_gene_data <- function (n, m, k, s, sparse = FALSE) {
   
   # Simulate the data.
   F <- generate_poisson_rates(m,k)
-  L <- generate_topic_proportions(n,k)
+  L <- generate_mixture_proportions(n,k)
   X <- generate_poisson_nmf_counts(F,s*L)
   if (sparse)
     X <- as(X,"dgCMatrix")
@@ -285,7 +285,7 @@ simulate_multinom_gene_data <- function (n, m, k, sparse = FALSE) {
   
   # Simulate the data.
   s <- ceiling(10^rnorm(n,3,0.2))
-  L <- generate_topic_proportions(n,k)
+  L <- generate_mixture_proportions(n,k)
   F <- normalize.cols(generate_poisson_rates(m,k))
   X <- generate_multinom_topic_model_counts(F,L,s)
   if (sparse)
@@ -329,16 +329,15 @@ generate_multinom_topic_model_counts <- function (F, L, s) {
   return(X)
 }
 
-# For each sample (row), generate the topic proportions ("loadings")
-# according to the following procedure: (1) the number of nonzero
-# topic proportions is 1 <= n <= k with probability proportional to
-# 2^(-n); (2) sample the indices of the nonzero topic proportions
-# uniformly at random; (3) sample the nonzero topic proportions from
-# the Dirichlet distribution with alpha = 1 (so that all topics are
-# equally likely).
+# For each sample (row), generate the mixture proportions according to
+# the following procedure: (1) the number of nonzero mixture proportions
+# is 1 <= n <= k with probability proportional to 2^(-n); (2) sample
+# the indices of the nonzero mixture proportions uniformly at random;
+# (3) sample the nonzero mixture proportions from the Dirichlet
+# distribution with alpha = 1 (so that all topics are equally likely).
 #
 #' @importFrom MCMCpack rdirichlet
-generate_topic_proportions <- function (n, k) {
+generate_mixture_proportions <- function (n, k) {
   L  <- matrix(0,n,k)
   k1 <- sample(k,n,replace = TRUE,prob = 2^(-seq(1,k)))
   for (i in 1:n) {

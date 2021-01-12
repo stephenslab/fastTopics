@@ -61,8 +61,8 @@ counts. These data are stored as an $n \times m$ sparse matrix, where
 $n$ is the number of cells and $m$ is the number of genes:
 
 ```{r load-data}
-data(pbmc_4k)
-counts <- pbmc_4k$counts
+data(pbmc_facs)
+counts <- pbmc_facs$counts
 dim(counts)
 ```
 
@@ -110,7 +110,7 @@ take several minutes to run `fit_topic_model` on this data set. For
 convenience, we saved the output from this call:
 
 ```{r load-fit}
-fit <- pbmc_4k$fit
+fit <- pbmc_facs$fit
 ```
 
 To fit a topic model, we must specify $K$, the number of topics.
@@ -166,14 +166,14 @@ Interpreting topics using available cell labels
 In some cases, you may have additional information about the cells,
 such as the tissue the cells were sampled from. (For tips on exploring
 the results when cell labels are not available, see
-[Part 2][vignette-part-2].) In the PBMC 4k data, the cells were labeled
+[Part 2][vignette-part-2].) In the PBMC data, the cells were labeled
 using fluorescence-activated cell sorting (FACS). Each cell is
 assigned one of five labels (each corresponding to a cell type): B
 cells, CD14+ monocytes, CD34+ cells, natural killer (NK) cells, and T
 cells.
 
 ```{r summary-subpop}
-samples <- pbmc_4k$samples
+samples <- pbmc_facs$samples
 summary(samples$subpop)
 ```
 
@@ -240,7 +240,7 @@ cells. Indeed, this is what we find in the topic 4 (we multiplied the
 estimates by $10^6$ only to make them easier to read):
 
 ```{r factors-2}
-genes <- pbmc_4k$genes
+genes <- pbmc_facs$genes
 j <- which(genes$symbol == "CD79B")
 round(1e6 * fit$F[j,])
 ```

@@ -34,13 +34,13 @@ a sparse matrix in compressed, column-oriented format; see
   the counts matrix \code{X}, and the size factors \code{s} and
   factorization, \code{F}, \code{L}, used to generate the counts.
   \code{simulate_multinom_gene_data} returns a list containing the
-  counts matrix \code{X}, and the topic proportions \code{L} and
+  counts matrix \code{X}, and the mixture proportions \code{L} and
   factors (gene probabilities, or relative gene expression levels)
   \code{F} used to generate the counts.
 }
 \description{
 Simulate count data from a Poisson NMF model or
-  Multinomial Topic Model, in which topics represent \dQuote{gene
+  multinomial topic model, in which topics represent \dQuote{gene
   expression programs}, and gene expression programs are
   characterized by different rates of expression. The way in which
   the counts are simulated is modeled after gene expression studies
@@ -58,10 +58,10 @@ Here we describe the process for generating the n x k
   loadings matrix \code{L} and the m x k factors matrix \code{F}.
 
   Each row of the \code{L} matrix is generated in the following
-  manner: (1) the number of nonzero topic proportions is \eqn{1
+  manner: (1) the number of nonzero mixture proportions is \eqn{1
   \le n \le k}, with probability proportional to \eqn{2^{-n}};
-  (2) the indices of the nonzero topic proportions are sampled
-  uniformly at random; and (3) the nonzero topic proportions are
+  (2) the indices of the nonzero mixture proportions are sampled
+  uniformly at random; and (3) the nonzero mixture proportions are
   sampled from the Dirichlet distribution with \eqn{\alpha = 1} (so
   that all topics are equally likely).
 

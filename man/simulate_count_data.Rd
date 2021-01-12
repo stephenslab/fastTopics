@@ -16,10 +16,10 @@ columns should be at least 2.}
 \item{k}{Number of factors, or \dQuote{topics}, used to determine
 Poisson rates. The number of topics should be 1 or more.}
 
-\item{fmax}{Factors are drawn uniformly at random between 0 and
+\item{fmax}{Factors are drawn uniformly at random between zero and
 \code{fmax}.}
 
-\item{lmax}{Loadings are drawn uniformly at random between 0 and
+\item{lmax}{Loadings are drawn uniformly at random between zero and
 \code{lmax}.}
 
 \item{sparse}{If \code{sparse = TRUE}, convert the counts matrix to
@@ -37,7 +37,7 @@ Simulate a counts matrix \code{X} such that
   \code{Y = tcrossprod(L,F)}, \code{L} is an n x k loadings
   (\dQuote{activations}) matrix, and \code{F} is an m x k factors
   (\dQuote{basis vectors}) matrix. The entries of matrix \code{L} are
-  drawn uniformly at random between 0 and \code{lmax}, and the
+  drawn uniformly at random between zero and \code{lmax}, and the
   entries of matrix \code{F} are drawn uniformly at random between 0
   and \code{fmax}.
 }

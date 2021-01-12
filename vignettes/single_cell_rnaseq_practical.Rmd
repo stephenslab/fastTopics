@@ -43,9 +43,9 @@ set.seed(1)
 Now we load the data set and the $K = 6$ pre-fitted topic model.
 
 ```{r load-data}
-data(pbmc_4k)
-counts <- pbmc_4k$counts
-fit <- pbmc_4k$fit
+data(pbmc_pbmc)
+counts <- pbmc_pbmc$counts
+fit <- pbmc_pbmc$fit
 ```
 
 Assessing convergence of model fitting
@@ -100,7 +100,7 @@ Most of the poorly fit cells are in the CD34+ subpopulation:
 
 ```{r loglik-3, fig.height=2, fig.width=5.5}
 subpop_colors <- c("dodgerblue","forestgreen","darkmagenta","skyblue","gold")
-pdat <- data.frame(loglik = loglik,subpop = pbmc_4k$samples$subpop)
+pdat <- data.frame(loglik = loglik,subpop = pbmc_facs$samples$subpop)
 ggplot(pdat,aes(x = loglik,fill = subpop)) +
   geom_histogram(bins = 64,color = "white") +
   scale_fill_manual(values = subpop_colors) +
@@ -243,7 +243,7 @@ patterns, we perform differential expression analysis on the combined
 topic:
 
 ```{r volcano-plot-t, fig.height=3.5, fig.width=4.5, results="hide"}
-genes <- pbmc_4k$genes
+genes <- pbmc_facs$genes
 fit_merged <- merge_topics(fit,5:6)
 dfa_merged <- diff_count_analysis(fit_merged,counts)
 volcano_plot(dfa_merged,k = "k5+k6",label_above_quantile = 0.998,
