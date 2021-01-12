@@ -1,17 +1,16 @@
-#' @title Get Poisson Non-Negative Matrix Factorization from Multinomial
-#'   Topic Model
+#' @title Recover Poisson NMF Fit from Multinomial Topic Model Fit
 #'
 #' @description This function recovers parameter estimates of the
-#'   Poisson non-negative matrix factorization given parameter estimates
-#'   for a multinomial topic model. 
+#'   Poisson non-negative matrix factorization (NMF) given parameter
+#'   estimates for a multinomial topic model.
 #'
 #' @param fit An object of class \dQuote{multinom_topic_model_fit},
 #'   such as an output from \code{poisson2multinom}.
 #'
-#' @param X The n x m matrix of counts or pseudocounts. It can be a
-#'   sparse matrix (class \code{"dgCMatrix"}) or dense matrix (class
-#'   \code{"matrix"}). This only needs to be provided if the document
-#'   sizes \code{fit$s} are not available.
+#' @param X Optional n x m matrix of counts, or pseudocounts. It can
+#'   be a sparse matrix (class \code{"dgCMatrix"}) or dense matrix
+#'   (class \code{"matrix"}). This only needs to be provided if the
+#'   document sizes \code{fit$s} are not available.
 #'
 #' @return The return value is the list \code{fit}, in which matrices
 #'   \code{fit$F} and \code{fit$L} specify the factors and loadings in
@@ -26,17 +25,16 @@
 multinom2poisson <- function (fit, X) {
 
   # Check input argument "fit".
-  if (!(is.list(fit) & inherits(fit,"multinom_topic_model_fit")))
+  if (!inherits(fit,"multinom_topic_model_fit"))
     stop("Input argument \"fit\" should be an object of class ",
          "\"multinom_topic_model_fit\"")
+  verify.fit(fit)
   F <- fit$F
   L <- fit$L
 
   # Check input argument "X".
   if (!missing(X))
-    if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
-      stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
-           "a \"dgCMatrix\")")
+    verify.fit.and.count.matrix(X,fit)    
   
   # Exactly one of X and fit$s should be provided.
   if (sum(c(!missing(X),is.element("s",names(fit)))) != 1)

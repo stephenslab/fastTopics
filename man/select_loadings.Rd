@@ -4,7 +4,7 @@
 \alias{select.multinom_topic_model_fit}
 \alias{select}
 \alias{select_loadings}
-\title{Extract or Re-order Multinomial Topic Model Loadings}
+\title{Extract or Re-order Data Rows in Multinomial Topic Model}
 \usage{
 \method{select}{multinom_topic_model_fit}(.data, loadings, ...)
 
@@ -13,24 +13,19 @@ select_loadings(.data, loadings, ...)
 \arguments{
 \item{.data}{Multinomial Topic Model fit; that is, an object of
 class \dQuote{multinom_topic_model_fit}, such as an output from
-\code{poisson2multinom}.}
+\code{fit_topic_model}.}
 
-\item{loadings}{Loadings indices (names or numbers), corresponding
-to rows of the counts matrix. If not specified, all loadings are
-returned.}
+\item{loadings}{Indices (names or numbers) giving data rows to
+keep. If not specified, all rows are kept.}
 
 \item{\dots}{Other arguments passed to the generic select function.}
 }
 \value{
 A multinomial topic model fit containing the selected
-  loadings only.
+  data rows only.
 }
 \description{
 This function can be used to extract estimates for a
   subset of the count data, or to re-order the rows of the loadings
-  (topic proportions) matrix in a multinomial topic model fit.
-}
-\seealso{
-\code{\link{fit_poisson_nmf}},
-  \code{\link{poisson2multinom}}
+  matrix in a multinomial topic model fit.
 }

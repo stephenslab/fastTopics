@@ -1,9 +1,8 @@
-#' @title Get Multinomial Topic Model from Poisson Non-Negative Matrix
-#'   Factorization
+#' @title Recover Multinomial Topic Model Fit from Poisson NMF fit
 #'
 #' @description This function recovers parameter estimates of the
 #'   multinomial topic model given parameter estimates for a Poisson
-#'   non-negative matrix factorization.
+#'   non-negative matrix factorization (NMF).
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit}, such as an
 #'   output from \code{fit_poisson_nmf}. It does not make sense for a
@@ -23,9 +22,10 @@
 poisson2multinom <- function (fit) {
 
   # Check input argument "fit".
-  if (!(is.list(fit) & inherits(fit,"poisson_nmf_fit")))
+  if (!inherits(fit,"poisson_nmf_fit"))
     stop("Input argument \"fit\" should be an object of class ",
          "\"poisson_nmf_fit\"")
+  verify.fit(fit)
   if (ncol(fit$F) < 2 | ncol(fit$L) < 2)
     stop("Input matrices \"fit$F\" and \"fit$L\" should have 2 or more",
          "columns")

@@ -50,5 +50,6 @@ Create a table summarizing the results of fitting one
    or more Poisson NMF models.
 }
 \seealso{
-\code{\link{fit_poisson_nmf}}
+\code{\link{fit_poisson_nmf}},
+  \code{\link{fit_topic_model}}
 }

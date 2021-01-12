@@ -73,6 +73,9 @@
 #' @return A multinomial topic model fit; see
 #'   \code{\link{poisson2multinom}} and \code{\link{fit_poisson_nmf}}
 #'   for details.
+#'
+#'   ADD NOTE ABOUT log-likelihoods and deviances evaluated for
+#'   Poisson NMF model fit.
 #' 
 #' @examples
 #' library(Matrix)

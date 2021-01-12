@@ -7,7 +7,7 @@
 #'   \dQuote{multinom_topic_model_fit}. The former is usually the result
 #'   of calling \code{\link{fit_poisson_nmf}}; the latter is usually the
 #'   result of calling \code{\link{fit_topic_model}} or
-#'   \code{link{poisson2multinom}}.
+#'   \code{\link{poisson2multinom}}.
 #'
 #' @method summary poisson_nmf_fit
 #'
@@ -22,8 +22,7 @@
 #' \item{m}{The number of columns in the counts matrix, typically the
 #'   number of observed counts per sample.}
 #'
-#' \item{k}{The rank of the Poisson non-negative matrix factorizataion
-#'   or, equivalently, the number of topics.}
+#' \item{k}{The rank of the Poisson NMF or the number of topics.}
 #'
 #' \item{s}{A vector of length n giving the "size factor" estimates;
 #'   these estimates should be equal, or close to, the total counts in
@@ -32,27 +31,28 @@
 #' \item{numiter}{The number of loadings and/or factor updates
 #'   performed.}
 #'
-#' \item{loglik}{The log-likelihood attained by the model fit.}
+#' \item{loglik}{The log-likelihood attained by the Poisson NMF model
+#'   fit.}
 #'
-#' \item{dev}{The deviance attained by the model fit.}
+#' \item{dev}{The deviance attained by the Poisson NMF model fit.}
 #'
 #' \item{res}{The maximum residual of the Karush-Kuhn-Tucker (KKT)
 #'   first-order optimality conditions. This can be used to assess
 #'   convergence of the updates to a (local) solution.}
 #'
-#' \item{topic.proportions}{Matrix giving a high-level summary of the
-#' topic proportions, in which rows correspond to topics, and columns
-#' are proportion ranges.}
+#' \item{mixprop}{Matrix giving a high-level summary of the
+#'   mixture proportions, in which rows correspond to topics, and
+#'   columns are ranges of mixture proportionss.}
 #'
-#' \item{topic.reps}{A matrix in which the ith row gives the topic
+#' \item{topic.reps}{A matrix in which the ith row gives the mixture
 #'   proportions for the sample "most representative" of topic i; by
-#'   "most representative", we mean the row (or sample) with the
-#'   highest proportion of counts drawn from the topic i.}
+#'   "most representative", we mean the row (or sample) with the highest
+#'   proportion of counts drawn from the topic i.}
 #' 
 #' @export
 #' 
 summary.poisson_nmf_fit <- function (object, ...) {
-  out <- summary(poisson2multinom(object))
+  out <- summary.multinom_topic_model_fit(poisson2multinom(object))
   class(out) <- c("summary.poisson_nmf_fit","list")
   return(out)
 }
@@ -66,18 +66,18 @@ summary.poisson_nmf_fit <- function (object, ...) {
 #' @export
 #' 
 summary.multinom_topic_model_fit <- function (object, ...) {
+  verify.fit(object)
   numiter <- nrow(object$progress)
-  k       <- ncol(object$F)
-  out <- list(n                 = nrow(object$L),
-              m                 = nrow(object$F),
-              k                 = k,
-              s                 = object$s,
-              numiter           = numiter,
-              loglik            = object$progress[numiter,"loglik"],
-              dev               = object$progress[numiter,"dev"],
-              res               = object$progress[numiter,"res"],
-              topic.proportions = summarize_topic_proportions(object$L),
-              topic.reps        = get_topic_representatives(object$L))
+  out <- list(n          = nrow(object$L),
+              m          = nrow(object$F),
+              k          = ncol(object$F),
+              s          = object$s,
+              numiter    = numiter,
+              loglik     = object$progress[numiter,"loglik"],
+              dev        = object$progress[numiter,"dev"],
+              res        = object$progress[numiter,"res"],
+              mixprop    = summarize_mixprops(object$L),
+              topic.reps = get_topic_reps(object$L))
   class(out) <- c("summary.multinom_topic_model_fit","list")
   return(out)
 }
@@ -87,11 +87,14 @@ summary.multinom_topic_model_fit <- function (object, ...) {
 #' @param x An object of class \dQuote{summary.poisson_nmf_fit},
 #'   usually a result of a call to \code{summary.poisson_nmf_fit}.
 #'
-#' @param size.factors If \code{TRUE}, show the...
+#' @param show.size.factors If \code{TRUE}, print a summary of the
+#'   size factors.
 #'
-#' @param topic.props If \code{TRUE}, show the...
+#' @param show.mixprops If \code{TRUE}, print a summary of the mixture
+#'   proportions.
 #'
-#' @param topic.reps If \code{TRUE}, show the...
+#' @param show.topic.reps If \code{TRUE}, print a summary of the topic
+#'   representatives.
 #' 
 #' @param \dots Additional arguments passed to the generic \code{summary}
 #'   or \code{print.summary} method.
@@ -101,8 +104,8 @@ summary.multinom_topic_model_fit <- function (object, ...) {
 #' @export
 #' 
 print.summary.poisson_nmf_fit <- 
-  function (x, size.factors = FALSE, topic.props = FALSE,
-            topic.reps = FALSE, ...) {
+  function (x, show.size.factors = FALSE, show.mixprops = FALSE,
+            show.topic.reps = FALSE, ...) {
   print.summary.multinom_topic_model_fit(x,...)
   return(invisible(x))
 }
@@ -116,8 +119,8 @@ print.summary.poisson_nmf_fit <-
 #' @export
 #'
 print.summary.multinom_topic_model_fit <-
-  function (x, size.factors = FALSE, topic.props = FALSE,
-            topic.reps = FALSE, ...) {
+  function (x, show.size.factors = FALSE, show.mixprops = FALSE,
+            show.topic.reps = FALSE, ...) {
   k <- x$k
   cat("Model overview:\n")
   cat(sprintf("  Number of data rows, n: %d\n",x$n))
@@ -125,23 +128,23 @@ print.summary.multinom_topic_model_fit <-
   cat(sprintf("  Rank/number of topics, k: %d\n",x$k))
   cat(sprintf("Evaluation of Poisson NMF fit (%d updates performed):\n",
               x$numiter))
-  cat(sprintf("  Log-likelihood: %+0.12e\n",x$loglik))
-  cat(sprintf("  Deviance: %+0.12e\n",x$dev))
+  cat(sprintf("  Poisson NMF log-likelihood: %+0.12e\n",x$loglik))
+  cat(sprintf("  Poisson NMF deviance: %+0.12e\n",x$dev))
   cat(sprintf("  Max KKT residual: %+0.6e\n",x$res))
-  if (!size.factors & !topic.props & !topic.reps)
-    message("Set size.factors = TRUE, topic.props = TRUE and/or ",
-            "topic.reps = TRUE in print(...) to show more informataion")
-  if (size.factors & !is.null(x$s)) {
+  if (!show.size.factors & !show.mixprops & !show.topic.reps)
+    message("Set show.size.factors = TRUE, show.mixprops = TRUE and/or ",
+            "show.topic.reps = TRUE in print(...) to show more informataion")
+  if (show.size.factors & !is.null(x$s)) {
     cat(sprintf("Size factors:\n"))
     q        <- quantile(x$s)
     names(q) <- c("Min","1Q","Median","3Q","Max")
     print(q)
   }
-  if (topic.props) {
-    cat(sprintf("Topic proportions:\n"))
-    print(x$topic.proportions)
+  if (show.mixprops) {
+    cat(sprintf("Mixture proportions:\n"))
+    print(x$mixprops)
   }
-  if (topic.reps) {
+  if (show.topic.reps) {
     cat(sprintf("Topic representatives:\n"))
     print(round(x$topic.reps,digits = 3))
   }
@@ -190,7 +193,8 @@ print.summary.multinom_topic_model_fit <-
 #' \item{runtime}{The total runtime (in s) of the model fitting
 #'   updates.}
 #' 
-#' @seealso \code{\link{fit_poisson_nmf}}
+#' @seealso \code{\link{fit_poisson_nmf}},
+#'   \code{\link{fit_topic_model}}
 #' 
 #' @export
 #' 
@@ -256,10 +260,10 @@ compare_poisson_nmf_fits <- function (fits) {
   return(out)
 }
 
-# Given a matrix of topic proportions, L, output topic proportion
-# histograms as a k x n matrix, where k is the number of topics, and n
-# is the number of bins in the histogram.
-summarize_topic_proportions <- function (L) {
+# Given L, the matrix of mixture proportions, output mixture
+# proportion histograms as a k x n matrix, where k is the number of
+# topics, and n is the number of bins in the histogram.
+summarize_mixprops <- function (L) {
   k   <- ncol(L)
   out <- t(apply(L,2,
                  function (x) as.vector(table(cut(x,c(-1,0.1,0.5,0.9,1))))))
@@ -269,13 +273,13 @@ summarize_topic_proportions <- function (L) {
   return(out)
 }
   
-# Given a matrix of topic proportions, L, return a k x k matrix, where
-# k is the number of topics, in which each row is a sample (data
-# matrix row). The ith row of the matrix contains the topic
+# Given a matrix of mixture proportions, L, return a k x k matrix,
+# where k is the number of topics, in which each row is a sample (data
+# matrix row). The ith row of the matrix contains the mixture
 # proportions for the sample "most representative" of the ith topic;
 # that is, the row or sample with the largest proportion of counts
 # drawn from the ith topic.
-get_topic_representatives <- function (L) {
+get_topic_reps <- function (L) {
   n    <- nrow(L)
   k    <- ncol(L)
   rows <- apply(L,2,which.max)

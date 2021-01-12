@@ -11,16 +11,28 @@
 
 \method{summary}{multinom_topic_model_fit}(object, ...)
 
-\method{print}{summary.poisson_nmf_fit}(x, size.factors = FALSE, topic.props = FALSE, topic.reps = FALSE, ...)
+\method{print}{summary.poisson_nmf_fit}(
+  x,
+  show.size.factors = FALSE,
+  show.mixprops = FALSE,
+  show.topic.reps = FALSE,
+  ...
+)
 
-\method{print}{summary.multinom_topic_model_fit}(x, size.factors = FALSE, topic.props = FALSE, topic.reps = FALSE, ...)
+\method{print}{summary.multinom_topic_model_fit}(
+  x,
+  show.size.factors = FALSE,
+  show.mixprops = FALSE,
+  show.topic.reps = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \dQuote{poisson_nmf_fit} or
 \dQuote{multinom_topic_model_fit}. The former is usually the result
 of calling \code{\link{fit_poisson_nmf}}; the latter is usually the
 result of calling \code{\link{fit_topic_model}} or
-\code{link{poisson2multinom}}.}
+\code{\link{poisson2multinom}}.}
 
 \item{\dots}{Additional arguments passed to the generic \code{summary}
 or \code{print.summary} method.}
@@ -28,11 +40,14 @@ or \code{print.summary} method.}
 \item{x}{An object of class \dQuote{summary.poisson_nmf_fit},
 usually a result of a call to \code{summary.poisson_nmf_fit}.}
 
-\item{size.factors}{If \code{TRUE}, show the...}
+\item{show.size.factors}{If \code{TRUE}, print a summary of the
+size factors.}
 
-\item{topic.props}{If \code{TRUE}, show the...}
+\item{show.mixprops}{If \code{TRUE}, print a summary of the mixture
+proportions.}
 
-\item{topic.reps}{If \code{TRUE}, show the...}
+\item{show.topic.reps}{If \code{TRUE}, print a summary of the topic
+representatives.}
 }
 \value{
 The functions \code{summary.poisson_nmf_fit} and
@@ -46,8 +61,7 @@ includes the following elements:
 \item{m}{The number of columns in the counts matrix, typically the
   number of observed counts per sample.}
 
-\item{k}{The rank of the Poisson non-negative matrix factorizataion
-  or, equivalently, the number of topics.}
+\item{k}{The rank of the Poisson NMF or the number of topics.}
 
 \item{s}{A vector of length n giving the "size factor" estimates;
   these estimates should be equal, or close to, the total counts in
@@ -56,22 +70,23 @@ includes the following elements:
 \item{numiter}{The number of loadings and/or factor updates
   performed.}
 
-\item{loglik}{The log-likelihood attained by the model fit.}
+\item{loglik}{The log-likelihood attained by the Poisson NMF model
+  fit.}
 
-\item{dev}{The deviance attained by the model fit.}
+\item{dev}{The deviance attained by the Poisson NMF model fit.}
 
 \item{res}{The maximum residual of the Karush-Kuhn-Tucker (KKT)
   first-order optimality conditions. This can be used to assess
   convergence of the updates to a (local) solution.}
 
-\item{topic.proportions}{Matrix giving a high-level summary of the
-topic proportions, in which rows correspond to topics, and columns
-are proportion ranges.}
+\item{mixprop}{Matrix giving a high-level summary of the
+  mixture proportions, in which rows correspond to topics, and
+  columns are ranges of mixture proportionss.}
 
-\item{topic.reps}{A matrix in which the ith row gives the topic
+\item{topic.reps}{A matrix in which the ith row gives the mixture
   proportions for the sample "most representative" of topic i; by
-  "most representative", we mean the row (or sample) with the
-  highest proportion of counts drawn from the topic i.}
+  "most representative", we mean the row (or sample) with the highest
+  proportion of counts drawn from the topic i.}
 }
 \description{
 \code{summary} method for the \dQuote{poisson_nmf_fit}

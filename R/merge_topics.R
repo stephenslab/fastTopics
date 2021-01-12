@@ -1,11 +1,10 @@
-#' @title Merge Topics in Multinomial Topic Model Fit
+#' @title Combine Topics in Multinomial Topic Model
 #'
 #' @description Combine two or more topics in a multinomial topic
 #'   model fit.
 #'
-#' @details Loadings (the topic proportions matrix, \code{L}) are
-#'   combined by summation, and factors (the \code{F} matrix) are
-#'   combined by averaging.
+#' @details Mixture proportions are combined by summation, and factors
+#'   are combined by averaging.
 #' 
 #' @param fit A multinomial topic model fit.
 #'
@@ -20,7 +19,8 @@ merge_topics <- function (fit, k) {
   if (!inherits(fit,"multinom_topic_model_fit"))
     stop("Input argument \"fit\" should be an object of class ",
          "\"multinom_topic_model_fit\"")
-    
+  verify.fit(fit)
+  
   # Verify and process input "k".
   msg <- paste("Input argument \"k\" should contain valid topic names or",
                "numbers (column indices of F and L)")

@@ -33,8 +33,8 @@ verify.count.matrix <- function (x, arg.name = deparse(substitute(x))) {
   return(TRUE)
 }
 
-# Verify that x is a valid topic model fit or non-negative matrix
-# factorization.
+# Verify that x is a valid multinomial topic model fit or non-negative
+# matrix factorization.
 verify.fit <- function (x, arg.name = deparse(substitute(x))) {
   arg.name.F <- paste0(arg.name,"$F")
   arg.name.L <- paste0(arg.name,"$L")

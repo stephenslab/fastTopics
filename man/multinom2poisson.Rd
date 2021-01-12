@@ -2,8 +2,7 @@
 % Please edit documentation in R/multinom2poisson.R
 \name{multinom2poisson}
 \alias{multinom2poisson}
-\title{Get Poisson Non-Negative Matrix Factorization from Multinomial
-  Topic Model}
+\title{Recover Poisson NMF Fit from Multinomial Topic Model Fit}
 \usage{
 multinom2poisson(fit, X)
 }
@@ -11,10 +10,10 @@ multinom2poisson(fit, X)
 \item{fit}{An object of class \dQuote{multinom_topic_model_fit},
 such as an output from \code{poisson2multinom}.}
 
-\item{X}{The n x m matrix of counts or pseudocounts. It can be a
-sparse matrix (class \code{"dgCMatrix"}) or dense matrix (class
-\code{"matrix"}). This only needs to be provided if the document
-sizes \code{fit$s} are not available.}
+\item{X}{Optional n x m matrix of counts, or pseudocounts. It can
+be a sparse matrix (class \code{"dgCMatrix"}) or dense matrix
+(class \code{"matrix"}). This only needs to be provided if the
+document sizes \code{fit$s} are not available.}
 }
 \value{
 The return value is the list \code{fit}, in which matrices
@@ -25,6 +24,6 @@ The return value is the list \code{fit}, in which matrices
 }
 \description{
 This function recovers parameter estimates of the
-  Poisson non-negative matrix factorization given parameter estimates
-  for a multinomial topic model.
+  Poisson non-negative matrix factorization (NMF) given parameter
+  estimates for a multinomial topic model.
 }

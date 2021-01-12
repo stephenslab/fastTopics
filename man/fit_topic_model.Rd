@@ -64,6 +64,9 @@ progress of the model fitting is printed to the console. See
 A multinomial topic model fit; see
   \code{\link{poisson2multinom}} and \code{\link{fit_poisson_nmf}}
   for details.
+
+  ADD NOTE ABOUT log-likelihoods and deviances evaluated for
+  Poisson NMF model fit.
 }
 \description{
 Fits a multinomial topic model to the count data,

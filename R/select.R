@@ -1,26 +1,22 @@
 #' @rdname select_loadings
 #'
-#' @title Extract or Re-order Multinomial Topic Model Loadings
+#' @title Extract or Re-order Data Rows in Multinomial Topic Model 
 #'
 #' @description This function can be used to extract estimates for a
 #'   subset of the count data, or to re-order the rows of the loadings
-#'   (topic proportions) matrix in a multinomial topic model fit.
+#'   matrix in a multinomial topic model fit.
 #'
 #' @param .data Multinomial Topic Model fit; that is, an object of
 #'   class \dQuote{multinom_topic_model_fit}, such as an output from
-#'   \code{poisson2multinom}.
+#'   \code{fit_topic_model}.
 #'
-#' @param loadings Loadings indices (names or numbers), corresponding
-#'   to rows of the counts matrix. If not specified, all loadings are
-#'   returned.
+#' @param loadings Indices (names or numbers) giving data rows to
+#'   keep. If not specified, all rows are kept.
 #' 
 #' @param \dots Other arguments passed to the generic select function.
 #' 
 #' @return A multinomial topic model fit containing the selected
-#'   loadings only.
-#'
-#' @seealso \code{\link{fit_poisson_nmf}},
-#'   \code{\link{poisson2multinom}}
+#'   data rows only.
 #'
 #' @importFrom dplyr select
 #'
@@ -38,6 +34,7 @@ select.multinom_topic_model_fit <- function (.data, loadings, ...)
 #' @export
 #'
 select_loadings <- function (.data, loadings, ...) {
+  verify.fit(.data)
   n <- nrow(.data$L)
   if (missing(loadings))
     loadings <- 1:n

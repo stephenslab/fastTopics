@@ -1,7 +1,7 @@
 #' @title Differential Count Analysis with a Multinomial Topic Model
 #'
 #' @description Implements methods for analysis of differential count
-#' expression using a topic model. These methods are motivated by gene
+#' analysis using a topic model. These methods are motivated by gene
 #' expression studies, but could have other uses, such as identifying
 #' \dQuote{key words} in topics derived from text documents. A special
 #' case of "hard" topic assignments is also implemented---that is, the

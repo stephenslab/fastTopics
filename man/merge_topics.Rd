@@ -2,7 +2,7 @@
 % Please edit documentation in R/merge_topics.R
 \name{merge_topics}
 \alias{merge_topics}
-\title{Merge Topics in Multinomial Topic Model Fit}
+\title{Combine Topics in Multinomial Topic Model}
 \usage{
 merge_topics(fit, k)
 }
@@ -17,7 +17,6 @@ Combine two or more topics in a multinomial topic
   model fit.
 }
 \details{
-Loadings (the topic proportions matrix, \code{L}) are
-  combined by summation, and factors (the \code{F} matrix) are
-  combined by averaging.
+Mixture proportions are combined by summation, and factors
+  are combined by averaging.
 }
