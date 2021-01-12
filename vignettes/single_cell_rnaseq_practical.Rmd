@@ -43,9 +43,9 @@ set.seed(1)
 Now we load the data set and the $K = 6$ pre-fitted topic model.
 
 ```{r load-data}
-data(pbmc_pbmc)
-counts <- pbmc_pbmc$counts
-fit <- pbmc_pbmc$fit
+data(pbmc_facs)
+counts <- pbmc_facs$counts
+fit <- pbmc_facs$fit
 ```
 
 Assessing convergence of model fitting
