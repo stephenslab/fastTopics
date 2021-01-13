@@ -42,10 +42,10 @@ pca_hexbin_plot_ggplot_call(dat, pcs, bins, breaks, font.size = 9)
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
 \dQuote{multinom_topic_model_fit}.}
 
-\item{k}{The topic, or topics, selected by number or name. When
-\code{fill = "loading"}, one plot is created per selected topic;
-when \code{fill = "loading"} and \code{k} is not specified, all
-topics are plotted.}
+\item{k}{The dimensions or topics selected by number or name. When
+\code{fill = "loading"}, one plot is created per selected dimension
+or topic; when \code{fill = "loading"} and \code{k} is not
+specified, all dimensions or topics are plotted.}
 
 \item{out.pca}{A list containing the result of a principal
 components analysis, typically the result of calling
@@ -61,7 +61,7 @@ specified by name or number.}
 
 \item{fill}{The quantity to map onto the fill colour of the points
 in the PCA plot. Set \code{fill = "loading"} to vary the fill
-colour according to the loadings (or topic proportions) of the
+colour according to the loadings (or mixture proportions) of the
 select topic, or topics. Alternatively, \code{fill} may be set to a
 data vector with one entry per row of \code{fit$L}, in which case
 these data are mapped to the fill colour of the points. When
@@ -106,11 +106,11 @@ subdivided into intervals based on \code{breaks}. Passed as the
 A \code{ggplot} object.
 }
 \description{
-Visualize the structure of the Poisson NMF loadings
-  (\dQuote{activations}) or the multinomial topic proportions by
-  projection onto principal components (PCs). \code{plot_hexbin_plot}
-  is most useful for visualizing the PCs of a data set with thousands
-  of samples, or more.
+Visualize the structure of the Poisson NMF loadings or
+  the multinomial topic model mixture proportions by projection onto
+  principal components (PCs). \code{plot_hexbin_plot} is most useful
+  for visualizing the PCs of a data set with thousands of samples, or
+  more.
 }
 \details{
 This is a lightweight interface for rapidly producing PCA
@@ -121,7 +121,7 @@ be customized by modifying the \code{ggplot_call} and
 \code{plot_grid_call} arguments. If not provided, the principal
 components are computed using \code{\link[stats]{prcomp}}.
 
-Note that since principal components are a \emph{linear} projection
+Since principal components are a \emph{linear} projection
 (\dQuote{rotation}) of the data, distances between points can bee
 more interpretable than nonlinear embedding methods such as t-SNE
 (as visualized using \code{tsne_plot}) and UMAP.

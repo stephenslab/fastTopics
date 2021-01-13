@@ -2,7 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{plot_progress_poisson_nmf}
 \alias{plot_progress_poisson_nmf}
-\title{Plot Progress of Poisson NMF Optimization Method Over Time}
+\title{Plot Progress of Poisson NMF Optimization Over Time}
 \usage{
 plot_progress_poisson_nmf(
   fits,
@@ -20,9 +20,12 @@ plot_progress_poisson_nmf(
 )
 }
 \arguments{
-\item{fits}{An object of class \code{"poisson_nmf_fit"}, or a
-non-empty, named list in which each list element is an object of
-class \code{"poisson_nmf_fit"}.}
+\item{fits}{An object of class \code{"poisson_nmf_fit"} or
+\code{"multinom_topic_model_fit"}, or a non-empty, named list in
+which each list element is an object of class
+\code{"poisson_nmf_fit"} or \code{"multinom_topic_model_fit"}.
+Multinomial topic model fits are automatically converted to
+equivalent Poisson NMF fits using \code{\link{multinom2poisson}}.}
 
 \item{x}{Choose \code{"timing"} to plot improvement in the solution
 over time, or choose \code{"iter"} to plot improvement in the

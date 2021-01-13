@@ -61,9 +61,11 @@ test_that("Test that other plotting functions work",{
   plot_progress_poisson_nmf(list(scd = fit1,em = fit2))
   
   # Test loadings_plot.
-  x <- factor(sample(1:4,80,replace = TRUE))
-  p <- loadings_plot(poisson2multinom(fit1),x)
-  expect_s3_class(p,"ggplot")
+  x  <- factor(sample(1:4,80,replace = TRUE))
+  p1 <- loadings_plot(fit1,x)
+  p2 <- loadings_plot(poisson2multinom(fit1),x)
+  expect_s3_class(p1,"ggplot")
+  expect_s3_class(p2,"ggplot")
 
   # Test tsne_plot.
   capture.output(p1 <- tsne_plot(fit1,color = "prop",perplexity = 10))

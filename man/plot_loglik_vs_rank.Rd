@@ -10,10 +10,11 @@ plot_loglik_vs_rank(fits, ggplot_call = loglik_vs_rank_ggplot_call)
 loglik_vs_rank_ggplot_call(dat, font.size = 9)
 }
 \arguments{
-\item{fits}{A list with two more list elements, in which each list
-element is an object of class \code{"poisson_nmf_fit"}. If two or
-more Poisson NMF fits shares the same rank, the largest
-log-likelihood is plotted.}
+\item{fits}{A list with 2 more list elements, in which each list
+element is an object of class \code{"poisson_nmf_fit"} or
+\code{"multinom_topic_model_fit"}. If two or more fits shares the
+same rank, or number of topics, the largest log-likelihood is
+plotted.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{loglik_vs_rank_ggplot_call} with your own function to
@@ -29,7 +30,7 @@ customize the appearance of the plot.}
 A \code{ggplot} object.
 }
 \description{
-Create a plot showing the improvement in the
-  log-likelihood as the rank of the matrix factorization or
-  the number of topics (\dQuote{k}) increases.
+Create a plot showing the improvement in the Poisson
+  NMF log-likelihood as the rank of the matrix factorization or the
+  number of topics (\dQuote{k}) increases.
 }

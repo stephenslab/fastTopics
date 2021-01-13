@@ -1,4 +1,4 @@
-#' @title Plot Progress of Poisson NMF Optimization Method Over Time
+#' @title Plot Progress of Poisson NMF Optimization Over Time
 #'
 #' @description Create a plot showing improvement in one or more
 #'   Poisson NMF model fits over time. The horizontal axis shows the
@@ -12,9 +12,12 @@
 #'
 #' @details Note that only minimal argument checking is performed.
 #' 
-#' @param fits An object of class \code{"poisson_nmf_fit"}, or a
-#'   non-empty, named list in which each list element is an object of
-#'   class \code{"poisson_nmf_fit"}.
+#' @param fits An object of class \code{"poisson_nmf_fit"} or
+#'   \code{"multinom_topic_model_fit"}, or a non-empty, named list in
+#'   which each list element is an object of class
+#'   \code{"poisson_nmf_fit"} or \code{"multinom_topic_model_fit"}.
+#'   Multinomial topic model fits are automatically converted to
+#'   equivalent Poisson NMF fits using \code{\link{multinom2poisson}}.
 #'
 #' @param x Choose \code{"timing"} to plot improvement in the solution
 #'   over time, or choose \code{"iter"} to plot improvement in the
@@ -90,23 +93,26 @@ plot_progress_poisson_nmf <-
   # ----------------------
   # Check and process input "fits". It should either be an object of
   # class poisson_nmf_fit, or a list of poisson_nmf_fit objects.
-  if (inherits(fits,"poisson_nmf_fit")) {
+ if (inherits(fits,"poisson_nmf_fit") |
+     inherits(fits,"multinom_topic_model_fit")) {
     fit.name    <- deparse(substitute(fits))          
     fits        <- list(fits)
     names(fits) <- fit.name
   } else {
     msg <- paste("Input argument \"fits\" should either be an object of",
-                 "class \"poisson_nmf_fit\", or a non-empty, named list in",
-                 "which each list element is an object of class",
-                 "\"poisson_nmf_fit\"")
+                 "class \"poisson_nmf_fit\" or \"multinom_topic_model_fit\"",
+                 "or a non-empty, named list in which each list element is",
+                 "an object of class \"poisson_nmf_fit\" or",
+                 "\"multinom_topic_model_fit\"")
     if (!(is.list(fits) & !is.null(names(fits)) & length(fits) > 0))
       stop(msg)
-    if (!all(sapply(fits,function (x) inherits(x,"poisson_nmf_fit"))))
+    if (!all(sapply(fits,function (x) inherits(x,"poisson_nmf_fit") |
+                                      inherits(x,"multinom_topic_model_fit"))))
       stop(msg)
     if (!all(nchar(names(fits)) > 0))
       stop(msg)
   }
-
+      
   # Check and process input arguments "x" and "y".
   x <- match.arg(x)
   y <- match.arg(y)
@@ -190,14 +196,15 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #' 
 #' @title Plot Log-Likelihood Versus Poisson NMF Rank 
 #'
-#' @description Create a plot showing the improvement in the
-#'   log-likelihood as the rank of the matrix factorization or
-#'   the number of topics (\dQuote{k}) increases.
+#' @description Create a plot showing the improvement in the Poisson
+#'   NMF log-likelihood as the rank of the matrix factorization or the
+#'   number of topics (\dQuote{k}) increases.
 #' 
-#' @param fits A list with two more list elements, in which each list
-#'   element is an object of class \code{"poisson_nmf_fit"}. If two or
-#'   more Poisson NMF fits shares the same rank, the largest
-#'   log-likelihood is plotted.
+#' @param fits A list with 2 more list elements, in which each list
+#'   element is an object of class \code{"poisson_nmf_fit"} or
+#'   \code{"multinom_topic_model_fit"}. If two or more fits shares the
+#'   same rank, or number of topics, the largest log-likelihood is
+#'   plotted.
 #'
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{loglik_vs_rank_ggplot_call} with your own function to
@@ -209,8 +216,20 @@ create_progress_plot <- function (pdat, x, y, add.point.every, colors,
 #'
 plot_loglik_vs_rank <- function (fits,
                                  ggplot_call = loglik_vs_rank_ggplot_call) {
-  n   <- length(fits)
+  msg <- paste("Input argument \"fits\" should be a list of length 2 or more ",
+               "in which each list element is an object of class",
+               "\"poisson_nmf_fit\" or \"multinom_topic_model_fit\"")
+  if (!(is.list(fits) & length(fits) > 1))
+    stop(msg)
+  if (!all(sapply(fits,function (x)
+                         inherits(x,"poisson_nmf_fit") |
+                         inherits(x,"multinom_topic_model_fit"))))
+    stop(msg)
+  n <- length(fits)
   names(fits) <- paste0("fit",1:n)
+  for (i in 1:n)
+    if (inherits(fits[[i]],"multinom_topic_model_fit"))
+      fits[[i]] <- multinom2poisson(fits[[i]])
   dat   <- compare_poisson_nmf_fits(fits)[c("k","loglik.diff")]
   dat$k <- factor(dat$k)
   y     <- tapply(dat$loglik.diff,dat$k,max)
@@ -250,7 +269,7 @@ loglik_vs_rank_ggplot_call <- function (dat, font.size = 9)
 #' @title Loadings Plot
 #'
 #' @description Generate one or more barcharts to visualize the
-#'   relationship between the loadings, or topic proportions, and a
+#'   relationship between the loadings or mixture proportions and a
 #'   selected categorical variable (a factor).
 #'
 #' @details This is a lightweight interface primarily intended to
@@ -685,11 +704,11 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 
 #' @title PCA Plot
 #'
-#' @description Visualize the structure of the Poisson NMF loadings
-#'   (\dQuote{activations}) or the multinomial topic proportions by
-#'   projection onto principal components (PCs). \code{plot_hexbin_plot}
-#'   is most useful for visualizing the PCs of a data set with thousands
-#'   of samples, or more.
+#' @description Visualize the structure of the Poisson NMF loadings or
+#'   the multinomial topic model mixture proportions by projection onto
+#'   principal components (PCs). \code{plot_hexbin_plot} is most useful
+#'   for visualizing the PCs of a data set with thousands of samples, or
+#'   more.
 #'
 #' @details This is a lightweight interface for rapidly producing PCA
 #' plots from a Poisson non-negative matrix factorization or
@@ -699,7 +718,7 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #' \code{plot_grid_call} arguments. If not provided, the principal
 #' components are computed using \code{\link[stats]{prcomp}}.
 #'
-#' Note that since principal components are a \emph{linear} projection
+#' Since principal components are a \emph{linear} projection
 #' (\dQuote{rotation}) of the data, distances between points can bee
 #' more interpretable than nonlinear embedding methods such as t-SNE
 #' (as visualized using \code{tsne_plot}) and UMAP.
@@ -707,10 +726,10 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
 #'
-#' @param k The topic, or topics, selected by number or name. When
-#'   \code{fill = "loading"}, one plot is created per selected topic;
-#'   when \code{fill = "loading"} and \code{k} is not specified, all
-#'   topics are plotted.
+#' @param k The dimensions or topics selected by number or name. When
+#'   \code{fill = "loading"}, one plot is created per selected dimension
+#'   or topic; when \code{fill = "loading"} and \code{k} is not
+#'   specified, all dimensions or topics are plotted.
 #'
 #' @param out.pca A list containing the result of a principal
 #'   components analysis, typically the result of calling
@@ -726,7 +745,7 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
 #'
 #' @param fill The quantity to map onto the fill colour of the points
 #'   in the PCA plot. Set \code{fill = "loading"} to vary the fill
-#'   colour according to the loadings (or topic proportions) of the
+#'   colour according to the loadings (or mixture proportions) of the
 #'   select topic, or topics. Alternatively, \code{fill} may be set to a
 #'   data vector with one entry per row of \code{fit$L}, in which case
 #'   these data are mapped to the fill colour of the points. When

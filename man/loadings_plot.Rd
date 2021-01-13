@@ -49,7 +49,7 @@ A \code{ggplot} object.
 }
 \description{
 Generate one or more barcharts to visualize the
-  relationship between the loadings, or topic proportions, and a
+  relationship between the loadings or mixture proportions and a
   selected categorical variable (a factor).
 }
 \details{
