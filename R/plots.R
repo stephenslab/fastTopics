@@ -1094,14 +1094,14 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
 #' @title t-SNE Plot
 #'
 #' @description Visualize the "structure" of the Poisson NMF loadings
-#'   ("activations") or the topic proportions by projection onto a 2-d
-#'   surface. Samples in the projection are colored according to the their
-#'   loadings/proportions. By default, t-SNE is used to compute the
-#'   2-d embedding from the loadings or topic proportions.
+#'   or multinomial topic model mixture proportions by projection onto a
+#'   2-d surface. Samples in the projection are colored according to the
+#'   their loadings/proportions. By default, t-SNE is used to compute
+#'   the 2-d embedding from the loadings or mixture proportions.
 #'
 #' @details This is a lightweight interface primarily intended to
 #'   expedite creation of scatterplots for visualizing the loadings or
-#'   topic proportions in 2-d; most of the "heavy lifting" is done by
+#'   mixture proportions in 2-d; most of the "heavy lifting" is done by
 #'   ggplot2. The 2-d embedding itself is computed by invoking function
 #'   \code{\link{tsne_from_topics}} (unless the "tsne" input is
 #'   provided). For more control over the plot's appearance, the plot
@@ -1122,11 +1122,11 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
 #' @param color The data mapped to the color \dQuote{aesthetic} in the
 #'   plot. When \code{color = "loading"}, the estimated loadings (stored
 #'   the \code{L} matrix) in the Poisson NMF model are plotted; when
-#'   \code{color = "prop"}, the estimated topic proportions (which are
+#'   \code{color = "mixprop"}, the estimated mixture proportions (which are
 #'   recovered from the loadings by calling
 #'   \code{\link{poisson2multinom}} are shown. When \code{fit} is a
 #'   \dQuote{multinom_topic_model_fit} object, the only available option
-#'   is \code{color = "prop"}. In most settings, the topic proportions
+#'   is \code{color = "mixprop"}. In most settings, the mixture proportions
 #'   are preferred, even if the 2-d embedding is computed from the
 #'   loading matrix of the Poisson NMF model.
 #' 
@@ -1162,7 +1162,7 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
 #' @export
 #' 
 tsne_plot <-
-  function (fit, color = c("prop","loading"), k, tsne,
+  function (fit, color = c("mixprop","loading"), k, tsne,
             ggplot_call = tsne_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots), ...) {
 
@@ -1172,7 +1172,7 @@ tsne_plot <-
     if (!inherits(fit,"poisson_nmf_fit"))
       stop("For color = \"loading\", input \"fit\" should be an object of ",
            "class \"poisson_nmf_fit\"")
-  } else if (color == "prop") {
+  } else if (color == "mixprop") {
     if (!(inherits(fit,"poisson_nmf_fit") |
           inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
@@ -1190,7 +1190,7 @@ tsne_plot <-
     # Prepare the data for plotting. Note that it is important to
     # subset the rows *after* recovering the parameters of the
     # multinomial topic model.
-    if (inherits(fit,"poisson_nmf_fit") & color == "prop")
+    if (inherits(fit,"poisson_nmf_fit") & color == "mixprop")
       fit <- poisson2multinom(fit)
     dat <- as.data.frame(cbind(tsne$Y,fit$L[tsne$rows,k]))
     names(dat) <- c("d1","d2","loading")
@@ -1246,11 +1246,11 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' @title Structure Plot
 #'
 #' @description Create a "Structure plot" from a multinomial topic
-#'   model fit. The Structure plot represents the estimated topic
+#'   model fit. The Structure plot represents the estimated mixture
 #'   proportions of each sample as a stacked barchart, with bars of
 #'   different colors representing different topics. Consequently,
-#'   samples that have similar topic proportions have similar amounts of
-#'   each color.
+#'   samples that have similar mixture proportions have similar amounts
+#'   of each color.
 #'
 #' @details The name "Structure plot" comes from its widespread use in
 #'   population genetics to visualize the results of the Structure
@@ -1373,7 +1373,7 @@ structure_plot <-
   if (num_groups == 1) {
 
     # If the ordering of the rows is not provided, determine an
-    # ordering by computing a 1-d embedding from the topic
+    # ordering by computing a 1-d embedding from the mixture
     # proportions.
     if (missing(rows)) {
       out  <- tsne_from_topics(fit,1,n,perplexity = perplexity,eta = eta,...)
@@ -1390,7 +1390,7 @@ structure_plot <-
   } else {
 
     # If the ordering of the rows is not provided, determine an
-    # ordering by computing a 1-d embedding from the topic
+    # ordering by computing a 1-d embedding from the mixture
     # proportions, separately for each group.
     if (missing(rows)) {
       rows <- NULL
@@ -1446,10 +1446,10 @@ plot.multinom_topic_model_fit <- function (x, ...)
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   "sample", "topic" and "prop": column "sample" contains the
+#'   "sample", "topic" and "mixprop": column "sample" contains the
 #'   positions of the samples (rows of the loadings matrix) along the
 #'   horizontal axis; column "topic" is a topic (corresponding to
-#'   columns of the loadings matrix); and column "prop" is the topic
+#'   columns of the loadings matrix); and column "mixprop" is the mixture
 #'   proportion for the given sample.
 #'
 #' @param ticks The placement of the group labels along the horizontal
@@ -1474,7 +1474,7 @@ plot.multinom_topic_model_fit <- function (x, ...)
 #'
 structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
                                         font.size = 9)
-  ggplot(dat,aes_string(x = "sample",y = "prop",color = "topic",
+  ggplot(dat,aes_string(x = "sample",y = "mixprop",color = "topic",
                         fill = "topic")) +
     geom_col() +
     scale_x_continuous(limits = c(0,max(dat$sample) + 1),
@@ -1488,27 +1488,27 @@ structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
           axis.text.x = element_text(angle = 45,hjust = 1))
 
 # This is used by structure_plot to create a data frame suitable for
-# plotting with ggplot. Input argument L is the "loadings" matrix
-# from a multinomial topic model fit---each row of L is a vector of
-# topic proportions. Input argument "topics" is the vector of the
-# selected topics (that is, selected columns of L). The output is a
-# data frame with three columns: "sample", a row of L (numeric);
-# "topic", a topic (factor); and "prop", the topic proportion for the
-# given sample (numeric).
+# plotting with ggplot. Input argument L is the "loadings" matrix from
+# a multinomial topic model fit---each row of L is a vector of mixture
+# proportions. Input argument "topics" is the vector of the selected
+# topics (that is, selected columns of L). The output is a data frame
+# with three columns: "sample", a row of L (numeric); "topic", a topic
+# (factor); and "mixprop", the mixture proportion for the given sample
+# (numeric).
 compile_structure_plot_data <- function (L, topics) {
   n   <- nrow(L)
   k   <- length(topics)
-  dat <- data.frame(sample = rep(1:n,times = k),
-                    topic  = rep(topics,each = n),
-                    prop   = c(L[,topics]))
+  dat <- data.frame(sample  = rep(1:n,times = k),
+                    topic   = rep(topics,each = n),
+                    mixprop = c(L[,topics]))
   dat$topic <- factor(dat$topic,topics)
   return(dat)
 }
 
-# This is used by structure_plot tto create a data frame suitable for
+# This is used by structure_plot to create a data frame suitable for
 # plotting with ggplot when the data are grouped. Input argument L is
 # the "loadings" matrix from a multinomiial topic model fit---each row
-# of L is a vector of topic proportions. Input argument "topics" is
+# of L is a vector of mixture proportions. Input argument "topics" is
 # the vector of the selected topics (that is, selected columns of L).
 # Input argument "grouping" is a factor with one entry for each row of
 # L giving the grouping for the rows of L. The rows of L (and,

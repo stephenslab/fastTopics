@@ -7,7 +7,7 @@
 \usage{
 tsne_plot(
   fit,
-  color = c("prop", "loading"),
+  color = c("mixprop", "loading"),
   k,
   tsne,
   ggplot_call = tsne_plot_ggplot_call,
@@ -24,11 +24,11 @@ tsne_plot_ggplot_call(dat, topic.label, font.size = 9)
 \item{color}{The data mapped to the color \dQuote{aesthetic} in the
 plot. When \code{color = "loading"}, the estimated loadings (stored
 the \code{L} matrix) in the Poisson NMF model are plotted; when
-\code{color = "prop"}, the estimated topic proportions (which are
+\code{color = "mixprop"}, the estimated mixture proportions (which are
 recovered from the loadings by calling
 \code{\link{poisson2multinom}} are shown. When \code{fit} is a
 \dQuote{multinom_topic_model_fit} object, the only available option
-is \code{color = "prop"}. In most settings, the topic proportions
+is \code{color = "mixprop"}. In most settings, the mixture proportions
 are preferred, even if the 2-d embedding is computed from the
 loading matrix of the Poisson NMF model.}
 
@@ -72,15 +72,15 @@ A \code{ggplot} object.
 }
 \description{
 Visualize the "structure" of the Poisson NMF loadings
-  ("activations") or the topic proportions by projection onto a 2-d
-  surface. Samples in the projection are colored according to the their
-  loadings/proportions. By default, t-SNE is used to compute the
-  2-d embedding from the loadings or topic proportions.
+  or multinomial topic model mixture proportions by projection onto a
+  2-d surface. Samples in the projection are colored according to the
+  their loadings/proportions. By default, t-SNE is used to compute
+  the 2-d embedding from the loadings or mixture proportions.
 }
 \details{
 This is a lightweight interface primarily intended to
   expedite creation of scatterplots for visualizing the loadings or
-  topic proportions in 2-d; most of the "heavy lifting" is done by
+  mixture proportions in 2-d; most of the "heavy lifting" is done by
   ggplot2. The 2-d embedding itself is computed by invoking function
   \code{\link{tsne_from_topics}} (unless the "tsne" input is
   provided). For more control over the plot's appearance, the plot

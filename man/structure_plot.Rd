@@ -94,10 +94,10 @@ automatically recovered using \code{\link{poisson2multinom}}.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-"sample", "topic" and "prop": column "sample" contains the
+"sample", "topic" and "mixprop": column "sample" contains the
 positions of the samples (rows of the loadings matrix) along the
 horizontal axis; column "topic" is a topic (corresponding to
-columns of the loadings matrix); and column "prop" is the topic
+columns of the loadings matrix); and column "mixprop" is the mixture
 proportion for the given sample.}
 
 \item{ticks}{The placement of the group labels along the horizontal
@@ -111,11 +111,11 @@ A \code{ggplot} object.
 }
 \description{
 Create a "Structure plot" from a multinomial topic
-  model fit. The Structure plot represents the estimated topic
+  model fit. The Structure plot represents the estimated mixture
   proportions of each sample as a stacked barchart, with bars of
   different colors representing different topics. Consequently,
-  samples that have similar topic proportions have similar amounts of
-  each color.
+  samples that have similar mixture proportions have similar amounts
+  of each color.
 }
 \details{
 The name "Structure plot" comes from its widespread use in

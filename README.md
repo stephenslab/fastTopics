@@ -45,7 +45,7 @@ under the terms of the [MIT license][mit-license].
 Install and load the package:
 
 ```R
-devtools::install_github("stephenslab/fastTopics")
+remotes::install_github("stephenslab/fastTopics")
 library(fastTopics)
 ```
 
