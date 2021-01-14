@@ -1086,7 +1086,9 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
   
   # Compute the t-SNE embedding.
   out <- Rtsne(L,dims,pca = pca,normalize = normalize,perplexity = perplexity,
-               theta = theta,max_iter = max_iter,verbose = verbose,...)
+               theta = theta,max_iter = max_iter,eta = eta,
+               check_duplicates = check_duplicates,
+               verbose = verbose,...)
 
   # Return the t-SNE embedding stored as an n x dims matrix (Y), and
   # the rows of L included in the embedding (rows).
