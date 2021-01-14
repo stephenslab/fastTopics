@@ -1397,7 +1397,7 @@ structure_plot <-
       n    <- round(n/n0*table(grouping))
       for (j in levels(grouping)) {
         i    <- which(grouping == j)
-        out  <- tsne_from_topics(select(fit,i),1,n[j],
+        out  <- tsne_from_topics(select_loadings(fit,i),1,n[j],
                                  perplexity = perplexity[j],
                                  eta = eta[j],...)
         rows <- c(rows,i[out$rows[order(out$Y)]])
@@ -1481,7 +1481,7 @@ structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
                        breaks = ticks,labels = names(ticks)) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
-    labs(x = "",y = "proportion") +
+    labs(x = "",y = "mixture proportion") +
     theme_cowplot(font.size) +
     theme(axis.line   = element_blank(),
           axis.ticks  = element_blank(),
