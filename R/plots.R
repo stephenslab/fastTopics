@@ -960,8 +960,8 @@ pca_hexbin_plot_ggplot_call <- function (dat, pcs, bins, breaks, font.size = 9)
 #' @title t-SNE from Poisson NMF or Multinomial Topic Model
 #'
 #' @description Computes a low-dimensional nonlinear embededding of
-#' the data from the estimated loadings or topic proportions using the
-#' t-SNE nonlinear dimensionality reduction method.
+#'   the data from the estimated loadings or mixture proportions using
+#'   the t-SNE nonlinear dimensionality reduction method.
 #'
 #' @details This is a lightweight interface for rapidly producing
 #' t-SNE embeddings from matrix factorizations or multinomial topic
@@ -1020,6 +1020,10 @@ pca_hexbin_plot_ggplot_call <- function (dat, pcs, bins, breaks, font.size = 9)
 #'
 #' @param eta t-SNE learning rate parameter; passed as argument
 #'   \dQuote{eta} to \code{\link[Rtsne]{Rtsne}}.
+#'
+#' @param check_duplicates When \code{check_duplicates = TRUE}, checks
+#'   whether there are duplicate rows in \code{fit$L}; passed as argument
+#'   \dQuote{check_duplicates} to \code{\link[Rtsne]{Rtsne}}.
 #' 
 #' @param verbose If \code{verbose = TRUE}, progress updates are
 #'   printed; passed as argument \dQuote{verbose} to
@@ -1048,7 +1052,8 @@ pca_hexbin_plot_ggplot_call <- function (dat, pcs, bins, breaks, font.size = 9)
 tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
                               pca = FALSE, normalize = FALSE,
                               perplexity = 100, theta = 0.1, max_iter = 1000,
-                              eta = 200, verbose = TRUE, ...) {
+                              eta = 200, check_duplicates = FALSE,
+                              verbose = TRUE, ...) {
     
   # Check and process input arguments.
   if (!(inherits(fit,"poisson_nmf_fit") |

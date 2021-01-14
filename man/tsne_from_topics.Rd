@@ -15,6 +15,7 @@ tsne_from_topics(
   theta = 0.1,
   max_iter = 1000,
   eta = 200,
+  check_duplicates = FALSE,
   verbose = TRUE,
   ...
 )
@@ -63,6 +64,10 @@ argument \dQuote{max_iter} to \code{\link[Rtsne]{Rtsne}}.}
 \item{eta}{t-SNE learning rate parameter; passed as argument
 \dQuote{eta} to \code{\link[Rtsne]{Rtsne}}.}
 
+\item{check_duplicates}{When \code{check_duplicates = TRUE}, checks
+whether there are duplicate rows in \code{fit$L}; passed as argument
+\dQuote{check_duplicates} to \code{\link[Rtsne]{Rtsne}}.}
+
 \item{verbose}{If \code{verbose = TRUE}, progress updates are
 printed; passed as argument \dQuote{verbose} to
 \code{\link[Rtsne]{Rtsne}}.}
@@ -78,8 +83,8 @@ A list with two list elements: \code{Y}, an n x d matrix
 }
 \description{
 Computes a low-dimensional nonlinear embededding of
-the data from the estimated loadings or topic proportions using the
-t-SNE nonlinear dimensionality reduction method.
+  the data from the estimated loadings or mixture proportions using
+  the t-SNE nonlinear dimensionality reduction method.
 }
 \details{
 This is a lightweight interface for rapidly producing
