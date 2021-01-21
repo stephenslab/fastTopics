@@ -272,11 +272,6 @@
 #'   international conference on Knowledge discovery and data mining},
 #'   p. 1064-1072
 #'
-#'   Kim, Y., Carbonetto, P., Stephens, M. and Anitescu, M. (2020). A
-#'   fast algorithm for maximum likelihood estimation of mixture
-#'   proportions using sequential quadratic programming. To appear in
-#'   \emph{Journal of Computational and Graphical Statistics.}
-#'
 #'   Lee, D. D. and Seung, H. S. (2001). Algorithms for non-negative
 #'   matrix factorization. In \emph{Advances in Neural Information
 #'   Processing Systems} \bold{13}, 556–562.
@@ -419,7 +414,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.4-23).\n")
+    cat("(fastTopics 0.4-24).\n")
   }
   
   # INITIALIZE ESTIMATES

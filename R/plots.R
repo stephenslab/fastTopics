@@ -605,9 +605,13 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
 #' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 scale_x_continuous
 #' @importFrom ggplot2 scale_y_continuous
 #' @importFrom ggplot2 scale_fill_gradient2
 #' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 expansion
+#' @importFrom ggplot2 element_text
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom cowplot theme_cowplot
 #' 
@@ -617,6 +621,7 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
                                       max.overlaps = Inf, font.size = 9)
   ggplot(dat,aes_string(x = "beta",y = "y",fill = "mean",label = "label")) +
     geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
+    scale_x_continuous(expand = expansion(mult = 0.2)) +
     scale_y_continuous(trans = "sqrt",
       breaks = c(0,1,2,5,10,20,50,100,200,500,1e3,2e3,5e3,1e4,2e4,5e4)) +
     scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
@@ -624,10 +629,12 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
                          midpoint = mean(range(dat$mean))) +
     geom_text_repel(color = "black",size = 2.25,fontface = "italic",
                     segment.color = "black",segment.size = 0.25,
-                    max.overlaps = max.overlaps,na.rm = TRUE) +
+                    min.segment.length = 0,max.overlaps = max.overlaps,
+                    na.rm = TRUE) +
     labs(x = "log-fold change (\u03b2)",y = y.label,fill = "log10 mean",
          title = paste("topic",topic.label)) +
-    theme_cowplot(font.size)
+    theme_cowplot(font.size) +
+    theme(plot.title = element_text(size = font.size,face = "plain"))   
 
 #' @rdname volcano_plot
 #'
