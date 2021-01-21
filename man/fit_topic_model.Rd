@@ -118,5 +118,7 @@ Hofmann, T. (1999). Probabilistic latent semantic indexing. In
 }
 \seealso{
 \code{\link{init_poisson_nmf}},
-  \code{\link{fit_poisson_nmf}}, \code{\link{poisson2multinom}}.
+  \code{\link{fit_poisson_nmf}},
+  \code{\link{poisson2multinom}},
+  \code{\link{fit_multinom_model}}
 }

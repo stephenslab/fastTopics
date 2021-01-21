@@ -99,13 +99,17 @@ test_that(paste("When all the topic proportions are exactly zero or exactly",
   s   <- 10^runif(n,-1,1)
   dat <- simulate_poisson_gene_data(n,m,k,s)
   X   <- dat$X
-  Y   <- as(X,"dgCMatrix")
   L   <- force_hard_topic_assignments(dat$L)
   clusters         <- factor(apply(dat$L,1,which.max))
   levels(clusters) <- paste0("k",1:k)
+
+  # Remove all-zero columns.
+  i <- which(colSums(X > 0) >= 1)
+  X <- X[,i]
   
   # Fit a Poisson model (approximating a binomial model) to each gene
   # and topic, and compute the log-fold change statistics.
+  Y    <- as(X,"dgCMatrix")
   fit1 <- init_poisson_nmf(X,L = rowSums(X)*L,init.method = "random",
                            control = list(minval = 1e-8))
   out1 <- diff_count_analysis(fit1,X,verbose = FALSE)
@@ -117,8 +121,8 @@ test_that(paste("When all the topic proportions are exactly zero or exactly",
   # unstable).
   expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-10)
   expect_equal(out1$F0,  out3$F0,  scale = 1,tolerance = 1e-10)
-  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e108)
-  expect_equal(out1$F1,  out3$F1,  scale = 1,tolerance = 1e108)
+  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-10)
+  expect_equal(out1$F1,  out3$F1,  scale = 1,tolerance = 1e-10)
   expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 1e-8)
   expect_equal(out1$beta,out3$beta,scale = 1,tolerance = 1e-8)
   expect_equal(out1$Z,   out2$Z,   scale = 1,tolerance = 1e-5)

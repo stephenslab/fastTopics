@@ -68,7 +68,9 @@
 #'   \code{\link{fit_poisson_nmf}} for an explanation of the output.
 #' 
 #' @seealso \code{\link{init_poisson_nmf}},
-#'   \code{\link{fit_poisson_nmf}}, \code{\link{poisson2multinom}}.
+#'   \code{\link{fit_poisson_nmf}},
+#'   \code{\link{poisson2multinom}},
+#'   \code{\link{fit_multinom_model}}
 #' 
 #' @return A multinomial topic model fit; see
 #'   \code{\link{poisson2multinom}} and \code{\link{fit_poisson_nmf}}
@@ -105,7 +107,7 @@ fit_topic_model <-
             control.refine = list(numiter = 4,extrapolate  = TRUE),
             verbose = TRUE) {
       
-  # Check data matrix.
+  # Check the input data matrix.
   verify.count.matrix(X)
   
   # If necessary, remove all-zero columns from the counts matrix.

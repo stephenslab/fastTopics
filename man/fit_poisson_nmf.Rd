@@ -3,7 +3,6 @@
 \name{fit_poisson_nmf}
 \alias{fit_poisson_nmf}
 \alias{init_poisson_nmf}
-\alias{init_poisson_nmf_from_clustering}
 \alias{fit_poisson_nmf_control_default}
 \title{Fit Non-negative Matrix Factorization to Count Data}
 \usage{
@@ -31,8 +30,6 @@ init_poisson_nmf(
   control = list(),
   verbose = TRUE
 )
-
-init_poisson_nmf_from_clustering(X, clusters, ...)
 
 fit_poisson_nmf_control_default()
 }
@@ -118,18 +115,12 @@ provided, input argument \code{k} should be specified instead.}
 \item{betamax}{Initial setting for the upper bound on the
 extrapolation parameter. This is \eqn{\bar{\gamma}} in Algorithm 3
 of Ang & Gillis (2019).}
-
-\item{clusters}{A factor specifying a grouping, or clustering, of
-the rows of \code{X}.}
-
-\item{\dots}{Additional arguments passed to \code{init_poisson_nmf}.}
 }
 \value{
-\code{init_poisson_nmf},
-\code{init_poisson_nmf_from_clustering} and \code{fit_poisson_nmf}
-all return an object capturing the optimization algorithm state
-(for \code{init_poisson_nmf}, this is the initial state). It is a
-list with the following elements:
+\code{init_poisson_nmf} and \code{fit_poisson_nmf} both
+return an object capturing the optimization algorithm state (for
+\code{init_poisson_nmf}, this is the initial state). It is a list
+with the following elements:
 
 \item{F}{A matrix containing the current best estimates of the
   factors.}

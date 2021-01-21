@@ -187,11 +187,10 @@
 #'   iteration. For interpretation of the columns, see the description
 #'   of the \code{progress} return value.
 #'
-#' @return \code{init_poisson_nmf},
-#' \code{init_poisson_nmf_from_clustering} and \code{fit_poisson_nmf}
-#' all return an object capturing the optimization algorithm state
-#' (for \code{init_poisson_nmf}, this is the initial state). It is a
-#' list with the following elements:
+#' @return \code{init_poisson_nmf} and \code{fit_poisson_nmf} both
+#' return an object capturing the optimization algorithm state (for
+#' \code{init_poisson_nmf}, this is the initial state). It is a list
+#' with the following elements:
 #'
 #' \item{F}{A matrix containing the current best estimates of the
 #'   factors.}
@@ -414,7 +413,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.4-24).\n")
+    cat("(fastTopics 0.4-25).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -624,61 +623,6 @@ init_poisson_nmf <-
               progress  = progress)
   class(fit) <- c("poisson_nmf_fit","list")
   return(fit)
-}
-
-#' @rdname fit_poisson_nmf
-#'
-#' @param clusters A factor specifying a grouping, or clustering, of
-#'   the rows of \code{X}.
-#'
-#' @param \dots Additional arguments passed to \code{init_poisson_nmf}.
-#' 
-#' @importFrom Matrix rowSums
-#' @importFrom Matrix colSums
-#' 
-#' @export
-#' 
-init_poisson_nmf_from_clustering <- function (X, clusters, ...) {
-
-  # Check input X.
-  if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
-    stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
-         "a \"dgCMatrix\")")
-
-  # Get the number of rows (n) and columns (m) of the data matrix,
-  n <- nrow(X)
-  m <- ncol(X)
-  
-  # Check "clusters" input.
-  if (!(is.factor(clusters) & length(clusters) == n))
-    stop("Input argument \"clusters\" should be a factor with one entry ",
-         "for each row of \"X\"")
-  if (any(table(clusters) == 0))
-    stop("Each level must appear at least once in factor \"clusters\"")
-  
-  # Initialize the loadings matrix from the clustering.
-  k <- nlevels(clusters)
-  L <- matrix(0,n,k)
-  rownames(L) <- rownames(X)
-  colnames(L) <- levels(clusters)
-  for (j in levels(clusters)) {
-    i      <- which(clusters == j)
-    L[i,j] <- 1
-  }
-  L <- rowSums(X) * L
-
-  # Initialize the factors matrix; the MLEs are available in
-  # closed-form in this case.
-  F <- matrix(0,m,k)
-  rownames(F) <- colnames(X)
-  colnames(F) <- levels(clusters)
-  for (j in levels(clusters)) {
-    i     <- which(clusters == j)
-    F[,j] <- colSums(X[i,])/sum(L[i,j])
-  }
-  
-  # Output the Poisson NMF fit object.
-  return(init_poisson_nmf(X,F,L,...))
 }
 
 # This implements the core part of fit_poisson_nmf.
