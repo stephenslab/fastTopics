@@ -24,12 +24,16 @@ test_that("fit_multinom_model gives correct factor estimates",{
   expect_equal(fit1$L,fit2$L,scale = 1,tolerance = 1e-15)
 
   # Check that both calls to fit_multinom_model recover the
-  # maximum-likelihood estimates of the factors.
+  # maximum-likelihood estimates (MLEs) of the factors (F) and "size
+  # factors" (s).
+  s <- rowSums(X)
   F <- matrix(0,m,k)
   for (j in 1:k) {
     i     <- which(cluster == levels(cluster)[j])
     F[,j] <- colSums(X[i,])/sum(X[i,])
   }
+  expect_equal(fit1$s,s,scale = 1,tolerance = 1e-8)
+  expect_equal(fit2$s,s,scale = 1,tolerance = 1e-8)
   expect_equivalent(fit1$F,F,scale = 1,tolerance = 1e-15)
   expect_equivalent(fit2$F,F,scale = 1,tolerance = 1e-15)
 })

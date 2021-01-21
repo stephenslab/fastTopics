@@ -1,9 +1,15 @@
 #' @title Fit Simple Multinomial Model
 #'
-#' @description Give short description here.
-#'
-#' @details The MLE has a closed-form solution; no iterative updates
-#'   are needed.
+#' @description Fit a simple multinomial model for count data, in
+#'   which each sample (\emph{i.e.}, a row of the data matrix \code{X})
+#'   is assigned to a cluster. Under this simple multinomial model,
+#'   \eqn{x_{ij}} assigned to cluster \eqn{k} is multinomial with sample
+#'   size \eqn{s_i = x_{i1} + ... + x_{im}} and multinomial
+#'   probabilities \eqn{p_{1k}, ..., p_{mk}}. This is a special case of
+#'   the multinomial topic model in which all the mixture proportions
+#'   are either 0 or 1. The maximum-likelihood estimates (MLEs) of the
+#'   multinomial probabilities have a closed-form solution; no
+#'   iterative algorithm is needed to fit this simple model.
 #' 
 #' @param cluster A factor specifying a grouping, or clustering, of
 #'   the rows of \code{X}; e.g., the \dQuote{cluster} output from
@@ -24,7 +30,6 @@
 #' 
 #' @seealso \code{\link{fit_topic_model}}
 #' 
-#' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums
 #' 
 #' @export
@@ -72,7 +77,6 @@ fit_multinom_model <- function (cluster, X, verbose = FALSE, ...) {
     L[i,j] <- 1
     F[,j]  <- colSums(X[i,])/sum(L[i,j])
   }
-  L <- rowSums(X) * L
   
   # Return a multinomial topic model fit.
   return(poisson2multinom(init_poisson_nmf(X,F = F,L = L,

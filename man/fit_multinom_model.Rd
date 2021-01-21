@@ -26,11 +26,16 @@ the call to \code{\link{init_poisson_nmf}}.}
 A multinomial topic model fit.
 }
 \description{
-Give short description here.
-}
-\details{
-The MLE has a closed-form solution; no iterative updates
-  are needed.
+Fit a simple multinomial model for count data, in
+  which each sample (\emph{i.e.}, a row of the data matrix \code{X})
+  is assigned to a cluster. Under this simple multinomial model,
+  \eqn{x_{ij}} assigned to cluster \eqn{k} is multinomial with sample
+  size \eqn{s_i = x_{i1} + ... + x_{im}} and multinomial
+  probabilities \eqn{p_{1k}, ..., p_{mk}}. This is a special case of
+  the multinomial topic model in which all the mixture proportions
+  are either 0 or 1. The maximum-likelihood estimates (MLEs) of the
+  multinomial probabilities have a closed-form solution; no
+  iterative algorithm is needed to fit this simple model.
 }
 \seealso{
 \code{\link{fit_topic_model}}
