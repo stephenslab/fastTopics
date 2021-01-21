@@ -76,7 +76,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -208,7 +208,9 @@ progress of the model fitting is printed to the console. See
 
     <p>A multinomial topic model fit; see
   <code><a href='poisson2multinom.html'>poisson2multinom</a></code> and <code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code>
-  for details.</p>
+  for details. Note that outputted likelihoods and deviances in
+  <code>progress</code> are evaluated with respect to the equivalent
+  Poisson NMF model.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>With the default settings, the model fitting is
@@ -228,10 +230,23 @@ larger data sets, more updates in the main model fitting and
 refinement steps may be needed to obtain a good fit.</p>
 <p>For larger data sets, more than 200 updates may be needed to obtain
 a good fit.</p>
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Dey, K. K., Hsiao, C. J. and Stephens, M. (2017). Visualizing the
+structure of RNA-seq expression data using grade of membership
+models. <em>PLoS Genetics</em> <b>13</b>, e1006599.</p>
+<p>Blei, D. M., Ng, A. Y. and Jordan, M. I. (2003). Latent Dirichlet
+allocation. <em>Journal of Machine Learning Research</em> <b>3</b>,
+993-1022.</p>
+<p>Hofmann, T. (1999). Probabilistic latent semantic indexing. In
+<em>Proceedings of the 22nd International ACM SIGIR Conference</em>,
+50-57. doi:10.1145/312624.312649</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='fit_poisson_nmf.html'>init_poisson_nmf</a></code>,
-  <code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code>, <code><a href='poisson2multinom.html'>poisson2multinom</a></code>.</p></div>
+  <code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code>,
+  <code><a href='poisson2multinom.html'>poisson2multinom</a></code>,
+  <code><a href='fit_multinom_model.html'>fit_multinom_model</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>Matrix</span>)
@@ -239,7 +254,7 @@ a good fit.</p>
 <span class='no'>X</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='simulate_count_data.html'>simulate_count_data</a></span>(<span class='fl'>80</span>,<span class='fl'>100</span>,<span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>,<span class='kw'>sparse</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)$<span class='no'>X</span>
 <span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_topic_model</span>(<span class='no'>X</span>,<span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; Initializing factors using Topic SCORE algorithm.
 #&gt; Initializing loadings by running 10 SCD updates.</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.
-#&gt; Running 100 EM updates, without extrapolation (fastTopics 0.4-13).
+#&gt; Running 100 EM updates, without extrapolation (fastTopics 0.4-26).
 #&gt; iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'| nz(F) nz(L) beta
 #&gt;    1 -8.352950339e+03 +7.79318898e+03 1.17e+00 2.6e-01 5.5e-03 0.817 0.950 0.00
 #&gt;    2 -8.346344065e+03 +7.77997644e+03 9.51e-01 1.3e-01 5.0e-02 0.817 0.950 0.00
@@ -342,7 +357,7 @@ a good fit.</p>
 #&gt;   99 -8.316260155e+03 +7.71980862e+03 1.88e-01 2.0e-02 4.8e-03 0.840 0.875 0.00
 #&gt;  100 -8.316157842e+03 +7.71960399e+03 2.02e-01 2.3e-02 5.3e-03 0.840 0.871 0.00
 #&gt; Refining model fit.</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.
-#&gt; Running 100 SCD updates, with extrapolation (fastTopics 0.4-13).
+#&gt; Running 100 SCD updates, with extrapolation (fastTopics 0.4-26).
 #&gt; iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'| nz(F) nz(L) beta
 #&gt;  101 -8.315372029e+03 +7.71803236e+03 7.95e-01 1.4e-01 2.2e-02 0.853 0.858 0.55
 #&gt;  102 -8.313630585e+03 +7.71454948e+03 4.04e-01 1.8e-01 1.9e-01 0.870 0.850 0.61
@@ -448,9 +463,9 @@ a good fit.</p>
 #&gt;   Number of data cols, m: 100
 #&gt;   Rank/number of topics, k: 3
 #&gt; Evaluation of Poisson NMF fit (200 updates performed):
-#&gt;   Log-likelihood: -8.311490191185e+03
-#&gt;   Deviance: +7.710268688898e+03
-#&gt;   Max KKT residual: +9.610230e-08</div><div class='output co'>#&gt; <span class='message'>Set size.factors = TRUE, topic.props = TRUE and/or topic.reps = TRUE in print(...) to show more informataion</span></div><div class='input'>
+#&gt;   Poisson NMF log-likelihood: -8.311490191185e+03
+#&gt;   Poisson NMF deviance: +7.710268688898e+03
+#&gt;   Max KKT residual: +9.610230e-08</div><div class='output co'>#&gt; <span class='message'>Set show.size.factors = TRUE, show.mixprops = TRUE and/or show.topic.reps = TRUE in print(...) to show more informataion</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

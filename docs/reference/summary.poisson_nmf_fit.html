@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -123,10 +123,22 @@
 <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for summary.poisson_nmf_fit</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='kw'>size.factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>topic.props</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>topic.reps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(
+  <span class='no'>x</span>,
+  <span class='kw'>show.size.factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>show.mixprops</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>show.topic.reps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>
+)
 
 <span class='co'># S3 method for summary.multinom_topic_model_fit</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='kw'>size.factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>topic.props</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>topic.reps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(
+  <span class='no'>x</span>,
+  <span class='kw'>show.size.factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>show.mixprops</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>show.topic.reps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -137,7 +149,7 @@
 &#8220;multinom_topic_model_fit&#8221;. The former is usually the result
 of calling <code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code>; the latter is usually the
 result of calling <code><a href='fit_topic_model.html'>fit_topic_model</a></code> or
-<code>link{poisson2multinom}</code>.</p></td>
+<code><a href='poisson2multinom.html'>poisson2multinom</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -150,16 +162,19 @@ or <code>print.summary</code> method.</p></td>
 usually a result of a call to <code>summary.poisson_nmf_fit</code>.</p></td>
     </tr>
     <tr>
-      <th>size.factors</th>
-      <td><p>If <code>TRUE</code>, show the...</p></td>
+      <th>show.size.factors</th>
+      <td><p>If <code>TRUE</code>, print a summary of the
+size factors.</p></td>
     </tr>
     <tr>
-      <th>topic.props</th>
-      <td><p>If <code>TRUE</code>, show the...</p></td>
+      <th>show.mixprops</th>
+      <td><p>If <code>TRUE</code>, print a summary of the mixture
+proportions.</p></td>
     </tr>
     <tr>
-      <th>topic.reps</th>
-      <td><p>If <code>TRUE</code>, show the...</p></td>
+      <th>show.topic.reps</th>
+      <td><p>If <code>TRUE</code>, print a summary of the topic
+representatives.</p></td>
     </tr>
     </table>
 
@@ -175,8 +190,7 @@ includes the following elements:</p>
 <dt>m</dt><dd><p>The number of columns in the counts matrix, typically the
   number of observed counts per sample.</p></dd>
 
-<dt>k</dt><dd><p>The rank of the Poisson non-negative matrix factorizataion
-  or, equivalently, the number of topics.</p></dd>
+<dt>k</dt><dd><p>The rank of the Poisson NMF or the number of topics.</p></dd>
 
 <dt>s</dt><dd><p>A vector of length n giving the "size factor" estimates;
   these estimates should be equal, or close to, the total counts in
@@ -185,22 +199,23 @@ includes the following elements:</p>
 <dt>numiter</dt><dd><p>The number of loadings and/or factor updates
   performed.</p></dd>
 
-<dt>loglik</dt><dd><p>The log-likelihood attained by the model fit.</p></dd>
+<dt>loglik</dt><dd><p>The log-likelihood attained by the Poisson NMF model
+  fit.</p></dd>
 
-<dt>dev</dt><dd><p>The deviance attained by the model fit.</p></dd>
+<dt>dev</dt><dd><p>The deviance attained by the Poisson NMF model fit.</p></dd>
 
 <dt>res</dt><dd><p>The maximum residual of the Karush-Kuhn-Tucker (KKT)
   first-order optimality conditions. This can be used to assess
   convergence of the updates to a (local) solution.</p></dd>
 
-<dt>topic.proportions</dt><dd><p>Matrix giving a high-level summary of the
-topic proportions, in which rows correspond to topics, and columns
-are proportion ranges.</p></dd>
+<dt>mixprop</dt><dd><p>Matrix giving a high-level summary of the
+  mixture proportions, in which rows correspond to topics, and
+  columns are ranges of mixture proportionss.</p></dd>
 
-<dt>topic.reps</dt><dd><p>A matrix in which the ith row gives the topic
+<dt>topic.reps</dt><dd><p>A matrix in which the ith row gives the mixture
   proportions for the sample "most representative" of topic i; by
-  "most representative", we mean the row (or sample) with the
-  highest proportion of counts drawn from the topic i.</p></dd>
+  "most representative", we mean the row (or sample) with the highest
+  proportion of counts drawn from the topic i.</p></dd>
 
 
   </div>

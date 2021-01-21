@@ -40,11 +40,11 @@
 
 
 <meta property="og:title" content="PCA Plot — pca_plot" />
-<meta property="og:description" content="Visualize the structure of the Poisson NMF loadings
-  (&amp;#8220;activations&amp;#8221;) or the multinomial topic proportions by
-  projection onto principal components (PCs). plot_hexbin_plot
-  is most useful for visualizing the PCs of a data set with thousands
-  of samples, or more." />
+<meta property="og:description" content="Visualize the structure of the Poisson NMF loadings or
+  the multinomial topic model mixture proportions by projection onto
+  principal components (PCs). plot_hexbin_plot is most useful
+  for visualizing the PCs of a data set with thousands of samples, or
+  more." />
 
 
 
@@ -76,7 +76,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -115,11 +115,11 @@
     </div>
 
     <div class="ref-description">
-    <p>Visualize the structure of the Poisson NMF loadings
-  (&#8220;activations&#8221;) or the multinomial topic proportions by
-  projection onto principal components (PCs). <code>plot_hexbin_plot</code>
-  is most useful for visualizing the PCs of a data set with thousands
-  of samples, or more.</p>
+    <p>Visualize the structure of the Poisson NMF loadings or
+  the multinomial topic model mixture proportions by projection onto
+  principal components (PCs). <code>plot_hexbin_plot</code> is most useful
+  for visualizing the PCs of a data set with thousands of samples, or
+  more.</p>
     </div>
 
     <pre class="usage"><span class='fu'>pca_plot</span>(
@@ -163,10 +163,10 @@
     </tr>
     <tr>
       <th>k</th>
-      <td><p>The topic, or topics, selected by number or name. When
-<code>fill = "loading"</code>, one plot is created per selected topic;
-when <code>fill = "loading"</code> and <code>k</code> is not specified, all
-topics are plotted.</p></td>
+      <td><p>The dimensions or topics selected by number or name. When
+<code>fill = "loading"</code>, one plot is created per selected dimension
+or topic; when <code>fill = "loading"</code> and <code>k</code> is not
+specified, all dimensions or topics are plotted.</p></td>
     </tr>
     <tr>
       <th>out.pca</th>
@@ -188,7 +188,7 @@ specified by name or number.</p></td>
       <th>fill</th>
       <td><p>The quantity to map onto the fill colour of the points
 in the PCA plot. Set <code>fill = "loading"</code> to vary the fill
-colour according to the loadings (or topic proportions) of the
+colour according to the loadings (or mixture proportions) of the
 select topic, or topics. Alternatively, <code>fill</code> may be set to a
 data vector with one entry per row of <code>fit$L</code>, in which case
 these data are mapped to the fill colour of the points. When
@@ -261,7 +261,7 @@ ggplot2. For more control over the plot's appearance, the plot can
 be customized by modifying the <code>ggplot_call</code> and
 <code>plot_grid_call</code> arguments. If not provided, the principal
 components are computed using <code><a href='https://rdrr.io/r/stats/prcomp.html'>prcomp</a></code>.</p>
-<p>Note that since principal components are a <em>linear</em> projection
+<p>Since principal components are a <em>linear</em> projection
 (&#8220;rotation&#8221;) of the data, distances between points can bee
 more interpretable than nonlinear embedding methods such as t-SNE
 (as visualized using <code>tsne_plot</code>) and UMAP.</p>

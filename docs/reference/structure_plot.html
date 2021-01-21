@@ -41,11 +41,11 @@
 
 <meta property="og:title" content="Structure Plot — structure_plot" />
 <meta property="og:description" content="Create a &quot;Structure plot&quot; from a multinomial topic
-  model fit. The Structure plot represents the estimated topic
+  model fit. The Structure plot represents the estimated mixture
   proportions of each sample as a stacked barchart, with bars of
   different colors representing different topics. Consequently,
-  samples that have similar topic proportions have similar amounts of
-  each color." />
+  samples that have similar mixture proportions have similar amounts
+  of each color." />
 
 
 
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -117,11 +117,11 @@
 
     <div class="ref-description">
     <p>Create a "Structure plot" from a multinomial topic
-  model fit. The Structure plot represents the estimated topic
+  model fit. The Structure plot represents the estimated mixture
   proportions of each sample as a stacked barchart, with bars of
   different colors representing different topics. Consequently,
-  samples that have similar topic proportions have similar amounts of
-  each color.</p>
+  samples that have similar mixture proportions have similar amounts
+  of each color.</p>
     </div>
 
     <pre class="usage"><span class='fu'>structure_plot</span>(
@@ -241,10 +241,10 @@ automatically recovered using <code><a href='poisson2multinom.html'>poisson2mult
       <th>dat</th>
       <td><p>A data frame passed as input to
 <code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></code>, containing, at a minimum, columns
-"sample", "topic" and "prop": column "sample" contains the
+"sample", "topic" and "mixprop": column "sample" contains the
 positions of the samples (rows of the loadings matrix) along the
 horizontal axis; column "topic" is a topic (corresponding to
-columns of the loadings matrix); and column "prop" is the topic
+columns of the loadings matrix); and column "mixprop" is the mixture
 proportion for the given sample.</p></td>
     </tr>
     <tr>

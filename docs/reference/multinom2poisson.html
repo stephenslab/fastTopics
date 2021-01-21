@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Poisson Non-Negative Matrix Factorization from Multinomial
-  Topic Model — multinom2poisson • fastTopics</title>
+<title>Recover Poisson NMF Fit from Multinomial Topic Model Fit — multinom2poisson • fastTopics</title>
 
 
 <!-- jquery -->
@@ -40,11 +39,10 @@
 
 
 
-<meta property="og:title" content="Get Poisson Non-Negative Matrix Factorization from Multinomial
-  Topic Model — multinom2poisson" />
+<meta property="og:title" content="Recover Poisson NMF Fit from Multinomial Topic Model Fit — multinom2poisson" />
 <meta property="og:description" content="This function recovers parameter estimates of the
-  Poisson non-negative matrix factorization given parameter estimates
-  for a multinomial topic model." />
+  Poisson non-negative matrix factorization (NMF) given parameter
+  estimates for a multinomial topic model." />
 
 
 
@@ -76,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -109,16 +107,15 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Poisson Non-Negative Matrix Factorization from Multinomial
-  Topic Model</h1>
+    <h1>Recover Poisson NMF Fit from Multinomial Topic Model Fit</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/multinom2poisson.R'><code>R/multinom2poisson.R</code></a></small>
     <div class="hidden name"><code>multinom2poisson.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>This function recovers parameter estimates of the
-  Poisson non-negative matrix factorization given parameter estimates
-  for a multinomial topic model.</p>
+  Poisson non-negative matrix factorization (NMF) given parameter
+  estimates for a multinomial topic model.</p>
     </div>
 
     <pre class="usage"><span class='fu'>multinom2poisson</span>(<span class='no'>fit</span>, <span class='no'>X</span>)</pre>
@@ -133,10 +130,10 @@ such as an output from <code>poisson2multinom</code>.</p></td>
     </tr>
     <tr>
       <th>X</th>
-      <td><p>The n x m matrix of counts or pseudocounts. It can be a
-sparse matrix (class <code>"dgCMatrix"</code>) or dense matrix (class
-<code>"matrix"</code>). This only needs to be provided if the document
-sizes <code>fit$s</code> are not available.</p></td>
+      <td><p>Optional n x m matrix of counts, or pseudocounts. It can
+be a sparse matrix (class <code>"dgCMatrix"</code>) or dense matrix
+(class <code>"matrix"</code>). This only needs to be provided if the
+document sizes <code>fit$s</code> are not available.</p></td>
     </tr>
     </table>
 

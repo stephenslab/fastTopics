@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Topic Model Likelihoods and Deviances — loglik_poisson_nmf • fastTopics</title>
+<title>NMF and Topic Model Likelihoods and Deviances — loglik_poisson_nmf • fastTopics</title>
 
 
 <!-- jquery -->
@@ -39,15 +39,9 @@
 
 
 
-<meta property="og:title" content="Topic Model Likelihoods and Deviances — loglik_poisson_nmf" />
+<meta property="og:title" content="NMF and Topic Model Likelihoods and Deviances — loglik_poisson_nmf" />
 <meta property="og:description" content="Compute log-likelihoods and deviances for assessing
-  topic model fit or quality of a non-negative matrix factorization,
-  in which counts matrix X is modeled by the low-rank matrix product
-  L*F'.
-Function cost is mainly used internally to quickly compute
-  log-likelihoods and deviances, and should not be used directly
-  unless you know what you are doing. In particular, very little
-  argument checking is performed." />
+  fit of a topic model or a non-negative matrix factorization (NMF)." />
 
 
 
@@ -79,7 +73,7 @@ Function cost is mainly used internally to quickly compute
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -112,20 +106,14 @@ Function cost is mainly used internally to quickly compute
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Topic Model Likelihoods and Deviances</h1>
+    <h1>NMF and Topic Model Likelihoods and Deviances</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/likelihood.R'><code>R/likelihood.R</code></a></small>
     <div class="hidden name"><code>likelihood.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Compute log-likelihoods and deviances for assessing
-  topic model fit or quality of a non-negative matrix factorization,
-  in which counts matrix X is modeled by the low-rank matrix product
-  L*F'.</p>
-<p>Function <code>cost</code> is mainly used internally to quickly compute
-  log-likelihoods and deviances, and should not be used directly
-  unless you know what you are doing. In particular, very little
-  argument checking is performed.</p>
+  fit of a topic model or a non-negative matrix factorization (NMF).</p>
     </div>
 
     <pre class="usage"><span class='fu'>loglik_poisson_nmf</span>(<span class='no'>X</span>, <span class='no'>fit</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-08</span>)
@@ -147,13 +135,9 @@ sparse matrix (class <code>"dgCMatrix"</code>) or dense matrix (class
     </tr>
     <tr>
       <th>fit</th>
-      <td><p>A Poisson NMF or multinomial topic model fit. For
-<code>loglik_poisson_nmf</code> and <code>deviance_poisson_nmf</code>, this
-should be an object of class &#8220;poisson_nmf_fit&#8221;, such as an
-output from <code>fit_poisson_nmf</code>. For
-<code>loglik_multinom_topic_model</code>, this should be_ object of class
-&#8220;multinom_topic_model_fit&#8221;, such as an output from
-<code>poisson2multinom</code>.</p></td>
+      <td><p>A Poisson NMF or multinomial topic model fit, such as an
+output from <code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code> or
+<code><a href='fit_topic_model.html'>fit_topic_model</a></code>.</p></td>
     </tr>
     <tr>
       <th>e</th>
@@ -192,6 +176,12 @@ implementation is used. The R version is typically faster when
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A numeric vector with one entry per row of <code>X</code>.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Function <code>cost</code> is mainly for internal use to quickly
+  compute log-likelihoods and deviances; it should not be used
+  directly unless you know what you are doing. In particular, very
+  little argument checking is performed by <code>cost</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
@@ -216,7 +206,7 @@ implementation is used. The R version is typically faster when
 #&gt; i9  -20.74577 23.03671
 #&gt; i10 -25.25658 17.93207</div><div class='input'>
 <span class='co'># Compute multinomial log-likelihoods.</span>
-<span class='fu'>loglik_multinom_topic_model</span>(<span class='no'>X</span>,<span class='fu'><a href='poisson2multinom.html'>poisson2multinom</a></span>(<span class='no'>fit</span>))</div><div class='output co'>#&gt;        i1        i2        i3        i4        i5        i6        i7        i8 
+<span class='fu'>loglik_multinom_topic_model</span>(<span class='no'>X</span>,<span class='no'>fit</span>)</div><div class='output co'>#&gt;        i1        i2        i3        i4        i5        i6        i7        i8 
 #&gt; -24.15062 -19.55914 -15.95322 -19.13328 -23.80668 -11.59211 -17.17073 -12.79242 
 #&gt;        i9       i10 
 #&gt; -18.51231 -22.59112 </div><div class='input'>

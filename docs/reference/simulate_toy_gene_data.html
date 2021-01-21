@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Simulate "Toy" Gene Expression Data — simulate_toy_gene_data • fastTopics</title>
+<title>Simulate Toy Gene Expression Data — simulate_toy_gene_data • fastTopics</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Simulate "Toy" Gene Expression Data — simulate_toy_gene_data" />
+<meta property="og:title" content="Simulate Toy Gene Expression Data — simulate_toy_gene_data" />
 <meta property="og:description" content="Simulate gene expression data (UMI counts) under a
-  &quot;toy&quot; expression model. Samples (expression profiles) are drawn
+  toy expression model. Samples (expression profiles) are drawn
   from a multinomial topic model in which topics are &quot;gene programs&quot;." />
 
 
@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -107,14 +107,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Simulate "Toy" Gene Expression Data</h1>
+    <h1>Simulate Toy Gene Expression Data</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/datasim.R'><code>R/datasim.R</code></a></small>
     <div class="hidden name"><code>simulate_toy_gene_data.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Simulate gene expression data (UMI counts) under a
-  "toy" expression model. Samples (expression profiles) are drawn
+  toy expression model. Samples (expression profiles) are drawn
   from a multinomial topic model in which topics are "gene programs".</p>
     </div>
 
@@ -148,15 +148,15 @@ it specifies the "size" parameter in the calls to
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The return value is a list containing the counts matrix
-  <code>X</code>, and the gene frequencies <code>F</code> and topic proportions
+  <code>X</code>, and the gene frequencies <code>F</code> and mixture proportions
   <code>L</code> used to generate the counts.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The topic proportions are generated as follows. With
+    <p>The mixture proportions are generated as follows. With
 probability 0.9, one proportion is one, or close to one, and the
 remaining are zero, or close to zero; that is, the counts are
 primarily generated from a single gene program. Otherwise (wtth
-probability 0.1), the topic proportions are roughly equal.</p>
+probability 0.1), the mixture proportions are roughly equal.</p>
 <p>Gene frequencies are drawn uniformly at random from [0,1].</p>
 
   </div>

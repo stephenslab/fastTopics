@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Merge Topics in Multinomial Topic Model Fit — merge_topics • fastTopics</title>
+<title>Combine Topics in Multinomial Topic Model — merge_topics • fastTopics</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Merge Topics in Multinomial Topic Model Fit — merge_topics" />
+<meta property="og:title" content="Combine Topics in Multinomial Topic Model — merge_topics" />
 <meta property="og:description" content="Combine two or more topics in a multinomial topic
   model fit." />
 
@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -106,7 +106,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Merge Topics in Multinomial Topic Model Fit</h1>
+    <h1>Combine Topics in Multinomial Topic Model</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/merge_topics.R'><code>R/merge_topics.R</code></a></small>
     <div class="hidden name"><code>merge_topics.Rd</code></div>
     </div>
@@ -134,9 +134,8 @@ more topics should be chosen.</p></td>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Loadings (the topic proportions matrix, <code>L</code>) are
-  combined by summation, and factors (the <code>F</code> matrix) are
-  combined by averaging.</p>
+    <p>Mixture proportions are combined by summation, and factors
+  are combined by averaging.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

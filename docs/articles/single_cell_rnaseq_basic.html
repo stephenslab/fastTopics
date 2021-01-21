@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2021-01-04</h4>
+            <h4 class="date">2021-01-21</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/single_cell_rnaseq_basic.Rmd"><code>vignettes/single_cell_rnaseq_basic.Rmd</code></a></small>
       <div class="hidden name"><code>single_cell_rnaseq_basic.Rmd</code></div>
@@ -76,7 +76,7 @@
 
     
     
-<p>The aim of this vignette is to introduce the basic concepts behind an analysis of single-cell RNA-seq data using a topic model, and to show how to use fastTopics to implement a topic model analysis. We introduce the basic concepts and fastTopics interface through a simple example. This first vignette is only intended to explain the topic model analysis at a high level—see <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a> for additional explanations and guidance.</p>
+<p>The aim of this vignette is to introduce the basic concepts behind an analysis of single-cell RNA-seq data using a topic model, and to show how to use <strong>fastTopics</strong> to implement a topic model analysis. We introduce the basic concepts and <strong>fastTopics</strong> interface through a simple example. This first vignette is only intended to explain the topic model analysis at a high level—see <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a> for additional explanations and guidance.</p>
 <p>Since a topic model analysis is quite different from conventional analyses of single-cell RNA-seq data, in this vignette we carefully point out key differences and clarify possible misconceptions. One key difference is that a topic model is a model of <em>count data</em>, so <em>the topic model is intended to be applied directly to the count data</em> that arises from the RNA sequencing assay. This is in contrast with most methods that require careful pre-processing of the count data.</p>
 <p>We begin our analysis by loading the packages. Then we set the seed so that the results can be reproduced.</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">Matrix</span>)
@@ -89,8 +89,8 @@
 <a href="#the-example-data-set" class="anchor"></a>The example data set</h2>
 <p>We will illustrate the concepts using a single-cell RNA-seq data set from <a href="https://doi.org/10.1038/ncomms14049">Zheng <em>et al</em> (2017)</a>. These data are reference transcriptome profiles from 10 bead-enriched subpopulations of peripheral blood mononuclear cells (PBMCs). The original data set is much larger—for this introduction, we have taken a small subset of approximately 3,700 cells.</p>
 <p>The data we will analyze are the unique molecular identifier (UMI) counts. These data are stored as an <span class="math inline">\(n \times m\)</span> sparse matrix, where <span class="math inline">\(n\)</span> is the number of cells and <span class="math inline">\(m\)</span> is the number of genes:</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">pbmc_4k</span>)
-<span class="no">counts</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">counts</span>
+<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">pbmc_facs</span>)
+<span class="no">counts</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">counts</span>
 <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">counts</span>)
 <span class="co"># [1]  3774 16791</span></pre></body></html></div>
 <p>The UMI count data are expected to be “sparse”—that is, most of the counts are expected to be zero. Indeed, over 95% of the UMI counts are zero:</p>
@@ -113,14 +113,14 @@
 <p>Since no pre-processing is needed, we can move directly to the next step of the analysis: fitting the topic model to the UMI count data. This is accomplished with a call to <code>fit_topic_model</code>:</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fit_topic_model.html">fit_topic_model</a></span>(<span class="no">counts</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">6</span>)</pre></body></html></div>
 <p>This is typically the most computationally burdensome step—it may take several minutes to run <code>fit_topic_model</code> on this data set. For convenience, we saved the output from this call:</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">fit</span></pre></body></html></div>
+<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">fit</span></pre></body></html></div>
 <p>To fit a topic model, we must specify <span class="math inline">\(K\)</span>, the number of topics. Here, we have chosen <span class="math inline">\(K = 6\)</span> topics. In most settings, a good choice of <span class="math inline">\(K\)</span> will not be known in advance, so you will you want to explore the results from topic models at different settings of <span class="math inline">\(K\)</span>.</p>
 <p>There are several complexities to topic model fitting—we do not elaborate on these complexities here. The <code>fit_topic_model</code> interface is intended to hide most of these complexities, and it should work well for a wide range of data sets. However, larger or more challenging data sets my require some fine-tuning of the model fitting. See <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a> for more on this.</p>
 </div>
 <div id="each-cell-is-represented-as-a-unique-mixture" class="section level2">
 <h2 class="hasAnchor">
 <a href="#each-cell-is-represented-as-a-unique-mixture" class="anchor"></a>Each cell is represented as a unique mixture</h2>
-<p>A key feature of the topic model is that each cell <span class="math inline">\(i\)</span> is represented as a <em>unique mixture of the topics.</em> Therefore, each cell can be summarized from the <span class="math inline">\(K\)</span> mixture proportions. This cell-specific mixture is learned from the data. In fastTopics, the mixture proportions for all cells are stored as an <span class="math inline">\(n \times K\)</span> matrix:</p>
+<p>A key feature of the topic model is that each cell <span class="math inline">\(i\)</span> is represented as a <em>unique mixture of the topics.</em> Therefore, each cell can be summarized from the <span class="math inline">\(K\)</span> mixture proportions. This cell-specific mixture is learned from the data. In <strong>fastTopics</strong>, the mixture proportions for all cells are stored as an <span class="math inline">\(n \times K\)</span> matrix:</p>
 <div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">fit</span>$<span class="no">L</span>)
 <span class="co"># [1] 3774    6</span></pre></body></html></div>
 <p>To illustrate, here is a cell in which the pattern of expression is almost fully captured by the fourth topic:</p>
@@ -141,8 +141,8 @@
 <div id="interpreting-topics-using-available-cell-labels" class="section level2">
 <h2 class="hasAnchor">
 <a href="#interpreting-topics-using-available-cell-labels" class="anchor"></a>Interpreting topics using available cell labels</h2>
-<p>In some cases, you may have additional information about the cells, such as the tissue the cells were sampled from. (For tips on exploring the results when cell labels are not available, see <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a>.) In the PBMC 4k data, the cells were labeled using fluorescence-activated cell sorting (FACS). Each cell is assigned one of five labels (each corresponding to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer (NK) cells, and T cells.</p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">samples</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">samples</span>
+<p>In some cases, you may have additional information about the cells, such as the tissue the cells were sampled from. (For tips on exploring the results when cell labels are not available, see <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a>.) In the PBMC data, the cells were labeled using fluorescence-activated cell sorting (FACS). Each cell is assigned one of five labels (each corresponding to a cell type): B cells, CD14+ monocytes, CD34+ cells, natural killer (NK) cells, and T cells.</p>
+<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">samples</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">samples</span>
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">samples</span>$<span class="no">subpop</span>)
 <span class="co">#  B cell   CD14+   CD34+ NK cell  T cell </span>
 <span class="co">#     767     163     687     673    1484</span></pre></body></html></div>
@@ -160,11 +160,11 @@
 <div id="topics-capture-patterns-of-relative-expression" class="section level2">
 <h2 class="hasAnchor">
 <a href="#topics-capture-patterns-of-relative-expression" class="anchor"></a>Topics capture patterns of relative expression</h2>
-<p>Above, we explained that the topic model represents cells as mixtures of topics. In our running example, some of the topics seem to have a straightforward interpretation as known cell types. More precisely, each topic captures an expression pattern, encoded as a vector of <span class="math inline">\(m\)</span> relative expression levels (<span class="math inline">\(m\)</span> is the number of genes). In fastTopics, the relative expression levels for all topics are stored as an <span class="math inline">\(m \times K\)</span> matrix:</p>
+<p>Above, we explained that the topic model represents cells as mixtures of topics. In our running example, some of the topics seem to have a straightforward interpretation as known cell types. More precisely, each topic captures an expression pattern, encoded as a vector of <span class="math inline">\(m\)</span> relative expression levels (<span class="math inline">\(m\)</span> is the number of genes). In <strong>fastTopics</strong>, the relative expression levels for all topics are stored as an <span class="math inline">\(m \times K\)</span> matrix:</p>
 <div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">fit</span>$<span class="no">F</span>)
 <span class="co"># [1] 16791     6</span></pre></body></html></div>
 <p>Because the expression patterns are encoded by <em>relative expression levels</em>, the estimates of relative expression are directly comparable across topics. For example, gene <em>CD79B</em> is an important component of B cell differentiation, so we would expect higher expression in B cells. Indeed, this is what we find in the topic 4 (we multiplied the estimates by <span class="math inline">\(10^6\)</span> only to make them easier to read):</p>
-<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">genes</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">genes</span>
+<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">genes</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">genes</span>
 <span class="no">j</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span>(<span class="fl">1e6</span> * <span class="no">fit</span>$<span class="no">F</span>[<span class="no">j</span>,])
 <span class="co">#   k1   k2   k3   k4   k5   k6 </span>
@@ -193,7 +193,7 @@
 <span class="co">#        B cell      CD14+     CD34+  NK cell    T cell</span>
 <span class="co"># [1,] 5.660683 -38.760789 -2.821295 -7.27204 -4.622270</span>
 <span class="co"># [2,] 4.937896  -4.212397 -2.619102 -2.87545 -3.467037</span></pre></body></html></div>
-<p>fastTopics extends the classic differential expression analysis to allow for <em>partial membership</em> to groups. This generalized differential expression analysis is implemented in <code>diff_count_analysis</code>:</p>
+<p><strong>fastTopics</strong> extends the classic differential expression analysis to allow for <em>partial membership</em> to groups. This generalized differential expression analysis is implemented in <code>diff_count_analysis</code>:</p>
 <div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">dfa_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit</span>,<span class="no">counts</span>)
 <span class="co"># Fitting 16791 x 6 = 100746 univariate Poisson models.</span>
 <span class="co"># Computing log-fold change statistics.</span></pre></body></html></div>
@@ -237,7 +237,7 @@
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.4-13 Matrix_1.2-18    </span>
+<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.4-26 Matrix_1.2-18    </span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
 <span class="co">#  [1] progress_1.2.2     tidyselect_0.2.5   xfun_0.11          purrr_0.3.3       </span>

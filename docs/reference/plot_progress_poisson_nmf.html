@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot Progress of Poisson NMF Optimization Method Over Time — plot_progress_poisson_nmf • fastTopics</title>
+<title>Plot Progress of Poisson NMF Optimization Over Time — plot_progress_poisson_nmf • fastTopics</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Plot Progress of Poisson NMF Optimization Method Over Time — plot_progress_poisson_nmf" />
+<meta property="og:title" content="Plot Progress of Poisson NMF Optimization Over Time — plot_progress_poisson_nmf" />
 <meta property="og:description" content="Create a plot showing improvement in one or more
   Poisson NMF model fits over time. The horizontal axis shows the
   recorded runtime (in s), and the vertical axis shows some quantity
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -113,7 +113,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot Progress of Poisson NMF Optimization Method Over Time</h1>
+    <h1>Plot Progress of Poisson NMF Optimization Over Time</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
     <div class="hidden name"><code>plot_progress_poisson_nmf.Rd</code></div>
     </div>
@@ -150,9 +150,12 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>fits</th>
-      <td><p>An object of class <code>"poisson_nmf_fit"</code>, or a
-non-empty, named list in which each list element is an object of
-class <code>"poisson_nmf_fit"</code>.</p></td>
+      <td><p>An object of class <code>"poisson_nmf_fit"</code> or
+<code>"multinom_topic_model_fit"</code>, or a non-empty, named list in
+which each list element is an object of class
+<code>"poisson_nmf_fit"</code> or <code>"multinom_topic_model_fit"</code>.
+Multinomial topic model fits are automatically converted to
+equivalent Poisson NMF fits using <code><a href='multinom2poisson.html'>multinom2poisson</a></code>.</p></td>
     </tr>
     <tr>
       <th>x</th>

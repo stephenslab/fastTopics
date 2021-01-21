@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a topic model, Part 2: practical implementation</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2021-01-04</h4>
+            <h4 class="date">2021-01-21</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/single_cell_rnaseq_practical.Rmd"><code>vignettes/single_cell_rnaseq_practical.Rmd</code></a></small>
       <div class="hidden name"><code>single_cell_rnaseq_practical.Rmd</code></div>
@@ -76,7 +76,7 @@
 
     
     
-<p>This vignette continues from <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html">Part 1</a>, where we introduced the basic concepts behind an analysis of single-cell RNA-seq data using a topic model, and showed how the topic model analysis can be implemented in fastTopics. Here we revisit the same example data set, giving more detailed guidance, and discussing a few complications that may arise as you consider larger or more complex data sets. We illustrate a few strategies that could be helpful for improving your results, creating effective visualizations and extracting interesting biological insights.</p>
+<p>This vignette continues from <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html">Part 1</a>, where we introduced the basic concepts behind an analysis of single-cell RNA-seq data using a topic model, and showed how the topic model analysis can be implemented in <strong>fastTopics</strong>. Here we revisit the same example data set, giving more detailed guidance, and discussing a few complications that may arise as you consider larger or more complex data sets. We illustrate a few strategies that could be helpful for improving your results, creating effective visualizations and extracting interesting biological insights.</p>
 <p>We begin our analysis by loading the packages. Then we set the seed so that the results can be reproduced.</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">Matrix</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">fastTopics</span>)
@@ -84,15 +84,14 @@
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">cowplot</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">1</span>)</pre></body></html></div>
 <p>Now we load the data set and the <span class="math inline">\(K = 6\)</span> pre-fitted topic model.</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">pbmc_4k</span>)
-<span class="no">counts</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">counts</span>
-<span class="no">fit</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">fit</span></pre></body></html></div>
+<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">pbmc_facs</span>)
+<span class="no">counts</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">counts</span>
+<span class="no">fit</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">fit</span></pre></body></html></div>
 <div id="assessing-convergence-of-model-fitting" class="section level2">
 <h2 class="hasAnchor">
 <a href="#assessing-convergence-of-model-fitting" class="anchor"></a>Assessing convergence of model fitting</h2>
-<p>The topic model was fitted using the <code>fit_topic_model</code> function. This function, as we mentioned, hides most of the complexities of model fitting. Nevertheless, it is a good idea to check that the model fitting has converged to a maximum-likelihood solution. This can be easily done in fastTopics:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">fit_nmf</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/multinom2poisson.html">multinom2poisson</a></span>(<span class="no">fit</span>)
-<span class="fu"><a href="../reference/plot_progress_poisson_nmf.html">plot_progress_poisson_nmf</a></span>(<span class="no">fit_nmf</span>,<span class="kw">x</span> <span class="kw">=</span> <span class="st">"iter"</span>,<span class="kw">add.point.every</span> <span class="kw">=</span> <span class="fl">10</span>,
+<p>The topic model was fitted using the <code>fit_topic_model</code> function. This function, as we mentioned, hides most of the complexities of model fitting. Nevertheless, it is a good idea to check that the model fitting has converged to a maximum-likelihood solution. This can be easily done in <strong>fastTopics</strong>:</p>
+<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="../reference/plot_progress_poisson_nmf.html">plot_progress_poisson_nmf</a></span>(<span class="no">fit</span>,<span class="kw">x</span> <span class="kw">=</span> <span class="st">"iter"</span>,<span class="kw">add.point.every</span> <span class="kw">=</span> <span class="fl">10</span>,
                           <span class="kw">colors</span> <span class="kw">=</span> <span class="st">"black"</span>) +
   <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="kw">font_size</span> <span class="kw">=</span> <span class="fl">10</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/plot-loglik-1.png" width="480" style="display: block; margin: auto;"></p>
@@ -113,7 +112,7 @@
 <p><img src="single_cell_rnaseq_practical_files/figure-html/loglik-2-1.png" width="540" style="display: block; margin: auto;"></p>
 <p>Most of the poorly fit cells are in the CD34+ subpopulation:</p>
 <div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">subpop_colors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"dodgerblue"</span>,<span class="st">"forestgreen"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"skyblue"</span>,<span class="st">"gold"</span>)
-<span class="no">pdat</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">loglik</span> <span class="kw">=</span> <span class="no">loglik</span>,<span class="kw">subpop</span> <span class="kw">=</span> <span class="no">pbmc_4k</span>$<span class="no">samples</span>$<span class="no">subpop</span>)
+<span class="no">pdat</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">loglik</span> <span class="kw">=</span> <span class="no">loglik</span>,<span class="kw">subpop</span> <span class="kw">=</span> <span class="no">pbmc_facs</span>$<span class="no">samples</span>$<span class="no">subpop</span>)
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="no">pdat</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">loglik</span>,<span class="kw">fill</span> <span class="kw">=</span> <span class="no">subpop</span>)) +
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html">geom_histogram</a></span>(<span class="kw">bins</span> <span class="kw">=</span> <span class="fl">64</span>,<span class="kw">color</span> <span class="kw">=</span> <span class="st">"white"</span>) +
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_fill_manual</a></span>(<span class="kw">values</span> <span class="kw">=</span> <span class="no">subpop_colors</span>) +
@@ -176,7 +175,7 @@
 <a href="#more-on-differential-expression-analysis" class="anchor"></a>More on differential expression analysis</h2>
 <p>In Part 1, we performed a differential expression analysis using the topic model, and using the results of this analysis we were able to interpret topic 1 as NK cells and topic 4 as B cells. Here, we use perform differential expression analysis to tackle interpretation of the topics that capturing variation in the T cells cluster.</p>
 <p>Unlike the B cells and NK cells, expression in T cells is captured by mixtures of two topics. To isolate T-cell-specific expression patterns, we perform differential expression analysis on the combined topic:</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">genes</span> <span class="kw">&lt;-</span> <span class="no">pbmc_4k</span>$<span class="no">genes</span>
+<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">genes</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">genes</span>
 <span class="no">fit_merged</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/merge_topics.html">merge_topics</a></span>(<span class="no">fit</span>,<span class="fl">5</span>:<span class="fl">6</span>)
 <span class="no">dfa_merged</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit_merged</span>,<span class="no">counts</span>)
 <span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_merged</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="st">"k5+k6"</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.998</span>,
@@ -231,7 +230,7 @@
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.4-13 Matrix_1.2-18    </span>
+<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.4-26 Matrix_1.2-18    </span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
 <span class="co">#  [1] httr_1.4.2         tidyr_1.0.0        jsonlite_1.6       viridisLite_0.3.0 </span>

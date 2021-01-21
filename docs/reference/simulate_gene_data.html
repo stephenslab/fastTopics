@@ -43,7 +43,7 @@
 <meta property="og:title" content="Simulate Gene Expression Data from Poisson NMF or Multinomial
   Topic Model — simulate_poisson_gene_data" />
 <meta property="og:description" content="Simulate count data from a Poisson NMF model or
-  Multinomial Topic Model, in which topics represent &amp;#8220;gene
+  multinomial topic model, in which topics represent &amp;#8220;gene
   expression programs&amp;#8221;, and gene expression programs are
   characterized by different rates of expression. The way in which
   the counts are simulated is modeled after gene expression studies
@@ -86,7 +86,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -127,7 +127,7 @@
 
     <div class="ref-description">
     <p>Simulate count data from a Poisson NMF model or
-  Multinomial Topic Model, in which topics represent &#8220;gene
+  multinomial topic model, in which topics represent &#8220;gene
   expression programs&#8221;, and gene expression programs are
   characterized by different rates of expression. The way in which
   the counts are simulated is modeled after gene expression studies
@@ -184,7 +184,7 @@ a sparse matrix in compressed, column-oriented format; see
   the counts matrix <code>X</code>, and the size factors <code>s</code> and
   factorization, <code>F</code>, <code>L</code>, used to generate the counts.
   <code>simulate_multinom_gene_data</code> returns a list containing the
-  counts matrix <code>X</code>, and the topic proportions <code>L</code> and
+  counts matrix <code>X</code>, and the mixture proportions <code>L</code> and
   factors (gene probabilities, or relative gene expression levels)
   <code>F</code> used to generate the counts.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
@@ -192,10 +192,10 @@ a sparse matrix in compressed, column-oriented format; see
     <p>Here we describe the process for generating the n x k
   loadings matrix <code>L</code> and the m x k factors matrix <code>F</code>.</p>
 <p>Each row of the <code>L</code> matrix is generated in the following
-  manner: (1) the number of nonzero topic proportions is \(1
+  manner: (1) the number of nonzero mixture proportions is \(1
   \le n \le k\), with probability proportional to \(2^{-n}\);
-  (2) the indices of the nonzero topic proportions are sampled
-  uniformly at random; and (3) the nonzero topic proportions are
+  (2) the indices of the nonzero mixture proportions are sampled
+  uniformly at random; and (3) the nonzero mixture proportions are
   sampled from the Dirichlet distribution with \(\alpha = 1\) (so
   that all topics are equally likely).</p>
 <p>Each row of the factors matrix are generated according to the

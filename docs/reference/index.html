@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
       </span>
     </div>
 
@@ -142,9 +142,15 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="fit_poisson_nmf.html">fit_poisson_nmf()</a></code> <code><a href="fit_poisson_nmf.html">init_poisson_nmf()</a></code> <code><a href="fit_poisson_nmf.html">init_poisson_nmf_from_clustering()</a></code> <code><a href="fit_poisson_nmf.html">fit_poisson_nmf_control_default()</a></code> </p>
+          <p><code><a href="fit_multinom_model.html">fit_multinom_model()</a></code> </p>
         </td>
-        <td><p>Fit or Re-fit Poisson Non-negative Matrix Factorization</p></td>
+        <td><p>Fit Simple Multinomial Model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="fit_poisson_nmf.html">fit_poisson_nmf()</a></code> <code><a href="fit_poisson_nmf.html">init_poisson_nmf()</a></code> <code><a href="fit_poisson_nmf.html">fit_poisson_nmf_control_default()</a></code> </p>
+        </td>
+        <td><p>Fit Non-negative Matrix Factorization to Count Data</p></td>
       </tr><tr>
         
         <td>
@@ -156,7 +162,7 @@
         <td>
           <p><code><a href="likelihood.html">loglik_poisson_nmf()</a></code> <code><a href="likelihood.html">loglik_multinom_topic_model()</a></code> <code><a href="likelihood.html">deviance_poisson_nmf()</a></code> <code><a href="likelihood.html">cost()</a></code> </p>
         </td>
-        <td><p>Topic Model Likelihoods and Deviances</p></td>
+        <td><p>NMF and Topic Model Likelihoods and Deviances</p></td>
       </tr><tr>
         
         <td>
@@ -168,20 +174,19 @@
         <td>
           <p><code><a href="merge_topics.html">merge_topics()</a></code> </p>
         </td>
-        <td><p>Merge Topics in Multinomial Topic Model Fit</p></td>
+        <td><p>Combine Topics in Multinomial Topic Model</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="multinom2poisson.html">multinom2poisson()</a></code> </p>
         </td>
-        <td><p>Get Poisson Non-Negative Matrix Factorization from Multinomial
-  Topic Model</p></td>
+        <td><p>Recover Poisson NMF Fit from Multinomial Topic Model Fit</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="pbmc_4k.html">pbmc_4k</a></code> </p>
+          <p><code><a href="pbmc_facs.html">pbmc_facs</a></code> </p>
         </td>
-        <td><p>Mixture of FACS-purified PBMC Single-Cell RNA-seq data</p></td>
+        <td><p>Mixture of 10 FACS-purified PBMC Single-Cell RNA-seq data</p></td>
       </tr><tr>
         
         <td>
@@ -199,20 +204,19 @@
         <td>
           <p><code><a href="plot_progress_poisson_nmf.html">plot_progress_poisson_nmf()</a></code> </p>
         </td>
-        <td><p>Plot Progress of Poisson NMF Optimization Method Over Time</p></td>
+        <td><p>Plot Progress of Poisson NMF Optimization Over Time</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="poisson2multinom.html">poisson2multinom()</a></code> </p>
         </td>
-        <td><p>Get Multinomial Topic Model from Poisson Non-Negative Matrix
-  Factorization</p></td>
+        <td><p>Recover Multinomial Topic Model Fit from Poisson NMF fit</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="select_loadings.html">select(<i>&lt;multinom_topic_model_fit&gt;</i>)</a></code> <code><a href="select_loadings.html">select_loadings()</a></code> </p>
         </td>
-        <td><p>Extract or Re-order Multinomial Topic Model Loadings</p></td>
+        <td><p>Extract or Re-order Data Rows in Multinomial Topic Model</p></td>
       </tr><tr>
         
         <td>
@@ -231,7 +235,7 @@
         <td>
           <p><code><a href="simulate_toy_gene_data.html">simulate_toy_gene_data()</a></code> </p>
         </td>
-        <td><p>Simulate "Toy" Gene Expression Data</p></td>
+        <td><p>Simulate Toy Gene Expression Data</p></td>
       </tr><tr>
         
         <td>
