@@ -118,9 +118,9 @@ test_that("poisson_nmf_kkt gives same result for sparse and dense matrices",{
 test_that(paste("loglik_poisson_nmf and loglik_multinom_topic_model give",
                 "the same result when provided with either a Poisson NMF",
                 "or multinomial topic model fit"),{
-  set.seed(1)
 
   # Generate a data set.
+  set.seed(1)
   out  <- simulate_count_data(10,8,3)
   X    <- out$X
   fit1 <- out[c("F","L")]
@@ -137,4 +137,28 @@ test_that(paste("loglik_poisson_nmf and loglik_multinom_topic_model give",
   # calculations should be the same.
   expect_equal(f1,f2)
   expect_equal(f3,f4)
+})
+
+test_that(paste("loglik_poisson_nmf and loglik_multinom_topic_model plus",
+                "size factor likelihoods are the same"),{
+
+  # Generate a data set.
+  set.seed(1)
+  out  <- simulate_count_data(10,8,3)
+  X    <- out$X
+
+  # Fit a Poisson NMF model.
+  capture.output(fit1 <- fit_poisson_nmf(X,k = 3,init.method = "random",
+                                         numiter = 10))
+  
+  # Compute the Poisson NMF likelihoods.
+  f1   <- loglik_poisson_nmf(X,fit1,e = 0)
+
+  # Compute the multinomial topic model likelikhoods, and check that
+  # they give the same result after adding the likelihoods for the
+  # size factors.
+  fit2 <- poisson2multinom(fit1)
+  f2   <- loglik_multinom_topic_model(X,fit2,e = 0) +
+          dpois(rowSums(X),fit2$s,log = TRUE)
+  expect_equal(f1,f2,scale = 1,tolerance = 1e-14)
 })
