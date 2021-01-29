@@ -627,7 +627,7 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
     scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
                          na.value = "gainsboro",
                          midpoint = mean(range(dat$mean))) +
-    geom_text_repel(color = "black",size = 2.25,fontface = "italic",
+    geom_text_repel(color = "dimgray",size = 2.25,fontface = "italic",
                     segment.color = "black",segment.size = 0.25,
                     min.segment.length = 0,max.overlaps = max.overlaps,
                     na.rm = TRUE) +
