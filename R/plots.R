@@ -627,8 +627,8 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
     scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
                          na.value = "gainsboro",
                          midpoint = mean(range(dat$mean))) +
-    geom_text_repel(color = "dimgray",size = 2.25,fontface = "italic",
-                    segment.color = "black",segment.size = 0.25,
+    geom_text_repel(color = "darkgray",size = 2.25,fontface = "italic",
+                    segment.color = "darkgray",segment.size = 0.25,
                     min.segment.length = 0,max.overlaps = max.overlaps,
                     na.rm = TRUE) +
     labs(x = "log-fold change (\u03b2)",y = y.label,fill = "log10 mean",
