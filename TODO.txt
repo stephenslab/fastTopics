@@ -1,7 +1,10 @@
 to do
 =====
 
-+ Improve argument checking using functions in verify_args.R.
++ Fix bug in diff_count_analysis that occurs when one or more
+  "all-zero" columns are removed.
+
++ Implement adaptive shrinkage of beta in diff_count_analysis.
 
 + Remove files in inst/derivations/diffcount.
 
