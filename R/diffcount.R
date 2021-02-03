@@ -3,11 +3,13 @@
 #' @description Implements methods for analysis of differential count
 #' analysis using a topic model. These methods are motivated by gene
 #' expression studies, but could have other uses, such as identifying
-#' \dQuote{key words} in topics derived from text documents. A special
-#' case of "hard" topic assignments is also implemented---that is, the
-#' mixture proportions are all zeros and ones---which involves greatly
-#' simplified (and faster) calculations. Use \code{diff_count_clusters}
-#' for this special case.
+#' \dQuote{key words} in topics derived from text documents. To
+#' improve accuracy of the differential expression analysis, an
+#' empirical Bayes method is used to \dQuote{stabilize} the
+#' estimates. A special case of \dQuote{hard} topic assignments is
+#' also implemented---that is, the mixture proportions are all zeros
+#' and ones---which involves greatly simplified (and faster)
+#' calculations. Use \code{diff_count_clusters} for this special case.
 #'
 #' @details The methods are based on the following univariate
 #' (\dQuote{single-count}) Poisson model: \deqn{x_i ~ Poisson(s_i
@@ -19,34 +21,42 @@
 #' given topic. An EM algorithm is used to compute maximum-likelihood
 #' estimates (MLEs) of the two unknowns.
 #'
-#' The log-fold change statistics are defined as the log-ratio of the
-#' two Poisson rate parameters, \eqn{\beta = \log_2(f_1/f_0)}. This
-#' statistic measures the increase (or decrease) in occurence in one
-#' topic compared to all other topics. The use of the base-2 logarithm
-#' comes from the convention used in gene expression studies.
+#' The log-fold change (LFC) statistics are defined as the log-ratio
+#' of the two Poisson rate parameters, \eqn{\beta = \log_2(f_1/f_0)}.
+#' This statistic measures the increase (or decrease) in occurence in
+#' one topic compared to all other topics. The use of the base-2
+#' logarithm comes from the convention used in gene expression
+#' studies.
 #'
 #' When each \eqn{s_i} (specified by input argument \code{s}) is equal
 #' the total count for sample i (this is the default setting in
 #' \code{diff_count_analysis}), the Poisson model will closely
 #' approximate a binomial model of the count data, so that the Poisson
-#' model parameters \eqn{f_0, f_1} represent binomial
-#' probabilities. In this case, \eqn{\beta} represents the log-fold
-#' change in \emph{relative} occurrence. (This Poisson approximation
-#' to the binomial is most accurate when the total counts
-#' \code{rowSums(X)} are large and \eqn{f_0, f_1} are small.)
+#' model parameters \eqn{f_0, f_1} represent binomial probabilities.
+#' In this case, \eqn{\beta} represents the LFC in \emph{relative}
+#' occurrence. (This Poisson approximation to the binomial is most
+#' accurate when the total counts \code{rowSums(X)} are large and
+#' \eqn{f_0, f_1} are small.)
 #'
 #' Other choices for \code{s} are possible, and implement different
 #' normalization schemes for the counts, and different interpretations
-#' of the log-fold change statistics. Setting \code{s} to all ones
-#' implements the differential count analysis with no normalization,
-#' and \eqn{\beta} represents the log-fold change in \emph{absolute}
-#' occurrence. This choice could be appropriate in settings where the
-#' total count is well-controlled across samples (rows of \code{X}).
+#' of the LFC statistics. Setting \code{s} to all ones implements the
+#' differential count analysis with no normalization, and \eqn{\beta}
+#' represents the LFC in \emph{absolute} occurrence. This choice could
+#' be appropriate in settings where the total count is well-controlled
+#' across samples (rows of \code{X}).
 #'
 #' The standard error and z-score calculations are based on a Laplace
 #' approximation to the likelihood at the MLE. This is the same
 #' strategy used to compute standard errors and z-scores in
 #' \code{\link[stats]{glm}}.
+#'
+#' We recommend setting \code{shrink.method = "ashr"}, which uses
+#' "adaptive shrinkage" (Stephens, 2016) to improve accuracy of the
+#' LFC estimates. The improvement in accuracy is greatest for genes
+#' with low expression, or when the sample size is small (or
+#' both). This shrinkage step replicates \code{lfcShrink} from the
+#' DESeq2 package, with \code{type = "ashr"}.
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
@@ -71,12 +81,16 @@
 #'   avoid logarithms of zero and division by zero.
 #'
 #' @param betamax Since the calculation of the standard deviations and
-#'   z-scores can be numerically unstable for large log-fold change
-#'   estimates, particularly in large data sets, an upper limit on the
-#'   estimated log-fold change can be used to improve the numerical
-#'   accuracy of the calculations.
+#'   z-scores can be numerically unstable for large LFC estimates,
+#'   particularly in large data sets, an upper limit on the estimated
+#'   LFC can be used to improve the numerical accuracy of the
+#'   calculations.
 #' 
-#' @param shrink.method Describe input argument "shrink.method" here.
+#' @param shrink.method Method used to stabilize the LFC estimates.
+#'   When \code{shrink.method = "ashr"}, the "adaptive shrinkage" method
+#'   implemented in the ashr package is used. When \code{shrink.method =
+#'   "none"}, no stabilization is performed, and the \dQuote{raw} LFC
+#'   estimates are returned.
 #' 
 #' @param show.warning Set \code{show.warning = FALSE} to suppress a
 #'   message about calculations when mixture proportions are all 0 or 1.
@@ -99,23 +113,38 @@
 #'
 #' \item{F1}{Estimates of the Poisson model parameters \eqn{f_1}.}
 #'
-#' \item{beta}{Log-fold change estimates, \code{beta = log2(F1/F0)}.}
+#' \item{beta}{Log-fold change (LFC) estimates. When
+#'   \code{shrink.method = "none"}, these are \code{beta = log2(F1/F0)},
+#'   these are posterior LFC estimates.}
 #'
-#' \item{se}{Standard errors for the log-fold change estimates.}
+#' \item{se}{Standard errors for the LFC estimates. When
+#'   \code{shrink.method = "ashr"}, these are posterior standard
+#'   errors.}
 #'
-#' \item{Z}{Log-fold change z-scores.}
+#' \item{Z}{LFC z-scores. When \code{shrink.method = "ashr"}, these
+#'   are posterior z-scores.}
 #'
 #' \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
 #'
+#' @references
+#' Stephens, M. (2016). False discovery rates: a new deal.
+#' \emph{Biostatistics} \bold{18}(2), kxw041.
+#' \url{https://doi.org/10.1093/biostatistics/kxw041}
+#'
+#' Zhu, A., Ibrahim, J. G. and Love, M. I. (2019). Heavy-tailed prior
+#' distributions for sequence count data: removing the noise and
+#' preserving large differences. \emph{Bioinformatics} \bold{35}(12),
+#' 2084–2092.
+#' 
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colMeans
 #' @importFrom ashr ash
 #' 
 #' @export
 #' 
-diff_count_analysis <- function (fit, X, s = rowSums(X),
-                                 numiter = 100, tol = 1e-8, e = 1e-15,
-                                 betamax = 10, shrink.method = c("ash","none"),
+diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
+                                 tol = 1e-8, e = 1e-15, betamax = 10,
+                                 shrink.method = c("ash","none"),
                                  show.warning = TRUE, verbose = TRUE, ...) {
 
   # Check and process input argument "fit".
@@ -182,19 +211,28 @@ diff_count_analysis <- function (fit, X, s = rowSums(X),
   # Compute the per-column averages.
   out <- c(list(colmeans = colMeans(X),F0 = F0,F1 = F1),out)
 
-  # TO DO: Explain here what these lines of code do.
+  # If requested, use "adaptive shrinkage" to stabilize the log-fold
+  # change estimates. 
   if (shrink.method == "ashr") {
     if (verbose)
-      cat("Computing posterior log-fold change estimates and se's using",
-          "ashr.\n")
+      cat("Stabilizing log-fold change estimates using ashr.\n")
+
+    # Repeat for each topic.
     for (j in 1:k) {
       i <- which(!is.na(out$se[,j]))
       if (length(i) > 0) {
+
+        # Run adaptive shrinkage, and extract the posterior estimates (b)
+        # and the posterior standard errors (se).
         ans <- ash(out$beta[i,j],out$se[i,j],mixcompdist = "normal",
                    method = "shrink",...)
         b   <- ans$result$PosteriorMean
         se  <- ans$result$PosteriorSD
         z   <- b/se
+
+        # Store the "stabilized" (posterior) statistics, and
+        # re-compute the p-values based on these stabilized
+        # statistics.
         out$beta[i,j] <- b
         out$se[i,j]   <- se
         out$Z[i,j]    <- z

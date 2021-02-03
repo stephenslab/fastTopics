@@ -45,12 +45,16 @@ change between two successive updates is less than \code{tol}.}
 avoid logarithms of zero and division by zero.}
 
 \item{betamax}{Since the calculation of the standard deviations and
-z-scores can be numerically unstable for large log-fold change
-estimates, particularly in large data sets, an upper limit on the
-estimated log-fold change can be used to improve the numerical
-accuracy of the calculations.}
+z-scores can be numerically unstable for large LFC estimates,
+particularly in large data sets, an upper limit on the estimated
+LFC can be used to improve the numerical accuracy of the
+calculations.}
 
-\item{shrink.method}{Describe input argument "shrink.method" here.}
+\item{shrink.method}{Method used to stabilize the LFC estimates.
+When \code{shrink.method = "ashr"}, the "adaptive shrinkage" method
+implemented in the ashr package is used. When \code{shrink.method =
+"none"}, no stabilization is performed, and the \dQuote{raw} LFC
+estimates are returned.}
 
 \item{show.warning}{Set \code{show.warning = FALSE} to suppress a
 message about calculations when mixture proportions are all 0 or 1.}
@@ -79,11 +83,16 @@ The return value is a list with six m x k matrices, where m
 
 \item{F1}{Estimates of the Poisson model parameters \eqn{f_1}.}
 
-\item{beta}{Log-fold change estimates, \code{beta = log2(F1/F0)}.}
+\item{beta}{Log-fold change (LFC) estimates. When
+  \code{shrink.method = "none"}, these are \code{beta = log2(F1/F0)},
+  these are posterior LFC estimates.}
 
-\item{se}{Standard errors for the log-fold change estimates.}
+\item{se}{Standard errors for the LFC estimates. When
+  \code{shrink.method = "ashr"}, these are posterior standard
+  errors.}
 
-\item{Z}{Log-fold change z-scores.}
+\item{Z}{LFC z-scores. When \code{shrink.method = "ashr"}, these
+  are posterior z-scores.}
 
 \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
 }
@@ -91,11 +100,13 @@ The return value is a list with six m x k matrices, where m
 Implements methods for analysis of differential count
 analysis using a topic model. These methods are motivated by gene
 expression studies, but could have other uses, such as identifying
-\dQuote{key words} in topics derived from text documents. A special
-case of "hard" topic assignments is also implemented---that is, the
-mixture proportions are all zeros and ones---which involves greatly
-simplified (and faster) calculations. Use \code{diff_count_clusters}
-for this special case.
+\dQuote{key words} in topics derived from text documents. To
+improve accuracy of the differential expression analysis, an
+empirical Bayes method is used to \dQuote{stabilize} the
+estimates. A special case of \dQuote{hard} topic assignments is
+also implemented---that is, the mixture proportions are all zeros
+and ones---which involves greatly simplified (and faster)
+calculations. Use \code{diff_count_clusters} for this special case.
 }
 \details{
 The methods are based on the following univariate
@@ -108,32 +119,50 @@ to each topic k. The \eqn{q_i}'s are the topic probabilities for a
 given topic. An EM algorithm is used to compute maximum-likelihood
 estimates (MLEs) of the two unknowns.
 
-The log-fold change statistics are defined as the log-ratio of the
-two Poisson rate parameters, \eqn{\beta = \log_2(f_1/f_0)}. This
-statistic measures the increase (or decrease) in occurence in one
-topic compared to all other topics. The use of the base-2 logarithm
-comes from the convention used in gene expression studies.
+The log-fold change (LFC) statistics are defined as the log-ratio
+of the two Poisson rate parameters, \eqn{\beta = \log_2(f_1/f_0)}.
+This statistic measures the increase (or decrease) in occurence in
+one topic compared to all other topics. The use of the base-2
+logarithm comes from the convention used in gene expression
+studies.
 
 When each \eqn{s_i} (specified by input argument \code{s}) is equal
 the total count for sample i (this is the default setting in
 \code{diff_count_analysis}), the Poisson model will closely
 approximate a binomial model of the count data, so that the Poisson
-model parameters \eqn{f_0, f_1} represent binomial
-probabilities. In this case, \eqn{\beta} represents the log-fold
-change in \emph{relative} occurrence. (This Poisson approximation
-to the binomial is most accurate when the total counts
-\code{rowSums(X)} are large and \eqn{f_0, f_1} are small.)
+model parameters \eqn{f_0, f_1} represent binomial probabilities.
+In this case, \eqn{\beta} represents the LFC in \emph{relative}
+occurrence. (This Poisson approximation to the binomial is most
+accurate when the total counts \code{rowSums(X)} are large and
+\eqn{f_0, f_1} are small.)
 
 Other choices for \code{s} are possible, and implement different
 normalization schemes for the counts, and different interpretations
-of the log-fold change statistics. Setting \code{s} to all ones
-implements the differential count analysis with no normalization,
-and \eqn{\beta} represents the log-fold change in \emph{absolute}
-occurrence. This choice could be appropriate in settings where the
-total count is well-controlled across samples (rows of \code{X}).
+of the LFC statistics. Setting \code{s} to all ones implements the
+differential count analysis with no normalization, and \eqn{\beta}
+represents the LFC in \emph{absolute} occurrence. This choice could
+be appropriate in settings where the total count is well-controlled
+across samples (rows of \code{X}).
 
 The standard error and z-score calculations are based on a Laplace
 approximation to the likelihood at the MLE. This is the same
 strategy used to compute standard errors and z-scores in
 \code{\link[stats]{glm}}.
+
+We recommend setting \code{shrink.method = "ashr"}, which uses
+"adaptive shrinkage" (Stephens, 2016) to improve accuracy of the
+LFC estimates. The improvement in accuracy is greatest for genes
+with low expression, or when the sample size is small (or
+both). This shrinkage step replicates \code{lfcShrink} from the
+DESeq2 package, with \code{type = "ashr"}.
+}
+\references{
+Stephens, M. (2016). False discovery rates: a new deal.
+\emph{Biostatistics} \bold{18}(2), kxw041.
+\url{https://doi.org/10.1093/biostatistics/kxw041}
+
+Zhu, A., Ibrahim, J. G. and Love, M. I. (2019). Heavy-tailed prior
+distributions for sequence count data: removing the noise and
+preserving large differences. \emph{Bioinformatics} \bold{35}(12),
+2084–2092.
 }

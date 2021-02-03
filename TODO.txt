@@ -1,8 +1,7 @@
 to do
 =====
 
-+ Implement adaptive shrinkage of beta in diff_count_analysis, and
-  update diff_count_analysis roxygen2 docs.
++ Update pkgdown site.
 
 + Remove files in inst/derivations/diffcount.
 
