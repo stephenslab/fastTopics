@@ -413,7 +413,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.4-29).\n")
+    cat("(fastTopics 0.4-31).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -595,7 +595,7 @@ init_poisson_nmf <-
   names(progress) <- c("iter","loglik","dev","res","delta.f","delta.l",
                        "nonzeros.f","nonzeros.l","extrapolate","beta",
                        "betamax","timing")
-  
+
   # Return a list containing: F, an initial estimate of the factors;
   # L, an initial estimate of the loadings; Fn and Ln, the
   # non-extrapolated estimates of the factors and loadings, which

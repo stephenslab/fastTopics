@@ -15,6 +15,18 @@ lpfromz <- function (z)
 is.sparse.matrix <- function (x)
   inherits(x,"dgCMatrix")
 
+# Check if the matrix contains one or more all-zero columns.
+#
+#' @importFrom Matrix colSums
+any.allzero.cols <- function (X)
+  any(colSums(X > 0) == 0)
+
+# Filter out all-zero columns from the matrix.
+#
+#' @importFrom Matrix colSums
+remove.allzero.cols <- function (X)
+  X[,colSums(X > 0) >= 1]
+
 # Apply operation f to all nonzeros of a sparse matrix.
 #
 #' @importFrom Matrix sparseMatrix

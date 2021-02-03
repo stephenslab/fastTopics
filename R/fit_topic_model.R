@@ -111,12 +111,11 @@ fit_topic_model <-
   verify.count.matrix(X)
   
   # If necessary, remove all-zero columns from the counts matrix.
-  if (any(colSums(X > 0) == 0)) {
-    i <- which(colSums(X > 0) >= 1)
-    X <- X[,i]
-    message(sprintf(paste("One or more columns of X are all zero; after",
+  if (any.allzero.cols(X)) {
+    X <- remove.allzero.cols(X)
+    warning(sprintf(paste("One or more columns of X are all zero; after",
                           "removing all-zero columns, %d columns will be",
-                          "used for model fitting"),length(i)))
+                          "used for model fitting"),ncol(X)))
   }
 
   # Initialize the Poisson NMF model fit.

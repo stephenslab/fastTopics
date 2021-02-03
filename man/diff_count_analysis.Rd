@@ -13,8 +13,10 @@ diff_count_analysis(
   tol = 1e-08,
   e = 1e-15,
   betamax = 10,
-  show.message = TRUE,
-  verbose = TRUE
+  shrink.method = c("ash", "none"),
+  show.warning = TRUE,
+  verbose = TRUE,
+  ...
 )
 
 diff_count_clusters(cluster, X, ...)
@@ -48,19 +50,21 @@ estimates, particularly in large data sets, an upper limit on the
 estimated log-fold change can be used to improve the numerical
 accuracy of the calculations.}
 
-\item{show.message}{Set \code{show.message = FALSE} to suppress a
+\item{shrink.method}{Describe input argument "shrink.method" here.}
+
+\item{show.warning}{Set \code{show.warning = FALSE} to suppress a
 message about calculations when mixture proportions are all 0 or 1.}
 
 \item{verbose}{When \code{verbose = TRUE}, progress information is
 printed to the console.}
 
+\item{\dots}{Additional arguments passed to
+\code{diff_count_analysis}.}
+
 \item{cluster}{A factor, or vector that can be converted to a
 factor such as an integer or character vector, giving an assignment
 of samples (rows of \code{X}) to clusters. This could be, for
 example, the "cluster" output from \code{\link[stats]{kmeans}}.}
-
-\item{\dots}{Additional arguments passed to
-\code{diff_count_analysis}.}
 }
 \value{
 The return value is a list with six m x k matrices, where m

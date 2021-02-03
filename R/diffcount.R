@@ -76,12 +76,17 @@
 #'   estimated log-fold change can be used to improve the numerical
 #'   accuracy of the calculations.
 #' 
-#' @param show.message Set \code{show.message = FALSE} to suppress a
+#' @param shrink.method Describe input argument "shrink.method" here.
+#' 
+#' @param show.warning Set \code{show.warning = FALSE} to suppress a
 #'   message about calculations when mixture proportions are all 0 or 1.
 #' 
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
 #'
+#' @param \dots When \code{shrink.method = "ashr"}, these are
+#'   additional arguments passed to \code{\link[ashr]{ash}}.
+#' 
 #' @return The return value is a list with six m x k matrices, where m
 #'   is the number of columns in the counts matrix, and k is the number
 #'   of topics (for \code{diff_count_clusters}, m is the number of
@@ -104,15 +109,15 @@
 #'
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colMeans
+#' @importFrom ashr ash
 #' 
 #' @export
 #' 
-diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
-                                 tol = 1e-8, e = 1e-15, betamax = 10,
-                                 show.message = TRUE, verbose = TRUE) {
+diff_count_analysis <- function (fit, X, s = rowSums(X),
+                                 numiter = 100, tol = 1e-8, e = 1e-15,
+                                 betamax = 10, shrink.method = c("ash","none"),
+                                 show.warning = TRUE, verbose = TRUE, ...) {
 
-  # CHECK & PROCESS INPUTS
-  # ----------------------
   # Check and process input argument "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
@@ -135,6 +140,9 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
     stop("Input argument \"s\" should be a vector of positive numbers, with ",
          "length(s) = nrow(X)")
 
+  # Process input argument "shrink.method".
+  shrink.method <- match.arg(shrink.method)
+  
   # Get the number of topics (k) and the number of rows in the counts
   # matrix (m).
   m <- nrow(fit$F)
@@ -145,8 +153,8 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   # or one), we can use the faster fit_univar_poisson_models_hard.
   if (verbose)
     cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
-  if (show.message & max(pmin(fit$L,1 - fit$L)) <= 1e-14) {
-    message("All mixture proportions are either zero or one; using simpler ",
+  if (show.warning & max(pmin(fit$L,1 - fit$L)) <= 1e-14) {
+    warning("All mixture proportions are either zero or one; using simpler ",
             "single-topic calculations for model parameter estimates")
     out <- fit_univar_poisson_models_hard(X,fit$L,s,e)
   } else
@@ -161,7 +169,7 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
               "help(diff_count_analysis) for more information")
 
   # Due to numerical instability of some calculations, log-fold
-  # changes (beta) surpassing a threshold are set to this threshold.
+  # changes (beta) surpassing betamax are set to betamax.
   i     <- which(log2(F1/F0) > betamax)
   F1[i] <- 2^betamax*F0[i]
   
@@ -174,6 +182,27 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   # Compute the per-column averages.
   out <- c(list(colmeans = colMeans(X),F0 = F0,F1 = F1),out)
 
+  # TO DO: Explain here what these lines of code do.
+  if (shrink.method == "ashr") {
+    if (verbose)
+      cat("Computing posterior log-fold change estimates and se's using",
+          "ashr.\n")
+    for (j in 1:k) {
+      i <- which(!is.na(out$se[,j]))
+      if (length(i) > 0) {
+        ans <- ash(out$beta[i,j],out$se[i,j],mixcompdist = "normal",
+                   method = "shrink",...)
+        b   <- ans$result$PosteriorMean
+        se  <- ans$result$PosteriorSD
+        z   <- b/se
+        out$beta[i,j] <- b
+        out$se[i,j]   <- se
+        out$Z[i,j]    <- z
+        out$pval[i,j] <- -lpfromz(z)
+      }
+    }
+  }
+  
   # Adopt the row and column name used in "fit".
   rownames(out$F0)   <- rownames(fit$F)
   rownames(out$F1)   <- rownames(fit$F)
@@ -208,6 +237,16 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
 diff_count_clusters <- function (cluster, X, ...) {
   if (!is.factor(cluster))
     cluster <- factor(cluster)
+
+  # If necessary, remove all-zero columns from the counts matrix
+  # before performing the calculations.
+  if (any.allzero.cols(X)) {
+    X <- remove.allzero.cols(X)
+    warning(sprintf(paste("One or more columns of X are all zero; after",
+                          "removing all-zero columns, %d columns will be",
+                          "used for all statistical calculations"),ncol(X)))
+  }
+
   fit <- fit_multinom_model(cluster,X)
-  return(diff_count_analysis(fit,X,show.message = FALSE,...))
+  return(diff_count_analysis(fit,X,show.warning = FALSE,...))
 }

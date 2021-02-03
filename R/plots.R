@@ -89,8 +89,6 @@ plot_progress_poisson_nmf <-
             linetypes = "solid", linesizes = 0.5, shapes = 19, fills = "white",
             e = 0.01, theme = function() theme_cowplot(12)) {
 
-  # CHECK & PROCESS INPUTS
-  # ----------------------
   # Check and process input "fits". It should either be an object of
   # class poisson_nmf_fit, or a list of poisson_nmf_fit objects.
  if (inherits(fits,"poisson_nmf_fit") |
@@ -131,14 +129,10 @@ plot_progress_poisson_nmf <-
   if (length(fills) < n)
     fills <- rep(fills,length.out = n)
 
-  # PREPARE DATA FOR PLOT
-  # ---------------------
   # Combine the progress information from all the fits into one data
   # frame.
   pdat <- prepare_progress_plot_data(fits,e)
 
-  # CREATE PLOT
-  # -----------
   # Create the plot showing the improvement in the log-likelihood,
   # deviance, or maximum KKT residual over time.
   return(create_progress_plot(pdat,x,y,add.point.every,colors,linetypes,

@@ -40,12 +40,11 @@ fit_multinom_model <- function (cluster, X, verbose = FALSE, ...) {
   verify.count.matrix(X)
 
   # If necessary, remove all-zero columns from the counts matrix.
-  if (any(colSums(X > 0) == 0)) {
-    i <- which(colSums(X > 0) >= 1)
-    X <- X[,i]
-    message(sprintf(paste("One or more columns of X are all zero; after",
+  if (any.allzero.cols(X)) {
+    X <- remove.allzero.cols(X)
+    warning(sprintf(paste("One or more columns of X are all zero; after",
                           "removing all-zero columns, %d columns will be",
-                          "used for model fitting"),length(i)))
+                          "used for model fitting"),ncol(X)))
   }
 
   # Get the number of rows (n) and columns (m) of the data matrix,
@@ -77,7 +76,7 @@ fit_multinom_model <- function (cluster, X, verbose = FALSE, ...) {
     L[i,j] <- 1
     F[,j]  <- colSums(X[i,])/sum(L[i,j])
   }
-  
+
   # Return a multinomial topic model fit.
   return(poisson2multinom(init_poisson_nmf(X,F = F,L = L,
                                            verbose = verbose,...)))

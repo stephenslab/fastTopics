@@ -1,10 +1,8 @@
 to do
 =====
 
-+ Fix bug in diff_count_analysis that occurs when one or more
-  "all-zero" columns are removed.
-
-+ Implement adaptive shrinkage of beta in diff_count_analysis.
++ Implement adaptive shrinkage of beta in diff_count_analysis, and
+  update diff_count_analysis roxygen2 docs.
 
 + Remove files in inst/derivations/diffcount.
 

@@ -200,8 +200,6 @@ print.summary.multinom_topic_model_fit <-
 #' 
 compare_poisson_nmf_fits <- function (fits) {
 
-  # CHECK & PROCESS INPUTS
-  # ----------------------
   # Check and process input "fits". It should either be an object of
   # class poisson_nmf_fit, or a list of poisson_nmf_fit objects.
   if (inherits(fits,"poisson_nmf_fit")) {
@@ -223,8 +221,6 @@ compare_poisson_nmf_fits <- function (fits) {
     sapply(fits,verify.fit)
   }
 
-  # CREATE SUMMARY TABLE
-  # --------------------
   # Initialize the data structure.
   n   <- length(fits)
   out <- data.frame(k           = rep(0,n),
