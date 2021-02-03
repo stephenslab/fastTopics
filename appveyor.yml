@@ -26,6 +26,7 @@ environment:
 build_script:
   - R -e install.packages(c('devtools','testthat','quadprog','MCMCpack','irlba','Rtsne','dplyr','Rcpp','RcppArmadillo','RcppParallel','RcppProgress','progress','ggplot2','cowplot','plotly','htmlwidgets'),head(.libPaths(),1),'http://cran.wustl.edu')
   - R -e devtools::install_github('slowkow/ggrepel',upgrade='never',force=TRUE)
+  - R -e devtools::install_github('stephens999/ashr',upgrade='never',force=TRUE)
 
 test_script:
   - travis-tool.sh run_tests
