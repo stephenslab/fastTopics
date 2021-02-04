@@ -51,7 +51,7 @@ LFC can be used to improve the numerical accuracy of the
 calculations.}
 
 \item{shrink.method}{Method used to stabilize the LFC estimates.
-When \code{shrink.method = "ashr"}, the "adaptive shrinkage" method
+When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
 implemented in the ashr package is used. When \code{shrink.method =
 "none"}, no stabilization is performed, and the \dQuote{raw} LFC
 estimates are returned.}
@@ -88,10 +88,10 @@ The return value is a list with six m x k matrices, where m
   these are posterior LFC estimates.}
 
 \item{se}{Standard errors for the LFC estimates. When
-  \code{shrink.method = "ashr"}, these are posterior standard
+  \code{shrink.method = "ash"}, these are posterior standard
   errors.}
 
-\item{Z}{LFC z-scores. When \code{shrink.method = "ashr"}, these
+\item{Z}{LFC z-scores. When \code{shrink.method = "ash"}, these
   are posterior z-scores.}
 
 \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
@@ -149,7 +149,7 @@ approximation to the likelihood at the MLE. This is the same
 strategy used to compute standard errors and z-scores in
 \code{\link[stats]{glm}}.
 
-We recommend setting \code{shrink.method = "ashr"}, which uses
+We recommend setting \code{shrink.method = "ash"}, which uses
 "adaptive shrinkage" (Stephens, 2016) to improve accuracy of the
 LFC estimates. The improvement in accuracy is greatest for genes
 with low expression, or when the sample size is small (or

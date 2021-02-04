@@ -51,7 +51,7 @@
 #' strategy used to compute standard errors and z-scores in
 #' \code{\link[stats]{glm}}.
 #'
-#' We recommend setting \code{shrink.method = "ashr"}, which uses
+#' We recommend setting \code{shrink.method = "ash"}, which uses
 #' "adaptive shrinkage" (Stephens, 2016) to improve accuracy of the
 #' LFC estimates. The improvement in accuracy is greatest for genes
 #' with low expression, or when the sample size is small (or
@@ -87,7 +87,7 @@
 #'   calculations.
 #' 
 #' @param shrink.method Method used to stabilize the LFC estimates.
-#'   When \code{shrink.method = "ashr"}, the "adaptive shrinkage" method
+#'   When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
 #'   implemented in the ashr package is used. When \code{shrink.method =
 #'   "none"}, no stabilization is performed, and the \dQuote{raw} LFC
 #'   estimates are returned.
@@ -98,7 +98,7 @@
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
 #'
-#' @param \dots When \code{shrink.method = "ashr"}, these are
+#' @param \dots When \code{shrink.method = "ash"}, these are
 #'   additional arguments passed to \code{\link[ashr]{ash}}.
 #' 
 #' @return The return value is a list with six m x k matrices, where m
@@ -118,10 +118,10 @@
 #'   these are posterior LFC estimates.}
 #'
 #' \item{se}{Standard errors for the LFC estimates. When
-#'   \code{shrink.method = "ashr"}, these are posterior standard
+#'   \code{shrink.method = "ash"}, these are posterior standard
 #'   errors.}
 #'
-#' \item{Z}{LFC z-scores. When \code{shrink.method = "ashr"}, these
+#' \item{Z}{LFC z-scores. When \code{shrink.method = "ash"}, these
 #'   are posterior z-scores.}
 #'
 #' \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
@@ -213,9 +213,9 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
 
   # If requested, use "adaptive shrinkage" to stabilize the log-fold
   # change estimates. 
-  if (shrink.method == "ashr") {
+  if (shrink.method == "ash") {
     if (verbose)
-      cat("Stabilizing log-fold change estimates using ashr.\n")
+      cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
 
     # Repeat for each topic.
     for (j in 1:k) {

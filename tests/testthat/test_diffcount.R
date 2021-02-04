@@ -116,15 +116,15 @@ test_that(paste("When all the topic proportions are exactly zero or exactly",
   out2 <- diff_count_clusters(clusters,X,verbose = FALSE)
   out3 <- diff_count_clusters(clusters,Y,verbose = FALSE)
 
-  # The outputted statistics should be the same in both calls to
-  # diff_count_analysis (ignore the standard errors, as these can be
-  # unstable).
+  # The outputted statistics should be the same in all calls to
+  # diff_count_analysis and diff_count_clusters (ignore the standard
+  # errors, as these can be unstable).
   expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-10)
   expect_equal(out1$F0,  out3$F0,  scale = 1,tolerance = 1e-10)
   expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-10)
   expect_equal(out1$F1,  out3$F1,  scale = 1,tolerance = 1e-10)
-  expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 1e-8)
-  expect_equal(out1$beta,out3$beta,scale = 1,tolerance = 1e-8)
+  expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 1e-5)
+  expect_equal(out1$beta,out3$beta,scale = 1,tolerance = 1e-5)
   expect_equal(out1$Z,   out2$Z,   scale = 1,tolerance = 1e-5)
   expect_equal(out1$Z,   out3$Z,   scale = 1,tolerance = 1e-5)
   expect_equal(out1$pval,out2$pval,scale = 1,tolerance = 1e-5)

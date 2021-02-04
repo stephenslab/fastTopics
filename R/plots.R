@@ -424,6 +424,11 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   all points when \code{label_above_quantile = 0}. When
 #'   \code{label_above_quantile = Inf}, no points are labeled.
 #'
+#' @param filter_low_counts This is used to filter out log-fold change
+#'   statistics that could be unreliable due to insufficient data. The
+#'   rule is that points for which \code{colmeans > filter_low_counts}
+#'   are plotted.
+#' 
 #' @param subsample_below_quantile A number between 0 and 1. If
 #'   greater than zero, log-fold change statistics with z-scores or
 #'   p-values below this quantile will be subsampled according to
@@ -456,8 +461,9 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 volcano_plot <-
   function (diff_count_result, k, labels, y = c("zscore", "pvalue"),
             betamax = 10, label_above_quantile = 0.99,
-            subsample_below_quantile = 0, subsample_rate = 0.1,
-            max.overlaps = Inf, ggplot_call = volcano_plot_ggplot_call,
+            filter_low_counts = 1e-6, subsample_below_quantile = 0,
+            subsample_rate = 0.1, max.overlaps = Inf,
+            ggplot_call = volcano_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots)) {
     
   # Check and process input arguments.
@@ -485,7 +491,7 @@ volcano_plot <-
     else if (y == "pvalue")
       y.label <- "-log10 p-value"
     dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
-                                     label_above_quantile,
+                                     label_above_quantile,filter_low_counts,
                                      subsample_below_quantile,subsample_rate)
     return(ggplot_call(dat,y.label,k,max.overlaps))
   } else {
@@ -497,8 +503,9 @@ volcano_plot <-
     names(plots) <- k
     for (i in 1:m)
       plots[[i]] <- volcano_plot(diff_count_result,k[i],labels,y,betamax,
-                                 label_above_quantile,subsample_below_quantile,
-                                 subsample_rate,max.overlaps,ggplot_call,NULL)
+                                 label_above_quantile,filter_low_counts,
+                                 subsample_below_quantile,subsample_rate,
+                                 max.overlaps,ggplot_call,NULL)
     return(plot_grid_call(plots))
   }
 }
@@ -542,6 +549,7 @@ plot.topic_model_diff_count <- function (x, ...)
 #' 
 volcano_plotly <- function (diff_count_result, k, file, labels,
                             y = c("zscore", "pvalue"), betamax = 10,
+                            filter_low_counts = 0,
                             subsample_below_quantile = 0,
                             subsample_rate = 0.1, width = 600, height = 500,
                             title = paste("topic",k),
@@ -565,8 +573,9 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
          "the counts matrix)")
 
   # Compile the plotting data.
-  dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
-                                   0,subsample_below_quantile,subsample_rate)
+  dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,0,
+                                   filter_low_counts,subsample_below_quantile,
+                                   subsample_rate)
 
   # Create the interactive volcano plot using plotly.
   if (y == "zscore")
@@ -666,6 +675,7 @@ volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
 #' @importFrom stats quantile
 compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
                                        betamax, label_above_quantile,
+                                       filter_low_counts,
                                        subsample_below_quantile,
                                        subsample_rate) {
   dat <- with(diff_count_result,
@@ -681,7 +691,7 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
     dat$y <- abs(diff_count_result$Z[,k])
   else if (y == "pvalue")
     dat$y <- diff_count_result$pval[,k]
-  rows     <- which(dat$mean > 0)
+  rows     <- which(dat$mean > filter_low_counts)
   dat      <- dat[rows,]
   dat$mean <- log10(dat$mean)
   dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
