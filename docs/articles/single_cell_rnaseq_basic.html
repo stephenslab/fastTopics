@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-33</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2021-01-21</h4>
+            <h4 class="date">2021-02-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/single_cell_rnaseq_basic.Rmd"><code>vignettes/single_cell_rnaseq_basic.Rmd</code></a></small>
       <div class="hidden name"><code>single_cell_rnaseq_basic.Rmd</code></div>
@@ -190,19 +190,24 @@
       <span class="no">dfc_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>,])
 <span class="co"># Fitting 16791 x 5 = 83955 univariate Poisson models.</span>
 <span class="co"># Computing log-fold change statistics.</span>
-<span class="co">#        B cell      CD14+     CD34+  NK cell    T cell</span>
-<span class="co"># [1,] 5.660683 -38.760789 -2.821295 -7.27204 -4.622270</span>
-<span class="co"># [2,] 4.937896  -4.212397 -2.619102 -2.87545 -3.467037</span></pre></body></html></div>
+<span class="co"># Stabilizing log-fold change estimates using adaptive shrinkage.</span>
+<span class="co">#        B cell      CD14+     CD34+   NK cell    T cell</span>
+<span class="co"># [1,] 5.655109 -38.760789 -2.814522 -6.833125 -4.598281</span>
+<span class="co"># [2,] 4.933660  -3.691445 -2.611456 -2.845513 -3.449591</span></pre></body></html></div>
 <p><strong>fastTopics</strong> extends the classic differential expression analysis to allow for <em>partial membership</em> to groups. This generalized differential expression analysis is implemented in <code>diff_count_analysis</code>:</p>
 <div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">dfa_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit</span>,<span class="no">counts</span>)
 <span class="co"># Fitting 16791 x 6 = 100746 univariate Poisson models.</span>
-<span class="co"># Computing log-fold change statistics.</span></pre></body></html></div>
+<span class="co"># Computing log-fold change statistics.</span>
+<span class="co"># Stabilizing log-fold change estimates using adaptive shrinkage.</span></pre></body></html></div>
 <p>As in the standard analysis, it outputs estimates of log-fold change:</p>
 <div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">dfa_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>,],
       <span class="no">dfa_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>,])
-<span class="co">#             k1        k2        k3        k4        k5        k6</span>
-<span class="co"># [1,] -21.62260 -19.68814 -17.40304 10.000000 -13.18267 -16.11677</span>
-<span class="co"># [2,] -11.24225 -13.99581 -15.04179  6.372537 -12.24970 -15.88001</span></pre></body></html></div>
+<span class="co">#               k1            k2            k3       k4            k5</span>
+<span class="co"># [1,] -21.6226042 -1.968814e+01 -1.811723e-05 9.999878 -1.860464e-05</span>
+<span class="co"># [2,]  -0.0167347 -4.001332e-04 -5.645655e-04 6.370201 -8.907332e-05</span>
+<span class="co">#                 k6</span>
+<span class="co"># [1,] -1.254184e-04</span>
+<span class="co"># [2,] -4.361736e-05</span></pre></body></html></div>
 <p>These log-fold change statistics have the same interpretation (the standard log-fold change emerges as a special case when the all mixture proportions are 0 or 1). The log-fold change estimates are noticeably larger in the B cells topic (topic 4), particularly so for <em>CD79A</em>. In fact, <em>CD79A</em> is <em>uniquely expressed</em> in topic 4, so the ratio essentially has a zero denominator; to ensure finite calculations, by convention a log-fold change statistic of 10 means “10 or larger”. (This convention can be overriden in <code>diff_count_analysis</code> by choosing a different setting for <code>betamax</code>.)</p>
 <p>Up to this point, we have illustrated the differential expression analysis with known genes such as <em>CD79A</em>. Ultimately, we would like to <em>discover</em> genes relevant to a topic (of known or unknown biological relevance).</p>
 <p>To discover genes, a natural thing to do would be to rank candidates by their log-fold change. The complication is that lowly expressed genes could also produce, by chance, large log-fold changes, and we would not want to rank these genes highly. The <em>volcano plot</em> balances these two concerns: the log-fold change is shown on the x-axis, and the <em>p</em>-value or <em>z</em>-score, quantifying support for differential expression, is shown on the <em>y</em>-axis. Here is volcano plot for topic 4:</p>
@@ -237,26 +242,27 @@
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.4-26 Matrix_1.2-18    </span>
+<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.4-33 Matrix_1.2-18    </span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
-<span class="co">#  [1] progress_1.2.2     tidyselect_0.2.5   xfun_0.11          purrr_0.3.3       </span>
-<span class="co">#  [5] lattice_0.20-38    vctrs_0.2.1        colorspace_1.4-1   viridisLite_0.3.0 </span>
-<span class="co">#  [9] htmltools_0.4.0    yaml_2.2.0         MCMCpack_1.4-5     plotly_4.9.2      </span>
-<span class="co"># [13] rlang_0.4.5        pkgdown_1.5.1      pillar_1.4.3       withr_2.1.2       </span>
-<span class="co"># [17] glue_1.3.1         lifecycle_0.1.0    stringr_1.4.0      MatrixModels_0.4-1</span>
-<span class="co"># [21] munsell_0.5.0      gtable_0.3.0       htmlwidgets_1.5.1  coda_0.19-3       </span>
-<span class="co"># [25] memoise_1.1.0      evaluate_0.14      labeling_0.3       knitr_1.26        </span>
-<span class="co"># [29] SparseM_1.78       quantreg_5.54      irlba_2.3.3        Rcpp_1.0.5        </span>
-<span class="co"># [33] scales_1.1.0       backports_1.1.5    desc_1.2.0         RcppParallel_4.4.2</span>
-<span class="co"># [37] jsonlite_1.6       farver_2.0.1       fs_1.3.1           mcmc_0.9-6        </span>
-<span class="co"># [41] hms_0.5.2          digest_0.6.23      stringi_1.4.3      Rtsne_0.15        </span>
-<span class="co"># [45] dplyr_0.8.3        ggrepel_0.9.0      grid_3.6.2         rprojroot_1.3-2   </span>
-<span class="co"># [49] quadprog_1.5-8     tools_3.6.2        magrittr_1.5       lazyeval_0.2.2    </span>
-<span class="co"># [53] tibble_2.1.3       zeallot_0.1.0      tidyr_1.0.0        crayon_1.3.4      </span>
-<span class="co"># [57] pkgconfig_2.0.3    MASS_7.3-51.4      prettyunits_1.1.1  data.table_1.12.8 </span>
-<span class="co"># [61] assertthat_0.2.1   rmarkdown_2.3      httr_1.4.2         R6_2.4.1          </span>
-<span class="co"># [65] compiler_3.6.2</span></pre></body></html></div>
+<span class="co">#  [1] ggrepel_0.9.0      Rcpp_1.0.5         invgamma_1.1       lattice_0.20-38   </span>
+<span class="co">#  [5] tidyr_1.0.0        prettyunits_1.1.1  assertthat_0.2.1   zeallot_0.1.0     </span>
+<span class="co">#  [9] rprojroot_1.3-2    digest_0.6.23      truncnorm_1.0-8    R6_2.4.1          </span>
+<span class="co"># [13] backports_1.1.5    MatrixModels_0.4-1 evaluate_0.14      coda_0.19-3       </span>
+<span class="co"># [17] httr_1.4.2         pillar_1.4.3       progress_1.2.2     rlang_0.4.5       </span>
+<span class="co"># [21] lazyeval_0.2.2     data.table_1.12.8  irlba_2.3.3        SparseM_1.78      </span>
+<span class="co"># [25] rmarkdown_2.3      pkgdown_1.5.1      labeling_0.3       desc_1.2.0        </span>
+<span class="co"># [29] Rtsne_0.15         stringr_1.4.0      htmlwidgets_1.5.1  munsell_0.5.0     </span>
+<span class="co"># [33] mixsqp_0.3-44      compiler_3.6.2     xfun_0.11          pkgconfig_2.0.3   </span>
+<span class="co"># [37] SQUAREM_2017.10-1  mcmc_0.9-6         htmltools_0.4.0    tidyselect_0.2.5  </span>
+<span class="co"># [41] tibble_2.1.3       quadprog_1.5-8     viridisLite_0.3.0  withr_2.1.2       </span>
+<span class="co"># [45] crayon_1.3.4       dplyr_0.8.3        MASS_7.3-51.4      grid_3.6.2        </span>
+<span class="co"># [49] jsonlite_1.6       gtable_0.3.0       lifecycle_0.1.0    magrittr_1.5      </span>
+<span class="co"># [53] scales_1.1.0       RcppParallel_4.4.2 stringi_1.4.3      farver_2.0.1      </span>
+<span class="co"># [57] fs_1.3.1           vctrs_0.2.1        tools_3.6.2        glue_1.3.1        </span>
+<span class="co"># [61] purrr_0.3.3        hms_0.5.2          yaml_2.2.0         colorspace_1.4-1  </span>
+<span class="co"># [65] ashr_2.2-51        memoise_1.1.0      plotly_4.9.2       knitr_1.26        </span>
+<span class="co"># [69] quantreg_5.54      MCMCpack_1.4-5</span></pre></body></html></div>
 </div>
   </div>
 

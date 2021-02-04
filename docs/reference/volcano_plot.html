@@ -76,7 +76,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-26</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-33</span>
       </span>
     </div>
 
@@ -129,6 +129,7 @@
   <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"zscore"</span>, <span class='st'>"pvalue"</span>),
   <span class='kw'>betamax</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>label_above_quantile</span> <span class='kw'>=</span> <span class='fl'>0.99</span>,
+  <span class='kw'>filter_low_counts</span> <span class='kw'>=</span> <span class='fl'>1e-06</span>,
   <span class='kw'>subsample_below_quantile</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>subsample_rate</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>max.overlaps</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
@@ -146,6 +147,7 @@
   <span class='no'>labels</span>,
   <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"zscore"</span>, <span class='st'>"pvalue"</span>),
   <span class='kw'>betamax</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>filter_low_counts</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>subsample_below_quantile</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>subsample_rate</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>600</span>,
@@ -206,6 +208,13 @@ choice of <code>y</code>) above this quantile are labeled in the volcano
 plot. <code><a href='https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html'>geom_text_repel</a></code> will attempt to label
 all points when <code>label_above_quantile = 0</code>. When
 <code>label_above_quantile = Inf</code>, no points are labeled.</p></td>
+    </tr>
+    <tr>
+      <th>filter_low_counts</th>
+      <td><p>This is used to filter out log-fold change
+statistics that could be unreliable due to insufficient data. The
+rule is that points for which <code>colmeans &gt; filter_low_counts</code>
+are plotted.</p></td>
     </tr>
     <tr>
       <th>subsample_below_quantile</th>
