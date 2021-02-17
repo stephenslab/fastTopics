@@ -12,7 +12,7 @@ diff_count_analysis(
   numiter = 100,
   tol = 1e-08,
   e = 1e-15,
-  betamax = 10,
+  pseudocount = 0.01,
   shrink.method = c("ash", "none"),
   show.warning = TRUE,
   verbose = TRUE,
@@ -44,11 +44,9 @@ change between two successive updates is less than \code{tol}.}
 \item{e}{A small, positive scalar included in some computations to
 avoid logarithms of zero and division by zero.}
 
-\item{betamax}{Since the calculation of the standard deviations and
-z-scores can be numerically unstable for large LFC estimates,
-particularly in large data sets, an upper limit on the estimated
-LFC can be used to improve the numerical accuracy of the
-calculations.}
+\item{pseudocount}{An observation with this value is added to the
+counts matrix to stabilize calculation of the LFC estimates and
+other statistics.}
 
 \item{shrink.method}{Method used to stabilize the LFC estimates.
 When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
@@ -95,6 +93,11 @@ The return value is a list with six m x k matrices, where m
   are posterior z-scores.}
 
 \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
+
+Note that in some \dQuote{extreme} cases the standard error
+calculations lead to zero or negative standard errors, in which
+case the standard errors, z-scores and p-values are set to missing
+(\code{NA}).
 }
 \description{
 Implements methods for analysis of differential count

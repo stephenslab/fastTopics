@@ -183,8 +183,8 @@ double fit_poisson_em (const vec& x, const vec& s, const vec& q, double& f0,
   
   // Store a couple pre-calculations to simplify the calculations
   // below.
-  double a = sum(s % (1-q));
-  double b = sum(s % q);
+  double a = sum(s % (1-q)) + e;
+  double b = sum(s % q) + e;
   double f00, f10;
   
   // Perform the EM updates. Progress is monitored by computing the
@@ -351,8 +351,8 @@ void fit_univar_poisson_models_em_sparse (const sp_mat& X, const mat& L,
   vec q(n);
   for (unsigned int j = 0; j < k; j++) {
     q    = L.col(j);
-    a(j) = sum(s % (1-q));
-    b(j) = sum(s % q);
+    a(j) = sum(s % (1-q)) + e;
+    b(j) = sum(s % q) + e;
   }
 
   // Repeat for each column of the counts matrix, X, and for each

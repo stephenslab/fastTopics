@@ -687,6 +687,7 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
                            pval  = pval[,k],
                            y     = 0,
                            stringsAsFactors = FALSE))
+  n <- nrow(dat)
   if (y == "zscore")
     dat$y <- abs(diff_count_result$Z[,k])
   else if (y == "pvalue")
@@ -707,7 +708,7 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
     rows2 <- sample(rows2,ceiling(subsample_rate * length(rows2)))
     rows  <- sort(c(rows1,rows2))
     message(sprintf("%d out of %d data points will be included in plot",
-                    length(rows),nrow(dat)))
+                    length(rows),n))
     dat   <- dat[rows,]
   }
   return(dat)

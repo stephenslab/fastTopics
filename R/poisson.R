@@ -6,15 +6,14 @@ get_poisson_rates <- function (q, f0, f1)
 # This should give the same, or nearly the same, result as
 # sum(dpois(x,y,log = TRUE)), except that terms that do not depend on
 # the Poisson rates u are disregarded.
-loglik_poisson <- function (x, y, e = 1e-15)
-  return(sum(x*log(y+e) - y))
+loglik_poisson <- function (x, y, e)
+  return(sum(x*log(y + e) - y))
 
 # For each column of the counts matrix, and for each topic, compute
 # maximum-likelihood estimates (MLEs) of the parameters in the
 # single-count (univariate) Poisson model.
 fit_univar_poisson_models <-
-  function (X, L, s = rep(1,nrow(X)),
-            method = c("em-rcpp","em","optim"),
+  function (X, L, s = rep(1,nrow(X)), method = c("em-rcpp","em","optim"),
             e = 1e-15, numiter.em = 100, tol.em = 1e-8,
             control.optim = list(factr = 1e-14,maxit = 100),
             verbose = TRUE) {
@@ -127,7 +126,7 @@ fit_univar_poisson_models_em <- function (X, L, s, e, numiter, verbose) {
 # parameters. Input "control" is a list of control parameters passed
 # to optim. Input argument "e" is a small positive scalar added to
 # the likelihood and gradient to avoid logarithms of zero and division
-# by zero.
+# by zero, and it is the lower bound on f0 and f1.
 #
 #' @importFrom stats optim
 #' 
@@ -146,7 +145,7 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   g <- function (par) {
     u <- get_poisson_rates(q,par[1],par[2])
     y <- (s*u - x)/(u + e)
-    return(c(sum(y*(1-q)),sum(y*q)))
+    return(c(sum(y*(1 - q)),sum(y*q)))
   }
   
   # Fit the Poisson rates f0, f1 using the L-BFGS-B quasi-Newton method
@@ -171,8 +170,8 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
 
   # Store a couple pre-calculations to simplify the calculations
   # below.
-  a <- sum(s*(1-q))
-  b <- sum(s*q)
+  a <- sum(s*(1-q)) + e
+  b <- sum(s*q) + e
   
   # Perform the EM updates. Progress is monitored by computing the
   # log-likelihood at each iteration.
@@ -236,7 +235,7 @@ compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
   # compute the z-score for the log-fold change statistic.
   for (i in 1:m)
     for (j in 1:k) {
-      out       <- compute_poisson_zscore(X[,i],L[,j],s,F0[i,j],F1[i,j])
+      out       <- compute_poisson_zscore(X[,i],L[,j],s,F0[i,j],F1[i,j],e)
       beta[i,j] <- out["beta"]
       se[i,j]   <- out["se"]
       Z[i,j]    <- out["Z"]
@@ -263,17 +262,18 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
   m <- nrow(F0)
   k <- ncol(F0)
     
-  # Ensure that the Poisson model parameters (f0,f1) are positive.
+  # Ensure that the Poisson model parameters (f0,f1) are positive
+  # (that is, no less than e).
   F0 <- pmax(F0,e)
   F1 <- pmax(F1,e)
 
   # Compute the standard errors.
-  a <- matrix(colSums(X),m,k)
-  b <- matrix(colSums(s*L),m,k,byrow = TRUE)
+  a <- matrix(colSums(X),m,k) + e
+  b <- matrix(colSums(s*L),m,k,byrow = TRUE) + e
   if (is.sparse.matrix(X))
-    c <- compute_poisson_beta_stat_sparse(X,L,F0,F1)
+    c <- compute_poisson_beta_stat_sparse(X,L,F0,F1,e)
   else
-    c <- compute_poisson_beta_stat(X,L,F0,F1)
+    c <- compute_poisson_beta_stat(X,L,F0,F1,e)
   se <- compute_poisson_beta_se(F1,a,b,c)
 
   # Return the (base-2) log-fold change statistics (beta), the
@@ -287,9 +287,10 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
 # the (base-2) log-fold change statistic beta = log2(f1/f0), the
 # standard error of the log-fold change (se), the z-score (z), and the
 # two-tailed p-value computed from the z-score (pval).
-compute_poisson_zscore <- function (x, q, s, f0, f1, e = 1e-15) {
+compute_poisson_zscore <- function (x, q, s, f0, f1, e) {
 
-  # Ensure that the Poisson model parameters (f0,f1) are positive.
+  # Ensure that the Poisson model parameters (f0,f1) are positive
+  # (that is, no less than e).
   f0 <- max(f0,e)
   f1 <- max(f1,e)
     
@@ -301,9 +302,9 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e = 1e-15) {
   #                               c(f1/f0*b,f1^2*c)))))[2]
   #  
   u  <- get_poisson_rates(q,f0,f1)
-  a  <- sum(x)
-  b  <- sum(s*q)
-  c  <- sum(x*(q/u)^2)
+  a  <- sum(x) + e
+  b  <- sum(s*q) + e
+  c  <- sum(x*(q/u)^2) + e
   se <- compute_poisson_beta_se(f1,a,b,c)
   
   # Return the (base-2) log-fold change statistic (beta), the standard
@@ -314,24 +315,26 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e = 1e-15) {
 
 # This is used by compute_univar_poisson_zscores_fast to compute the
 # precisions for the log-fold change statistics (beta) when X is a
-# dense matrix.
-compute_poisson_beta_stat <- function (X, L, F0, F1) {
+# dense matrix. Here we assume the matrices F0 and F1 contain only
+# positive values.
+compute_poisson_beta_stat <- function (X, L, F0, F1, e) {
   m <- nrow(F0)
   k <- ncol(F0)
   c <- matrix(0,m,k)
   for (i in 1:k) {
     u     <- outer(1 - L[,i],F0[,i]) + outer(L[,i],F1[,i])
-    c[,i] <- colSums(X*(L[,i]/u)^2)
+    c[,i] <- colSums(X*(L[,i]/u)^2) + e
   }
   return(c)
 }
 
 # This is used by compute_univar_poisson_zscores_fast to compute the
 # precisions for the log-fold change statistics (beta) when X is a
-# sparse matrix.
+# sparse matrix. Here we assume the matrices F0 and F1 contain only
+# positive values.
 #
 #' @importFrom Matrix colSums
-compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
+compute_poisson_beta_stat_sparse <- function (X, L, F0, F1, e) {
   m <- nrow(F0)
   K <- ncol(F0)
   c <- matrix(0,m,K)
@@ -344,7 +347,7 @@ compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
     x     <- out$x
     u     <- (1 - L[i,k])*F0[j,k] + L[i,k]*F1[j,k]
     c[,k] <- colSums(sparseMatrix(i = i,j = j,x = x*(L[i,k]/u)^2,
-                                  dims = dim(X)))
+                                  dims = dim(X))) + e
   }
   return(c)
 }
@@ -352,7 +355,8 @@ compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
 # This is used by compute_poisson_zscore and
 # compute_univar_poisson_zscores_fast to compute the standard error of
 # the log-fold change statistics (beta) given the summary statstics
-# (a, b, c). The inputs may be scalars, vectors or matrices.
+# (a, b, c). The inputs may be scalars, vectors or matrices. Here it
+# is assumed all f1 values are positive.
 compute_poisson_beta_se <- function (f1, a, b, c) {
   se <- suppressWarnings(sqrt(a)/(f1*sqrt(a*c - b^2)))
   se[a*c <= b^2] <- NA

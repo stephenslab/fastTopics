@@ -80,11 +80,9 @@
 #' @param e A small, positive scalar included in some computations to
 #'   avoid logarithms of zero and division by zero.
 #'
-#' @param betamax Since the calculation of the standard deviations and
-#'   z-scores can be numerically unstable for large LFC estimates,
-#'   particularly in large data sets, an upper limit on the estimated
-#'   LFC can be used to improve the numerical accuracy of the
-#'   calculations.
+#' @param pseudocount An observation with this value is added to the
+#'   counts matrix to stabilize calculation of the LFC estimates and
+#'   other statistics.
 #' 
 #' @param shrink.method Method used to stabilize the LFC estimates.
 #'   When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
@@ -126,6 +124,11 @@
 #'
 #' \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
 #'
+#' Note that in some \dQuote{extreme} cases the standard error
+#' calculations lead to zero or negative standard errors, in which
+#' case the standard errors, z-scores and p-values are set to missing
+#' (\code{NA}).
+#' 
 #' @references
 #' Stephens, M. (2016). False discovery rates: a new deal.
 #' \emph{Biostatistics} \bold{18}(2), kxw041.
@@ -143,7 +146,7 @@
 #' @export
 #' 
 diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
-                                 tol = 1e-8, e = 1e-15, betamax = 10,
+                                 tol = 1e-8, e = 1e-15, pseudocount = 0.01,
                                  shrink.method = c("ash","none"),
                                  show.warning = TRUE, verbose = TRUE, ...) {
 
@@ -168,7 +171,12 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   if (length(s) != nrow(X))
     stop("Input argument \"s\" should be a vector of positive numbers, with ",
          "length(s) = nrow(X)")
-
+  normalize.by.totalcounts <- all(s == rowSums(X))
+  
+  # Check input argument "pseudocount".
+  if (any(pseudocount <= 0))
+    stop("Input argument \"pseudocount\" should be a positive number")
+  
   # Process input argument "shrink.method".
   shrink.method <- match.arg(shrink.method)
   
@@ -176,40 +184,41 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   # matrix (m).
   m <- nrow(fit$F)
   k <- ncol(fit$F)
+
+  # Compute the per-column averages.
+  colmeans = colMeans(X)
+  
+  # Add the pseudocounts to the data.
+  X <- rbind(X,matrix(pseudocount,2,ncol(X)))
+  s <- c(s,1,1)
+  L <- rbind(fit$L,matrix(c(0,1),2,k))
   
   # Fit the univariate ("single-count") Poisson models. If all the
   # mixture proportions are zeros or ones (or very close to being zero
   # or one), we can use the faster fit_univar_poisson_models_hard.
   if (verbose)
     cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
-  if (show.warning & max(pmin(fit$L,1 - fit$L)) <= 1e-14) {
+  if (show.warning & max(pmin(L,1 - L)) <= 1e-14) {
     warning("All mixture proportions are either zero or one; using simpler ",
             "single-topic calculations for model parameter estimates")
-    out <- fit_univar_poisson_models_hard(X,fit$L,s,e)
+    out <- fit_univar_poisson_models_hard(X,L,s,e)
   } else
-    out <- fit_univar_poisson_models(X,fit$L,s,"em-rcpp",e,numiter,tol,
+    out <- fit_univar_poisson_models(X,L,s,"em-rcpp",e,numiter,tol,
                                      verbose = verbose)
   F0 <- out$F0
   F1 <- out$F1
-  if (all(s == rowSums(X)))
+  if (normalize.by.totalcounts)
     if (any(out$F0 > 0.9) | any(out$F1 > 0.9))
       warning("One or more F0, F1 estimates are close to or greater than 1, ",
               "so Poisson approximation to binomial may be poor; see ",
               "help(diff_count_analysis) for more information")
 
-  # Due to numerical instability of some calculations, log-fold
-  # changes (beta) surpassing betamax are set to betamax.
-  i     <- which(log2(F1/F0) > betamax)
-  F1[i] <- 2^betamax*F0[i]
-  
   # Compute the log-fold change statistics, including standard errors
   # and z-scores.
   if (verbose)
     cat("Computing log-fold change statistics.\n")
-  out <- compute_univar_poisson_zscores_fast(X,fit$L,F0,F1,s,e)
-
-  # Compute the per-column averages.
-  out <- c(list(colmeans = colMeans(X),F0 = F0,F1 = F1),out)
+  out <- compute_univar_poisson_zscores_fast(X,L,F0,F1,s,e)
+  out <- c(list(colmeans = colmeans,F0 = F0,F1 = F1),out)
 
   # If requested, use "adaptive shrinkage" to stabilize the log-fold
   # change estimates. 
