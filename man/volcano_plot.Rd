@@ -15,7 +15,6 @@ volcano_plot(
   y = c("zscore", "pvalue"),
   betamax = 10,
   label_above_quantile = 0.99,
-  filter_low_counts = 1e-06,
   subsample_below_quantile = 0,
   subsample_rate = 0.1,
   max.overlaps = Inf,
@@ -32,7 +31,6 @@ volcano_plotly(
   labels,
   y = c("zscore", "pvalue"),
   betamax = 10,
-  filter_low_counts = 0,
   subsample_below_quantile = 0,
   subsample_rate = 0.1,
   width = 600,
@@ -71,8 +69,9 @@ added to the plot using \code{\link[ggrepel]{geom_text_repel}}.}
 to plot the -log1 p-values.}
 
 \item{betamax}{Truncate the log-fold change statistics
-(\code{beta}) by this amount. Any statistics greater in magnitude
-than \code{betamax} are set to \code{betamax} or \code{-betamax}.}
+(\code{beta}) by this amount. Any statistics greater than than
+ \code{betamax} are set to \code{betamax}, and any statistics less
+than \code{-betamax} are set to \code{-betamax}.}
 
 \item{label_above_quantile}{Only z-scores or p-values (depending on
 choice of \code{y}) above this quantile are labeled in the volcano
@@ -80,16 +79,11 @@ plot. \code{\link[ggrepel]{geom_text_repel}} will attempt to label
 all points when \code{label_above_quantile = 0}. When
 \code{label_above_quantile = Inf}, no points are labeled.}
 
-\item{filter_low_counts}{This is used to filter out log-fold change
-statistics that could be unreliable due to insufficient data. The
-rule is that points for which \code{colmeans > filter_low_counts}
-are plotted.}
-
 \item{subsample_below_quantile}{A number between 0 and 1. If
 greater than zero, log-fold change statistics with z-scores or
 p-values below this quantile will be subsampled according to
-\code{subsample_rate}. This is useful for large data sets to to
-reduce the number of points plotted.}
+\code{subsample_rate}. This can be helpful to reduce the number of
+points plotted for a large data set.}
 
 \item{subsample_rate}{A number between 0 and 1 giving the
 proportion of log-fold change statistics with "small" z-scores that
