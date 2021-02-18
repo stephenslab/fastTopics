@@ -80,7 +80,7 @@
 #' @param e A small, positive scalar included in some computations to
 #'   avoid logarithms of zero and division by zero.
 #'
-#' @param pseudocount An observation with this value is added to the
+#' @param pseudocount Observations with this value are added to the
 #'   counts matrix to stabilize calculation of the LFC estimates and
 #'   other statistics.
 #' 
@@ -189,9 +189,9 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   colmeans = colMeans(X)
   
   # Add the pseudocounts to the data.
-  X <- rbind(X,matrix(pseudocount,2,ncol(X)))
-  s <- c(s,1,1)
-  L <- rbind(fit$L,matrix(c(0,1),2,k))
+  X <- rbind(X,matrix(pseudocount,k,ncol(X)))
+  s <- c(s,rep(1,k))
+  L <- rbind(fit$L,diag(k))
   
   # Fit the univariate ("single-count") Poisson models. If all the
   # mixture proportions are zeros or ones (or very close to being zero

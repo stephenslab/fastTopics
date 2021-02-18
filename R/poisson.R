@@ -268,12 +268,12 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
   F1 <- pmax(F1,e)
 
   # Compute the standard errors.
-  a <- matrix(colSums(X),m,k) + e
-  b <- matrix(colSums(s*L),m,k,byrow = TRUE) + e
+  a <- matrix(colSums(X),m,k)
+  b <- matrix(colSums(s*L),m,k,byrow = TRUE)
   if (is.sparse.matrix(X))
-    c <- compute_poisson_beta_stat_sparse(X,L,F0,F1,e)
+    c <- compute_poisson_beta_stat_sparse(X,L,F0,F1)
   else
-    c <- compute_poisson_beta_stat(X,L,F0,F1,e)
+    c <- compute_poisson_beta_stat(X,L,F0,F1)
   se <- compute_poisson_beta_se(F1,a,b,c)
 
   # Return the (base-2) log-fold change statistics (beta), the
@@ -302,9 +302,9 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e) {
   #                               c(f1/f0*b,f1^2*c)))))[2]
   #  
   u  <- get_poisson_rates(q,f0,f1)
-  a  <- sum(x) + e
-  b  <- sum(s*q) + e
-  c  <- sum(x*(q/u)^2) + e
+  a  <- sum(x)
+  b  <- sum(s*q)
+  c  <- sum(x*(q/u)^2)
   se <- compute_poisson_beta_se(f1,a,b,c)
   
   # Return the (base-2) log-fold change statistic (beta), the standard
@@ -317,13 +317,13 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e) {
 # precisions for the log-fold change statistics (beta) when X is a
 # dense matrix. Here we assume the matrices F0 and F1 contain only
 # positive values.
-compute_poisson_beta_stat <- function (X, L, F0, F1, e) {
+compute_poisson_beta_stat <- function (X, L, F0, F1) {
   m <- nrow(F0)
   k <- ncol(F0)
   c <- matrix(0,m,k)
   for (i in 1:k) {
     u     <- outer(1 - L[,i],F0[,i]) + outer(L[,i],F1[,i])
-    c[,i] <- colSums(X*(L[,i]/u)^2) + e
+    c[,i] <- colSums(X*(L[,i]/u)^2)
   }
   return(c)
 }
@@ -334,7 +334,7 @@ compute_poisson_beta_stat <- function (X, L, F0, F1, e) {
 # positive values.
 #
 #' @importFrom Matrix colSums
-compute_poisson_beta_stat_sparse <- function (X, L, F0, F1, e) {
+compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
   m <- nrow(F0)
   K <- ncol(F0)
   c <- matrix(0,m,K)
@@ -347,7 +347,7 @@ compute_poisson_beta_stat_sparse <- function (X, L, F0, F1, e) {
     x     <- out$x
     u     <- (1 - L[i,k])*F0[j,k] + L[i,k]*F1[j,k]
     c[,k] <- colSums(sparseMatrix(i = i,j = j,x = x*(L[i,k]/u)^2,
-                                  dims = dim(X))) + e
+                                  dims = dim(X)))
   }
   return(c)
 }

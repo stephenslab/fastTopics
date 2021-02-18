@@ -34,8 +34,6 @@ print(tail(out2$loglik,n = 1),digits = 12)
 print(out3$loglik,digits = 12)
 print(out4$loglik,digits = 12)
 
-stop()
-
 # Finally, fit the model parameters using glm with family =
 # poisson(link = "identity"). Note that the parameterization is
 # slightly different: b0 = f0 and b = f1 - f0.

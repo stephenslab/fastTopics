@@ -44,7 +44,7 @@ change between two successive updates is less than \code{tol}.}
 \item{e}{A small, positive scalar included in some computations to
 avoid logarithms of zero and division by zero.}
 
-\item{pseudocount}{An observation with this value is added to the
+\item{pseudocount}{Observations with this value are added to the
 counts matrix to stabilize calculation of the LFC estimates and
 other statistics.}
 
