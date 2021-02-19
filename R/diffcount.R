@@ -70,6 +70,18 @@
 #'   scaled in the Poisson model. See \dQuote{Details} for guidance on
 #'   the choice of \code{s}.
 #' 
+#' @param pseudocount Observations with this value are added to the
+#'   counts matrix to stabilize calculation of the LFC estimates and
+#'   other statistics.
+#'
+#' @param fit.method Describe input argument "fit.method" here.
+#' 
+#' @param shrink.method Method used to stabilize the LFC estimates.
+#'   When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
+#'   implemented in the ashr package is used. When \code{shrink.method =
+#'   "none"}, no stabilization is performed, and the \dQuote{raw} LFC
+#'   estimates are returned.
+#' 
 #' @param numiter The number of EM updates performed to compute the
 #'   maximum-likelihood estimates of the Poisson model parameters.
 #'
@@ -80,16 +92,6 @@
 #' @param e A small, positive scalar included in some computations to
 #'   avoid logarithms of zero and division by zero.
 #'
-#' @param pseudocount Observations with this value are added to the
-#'   counts matrix to stabilize calculation of the LFC estimates and
-#'   other statistics.
-#' 
-#' @param shrink.method Method used to stabilize the LFC estimates.
-#'   When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
-#'   implemented in the ashr package is used. When \code{shrink.method =
-#'   "none"}, no stabilization is performed, and the \dQuote{raw} LFC
-#'   estimates are returned.
-#' 
 #' @param show.warning Set \code{show.warning = FALSE} to suppress a
 #'   message about calculations when mixture proportions are all 0 or 1.
 #' 
@@ -124,9 +126,9 @@
 #'
 #' \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
 #'
-#' Note that in some \dQuote{extreme} cases the standard error
-#' calculations lead to zero or negative standard errors, in which
-#' case the standard errors, z-scores and p-values are set to missing
+#' Note that in some extreme cases the standard error calculations
+#' lead to zero or negative standard errors, in which case the
+#' standard errors, z-scores and p-values are set to missing
 #' (\code{NA}).
 #' 
 #' @references
@@ -145,9 +147,10 @@
 #' 
 #' @export
 #' 
-diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
-                                 tol = 1e-8, e = 1e-15, pseudocount = 0.01,
+diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
+                                 fit.method = c("em","optim","glm"),
                                  shrink.method = c("ash","none"),
+                                 numiter = 100, tol = 1e-8, e = 1e-15,
                                  show.warning = TRUE, verbose = TRUE, ...) {
 
   # Check and process input argument "fit".
@@ -176,8 +179,9 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   # Check input argument "pseudocount".
   if (any(pseudocount <= 0))
     stop("Input argument \"pseudocount\" should be a positive number")
-  
-  # Process input argument "shrink.method".
+
+  # Process input arguments "fit.method" and "shrink.method".
+  fit.method    <- match.arg(fit.method)
   shrink.method <- match.arg(shrink.method)
   
   # Get the number of topics (k) and the number of rows in the counts
@@ -186,13 +190,15 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   k <- ncol(fit$F)
 
   # Compute the per-column averages.
-  colmeans = colMeans(X)
-  
-  # Add the pseudocounts to the data.
+  colmeans <- colMeans(X)
+
+  # Add "pseudocounts" to the data.
   X <- rbind(X,matrix(pseudocount,k,ncol(X)))
   s <- c(s,rep(1,k))
   L <- rbind(fit$L,diag(k))
-  
+
+  # COMPUTE LOG-FOLD CHANGE STATISTICS
+  # ----------------------------------
   # Fit the univariate ("single-count") Poisson models. If all the
   # mixture proportions are zeros or ones (or very close to being zero
   # or one), we can use the faster fit_univar_poisson_models_hard.
@@ -220,6 +226,8 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
   out <- compute_univar_poisson_zscores_fast(X,L,F0,F1,s,e)
   out <- c(list(colmeans = colmeans,F0 = F0,F1 = F1),out)
 
+  # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
+  # --------------------------------------------
   # If requested, use "adaptive shrinkage" to stabilize the log-fold
   # change estimates. 
   if (shrink.method == "ash") {
@@ -249,7 +257,9 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), numiter = 100,
       }
     }
   }
-  
+
+  # PREPARE OUTPUTS
+  # ---------------
   # Adopt the row and column name used in "fit".
   rownames(out$F0)   <- rownames(fit$F)
   rownames(out$F1)   <- rownames(fit$F)

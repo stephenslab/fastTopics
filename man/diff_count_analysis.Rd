@@ -9,11 +9,12 @@ diff_count_analysis(
   fit,
   X,
   s = rowSums(X),
+  pseudocount = 0.01,
+  fit.method = c("em", "optim", "glm"),
+  shrink.method = c("ash", "none"),
   numiter = 100,
   tol = 1e-08,
   e = 1e-15,
-  pseudocount = 0.01,
-  shrink.method = c("ash", "none"),
   show.warning = TRUE,
   verbose = TRUE,
   ...
@@ -34,6 +35,18 @@ automatically recovered using \code{\link{poisson2multinom}}.}
 scaled in the Poisson model. See \dQuote{Details} for guidance on
 the choice of \code{s}.}
 
+\item{pseudocount}{Observations with this value are added to the
+counts matrix to stabilize calculation of the LFC estimates and
+other statistics.}
+
+\item{fit.method}{Describe input argument "fit.method" here.}
+
+\item{shrink.method}{Method used to stabilize the LFC estimates.
+When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
+implemented in the ashr package is used. When \code{shrink.method =
+"none"}, no stabilization is performed, and the \dQuote{raw} LFC
+estimates are returned.}
+
 \item{numiter}{The number of EM updates performed to compute the
 maximum-likelihood estimates of the Poisson model parameters.}
 
@@ -43,16 +56,6 @@ change between two successive updates is less than \code{tol}.}
 
 \item{e}{A small, positive scalar included in some computations to
 avoid logarithms of zero and division by zero.}
-
-\item{pseudocount}{Observations with this value are added to the
-counts matrix to stabilize calculation of the LFC estimates and
-other statistics.}
-
-\item{shrink.method}{Method used to stabilize the LFC estimates.
-When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
-implemented in the ashr package is used. When \code{shrink.method =
-"none"}, no stabilization is performed, and the \dQuote{raw} LFC
-estimates are returned.}
 
 \item{show.warning}{Set \code{show.warning = FALSE} to suppress a
 message about calculations when mixture proportions are all 0 or 1.}
@@ -94,9 +97,9 @@ The return value is a list with six m x k matrices, where m
 
 \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
 
-Note that in some \dQuote{extreme} cases the standard error
-calculations lead to zero or negative standard errors, in which
-case the standard errors, z-scores and p-values are set to missing
+Note that in some extreme cases the standard error calculations
+lead to zero or negative standard errors, in which case the
+standard errors, z-scores and p-values are set to missing
 (\code{NA}).
 }
 \description{
