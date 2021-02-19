@@ -39,14 +39,10 @@ cat(sprintf("EM (sparse): %0.12f\n",max(out4$loglik)))
 # Finally, fit the model parameters using glm with family =
 # poisson(link = "identity"). Note that the parameterization is
 # slightly different: b0 = f0 and b = f1 - f0.
-dat <- data.frame(x = x,b0 = s,b = s*q)
-fit <- glm(x ~ b0 + b - 1,family = poisson(link = "identity"),data = dat,
-           start = c(0.5,0),maxit = 100)
-b0  <- coef(fit)["b0"]
-b   <- coef(fit)["b"]
+fit <- fit_poisson_glm(x,s,q)
 
 # Compare the estimates against the values used to simulate the data.
-print(data.frame(glm         = c(b0,b + b0),
+print(data.frame(glm         = fit$f,
                  optim       = out1$par,
                  em          = out2$f,
                  rcpp        = with(out3,c(f0,f1)),
@@ -57,16 +53,18 @@ print(data.frame(glm         = c(b0,b + b0),
 # --------------------
 # Manually calculate the z-scores for the glm (with identity link)
 # parameterization, and compare against the internal glm calculations.
-# They should be very close.
+# They should be close.
+b0   <- fit$f[1]
+b    <- fit$f[2] - b0
 u    <- b0 + q*b
 se   <- sqrt(diag(solve(rbind(c(sum(x/u^2),sum(x*q/u^2)),
                               c(sum(x*q/u^2),sum(x*(q/u)^2))))))
-z    <- coef(fit)/se
+se   <- se[2]
+z    <- b/se
 pval <- 2*pnorm(-abs(z))
-ans  <- summary(fit)$coefficients
 cat("standard errors:\n")
-print(data.frame(glm = ans[,"Std. Error"],se = se))
+print(data.frame(glm = fit$se,se = se))
 cat("z-scores:\n")
-print(data.frame(glm = ans[,"z value"],z = z))
+print(data.frame(glm = fit$z,z = z))
 cat("p-values:\n")
-print(data.frame(glm = ans[,"Pr(>|z|)"],pval = pval))
+print(data.frame(glm = fit$pval,pval = pval))

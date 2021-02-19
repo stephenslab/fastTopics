@@ -189,7 +189,8 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   m <- nrow(fit$F)
   k <- ncol(fit$F)
 
-  # Compute the per-column averages.
+  # Compute the per-column averages. (This needs to be done before
+  # adding "pseudocounts" to the data.)
   colmeans <- colMeans(X)
 
   # Add "pseudocounts" to the data.
@@ -224,7 +225,6 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     if (verbose)
       cat("Computing log-fold change statistics.\n")
     out <- compute_univar_poisson_zscores_fast(X,L,F0,F1,s,e)
-    out <- c(list(colmeans = colmeans,F0 = F0,F1 = F1),out)
   }
   if (normalize.by.totalcounts)
     if (any(out$F0 > 0.9) | any(out$F1 > 0.9))
@@ -268,7 +268,7 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
 
   # PREPARE OUTPUTS
   # ---------------
-  # Adopt the row and column name used in "fit".
+  # Copy the row and column name used in "fit".
   rownames(out$F0)   <- rownames(fit$F)
   rownames(out$F1)   <- rownames(fit$F)
   rownames(out$beta) <- rownames(fit$F)
@@ -283,6 +283,7 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   colnames(out$pval) <- colnames(fit$F)
 
   # Return the Poisson model MLEs and the log-fold change statistics.
+  out$colmeans <- colmeans
   class(out) <- c("topic_model_diff_count","list")
   return(out)
 }

@@ -118,6 +118,27 @@ fit_univar_poisson_models_em <- function (X, L, s, e, numiter, verbose) {
   return(list(F0 = F0,F1 = F1,loglik = loglik))
 }
 
+# TO DO: Explain here what this function does, and how to use it.
+#
+#' @importFrom stats glm
+#' @importFrom stats glm.control
+#' @importFrom stats summary.glm
+#'
+fit_poisson_glm <-
+  function (x, s, q, f0 = 1, f1 = 1,
+            control = glm.control(epsilon = 1e-10, maxit = 100)) {
+  dat <- data.frame(x = x,b0 = s,b = s*q)
+  fit <- glm(x ~ b0 + b - 1,family = poisson(link = "identity"),
+             data = dat,start = c(f0,f1 - f0),control = control)
+  ans <- summary.glm(fit)$coefficients
+  b0  <- ans["b0","Estimate"]
+  b   <- ans["b","Estimate"]
+  return(list(f    = c(b0,b + b0),
+              se   = ans["b","Std. Error"],
+              z    = ans["b","z value"],
+              pval = ans["b","Pr(>|z|)"]))
+}
+    
 # Compute maximum-likelihood estimates (MLEs) of the parameters in the
 # single-count Poisson model: x ~ Poisson(s*u), with u given by u =
 # f0*(1-q) + f1*q. Parameters f0, f1 are estimated, and vectors s, q
@@ -242,10 +263,10 @@ compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
       pval[i,j] <- out["pval"]
     }
 
-  # Return the (base-2) log-fold change statistics (beta), their
-  # standard errors (se), the z-scores (z), and the two-sided
-  # p-values (pval).
-  return(list(beta = beta,se = se,Z = Z,pval = pval))
+  # Return the model parameters (F0, F1), the (base-2) log-fold change
+  # statistics (beta), their standard errors (se), the z-scores (z),
+  # and the two-sided p-values (pval).
+  return(list(F0 = F0,F1 = F1,beta = beta,se = se,Z = Z,pval = pval))
 }
 
 # This does the same thing as compute_univar_poisson_zscores, but the
@@ -276,9 +297,9 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
     c <- compute_poisson_beta_stat(X,L,F0,F1)
   se <- compute_poisson_beta_se(F1,a,b,c)
 
-  # Return the (base-2) log-fold change statistics (beta), the
-  # standard errors (se), the z-scores (Z), and the two-tailed
-  # p-values (pval).
+  # Return the model parameters (F0, F1), the (base-2) log-fold change
+  # statistics (beta), the standard errors (se), the z-scores (Z), and
+  # the two-tailed p-values (pval).
   return(compute_poisson_zscore_helper(F0,F1,se))
 }
 
@@ -370,10 +391,10 @@ compute_poisson_zscore_helper <- function (f0, f1, se) {
   b <- log(f1/f0)
   Z <- b/se
   Z[is.na(se)] <- 0
-  return(list(beta = b/log(2),
+  return(list(f0   = f0,
+              f1   = f1,
+              beta = b/log(2),
               se   = se/log(2),
               Z    = Z,
               pval = -lpfromz(Z)))
 }
-     
-
