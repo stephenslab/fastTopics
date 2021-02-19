@@ -48,11 +48,13 @@ implemented in the ashr package is used. When \code{shrink.method =
 estimates are returned.}
 
 \item{numiter}{The number of EM updates performed to compute the
-maximum-likelihood estimates of the Poisson model parameters.}
+maximum-likelihood estimates of the Poisson model parameters.
+TO DO: Update description of this input argument.}
 
 \item{tol}{When \code{tol > 0}, the EM algorithm for computing
 maximum-likelihood estimates will be stopped early when the largest
-change between two successive updates is less than \code{tol}.}
+change between two successive updates is less than \code{tol}.
+TO DO: Update description of this input argument.}
 
 \item{e}{A small, positive scalar included in some computations to
 avoid logarithms of zero and division by zero.}

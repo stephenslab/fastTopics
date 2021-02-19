@@ -1,8 +1,6 @@
 to do
 =====
 
-+ Update test_poisson_fit.R.
-
 + Update multinom_demo.R.
 
 + Remove files in inst/derivations/diffcount.

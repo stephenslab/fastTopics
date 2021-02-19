@@ -13,9 +13,9 @@ loglik_poisson <- function (x, y, e)
 # maximum-likelihood estimates (MLEs) of the parameters in the
 # single-count (univariate) Poisson model.
 fit_univar_poisson_models <-
-  function (X, L, s = rep(1,nrow(X)), method = c("em-rcpp","em","optim"),
-            e = 1e-15, numiter.em = 100, tol.em = 1e-8,
-            control.optim = list(factr = 1e-14,maxit = 100),
+  function (X, L, s = rep(1,nrow(X)),
+            method = c("em-rcpp","em","optim","glm"),
+            e = 1e-15, numiter = 100, tol = 1e-8,
             verbose = TRUE) {
   method <- match.arg(method)
 
@@ -31,17 +31,20 @@ fit_univar_poisson_models <-
   # Compute maximum-likelihood estimates (MLEs) of the Poisson model
   # parameters (f0,f1) for each topic, and for each column of of the
   # counts matrix, X.
-  if (method == "optim")
-    out <- fit_univar_poisson_models_optim(X,L,s,e,control.optim,verbose)
-  else if (method == "em") {
-    out <- fit_univar_poisson_models_em(X,L,s,e,numiter.em,verbose)
-  } else if (method == "em-rcpp") {
+  if (method == "glm") {
+    control <- list(epsilon = tol,maxit = numiter)
+    out <- fit_univar_poisson_models_glm(X,L,s,e,control,verbose)
+  } else if (method == "optim") {
+    control <- list(maxit = numiter,factr = tol*.Machine$double.eps)
+    out <- fit_univar_poisson_models_optim(X,L,s,e,control,verbose)
+  } else if (method == "em")
+    out <- fit_univar_poisson_models_em(X,L,s,e,numiter,verbose)
+  else if (method == "em-rcpp") {
     if (is.sparse.matrix(X))
-      out <- fit_univar_poisson_models_em_sparse_rcpp(X,L,s,e,numiter.em,
-                                                      tol.em,verbose)
+      out <- fit_univar_poisson_models_em_sparse_rcpp(X,L,s,e,numiter,tol,
+                                                      verbose)
     else
-      out <- fit_univar_poisson_models_em_rcpp(X,L,s,e,numiter.em,tol.em,
-                                               verbose)
+      out <- fit_univar_poisson_models_em_rcpp(X,L,s,e,numiter,tol,verbose)
   }
   return(out)
 }
@@ -68,6 +71,34 @@ fit_univar_poisson_models_hard <- function (X, L, s = rep(1,nrow(X)),
                     cost(t(X[i1,]),F1[,j],s[i1],e,"poisson"))
   }
   return(list(F0 = F0,F1 = F1,loglik = loglik))
+}
+
+# Implements fit_univar_poisson_models for method = "glm".
+#
+#' @importFrom progress progress_bar
+fit_univar_poisson_models_glm <- function (X, L, s, e, control, verbose)  {
+  m    <- ncol(X)
+  k    <- ncol(L)
+  F0   <- matrix(0,m,k)
+  F1   <- matrix(0,m,k)
+  Z    <- matrix(0,m,k)
+  se   <- matrix(0,m,k)
+  pval <- matrix(0,m,k)
+  if (verbose)
+    pb <- progress_bar$new(total = m)
+  for (i in 1:m) {
+    if (verbose)
+      pb$tick()
+    for (j in 1:k) {
+      out       <- fit_poisson_glm(X[,i],s,L[,j],control = control)
+      F0[i,j]   <- out$f["f0"]
+      F1[i,j]   <- out$f["f1"]
+      Z[i,j]    <- out$z
+      se[i,j]   <- out$se
+      pval[i,j] <- out$pval
+    }
+  }
+  return(list(F0 = F0,F1 = F1,Z = Z,se = se,pval = pval))
 }
 
 # Implements fit_univar_poisson_models for method = "optim".
@@ -118,7 +149,13 @@ fit_univar_poisson_models_em <- function (X, L, s, e, numiter, verbose) {
   return(list(F0 = F0,F1 = F1,loglik = loglik))
 }
 
-# TO DO: Explain here what this function does, and how to use it.
+# Fit the Poisson generalized linear model (glm) in which the Poisson
+# rates are s*(b0 + q*b). This is a reparameterization of the model x
+# ~ Poisson(s*u), with u = f0*(1-q) + f1*q, used below; the glm
+# "identity" reparameterization is recovered by b0 = f0, b = f1 - f0.
+# Input arguments f0 and f1 are initial parameter estimates. The
+# outputs are the estimates of f0 and f1 and the standard error (se),
+# z-score (z) and p-value (pval) for b = f1 - f0.
 #
 #' @importFrom stats glm
 #' @importFrom stats glm.control
@@ -128,8 +165,10 @@ fit_poisson_glm <-
   function (x, s, q, f0 = 1, f1 = 1,
             control = glm.control(epsilon = 1e-10, maxit = 100)) {
   dat <- data.frame(x = x,b0 = s,b = s*q)
-  fit <- glm(x ~ b0 + b - 1,family = poisson(link = "identity"),
-             data = dat,start = c(f0,f1 - f0),control = control)
+  fit <- suppressWarnings(glm(x ~ b0 + b - 1,
+                              family = poisson(link = "identity"),
+                              data = dat,start = c(f0,f1 - f0),
+                              control = control))
   ans <- summary.glm(fit)$coefficients
   b0  <- ans["b0","Estimate"]
   b   <- ans["b","Estimate"]

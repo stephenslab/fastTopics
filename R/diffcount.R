@@ -84,10 +84,12 @@
 #' 
 #' @param numiter The number of EM updates performed to compute the
 #'   maximum-likelihood estimates of the Poisson model parameters.
+#'   TO DO: Update description of this input argument.
 #'
 #' @param tol When \code{tol > 0}, the EM algorithm for computing
 #'   maximum-likelihood estimates will be stopped early when the largest
 #'   change between two successive updates is less than \code{tol}.
+#'   TO DO: Update description of this input argument.
 #' 
 #' @param e A small, positive scalar included in some computations to
 #'   avoid logarithms of zero and division by zero.
@@ -203,84 +205,83 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # Fit the univariate ("single-count") Poisson models.
   if (verbose)
     cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
-  if (fit.method == "glm")  {
-    # TO DO.
-  } else if (fit.method == "optim" | fit.method == "em") {
 
-    # If all the mixture proportions are zeros or ones (or very close
-    # to being zero or one), we can use the faster (analytical)
-    # calculations.
-    if (max(pmin(L,1 - L)) <= 1e-14) {
-      if (show.warning)
-        warning("All mixture proportions are either zero or one; using ",
-                "simpler single-topic calculations for model parameter ",
-                "estimates")
-      out <- fit_univar_poisson_models_hard(X,L,s,e)
-    } else
-      out <- fit_univar_poisson_models(X,L,s,"em-rcpp",e,numiter,tol,
-                                       verbose = verbose)
-  
-    # Compute the log-fold change statistics, including standard errors
-    # and z-scores.
-    if (verbose)
-      cat("Computing log-fold change statistics.\n")
-    out <- compute_univar_poisson_zscores_fast(X,L,F0,F1,s,e)
-  }
+  # If all the mixture proportions are zeros or ones (or very close
+  # to being zero or one), we can use the faster (analytical)
+  # calculations.
+  if (fit.method != "glm" & max(pmin(L,1 - L)) <= 1e-14) {
+    if (show.warning)
+      warning("All mixture proportions are either zero or one; using ",
+              "simpler single-topic calculations for model parameter ",
+              "estimates")
+    out <- fit_univar_poisson_models_hard(X,L,s,e)
+  } else
+    out <- fit_univar_poisson_models(X,L,s,ifelse(fit.method == "em","em-rcpp",
+                                                  fit.method),
+                                     e,numiter,tol,verbose)
   if (normalize.by.totalcounts)
     if (any(out$F0 > 0.9) | any(out$F1 > 0.9))
       warning("One or more F0, F1 estimates are close to or greater than ",
               "1, so Poisson approximation to binomial may be poor; see ",
               "help(diff_count_analysis) for more information")
+    
+  # Compute the log-fold change statistics, including standard errors
+  # and z-scores.
+  # if (fit.method != "glm") {
+  #   if (verbose)
+  #     cat("Computing log-fold change statistics.\n")
+  #   out <- compute_univar_poisson_zscores_fast(X,L,out$F0,out$F1,s,e)
+  # }
 
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------
   # If requested, use "adaptive shrinkage" to stabilize the log-fold
   # change estimates. 
-  if (shrink.method == "ash") {
-    if (verbose)
-      cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
+  ## if (shrink.method == "ash") {
+  ##   if (verbose)
+  ##     cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
 
-    # TO DO: Package this code into a separate function.
-    #
-    # Repeat for each topic.
-    for (j in 1:k) {
-      i <- which(!is.na(out$se[,j]))
-      if (length(i) > 0) {
+  ##   # TO DO: Package this code into a separate function.
+  ##   #
+  ##   # Repeat for each topic.
+  ##   for (j in 1:k) {
+  ##     i <- which(!is.na(out$se[,j]))
+  ##     if (length(i) > 0) {
 
-        # Run adaptive shrinkage, and extract the posterior estimates (b)
-        # and the posterior standard errors (se).
-        ans <- ash(out$beta[i,j],out$se[i,j],mixcompdist = "normal",
-                   method = "shrink",...)
-        b   <- ans$result$PosteriorMean
-        se  <- ans$result$PosteriorSD
-        z   <- b/se
+  ##       # Run adaptive shrinkage, and extract the posterior estimates (b)
+  ##       # and the posterior standard errors (se).
+  ##       ans <- ash(out$beta[i,j],out$se[i,j],mixcompdist = "normal",
+  ##                  method = "shrink",...)
+  ##       b   <- ans$result$PosteriorMean
+  ##       se  <- ans$result$PosteriorSD
+  ##       z   <- b/se
 
-        # Store the "stabilized" (posterior) statistics, and
-        # re-compute the p-values based on these stabilized
-        # statistics.
-        out$beta[i,j] <- b
-        out$se[i,j]   <- se
-        out$Z[i,j]    <- z
-        out$pval[i,j] <- -lpfromz(z)
-      }
-    }
-  }
+  ##       # Store the "stabilized" (posterior) statistics, and
+  ##       # re-compute the p-values based on these stabilized
+  ##       # statistics.
+  ##       out$beta[i,j] <- b
+  ##       out$se[i,j]   <- se
+  ##       out$Z[i,j]    <- z
+  ##       out$pval[i,j] <- -lpfromz(z)
+  ##     }
+  ##   }
+  ## }
 
   # PREPARE OUTPUTS
   # ---------------
   # Copy the row and column name used in "fit".
   rownames(out$F0)   <- rownames(fit$F)
   rownames(out$F1)   <- rownames(fit$F)
-  rownames(out$beta) <- rownames(fit$F)
-  rownames(out$se)   <- rownames(fit$F)
-  rownames(out$Z)    <- rownames(fit$F)
-  rownames(out$pval) <- rownames(fit$F)
+  # rownames(out$beta) <- rownames(fit$F)
+  # rownames(out$se)   <- rownames(fit$F)
+  # rownames(out$Z)    <- rownames(fit$F)
+  # rownames(out$pval) <- rownames(fit$F)
   colnames(out$F0)   <- colnames(fit$F)
   colnames(out$F1)   <- colnames(fit$F)
-  colnames(out$beta) <- colnames(fit$F)
-  colnames(out$se)   <- colnames(fit$F)
-  colnames(out$Z)    <- colnames(fit$F)
-  colnames(out$pval) <- colnames(fit$F)
+  # colnames(out$beta) <- colnames(fit$F)
+  # colnames(out$se)   <- colnames(fit$F)
+  # colnames(out$Z)    <- colnames(fit$F)
+  # colnames(out$pval) <- colnames(fit$F)
 
   # Return the Poisson model MLEs and the log-fold change statistics.
   out$colmeans <- colmeans

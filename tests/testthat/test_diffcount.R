@@ -15,20 +15,23 @@ test_that(paste("All variants of fit_univar_poisson_models and",
   Y   <- as(X,"dgCMatrix")
   L   <- dat$L
 
-  # Fit the univariate Poisson models using optim and EM.
-  capture.output(fit1 <- fit_univar_poisson_models(X,L,s,method = "optim"))
-  fit2 <- fit_univar_poisson_models(X,L,s,method = "em",verbose = FALSE)
-  fit3 <- fit_univar_poisson_models(X,L,s,method = "em-rcpp",verbose = FALSE)
-  fit4 <- fit_univar_poisson_models(Y,L,s,method = "em-rcpp",verbose = FALSE)
+  # Fit the univariate Poisson models using glm, optim and EM.
+  fit1 <- fit_univar_poisson_models(X,L,s,method = "glm",verbose = FALSE)
+  fit2 <- fit_univar_poisson_models(X,L,s,method = "optim",verbose = FALSE)
+  fit3 <- fit_univar_poisson_models(X,L,s,method = "em",verbose = FALSE)
+  fit4 <- fit_univar_poisson_models(X,L,s,method = "em-rcpp",verbose = FALSE)
+  fit5 <- fit_univar_poisson_models(Y,L,s,method = "em-rcpp",verbose = FALSE)
 
   # All four implementations should produce the same, or nearly the
   # same, estimates of the model parameters.
-  expect_equal(fit1$F0,fit2$F0,scale = 1,tolerance = 1e-4)
-  expect_equal(fit1$F1,fit2$F1,scale = 1,tolerance = 1e-4)
-  expect_equal(fit2$F0,fit3$F0,scale = 1,tolerance = 1e-8)
-  expect_equal(fit2$F1,fit3$F1,scale = 1,tolerance = 1e-8)
-  expect_equal(fit2$F0,fit4$F0,scale = 1,tolerance = 1e-8)
-  expect_equal(fit2$F1,fit4$F1,scale = 1,tolerance = 1e-8)
+  expect_equal(fit1$F0,fit2$F0,scale = 1,tolerance = 1e-5)
+  expect_equal(fit1$F1,fit2$F1,scale = 1,tolerance = 1e-5)
+  expect_equal(fit1$F0,fit3$F0,scale = 1,tolerance = 1e-5)
+  expect_equal(fit1$F1,fit3$F1,scale = 1,tolerance = 1e-5)
+  expect_equal(fit3$F0,fit4$F0,scale = 1,tolerance = 1e-8)
+  expect_equal(fit3$F1,fit4$F1,scale = 1,tolerance = 1e-8)
+  expect_equal(fit3$F0,fit5$F0,scale = 1,tolerance = 1e-8)
+  expect_equal(fit3$F1,fit5$F1,scale = 1,tolerance = 1e-8)
 
   # Additionally, the likelihood calculations should be the same, or
   # nearly the same.
@@ -69,7 +72,8 @@ test_that(paste("fit_univar_poisson_models produces same result as",
   L   <- force_hard_topic_assignments(dat$L)
       
   # Fit the univariate Poisson models using EM.
-  fit1 <- fit_univar_poisson_models(X,L,s,verbose = FALSE)
+  fit1 <- fit_univar_poisson_models(X,L,s,method = "glm",e = 1e-8,
+                                    verbose = FALSE)
 
   # Estimate the univariate Poisson model parameters assuming all the
   # topic proportions are zeros and ones.
@@ -78,12 +82,10 @@ test_that(paste("fit_univar_poisson_models produces same result as",
 
   # Both methods should produce the same parameter estimates, and the
   # same log-likelihood values.
-  expect_equal(fit1$F0,fit2$F0,scale = 1,tolerance = 1e-15)
-  expect_equal(fit1$F0,fit3$F0,scale = 1,tolerance = 1e-15)
-  expect_equal(fit1$F1,fit2$F1,scale = 1,tolernace = 1e-15)
-  expect_equal(fit1$F1,fit3$F1,scale = 1,tolernace = 1e-15)
-  expect_equal(fit1$loglik,fit2$loglik,scale = 1,tolerance = 1e-13)
-  expect_equal(fit1$loglik,fit3$loglik,scale = 1,tolerance = 1e-13)
+  expect_equal(fit1$F0,fit2$F0,scale = 1,tolerance = 1e-8)
+  expect_equal(fit1$F1,fit2$F1,scale = 1,tolernace = 1e-8)
+  expect_equal(fit2$F0,fit3$F0,scale = 1,tolerance = 1e-15)
+  expect_equal(fit2$F1,fit3$F1,scale = 1,tolernace = 1e-15)
 })
 
 test_that(paste("When all the topic proportions are exactly zero or exactly",

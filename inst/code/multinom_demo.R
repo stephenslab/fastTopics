@@ -17,21 +17,37 @@ L   <- dat$L
 # Fit a Poisson model (approximating a binomial model) to each
 # combination of gene j and topic k, and compute the log-fold change
 # statistics.
-fit <- init_poisson_nmf(X,L = L,init.method = "random")
-out <- diff_count_analysis(fit,X)
+fit  <- init_poisson_nmf(X,L = L,init.method = "random")
+out1 <- diff_count_analysis(fit,X,fit.method = "glm")
+out2 <- diff_count_analysis(fit,X,fit.method = "optim")
+out3 <- diff_count_analysis(fit,X,fit.method = "em")
 
-# For the selected topic, compare the f1 estimates against the
+# Compare the glm and optim estimates of the model parameters.
+plot(out1$F0 + 1e-5,out2$F0 + 1e-5,pch = 4,cex = 0.5,log = "xy",
+     xlab = "glm",ylab = "optim")
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+plot(out1$F1 + 1e-5,out2$F1 + 1e-5,pch = 4,cex = 0.5,log = "xy",
+     xlab = "glm",ylab = "optim")
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+
+# Compare the glm and EM estimates of the model parameters.
+plot(out1$F0,out3$F0,pch = 4,cex = 0.5,log = "xy",xlab = "glm",ylab = "em")
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+plot(out1$F1,out3$F1,pch = 4,cex = 0.5,log = "xy",xlab = "glm",ylab = "em")
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+
+# Compare the f1 estimates against the
 # probabilities used to simulate the data.
-i <- 1
-plot(dat$F[,i],out$F1[,i],pch = 4,cex = 0.5,log = "xy",
+plot(dat$F,out1$F1,pch = 4,cex = 0.5,log = "xy",
      xlab = "true f1",ylab = "estimated f1")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 
-# For the selected topic, compare f0 estimates against the probabities
+# For a selected topic, compare f0 estimates against the probabities
 # used to simulate the data. Since there is no "f0" used to simulate
 # the data, here we approximate f0 by taking the average of the
 # Poisson rates across all topics other than topic i.
-plot(rowMeans(dat$F[,-i]),out$F0[,i],pch = 4,cex = 0.5,log = "xy",
+i <- 1
+plot(rowMeans(dat$F[,-i]),out1$F0[,i],pch = 4,cex = 0.5,log = "xy",
      xlab = "true f0 (approx)",ylab = "estimated f0")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 
