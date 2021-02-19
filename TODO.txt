@@ -1,6 +1,10 @@
 to do
 =====
 
++ Update test_poisson_fit.R.
+
++ Update multinom_demo.R.
+
 + Remove files in inst/derivations/diffcount.
 
 + Implement "t" S3 method to transpose the rows and columns of a
