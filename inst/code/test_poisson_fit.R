@@ -42,7 +42,7 @@ cat(sprintf("EM (sparse): %0.12f\n",max(out4$loglik)))
 fit <- fit_poisson_glm(x,s,q)
 
 # Compare the estimates against the values used to simulate the data.
-print(data.frame(glm         = fit$f,
+print(data.frame(glm         = fit[c("f0","f1")],
                  optim       = out1$par,
                  em          = out2$f,
                  rcpp        = with(out3,c(f0,f1)),
@@ -54,17 +54,6 @@ print(data.frame(glm         = fit$f,
 # Manually calculate the z-scores for the glm (with identity link)
 # parameterization, and compare against the internal glm calculations.
 # They should be close.
-b0   <- fit$f[1]
-b    <- fit$f[2] - b0
-u    <- b0 + q*b
-se   <- sqrt(diag(solve(rbind(c(sum(x/u^2),sum(x*q/u^2)),
-                              c(sum(x*q/u^2),sum(x*(q/u)^2))))))
-se   <- se[2]
-z    <- b/se
-pval <- 2*pnorm(-abs(z))
-cat("standard errors:\n")
-print(data.frame(glm = fit$se,se = se))
-cat("z-scores:\n")
-print(data.frame(glm = fit$z,z = z))
-cat("p-values:\n")
-print(data.frame(glm = fit$pval,pval = pval))
+ans <- compute_poisson_zscore(x,q,s,fit["f0"],fit["f1"],e = 1e-15)
+print(data.frame(glm     = fit[c("se","z","pval")],
+                 laplace = ans[c("se","z","pval")]))

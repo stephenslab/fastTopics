@@ -51,7 +51,7 @@ plot(rowMeans(dat$F[,-i]),out1$F0[,i],pch = 4,cex = 0.5,log = "xy",
      xlab = "true f0 (approx)",ylab = "estimated f0")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 
-# Here we show that the Z-score varies (predictably) with the log-fold
+# Here we show that the z-score varies (predictably) with the log-fold
 # change estimate and the average expression level.
 pdat <- data.frame(x = out$colmeans,beta = out$beta[,i],z = out$Z[,i])
 print(ggplot(pdat,aes(x = x,y = beta,fill = z)) +

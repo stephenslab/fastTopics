@@ -227,11 +227,11 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     
   # Compute the log-fold change statistics, including standard errors
   # and z-scores.
-  # if (fit.method != "glm") {
-  #   if (verbose)
-  #     cat("Computing log-fold change statistics.\n")
-  #   out <- compute_univar_poisson_zscores_fast(X,L,out$F0,out$F1,s,e)
-  # }
+  if (fit.method != "glm") {
+    if (verbose)
+      cat("Computing log-fold change statistics.\n")
+    out <- compute_univar_poisson_zscores_fast(X,L,out$F0,out$F1,s,e)
+  }
 
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------

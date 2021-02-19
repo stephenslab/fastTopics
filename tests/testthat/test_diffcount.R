@@ -12,9 +12,14 @@ test_that(paste("All variants of fit_univar_poisson_models and",
   s   <- 10^runif(n,-1,1)
   dat <- simulate_poisson_gene_data(n,m,k,s)
   X   <- dat$X
-  Y   <- as(X,"dgCMatrix")
   L   <- dat$L
 
+  # Add "pseudocounts" to the data.
+  X <- rbind(X,matrix(1,k,m))
+  Y <- as(X,"dgCMatrix")
+  s <- c(s,rep(1,k))
+  L <- rbind(L,diag(k))
+  
   # Fit the univariate Poisson models using glm, optim and EM.
   fit1 <- fit_univar_poisson_models(X,L,s,method = "glm",verbose = FALSE)
   fit2 <- fit_univar_poisson_models(X,L,s,method = "optim",verbose = FALSE)
@@ -35,22 +40,19 @@ test_that(paste("All variants of fit_univar_poisson_models and",
 
   # Additionally, the likelihood calculations should be the same, or
   # nearly the same.
-  expect_equal(fit1$loglik,fit2$loglik,scale = 1,tolerance = 1e-3)
-  expect_equal(fit2$loglik,fit3$loglik,scale = 1,tolerance = 1e-6)
-  expect_equal(fit2$loglik,fit4$loglik,scale = 1,tolerance = 1e-6)
+  expect_equal(fit2$loglik,fit3$loglik,scale = 1,tolerance = 1e-8)
+  expect_equal(fit2$loglik,fit4$loglik,scale = 1,tolerance = 1e-8)
+  expect_equal(fit2$loglik,fit5$loglik,scale = 1,tolerance = 1e-8)
 
   # Compute the log-fold change statistics.
-  F0 <- fit2$F0
-  F1 <- fit2$F1
-  out1 <- compute_univar_poisson_zscores(X,L,F0,F1,s)
-  out2 <- compute_univar_poisson_zscores_fast(X,L,F0,F1,s)
-  out3 <- compute_univar_poisson_zscores_fast(Y,L,F0,F1,s)
+  out1 <- compute_univar_poisson_zscores(X,L,fit3$F0,fit3$F1,s)
+  out2 <- compute_univar_poisson_zscores_fast(X,L,fit3$F0,fit3$F1,s)
+  out3 <- compute_univar_poisson_zscores_fast(Y,L,fit3$F0,fit3$F1,s)
 
-  # The three different implementations should produce the same, or
-  # nearly the same, results.
-  out1["se"] <- NULL
-  out2["se"] <- NULL
-  out3["se"] <- NULL
+  # The different implementations should produce nearly the same
+  # z-scores as the glm calculations.
+  expect_equal(names(fit1),names(out1))
+  expect_lt(median(abs(fit1$Z - out1$Z)),0.05)
   expect_equal(out1,out2,scale = 1,tolerance = 1e-8)
   expect_equal(out1,out3,scale = 1,tolerance = 1e-8)
 })

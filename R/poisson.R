@@ -11,7 +11,9 @@ loglik_poisson <- function (x, y, e)
 
 # For each column of the counts matrix, and for each topic, compute
 # maximum-likelihood estimates (MLEs) of the parameters in the
-# single-count (univariate) Poisson model.
+# single-count (univariate) Poisson model. For method = "glm",
+# accompanying statistics (standard errors, z-scores and -log10
+# p-values) are also outputted.
 fit_univar_poisson_models <-
   function (X, L, s = rep(1,nrow(X)),
             method = c("em-rcpp","em","optim","glm"),
@@ -81,6 +83,7 @@ fit_univar_poisson_models_glm <- function (X, L, s, e, control, verbose)  {
   k    <- ncol(L)
   F0   <- matrix(0,m,k)
   F1   <- matrix(0,m,k)
+  beta <- matrix(0,m,k)
   Z    <- matrix(0,m,k)
   se   <- matrix(0,m,k)
   pval <- matrix(0,m,k)
@@ -91,14 +94,15 @@ fit_univar_poisson_models_glm <- function (X, L, s, e, control, verbose)  {
       pb$tick()
     for (j in 1:k) {
       out       <- fit_poisson_glm(X[,i],s,L[,j],control = control)
-      F0[i,j]   <- out$f["f0"]
-      F1[i,j]   <- out$f["f1"]
-      Z[i,j]    <- out$z
-      se[i,j]   <- out$se
-      pval[i,j] <- out$pval
+      F0[i,j]   <- out["f0"]
+      F1[i,j]   <- out["f1"]
+      beta[i,j] <- out["beta"]
+      se[i,j]   <- out["se"]
+      Z[i,j]    <- out["z"]
+      pval[i,j] <- out["pval"]
     }
   }
-  return(list(F0 = F0,F1 = F1,Z = Z,se = se,pval = pval))
+  return(list(F0 = F0,F1 = F1,beta = beta,se = se,Z = Z,pval = pval))
 }
 
 # Implements fit_univar_poisson_models for method = "optim".
@@ -154,8 +158,9 @@ fit_univar_poisson_models_em <- function (X, L, s, e, numiter, verbose) {
 # ~ Poisson(s*u), with u = f0*(1-q) + f1*q, used below; the glm
 # "identity" reparameterization is recovered by b0 = f0, b = f1 - f0.
 # Input arguments f0 and f1 are initial parameter estimates. The
-# outputs are the estimates of f0 and f1 and the standard error (se),
-# z-score (z) and p-value (pval) for b = f1 - f0.
+# outputs are the estimates of f0 and f1, the log2-fold change
+# statistic (beta), the standard error (se) of b = f1 - f0, the
+# z-score (z), and the -log10 p-value (pval).
 #
 #' @importFrom stats glm
 #' @importFrom stats glm.control
@@ -172,10 +177,14 @@ fit_poisson_glm <-
   ans <- summary.glm(fit)$coefficients
   b0  <- ans["b0","Estimate"]
   b   <- ans["b","Estimate"]
-  return(list(f    = c(f0 = b0,f1 = b + b0),
-              se   = ans["b","Std. Error"],
-              z    = ans["b","z value"],
-              pval = ans["b","Pr(>|z|)"]))
+  f0  <- b0
+  f1  <- b + b0
+  return(c(f0   = f0,
+           f1   = f1,
+           beta = log2(f1/f0),
+           se   = ans["b","Std. Error"],
+           z    = ans["b","z value"],
+           pval = -log10(ans["b","Pr(>|z|)"])))
 }
     
 # Compute maximum-likelihood estimates (MLEs) of the parameters in the
@@ -273,8 +282,8 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
 # prevent any of the calculations giving Inf or NaN. The outputs are
 # all m x k matrices, where m is the number of columns in X, and k is
 # the number of topics: (base-2) log-fold change statistics (beta);
-# their standard errors (se); z-scores (z); and two-tailed p-values
-# computed from the z-score (pval).
+# standard errors (se) for b = f1 - f0; z-scores (z); and -log10
+# two-tailed p-values (pval) computed from the z-scores.
 compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
                                             e = 1e-15) {
 
@@ -290,19 +299,20 @@ compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
   pval <- matrix(0,m,k)
 
   # For each column of the counts matrix and for for each topic,
-  # compute the z-score for the log-fold change statistic.
+  # compute the log-fold change (beta), standard error (se), z-score
+  # and -log10 p-value.
   for (i in 1:m)
     for (j in 1:k) {
       out       <- compute_poisson_zscore(X[,i],L[,j],s,F0[i,j],F1[i,j],e)
       beta[i,j] <- out["beta"]
       se[i,j]   <- out["se"]
-      Z[i,j]    <- out["Z"]
+      Z[i,j]    <- out["z"]
       pval[i,j] <- out["pval"]
     }
 
   # Return the model parameters (F0, F1), the (base-2) log-fold change
-  # statistics (beta), their standard errors (se), the z-scores (z),
-  # and the two-sided p-values (pval).
+  # statistics (beta), the standard errors (se), the z-scores (z), and
+  # the -log10 two-sided p-values (pval).
   return(list(F0 = F0,F1 = F1,beta = beta,se = se,Z = Z,pval = pval))
 }
 
@@ -336,14 +346,16 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
 
   # Return the model parameters (F0, F1), the (base-2) log-fold change
   # statistics (beta), the standard errors (se), the z-scores (Z), and
-  # the two-tailed p-values (pval).
-  return(compute_poisson_zscore_helper(F0,F1,se))
+  # the -log10 two-tailed p-values (pval).
+  out <- compute_poisson_zscore_helper(F0,F1,se)
+  names(out) <- c("F0","F1","beta","se","Z","pval")
+  return(out)
 }
 
 # Given the counts (x), topic proportions (q), "size factors" (s), and
 # estimates of the Poisson model parameters, f0 and f1, return: (1)
 # the (base-2) log-fold change statistic beta = log2(f1/f0), the
-# standard error of the log-fold change (se), the z-score (z), and the
+# standard error of b = f1 - f0 (se), the z-score (z), and the -log10
 # two-tailed p-value computed from the z-score (pval).
 compute_poisson_zscore <- function (x, q, s, f0, f1, e) {
 
@@ -352,18 +364,14 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e) {
   f0 <- max(f0,e)
   f1 <- max(f1,e)
     
-  # Compute the standard error. The last line should give the same
-  # result as this line of code, but the computation is done in a more
-  # numerically stable way:
-  #
-  #   se <- sqrt(diag(solve(rbind(c(a/f0^2,f1/f0*b),
-  #                               c(f1/f0*b,f1^2*c)))))[2]
-  #  
+  # Compute the standard error.
   u  <- get_poisson_rates(q,f0,f1)
-  a  <- sum(x)
-  b  <- sum(s*q)
+  a  <- sum(x/u^2)
+  b  <- sum(x*q/u^2)
   c  <- sum(x*(q/u)^2)
-  se <- compute_poisson_beta_se(f1,a,b,c)
+  H  <- rbind(c(a,b),
+              c(b,c))
+  se <- tryCatch(sqrt(diag(solve(H)))[2],error = function (e) NA)
   
   # Return the (base-2) log-fold change statistic (beta), the standard
   # error of the log-fold change (se), the z-score (z), and the
@@ -410,28 +418,24 @@ compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
   return(c)
 }
   
-# This is used by compute_poisson_zscore and
-# compute_univar_poisson_zscores_fast to compute the standard error of
-# the log-fold change statistics (beta) given the summary statstics
-# (a, b, c). The inputs may be scalars, vectors or matrices. Here it
-# is assumed all f1 values are positive.
+# This is used by compute_univar_poisson_zscores_fast to compute the
+# standard error of b = f1 - f0 given the summary statstics (a, b, c).
 compute_poisson_beta_se <- function (f1, a, b, c) {
   se <- suppressWarnings(sqrt(a)/(f1*sqrt(a*c - b^2)))
   se[a*c <= b^2] <- NA
   return(se)
 }
 
-# This is used by compute_poisson_zscore and
+# This is used by the functions compute_poisson_zscore and
 # compute_univar_poisson_zscores_fast to prepare the final outputs for
 # those two functions.
 compute_poisson_zscore_helper <- function (f0, f1, se) {
-  b <- log(f1/f0)
-  Z <- b/se
-  Z[is.na(se)] <- 0
+  z <- (f1 - f0)/se
+  z[is.na(se)] <- 0
   return(list(f0   = f0,
               f1   = f1,
-              beta = b/log(2),
-              se   = se/log(2),
-              Z    = Z,
-              pval = -lpfromz(Z)))
+              beta = log2(f1/f0),
+              se   = se,
+              z    = z,
+              pval = -lpfromz(z)))
 }

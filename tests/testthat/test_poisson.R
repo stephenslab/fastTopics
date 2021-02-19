@@ -33,10 +33,12 @@ test_that(paste("fastTopics methods recover the same model fits as glm",
 
   # The glm fit and all four fastTopics methods should produce the
   # same, or nearly the same, estimates of f0 and f1.
-  expect_equal(fit$f,out1$par,scale = 1,tolerance = 1e-6)
-  expect_equal(fit$f,out2$f,scale = 1,tolerance = 1e-6)
-  expect_equal(fit$f,c(f0 = out3$f0,f1 = out3$f1),scale = 1,tolerance = 1e-6)
-  expect_equal(fit$f,c(f0 = out4$f0,f1 = out4$f1),scale = 1,tolerance = 1e-6)
+  expect_equal(fit[c("f0","f1")],out1$par,scale = 1,tolerance = 1e-6)
+  expect_equal(fit[c("f0","f1")],out2$f,scale = 1,tolerance = 1e-6)
+  expect_equal(fit[c("f0","f1")],c(f0 = out3$f0,f1 = out3$f1),
+               scale = 1,tolerance = 1e-6)
+  expect_equal(fit[c("f0","f1")],c(f0 = out4$f0,f1 = out4$f1),
+               scale = 1,tolerance = 1e-6)
 
   # The likelihood should be the same in all EM implementations.
   expect_equal(tail(out2$loglik,n = 1),out3$loglik,scale = 1,tolerance = 1e-8)
