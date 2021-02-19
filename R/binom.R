@@ -98,7 +98,5 @@ fit_binom_em <- function (x, s, q, p0 = 0.5, p1 = 0.5, numiter = 100,
 
   # Output the estimates of p0 and p1, and the log-likelihood at each EM
   # iteration.
-  p        <- c(p0,p1)
-  names(p) <- c("p0","p1")
-  return(list(p = p,loglik = loglik))
+  return(list(p = c(p0 = p0,p1 = p1),loglik = loglik))
 }

@@ -133,7 +133,7 @@ fit_poisson_glm <-
   ans <- summary.glm(fit)$coefficients
   b0  <- ans["b0","Estimate"]
   b   <- ans["b","Estimate"]
-  return(list(f    = c(b0,b + b0),
+  return(list(f    = c(f0 = b0,f1 = b + b0),
               se   = ans["b","Std. Error"],
               z    = ans["b","z value"],
               pval = ans["b","Pr(>|z|)"]))
@@ -220,9 +220,7 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
 
   # Output the estimates of f0 and f1, and the log-likelihood at each EM
   # iteration.
-  f        <- c(f0,f1)
-  names(f) <- c("f0","f1")
-  return(list(f = f,loglik = loglik))
+  return(list(f = c(f0 = f0,f1 = f1),loglik = loglik))
 }
 
 # Compute z-scores and other statistics given maximum-likelihood

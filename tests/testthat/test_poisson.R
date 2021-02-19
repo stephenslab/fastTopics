@@ -13,12 +13,8 @@ test_that(paste("fastTopics methods recover the same model fits as glm",
   u  <- (1-q)*f0 + q*f1
   x  <- rpois(n,s*u)
 
-  # Fit the Poisson model using glm with family =
-  # poisson(link = "identity"). Note that the parameterization is
-  # slightly different: b0 = f0 and b = f1 - f0.
-  dat <- data.frame(x = x,b0 = s,b = s*q)
-  fit <- glm(x ~ b0 + b - 1,family = poisson(link = "identity"),
-             data = dat,start = c(f0,f1 - f0))
+  # Fit the Poisson model using glm.
+  fit <- fit_poisson_glm(x,s,q)
 
   # Fit the model using optim.
   out1 <- fit_poisson_optim(x,s,q)
@@ -37,12 +33,10 @@ test_that(paste("fastTopics methods recover the same model fits as glm",
 
   # The glm fit and all four fastTopics methods should produce the
   # same, or nearly the same, estimates of f0 and f1.
-  expect_equivalent(cumsum(coef(fit)),out1$par,scale = 1,tolerance = 1e-4)
-  expect_equivalent(cumsum(coef(fit)),out2$f,scale = 1,tolerance = 1e-4)
-  expect_equivalent(cumsum(coef(fit)),with(out3,c(f0,f1)),
-                    scale = 1,tolerance = 1e-4)
-  expect_equivalent(cumsum(coef(fit)),with(out4,c(f0,f1)),
-                    scale = 1,tolerance = 1e-4)
+  expect_equal(fit$f,out1$par,scale = 1,tolerance = 1e-6)
+  expect_equal(fit$f,out2$f,scale = 1,tolerance = 1e-6)
+  expect_equal(fit$f,c(f0 = out3$f0,f1 = out3$f1),scale = 1,tolerance = 1e-6)
+  expect_equal(fit$f,c(f0 = out4$f0,f1 = out4$f1),scale = 1,tolerance = 1e-6)
 
   # The likelihood should be the same in all EM implementations.
   expect_equal(tail(out2$loglik,n = 1),out3$loglik,scale = 1,tolerance = 1e-8)
