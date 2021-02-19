@@ -199,32 +199,38 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
 
   # COMPUTE LOG-FOLD CHANGE STATISTICS
   # ----------------------------------
-  # Fit the univariate ("single-count") Poisson models. If all the
-  # mixture proportions are zeros or ones (or very close to being zero
-  # or one), we can use the faster fit_univar_poisson_models_hard.
+  # Fit the univariate ("single-count") Poisson models.
   if (verbose)
     cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
-  if (show.warning & max(pmin(L,1 - L)) <= 1e-14) {
-    warning("All mixture proportions are either zero or one; using simpler ",
-            "single-topic calculations for model parameter estimates")
-    out <- fit_univar_poisson_models_hard(X,L,s,e)
-  } else
-    out <- fit_univar_poisson_models(X,L,s,"em-rcpp",e,numiter,tol,
-                                     verbose = verbose)
-  F0 <- out$F0
-  F1 <- out$F1
+  if (fit.method == "glm")  {
+    # TO DO.
+  } else if (fit.method == "optim" | fit.method == "em") {
+
+    # If all the mixture proportions are zeros or ones (or very close
+    # to being zero or one), we can use the faster (analytical)
+    # calculations.
+    if (max(pmin(L,1 - L)) <= 1e-14) {
+      if (show.warning)
+        warning("All mixture proportions are either zero or one; using ",
+                "simpler single-topic calculations for model parameter ",
+                "estimates")
+      out <- fit_univar_poisson_models_hard(X,L,s,e)
+    } else
+      out <- fit_univar_poisson_models(X,L,s,"em-rcpp",e,numiter,tol,
+                                       verbose = verbose)
+  
+    # Compute the log-fold change statistics, including standard errors
+    # and z-scores.
+    if (verbose)
+      cat("Computing log-fold change statistics.\n")
+    out <- compute_univar_poisson_zscores_fast(X,L,F0,F1,s,e)
+    out <- c(list(colmeans = colmeans,F0 = F0,F1 = F1),out)
+  }
   if (normalize.by.totalcounts)
     if (any(out$F0 > 0.9) | any(out$F1 > 0.9))
-      warning("One or more F0, F1 estimates are close to or greater than 1, ",
-              "so Poisson approximation to binomial may be poor; see ",
+      warning("One or more F0, F1 estimates are close to or greater than ",
+              "1, so Poisson approximation to binomial may be poor; see ",
               "help(diff_count_analysis) for more information")
-
-  # Compute the log-fold change statistics, including standard errors
-  # and z-scores.
-  if (verbose)
-    cat("Computing log-fold change statistics.\n")
-  out <- compute_univar_poisson_zscores_fast(X,L,F0,F1,s,e)
-  out <- c(list(colmeans = colmeans,F0 = F0,F1 = F1),out)
 
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------
@@ -234,6 +240,8 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     if (verbose)
       cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
 
+    # TO DO: Package this code into a separate function.
+    #
     # Repeat for each topic.
     for (j in 1:k) {
       i <- which(!is.na(out$se[,j]))
