@@ -237,51 +237,51 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # --------------------------------------------
   # If requested, use "adaptive shrinkage" to stabilize the log-fold
   # change estimates. 
-  ## if (shrink.method == "ash") {
-  ##   if (verbose)
-  ##     cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
+  if (shrink.method == "ash") {
+    if (verbose)
+      cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
 
-  ##   # TO DO: Package this code into a separate function.
-  ##   #
-  ##   # Repeat for each topic.
-  ##   for (j in 1:k) {
-  ##     i <- which(!is.na(out$se[,j]))
-  ##     if (length(i) > 0) {
+    # TO DO: Package this code into a separate function.
+    #
+    # Repeat for each topic.
+    for (j in 1:k) {
+      i <- which(!is.na(out$se[,j]))
+      if (length(i) > 0) {
 
-  ##       # Run adaptive shrinkage, and extract the posterior estimates (b)
-  ##       # and the posterior standard errors (se).
-  ##       ans <- ash(out$beta[i,j],out$se[i,j],mixcompdist = "normal",
-  ##                  method = "shrink",...)
-  ##       b   <- ans$result$PosteriorMean
-  ##       se  <- ans$result$PosteriorSD
-  ##       z   <- b/se
+        # Run adaptive shrinkage, and extract the posterior estimates (b)
+        # and the posterior standard errors (se).
+        ans <- ash(out$beta[i,j],out$se[i,j],mixcompdist = "normal",
+                   method = "shrink",...)
+        b   <- ans$result$PosteriorMean
+        se  <- ans$result$PosteriorSD
+        z   <- b/se
 
-  ##       # Store the "stabilized" (posterior) statistics, and
-  ##       # re-compute the p-values based on these stabilized
-  ##       # statistics.
-  ##       out$beta[i,j] <- b
-  ##       out$se[i,j]   <- se
-  ##       out$Z[i,j]    <- z
-  ##       out$pval[i,j] <- -lpfromz(z)
-  ##     }
-  ##   }
-  ## }
+        # Store the "stabilized" (posterior) statistics, and
+        # re-compute the p-values based on these stabilized
+        # statistics.
+        out$beta[i,j] <- b
+        out$se[i,j]   <- se
+        out$Z[i,j]    <- z
+        out$pval[i,j] <- -lpfromz(z)
+      }
+    }
+  }
 
   # PREPARE OUTPUTS
   # ---------------
   # Copy the row and column name used in "fit".
   rownames(out$F0)   <- rownames(fit$F)
   rownames(out$F1)   <- rownames(fit$F)
-  # rownames(out$beta) <- rownames(fit$F)
-  # rownames(out$se)   <- rownames(fit$F)
-  # rownames(out$Z)    <- rownames(fit$F)
-  # rownames(out$pval) <- rownames(fit$F)
+  rownames(out$beta) <- rownames(fit$F)
+  rownames(out$se)   <- rownames(fit$F)
+  rownames(out$Z)    <- rownames(fit$F)
+  rownames(out$pval) <- rownames(fit$F)
   colnames(out$F0)   <- colnames(fit$F)
   colnames(out$F1)   <- colnames(fit$F)
-  # colnames(out$beta) <- colnames(fit$F)
-  # colnames(out$se)   <- colnames(fit$F)
-  # colnames(out$Z)    <- colnames(fit$F)
-  # colnames(out$pval) <- colnames(fit$F)
+  colnames(out$beta) <- colnames(fit$F)
+  colnames(out$se)   <- colnames(fit$F)
+  colnames(out$Z)    <- colnames(fit$F)
+  colnames(out$pval) <- colnames(fit$F)
 
   # Return the Poisson model MLEs and the log-fold change statistics.
   out$colmeans <- colmeans

@@ -53,8 +53,8 @@ test_that(paste("All variants of fit_univar_poisson_models and",
   # z-scores as the glm calculations.
   expect_equal(names(fit1),names(out1))
   expect_lt(median(abs(fit1$Z - out1$Z)),0.05)
-  expect_equal(out1,out2,scale = 1,tolerance = 1e-8)
-  expect_equal(out1,out3,scale = 1,tolerance = 1e-8)
+  expect_equal(out1,out2,scale = 1,tolerance = 1e-15)
+  expect_equal(out1,out3,scale = 1,tolerance = 1e-15)
 })
 
 test_that(paste("fit_univar_poisson_models produces same result as",

@@ -325,9 +325,10 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
                                                  s = rep(1,nrow(X)),
                                                  e = 1e-15) {
 
-  # Get the number of columns in the counts matrix (m) and the number
-  # of topics (k).
-  m <- nrow(F0)
+  # Get the number of rows (n) and columns in the counts matrix (m),
+  # and the number of topics (k).
+  n <- nrow(X)
+  m <- ncol(X)
   k <- ncol(F0)
     
   # Ensure that the Poisson model parameters (f0,f1) are positive
@@ -336,13 +337,16 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
   F1 <- pmax(F1,e)
 
   # Compute the standard errors.
-  a <- matrix(colSums(X),m,k)
-  b <- matrix(colSums(s*L),m,k,byrow = TRUE)
-  if (is.sparse.matrix(X))
-    c <- compute_poisson_beta_stat_sparse(X,L,F0,F1)
-  else
-    c <- compute_poisson_beta_stat(X,L,F0,F1)
-  se <- compute_poisson_beta_se(F1,a,b,c)
+  if (is.sparse.matrix(X)) {
+    a <- compute_poisson_beta_stat_sparse(X,matrix(1,n,k),L,F0,F1)
+    b <- compute_poisson_beta_stat_sparse(X,L,L,F0,F1)
+    c <- compute_poisson_beta_stat_sparse(X,L^2,L,F0,F1)
+  } else {
+    a <- compute_poisson_beta_stat(X,matrix(1,n,k),L,F0,F1)
+    b <- compute_poisson_beta_stat(X,L,L,F0,F1)
+    c <- compute_poisson_beta_stat(X,L^2,L,F0,F1)
+  }
+  se <- compute_poisson_beta_se(a,b,c)
 
   # Return the model parameters (F0, F1), the (base-2) log-fold change
   # statistics (beta), the standard errors (se), the z-scores (Z), and
@@ -383,13 +387,13 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e) {
 # precisions for the log-fold change statistics (beta) when X is a
 # dense matrix. Here we assume the matrices F0 and F1 contain only
 # positive values.
-compute_poisson_beta_stat <- function (X, L, F0, F1) {
+compute_poisson_beta_stat <- function (X, Y, L, F0, F1) {
   m <- nrow(F0)
   k <- ncol(F0)
   c <- matrix(0,m,k)
   for (i in 1:k) {
     u     <- outer(1 - L[,i],F0[,i]) + outer(L[,i],F1[,i])
-    c[,i] <- colSums(X*(L[,i]/u)^2)
+    c[,i] <- colSums(X*(Y[,i]/u^2))
   }
   return(c)
 }
@@ -400,7 +404,7 @@ compute_poisson_beta_stat <- function (X, L, F0, F1) {
 # positive values.
 #
 #' @importFrom Matrix colSums
-compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
+compute_poisson_beta_stat_sparse <- function (X, Y, L, F0, F1) {
   m <- nrow(F0)
   K <- ncol(F0)
   c <- matrix(0,m,K)
@@ -412,7 +416,7 @@ compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
     j     <- out$j
     x     <- out$x
     u     <- (1 - L[i,k])*F0[j,k] + L[i,k]*F1[j,k]
-    c[,k] <- colSums(sparseMatrix(i = i,j = j,x = x*(L[i,k]/u)^2,
+    c[,k] <- colSums(sparseMatrix(i = i,j = j,x = x*(Y[i,k]/u^2),
                                   dims = dim(X)))
   }
   return(c)
@@ -420,8 +424,8 @@ compute_poisson_beta_stat_sparse <- function (X, L, F0, F1) {
   
 # This is used by compute_univar_poisson_zscores_fast to compute the
 # standard error of b = f1 - f0 given the summary statstics (a, b, c).
-compute_poisson_beta_se <- function (f1, a, b, c) {
-  se <- suppressWarnings(sqrt(a)/(f1*sqrt(a*c - b^2)))
+compute_poisson_beta_se <- function (a, b, c) {
+  se <- suppressWarnings(sqrt(a)/(sqrt(a*c - b^2)))
   se[a*c <= b^2] <- NA
   return(se)
 }
