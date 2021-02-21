@@ -146,8 +146,9 @@
 #'
 #' \item{pval}{-log10 two-tailed p-values computed from the
 #'   z-scores. In some extreme cases the calculations may produce zero
-#'   or negative standard errors, in which case the standard errors,
-#'   z-scores and p-values are set to missing (\code{NA}).}
+#'   or negative standard errors, in which case the standard errors are
+#'   set to \code{NA} and the z-scores and -log10 p-values are set to
+#'   zero.}
 #'
 #' @references
 #' Stephens, M. (2016). False discovery rates: a new deal.
@@ -257,17 +258,19 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (shrink.method == "ash") {
     if (verbose)
       cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
-    res      <- shrink_lfc(out$F1 - out$F0,out$se,...)
-    out$F1   <- out$F0 + res$b
-    out$beta <- log2(F1/F0)
-    out$se   <- res$se
-    out$Z    <- res$Z
-    out$pval <- res$pval
+    out <- within(out,{
+      res <- shrink_lfc(F1 - F0,se,...)
+      F1   <- F0 + res$b
+      beta <- log2(F1/F0)
+      se   <- res$se
+      Z    <- res$Z
+      pval <- res$pval
+    })
   }
 
   # PREPARE OUTPUTS
   # ---------------
-  # Copy the row and column name used in "fit".
+  # Copy the row and column names used in "fit".
   rownames(out$F0)   <- rownames(fit$F)
   rownames(out$F1)   <- rownames(fit$F)
   rownames(out$beta) <- rownames(fit$F)
@@ -323,32 +326,34 @@ shrink_lfc <- function (b, se, ...) {
   m <- nrow(beta)
   k <- ncol(beta)
 
-  # Initialize the "Z" and "pval" outputs.
-  Z    <- matrix(0,m,k)
-  pval <- matrix(0,m,k)
+  # Initialize the outputs.
+  out <- list(b    = b,
+              se   = se,
+              Z    = matrix(0,m,k),
+              pval = matrix(0,m,k))
 
   # Repeat for each topic.
   for (j in 1:k) {
-    i <- which(!is.na(se[,j]))
+    i <- which(!is.na(out$se[,j]))
     if (length(i) > 0) {
 
       # Run adaptive shrinkage, then extract the posterior estimates (b)
       # and standard errors (se).
-      ans <- ash(b[i,j],se[i,j],mixcompdist = "normal",method = "shrink",...)
+      ans <- ash(out$b[i,j],out$se[i,j],mixcompdist = "normal",
+                 method = "shrink",...)
       b   <- ans$result$PosteriorMean
       se  <- ans$result$PosteriorSD
       z   <- b/se
 
-      # Store the "stabilized" (posterior) statistics, and re-compute
-      # the p-values using the posterior statistics.
-      b[i,j]    <- b
-      se[i,j]   <- se
-      Z[i,j]    <- z
-      pval[i,j] <- -lpfromz(z)
+      # Store the stabilized estimates.
+      out$b[i,j]    <- b
+      out$se[i,j]   <- se
+      out$Z[i,j]    <- z
+      out$pval[i,j] <- -lpfromz(z)
     }
   }
 
   # Output the posterior estimates (b), the posterior standard errors
   # (se), the z-scores (Z) and -log10 p-values (pval).
-  return(list(b = b,se = se,Z = Z,pval = pval))
+  return(out)
 }

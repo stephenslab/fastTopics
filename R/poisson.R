@@ -272,17 +272,17 @@ fit_poisson_em <- function (x, s, q, f0 = 0.5, f1 = 0.5, e = 1e-15,
 }
 
 # Compute z-scores and other statistics given MLEs of the Poisson
-# model parameters, f0 and f1, for each topic, and each count (column
-# of the counts matrix). The inputs are the n x m counts matrix (X),
-# the m x k matrix of topic proportions (L), and two m x k matrices
-# containing MLEs of the Poisson model parameters (F0, F1). There are
-# also two optional arguments: s, a vector of length n containing the
-# "size factors" (by default, they are all 1); and s, e small,
-# positive constant used to prevent any of the calculations giving Inf
-# or NaN. The outputs are all m x k matrices, where m is the number of
+# model parameters for each topic and for each count (column of the
+# counts matrix). The inputs are the n x m counts matrix (X), the m x
+# k matrix of topic proportions (L), and two m x k matrices containing
+# estimmates of the Poisson model parameters (F0, F1). There are also
+# two optional arguments: s, a vector of length n containing the "size
+# factors" (by default, they are all 1); and e, a small, positive
+# constant used to prevent any of the calculations giving Inf or
+# NaN. The outputs are all m x k matrices, where m is the number of
 # columns in X, and k is the number of topics: (base-2) log-fold
 # change statistics (beta); standard errors (se) and z-scores (z) for
-# b = f1 - f0; z-scores (z); and -log10 two-tailed p-values (pval)
+# the unknowns b = f1 - f0; and -log10 two-tailed p-values (pval)
 # computed from the z-scores.
 compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
                                             e = 1e-15) {
@@ -316,50 +316,11 @@ compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
   return(list(F0 = F0,F1 = F1,beta = beta,se = se,Z = Z,pval = pval))
 }
 
-# The same as compute_univar_poisson_zscores, but the computation is
-# implemented much more efficiently.
-#
-#' @importFrom Matrix sparseMatrix
-#' @importFrom Matrix colSums
-compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
-                                                 s = rep(1,nrow(X)),
-                                                 e = 1e-15) {
-
-  # Get the number of rows (n) and columns in the counts matrix (m),
-  # and the number of topics (k).
-  n <- nrow(X)
-  m <- ncol(X)
-  k <- ncol(F0)
-    
-  # Ensure that the Poisson model parameters are positive.
-  F0 <- pmax(F0,e)
-  F1 <- pmax(F1,e)
-
-  # Compute the standard errors.
-  if (is.sparse.matrix(X)) {
-    a <- compute_poisson_beta_stat_sparse(X,matrix(1,n,k),L,F0,F1)
-    b <- compute_poisson_beta_stat_sparse(X,L,L,F0,F1)
-    c <- compute_poisson_beta_stat_sparse(X,L^2,L,F0,F1)
-  } else {
-    a <- compute_poisson_beta_stat(X,matrix(1,n,k),L,F0,F1)
-    b <- compute_poisson_beta_stat(X,L,L,F0,F1)
-    c <- compute_poisson_beta_stat(X,L^2,L,F0,F1)
-  }
-  se <- compute_poisson_beta_se(a,b,c)
-
-  # Return the model parameters (F0, F1), the (base-2) log-fold change
-  # statistics (beta), the standard errors (se), the z-scores (Z), and
-  # the -log10 two-tailed p-values (pval).
-  out <- compute_poisson_zscore_helper(F0,F1,se)
-  names(out) <- c("F0","F1","beta","se","Z","pval")
-  return(out)
-}
-
 # Given the counts (x), topic proportions (q), "size factors" (s), and
 # estimates of the Poisson model parameters, f0 and f1, return: (1)
 # the (base-2) log-fold change statistic beta = log2(f1/f0), the
-# standard error of b = f1 - f0 (se), the z-score (z), and the -log10
-# two-tailed p-value computed from the z-score (pval).
+# standard error (se) and z-score (z) for b = f1 - f0, and the -log10
+# two-tailed p-value (pval) computed from the z-score.
 compute_poisson_zscore <- function (x, q, s, f0, f1, e) {
 
   # Ensure that the Poisson model parameters are positive.
@@ -376,36 +337,79 @@ compute_poisson_zscore <- function (x, q, s, f0, f1, e) {
   se <- tryCatch(sqrt(diag(solve(H)))[2],error = function (e) NA)
   
   # Return the (base-2) log-fold change statistic (beta), the standard
-  # error of the log-fold change (se), the z-score (z), and the
-  # two-tailed p-value (pval).
+  # error (se) and z-score (z) for b, and the -log10 two-tailed
+  # p-value (pval) computed from z.
   return(unlist(compute_poisson_zscore_helper(f0,f1,se)))
 }
 
-# This is used by compute_univar_poisson_zscores_fast to compute the
-# precisions for the log-fold change statistics (beta) when X is a
-# dense matrix. Here we assume the matrices F0 and F1 contain only
-# positive values.
-compute_poisson_beta_stat <- function (X, Y, L, F0, F1) {
-  m <- nrow(F0)
+# The same as compute_univar_poisson_zscores, but the computation is
+# implemented much more efficiently using matrix operations.
+#
+#' @importFrom Matrix sparseMatrix
+#' @importFrom Matrix colSums
+compute_univar_poisson_zscores_fast <-
+  function (X, L, F0, F1, s = rep(1,nrow(X)), e = 1e-15) {
+
+  # Get the number of rows (n) and columns (m) in the counts matrix,
+  # and the number of topics (k).
+  n <- nrow(X)
+  m <- ncol(X)
   k <- ncol(F0)
-  c <- matrix(0,m,k)
-  for (i in 1:k) {
-    u     <- outer(1 - L[,i],F0[,i]) + outer(L[,i],F1[,i])
-    c[,i] <- colSums(X*(Y[,i]/u^2))
+    
+  # Ensure that the Poisson model parameters are positive.
+  F0 <- pmax(F0,e)
+  F1 <- pmax(F1,e)
+
+  # Compute the standard errors.
+  if (is.sparse.matrix(X)) {
+    a <- compute_poisson_glm_stat_sparse(X,matrix(1,n,k),L,F0,F1)
+    b <- compute_poisson_glm_stat_sparse(X,L,L,F0,F1)
+    c <- compute_poisson_glm_stat_sparse(X,L^2,L,F0,F1)
+  } else {
+    a <- compute_poisson_glm_stat(X,matrix(1,n,k),L,F0,F1)
+    b <- compute_poisson_glm_stat(X,L,L,F0,F1)
+    c <- compute_poisson_glm_stat(X,L^2,L,F0,F1)
   }
-  return(c)
+  se <- compute_laplace_se(a,b,c)
+
+  # Return the model parameters (F0, F1), the (base-2) log-fold change
+  # statistics (beta), the standard errors (se), the z-scores (Z), and
+  # the -log10 two-tailed p-values (pval).
+  out <- compute_poisson_zscore_helper(F0,F1,se)
+  names(out) <- c("F0","F1","beta","se","Z","pval")
+  return(out)
 }
 
 # This is used by compute_univar_poisson_zscores_fast to compute the
-# precisions for the log-fold change statistics (beta) when X is a
-# sparse matrix. Here we assume the matrices F0 and F1 contain only
-# positive values.
+# precisions for the Poisson glm model parameters when X is a dense
+# matrix. Here we assume the matrices F0 and F1 contain only positive
+# values. Input argument should be a matrix of the same dimension as
+# L; the other input arguments are described in the comments
+# accompanying the function compute_univar_poisson_zscores. The output
+# is a matrix H in which H[i,j] = sum(X[,i]*Y[,j]/u^2), where u is the
+# vector of Poisson rates u = (1 - L[,j])*F0[,j] + L[,j]*F1[,j].
+compute_poisson_glm_stat <- function (X, Y, L, F0, F1) {
+  m <- nrow(F0)
+  k <- ncol(F0)
+  H <- matrix(0,m,k)
+  for (i in 1:k) {
+    u     <- outer(1 - L[,i],F0[,i]) + outer(L[,i],F1[,i])
+    H[,i] <- colSums(X*(Y[,i]/u^2))
+  }
+  return(H)
+}
+
+# This is used by compute_univar_poisson_zscores_fast to compute the
+# precisions for the Poissonn glm model parameters when X is a sparse
+# matrix. Here we assume the matrices F0 and F1 contain only positive
+# values. See the comments accompanying the function
+# compute_poisson_glm_stat for additional details.
 #
 #' @importFrom Matrix colSums
-compute_poisson_beta_stat_sparse <- function (X, Y, L, F0, F1) {
+compute_poisson_glm_stat_sparse <- function (X, Y, L, F0, F1) {
   m <- nrow(F0)
   K <- ncol(F0)
-  c <- matrix(0,m,K)
+  H <- matrix(0,m,K)
   for (k in 1:K) {
     f0    <- F0[,k]
     f1    <- F1[,k]
@@ -414,25 +418,25 @@ compute_poisson_beta_stat_sparse <- function (X, Y, L, F0, F1) {
     j     <- out$j
     x     <- out$x
     u     <- (1 - L[i,k])*F0[j,k] + L[i,k]*F1[j,k]
-    c[,k] <- colSums(sparseMatrix(i = i,j = j,x = x*(Y[i,k]/u^2),
-                                  dims = dim(X)))
+    H[,k] <- colSums(sparseMatrix(i,j,x = x*(Y[i,k]/u^2),dims = dim(X)))
   }
-  return(c)
+  return(H)
 }
   
 # This is used by compute_univar_poisson_zscores_fast to compute the
-# standard error of b = f1 - f0 given the summary statstics (a, b, c).
-compute_poisson_beta_se <- function (a, b, c) {
+# Laplace approximation to the standard error given the precisions
+# (the entries of the 2 x 2 Hessian matrix).
+compute_laplace_se <- function (a, b, c) {
   se <- suppressWarnings(sqrt(a)/(sqrt(a*c - b^2)))
   se[a*c <= b^2] <- NA
   return(se)
 }
 
 # This is used by the functions compute_poisson_zscore and
-# compute_univar_poisson_zscores_fast to prepare the final outputs for
-# those two functions.
+# compute_univar_poisson_zscores_fast to prepare the final outputs.
 compute_poisson_zscore_helper <- function (f0, f1, se) {
-  z <- (f1 - f0)/se
+  b <- f1 - f0
+  z <- b/se
   z[is.na(se)] <- 0
   return(list(f0   = f0,
               f1   = f1,

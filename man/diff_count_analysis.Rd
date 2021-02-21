@@ -106,8 +106,9 @@ The return value is a list of m x k matrices, where m is
 
 \item{pval}{-log10 two-tailed p-values computed from the
   z-scores. In some extreme cases the calculations may produce zero
-  or negative standard errors, in which case the standard errors,
-  z-scores and p-values are set to missing (\code{NA}).}
+  or negative standard errors, in which case the standard errors are
+  set to \code{NA} and the z-scores and -log10 p-values are set to
+  zero.}
 }
 \description{
 Implements methods for analysis of differential count
