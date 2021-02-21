@@ -18,18 +18,15 @@ L   <- dat$L
 # combination of gene j and topic k, and compute the log-fold change
 # statistics.
 fit  <- init_poisson_nmf(X,L = L,init.method = "random")
-out1 <- diff_count_analysis(fit,X,fit.method = "glm",
-                            shrink.method = "none")
-out2 <- diff_count_analysis(fit,X,fit.method = "optim",
-                            shrink.method = "none")
-out3 <- diff_count_analysis(fit,X,fit.method = "em",
-                            shrink.method = "none")
+out1 <- diff_count_analysis(fit,X,fit.method = "glm")
+out2 <- diff_count_analysis(fit,X,fit.method = "optim")
+out3 <- diff_count_analysis(fit,X,fit.method = "em")
 
 # Compare the glm and optim estimates of the model parameters.
-plot(out1$F0 + 0.001,out2$F0 + 0.001,pch = 4,cex = 0.5,log = "xy",
+plot(out1$F0 + 1e-4,out2$F0 + 1e-4,pch = 4,cex = 0.5,log = "xy",
      xlab = "glm",ylab = "optim")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
-plot(out1$F1 + 0.001,out2$F1 + 0.001,pch = 4,cex = 0.5,log = "xy",
+plot(out1$F1 + 1e-4,out2$F1 + 1e-4,pch = 4,cex = 0.5,log = "xy",
      xlab = "glm",ylab = "optim")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 
@@ -37,6 +34,10 @@ abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 plot(out1$F0,out3$F0,pch = 4,cex = 0.5,log = "xy",xlab = "glm",ylab = "em")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 plot(out1$F1,out3$F1,pch = 4,cex = 0.5,log = "xy",xlab = "glm",ylab = "em")
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+
+# Compare the glm and optim estimates of the z-scores.
+plot(out1$Z,out2$Z,pch = 4,cex = 0.5,xlab = "glm",ylab = "em")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 
 # Compare the glm and EM estimates of the z-scores.

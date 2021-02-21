@@ -258,8 +258,8 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (shrink.method == "ash") {
     if (verbose)
       cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
+    res <- with(out,shrink_lfc(F1 - F0,se,...))
     out <- within(out,{
-      res <- shrink_lfc(F1 - F0,se,...)
       F1   <- F0 + res$b
       beta <- log2(F1/F0)
       se   <- res$se
@@ -323,8 +323,8 @@ diff_count_clusters <- function (cluster, X, ...) {
 shrink_lfc <- function (b, se, ...) {
 
   # Get the number of effect estimates (m) and the number of topics (k).
-  m <- nrow(beta)
-  k <- ncol(beta)
+  m <- nrow(b)
+  k <- ncol(b)
 
   # Initialize the outputs.
   out <- list(b    = b,
