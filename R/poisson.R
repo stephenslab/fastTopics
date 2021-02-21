@@ -15,10 +15,8 @@ loglik_poisson <- function (x, y, e)
 # accompanying statistics (standard errors, z-scores and -log10
 # p-values) are also outputted.
 fit_univar_poisson_models <-
-  function (X, L, s = rep(1,nrow(X)),
-            method = c("em-rcpp","em","optim","glm"),
-            e = 1e-15, numiter = 100, tol = 1e-8,
-            verbose = TRUE) {
+  function (X, L, s = rep(1,nrow(X)), method = c("em-rcpp","em","optim","glm"),
+            e = 1e-15, numiter = 100, tol = 1e-8, verbose = TRUE) {
   method <- match.arg(method)
 
   # Get the number of topics (k) and the number of columns of X (m).
@@ -30,9 +28,8 @@ fit_univar_poisson_models <-
   L <- pmax(L,e)
   L <- pmin(L,1-e)
 
-  # Compute maximum-likelihood estimates (MLEs) of the Poisson model
-  # parameters (f0,f1) for each topic, and for each column of of the
-  # counts matrix, X.
+  # Compute MLEs of the Poisson model parameters for each topic and
+  # for each column of X.
   if (method == "glm") {
     control <- list(epsilon = tol,maxit = numiter)
     out <- fit_univar_poisson_models_glm(X,L,s,e,control,verbose)
@@ -52,7 +49,7 @@ fit_univar_poisson_models <-
 }
 
 # Produces the same result as fit_univar_poisson_models for the
-# special case of "hard" topic assignments---that is, when the topic
+# special case of "hard" topic assignments; that is, when the topic
 # proportions matrix, L, is entirely zeros and ones.
 #
 #' @importFrom Matrix colSums
@@ -155,25 +152,29 @@ fit_univar_poisson_models_em <- function (X, L, s, e, numiter, verbose) {
 
 # Fit the Poisson generalized linear model (glm) in which the Poisson
 # rates are s*(b0 + q*b). This is a reparameterization of the model x
-# ~ Poisson(s*u), with u = f0*(1-q) + f1*q, used below; the glm
-# "identity" reparameterization is recovered by b0 = f0, b = f1 - f0.
-# Input arguments f0 and f1 are initial parameter estimates. The
-# outputs are the estimates of f0 and f1, the log2-fold change
-# statistic (beta), the standard error (se) of b = f1 - f0, the
-# z-score (z), and the -log10 p-value (pval).
+# x ~ Poisson(s*u), with u = f0*(1-q) + f1*q; the glm "identity"
+# reparameterization is recovered by b0 = f0, b = f1 - f0. Input
+# arguments f0 and f1 are initial parameter estimates. The outputs are
+# the estimates of f0 and f1, the log2-fold change statistic (beta),
+# the standard error (se) of b = f1 - f0, the z-score (z), and the
+# -log10 p-value (pval).
 #
 #' @importFrom stats glm
 #' @importFrom stats glm.control
 #' @importFrom stats summary.glm
 #'
 fit_poisson_glm <-
-  function (x, s, q, f0 = 1, f1 = 1,
+  function (x, s, q, f0 = 0.5, f1 = 0.5,
             control = glm.control(epsilon = 1e-10, maxit = 100)) {
+
+  # Fit the generalized linear model.
   dat <- data.frame(x = x,b0 = s,b = s*q)
   fit <- suppressWarnings(glm(x ~ b0 + b - 1,
                               family = poisson(link = "identity"),
                               data = dat,start = c(f0,f1 - f0),
                               control = control))
+
+  # Output the parameter estimates, log-fold changes and test statistics.
   ans <- summary.glm(fit)$coefficients
   b0  <- ans["b0","Estimate"]
   b   <- ans["b","Estimate"]
@@ -187,22 +188,22 @@ fit_poisson_glm <-
            pval = -log10(ans["b","Pr(>|z|)"])))
 }
     
-# Compute maximum-likelihood estimates (MLEs) of the parameters in the
-# single-count Poisson model: x ~ Poisson(s*u), with u given by u =
-# f0*(1-q) + f1*q. Parameters f0, f1 are estimated, and vectors s, q
-# are provided. The likelihood is maximized by optim with method =
-# "L-BFGS-B". Input arguments f0 and f1 are initial estimates of the
-# parameters. Input "control" is a list of control parameters passed
-# to optim. Input argument "e" is a small positive scalar added to
-# the likelihood and gradient to avoid logarithms of zero and division
-# by zero, and it is the lower bound on f0 and f1.
+# Compute MLEs of the parameters in the single-count Poisson model: x
+# ~ Poisson(s*u), with u = f0*(1-q) + f1*q. Parameters f0, f1 are
+# estimated, and vectors s, q are provided. The likelihood is
+# maximized by optim with method = "L-BFGS-B". Input arguments f0 and
+# f1 are initial estimates of the parameters. Input "control" is a
+# list of control parameters passed to optim. Input argument "e" is a
+# small positive scalar added to the likelihood and gradient to avoid
+# logarithms of zero and division by zero, and it is the lower bound
+# on f0 and f1.
 #
 #' @importFrom stats optim
 #' 
-fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
+fit_poisson_optim <- function (x, s, q, f0 = 0.5, f1 = 0.5, e = 1e-15,
                                control = list(factr = 1e5, maxit = 100)) {
 
-  # This is used to computes the negative log-likelihood, in which
+  # This is used to compute the negative log-likelihood, in which
   # par = c(f0,f1).
   f <- function (par) {
     u <- get_poisson_rates(q,par[1],par[2])
@@ -227,14 +228,13 @@ fit_poisson_optim <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   return(out)
 }
 
-# Perform EM updates to compute maximum-likelihood estimates (MLEs) of
-# the parameters in the single-count Poisson model: x ~ Poisson(s*u),
-# with u given by u = f0*(1-q) + f1*q. Parameters f0, f1 are
-# estimated, and vectors s, q are provided. Input arguments f0 and f1
-# are initial estimates of the parameters. Input argument "e" is a
-# small positive scalar added to the denominator in the E-step to
-# avoid division by zero.
-fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
+# Run EM for maximum-likelihood estimation of the parameters in the
+# single-count Poisson model: x ~ Poisson(s*u), with u given by u =
+# f0*(1-q) + f1*q. Parameters f0, f1 are estimated, and vectors s, q
+# are provided. Input arguments f0 and f1 are initial estimates of the
+# parameters. Input argument "e" is a small positive scalar added to
+# the denominator in the E-step to avoid division by zero.
+fit_poisson_em <- function (x, s, q, f0 = 0.5, f1 = 0.5, e = 1e-15,
                             numiter = 100) {
 
   # Store a couple pre-calculations to simplify the calculations
@@ -271,19 +271,19 @@ fit_poisson_em <- function (x, s, q, f0 = 1, f1 = 1, e = 1e-15,
   return(list(f = c(f0 = f0,f1 = f1),loglik = loglik))
 }
 
-# Compute z-scores and other statistics given maximum-likelihood
-# estimates (MLEs) of the Poisson model parameters, f0 and f1, for
-# each topic, and each count (column of the counts matrix). The inputs
-# are the n x m counts matrix (X), the m x k matrix of topic
-# proportions (L), and two m x k matrices containing MLEs of the
-# Poisson model parameters (F0, F1). There are also two optional
-# arguments: s, a vector of length n containing the "size factors" (by
-# default, they are all 1); and s, a small, positive constant used to
-# prevent any of the calculations giving Inf or NaN. The outputs are
-# all m x k matrices, where m is the number of columns in X, and k is
-# the number of topics: (base-2) log-fold change statistics (beta);
-# standard errors (se) for b = f1 - f0; z-scores (z); and -log10
-# two-tailed p-values (pval) computed from the z-scores.
+# Compute z-scores and other statistics given MLEs of the Poisson
+# model parameters, f0 and f1, for each topic, and each count (column
+# of the counts matrix). The inputs are the n x m counts matrix (X),
+# the m x k matrix of topic proportions (L), and two m x k matrices
+# containing MLEs of the Poisson model parameters (F0, F1). There are
+# also two optional arguments: s, a vector of length n containing the
+# "size factors" (by default, they are all 1); and s, e small,
+# positive constant used to prevent any of the calculations giving Inf
+# or NaN. The outputs are all m x k matrices, where m is the number of
+# columns in X, and k is the number of topics: (base-2) log-fold
+# change statistics (beta); standard errors (se) and z-scores (z) for
+# b = f1 - f0; z-scores (z); and -log10 two-tailed p-values (pval)
+# computed from the z-scores.
 compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
                                             e = 1e-15) {
 
@@ -316,8 +316,8 @@ compute_univar_poisson_zscores <- function (X, L, F0, F1, s = rep(1,nrow(X)),
   return(list(F0 = F0,F1 = F1,beta = beta,se = se,Z = Z,pval = pval))
 }
 
-# This does the same thing as compute_univar_poisson_zscores, but the
-# computation is implemented much more efficiently.
+# The same as compute_univar_poisson_zscores, but the computation is
+# implemented much more efficiently.
 #
 #' @importFrom Matrix sparseMatrix
 #' @importFrom Matrix colSums
@@ -331,8 +331,7 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
   m <- ncol(X)
   k <- ncol(F0)
     
-  # Ensure that the Poisson model parameters (f0,f1) are positive
-  # (that is, no less than e).
+  # Ensure that the Poisson model parameters are positive.
   F0 <- pmax(F0,e)
   F1 <- pmax(F1,e)
 
@@ -363,8 +362,7 @@ compute_univar_poisson_zscores_fast <- function (X, L, F0, F1,
 # two-tailed p-value computed from the z-score (pval).
 compute_poisson_zscore <- function (x, q, s, f0, f1, e) {
 
-  # Ensure that the Poisson model parameters (f0,f1) are positive
-  # (that is, no less than e).
+  # Ensure that the Poisson model parameters are positive.
   f0 <- max(f0,e)
   f1 <- max(f1,e)
     

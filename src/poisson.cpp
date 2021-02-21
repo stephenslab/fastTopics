@@ -320,8 +320,8 @@ void fit_univar_poisson_models_em (const mat& X, const mat& L, const vec& s,
     pb.increment();
     checkUserInterrupt();
     for (unsigned int j = 0; j < k; j++) {
-      f0 = 1;
-      f1 = 1;
+      f0 = 0.5;
+      f1 = 0.5;
       t  = numiter;
       loglik(i,j) = fit_poisson_em(X.col(i),s,L.col(j),f0,f1,z0,z1,u,e,t,tol);
       F0(i,j) = f0;
@@ -381,8 +381,8 @@ void fit_univar_poisson_models_em_sparse (const sp_mat& X, const mat& L,
       getcolelems(L,r,j,qi);
 
       // Perform the EM updates.
-      f0 = 1;
-      f1 = 1;
+      f0 = 0.5;
+      f1 = 0.5;
       t  = numiter;
       loglik(i,j) = fit_poisson_em_sparse(x,si,qi,a(j),b(j),f0,f1,z0,z1,u,e,t,
 					  tol);

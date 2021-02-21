@@ -23,7 +23,7 @@
 #'
 #' The log-fold change (LFC) statistics are defined as the log-ratio
 #' of the two Poisson rate parameters, \eqn{\beta = \log_2(f_1/f_0)}.
-#' This statistic measures the increase (or decrease) in occurence in
+#' This statistic measures the increase (or decrease) in occurance in
 #' one topic compared to all other topics. The use of the base-2
 #' logarithm comes from the convention used in gene expression
 #' studies.
@@ -46,17 +46,28 @@
 #' be appropriate in settings where the total count is well-controlled
 #' across samples (rows of \code{X}).
 #'
-#' The standard error and z-score calculations are based on a Laplace
-#' approximation to the likelihood at the MLE. This is the same
-#' strategy used to compute standard errors and z-scores in
+#' When \code{fit.method = "glm"}, the LFC estimates and test
+#' statistics are implemented by \code{\link[stats]{glm}} with
+#' \code{formula = x ~ b0 + b - 1} and \code{family = poisson(link =
+#' "identity")}, where the unknowns are defined as \eqn{b_0 = f_0} and
+#' \eqn{b = f_1 - f_0}. The outputted z-scores are p-values are for
+#' the \code{b} coefficient; that is, they are test statistics for the
+#' test that \eqn{f_0} and \eqn{f_1} are not equal.
+#'
+#' When \code{fit.method = "optim"} or \code{fit.method = "em"},
+#' maximum-likelihood estimates are computed using
+#' \code{\link[stats]{optim}} or using a fast EM algorithm, and test
+#' statistics (standard errors, z-scores and p-values) are based on a
+#' Laplace approximation to the likelihood at the MLE. These
+#' calculations closely reproduce the test statistic calculations in
 #' \code{\link[stats]{glm}}.
 #'
-#' We recommend setting \code{shrink.method = "ash"}, which uses
-#' "adaptive shrinkage" (Stephens, 2016) to improve accuracy of the
-#' LFC estimates. The improvement in accuracy is greatest for genes
-#' with low expression, or when the sample size is small (or
-#' both). This shrinkage step replicates \code{lfcShrink} from the
-#' DESeq2 package, with \code{type = "ashr"}.
+#' We recommend setting \code{shrink.method = "ash"}, which uses the
+#' \dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
+#' accuracy of the LFC estimates. The improvement in accuracy is
+#' greatest for genes with low expression, or when the sample size is
+#' small (or both). We follow the settings used in \code{lfcShrink}
+#' from the DESeq2 package, with \code{type = "ashr"}.
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
@@ -74,7 +85,11 @@
 #'   counts matrix to stabilize calculation of the LFC estimates and
 #'   other statistics.
 #'
-#' @param fit.method Describe input argument "fit.method" here.
+#' @param fit.method Method used to estimate LFC and compute test
+#'   statistics. The \code{"glm"} and \code{"optim"} computations are
+#'   particularly slow, and it is recommended to use \code{fit.method =
+#'   "em"} for most data sets. See \dQuote{Details} for more
+#'   information.
 #' 
 #' @param shrink.method Method used to stabilize the LFC estimates.
 #'   When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
@@ -82,14 +97,20 @@
 #'   "none"}, no stabilization is performed, and the \dQuote{raw} LFC
 #'   estimates are returned.
 #' 
-#' @param numiter The number of EM updates performed to compute the
-#'   maximum-likelihood estimates of the Poisson model parameters.
-#'   TO DO: Update description of this input argument.
+#' @param numiter Maximum number of iterations performed in
+#'   optimization of the Poisson model parameters. When
+#'   \code{fit.method = "glm"}, this is passed as argument \code{maxit}
+#'   to the \code{glm} function; when \code{fit.method = "optim"}, this
+#'   is passed as argument \code{maxit} to the \code{optim} function.
 #'
-#' @param tol When \code{tol > 0}, the EM algorithm for computing
-#'   maximum-likelihood estimates will be stopped early when the largest
-#'   change between two successive updates is less than \code{tol}.
-#'   TO DO: Update description of this input argument.
+#' @param tol Controls the convergence tolerance for the optimization
+#'   of the Poisson model parameters. When \code{fit.method = "glm"},
+#'   this is passed as argument \code{epsilon} to function \code{glm};
+#'   when \code{fit.method = "optim"}, the \code{factr} optimization
+#'   setting is set to \code{tol * .Machine$double.eps}. When
+#'   \code{fit.method = "em"}, the EM algorithm will be stopped early
+#'   when the largest change between two successive updates is less than
+#'   \code{tol}.
 #' 
 #' @param e A small, positive scalar included in some computations to
 #'   avoid logarithms of zero and division by zero.
@@ -103,9 +124,9 @@
 #' @param \dots When \code{shrink.method = "ash"}, these are
 #'   additional arguments passed to \code{\link[ashr]{ash}}.
 #' 
-#' @return The return value is a list with six m x k matrices, where m
-#'   is the number of columns in the counts matrix, and k is the number
-#'   of topics (for \code{diff_count_clusters}, m is the number of
+#' @return The return value is a list of m x k matrices, where m is
+#'   the number of columns in the counts matrix, and k is the number of
+#'   topics (for \code{diff_count_clusters}, m is the number of
 #'   clusters), and an additional vector:
 #'
 #' \item{colmeans}{A vector of length m containing the count averages
@@ -115,24 +136,19 @@
 #'
 #' \item{F1}{Estimates of the Poisson model parameters \eqn{f_1}.}
 #'
-#' \item{beta}{Log-fold change (LFC) estimates. When
-#'   \code{shrink.method = "none"}, these are \code{beta = log2(F1/F0)},
-#'   these are posterior LFC estimates.}
+#' \item{beta}{LFC estimates \code{beta = log2(F1/F0)}.}
 #'
-#' \item{se}{Standard errors for the LFC estimates. When
-#'   \code{shrink.method = "ash"}, these are posterior standard
-#'   errors.}
+#' \item{se}{Standard errors of the Poisson glm parameters \eqn{b =
+#'   f_1 - f_0}. }
 #'
-#' \item{Z}{LFC z-scores. When \code{shrink.method = "ash"}, these
-#'   are posterior z-scores.}
+#' \item{Z}{z-scores for the Poisson glm parameters \eqn{b = f_1 -
+#'   f_0}.}
 #'
-#' \item{pval}{-log10 two-tailed p-values computed from the z-scores.}
+#' \item{pval}{-log10 two-tailed p-values computed from the
+#'   z-scores. In some extreme cases the calculations may produce zero
+#'   or negative standard errors, in which case the standard errors,
+#'   z-scores and p-values are set to missing (\code{NA}).}
 #'
-#' Note that in some extreme cases the standard error calculations
-#' lead to zero or negative standard errors, in which case the
-#' standard errors, z-scores and p-values are set to missing
-#' (\code{NA}).
-#' 
 #' @references
 #' Stephens, M. (2016). False discovery rates: a new deal.
 #' \emph{Biostatistics} \bold{18}(2), kxw041.
@@ -192,10 +208,10 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   k <- ncol(fit$F)
 
   # Compute the per-column averages. (This needs to be done before
-  # adding "pseudocounts" to the data.)
+  # we add the pseudocounts to the data.)
   colmeans <- colMeans(X)
 
-  # Add "pseudocounts" to the data.
+  # Add the pseudocounts to the data.
   X <- rbind(X,matrix(pseudocount,k,ncol(X)))
   s <- c(s,rep(1,k))
   L <- rbind(fit$L,diag(k))
@@ -206,18 +222,20 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (verbose)
     cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
 
-  # If all the mixture proportions are zeros or ones (or very close
-  # to being zero or one), we can use the faster (analytical)
-  # calculations.
-  if (fit.method != "glm" & max(pmin(L,1 - L)) <= 1e-14) {
+  # If all the mixture proportions are zeros or ones (or very close to
+  # being zero or one), we can use the faster (analytical)
+  # calculations implemented in fit_univar_poisson_models_hard;
+  # otherwise, we call fit_univar_poisson_models.
+  if (fit.method != "glm" & max(pmin(L,1-L)) <= 1e-14) {
     if (show.warning)
       warning("All mixture proportions are either zero or one; using ",
               "simpler single-topic calculations for model parameter ",
               "estimates")
     out <- fit_univar_poisson_models_hard(X,L,s,e)
   } else
-    out <- fit_univar_poisson_models(X,L,s,ifelse(fit.method == "em","em-rcpp",
-                                                  fit.method),
+    out <- fit_univar_poisson_models(X,L,s,
+                                     ifelse(fit.method == "em","em-rcpp",
+                                            fit.method),
                                      e,numiter,tol,verbose)
   if (normalize.by.totalcounts)
     if (any(out$F0 > 0.9) | any(out$F1 > 0.9))
@@ -225,8 +243,7 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
               "1, so Poisson approximation to binomial may be poor; see ",
               "help(diff_count_analysis) for more information")
     
-  # Compute the log-fold change statistics, including standard errors
-  # and z-scores.
+  # If glm was not used, compute the test statistics.
   if (fit.method != "glm") {
     if (verbose)
       cat("Computing log-fold change statistics.\n")
@@ -240,31 +257,12 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (shrink.method == "ash") {
     if (verbose)
       cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
-
-    # TO DO: Package this code into a separate function.
-    #
-    # Repeat for each topic.
-    for (j in 1:k) {
-      i <- which(!is.na(out$se[,j]))
-      if (length(i) > 0) {
-
-        # Run adaptive shrinkage, and extract the posterior estimates (b)
-        # and the posterior standard errors (se).
-        ans <- ash(out$beta[i,j],out$se[i,j],mixcompdist = "normal",
-                   method = "shrink",...)
-        b   <- ans$result$PosteriorMean
-        se  <- ans$result$PosteriorSD
-        z   <- b/se
-
-        # Store the "stabilized" (posterior) statistics, and
-        # re-compute the p-values based on these stabilized
-        # statistics.
-        out$beta[i,j] <- b
-        out$se[i,j]   <- se
-        out$Z[i,j]    <- z
-        out$pval[i,j] <- -lpfromz(z)
-      }
-    }
+    res      <- shrink_lfc(out$F1 - out$F0,out$se,...)
+    out$F1   <- out$F0 + res$b
+    out$beta <- log2(F1/F0)
+    out$se   <- res$se
+    out$Z    <- res$Z
+    out$pval <- res$pval
   }
 
   # PREPARE OUTPUTS
@@ -316,4 +314,41 @@ diff_count_clusters <- function (cluster, X, ...) {
 
   fit <- fit_multinom_model(cluster,X)
   return(diff_count_analysis(fit,X,show.warning = FALSE,...))
+}
+
+# Perform adaptive shrinkage on the unknowns b = f1 - f0.
+shrink_lfc <- function (b, se, ...) {
+
+  # Get the number of effect estimates (m) and the number of topics (k).
+  m <- nrow(beta)
+  k <- ncol(beta)
+
+  # Initialize the "Z" and "pval" outputs.
+  Z    <- matrix(0,m,k)
+  pval <- matrix(0,m,k)
+
+  # Repeat for each topic.
+  for (j in 1:k) {
+    i <- which(!is.na(se[,j]))
+    if (length(i) > 0) {
+
+      # Run adaptive shrinkage, then extract the posterior estimates (b)
+      # and standard errors (se).
+      ans <- ash(b[i,j],se[i,j],mixcompdist = "normal",method = "shrink",...)
+      b   <- ans$result$PosteriorMean
+      se  <- ans$result$PosteriorSD
+      z   <- b/se
+
+      # Store the "stabilized" (posterior) statistics, and re-compute
+      # the p-values using the posterior statistics.
+      b[i,j]    <- b
+      se[i,j]   <- se
+      Z[i,j]    <- z
+      pval[i,j] <- -lpfromz(z)
+    }
+  }
+
+  # Output the posterior estimates (b), the posterior standard errors
+  # (se), the z-scores (Z) and -log10 p-values (pval).
+  return(list(b = b,se = se,Z = Z,pval = pval))
 }

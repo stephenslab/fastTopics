@@ -39,7 +39,11 @@ the choice of \code{s}.}
 counts matrix to stabilize calculation of the LFC estimates and
 other statistics.}
 
-\item{fit.method}{Describe input argument "fit.method" here.}
+\item{fit.method}{Method used to estimate LFC and compute test
+statistics. The \code{"glm"} and \code{"optim"} computations are
+particularly slow, and it is recommended to use \code{fit.method =
+"em"} for most data sets. See \dQuote{Details} for more
+information.}
 
 \item{shrink.method}{Method used to stabilize the LFC estimates.
 When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
@@ -47,14 +51,20 @@ implemented in the ashr package is used. When \code{shrink.method =
 "none"}, no stabilization is performed, and the \dQuote{raw} LFC
 estimates are returned.}
 
-\item{numiter}{The number of EM updates performed to compute the
-maximum-likelihood estimates of the Poisson model parameters.
-TO DO: Update description of this input argument.}
+\item{numiter}{Maximum number of iterations performed in
+optimization of the Poisson model parameters. When
+\code{fit.method = "glm"}, this is passed as argument \code{maxit}
+to the \code{glm} function; when \code{fit.method = "optim"}, this
+is passed as argument \code{maxit} to the \code{optim} function.}
 
-\item{tol}{When \code{tol > 0}, the EM algorithm for computing
-maximum-likelihood estimates will be stopped early when the largest
-change between two successive updates is less than \code{tol}.
-TO DO: Update description of this input argument.}
+\item{tol}{Controls the convergence tolerance for the optimization
+of the Poisson model parameters. When \code{fit.method = "glm"},
+this is passed as argument \code{epsilon} to function \code{glm};
+when \code{fit.method = "optim"}, the \code{factr} optimization
+setting is set to \code{tol * .Machine$double.eps}. When
+\code{fit.method = "em"}, the EM algorithm will be stopped early
+when the largest change between two successive updates is less than
+\code{tol}.}
 
 \item{e}{A small, positive scalar included in some computations to
 avoid logarithms of zero and division by zero.}
@@ -74,9 +84,9 @@ of samples (rows of \code{X}) to clusters. This could be, for
 example, the "cluster" output from \code{\link[stats]{kmeans}}.}
 }
 \value{
-The return value is a list with six m x k matrices, where m
-  is the number of columns in the counts matrix, and k is the number
-  of topics (for \code{diff_count_clusters}, m is the number of
+The return value is a list of m x k matrices, where m is
+  the number of columns in the counts matrix, and k is the number of
+  topics (for \code{diff_count_clusters}, m is the number of
   clusters), and an additional vector:
 
 \item{colmeans}{A vector of length m containing the count averages
@@ -86,23 +96,18 @@ The return value is a list with six m x k matrices, where m
 
 \item{F1}{Estimates of the Poisson model parameters \eqn{f_1}.}
 
-\item{beta}{Log-fold change (LFC) estimates. When
-  \code{shrink.method = "none"}, these are \code{beta = log2(F1/F0)},
-  these are posterior LFC estimates.}
+\item{beta}{LFC estimates \code{beta = log2(F1/F0)}.}
 
-\item{se}{Standard errors for the LFC estimates. When
-  \code{shrink.method = "ash"}, these are posterior standard
-  errors.}
+\item{se}{Standard errors of the Poisson glm parameters \eqn{b =
+  f_1 - f_0}. }
 
-\item{Z}{LFC z-scores. When \code{shrink.method = "ash"}, these
-  are posterior z-scores.}
+\item{Z}{z-scores for the Poisson glm parameters \eqn{b = f_1 -
+  f_0}.}
 
-\item{pval}{-log10 two-tailed p-values computed from the z-scores.}
-
-Note that in some extreme cases the standard error calculations
-lead to zero or negative standard errors, in which case the
-standard errors, z-scores and p-values are set to missing
-(\code{NA}).
+\item{pval}{-log10 two-tailed p-values computed from the
+  z-scores. In some extreme cases the calculations may produce zero
+  or negative standard errors, in which case the standard errors,
+  z-scores and p-values are set to missing (\code{NA}).}
 }
 \description{
 Implements methods for analysis of differential count
@@ -129,7 +134,7 @@ estimates (MLEs) of the two unknowns.
 
 The log-fold change (LFC) statistics are defined as the log-ratio
 of the two Poisson rate parameters, \eqn{\beta = \log_2(f_1/f_0)}.
-This statistic measures the increase (or decrease) in occurence in
+This statistic measures the increase (or decrease) in occurance in
 one topic compared to all other topics. The use of the base-2
 logarithm comes from the convention used in gene expression
 studies.
@@ -152,17 +157,28 @@ represents the LFC in \emph{absolute} occurrence. This choice could
 be appropriate in settings where the total count is well-controlled
 across samples (rows of \code{X}).
 
-The standard error and z-score calculations are based on a Laplace
-approximation to the likelihood at the MLE. This is the same
-strategy used to compute standard errors and z-scores in
+When \code{fit.method = "glm"}, the LFC estimates and test
+statistics are implemented by \code{\link[stats]{glm}} with
+\code{formula = x ~ b0 + b - 1} and \code{family = poisson(link =
+"identity")}, where the unknowns are defined as \eqn{b_0 = f_0} and
+\eqn{b = f_1 - f_0}. The outputted z-scores are p-values are for
+the \code{b} coefficient; that is, they are test statistics for the
+test that \eqn{f_0} and \eqn{f_1} are not equal.
+
+When \code{fit.method = "optim"} or \code{fit.method = "em"},
+maximum-likelihood estimates are computed using
+\code{\link[stats]{optim}} or using a fast EM algorithm, and test
+statistics (standard errors, z-scores and p-values) are based on a
+Laplace approximation to the likelihood at the MLE. These
+calculations closely reproduce the test statistic calculations in
 \code{\link[stats]{glm}}.
 
-We recommend setting \code{shrink.method = "ash"}, which uses
-"adaptive shrinkage" (Stephens, 2016) to improve accuracy of the
-LFC estimates. The improvement in accuracy is greatest for genes
-with low expression, or when the sample size is small (or
-both). This shrinkage step replicates \code{lfcShrink} from the
-DESeq2 package, with \code{type = "ashr"}.
+We recommend setting \code{shrink.method = "ash"}, which uses the
+\dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
+accuracy of the LFC estimates. The improvement in accuracy is
+greatest for genes with low expression, or when the sample size is
+small (or both). We follow the settings used in \code{lfcShrink}
+from the DESeq2 package, with \code{type = "ashr"}.
 }
 \references{
 Stephens, M. (2016). False discovery rates: a new deal.
