@@ -135,7 +135,6 @@ test_that(paste("When all the topic proportions are exactly zero or exactly",
   # The outputted statistics should be the same in all calls to
   # diff_count_analysis and diff_count_clusters (ignore the standard
   # errors, as these can be unstable).
-  skip_on_appveyor()
   expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-8)
   expect_equal(out1$F0,  out3$F0,  scale = 1,tolerance = 1e-8)
   expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-8)
