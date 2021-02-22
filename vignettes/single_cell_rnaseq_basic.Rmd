@@ -279,8 +279,9 @@ LFC is defined as the (base-2) log-ratio of two expectations: the mean
 expression (*i.e.*, mean UMI count) for all cells belonging to the
 specifed group over the mean expression among cells not belonging to
 the group. For example, genes *CD79A* and *CD79B* are overexpressed in
-B cells, by a factor of $2^5 = 32$ times, or more; by contrast these
-two genes are underexpressed in the other four cell types:
+B cells, by a multiplicative factor of $2^{5.66} \approx 50$ and
+$2^{4.9} \approx 30$, respectively, and they are underexpressed in the
+other four cell types:
 
 ```{r diff-count-analysis-1}
 dfc_out <- diff_count_clusters(samples$subpop,counts)
@@ -306,7 +307,7 @@ rbind(dfa_out$beta[genes$symbol == "CD79A",],
 These LFC statistics have the same interpretation (the standard LFC
 emerges as a special case when the all mixture proportions are 0 or
 1). The LFC estimates are noticeably larger in the B cells topic
-(topic 4), particularly so for *CD79A*. In fact, *CD79A* is nearly
+(topic 4), particularly so for *CD79A*. In fact, *CD79A* is almost
 uniquely expressed in topic 4.
 
 Up to this point, we have illustrated the DE analysis with known genes
@@ -326,10 +327,11 @@ volcano_plot(dfa_out,k = 4,label_above_quantile = 0.995,
              labels = genes$symbol)
 ```
 
-Typically the most interesting genes are found in the top-right
+Typically, the most interesting genes are found in the top-right
 portion of the volcano plot---that is, genes with large LFC and strong
-support. Indeed, B-cell genes, among them *CD79A* and *CD79B*, appear
-near the top-right corner of the volcano plot.
+support (small *p*-value or high-magnitude *z*-score). Indeed, B-cell
+genes, among them *CD79A* and *CD79B*, appear near the top-right
+corner of the volcano plot.
 
 (Note that the x-axis in the volcano plot ranges between -15 and 15;
 by default, LFC estimates outside this range are projected onto this
@@ -344,7 +346,7 @@ volcano_plot(dfa_out,k = 1,label_above_quantile = 0.995,
              labels = genes$symbol)
 ```
 
-See [Part 2][vignette-part-2] for more DE analysis examples.
+See also [Part 2][vignette-part-2] for more DE analysis examples.
 
 Session info
 ------------
