@@ -135,16 +135,16 @@ test_that(paste("When all the topic proportions are exactly zero or exactly",
   # The outputted statistics should be the same in all calls to
   # diff_count_analysis and diff_count_clusters (ignore the standard
   # errors, as these can be unstable).
-  expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$F0,  out3$F0,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$F1,  out3$F1,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 1e-5)
-  expect_equal(out1$beta,out3$beta,scale = 1,tolerance = 1e-5)
-  expect_equal(out1$Z,   out2$Z,   scale = 1,tolerance = 1e-5)
-  expect_equal(out1$Z,   out3$Z,   scale = 1,tolerance = 1e-5)
-  expect_equal(out1$pval,out2$pval,scale = 1,tolerance = 1e-5)
-  expect_equal(out1$pval,out3$pval,scale = 1,tolerance = 1e-5)
+  expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-4)
+  expect_equal(out1$F0,  out3$F0,  scale = 1,tolerance = 1e-4)
+  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-4)
+  expect_equal(out1$F1,  out3$F1,  scale = 1,tolerance = 1e-4)
+  expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 5e-2)
+  expect_equal(out1$beta,out3$beta,scale = 1,tolerance = 5e-2)
+  expect_equal(out1$Z,   out2$Z,   scale = 1,tolerance = 5e-2)
+  expect_equal(out1$Z,   out3$Z,   scale = 1,tolerance = 5e-2)
+  expect_equal(out1$pval,out2$pval,scale = 1,tolerance = 5e-2)
+  expect_equal(out1$pval,out3$pval,scale = 1,tolerance = 5e-2)
 })
 
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
