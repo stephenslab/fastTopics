@@ -420,7 +420,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   set to \code{-betamax}.
 #'
 #' @param label_above_lfc Only z-scores or p-values (depending on
-#'   choice of \ccode{y}) with LFC estimates above this value are
+#'   choice of \code{y}) with LFC estimates above this value are
 #'   labeled in the volcano plot.
 #' 
 #' @param label_above_quantile Only z-scores or p-values (depending on

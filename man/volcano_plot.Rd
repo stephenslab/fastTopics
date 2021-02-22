@@ -31,10 +31,10 @@ volcano_plotly(
   file,
   labels,
   y = c("zscore", "pvalue"),
-  betamax = 10,
+  betamax = 15,
   subsample_below_quantile = 0,
   subsample_rate = 0.1,
-  width = 600,
+  width = 500,
   height = 500,
   title = paste("topic", k),
   plot_ly_call = volcano_plot_ly_call
