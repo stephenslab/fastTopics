@@ -59,8 +59,8 @@ a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-"d1", "d2" (the first and second dimensions in the 2-d embedding),
-and "loading".}
+\dQuote{d1}, \dQuote{d2} (the first and second dimensions in the
+2-d embedding), and \dQuote{loading}.}
 
 \item{topic.label}{The name or number of the topic being plotted;
 it is only used to determine the plot title.}
@@ -79,19 +79,20 @@ Visualize the "structure" of the Poisson NMF loadings
 }
 \details{
 This is a lightweight interface primarily intended to
-  expedite creation of scatterplots for visualizing the loadings or
-  mixture proportions in 2-d; most of the "heavy lifting" is done by
-  ggplot2. The 2-d embedding itself is computed by invoking function
-  \code{\link{tsne_from_topics}} (unless the "tsne" input is
-  provided). For more control over the plot's appearance, the plot
-  can be customized by modifying the \code{ggplot_call} and
-  \code{plot_grid_call} arguments.
+expedite creation of scatterplots for visualizing the loadings or
+mixture proportions in 2-d; most of the \dQuote{heavy lifting} is
+done by ggplot2. The 2-d embedding itself is computed by invoking
+function \code{\link{tsne_from_topics}} (unless the \dQuote{tsne}
+input is provided). For more control over the plot's appearance,
+the plot can be customized by modifying the \code{ggplot_call} and
+\code{plot_grid_call} arguments.
 
-  An effective 2-d visualization may also necessitate some fine-tunning
-  of the t-SNE settings, such as the "perplexity", or the number of
-  samples included in the plot. The t-SNE settings can be controlled
-  by the additional arguments (\dots) passed to
-  \code{tsne_from_topics}; see \code{\link{tsne_from_topics}} for
-  details. Alternatively, a 2-d embedding may be pre-computed, and
-  passed as argument \code{tsne} to \code{tsne_plot}.
+An effective 2-d visualization may also necessitate some
+fine-tunning of the t-SNE settings, such as the
+\dQuote{perplexity}, or the number of samples included in the
+plot. The t-SNE settings can be controlled by the additional
+arguments (\dots) passed to \code{tsne_from_topics}; see
+\code{\link{tsne_from_topics}} for details. Alternatively, a 2-d
+embedding may be pre-computed, and passed as argument \code{tsne}
+to \code{tsne_plot}.
 }

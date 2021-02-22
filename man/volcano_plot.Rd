@@ -13,7 +13,8 @@ volcano_plot(
   k,
   labels,
   y = c("zscore", "pvalue"),
-  betamax = 10,
+  betamax = 15,
+  label_above_lfc = 0,
   label_above_quantile = 0.99,
   subsample_below_quantile = 0,
   subsample_rate = 0.1,
@@ -59,7 +60,7 @@ specified, all topics are plotted.}
 
 \item{labels}{Character vector specifying how the points in the
 volcano plot are labeled. This should be a character vector with
-one entry per log-fold change statistic (row of
+one entry per LFC estimate (row of
 \code{diff_count_result$beta}). When not specified, the row names
 of \code{diff_count_result$beta} are used, if available. Labels are
 added to the plot using \code{\link[ggrepel]{geom_text_repel}}.}
@@ -68,26 +69,28 @@ added to the plot using \code{\link[ggrepel]{geom_text_repel}}.}
 = "zscore"} to plot the z-score magnitudes; use \code{y = "pvalue"}
 to plot the -log1 p-values.}
 
-\item{betamax}{Truncate the log-fold change statistics
-(\code{beta}) by this amount. Any statistics greater than than
- \code{betamax} are set to \code{betamax}, and any statistics less
-than \code{-betamax} are set to \code{-betamax}.}
+\item{betamax}{Truncate the LFC statistics (\code{beta}) by this
+amount. Any statistics greater than than \code{betamax} are set to
+\code{betamax}, and any statistics less than \code{-betamax} are
+set to \code{-betamax}.}
+
+\item{label_above_lfc}{Only z-scores or p-values (depending on
+choice of \ccode{y}) with LFC estimates above this value are
+labeled in the volcano plot.}
 
 \item{label_above_quantile}{Only z-scores or p-values (depending on
 choice of \code{y}) above this quantile are labeled in the volcano
-plot. \code{\link[ggrepel]{geom_text_repel}} will attempt to label
-all points when \code{label_above_quantile = 0}. When
-\code{label_above_quantile = Inf}, no points are labeled.}
+plot.}
 
 \item{subsample_below_quantile}{A number between 0 and 1. If
-greater than zero, log-fold change statistics with z-scores or
-p-values below this quantile will be subsampled according to
+greater than zero, LFC estimates with z-scores or p-values below
+this quantile will be subsampled according to
 \code{subsample_rate}. This can be helpful to reduce the number of
 points plotted for a large data set.}
 
 \item{subsample_rate}{A number between 0 and 1 giving the
-proportion of log-fold change statistics with "small" z-scores that
-are included in the plot, uniformly at random. This is only used if
+proportion of LFC estimates with small z-scores that are included
+in the plot, uniformly at random. This is only used if
 \code{subsample_below_quantile} is greater than zero.}
 
 \item{max.overlaps}{Argument passed to
@@ -140,7 +143,7 @@ A \code{ggplot} object or a \code{plotly} object.
 \description{
 Create one or more "volcano" plots to visualize the
   results of a differential count analysis using a topic model. A
-  volcano plot is a scatterplot in which the log-fold change,
+  volcano plot is a scatterplot in which the log-fold change (LFC),
   estimated using a multinomial topic model, is plotted against the
   p-value or z-score.
 }
@@ -164,7 +167,7 @@ The \dQuote{ggrepel} package is used to arrange the labels in a
 visually attractive manner.
 
 Use interactive volcano plot is created using the \dQuote{plotly}
-package. The "hover text" shows the label (see input argument
-\dQuote{labels}) and detailed log-fold change statistics as they
-were calculated by \code{\link{diff_count_analysis}}.
+package. The \dQuote{hover text} shows the label (see input argument
+\dQuote{labels}) and detailed LFC statistics as they were
+calculated by \code{\link{diff_count_analysis}}.
 }

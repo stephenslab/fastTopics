@@ -271,17 +271,16 @@ analysis is performed using the topic model.
 Interpreting topics by analyzing gene expression differences
 ------------------------------------------------------------
 
-To set the stage for differential expression analysis using a topic
-model, we begin with a classic differential expression analysis using
-the available cell-type labels. This analysis centers on calculation
-of the *log-fold change* statistic. For a given group or cluster, the
-log-fold change is defined as the (base-2) log-ratio of two
-expectations: the mean expression (*i.e.*, mean UMI count) for all
-cells belonging to the specifed group over the mean expression among
-cells not belonging to the group. For example, genes *CD79A* and
-*CD79B* are overexpressed in B cells, by a factor of $2^5 = 32$ times,
-or more; by contrast these two genes are underexpressed in the other
-four cell types:
+To set the stage for differential expression (DE) analysis using a
+topic model, we begin with a classic DE analysis using the available
+cell-type labels. This analysis centers on calculation of the
+*log-fold change* (LFC) statistic. For a given group or cluster, the
+LFC is defined as the (base-2) log-ratio of two expectations: the mean
+expression (*i.e.*, mean UMI count) for all cells belonging to the
+specifed group over the mean expression among cells not belonging to
+the group. For example, genes *CD79A* and *CD79B* are overexpressed in
+B cells, by a factor of $2^5 = 32$ times, or more; by contrast these
+two genes are underexpressed in the other four cell types:
 
 ```{r diff-count-analysis-1}
 dfc_out <- diff_count_clusters(samples$subpop,counts)
@@ -289,41 +288,38 @@ rbind(dfc_out$beta[genes$symbol == "CD79A",],
       dfc_out$beta[genes$symbol == "CD79B",])
 ```
 
-**fastTopics** extends the classic differential expression analysis to
-allow for *partial membership* to groups. This generalized
-differential expression analysis is implemented in
+**fastTopics** extends the classic DE analysis to allow for *partial
+membership* to groups. This generalized DE analysis is implemented in
 `diff_count_analysis`:
 
 ```{r diff-count-analysis-2}
 dfa_out <- diff_count_analysis(fit,counts)
 ```
 
-As in the standard analysis, it outputs log-fold change estimates:
+As in the standard analysis, it outputs LFC estimates:
 
 ```{r diff-count-analysis-3}
 rbind(dfa_out$beta[genes$symbol == "CD79A",],
       dfa_out$beta[genes$symbol == "CD79B",])
 ```
 
-These log-fold change statistics have the same interpretation (the
-standard log-fold change emerges as a special case when the all
-mixture proportions are 0 or 1). The log-fold change estimates are
-noticeably larger in the B cells topic (topic 4), particularly so for
-*CD79A*. In fact, *CD79A* is nearly uniquely expressed in topic 4.
+These LFC statistics have the same interpretation (the standard LFC
+emerges as a special case when the all mixture proportions are 0 or
+1). The LFC estimates are noticeably larger in the B cells topic
+(topic 4), particularly so for *CD79A*. In fact, *CD79A* is nearly
+uniquely expressed in topic 4.
 
-Up to this point, we have illustrated the differential expression
-analysis with known genes such as *CD79A*. Ultimately, we would like
-to *discover* genes relevant to a topic (of known or unknown
-biological relevance).
+Up to this point, we have illustrated the DE analysis with known genes
+such as *CD79A*. Ultimately, we would like to *discover* genes
+relevant to a topic (of known or unknown biological relevance).
 
 To discover genes, a natural thing to do would be to rank candidates
-by their log-fold change. The complication is that lowly expressed
-genes could also produce, by chance, large log-fold changes, and we
-would not want to rank these genes highly. The *volcano plot* balances
-these two concerns: the log-fold change is shown on the x-axis, and
-the *p*-value or *z*-score, quantifying support for differential
-expression, is shown on the *y*-axis. Here is volcano plot for topic
-4:
+by their LFC. The complication is that lowly expressed genes could
+also produce, by chance, large LFCs, and we would not want to rank
+these genes highly. The *volcano plot* balances these two concerns:
+the LFC is shown on the x-axis, and the *p*-value or *z*-score,
+quantifying support for differential expression, is shown on the
+*y*-axis. Here is volcano plot for topic 4:
 
 ```{r volcano-plot-b, fig.height=4, fig.width=4.5}
 volcano_plot(dfa_out,k = 4,label_above_quantile = 0.995,
@@ -331,25 +327,24 @@ volcano_plot(dfa_out,k = 4,label_above_quantile = 0.995,
 ```
 
 Typically the most interesting genes are found in the top-right
-portion of the volcano plot---that is, genes with large log-fold
-change and strong support. Indeed, B-cell genes, among them *CD79A*
-and *CD79B*, appear near the top-right corner of the volcano plot. 
+portion of the volcano plot---that is, genes with large LFC and strong
+support. Indeed, B-cell genes, among them *CD79A* and *CD79B*, appear
+near the top-right corner of the volcano plot.
 
-(Note that the x-axis in the volcano plot ranges between -10 and 10; by
-default, log-fold change estimates outside this range are projected
-onto this range. You can use the `betamax` argument to change how the
-log-fold change estimates are shown in the volcano plot.)
+(Note that the x-axis in the volcano plot ranges between -15 and 15;
+by default, LFC estimates outside this range are projected onto this
+range. You can use the `betamax` argument to change how the LFC
+estimates are shown in the volcano plot.)
 
 Likewise, natural killer genes such as *NKG7* emerge at the top of the
 volcano plot for topic 1:
 
-```{r volcano-plot-nk, fig.height=3.5, fig.width=4.5}
+```{r volcano-plot-nk, fig.height=4, fig.width=4.5}
 volcano_plot(dfa_out,k = 1,label_above_quantile = 0.995,
              labels = genes$symbol)
 ```
 
-See [Part 2][vignette-part-2] for more examples of differential
-expression analysis using a topic model.
+See [Part 2][vignette-part-2] for more DE analysis examples.
 
 Session info
 ------------

@@ -57,7 +57,7 @@ This is a lightweight interface primarily intended to
   expedite creation of boxplots for investigating relationships
   between topics and a categorical variables of interest without
   having to spend a great deal of time worrying about the plotting
-  settings; most of the "heavy lifting" is done by ggplot2
+  settings; most of the \dQuote{heavy lifting} is done by ggplot2
   (specifically, function \code{\link[ggplot2]{geom_boxplot}} in the
   ggplot2 package). For more control over the plot's appearance, the
   plot can be customized by modifying the \code{ggplot_call}

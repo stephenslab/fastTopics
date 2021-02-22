@@ -38,10 +38,10 @@ rapidly with the number of rows in the input matrix.}
 topics specifying a scaling of the columns of \code{fit$L}; this
 re-scaling is performed prior to running t-SNE. The vector should
 contain non-negative numbers only. A larger value will increase the
-importance, or "weight", of the respective topic in computing the
-embedding. When \code{scaling} is \code{NULL}, no re-scaling is
-performed. Note that this scaling will have no effect if
-\code{normalize = TRUE}.}
+importance, or \dQuote{weight}, of the respective topic in
+computing the embedding. When \code{scaling} is \code{NULL}, no
+re-scaling is performed. Note that this scaling will have no effect
+if \code{normalize = TRUE}.}
 
 \item{pca}{Whether to perform a PCA processing stepe in t-SNE;
 passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.}

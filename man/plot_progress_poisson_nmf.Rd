@@ -46,12 +46,12 @@ If fewer colours than "fits" are given, the colours are recycled.}
 
 \item{linetypes}{Line types used to draw progress curves; passed as
 the \code{values} input to \code{\link[ggplot2]{scale_linetype_manual}}.
-If fewer line types than "fits" are given, the line types are
+If fewer line types than \dQuote{fits} are given, the line types are
 recycled.}
 
 \item{linesizes}{Line sizes used to draw progress curves; passed as
 the \code{values} input to \code{\link[ggplot2]{scale_size_manual}}.
-If fewer line sizes than "fits" are given, the line sizes are
+If fewer line sizes than \dQuote{fits} are given, the line sizes are
  recycled.}
 
 \item{shapes}{Shapes used to draw points at the selected
@@ -68,7 +68,7 @@ than \dQuote{fits} are given, the fill colours are recycled.}
 \code{y = "loglik"} and \code{y = "dev"} only) so that the
 logarithmic scale does not over-emphasize very small differences.}
 
-\item{theme}{The ggplot2 "theme".}
+\item{theme}{The ggplot2 \dQuote{theme}.}
 }
 \value{
 A \code{ggplot} object.

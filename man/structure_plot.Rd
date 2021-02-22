@@ -56,13 +56,14 @@ to the 1-d t-SNE embedding.}
 plot; topics[1] is shown on the top, topics[2] is shown next, and
 so on. If the ordering of the topics is not specified, the topics
 are automaticcally ordered so that the topics with the greatest
-"mass" are at shown at the bottom of the plot.}
+\dQuote{mass} are at shown at the bottom of the plot.}
 
 \item{colors}{Colors used to draw topics in Structure plot:
 \code{colors[1]} is the colour used to draw \code{topics[1]},
 \code{colors[2]} is the colour used to draw \code{topics[2]}, and
 so on. The default colour setting is the from
-\url{https://colorbrewer2.org} (qualitative data, "9-class Set1").}
+\url{https://colorbrewer2.org} (qualitative data, \dQuote{9-class
+Set1}).}
 
 \item{gap}{The horizontal spacing between groups. Ignored if
 \code{grouping} is not provided.}
@@ -94,15 +95,15 @@ automatically recovered using \code{\link{poisson2multinom}}.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-"sample", "topic" and "mixprop": column "sample" contains the
-positions of the samples (rows of the loadings matrix) along the
-horizontal axis; column "topic" is a topic (corresponding to
-columns of the loadings matrix); and column "mixprop" is the mixture
-proportion for the given sample.}
+\dQuote{sample}, \dQuote{topic} and \dQuote{mixprop}: column
+\dQuote{sample} contains the positions of the samples (rows of the
+loadings matrix) along the horizontal axis; column \dQuote{topic} is a
+topic (corresponding to columns of the loadings matrix); and column
+\dQuote{mixprop} is the mixture proportion for the given sample.}
 
 \item{ticks}{The placement of the group labels along the horizontal
 axis, and their names. For data that is not grouped, use
-\code{ticks = NULL.}}
+\code{ticks = NULL}.}
 
 \item{font.size}{Font size used in plot.}
 }
@@ -110,7 +111,7 @@ axis, and their names. For data that is not grouped, use
 A \code{ggplot} object.
 }
 \description{
-Create a "Structure plot" from a multinomial topic
+Create a \dQuote{Structure plot} from a multinomial topic
   model fit. The Structure plot represents the estimated mixture
   proportions of each sample as a stacked barchart, with bars of
   different colors representing different topics. Consequently,
@@ -118,22 +119,22 @@ Create a "Structure plot" from a multinomial topic
   of each color.
 }
 \details{
-The name "Structure plot" comes from its widespread use in
-  population genetics to visualize the results of the Structure
-  software (Rosenberg \emph{et al}, 2002).
+The name \dQuote{Structure plot} comes from its widespread
+use in population genetics to visualize the results of the
+Structure software (Rosenberg \emph{et al}, 2002).
 
-  For most uses of the Structure plot in population genetics, there
-  is usually some grouping of the samples (e.g., assignment to
-  pre-defined populations) that guides arrangement of the samples
-  along the horizontal axis in the bar chart. In other applications,
-  such as analysis of gene expression data, no pre-defined grouping
-  exists. Therefore, a "smart" arrangement of the samples is, by
-  default, generated automatically by performing a 1-d t-SNE
-  embedding of the samples.
+For most uses of the Structure plot in population genetics, there
+is usually some grouping of the samples (e.g., assignment to
+pre-defined populations) that guides arrangement of the samples
+along the horizontal axis in the bar chart. In other applications,
+such as analysis of gene expression data, no pre-defined grouping
+exists. Therefore, a \dQuote{smart} arrangement of the samples is,
+by default, generated automatically by performing a 1-d t-SNE
+embedding of the samples.
 
-  Alternatively, a categorical variable---the grouping---may be
-  provided, in which case the samples are arranged according to that
-  grouping, then arranged within each group using t-SNE.
+Alternatively, a categorical variable---the grouping---may be
+provided, in which case the samples are arranged according to that
+grouping, then arranged within each group using t-SNE.
 }
 \references{
 Dey, K. K., Hsiao, C. J. and Stephens, M. (2017). Visualizing the

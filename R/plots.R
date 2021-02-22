@@ -38,12 +38,12 @@
 #'
 #' @param linetypes Line types used to draw progress curves; passed as
 #'   the \code{values} input to \code{\link[ggplot2]{scale_linetype_manual}}.
-#'   If fewer line types than "fits" are given, the line types are
+#'   If fewer line types than \dQuote{fits} are given, the line types are
 #'   recycled.
 #'
 #' @param linesizes Line sizes used to draw progress curves; passed as
 #'   the \code{values} input to \code{\link[ggplot2]{scale_size_manual}}.
-#'   If fewer line sizes than "fits" are given, the line sizes are
+#'   If fewer line sizes than \dQuote{fits} are given, the line sizes are
 #'    recycled.
 #' 
 #' @param shapes Shapes used to draw points at the selected
@@ -60,7 +60,7 @@
 #'   \code{y = "loglik"} and \code{y = "dev"} only) so that the
 #'   logarithmic scale does not over-emphasize very small differences.
 #'
-#' @param theme The ggplot2 "theme".
+#' @param theme The ggplot2 \dQuote{theme}.
 #'
 #' @return A \code{ggplot} object.
 #'
@@ -270,7 +270,7 @@ loglik_vs_rank_ggplot_call <- function (dat, font.size = 9)
 #'   expedite creation of boxplots for investigating relationships
 #'   between topics and a categorical variables of interest without
 #'   having to spend a great deal of time worrying about the plotting
-#'   settings; most of the "heavy lifting" is done by ggplot2
+#'   settings; most of the \dQuote{heavy lifting} is done by ggplot2
 #'   (specifically, function \code{\link[ggplot2]{geom_boxplot}} in the
 #'   ggplot2 package). For more control over the plot's appearance, the
 #'   plot can be customized by modifying the \code{ggplot_call}
@@ -369,7 +369,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' @description Create one or more "volcano" plots to visualize the
 #'   results of a differential count analysis using a topic model. A
-#'   volcano plot is a scatterplot in which the log-fold change,
+#'   volcano plot is a scatterplot in which the log-fold change (LFC),
 #'   estimated using a multinomial topic model, is plotted against the
 #'   p-value or z-score. 
 #'
@@ -392,9 +392,9 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' visually attractive manner.
 #'
 #' Use interactive volcano plot is created using the \dQuote{plotly}
-#' package. The "hover text" shows the label (see input argument
-#' \dQuote{labels}) and detailed log-fold change statistics as they
-#' were calculated by \code{\link{diff_count_analysis}}.
+#' package. The \dQuote{hover text} shows the label (see input argument
+#' \dQuote{labels}) and detailed LFC statistics as they were
+#' calculated by \code{\link{diff_count_analysis}}.
 #' 
 #' @param diff_count_result An object of class
 #'   \dQuote{topic_model_diff_count}, usually an output from
@@ -405,7 +405,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'
 #' @param labels Character vector specifying how the points in the
 #'   volcano plot are labeled. This should be a character vector with
-#'   one entry per log-fold change statistic (row of
+#'   one entry per LFC estimate (row of
 #'   \code{diff_count_result$beta}). When not specified, the row names
 #'   of \code{diff_count_result$beta} are used, if available. Labels are
 #'   added to the plot using \code{\link[ggrepel]{geom_text_repel}}.
@@ -414,26 +414,28 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   = "zscore"} to plot the z-score magnitudes; use \code{y = "pvalue"}
 #'   to plot the -log1 p-values.
 #'
-#' @param betamax Truncate the log-fold change statistics
-#'   (\code{beta}) by this amount. Any statistics greater than than
-#'    \code{betamax} are set to \code{betamax}, and any statistics less
-#'   than \code{-betamax} are set to \code{-betamax}.
+#' @param betamax Truncate the LFC statistics (\code{beta}) by this
+#'   amount. Any statistics greater than than \code{betamax} are set to
+#'   \code{betamax}, and any statistics less than \code{-betamax} are
+#'   set to \code{-betamax}.
 #'
+#' @param label_above_lfc Only z-scores or p-values (depending on
+#'   choice of \ccode{y}) with LFC estimates above this value are
+#'   labeled in the volcano plot.
+#' 
 #' @param label_above_quantile Only z-scores or p-values (depending on
 #'   choice of \code{y}) above this quantile are labeled in the volcano
-#'   plot. \code{\link[ggrepel]{geom_text_repel}} will attempt to label
-#'   all points when \code{label_above_quantile = 0}. When
-#'   \code{label_above_quantile = Inf}, no points are labeled.
+#'   plot.
 #'
 #' @param subsample_below_quantile A number between 0 and 1. If
-#'   greater than zero, log-fold change statistics with z-scores or
-#'   p-values below this quantile will be subsampled according to
+#'   greater than zero, LFC estimates with z-scores or p-values below
+#'   this quantile will be subsampled according to
 #'   \code{subsample_rate}. This can be helpful to reduce the number of
 #'   points plotted for a large data set.
 #'
 #' @param subsample_rate A number between 0 and 1 giving the
-#'   proportion of log-fold change statistics with "small" z-scores that
-#'   are included in the plot, uniformly at random. This is only used if
+#'   proportion of LFC estimates with small z-scores that are included
+#'   in the plot, uniformly at random. This is only used if
 #'   \code{subsample_below_quantile} is greater than zero.
 #'
 #' @param max.overlaps Argument passed to
@@ -456,7 +458,7 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' 
 volcano_plot <-
   function (diff_count_result, k, labels, y = c("zscore", "pvalue"),
-            betamax = 10, label_above_quantile = 0.99,
+            betamax = 15, label_above_lfc = 0, label_above_quantile = 0.99, 
             subsample_below_quantile = 0, subsample_rate = 0.1,
             max.overlaps = Inf, ggplot_call = volcano_plot_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots)) {
@@ -486,7 +488,7 @@ volcano_plot <-
     else if (y == "pvalue")
       y.label <- "-log10 p-value"
     dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
-                                     label_above_quantile,
+                                     label_above_lfc,label_above_quantile,
                                      subsample_below_quantile,subsample_rate)
     return(ggplot_call(dat,y.label,k,max.overlaps))
   } else {
@@ -498,8 +500,9 @@ volcano_plot <-
     names(plots) <- k
     for (i in 1:m)
       plots[[i]] <- volcano_plot(diff_count_result,k[i],labels,y,betamax,
-                                 label_above_quantile,subsample_below_quantile,
-                                 subsample_rate,max.overlaps,ggplot_call,NULL)
+                                 label_above_lfc,label_above_quantile,
+                                 subsample_below_quantile,subsample_rate,
+                                 max.overlaps,ggplot_call,NULL)
     return(plot_grid_call(plots))
   }
 }
@@ -616,7 +619,7 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
                                       max.overlaps = Inf, font.size = 9)
   ggplot(dat,aes_string(x = "beta",y = "y",fill = "mean",label = "label")) +
     geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
-    scale_x_continuous(expand = expansion(mult = 0.2)) +
+    scale_x_continuous(expand = expansion(mult = 0.2),breaks = seq(-15,15,5)) +
     scale_y_continuous(trans = "sqrt",
       breaks = c(0,1,2,5,10,20,50,100,200,500,1e3,2e3,5e3,1e4,2e4,5e4)) +
     scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
@@ -626,7 +629,7 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
                     segment.color = "darkgray",segment.size = 0.25,
                     min.segment.length = 0,max.overlaps = max.overlaps,
                     na.rm = TRUE) +
-    labs(x = "log-fold change (\u03b2)",y = y.label,fill = "log10 mean",
+    labs(x = "log-fold change",y = y.label,fill = "log10 mean",
          title = paste("topic",topic.label)) +
     theme_cowplot(font.size) +
     theme(plot.title = element_text(size = font.size,face = "plain"))   
@@ -649,8 +652,8 @@ volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
                width = width,height = height,
                marker = list(line = list(color = "white",width = 1),size = 7.5))
   p <- hide_colorbar(p)
-  p <- layout(p,xaxis = list(title = "log-fold change (\u03b2)",
-                             zeroline = FALSE,showgrid = FALSE),
+  p <- layout(p,xaxis = list(title = "log-fold change",zeroline = FALSE,
+                             showgrid = FALSE),
               yaxis = list(title = paste("sqrt",y.label),
                            zeroline = FALSE,showgrid = FALSE),
               hoverlabel = list(bgcolor = "white",bordercolor = "black",
@@ -665,10 +668,9 @@ volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
 # frame passed to ggplot.
 #
 #' @importFrom stats quantile
-compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
-                                       betamax, label_above_quantile,
-                                       subsample_below_quantile,
-                                       subsample_rate) {
+compile_volcano_plot_data <-
+  function (diff_count_result, k, labels, y, betamax, label_above_lfc,
+            label_above_quantile, subsample_below_quantile, subsample_rate) {
   dat <- with(diff_count_result,
                 data.frame(label = labels,
                            mean  = colmeans,
@@ -691,7 +693,7 @@ compile_volcano_plot_data <- function (diff_count_result, k, labels, y,
     y0 <- Inf
   else
     y0 <- quantile(dat$y,label_above_quantile)
-  dat$label[dat$y < y0] <- ""
+  dat$label[with(dat,beta < label_above_lfc | y < y0)] <- ""
   if (subsample_below_quantile > 0) {
     y0    <- quantile(dat$y,subsample_below_quantile)
     rows1 <- which(dat$y >= y0)
@@ -998,10 +1000,10 @@ pca_hexbin_plot_ggplot_call <- function (dat, pcs, bins, breaks, font.size = 9)
 #'   topics specifying a scaling of the columns of \code{fit$L}; this
 #'   re-scaling is performed prior to running t-SNE. The vector should
 #'   contain non-negative numbers only. A larger value will increase the
-#'   importance, or "weight", of the respective topic in computing the
-#'   embedding. When \code{scaling} is \code{NULL}, no re-scaling is
-#'   performed. Note that this scaling will have no effect if
-#'   \code{normalize = TRUE}.
+#'   importance, or \dQuote{weight}, of the respective topic in
+#'   computing the embedding. When \code{scaling} is \code{NULL}, no
+#'   re-scaling is performed. Note that this scaling will have no effect
+#'   if \code{normalize = TRUE}.
 #' 
 #' @param pca Whether to perform a PCA processing stepe in t-SNE;
 #'   passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.
@@ -1110,21 +1112,22 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
 #'   the 2-d embedding from the loadings or mixture proportions.
 #'
 #' @details This is a lightweight interface primarily intended to
-#'   expedite creation of scatterplots for visualizing the loadings or
-#'   mixture proportions in 2-d; most of the "heavy lifting" is done by
-#'   ggplot2. The 2-d embedding itself is computed by invoking function
-#'   \code{\link{tsne_from_topics}} (unless the "tsne" input is
-#'   provided). For more control over the plot's appearance, the plot
-#'   can be customized by modifying the \code{ggplot_call} and
-#'   \code{plot_grid_call} arguments.
+#' expedite creation of scatterplots for visualizing the loadings or
+#' mixture proportions in 2-d; most of the \dQuote{heavy lifting} is
+#' done by ggplot2. The 2-d embedding itself is computed by invoking
+#' function \code{\link{tsne_from_topics}} (unless the \dQuote{tsne}
+#' input is provided). For more control over the plot's appearance,
+#' the plot can be customized by modifying the \code{ggplot_call} and
+#' \code{plot_grid_call} arguments.
 #'
-#'   An effective 2-d visualization may also necessitate some fine-tunning
-#'   of the t-SNE settings, such as the "perplexity", or the number of
-#'   samples included in the plot. The t-SNE settings can be controlled
-#'   by the additional arguments (\dots) passed to
-#'   \code{tsne_from_topics}; see \code{\link{tsne_from_topics}} for
-#'   details. Alternatively, a 2-d embedding may be pre-computed, and
-#'   passed as argument \code{tsne} to \code{tsne_plot}.
+#' An effective 2-d visualization may also necessitate some
+#' fine-tunning of the t-SNE settings, such as the
+#' \dQuote{perplexity}, or the number of samples included in the
+#' plot. The t-SNE settings can be controlled by the additional
+#' arguments (\dots) passed to \code{tsne_from_topics}; see
+#' \code{\link{tsne_from_topics}} for details. Alternatively, a 2-d
+#' embedding may be pre-computed, and passed as argument \code{tsne}
+#' to \code{tsne_plot}.
 #' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
@@ -1225,8 +1228,8 @@ tsne_plot <-
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   "d1", "d2" (the first and second dimensions in the 2-d embedding),
-#'   and "loading".
+#'   \dQuote{d1}, \dQuote{d2} (the first and second dimensions in the
+#'   2-d embedding), and \dQuote{loading}.
 #'
 #' @param topic.label The name or number of the topic being plotted;
 #'   it is only used to determine the plot title.
@@ -1255,29 +1258,29 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 
 #' @title Structure Plot
 #'
-#' @description Create a "Structure plot" from a multinomial topic
+#' @description Create a \dQuote{Structure plot} from a multinomial topic
 #'   model fit. The Structure plot represents the estimated mixture
 #'   proportions of each sample as a stacked barchart, with bars of
 #'   different colors representing different topics. Consequently,
 #'   samples that have similar mixture proportions have similar amounts
 #'   of each color.
 #'
-#' @details The name "Structure plot" comes from its widespread use in
-#'   population genetics to visualize the results of the Structure
-#'   software (Rosenberg \emph{et al}, 2002).
+#' @details The name \dQuote{Structure plot} comes from its widespread
+#' use in population genetics to visualize the results of the
+#' Structure software (Rosenberg \emph{et al}, 2002).
 #' 
-#'   For most uses of the Structure plot in population genetics, there
-#'   is usually some grouping of the samples (e.g., assignment to
-#'   pre-defined populations) that guides arrangement of the samples
-#'   along the horizontal axis in the bar chart. In other applications,
-#'   such as analysis of gene expression data, no pre-defined grouping
-#'   exists. Therefore, a "smart" arrangement of the samples is, by
-#'   default, generated automatically by performing a 1-d t-SNE
-#'   embedding of the samples.
+#' For most uses of the Structure plot in population genetics, there
+#' is usually some grouping of the samples (e.g., assignment to
+#' pre-defined populations) that guides arrangement of the samples
+#' along the horizontal axis in the bar chart. In other applications,
+#' such as analysis of gene expression data, no pre-defined grouping
+#' exists. Therefore, a \dQuote{smart} arrangement of the samples is,
+#' by default, generated automatically by performing a 1-d t-SNE
+#' embedding of the samples.
 #'
-#'   Alternatively, a categorical variable---the grouping---may be
-#'   provided, in which case the samples are arranged according to that
-#'   grouping, then arranged within each group using t-SNE.
+#' Alternatively, a categorical variable---the grouping---may be
+#' provided, in which case the samples are arranged according to that
+#' grouping, then arranged within each group using t-SNE.
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
@@ -1306,13 +1309,14 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   plot; topics[1] is shown on the top, topics[2] is shown next, and
 #'   so on. If the ordering of the topics is not specified, the topics
 #'   are automaticcally ordered so that the topics with the greatest
-#'   "mass" are at shown at the bottom of the plot.
+#'   \dQuote{mass} are at shown at the bottom of the plot.
 #' 
 #' @param colors Colors used to draw topics in Structure plot:
 #'   \code{colors[1]} is the colour used to draw \code{topics[1]},
 #'   \code{colors[2]} is the colour used to draw \code{topics[2]}, and
 #'   so on. The default colour setting is the from
-#'   \url{https://colorbrewer2.org} (qualitative data, "9-class Set1").
+#'   \url{https://colorbrewer2.org} (qualitative data, \dQuote{9-class
+#'   Set1}).
 #'
 #' @param gap The horizontal spacing between groups. Ignored if
 #'   \code{grouping} is not provided.
@@ -1456,15 +1460,15 @@ plot.multinom_topic_model_fit <- function (x, ...)
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   "sample", "topic" and "mixprop": column "sample" contains the
-#'   positions of the samples (rows of the loadings matrix) along the
-#'   horizontal axis; column "topic" is a topic (corresponding to
-#'   columns of the loadings matrix); and column "mixprop" is the mixture
-#'   proportion for the given sample.
+#'   \dQuote{sample}, \dQuote{topic} and \dQuote{mixprop}: column
+#'   \dQuote{sample} contains the positions of the samples (rows of the
+#'   loadings matrix) along the horizontal axis; column \dQuote{topic} is a
+#'   topic (corresponding to columns of the loadings matrix); and column
+#'   \dQuote{mixprop} is the mixture proportion for the given sample.
 #'
 #' @param ticks The placement of the group labels along the horizontal
 #'   axis, and their names. For data that is not grouped, use
-#'   \code{ticks = NULL.}
+#'   \code{ticks = NULL}.
 #'
 #' @param font.size Font size used in plot.
 #' 
