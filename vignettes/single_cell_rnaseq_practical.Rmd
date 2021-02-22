@@ -133,7 +133,7 @@ topics (mostly topic 6) among NK and T cells.
 
 Of course, without the cell labels, we cannot know that the topics
 correspond to these cell types without further downstream
-analyses---for this, we will perform a differential expression
+analyses---for this, we will perform a differential expression 
 analysis (continue reading).
 
 Identifying clusters from the mixture proportions
@@ -230,35 +230,24 @@ some ingenuity may be needed to identify and visualize clusters.
 More on differential expression analysis
 ----------------------------------------
 
-In Part 1, we performed a differential expression analysis using the
-topic model, and using the results of this analysis we were able to
-interpret topic 1 as NK cells and topic 4 as B cells. Here, we use
-perform differential expression analysis to tackle interpretation of
-the topics that capturing variation in the T cells cluster.
+In Part 1, we performed a differential expression (DE) analysis using
+the topic model, and using the results of this analysis we were
+interpreted topic 1 as NK cells, topic 4 as B cells, and topic 6 as T
+cells. Let's briefly expand on this DE analysis.
 
-Unlike the B cells and NK cells, expression in T cells is captured by
-mixtures of two topics. To isolate T-cell-specific expression
-patterns, we perform differential expression analysis on the combined
-topic:
-
-```{r volcano-plot-t, fig.height=3.5, fig.width=4.5, results="hide"}
-genes <- pbmc_facs$genes
-fit_merged <- merge_topics(fit,5:6)
-dfa_merged <- diff_count_analysis(fit_merged,counts)
-volcano_plot(dfa_merged,k = "k5+k6",label_above_quantile = 0.998,
-             labels = genes$symbol,max.overlaps = 16)
+```{r diff-count-analysis}
+dfa_out <- diff_count_analysis(fit,counts)
 ```
 
-In the volcano plot, the T-cell marker gene *CD3D* is one of the top
-genes.
-
-When the volcano plot shows many overlapping differentially expressed
-genes, like it does here, it can be helpful to explore the results
-interactively. The function `volcano_plotly` creates an interactive
-volcano plot that can be viewed in a Web browser:
+When the volcano plot shows many overlapping DE genes, it can be
+helpful to explore the results interactively. The function
+`volcano_plotly` creates an interactive volcano plot that can be
+viewed in a Web browser. For example, here is an interactive volcano
+plot for the T cells topic:
 
 ```{r volcano-plotly}
-p1 <- volcano_plotly(dfa_merged,k = 5,file = "volcano_plot_t_cells.html",
+genes <- pbmc_facs$genes
+p1 <- volcano_plotly(dfa_out,k = 6,file = "volcano_plot_t_cells.html",
                      labels = genes$symbol)
 ```
 
@@ -281,38 +270,22 @@ structure_plot(fit,topics = 1:6,colors = topic_colors,
                grouping = factor(clusters),gap = 25)
 ```
 
-Now we can perform differential expression analysis on the CD8+
-cluster (as well as the other clusters) using the
-`diff_count_clusters` function, and visualize the results using a
-volcano plot:
+Now we can perform DE analysis on the CD8+ cluster (as well as the
+other clusters) using the `diff_count_clusters` function, and
+visualize the results using a volcano plot, as before:
 
 ```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5, results="hide"}
-dfc_out <- diff_count_clusters(clusters,counts)
-volcano_plot(dfc_out,k = "CD8+",label_above_quantile = 0.995,
-             labels = genes$symbol,max.overlaps = 10) +
+dfc_clusters <- diff_count_clusters(clusters,counts)
+volcano_plot(dfc_clusters,k = "CD8+",label_above_quantile = 0.98,
+             labels = genes$symbol) +
   ggtitle("cluster CD8+")
 ```
 
 (Recall, we also used `diff_count_clusters` in Part 1 to perform a
-basic differential expression analysis.)
+basic DE analysis.)
 
-For example, *CD8A* is one of the top differentially expressed genes,
-a clue that this cluster corresponds to CD8+ cytotoxic T cells.
-
-Finally, to isolate the differences in expression between topics 5 and
-6 capturing heterogeneity within T cells, we perform a differential
-expression analysis on the T cells only:
-
-```{r volcano-plot-cd4, fig.height=3.5, fig.width=4.5, results="hide"}
-i <- which(clusters == "T")
-fit_t <- select_loadings(fit,loadings = i)
-diff_count_t <- diff_count_analysis(fit_t,counts[i,])
-volcano_plot(diff_count_t,k = 5,label_above_quantile = 0.995,
-             labels = genes$symbol,max.overlaps = 20)
-```
-
-Judging by top differentially expressed genes such as *CD4*, topic 5
-likely corresponds to CD4+/CD8+ lineage differentiation in T cells.
+For example, genes *CD8A*, *CD8B* and *CCL5* (*RANTES*) are among the
+top DE genes, which are clues pointing to CD8+ cytotoxic T cells.
 
 Session info
 ------------

@@ -545,9 +545,9 @@ plot.topic_model_diff_count <- function (x, ...)
 #' @export
 #' 
 volcano_plotly <- function (diff_count_result, k, file, labels,
-                            y = c("zscore", "pvalue"), betamax = 10,
+                            y = c("zscore", "pvalue"), betamax = 15,
                             subsample_below_quantile = 0,
-                            subsample_rate = 0.1, width = 600, height = 500,
+                            subsample_rate = 0.1, width = 500, height = 500,
                             title = paste("topic",k),
                             plot_ly_call = volcano_plot_ly_call) {
 
@@ -570,7 +570,8 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
 
   # Compile the plotting data.
   dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,0,
-                                   subsample_below_quantile,subsample_rate)
+                                   -Inf,subsample_below_quantile,
+                                   subsample_rate)
 
   # Create the interactive volcano plot using plotly.
   if (y == "zscore")
@@ -645,7 +646,7 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
 volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
   p <- plot_ly(data = dat,x = ~beta,y = ~sqrt(y),color = ~mean,
                colors = c("deepskyblue","gold","orangered"),
-               text = ~sprintf(paste0("%s\nmean: %0.3f\n\u03b2: %+0.3f\n",
+               text = ~sprintf(paste0("%s\nmean: %0.3f\nlogFC: %+0.3f\n",
                                       "s.e.: %0.3f\nz: %+0.3f\n-log10p: %0.2f"),
                                label,10^mean,beta,se,z,pval),
                type = "scatter",mode = "markers",hoverinfo = "text",

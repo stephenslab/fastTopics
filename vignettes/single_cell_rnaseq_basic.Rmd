@@ -346,6 +346,14 @@ volcano_plot(dfa_out,k = 1,label_above_quantile = 0.995,
              labels = genes$symbol)
 ```
 
+T-cell-specific expression patterns are captured by topic 6 (e.g.,
+genes *CD3D*, *CD3E*):
+
+```{r volcano-plot-t, fig.height=4, fig.width=4.5}
+volcano_plot(dfa_out,k = 6,label_above_quantile = 0.9925,
+             labels = genes$symbol)
+```
+
 See also [Part 2][vignette-part-2] for more DE analysis examples.
 
 Session info
