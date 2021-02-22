@@ -73,7 +73,13 @@ test_that(paste("fit_univar_poisson_models produces same result as",
   Y   <- as(X,"dgCMatrix")
   L   <- force_hard_topic_assignments(dat$L)
       
-  # Fit the univariate Poisson models using EM.
+  # Add "pseudocounts" to the data.
+  X <- rbind(X,matrix(1,k,m))
+  Y <- as(X,"dgCMatrix")
+  s <- c(s,rep(1,k))
+  L <- rbind(L,diag(k))
+  
+  # Fit the univariate Poisson models using glm.
   fit1 <- fit_univar_poisson_models(X,L,s,method = "glm",e = 1e-8,
                                     verbose = FALSE)
 
@@ -81,13 +87,19 @@ test_that(paste("fit_univar_poisson_models produces same result as",
   # topic proportions are zeros and ones.
   fit2 <- fit_univar_poisson_models_hard(X,L,s)
   fit3 <- fit_univar_poisson_models_hard(Y,L,s)
+  fit2 <- compute_univar_poisson_zscores_fast(X,L,fit2$F0,fit2$F1,s)
+  fit3 <- compute_univar_poisson_zscores_fast(Y,L,fit3$F0,fit3$F1,s)
 
   # Both methods should produce the same parameter estimates, and the
   # same log-likelihood values.
   expect_equal(fit1$F0,fit2$F0,scale = 1,tolerance = 1e-8)
   expect_equal(fit1$F1,fit2$F1,scale = 1,tolernace = 1e-8)
+  expect_equal(fit1$Z,fit2$Z,scale = 1,tolerance = 1e-14)
+  expect_equal(fit1$pval,fit2$pval,scale = 1,tolerance = 1e-14)
   expect_equal(fit2$F0,fit3$F0,scale = 1,tolerance = 1e-15)
-  expect_equal(fit2$F1,fit3$F1,scale = 1,tolernace = 1e-15)
+  expect_equal(fit2$F1,fit3$F1,scale = 1,tolerance = 1e-15)
+  expect_equal(fit2$Z,fit3$Z,scale = 1,tolerance = 1e-15)
+  expect_equal(fit2$pval,fit3$pval,scale = 1,tolerance = 1e-15)
 })
 
 test_that(paste("When all the topic proportions are exactly zero or exactly",
@@ -123,10 +135,10 @@ test_that(paste("When all the topic proportions are exactly zero or exactly",
   # The outputted statistics should be the same in all calls to
   # diff_count_analysis and diff_count_clusters (ignore the standard
   # errors, as these can be unstable).
-  expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-10)
-  expect_equal(out1$F0,  out3$F0,  scale = 1,tolerance = 1e-10)
-  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-10)
-  expect_equal(out1$F1,  out3$F1,  scale = 1,tolerance = 1e-10)
+  expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-8)
+  expect_equal(out1$F0,  out3$F0,  scale = 1,tolerance = 1e-8)
+  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-8)
+  expect_equal(out1$F1,  out3$F1,  scale = 1,tolerance = 1e-8)
   expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 1e-5)
   expect_equal(out1$beta,out3$beta,scale = 1,tolerance = 1e-5)
   expect_equal(out1$Z,   out2$Z,   scale = 1,tolerance = 1e-5)

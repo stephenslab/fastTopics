@@ -40,7 +40,7 @@ test_that(paste("fastTopics methods recover the same model fits as glm",
   expect_equal(fit[c("f0","f1")],c(f0 = out4$f0,f1 = out4$f1),
                scale = 1,tolerance = 1e-6)
 
-  # The likelihood should be the same in all EM implementations.
+  # The likelihood should be the same in the EM implementations.
   expect_equal(tail(out2$loglik,n = 1),out3$loglik,scale = 1,tolerance = 1e-8)
   expect_equal(tail(out2$loglik,n = 1),out4$loglik,scale = 1,tolerance = 1e-8)
 })
