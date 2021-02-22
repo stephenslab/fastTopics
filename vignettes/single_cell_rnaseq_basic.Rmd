@@ -298,7 +298,7 @@ differential expression analysis is implemented in
 dfa_out <- diff_count_analysis(fit,counts)
 ```
 
-As in the standard analysis, it outputs estimates of log-fold change:
+As in the standard analysis, it outputs log-fold change estimates:
 
 ```{r diff-count-analysis-3}
 rbind(dfa_out$beta[genes$symbol == "CD79A",],
@@ -309,11 +309,7 @@ These log-fold change statistics have the same interpretation (the
 standard log-fold change emerges as a special case when the all
 mixture proportions are 0 or 1). The log-fold change estimates are
 noticeably larger in the B cells topic (topic 4), particularly so for
-*CD79A*. In fact, *CD79A* is *uniquely expressed* in topic 4, so the
-ratio essentially has a zero denominator; to ensure finite
-calculations, by convention a log-fold change statistic of 10 means
-"10 or larger". (This convention can be overriden in
-`diff_count_analysis` by choosing a different setting for `betamax`.)
+*CD79A*. In fact, *CD79A* is nearly uniquely expressed in topic 4.
 
 Up to this point, we have illustrated the differential expression
 analysis with known genes such as *CD79A*. Ultimately, we would like
@@ -329,31 +325,31 @@ the *p*-value or *z*-score, quantifying support for differential
 expression, is shown on the *y*-axis. Here is volcano plot for topic
 4:
 
-```{r volcano-plot-b, fig.height=3.5, fig.width=4.5}
-volcano_plot(dfa_out,k = 4,label_above_quantile = 0.998,
-             labels = genes$symbol,max.overlaps = 15)
+```{r volcano-plot-b, fig.height=4, fig.width=4.5}
+volcano_plot(dfa_out,k = 4,label_above_quantile = 0.995,
+             labels = genes$symbol)
 ```
 
 Typically the most interesting genes are found in the top-right
 portion of the volcano plot---that is, genes with large log-fold
-change and strong support. Indeed, B-cell genes, among them *CD79A*,
-*CD79B* and *CD19*, are near top-right corner of the volcano plot. 
+change and strong support. Indeed, B-cell genes, among them *CD79A*
+and *CD79B*, appear near the top-right corner of the volcano plot. 
 
-Note that the x-axis in the volcano plot ranges between -10 and 10
-because the log-fold change estimates are, by default, restricted to
-this range for numerical stability in the calculations.
+(Note that the x-axis in the volcano plot ranges between -10 and 10; by
+default, log-fold change estimates outside this range are projected
+onto this range. You can use the `betamax` argument to change how the
+log-fold change estimates are shown in the volcano plot.)
 
 Likewise, natural killer genes such as *NKG7* emerge at the top of the
 volcano plot for topic 1:
 
 ```{r volcano-plot-nk, fig.height=3.5, fig.width=4.5}
-volcano_plot(dfa_out,k = 1,label_above_quantile = 0.998,
-             labels = genes$symbol,max.overlaps = 15)
+volcano_plot(dfa_out,k = 1,label_above_quantile = 0.995,
+             labels = genes$symbol)
 ```
 
-Interpreting the topics that capture variation within the T cells is a
-little more complicated, so we defer this investigation to
-[Part 2][vignette-part-2].
+See [Part 2][vignette-part-2] for more examples of differential
+expression analysis using a topic model.
 
 Session info
 ------------
