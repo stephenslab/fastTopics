@@ -75,7 +75,7 @@ amount. Any statistics greater than than \code{betamax} are set to
 set to \code{-betamax}.}
 
 \item{label_above_lfc}{Only z-scores or p-values (depending on
-choice of \ccode{y}) with LFC estimates above this value are
+choice of \code{y}) with LFC estimates above this value are
 labeled in the volcano plot.}
 
 \item{label_above_quantile}{Only z-scores or p-values (depending on

@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-33</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a topic model, Part 2: practical implementation</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2021-02-04</h4>
+            <h4 class="date">2021-02-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/single_cell_rnaseq_practical.Rmd"><code>vignettes/single_cell_rnaseq_practical.Rmd</code></a></small>
       <div class="hidden name"><code>single_cell_rnaseq_practical.Rmd</code></div>
@@ -173,17 +173,14 @@
 <div id="more-on-differential-expression-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#more-on-differential-expression-analysis" class="anchor"></a>More on differential expression analysis</h2>
-<p>In Part 1, we performed a differential expression analysis using the topic model, and using the results of this analysis we were able to interpret topic 1 as NK cells and topic 4 as B cells. Here, we use perform differential expression analysis to tackle interpretation of the topics that capturing variation in the T cells cluster.</p>
-<p>Unlike the B cells and NK cells, expression in T cells is captured by mixtures of two topics. To isolate T-cell-specific expression patterns, we perform differential expression analysis on the combined topic:</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">genes</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">genes</span>
-<span class="no">fit_merged</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/merge_topics.html">merge_topics</a></span>(<span class="no">fit</span>,<span class="fl">5</span>:<span class="fl">6</span>)
-<span class="no">dfa_merged</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit_merged</span>,<span class="no">counts</span>)
-<span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_merged</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="st">"k5+k6"</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.998</span>,
-             <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>,<span class="kw">max.overlaps</span> <span class="kw">=</span> <span class="fl">16</span>)</pre></body></html></div>
-<p><img src="single_cell_rnaseq_practical_files/figure-html/volcano-plot-t-1.png" width="540" style="display: block; margin: auto;"></p>
-<p>In the volcano plot, the T-cell marker gene <em>CD3D</em> is one of the top genes.</p>
-<p>When the volcano plot shows many overlapping differentially expressed genes, like it does here, it can be helpful to explore the results interactively. The function <code>volcano_plotly</code> creates an interactive volcano plot that can be viewed in a Web browser:</p>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">p1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/volcano_plot.html">volcano_plotly</a></span>(<span class="no">dfa_merged</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">5</span>,<span class="kw">file</span> <span class="kw">=</span> <span class="st">"volcano_plot_t_cells.html"</span>,
+<p>In Part 1, we performed a differential expression (DE) analysis using the topic model, and using the results of this analysis we were interpreted topic 1 as NK cells, topic 4 as B cells, and topic 6 as T cells. Let’s briefly expand on this DE analysis.</p>
+<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">dfa_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit</span>,<span class="no">counts</span>)
+<span class="co"># Fitting 16791 x 6 = 100746 univariate Poisson models.</span>
+<span class="co"># Computing log-fold change statistics.</span>
+<span class="co"># Stabilizing log-fold change estimates using adaptive shrinkage.</span></pre></body></html></div>
+<p>When the volcano plot shows many overlapping DE genes, it can be helpful to explore the results interactively. The function <code>volcano_plotly</code> creates an interactive volcano plot that can be viewed in a Web browser. For example, here is an interactive volcano plot for the T cells topic:</p>
+<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">genes</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">genes</span>
+<span class="no">p1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/volcano_plot.html">volcano_plotly</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">6</span>,<span class="kw">file</span> <span class="kw">=</span> <span class="st">"volcano_plot_t_cells.html"</span>,
                      <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>)</pre></body></html></div>
 <p>This call creates a new file <code>volcano_plot_t_cells.html</code>. The interactive volcano plot can also be viewed <a href="https://stephenslab.github.io/fastTopics/articles/volcano_plot_t_cells.html">here</a>, or by calling <code><a href="https://rdrr.io/r/base/print.html">print(p1)</a></code> in your R session.</p>
 <p>Within the T cell cluster, there is a distinctive subset of cells with sizeable contributions from the “NK cells” topic (that is, topic 1, shown in light blue in the Structure plot). This subset of cells sits in between the dense clumps of NK and T cells in the PCA plots above. To highlight this subset of cells—which turn out to be CD8+ cells, as we will see shortly—we define a new cluster:</p>
@@ -193,28 +190,20 @@
 <span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,
                <span class="kw">grouping</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="no">clusters</span>),<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-by-cluster-3-1.png" width="900" style="display: block; margin: auto;"></p>
-<p>Now we can perform differential expression analysis on the CD8+ cluster (as well as the other clusters) using the <code>diff_count_clusters</code> function, and visualize the results using a volcano plot:</p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="no">dfc_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">clusters</span>,<span class="no">counts</span>)
-<span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfc_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="st">"CD8+"</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.995</span>,
-             <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>,<span class="kw">max.overlaps</span> <span class="kw">=</span> <span class="fl">10</span>) +
+<p>Now we can perform DE analysis on the CD8+ cluster (as well as the other clusters) using the <code>diff_count_clusters</code> function, and visualize the results using a volcano plot, as before:</p>
+<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="no">dfc_clusters</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">clusters</span>,<span class="no">counts</span>)
+<span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfc_clusters</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="st">"CD8+"</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.98</span>,
+             <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>) +
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span>(<span class="st">"cluster CD8+"</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/volcano-plot-cd8-1.png" width="540" style="display: block; margin: auto;"></p>
-<p>(Recall, we also used <code>diff_count_clusters</code> in Part 1 to perform a basic differential expression analysis.)</p>
-<p>For example, <em>CD8A</em> is one of the top differentially expressed genes, a clue that this cluster corresponds to CD8+ cytotoxic T cells.</p>
-<p>Finally, to isolate the differences in expression between topics 5 and 6 capturing heterogeneity within T cells, we perform a differential expression analysis on the T cells only:</p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="no">i</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="no">clusters</span> <span class="kw">==</span> <span class="st">"T"</span>)
-<span class="no">fit_t</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/select_loadings.html">select_loadings</a></span>(<span class="no">fit</span>,<span class="kw">loadings</span> <span class="kw">=</span> <span class="no">i</span>)
-<span class="no">diff_count_t</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit_t</span>,<span class="no">counts</span>[<span class="no">i</span>,])
-<span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">diff_count_t</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">5</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.995</span>,
-             <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>,<span class="kw">max.overlaps</span> <span class="kw">=</span> <span class="fl">20</span>)</pre></body></html></div>
-<p><img src="single_cell_rnaseq_practical_files/figure-html/volcano-plot-cd4-1.png" width="540" style="display: block; margin: auto;"></p>
-<p>Judging by top differentially expressed genes such as <em>CD4</em>, topic 5 likely corresponds to CD4+/CD8+ lineage differentiation in T cells.</p>
+<p>(Recall, we also used <code>diff_count_clusters</code> in Part 1 to perform a basic DE analysis.)</p>
+<p>For example, genes <em>CD8A</em>, <em>CD8B</em> and <em>CCL5</em> (<em>RANTES</em>) are among the top DE genes, which are clues pointing to CD8+ cytotoxic T cells.</p>
 </div>
 <div id="session-info" class="section level2">
 <h2 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h2>
 <p>This is the version of R and the packages that were used to generate these results.</p>
-<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
+<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
 <span class="co"># R version 3.6.2 (2019-12-12)</span>
 <span class="co"># Platform: x86_64-apple-darwin15.6.0 (64-bit)</span>
 <span class="co"># Running under: macOS Catalina 10.15.7</span>
@@ -230,7 +219,7 @@
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.4-33 Matrix_1.2-18    </span>
+<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.5-15 Matrix_1.2-18    </span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
 <span class="co">#  [1] httr_1.4.2         tidyr_1.0.0        jsonlite_1.6       viridisLite_0.3.0 </span>

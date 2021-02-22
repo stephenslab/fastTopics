@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Structure Plot — structure_plot" />
-<meta property="og:description" content="Create a &quot;Structure plot&quot; from a multinomial topic
+<meta property="og:description" content="Create a &amp;#8220;Structure plot&amp;#8221; from a multinomial topic
   model fit. The Structure plot represents the estimated mixture
   proportions of each sample as a stacked barchart, with bars of
   different colors representing different topics. Consequently,
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-33</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
       </span>
     </div>
 
@@ -116,7 +116,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Create a "Structure plot" from a multinomial topic
+    <p>Create a &#8220;Structure plot&#8221; from a multinomial topic
   model fit. The Structure plot represents the estimated mixture
   proportions of each sample as a stacked barchart, with bars of
   different colors representing different topics. Consequently,
@@ -187,7 +187,7 @@ to the 1-d t-SNE embedding.</p></td>
 plot; topics[1] is shown on the top, topics[2] is shown next, and
 so on. If the ordering of the topics is not specified, the topics
 are automaticcally ordered so that the topics with the greatest
-"mass" are at shown at the bottom of the plot.</p></td>
+&#8220;mass&#8221; are at shown at the bottom of the plot.</p></td>
     </tr>
     <tr>
       <th>colors</th>
@@ -195,7 +195,8 @@ are automaticcally ordered so that the topics with the greatest
 <code>colors[1]</code> is the colour used to draw <code>topics[1]</code>,
 <code>colors[2]</code> is the colour used to draw <code>topics[2]</code>, and
 so on. The default colour setting is the from
-<a href='https://colorbrewer2.org'>https://colorbrewer2.org</a> (qualitative data, "9-class Set1").</p></td>
+<a href='https://colorbrewer2.org'>https://colorbrewer2.org</a> (qualitative data, &#8220;9-class
+Set1&#8221;).</p></td>
     </tr>
     <tr>
       <th>gap</th>
@@ -241,17 +242,17 @@ automatically recovered using <code><a href='poisson2multinom.html'>poisson2mult
       <th>dat</th>
       <td><p>A data frame passed as input to
 <code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></code>, containing, at a minimum, columns
-"sample", "topic" and "mixprop": column "sample" contains the
-positions of the samples (rows of the loadings matrix) along the
-horizontal axis; column "topic" is a topic (corresponding to
-columns of the loadings matrix); and column "mixprop" is the mixture
-proportion for the given sample.</p></td>
+&#8220;sample&#8221;, &#8220;topic&#8221; and &#8220;mixprop&#8221;: column
+&#8220;sample&#8221; contains the positions of the samples (rows of the
+loadings matrix) along the horizontal axis; column &#8220;topic&#8221; is a
+topic (corresponding to columns of the loadings matrix); and column
+&#8220;mixprop&#8221; is the mixture proportion for the given sample.</p></td>
     </tr>
     <tr>
       <th>ticks</th>
       <td><p>The placement of the group labels along the horizontal
 axis, and their names. For data that is not grouped, use
-<code>ticks = NULL.</code></p></td>
+<code>ticks = NULL</code>.</p></td>
     </tr>
     <tr>
       <th>font.size</th>
@@ -264,20 +265,20 @@ axis, and their names. For data that is not grouped, use
     <p>A <code>ggplot</code> object.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The name "Structure plot" comes from its widespread use in
-  population genetics to visualize the results of the Structure
-  software (Rosenberg <em>et al</em>, 2002).</p>
+    <p>The name &#8220;Structure plot&#8221; comes from its widespread
+use in population genetics to visualize the results of the
+Structure software (Rosenberg <em>et al</em>, 2002).</p>
 <p>For most uses of the Structure plot in population genetics, there
-  is usually some grouping of the samples (e.g., assignment to
-  pre-defined populations) that guides arrangement of the samples
-  along the horizontal axis in the bar chart. In other applications,
-  such as analysis of gene expression data, no pre-defined grouping
-  exists. Therefore, a "smart" arrangement of the samples is, by
-  default, generated automatically by performing a 1-d t-SNE
-  embedding of the samples.</p>
+is usually some grouping of the samples (e.g., assignment to
+pre-defined populations) that guides arrangement of the samples
+along the horizontal axis in the bar chart. In other applications,
+such as analysis of gene expression data, no pre-defined grouping
+exists. Therefore, a &#8220;smart&#8221; arrangement of the samples is,
+by default, generated automatically by performing a 1-d t-SNE
+embedding of the samples.</p>
 <p>Alternatively, a categorical variable---the grouping---may be
-  provided, in which case the samples are arranged according to that
-  grouping, then arranged within each group using t-SNE.</p>
+provided, in which case the samples are arranged according to that
+grouping, then arranged within each group using t-SNE.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Dey, K. K., Hsiao, C. J. and Stephens, M. (2017). Visualizing the

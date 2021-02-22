@@ -81,7 +81,7 @@ calculations. Use diff_count_clusters for this special case." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-33</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
       </span>
     </div>
 
@@ -136,11 +136,12 @@ calculations. Use <code>diff_count_clusters</code> for this special case.</p>
   <span class='no'>fit</span>,
   <span class='no'>X</span>,
   <span class='kw'>s</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span>(<span class='no'>X</span>),
+  <span class='kw'>pseudocount</span> <span class='kw'>=</span> <span class='fl'>0.01</span>,
+  <span class='kw'>fit.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"em"</span>, <span class='st'>"optim"</span>, <span class='st'>"glm"</span>),
+  <span class='kw'>shrink.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ash"</span>, <span class='st'>"none"</span>),
   <span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>tol</span> <span class='kw'>=</span> <span class='fl'>1e-08</span>,
   <span class='kw'>e</span> <span class='kw'>=</span> <span class='fl'>1e-15</span>,
-  <span class='kw'>betamax</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>shrink.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ash"</span>, <span class='st'>"none"</span>),
   <span class='kw'>show.warning</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>
@@ -170,28 +171,18 @@ scaled in the Poisson model. See &#8220;Details&#8221; for guidance on
 the choice of <code>s</code>.</p></td>
     </tr>
     <tr>
-      <th>numiter</th>
-      <td><p>The number of EM updates performed to compute the
-maximum-likelihood estimates of the Poisson model parameters.</p></td>
+      <th>pseudocount</th>
+      <td><p>Observations with this value are added to the
+counts matrix to stabilize calculation of the LFC estimates and
+other statistics.</p></td>
     </tr>
     <tr>
-      <th>tol</th>
-      <td><p>When <code>tol &gt; 0</code>, the EM algorithm for computing
-maximum-likelihood estimates will be stopped early when the largest
-change between two successive updates is less than <code>tol</code>.</p></td>
-    </tr>
-    <tr>
-      <th>e</th>
-      <td><p>A small, positive scalar included in some computations to
-avoid logarithms of zero and division by zero.</p></td>
-    </tr>
-    <tr>
-      <th>betamax</th>
-      <td><p>Since the calculation of the standard deviations and
-z-scores can be numerically unstable for large LFC estimates,
-particularly in large data sets, an upper limit on the estimated
-LFC can be used to improve the numerical accuracy of the
-calculations.</p></td>
+      <th>fit.method</th>
+      <td><p>Method used to estimate LFC and compute test
+statistics. The <code>"glm"</code> and <code>"optim"</code> computations are
+particularly slow, and it is recommended to use <code>fit.method =
+"em"</code> for most data sets. See &#8220;Details&#8221; for more
+information.</p></td>
     </tr>
     <tr>
       <th>shrink.method</th>
@@ -200,6 +191,30 @@ When <code>shrink.method = "ash"</code>, the "adaptive shrinkage" method
 implemented in the ashr package is used. When <code>shrink.method =
 "none"</code>, no stabilization is performed, and the &#8220;raw&#8221; LFC
 estimates are returned.</p></td>
+    </tr>
+    <tr>
+      <th>numiter</th>
+      <td><p>Maximum number of iterations performed in
+optimization of the Poisson model parameters. When
+<code>fit.method = "glm"</code>, this is passed as argument <code>maxit</code>
+to the <code>glm</code> function; when <code>fit.method = "optim"</code>, this
+is passed as argument <code>maxit</code> to the <code>optim</code> function.</p></td>
+    </tr>
+    <tr>
+      <th>tol</th>
+      <td><p>Controls the convergence tolerance for the optimization
+of the Poisson model parameters. When <code>fit.method = "glm"</code>,
+this is passed as argument <code>epsilon</code> to function <code>glm</code>;
+when <code>fit.method = "optim"</code>, the <code>factr</code> optimization
+setting is set to <code>tol * .Machine$double.eps</code>. When
+<code>fit.method = "em"</code>, the EM algorithm will be stopped early
+when the largest change between two successive updates is less than
+<code>tol</code>.</p></td>
+    </tr>
+    <tr>
+      <th>e</th>
+      <td><p>A small, positive scalar included in some computations to
+avoid logarithms of zero and division by zero.</p></td>
     </tr>
     <tr>
       <th>show.warning</th>
@@ -227,9 +242,9 @@ example, the "cluster" output from <code><a href='https://rdrr.io/r/stats/kmeans
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The return value is a list with six m x k matrices, where m
-  is the number of columns in the counts matrix, and k is the number
-  of topics (for <code>diff_count_clusters</code>, m is the number of
+    <p>The return value is a list of m x k matrices, where m is
+  the number of columns in the counts matrix, and k is the number of
+  topics (for <code>diff_count_clusters</code>, m is the number of
   clusters), and an additional vector:</p>
 <dt>colmeans</dt><dd><p>A vector of length m containing the count averages
   (<code><a href='https://rdrr.io/r/base/colSums.html'>colMeans(X)</a></code>).</p></dd>
@@ -238,18 +253,19 @@ example, the "cluster" output from <code><a href='https://rdrr.io/r/stats/kmeans
 
 <dt>F1</dt><dd><p>Estimates of the Poisson model parameters \(f_1\).</p></dd>
 
-<dt>beta</dt><dd><p>Log-fold change (LFC) estimates. When
-  <code>shrink.method = "none"</code>, these are <code>beta = log2(F1/F0)</code>,
-  these are posterior LFC estimates.</p></dd>
+<dt>beta</dt><dd><p>LFC estimates <code>beta = log2(F1/F0)</code>.</p></dd>
 
-<dt>se</dt><dd><p>Standard errors for the LFC estimates. When
-  <code>shrink.method = "ash"</code>, these are posterior standard
-  errors.</p></dd>
+<dt>se</dt><dd><p>Standard errors of the Poisson glm parameters \(b =
+  f_1 - f_0\).</p></dd>
 
-<dt>Z</dt><dd><p>LFC z-scores. When <code>shrink.method = "ash"</code>, these
-  are posterior z-scores.</p></dd>
+<dt>Z</dt><dd><p>z-scores for the Poisson glm parameters \(b = f_1 -
+  f_0\).</p></dd>
 
-<dt>pval</dt><dd><p>-log10 two-tailed p-values computed from the z-scores.</p></dd>
+<dt>pval</dt><dd><p>-log10 two-tailed p-values computed from the
+  z-scores. In some extreme cases the calculations may produce zero
+  or negative standard errors, in which case the standard errors are
+  set to <code>NA</code> and the z-scores and -log10 p-values are set to
+  zero.</p></dd>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -264,7 +280,7 @@ given topic. An EM algorithm is used to compute maximum-likelihood
 estimates (MLEs) of the two unknowns.</p>
 <p>The log-fold change (LFC) statistics are defined as the log-ratio
 of the two Poisson rate parameters, \(\beta = \log_2(f_1/f_0)\).
-This statistic measures the increase (or decrease) in occurence in
+This statistic measures the increase (or decrease) in occurance in
 one topic compared to all other topics. The use of the base-2
 logarithm comes from the convention used in gene expression
 studies.</p>
@@ -284,16 +300,26 @@ differential count analysis with no normalization, and \(\beta\)
 represents the LFC in <em>absolute</em> occurrence. This choice could
 be appropriate in settings where the total count is well-controlled
 across samples (rows of <code>X</code>).</p>
-<p>The standard error and z-score calculations are based on a Laplace
-approximation to the likelihood at the MLE. This is the same
-strategy used to compute standard errors and z-scores in
+<p>When <code>fit.method = "glm"</code>, the LFC estimates and test
+statistics are implemented by <code><a href='https://rdrr.io/r/stats/glm.html'>glm</a></code> with
+<code>formula = x ~ b0 + b - 1</code> and <code>family = poisson(link =
+"identity")</code>, where the unknowns are defined as \(b_0 = f_0\) and
+\(b = f_1 - f_0\). The outputted z-scores are p-values are for
+the <code>b</code> coefficient; that is, they are test statistics for the
+test that \(f_0\) and \(f_1\) are not equal.</p>
+<p>When <code>fit.method = "optim"</code> or <code>fit.method = "em"</code>,
+maximum-likelihood estimates are computed using
+<code><a href='https://rdrr.io/r/stats/optim.html'>optim</a></code> or using a fast EM algorithm, and test
+statistics (standard errors, z-scores and p-values) are based on a
+Laplace approximation to the likelihood at the MLE. These
+calculations closely reproduce the test statistic calculations in
 <code><a href='https://rdrr.io/r/stats/glm.html'>glm</a></code>.</p>
-<p>We recommend setting <code>shrink.method = "ash"</code>, which uses
-"adaptive shrinkage" (Stephens, 2016) to improve accuracy of the
-LFC estimates. The improvement in accuracy is greatest for genes
-with low expression, or when the sample size is small (or
-both). This shrinkage step replicates <code>lfcShrink</code> from the
-DESeq2 package, with <code>type = "ashr"</code>.</p>
+<p>We recommend setting <code>shrink.method = "ash"</code>, which uses the
+&#8220;adaptive shrinkage&#8221; method (Stephens, 2016) to improve
+accuracy of the LFC estimates. The improvement in accuracy is
+greatest for genes with low expression, or when the sample size is
+small (or both). We follow the settings used in <code>lfcShrink</code>
+from the DESeq2 package, with <code>type = "ashr"</code>.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Stephens, M. (2016). False discovery rates: a new deal.

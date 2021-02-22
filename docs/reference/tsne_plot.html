@@ -76,7 +76,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4-33</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
       </span>
     </div>
 
@@ -194,8 +194,8 @@ a single argument, <code>plots</code>, a list of <code>ggplot</code> objects.</p
       <th>dat</th>
       <td><p>A data frame passed as input to
 <code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></code>, containing, at a minimum, columns
-"d1", "d2" (the first and second dimensions in the 2-d embedding),
-and "loading".</p></td>
+&#8220;d1&#8221;, &#8220;d2&#8221; (the first and second dimensions in the
+2-d embedding), and &#8220;loading&#8221;.</p></td>
     </tr>
     <tr>
       <th>topic.label</th>
@@ -214,20 +214,21 @@ it is only used to determine the plot title.</p></td>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This is a lightweight interface primarily intended to
-  expedite creation of scatterplots for visualizing the loadings or
-  mixture proportions in 2-d; most of the "heavy lifting" is done by
-  ggplot2. The 2-d embedding itself is computed by invoking function
-  <code><a href='tsne_from_topics.html'>tsne_from_topics</a></code> (unless the "tsne" input is
-  provided). For more control over the plot's appearance, the plot
-  can be customized by modifying the <code>ggplot_call</code> and
-  <code>plot_grid_call</code> arguments.</p>
-<p>An effective 2-d visualization may also necessitate some fine-tunning
-  of the t-SNE settings, such as the "perplexity", or the number of
-  samples included in the plot. The t-SNE settings can be controlled
-  by the additional arguments (...) passed to
-  <code>tsne_from_topics</code>; see <code><a href='tsne_from_topics.html'>tsne_from_topics</a></code> for
-  details. Alternatively, a 2-d embedding may be pre-computed, and
-  passed as argument <code>tsne</code> to <code>tsne_plot</code>.</p>
+expedite creation of scatterplots for visualizing the loadings or
+mixture proportions in 2-d; most of the &#8220;heavy lifting&#8221; is
+done by ggplot2. The 2-d embedding itself is computed by invoking
+function <code><a href='tsne_from_topics.html'>tsne_from_topics</a></code> (unless the &#8220;tsne&#8221;
+input is provided). For more control over the plot's appearance,
+the plot can be customized by modifying the <code>ggplot_call</code> and
+<code>plot_grid_call</code> arguments.</p>
+<p>An effective 2-d visualization may also necessitate some
+fine-tunning of the t-SNE settings, such as the
+&#8220;perplexity&#8221;, or the number of samples included in the
+plot. The t-SNE settings can be controlled by the additional
+arguments (...) passed to <code>tsne_from_topics</code>; see
+<code><a href='tsne_from_topics.html'>tsne_from_topics</a></code> for details. Alternatively, a 2-d
+embedding may be pre-computed, and passed as argument <code>tsne</code>
+to <code>tsne_plot</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
