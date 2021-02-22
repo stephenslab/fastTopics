@@ -128,9 +128,9 @@ test_that(paste("When all the topic proportions are exactly zero or exactly",
   Y    <- as(X,"dgCMatrix")
   fit1 <- init_poisson_nmf(X,L = rowSums(X)*L,init.method = "random",
                            control = list(minval = 1e-8))
-  out1 <- diff_count_analysis(fit1,X,verbose = FALSE)
-  out2 <- diff_count_clusters(clusters,X,verbose = FALSE)
-  out3 <- diff_count_clusters(clusters,Y,verbose = FALSE)
+  out1 <- diff_count_analysis(fit1,X,verbose = FALSE,shrink.method="none")
+  out2 <- diff_count_clusters(clusters,X,verbose = FALSE,shrink.method="none")
+  out3 <- diff_count_clusters(clusters,Y,verbose = FALSE,shrink.method="none")
 
   # The outputted statistics should be the same in all calls to
   # diff_count_analysis and diff_count_clusters (ignore the standard
