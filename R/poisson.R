@@ -162,6 +162,7 @@ fit_univar_poisson_models_em <- function (X, L, s, e, numiter, verbose) {
 #' @importFrom stats glm
 #' @importFrom stats glm.control
 #' @importFrom stats summary.glm
+#' @importFrom stats poisson
 #'
 fit_poisson_glm <-
   function (x, s, q, f0 = 0.5, f1 = 0.5,

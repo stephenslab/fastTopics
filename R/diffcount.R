@@ -258,14 +258,12 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (shrink.method == "ash") {
     if (verbose)
       cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
-    res <- with(out,shrink_lfc(F1 - F0,se,...))
-    out <- within(out,{
-      F1   <- F0 + res$b
-      beta <- log2(F1/F0)
-      se   <- res$se
-      Z    <- res$Z
-      pval <- res$pval
-    })
+    res <- shrink_lfc(out$F1 - out$F0,out$se,...)
+    out$F1   <- out$F0 + res$b
+    out$beta <- log2(out$F1/out$F0)
+    out$se   <- res$se
+    out$Z    <- res$Z
+    out$pval <- res$pval
   }
 
   # PREPARE OUTPUTS
