@@ -569,8 +569,8 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
          "the counts matrix)")
 
   # Compile the plotting data.
-  dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,0,
-                                   -Inf,subsample_below_quantile,
+  dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
+                                   -Inf,0,subsample_below_quantile,
                                    subsample_rate)
 
   # Create the interactive volcano plot using plotly.
@@ -647,7 +647,8 @@ volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
   p <- plot_ly(data = dat,x = ~beta,y = ~sqrt(y),color = ~mean,
                colors = c("deepskyblue","gold","orangered"),
                text = ~sprintf(paste0("%s\nmean: %0.3f\nlogFC: %+0.3f\n",
-                                      "s.e.: %0.3f\nz: %+0.3f\n-log10p: %0.2f"),
+                                      "s.e.: %0.3f\nz: %+0.3f\n",
+                                      "-log10p: %0.2f"),
                                label,10^mean,beta,se,z,pval),
                type = "scatter",mode = "markers",hoverinfo = "text",
                width = width,height = height,
@@ -689,7 +690,6 @@ compile_volcano_plot_data <-
   rows     <- which(dat$mean > 0)
   dat      <- dat[rows,]
   dat$mean <- log10(dat$mean)
-  dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
   if (is.infinite(label_above_quantile))
     y0 <- Inf
   else
@@ -705,6 +705,7 @@ compile_volcano_plot_data <-
                     length(rows),n))
     dat   <- dat[rows,]
   }
+  dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
   return(dat)
 }
 

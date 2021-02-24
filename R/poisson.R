@@ -153,7 +153,7 @@ fit_univar_poisson_models_em <- function (X, L, s, e, numiter, verbose) {
 # Fit the Poisson generalized linear model (glm) in which the Poisson
 # rates are s*(b0 + q*b). This is a reparameterization of the model x
 # x ~ Poisson(s*u), with u = f0*(1-q) + f1*q; the glm "identity"
-# reparameterization is recovered by b0 = f0, b = f1 - f0. Input
+# parameterization is recovered as b0 = f0, b = f1 - f0. Input
 # arguments f0 and f1 are initial parameter estimates. The outputs are
 # the estimates of f0 and f1, the log2-fold change statistic (beta),
 # the standard error (se) of b = f1 - f0, the z-score (z), and the
