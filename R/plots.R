@@ -490,6 +490,7 @@ volcano_plot <-
     dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
                                      label_above_lfc,label_above_quantile,
                                      subsample_below_quantile,subsample_rate)
+    dat$beta <- dat$beta.truncated
     return(ggplot_call(dat,y.label,k,max.overlaps))
   } else {
 
@@ -644,18 +645,20 @@ volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
 #' @export
 #' 
 volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
-  p <- plot_ly(data = dat,x = ~beta,y = ~sqrt(y),color = ~mean,
+  p <- plot_ly(data = dat,x = ~beta.truncated,y = ~sqrt(y),color = ~mean,
                colors = c("deepskyblue","gold","orangered"),
                text = ~sprintf(paste0("%s\nmean: %0.3f\nlogFC: %+0.3f\n",
-                                      "s.e.: %0.3f\nz: %+0.3f\n",
+                                      "s.e.: %0.2e\nz: %+0.3f\n",
                                       "-log10p: %0.2f"),
                                label,10^mean,beta,se,z,pval),
                type = "scatter",mode = "markers",hoverinfo = "text",
                width = width,height = height,
-               marker = list(line = list(color = "white",width = 1),size = 7.5))
+               marker = list(line = list(color = "white",width = 1),
+                             size = 7.5))
   p <- hide_colorbar(p)
-  p <- layout(p,xaxis = list(title = "log-fold change",zeroline = FALSE,
-                             showgrid = FALSE),
+  p <- layout(p,
+              xaxis = list(title = "log-fold change",zeroline = FALSE,
+                           showgrid = FALSE),
               yaxis = list(title = paste("sqrt",y.label),
                            zeroline = FALSE,showgrid = FALSE),
               hoverlabel = list(bgcolor = "white",bordercolor = "black",
@@ -705,7 +708,7 @@ compile_volcano_plot_data <-
                     length(rows),n))
     dat   <- dat[rows,]
   }
-  dat <- transform(dat,beta = sign(beta) * pmin(betamax,abs(beta)))
+  dat <- transform(dat,beta.truncated = sign(beta) * pmin(betamax,abs(beta)))
   return(dat)
 }
 
