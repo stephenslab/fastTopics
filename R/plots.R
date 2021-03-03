@@ -1317,8 +1317,8 @@ tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #'   \dQuote{mass} are at shown at the bottom of the plot.
 #' 
 #' @param colors Colors used to draw topics in Structure plot:
-#'   \code{colors[1]} is the colour used to draw \code{topics[1]},
-#'   \code{colors[2]} is the colour used to draw \code{topics[2]}, and
+#'   \code{colors[1]} is the color used to draw \code{topics[1]},
+#'   \code{colors[2]} is the color used to draw \code{topics[2]}, and
 #'   so on. The default colour setting is the from
 #'   \url{https://colorbrewer2.org} (qualitative data, \dQuote{9-class
 #'   Set1}).
