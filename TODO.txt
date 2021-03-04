@@ -1,9 +1,6 @@
 to do
 =====
 
-+ Implement progress bar for fit_poisson_nmf and fit_topic_model,
-  and make this the default option.
-
 + Remove files in inst/derivations/diffcount.
 
 + Implement "t" S3 method to transpose the rows and columns of a

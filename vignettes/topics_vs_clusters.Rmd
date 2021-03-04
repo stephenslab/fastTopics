@@ -51,7 +51,7 @@ To illustrate a topic modeling analysis, we fit a multinomial topic
 model to these data,
 
 ```{r fit-multinom-topic-model, message=FALSE}
-fit <- fit_poisson_nmf(X,k = 3,numiter = 100,verbose = FALSE,
+fit <- fit_poisson_nmf(X,k = 3,numiter = 100,verbose = "none",
                        control = list(extrapolate = TRUE))
 fit <- poisson2multinom(fit)
 ```
