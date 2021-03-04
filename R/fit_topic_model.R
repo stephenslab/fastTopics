@@ -63,9 +63,10 @@
 #'   refinement step. This is passed as argument "control" to
 #'   \code{fit_poisson_nmf}.
 #'
-#' @param verbose When \code{verbose = TRUE}, information about the
-#'   progress of the model fitting is printed to the console. See
-#'   \code{\link{fit_poisson_nmf}} for an explanation of the output.
+#' @param verbose When \code{verbose = "progressbar"} or \code{verbose
+#'   = "detailed"}, information about the progress of the model fitting
+#'   is printed to the console. See \code{\link{fit_poisson_nmf}} for
+#'   more information.
 #' 
 #' @seealso \code{\link{init_poisson_nmf}},
 #'   \code{\link{fit_poisson_nmf}},
@@ -104,11 +105,14 @@ fit_topic_model <-
   function (X, k, numiter.main = 100, numiter.refine = 100, method.main = "em",
             method.refine = "scd", init.method = c("topicscore","random"),
             control.init = list(), control.main = list(numiter = 4),
-            control.refine = list(numiter = 4,extrapolate  = TRUE),
-            verbose = TRUE) {
+            control.refine = list(numiter = 4,extrapolate = TRUE),
+            verbose = c("progressbar","detailed","none")) {
       
   # Check the input data matrix.
   verify.count.matrix(X)
+  
+  # Check and process input argument "verbose".
+  verbose <- match.arg(verbose)
   
   # If necessary, remove all-zero columns from the counts matrix.
   if (any.allzero.cols(X)) {
@@ -121,7 +125,8 @@ fit_topic_model <-
   # Initialize the Poisson NMF model fit.
   fit <- init_poisson_nmf(X,k = k,init.method = init.method,
                           control = control.init,
-                          verbose = verbose)
+                          verbose = ifelse(verbose == "none",
+                                           "none","detailed"))
 
   # Perform the main model fitting step.
   fit <- fit_poisson_nmf(X,fit0 = fit,numiter = numiter.main,
@@ -130,7 +135,7 @@ fit_topic_model <-
   
   # Perform the model refinement step.
   if (numiter.refine > 0) {
-    if (verbose)
+    if (verbose != "none")
       cat("Refining model fit.\n")
     fit <- fit_poisson_nmf(X,fit0 = fit,numiter = numiter.refine,
                            method = method.refine,control = control.refine,

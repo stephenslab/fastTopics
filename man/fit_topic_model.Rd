@@ -15,7 +15,7 @@ fit_topic_model(
   control.init = list(),
   control.main = list(numiter = 4),
   control.refine = list(numiter = 4, extrapolate = TRUE),
-  verbose = TRUE
+  verbose = c("progressbar", "detailed", "none")
 )
 }
 \arguments{
@@ -56,9 +56,10 @@ behaviour of the of the optimization algorithm in the model
 refinement step. This is passed as argument "control" to
 \code{fit_poisson_nmf}.}
 
-\item{verbose}{When \code{verbose = TRUE}, information about the
-progress of the model fitting is printed to the console. See
-\code{\link{fit_poisson_nmf}} for an explanation of the output.}
+\item{verbose}{When \code{verbose = "progressbar"} or \code{verbose
+= "detailed"}, information about the progress of the model fitting
+is printed to the console. See \code{\link{fit_poisson_nmf}} for
+more information.}
 }
 \value{
 A multinomial topic model fit; see

@@ -4,7 +4,7 @@
 \alias{fit_multinom_model}
 \title{Fit Simple Multinomial Model}
 \usage{
-fit_multinom_model(cluster, X, verbose = FALSE, ...)
+fit_multinom_model(cluster, X, verbose = c("none", "detailed"), ...)
 }
 \arguments{
 \item{cluster}{A factor specifying a grouping, or clustering, of

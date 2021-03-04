@@ -182,10 +182,11 @@
 #'   the optimization algorithm (and the Topic SCORE algorithm if it
 #'   is used to initialize the model parameters). See \sQuote{Details}.
 #' 
-#' @param verbose When \code{verbose = TRUE}, information about the
-#'   algorithm's progress is printed to the console at each
-#'   iteration. For interpretation of the columns, see the description
-#'   of the \code{progress} return value.
+#' @param verbose When \code{verbose = "detailed"}, information about
+#'   the algorithm's progress is printed to the console at each
+#'   iteration; when \code{verbose = "progressbar"}, a progress bar is
+#'   shown; and when \code{verbose = "none"}, no progress information is
+#'   printed.
 #'
 #' @return \code{init_poisson_nmf} and \code{fit_poisson_nmf} both
 #' return an object capturing the optimization algorithm state (for
@@ -326,7 +327,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                              update.loadings = seq(1,nrow(X)),
                              method = c("scd","em","mu","ccd"),
                              init.method = c("topicscore","random"),
-                             control = list(), verbose = TRUE) {
+                             control = list(),
+                             verbose = c("progressbar","detailed","none")) {
 
   # CHECK & PROCESS INPUTS
   # ----------------------
@@ -365,6 +367,9 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     if (method == "mu" | method == "ccd")
       stop("All factors and loadings must be updated for method = \"mu\" ",
            "and method = \"ccd\"")
+
+  # Check and process input argument "verbose".
+  verbose <- match.arg(verbose)
   
   # Check and process the optimization settings.
   control <- modifyList(fit_poisson_nmf_control_default(),
@@ -389,7 +394,9 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     stop("Provide a rank, \"k\", or an initialization, \"fit0\", but not both")
   if (missing(fit0))
     fit0 <- init_poisson_nmf(X,k = k,init.method = init.method,
-                             control = control,verbose = verbose)
+                             control = control,
+                             verbose = ifelse(verbose == "none",
+                                              "none","detailed"))
 
   # Check input argument "fit0".
   if (!inherits(fit0,"poisson_nmf_fit"))
@@ -400,7 +407,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   k   <- ncol(fit$F)
   
   # Give an overview of the optimization settings.
-  if (verbose) {
+  if (verbose != "none") {
     cat(sprintf("Fitting rank-%d Poisson NMF to %d x %d %s matrix.\n",k,n,m,
                 ifelse(is.matrix(X),"dense","sparse")))
     if (method == "mu")
@@ -413,7 +420,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.5-20).\n")
+    cat("(fastTopics 0.5-21).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -430,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 
   # RUN UPDATES
   # -----------
-  if (verbose)
+  if (verbose == "detailed")
     cat("iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'|",
         "nz(F) nz(L) beta\n")
   fit <- fit_poisson_nmf_main_loop(X,fit,numiter,update.factors,
@@ -481,7 +488,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 init_poisson_nmf <-
   function (X, F, L, k, init.method = c("topicscore","random"),
             beta = 0.5, betamax = 0.99, control = list(),
-            verbose = TRUE) {
+            verbose = c("detailed","none")) {
 
   # Check input X.
   verify.count.matrix(X)
@@ -505,6 +512,9 @@ init_poisson_nmf <-
 
   # Check and process input argument "init.method".
   init.method <- match.arg(init.method)
+
+  # Check and progress input argument "verbose".
+  verbose <- match.arg(verbose)
   
   # Check and process the optimization settings.
   control <- modifyList(fit_poisson_nmf_control_default(),
@@ -529,7 +539,7 @@ init_poisson_nmf <-
              "and F are not provided")
       
       # Initialize the factors using the "Topic SCORE" algorithm.
-      if (verbose)
+      if (verbose == "detailed")
         cat("Initializing factors using Topic SCORE algorithm.\n")
       F <- tryCatch(topic_score(X,k),
                     error = function (e) {
@@ -541,7 +551,7 @@ init_poisson_nmf <-
         
         # The Topic SCORE algorithm failed; generate a random
         # initialization instead.
-        if (verbose)
+        if (verbose == "detailed")
           cat("Topic SCORE failure occurred; using random initialization",
               "instead.\n")
         F <- rand(m,k)
@@ -550,7 +560,7 @@ init_poisson_nmf <-
         
         # Fit the loadings by running a small number of sequential
         # co-ordinate descent (SCD) updates.
-        if (verbose)
+        if (verbose == "detailed")
           cat(sprintf("Initializing loadings by running %d SCD updates.\n",
                       control$init.numiter))
         control$nc <- initialize.multithreading(control$nc)
@@ -626,9 +636,13 @@ init_poisson_nmf <-
 }
 
 # This implements the core part of fit_poisson_nmf.
+#
+#' @importFrom progress progress_bar
 fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
                                        update.loadings, method, control,
                                        verbose) {
+  if (verbose == "progressbar")
+    pb <- progress_bar$new(total = numiter)
     
   # Pre-compute quantities and set up data structures used in the
   # loop below.
@@ -643,6 +657,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
   for (i in 1:numiter) {
     fit0 <- fit
     t1   <- proc.time()
+    if (verbose == "progressbar")
+      pb$tick()
 
     # Update the factors and loadings.
     if (control$extrapolate &
@@ -686,7 +702,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
     progress[i,"nonzeros.f"]  <- mean(fit$F > control$zero.threshold)
     progress[i,"nonzeros.l"]  <- mean(fit$L > control$zero.threshold)
     progress[i,"extrapolate"] <- extrapolate
-    if (verbose)
+    if (verbose == "detailed")
       cat(sprintf("%4d %+0.9e %+0.8e %0.2e %0.1e %0.1e %0.3f %0.3f %0.2f\n",
                   fit$iter,progress[i,"loglik"],progress[i,"dev"],
                   progress[i,"res"],progress[i,"delta.f"],

@@ -1,9 +1,12 @@
 context("fit_poisson_nmf")
 
-test_that("Version number in fit_poisson_nmf with verbose = TRUE is correct",{
+test_that("Version number in fit_poisson_nmf is correct",{
   set.seed(1)
   X   <- generate_test_data(20,40,3)$X
-  out <- capture.output(fit <- fit_poisson_nmf(X,k = 3,init.method = "random"))
+  capture.output(fit_poisson_nmf(X,k = 3,init.method = "random",
+                                 verbose = "detailed"))
+  out <- capture.output(fit_poisson_nmf(X,k = 3,init.method = "random",
+                                        verbose = "progress"))
   x   <- unlist(strsplit(out[2],"(",fixed = TRUE))[2]
   x   <- unlist(strsplit(x,")"))[1]
   expect_equal(paste("fastTopics",packageDescription("fastTopics")$Version),x)

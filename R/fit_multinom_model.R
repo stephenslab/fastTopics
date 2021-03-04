@@ -34,11 +34,15 @@
 #' 
 #' @export
 #'
-fit_multinom_model <- function (cluster, X, verbose = FALSE, ...) {
+fit_multinom_model <- function (cluster, X, verbose = c("none","detailed"),
+                                ...) {
 
   # Check the input data matrix.
   verify.count.matrix(X)
 
+  # Check and process input argument "verbose"
+  verbose <- match.arg(verbose)
+  
   # If necessary, remove all-zero columns from the counts matrix.
   if (any.allzero.cols(X)) {
     X <- remove.allzero.cols(X)

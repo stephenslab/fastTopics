@@ -16,7 +16,7 @@ fit_poisson_nmf(
   method = c("scd", "em", "mu", "ccd"),
   init.method = c("topicscore", "random"),
   control = list(),
-  verbose = TRUE
+  verbose = c("progressbar", "detailed", "none")
 )
 
 init_poisson_nmf(
@@ -28,7 +28,7 @@ init_poisson_nmf(
   beta = 0.5,
   betamax = 0.99,
   control = list(),
-  verbose = TRUE
+  verbose = c("detailed", "none")
 )
 
 fit_poisson_nmf_control_default()
@@ -88,10 +88,11 @@ inputs \code{F} and \code{L}.}
 the optimization algorithm (and the Topic SCORE algorithm if it
 is used to initialize the model parameters). See \sQuote{Details}.}
 
-\item{verbose}{When \code{verbose = TRUE}, information about the
-algorithm's progress is printed to the console at each
-iteration. For interpretation of the columns, see the description
-of the \code{progress} return value.}
+\item{verbose}{When \code{verbose = "detailed"}, information about
+the algorithm's progress is printed to the console at each
+iteration; when \code{verbose = "progressbar"}, a progress bar is
+shown; and when \code{verbose = "none"}, no progress information is
+printed.}
 
 \item{F}{An optional argument giving is the initial estimate of the
 factors (also known as \dQuote{basis vectors}). It should be an m x
