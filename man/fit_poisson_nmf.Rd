@@ -247,8 +247,8 @@ model parameters, and (3) the residuals of the Karush-Kuhn-Tucker
 (KKT) first-order conditions. As the iterates approach a stationary
 point of the loss function, the change in the model parameters
 should be small, and the residuals of the KKT system should vanish.
-Use \code{\link{plot_progress_poisson_nmf}} to plot the improvement
-in the solution over time.
+Use \code{\link{plot_progress}} to plot the improvement in the
+solution over time.
 
 See \code{\link{fit_topic_model}} for additional guidance on model
 fitting, particularly for large or complex data sets.
