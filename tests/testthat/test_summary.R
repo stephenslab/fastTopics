@@ -10,6 +10,13 @@ test_that("summary method and print.summary methods produce output",{
   # Fit a Poisson non-negative factorization.
   capture.output(fit <- fit_poisson_nmf(X,k = 3,numiter = 100))
 
-  # Produce a summary of the model fit.
+  # Produce summaries of the model fit.
   expect_output(print(summary(fit)))
+  expect_output(print(summary(poisson2multinom(fit))))
+  expect_output(print(summary(fit),show.mixprops = TRUE,
+                      show.topic.reps = TRUE))
+  expect_output(print(summary(poisson2multinom(fit)),
+                      show.size.factors = TRUE,
+                      show.mixprops = TRUE,
+                      show.topic.reps = TRUE))
 })

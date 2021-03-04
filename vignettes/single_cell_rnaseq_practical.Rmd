@@ -58,8 +58,7 @@ fitting has converged to a maximum-likelihood solution. This can be
 easily done in **fastTopics**:
 
 ```{r plot-loglik, fig.height=2, fig.width=4}
-plot_progress_poisson_nmf(fit,x = "iter",add.point.every = 10,
-                          colors = "black") +
+plot_progress(fit,x = "iter",add.point.every = 10,colors = "black") +
   theme_cowplot(font_size = 10)
 ```
 

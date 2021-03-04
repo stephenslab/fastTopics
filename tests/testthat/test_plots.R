@@ -12,8 +12,11 @@ test_that("Test that plot_loglik_vs_rank works",{
   capture.output(fit10 <- fit_poisson_nmf(X,k = 10,numiter = 100))
 
   # Plot log-likelihood vs. rank.
-  p <- plot_loglik_vs_rank(list(fit2,fit3,fit5,fit10))
-  expect_s3_class(p,"ggplot")
+  p1 <- plot_loglik_vs_rank(list(fit2,fit3,fit5,fit10))
+  p2 <- plot_loglik_vs_rank(lapply(list(fit2,fit3,fit5,fit10),
+                                   poisson2multinom))
+  expect_s3_class(p1,"ggplot")
+  expect_s3_class(p2,"ggplot")
 })
 
 test_that("Test that pca_plot and pca_hexbin_plot work",{
@@ -57,8 +60,11 @@ test_that("Test that other plotting functions work",{
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = 50,method = "em",
                             control = list(extrapolate = TRUE)))
 
-  # Test plot_progress_poisson_nmf.
-  plot_progress_poisson_nmf(list(scd = fit1,em = fit2))
+  # Test plot_progress.
+  plot_progress(list(scd = fit1,em = fit2),y = "loglik")
+  plot_progress(list(scd = fit1,em = fit2),y = "dev")
+  plot_progress(list(scd = fit1,em = fit2),y = "res")
+  plot_progress(list(scd = poisson2multinom(fit1),em = poisson2multinom(fit2)))
   
   # Test loadings_plot.
   x  <- factor(sample(1:4,80,replace = TRUE))

@@ -275,7 +275,7 @@ test_that(paste("When initialized \"close enough\" to a stationary point, the",
 
   # Check that both algorithms recover the same solution.
   fits <- list(fit1 = fit1,fit2 = fit2)
-  dat  <- compare_poisson_nmf_fits(fits)
+  dat  <- compare_fits(fits)
   expect_equal(dat["fit1","dev"],dat["fit2","dev"],tolerance = 0.01,scale = 1)
   expect_equal(dat["fit1","loglik"],dat["fit2","loglik"],
                tolerance = 0.01,scale = 1)
@@ -338,7 +338,7 @@ test_that(paste("All Poisson NMF updates recover same solution when",
   # All three solution estimates should have nearly the same likelihood
   # and deviance.
   fits <- list(fit1 = fit1,fit2 = fit2)
-  dat  <- compare_poisson_nmf_fits(fits)
+  dat  <- compare_fits(fits)
   expect_equal(dat["fit1","loglik"],dat["fit2","loglik"],
                tolerance = 0.01,scale = 1)
   expect_equal(dat["fit1","dev"],dat["fit2","dev"],tolerance = 0.01,scale = 1)
@@ -396,7 +396,7 @@ test_that(paste("Extrapolated updates achieve solutions that are as good",
   # higher (or at least not lower) than the non-extrapolated updates.
   fits <- list(fit1 = fit1,fit2 = fit2,fit3 = fit3,fit4 = fit4,
                fit5 = fit5,fit6 = fit6,fit7 = fit7,fit8 = fit8)
-  dat  <- compare_poisson_nmf_fits(fits)
+  dat  <- compare_fits(fits)
   expect_lte(dat["fit1","loglik"],dat["fit5","loglik"])
   expect_lte(dat["fit2","loglik"],dat["fit6","loglik"])
   expect_lte(dat["fit3","loglik"],dat["fit7","loglik"])

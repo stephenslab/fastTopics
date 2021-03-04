@@ -33,18 +33,18 @@ inaccuracy in the computation.}
 
 \item{B}{The k x m matrix of factors. It should be a dense matrix.}
 
-\item{family}{If \code{model = "poisson"}, the loss function
-corresponding to the Poisson non-negative matrix factorization is
-computed; if \code{model = "multinom"}, multinomial topic model
-loss function values are returned. See "Value" for details.}
+\item{family}{If \code{model = "poisson"}, the loss function values
+corresponding to the Poisson non-negative matrix factorization are
+computed; if \code{model = "multinom"}, the multinomial topic model
+loss function values are returned.}
 
 \item{version}{When \code{version == "R"}, the computations are
- performed entirely in R; when \code{version == "Rcpp"}, an Rcpp
+performed entirely in R; when \code{version == "Rcpp"}, an Rcpp
 implementation is used. The R version is typically faster when
- \code{X} is a dense matrix, whereas the Rcpp version is faster and
- more memory-efficient when \code{X} is a large, sparse matrix. When
- not specified, the most suitable version is called depending on
- whether \code{X} is dense or sparse.}
+\code{X} is a dense matrix, whereas the Rcpp version is faster and
+more memory-efficient when \code{X} is a large, sparse matrix. When
+not specified, the most suitable version is called depending on
+whether \code{X} is dense or sparse.}
 }
 \value{
 A numeric vector with one entry per row of \code{X}.
@@ -54,9 +54,10 @@ Compute log-likelihoods and deviances for assessing
   fit of a topic model or a non-negative matrix factorization (NMF).
 }
 \details{
-Function \code{cost} is mainly for internal use to quickly
-  compute log-likelihoods and deviances; it should not be used
-  directly unless you know what you are doing. In particular, very
+Function \code{cost} computes loss functions proportional
+  to the negative log-likelihoods, and is mainly for internal use to
+  quickly compute log-likelihoods and deviances; it should not be
+  used directly unless you know what you are doing. In particular,
   little argument checking is performed by \code{cost}.
 }
 \examples{

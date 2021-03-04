@@ -14,7 +14,7 @@
 #' @return The functions \code{summary.poisson_nmf_fit} and
 #' \code{summary.multinom_topic_model_fit} compute and return a list
 #' of statistics summarizing the model fit. The returned list
-#' includes the following elements:
+#' includes some or all of the following elements:
 #'
 #' \item{n}{The number of rows in the counts matrix, typically the
 #'   number of samples.}
@@ -31,16 +31,17 @@
 #' \item{numiter}{The number of loadings and/or factor updates
 #'   performed.}
 #'
-#' \item{loglik}{The log-likelihood attained by the Poisson NMF model
-#'   fit.}
+#' \item{loglik}{The Poisson NMF log-likelihood.}
 #'
-#' \item{dev}{The deviance attained by the Poisson NMF model fit.}
+#' \item{loglik.multinom}{The multinomial topic model log-likelihood.}
+#'
+#' \item{dev}{The Poisson NMF deviance.}
 #'
 #' \item{res}{The maximum residual of the Karush-Kuhn-Tucker (KKT)
 #'   first-order optimality conditions. This can be used to assess
 #'   convergence of the updates to a (local) solution.}
 #'
-#' \item{mixprop}{Matrix giving a high-level summary of the
+#' \item{mixprops}{Matrix giving a high-level summary of the
 #'   mixture proportions, in which rows correspond to topics, and
 #'   columns are ranges of mixture proportionss.}
 #'
@@ -52,7 +53,7 @@
 #' @export
 #' 
 summary.poisson_nmf_fit <- function (object, ...) {
-  out <- summary.multinom_topic_model_fit(poisson2multinom(object))
+  out <- summary.multinom_topic_model_fit(poisson2multinom(object),...)
   class(out) <- c("summary.poisson_nmf_fit","list")
   return(out)
 }
@@ -74,9 +75,10 @@ summary.multinom_topic_model_fit <- function (object, ...) {
               s          = object$s,
               numiter    = numiter,
               loglik     = object$progress[numiter,"loglik"],
+              loglik.multinom = object$progress[numiter,"loglik.multinom"],
               dev        = object$progress[numiter,"dev"],
               res        = object$progress[numiter,"res"],
-              mixprop    = summarize_mixprops(object$L),
+              mixprops   = summarize_mixprops(object$L),
               topic.reps = get_topic_reps(object$L))
   class(out) <- c("summary.multinom_topic_model_fit","list")
   return(out)
@@ -86,9 +88,6 @@ summary.multinom_topic_model_fit <- function (object, ...) {
 #'
 #' @param x An object of class \dQuote{summary.poisson_nmf_fit},
 #'   usually a result of a call to \code{summary.poisson_nmf_fit}.
-#'
-#' @param show.size.factors If \code{TRUE}, print a summary of the
-#'   size factors.
 #'
 #' @param show.mixprops If \code{TRUE}, print a summary of the mixture
 #'   proportions.
@@ -103,14 +102,17 @@ summary.multinom_topic_model_fit <- function (object, ...) {
 #' 
 #' @export
 #' 
-print.summary.poisson_nmf_fit <- 
-  function (x, show.size.factors = FALSE, show.mixprops = FALSE,
-            show.topic.reps = FALSE, ...) {
-  print.summary.multinom_topic_model_fit(x,...)
+print.summary.poisson_nmf_fit <- function (x, show.mixprops = FALSE,
+                                           show.topic.reps = FALSE, ...) {
+  print.summary.multinom_topic_model_fit(x,FALSE,show.mixprops,
+                                         show.topic.reps,...)
   return(invisible(x))
 }
 
 #' @rdname summary.poisson_nmf_fit
+#'
+#' @param show.size.factors If \code{TRUE}, print a summary of the
+#'   size factors.
 #'
 #' @method print summary.multinom_topic_model_fit
 #'
@@ -126,12 +128,14 @@ print.summary.multinom_topic_model_fit <-
   cat(sprintf("  Number of data rows, n: %d\n",x$n))
   cat(sprintf("  Number of data cols, m: %d\n",x$m))
   cat(sprintf("  Rank/number of topics, k: %d\n",x$k))
-  cat(sprintf("Evaluation of Poisson NMF fit (%d updates performed):\n",
+  cat(sprintf("Evaluation of model fit (%d updates performed):\n",
               x$numiter))
   cat(sprintf("  Poisson NMF log-likelihood: %+0.12e\n",x$loglik))
+  cat(sprintf("  Multinomial topic model log-likelihood: %0.12e\n",
+              x$loglik.multinom))
   cat(sprintf("  Poisson NMF deviance: %+0.12e\n",x$dev))
   cat(sprintf("  Max KKT residual: %+0.6e\n",x$res))
-  if (!show.size.factors & !show.mixprops & !show.topic.reps)
+  if (!(show.size.factors | show.mixprops | show.topic.reps))
     message("Set show.size.factors = TRUE, show.mixprops = TRUE and/or ",
             "show.topic.reps = TRUE in print(...) to show more informataion")
   if (show.size.factors & !is.null(x$s)) {
@@ -151,24 +155,27 @@ print.summary.multinom_topic_model_fit <-
   return(invisible(x))
 }
 
-#' @title Summarize and Compare Poisson NMF Model Fits
+#' @title Summarize and Compare Model Fits
 #'
 #' @description Create a table summarizing the results of fitting one
-#'    or more Poisson non-negative matrix factorizations.
+#'   or more Poisson non-negative matrix factorizations or multinomial
+#'   topic models.
 #'
-#' @param fits An object of class \code{"poisson_nmf_fit"}, or a
-#'   non-empty, named list in which each list element is an object of
-#'   class \code{"poisson_nmf_fit"}.
+#' @param fits An object of class \code{"poisson_nmf_fit"} or
+#'   \code{"multinom_topic_model_fit"}, or a non-empty, named list in
+#'   which all list elements are Poisson NMF model fits or all
+#'   multinomial topic model fits.
 #'
 #' @return A data frame with one row per element of \code{fits}, and
 #' with the following columns:
 #'
 #' \item{k}{The rank of the matrix factorization.}
 #'
-#' \item{loglik}{The log-likelihood achieved at the last model fitting
-#'   update.}
+#' \item{loglik}{The log-likelihood (either Poisson NMF or multinomial topic
+#'   model likelihood) achieved at the last model fitting update.}
 #'
-#' \item{dev}{The deviance achieved at the last model fitting update.}
+#' \item{dev}{For Poisson NMF model fits only, the deviance achieved
+#'   at the last model fitting update.}
 #'
 #' \item{res}{The maximum residual of the Karush-Kuhn-Tucker (KKT)
 #'   system achieved at the last model fitting update; small values
@@ -198,10 +205,11 @@ print.summary.multinom_topic_model_fit <-
 #' 
 #' @export
 #' 
-compare_poisson_nmf_fits <- function (fits) {
+compare_fits <- function (fits) {
 
   # Check and process input "fits". It should either be an object of
-  # class poisson_nmf_fit, or a list of poisson_nmf_fit objects.
+  # class poisson_nmf_fit or multinom_topic_model_fit, or a list of
+  # fit objects.
   if (inherits(fits,"poisson_nmf_fit")) {
     verify.fit(fits)
     fit.name    <- deparse(substitute(fits))          
@@ -210,11 +218,13 @@ compare_poisson_nmf_fits <- function (fits) {
   } else {
     msg <- paste("Input argument \"fits\" should either be an object of",
                  "class \"poisson_nmf_fit\", or a non-empty, named list in",
-                 "which each list element is an object of class",
-                 "\"poisson_nmf_fit\"")
+                 "which all list elements are objects of class",
+                 "\"poisson_nmf_fit\" or all objects of class",
+                 "\"multinom_topic_model_fit\"")
     if (!(is.list(fits) & !is.null(names(fits)) & length(fits) > 0))
       stop(msg)
-    if (!all(sapply(fits,function (x) inherits(x,"poisson_nmf_fit"))))
+    if (!(all(sapply(fits,function(x)inherits(x,"poisson_nmf_fit"))) |
+          all(sapply(fits,function(x)inherits(x,"multinom_topic_model_fit")))))
       stop(msg)
     if (!all(nchar(names(fits)) > 0))
       stop(msg)
@@ -241,8 +251,9 @@ compare_poisson_nmf_fits <- function (fits) {
     fit <- fits[[i]]
     x   <- tail(fit$progress,n = 1)
     out[i,"k"]          <- ncol(fit$F)
-    out[i,"loglik"]     <- x$loglik
-    out[i,"dev"]        <- x$dev
+    out[i,"loglik"]     <- ifelse(inherits(fit,"poisson_nmf_fit"),x$loglik,
+                                  x$loglik.multinom)
+    out[i,"dev"]        <- ifelse(inherits(fit,"poisson_nmf_fit"),x$dev,NA)
     out[i,"res"]        <- x$res
     out[i,"nonzeros.f"] <- x$nonzeros.f
     out[i,"nonzeros.l"] <- x$nonzeros.l

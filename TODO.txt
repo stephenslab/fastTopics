@@ -1,6 +1,8 @@
 to do
 =====
 
++ Update pkgdown site.
+
 + Remove files in inst/derivations/diffcount.
 
 + Implement "t" S3 method to transpose the rows and columns of a

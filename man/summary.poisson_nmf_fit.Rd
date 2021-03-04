@@ -11,13 +11,7 @@
 
 \method{summary}{multinom_topic_model_fit}(object, ...)
 
-\method{print}{summary.poisson_nmf_fit}(
-  x,
-  show.size.factors = FALSE,
-  show.mixprops = FALSE,
-  show.topic.reps = FALSE,
-  ...
-)
+\method{print}{summary.poisson_nmf_fit}(x, show.mixprops = FALSE, show.topic.reps = FALSE, ...)
 
 \method{print}{summary.multinom_topic_model_fit}(
   x,
@@ -40,20 +34,20 @@ or \code{print.summary} method.}
 \item{x}{An object of class \dQuote{summary.poisson_nmf_fit},
 usually a result of a call to \code{summary.poisson_nmf_fit}.}
 
-\item{show.size.factors}{If \code{TRUE}, print a summary of the
-size factors.}
-
 \item{show.mixprops}{If \code{TRUE}, print a summary of the mixture
 proportions.}
 
 \item{show.topic.reps}{If \code{TRUE}, print a summary of the topic
 representatives.}
+
+\item{show.size.factors}{If \code{TRUE}, print a summary of the
+size factors.}
 }
 \value{
 The functions \code{summary.poisson_nmf_fit} and
 \code{summary.multinom_topic_model_fit} compute and return a list
 of statistics summarizing the model fit. The returned list
-includes the following elements:
+includes some or all of the following elements:
 
 \item{n}{The number of rows in the counts matrix, typically the
   number of samples.}
@@ -70,16 +64,17 @@ includes the following elements:
 \item{numiter}{The number of loadings and/or factor updates
   performed.}
 
-\item{loglik}{The log-likelihood attained by the Poisson NMF model
-  fit.}
+\item{loglik}{The Poisson NMF log-likelihood.}
 
-\item{dev}{The deviance attained by the Poisson NMF model fit.}
+\item{loglik.multinom}{The multinomial topic model log-likelihood.}
+
+\item{dev}{The Poisson NMF deviance.}
 
 \item{res}{The maximum residual of the Karush-Kuhn-Tucker (KKT)
   first-order optimality conditions. This can be used to assess
   convergence of the updates to a (local) solution.}
 
-\item{mixprop}{Matrix giving a high-level summary of the
+\item{mixprops}{Matrix giving a high-level summary of the
   mixture proportions, in which rows correspond to topics, and
   columns are ranges of mixture proportionss.}
 

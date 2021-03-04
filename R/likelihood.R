@@ -5,9 +5,10 @@
 #' @description Compute log-likelihoods and deviances for assessing
 #'   fit of a topic model or a non-negative matrix factorization (NMF).
 #'
-#' @details Function \code{cost} is mainly for internal use to quickly
-#'   compute log-likelihoods and deviances; it should not be used
-#'   directly unless you know what you are doing. In particular, very
+#' @details Function \code{cost} computes loss functions proportional
+#'   to the negative log-likelihoods, and is mainly for internal use to
+#'   quickly compute log-likelihoods and deviances; it should not be
+#'   used directly unless you know what you are doing. In particular,
 #'   little argument checking is performed by \code{cost}.
 #'
 #' @param X The n x m matrix of counts or pseudocounts. It can be a
@@ -16,7 +17,7 @@
 #'
 #' @param fit A Poisson NMF or multinomial topic model fit, such as an
 #'   output from \code{\link{fit_poisson_nmf}} or
-#'   \code{\link{fit_topic_model}}.
+#'   \code{\link{fit_topic_model}}. 
 #'
 #' @param A The n x k matrix of loadings. It should be a dense matrix.
 #'
@@ -27,14 +28,14 @@
 #'   numerical problems at the cost of introducing a very small
 #'   inaccuracy in the computation.
 #'
-#' @param family If \code{model = "poisson"}, the loss function
-#'   corresponding to the Poisson non-negative matrix factorization is
-#'   computed; if \code{model = "multinom"}, multinomial topic model
-#'   loss function values are returned. See "Value" for details.
+#' @param family If \code{model = "poisson"}, the loss function values
+#'   corresponding to the Poisson non-negative matrix factorization are
+#'   computed; if \code{model = "multinom"}, the multinomial topic model
+#'   loss function values are returned.
 #'
 #' @param version When \code{version == "R"}, the computations are
 #'   performed entirely in R; when \code{version == "Rcpp"}, an Rcpp
-#'  implementation is used. The R version is typically faster when
+#'   implementation is used. The R version is typically faster when
 #'   \code{X} is a dense matrix, whereas the Rcpp version is faster and
 #'   more memory-efficient when \code{X} is a large, sparse matrix. When
 #'   not specified, the most suitable version is called depending on
@@ -194,10 +195,10 @@ poisson_nmf_kkt <- function (X, F, L, e = 1e-8) {
 }
 
 # Given a Poisson non-negative matrix factorization (F, L), compute
-# the log-likelihoods for the "size factors"; that is, the
-# log-likelihood for t ~ Poisson(s), where t = sum(x) is the total sum
-# of the counts. The size factors, s, are recovered from the
-# poisson2multinom transformation.
+# the log-likelihoods for the "size factors"; that is, each vetor
+# element is a log-likelihood for the model t ~ Poisson(s), where
+# t = sum(x) is the total sum of the counts. The size factors, s, are
+# recovered from the poisson2multinom transformation.
 #
 #' @importFrom stats dpois
 loglik_size_factors <- function (X, F, L)
