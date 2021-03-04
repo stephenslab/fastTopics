@@ -70,9 +70,15 @@ test_that(paste("loglik_multinom_topic_model gives correct result for",
     f2 <- loglik_multinom_topic_model(X,fit,e = 0)
     f3 <- loglik_multinom_topic_model(as(X,"dgCMatrix"),fit,e = 0)
 
+    # Compute the multinomial log-likelihood a different way: first
+    # compute the Poisson log-likelihood, then subtract out the
+    # likelihood for the "size factors".
+    f4 <- loglik_poisson_nmf(X,fit,e = 0) - loglik_size_factors(X,fit$F,fit$L)
+    
     # The likelihood calculations should all be the same.
     expect_equal(f1,f2)
     expect_equal(f1,f3)
+    expect_equal(f1,f4)
   }
 })
 

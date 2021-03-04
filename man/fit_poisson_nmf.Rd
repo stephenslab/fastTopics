@@ -168,19 +168,21 @@ with the following elements:
 \item{progress}{A data frame containing detailed information about
   the algorithm's progress. The data frame should have \code{numiter}
   rows. The columns of the data frame are: "iter", the iteration
-  number; "loglik", the log-likelihood at the current best factor and
-  loading estimates; "dev", the deviance at the current best factor
-  and loading estimates; "res", the maximum residual of the
-  Karush-Kuhn-Tucker (KKT) first-order optimality conditions at the
-  current best factor and loading estimates; "delta.f", the largest
-  change in the factors matrix; "delta.l", the largest change in the
-  loadings matrix; "nonzeros.f", the proportion of entries in the
-  factors matrix that are nonzero; "nonzeros.l", the proportion of
-  entries in the loadings matrix that are nonzero; "extrapolate",
-  which is 1 if extrapolation is used, otherwise it is 0; "beta", the
-  setting of the extrapolation parameter; "betamax", the setting of
-  the extrapolation parameter upper bound; and "timing", the elapsed
-  time in seconds (recorded using \code{\link{proc.time}}).}
+  number; "loglik", the (Poisson) log-likelihood at the current best
+  factor and loading estimates; "dev", the deviance at the current
+  best factor and loading estimates; "res", the maximum residual of
+  the Karush-Kuhn-Tucker (KKT) first-order optimality conditions at
+  the current best factor and loading estimates; "loglik.multinom",
+  the multinomial log-likelihood at the current best factor and
+  loading estimates; "delta.f", the largest change in the factors
+  matrix; "delta.l", the largest change in the loadings matrix;
+  "nonzeros.f", the proportion of entries in the factors matrix that
+  are nonzero; "nonzeros.l", the proportion of entries in the
+  loadings matrix that are nonzero; "extrapolate", which is 1 if
+  extrapolation is used, otherwise it is 0; "beta", the setting of
+  the extrapolation parameter; "betamax", the setting of the
+  extrapolation parameter upper bound; and "timing", the elapsed time
+  in seconds (recorded using \code{\link{proc.time}}).}
 }
 \description{
 Approximate the input matrix \code{X} by the

@@ -34,8 +34,10 @@ test_that(paste("init_poisson_nmf works when both F, L are provided, and",
   expect_s3_class(fit4,"poisson_nmf_fit")
 })
 
-test_that(paste("fit$progress$loglik and fit$progress$dev agree with",
-                "loglik_poisson_nmf and deviance_poisson_nmf"),{
+test_that(paste("fit$progress$loglik, fit$progress$dev and",
+                "fit$progress$loglik.multinom agree with",
+                "loglik_poisson_nmf, deviance_poisson_nmf and",
+                "loglik_multinom_topic_model"),{
 
   # Generate a 80 x 100 data matrix to factorize.
   set.seed(1)
@@ -49,9 +51,12 @@ test_that(paste("fit$progress$loglik and fit$progress$dev agree with",
                            control = list(extrapolate = TRUE,nc = 1)))
 
   # Check that the log-likelihood and deviance calculations agree with
-  # loglik_poisson_nmf and deviance_poisson_nmf.
+  # loglik_poisson_nmf, deviance_poisson_nmf and loglik_multinom_topic_model.
   expect_equal(sum(loglik_poisson_nmf(X,fit)),tail(fit$progress$loglik,n = 1))
   expect_equal(sum(deviance_poisson_nmf(X,fit)),tail(fit$progress$dev,n = 1))
+  expect_equal(sum(loglik_multinom_topic_model(X,fit,e = 0)),
+               tail(fit$progress$loglik.multinom,n = 1),
+               scale = 1,tolerance = 1e-4)
 })
 
 test_that(paste("multiplicative and EM updates produce same result, and",

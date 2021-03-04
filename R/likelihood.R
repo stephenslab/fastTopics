@@ -193,3 +193,12 @@ poisson_nmf_kkt <- function (X, F, L, e = 1e-8) {
   }
 }
 
+# Given a Poisson non-negative matrix factorization (F, L), compute
+# the log-likelihoods for the "size factors"; that is, the
+# log-likelihood for t ~ Poisson(s), where t = sum(x) is the total sum
+# of the counts. The size factors, s, are recovered from the
+# poisson2multinom transformation.
+#
+#' @importFrom stats dpois
+loglik_size_factors <- function (X, F, L)
+  dpois(rowSums(X),get_multinom_from_pnmf(F,L)$s,log = TRUE)

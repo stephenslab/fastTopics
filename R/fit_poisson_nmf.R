@@ -238,19 +238,21 @@
 #' \item{progress}{A data frame containing detailed information about
 #'   the algorithm's progress. The data frame should have \code{numiter}
 #'   rows. The columns of the data frame are: "iter", the iteration
-#'   number; "loglik", the log-likelihood at the current best factor and
-#'   loading estimates; "dev", the deviance at the current best factor
-#'   and loading estimates; "res", the maximum residual of the
-#'   Karush-Kuhn-Tucker (KKT) first-order optimality conditions at the
-#'   current best factor and loading estimates; "delta.f", the largest
-#'   change in the factors matrix; "delta.l", the largest change in the
-#'   loadings matrix; "nonzeros.f", the proportion of entries in the
-#'   factors matrix that are nonzero; "nonzeros.l", the proportion of
-#'   entries in the loadings matrix that are nonzero; "extrapolate",
-#'   which is 1 if extrapolation is used, otherwise it is 0; "beta", the
-#'   setting of the extrapolation parameter; "betamax", the setting of
-#'   the extrapolation parameter upper bound; and "timing", the elapsed
-#'   time in seconds (recorded using \code{\link{proc.time}}).}
+#'   number; "loglik", the (Poisson) log-likelihood at the current best
+#'   factor and loading estimates; "dev", the deviance at the current
+#'   best factor and loading estimates; "res", the maximum residual of
+#'   the Karush-Kuhn-Tucker (KKT) first-order optimality conditions at
+#'   the current best factor and loading estimates; "loglik.multinom",
+#'   the multinomial log-likelihood at the current best factor and
+#'   loading estimates; "delta.f", the largest change in the factors
+#'   matrix; "delta.l", the largest change in the loadings matrix;
+#'   "nonzeros.f", the proportion of entries in the factors matrix that
+#'   are nonzero; "nonzeros.l", the proportion of entries in the
+#'   loadings matrix that are nonzero; "extrapolate", which is 1 if
+#'   extrapolation is used, otherwise it is 0; "beta", the setting of
+#'   the extrapolation parameter; "betamax", the setting of the
+#'   extrapolation parameter upper bound; and "timing", the elapsed time
+#'   in seconds (recorded using \code{\link{proc.time}}).}
 #' 
 #' @references
 #'
@@ -420,7 +422,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.5-21).\n")
+    cat("(fastTopics 0.5-22).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -438,7 +440,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # RUN UPDATES
   # -----------
   if (verbose == "detailed")
-    cat("iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'|",
+    cat("iter loglik(PoisNMF) loglik(multinom) res(KKT)  |F-F'|  |L-L'|",
         "nz(F) nz(L) beta\n")
   fit <- fit_poisson_nmf_main_loop(X,fit,numiter,update.factors,
                                    update.loadings,method,control,
@@ -601,10 +603,10 @@ init_poisson_nmf <-
 
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
-  progress        <- as.data.frame(matrix(0,0,12))
-  names(progress) <- c("iter","loglik","dev","res","delta.f","delta.l",
-                       "nonzeros.f","nonzeros.l","extrapolate","beta",
-                       "betamax","timing")
+  progress        <- as.data.frame(matrix(0,0,13))
+  names(progress) <- c("iter","loglik","dev","res","loglik.multinom",
+                       "delta.f","delta.l","nonzeros.f","nonzeros.l",
+                       "extrapolate","beta","betamax","timing")
 
   # Return a list containing: F, an initial estimate of the factors;
   # L, an initial estimate of the loadings; Fn and Ln, the
@@ -648,10 +650,10 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
   # loop below.
   loglik.const    <- sum(loglik_poisson_const(X))
   dev.const       <- sum(deviance_poisson_const(X))
-  progress        <- as.data.frame(matrix(0,numiter,12))
-  names(progress) <- c("iter","loglik","dev","res","delta.f","delta.l",
-                       "nonzeros.f","nonzeros.l","extrapolate","beta",
-                       "betamax","timing")
+  progress        <- as.data.frame(matrix(0,numiter,13))
+  names(progress) <- c("iter","loglik","dev","res","loglik.multinom",
+                       "delta.f","delta.l","nonzeros.f","nonzeros.l",
+                       "extrapolate","beta","betamax","timing")
 
   # Iterate the updates of the factors and loadings.
   for (i in 1:numiter) {
@@ -690,6 +692,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
     # progress.
     progress[i,"iter"]        <- fit$iter
     progress[i,"loglik"]      <- loglik.const - fit$loss
+    progress[i,"loglik.multinom"] <-
+      loglik.const - fit$loss - sum(loglik_size_factors(X,fit$F,fit$L))
     progress[i,"dev"]         <- dev.const + 2*fit$loss
     progress[i,"res"]         <- with(poisson_nmf_kkt(X,fit$F,fit$L),
                                       max(abs(rbind(F[update.factors,],
@@ -703,8 +707,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
     progress[i,"nonzeros.l"]  <- mean(fit$L > control$zero.threshold)
     progress[i,"extrapolate"] <- extrapolate
     if (verbose == "detailed")
-      cat(sprintf("%4d %+0.9e %+0.8e %0.2e %0.1e %0.1e %0.3f %0.3f %0.2f\n",
-                  fit$iter,progress[i,"loglik"],progress[i,"dev"],
+      cat(sprintf("%4d %+0.8e %+0.9e %0.2e %0.1e %0.1e %0.3f %0.3f %0.2f\n",
+                  fit$iter,progress[i,"loglik"],progress[i,"loglik.multinom"],
                   progress[i,"res"],progress[i,"delta.f"],
                   progress[i,"delta.l"],progress[i,"nonzeros.f"],
                   progress[i,"nonzeros.l"],extrapolate * progress[i,"beta"]))
