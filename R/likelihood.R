@@ -202,4 +202,4 @@ poisson_nmf_kkt <- function (X, F, L, e = 1e-8) {
 #
 #' @importFrom stats dpois
 loglik_size_factors <- function (X, F, L)
-  dpois(rowSums(X),get_multinom_from_pnmf(F,L)$s,log = TRUE)
+  suppressWarnings(dpois(rowSums(X),get_multinom_from_pnmf(F,L)$s,log = TRUE))
