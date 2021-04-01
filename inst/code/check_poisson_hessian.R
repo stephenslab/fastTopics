@@ -32,9 +32,9 @@ loglik_grad <- function (x, l0, l1, f0, f1) {
 loglik_hessian <- function (x, l0, l1, f0, f1) {
   u <- l0*f0 + l1*f1
   y <- x/u - 1
-  z <- x/u^2
-  return(rbind(c(f0*sum(l0*y) - f0^2*sum(l0^2*z),-f0*f1*sum(l0*l1*z)),
-               c(-f0*f1*sum(l0*l1*z),f1*sum(l1*y) - f1^2*sum(l1^2*z))))
+  d <- x/u^2
+  return(rbind(c(f0*sum(l0*y) - f0^2*sum(l0^2*d),-f0*f1*sum(l0*l1*d)),
+               c(-f0*f1*sum(l0*l1*d),f1*sum(l1*y) - f1^2*sum(l1^2*d))))
 }
 
 # Compare loglik_grad against numerical gradients calculated using
