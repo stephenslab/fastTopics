@@ -33,20 +33,18 @@ loglik_hessian <- function (x, l0, l1, f0, f1) {
   u <- l0*f0 + l1*f1
   y <- x/u - 1
   d <- x/u^2
-  return(rbind(c(f0*sum(l0*y) - f0^2*sum(l0^2*d),-f0*f1*sum(l0*l1*d)),
+  return(rbind(c(f0*sum(l0*y) - f0^2*sum(l0^2*),-f0*f1*sum(l0*l1*d)),
                c(-f0*f1*sum(l0*l1*d),f1*sum(l1*y) - f1^2*sum(l1^2*d))))
 }
 
-# Compare loglik_grad against numerical gradients calculated using
-# finite differences.
+# Compare loglik_grad and loglik_hessian against numerical gradients
+# calculated using finite differences.
 f0 <- runif(1)
 f1 <- runif(1)
-
 cat("gradient:\n")
 print(grad(function (v) loglik(x,l0,l1,exp(v[1]),exp(v[2])),log(c(f0,f1))),
       digits = 12)
 print(loglik_grad(x,l0,l1,f0,f1),digits = 12)
-
 cat("Hessian:\n")
 print(rbind(grad(function (v) loglik_grad(x,l0,l1,exp(v[1]),exp(v[2]))[1],
                  log(c(f0,f1))),
