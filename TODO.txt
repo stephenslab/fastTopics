@@ -1,6 +1,9 @@
 to do
 =====
 
++ Prune functions in misc.R, misc.h and misc.cpp that are no longer
+  used.
+
 + Update pkgdown site.
 
 + Remove files in inst/derivations/diffcount.
