@@ -1,6 +1,6 @@
 context("diffcount")
 
-test_that(paste("All variants of fit_univar_poisson_models and",
+test_that(paste("All variants of fit_poisson_models and",
                 "compute_univar_poisson_zscores produce the same, or",
                 "nearly the same, result"),{
 
@@ -20,29 +20,13 @@ test_that(paste("All variants of fit_univar_poisson_models and",
   s <- c(s,rep(1,k))
   L <- rbind(L,diag(k))
   
-  # Fit the univariate Poisson models using glm, optim and EM.
-  fit1 <- fit_univar_poisson_models(X,L,s,method = "glm",verbose = FALSE)
-  fit2 <- fit_univar_poisson_models(X,L,s,method = "optim",verbose = FALSE)
-  fit3 <- fit_univar_poisson_models(X,L,s,method = "em",verbose = FALSE)
-  fit4 <- fit_univar_poisson_models(X,L,s,method = "em-rcpp",verbose = FALSE)
-  fit5 <- fit_univar_poisson_models(Y,L,s,method = "em-rcpp",verbose = FALSE)
+  # Fit the univariate Poisson models using glm and scd.
+  F1 <- fit_poisson_models(X,L,s,method = "glm")
+  F2 <- fit_poisson_models(X,L,s,method = "scd")
 
   # All four implementations should produce the same, or nearly the
   # same, estimates of the model parameters.
-  expect_equal(fit1$F0,fit2$F0,scale = 1,tolerance = 1e-5)
-  expect_equal(fit1$F1,fit2$F1,scale = 1,tolerance = 1e-5)
-  expect_equal(fit1$F0,fit3$F0,scale = 1,tolerance = 1e-5)
-  expect_equal(fit1$F1,fit3$F1,scale = 1,tolerance = 1e-5)
-  expect_equal(fit3$F0,fit4$F0,scale = 1,tolerance = 1e-8)
-  expect_equal(fit3$F1,fit4$F1,scale = 1,tolerance = 1e-8)
-  expect_equal(fit3$F0,fit5$F0,scale = 1,tolerance = 1e-8)
-  expect_equal(fit3$F1,fit5$F1,scale = 1,tolerance = 1e-8)
-
-  # Additionally, the likelihood calculations should be the same, or
-  # nearly the same.
-  expect_equal(fit2$loglik,fit3$loglik,scale = 1,tolerance = 1e-8)
-  expect_equal(fit2$loglik,fit4$loglik,scale = 1,tolerance = 1e-8)
-  expect_equal(fit2$loglik,fit5$loglik,scale = 1,tolerance = 1e-8)
+  expect_equal(F1,F2,scale = 1,tolerance = 1e-5)
 
   # Compute the log-fold change statistics.
   out1 <- compute_univar_poisson_zscores(X,L,fit3$F0,fit3$F1,s)
@@ -55,96 +39,6 @@ test_that(paste("All variants of fit_univar_poisson_models and",
   expect_lt(median(abs(fit1$Z - out1$Z)),0.05)
   expect_equal(out1,out2,scale = 1,tolerance = 1e-15)
   expect_equal(out1,out3,scale = 1,tolerance = 1e-15)
-})
-
-test_that(paste("fit_univar_poisson_models produces same result as",
-                "fit_univar_poisson_models_hard when L is a matrix",
-                "with hard topic assignments only (that is, entirely",
-                "zeros and ones)"),{
-    
-  # Simulate gene expression data.
-  set.seed(1)
-  n   <- 100
-  m   <- 200
-  k   <- 4
-  s   <- 10^runif(n,-1,1)
-  dat <- simulate_poisson_gene_data(n,m,k,s)
-  X   <- dat$X
-  Y   <- as(X,"dgCMatrix")
-  L   <- force_hard_topic_assignments(dat$L)
-      
-  # Add "pseudocounts" to the data.
-  X <- rbind(X,matrix(1,k,m))
-  Y <- as(X,"dgCMatrix")
-  s <- c(s,rep(1,k))
-  L <- rbind(L,diag(k))
-  
-  # Fit the univariate Poisson models using glm.
-  fit1 <- fit_univar_poisson_models(X,L,s,method = "glm",e = 1e-8,
-                                    verbose = FALSE)
-
-  # Estimate the univariate Poisson model parameters assuming all the
-  # topic proportions are zeros and ones.
-  fit2 <- fit_univar_poisson_models_hard(X,L,s)
-  fit3 <- fit_univar_poisson_models_hard(Y,L,s)
-  fit2 <- compute_univar_poisson_zscores_fast(X,L,fit2$F0,fit2$F1,s)
-  fit3 <- compute_univar_poisson_zscores_fast(Y,L,fit3$F0,fit3$F1,s)
-
-  # Both methods should produce the same parameter estimates, and the
-  # same log-likelihood values.
-  expect_equal(fit1$F0,fit2$F0,scale = 1,tolerance = 1e-8)
-  expect_equal(fit1$F1,fit2$F1,scale = 1,tolernace = 1e-8)
-  expect_equal(fit1$Z,fit2$Z,scale = 1,tolerance = 1e-14)
-  expect_equal(fit1$pval,fit2$pval,scale = 1,tolerance = 1e-14)
-  expect_equal(fit2$F0,fit3$F0,scale = 1,tolerance = 1e-15)
-  expect_equal(fit2$F1,fit3$F1,scale = 1,tolerance = 1e-15)
-  expect_equal(fit2$Z,fit3$Z,scale = 1,tolerance = 1e-15)
-  expect_equal(fit2$pval,fit3$pval,scale = 1,tolerance = 1e-15)
-})
-
-test_that(paste("When all the topic proportions are exactly zero or exactly",
-                "one, the result of diff_count_analysis is nearly the same",
-                "as when all the topic proportions are all almost exactly",
-                "zero or one"),{
-
-  # Simulate gene expression data.
-  set.seed(1)
-  n   <- 100
-  m   <- 200
-  k   <- 4
-  s   <- 10^runif(n,-1,1)
-  dat <- simulate_poisson_gene_data(n,m,k,s)
-  X   <- dat$X
-  L   <- force_hard_topic_assignments(dat$L)
-  clusters         <- factor(apply(dat$L,1,which.max))
-  levels(clusters) <- paste0("k",1:k)
-
-  # Remove all-zero columns.
-  i <- which(colSums(X > 0) >= 1)
-  X <- X[,i]
-  
-  # Fit a Poisson model (approximating a binomial model) to each gene
-  # and topic, and compute the log-fold change statistics.
-  Y    <- as(X,"dgCMatrix")
-  fit1 <- init_poisson_nmf(X,L = rowSums(X)*L,init.method = "random",
-                           control = list(minval = 1e-8))
-  out1 <- diff_count_analysis(fit1,X,verbose = FALSE,shrink.method="none")
-  out2 <- diff_count_clusters(clusters,X,verbose = FALSE,shrink.method="none")
-  out3 <- diff_count_clusters(clusters,Y,verbose = FALSE,shrink.method="none")
-
-  # The outputted statistics should be the same in all calls to
-  # diff_count_analysis and diff_count_clusters (ignore the standard
-  # errors, as these can be unstable).
-  expect_equal(out1$F0,  out2$F0,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$F0,  out3$F0,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$F1,  out2$F1,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$F1,  out3$F1,  scale = 1,tolerance = 1e-8)
-  expect_equal(out1$beta,out2$beta,scale = 1,tolerance = 1e-5)
-  expect_equal(out1$beta,out3$beta,scale = 1,tolerance = 1e-5)
-  expect_equal(out1$Z,   out2$Z,   scale = 1,tolerance = 1e-5)
-  expect_equal(out1$Z,   out3$Z,   scale = 1,tolerance = 1e-5)
-  expect_equal(out1$pval,out2$pval,scale = 1,tolerance = 1e-5)
-  expect_equal(out1$pval,out3$pval,scale = 1,tolerance = 1e-5)
 })
 
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
