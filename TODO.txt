@@ -1,6 +1,8 @@
 to do
 =====
 
++ Implement KKT-based stopping criterion for fit_poisson_nmf.
+
 + Prune functions in misc.R, misc.h and misc.cpp that are no longer
   used.
 
