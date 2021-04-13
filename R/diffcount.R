@@ -115,9 +115,6 @@
 #' @param e A small, positive scalar included in some computations to
 #'   avoid logarithms of zero and division by zero.
 #'
-#' @param show.warning Set \code{show.warning = FALSE} to suppress a
-#'   message about calculations when mixture proportions are all 0 or 1.
-#' 
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
 #'

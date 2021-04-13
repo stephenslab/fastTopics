@@ -27,20 +27,16 @@ loglik_grad <- function (x, l0, l1, f0, f1) {
            f1*sum(l1*y)))
 }
 
-# Compute the 2 x 2 matrix of second-order partial derivatives of the
-# log-likelihood with respect to log(f0) and log(f2).
-loglik_hessian <- function (x, l0, l1, f0, f1) {
-  u <- l0*f0 + l1*f1
-  y <- x/u - 1
-  d <- x/u^2
-  return(rbind(c(f0*sum(l0*y) - f0^2*sum(l0^2*),-f0*f1*sum(l0*l1*d)),
-               c(-f0*f1*sum(l0*l1*d),f1*sum(l1*y) - f1^2*sum(l1^2*d))))
-}
+# Compute the MLEs of f0 and f1.
+control <- glm.control(epsilon = 1e-10, maxit = 100)
+dat <- data.frame(x = x,f0 = l0,f1 = l1)
+fit <- glm(x ~ f0 + f1 - 1,family = poisson(link = "identity"),
+           data = dat,start = c(0.5,0.5),control = control)
+f0 <- coef(fit)["f0"]
+f1 <- coef(fit)["f1"]
 
 # Compare loglik_grad and loglik_hessian against numerical gradients
 # calculated using finite differences.
-f0 <- runif(1)
-f1 <- runif(1)
 cat("gradient:\n")
 print(grad(function (v) loglik(x,l0,l1,exp(v[1]),exp(v[2])),log(c(f0,f1))),
       digits = 12)
@@ -51,4 +47,4 @@ print(rbind(grad(function (v) loglik_grad(x,l0,l1,exp(v[1]),exp(v[2]))[1],
             grad(function (v) loglik_grad(x,l0,l1,exp(v[1]),exp(v[2]))[2],
                  log(c(f0,f1)))),
       digits = 12)
-print(loglik_hessian(x,l0,l1,f0,f1),digits = 12)
+print(-solve(compute_poisson_covariance(x,cbind(l0,l1),coef(fit))),digits = 12)

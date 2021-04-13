@@ -12,13 +12,16 @@ x  <- rpois(n,s*u)
 
 # Fit the generalized linear model.
 control <- glm.control(epsilon = 1e-10, maxit = 100)
-dat <- data.frame(x = x,f1 = s*(1-q),f2 = s*q)
-fit <- glm(x ~ f1 + f2 - 1,
-           family = poisson(link = "identity"),
+L   <- cbind(s*(1-q),s*q)
+dat <- data.frame(x = x,f1 = L[,1],f2 = L[,2])
+fit <- glm(x ~ f1 + f2 - 1,family = poisson(link = "identity"),
            data = dat,start = c(0.5,0.5),control = control)
 print(coef(fit))
 
 # Fit the model parameters using glm with family = poisson(link =
 # "identity").
-out <- fit_poisson_glm(x,cbind(s*(1-q),s*q))
+out <- fit_poisson_glm(x,L)
 print(out$coef)
+
+# Compute the covariance of log(f).
+print(compute_poisson_covariance(x,s*L,out$coef))
