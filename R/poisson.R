@@ -28,6 +28,13 @@ fit_poisson_models <- function (X, L, s = rep(1,nrow(X)), method, eps = 1e-15,
   return(F)
 }
 
+# TO DO: Explain here what this function does, and how to use it.
+# stat: "vsmean", "le", or an index.
+compute_lfc_stats <- function (X, L, s, mu = NULL, stat,
+                               version = c("Rcpp","R")) {
+
+}
+
 # Implements fit_poisson_models for method = "glm".
 fit_poisson_models_glm <- function (X, L, s, control)  {
   m <- ncol(X)
@@ -76,8 +83,58 @@ compute_poisson_covariance <- function (x, L, f) {
 # Outputs:
 #  - LFC estimate
 #  - se of LFC estimate
+#  - z-score.
 #
-compute_lfc_stats <- function (x, L, f, mu, stat) {
-
+# These outputs use the base-2 logarithm.
+#
+compute_lfc_stats_helper <- function (x, L, f, mu, stat) {
+  S <- compute_poisson_covariance(x,L,f)
+  if (stat == "vsmean")
+    out <- compute_lfc_vs_mean(f,mu,S)
+  else if (stat == "le")
+    out <- compute_lfc_le(f,S)
+  else
+    out <- compute_lfc_pairwise(f,S,stat)
+  return(with(out,list(lfc = lfc/log(2),
+                       se  = se/log(2),
+                       z   = lfc/se)))
 }
 
+# Return the log-fold change statistics log(f[i]/mu) and their
+# standard errors given the MLE estimates (f), the mean or a
+# comparable statistic such as the median (mu), and S, the covariance
+# of log(f). Here, the LFC is defined using the natural logarithm (not
+# the base-2 logarithm, which is the convention).
+compute_lfc_vs_mean <- function (f, mu, S) {
+  return(list(lfc = log(f/mu),se = sqrt(diag(S))))
+
+# Return the pairwise log-fold change statistics log(f[j]/f[i]) and
+# their standard errors given the MLE estimates (f) and S, the
+# covariance of log(f). Here, the LFC is defined using the natural
+# logarithm (not the base-2 logarithm, which is the convention).
+compute_lfc_pairwise <- function (f, S, i) {
+  lfc    <- log(f/f[i])
+  se     <- sqrt(diag(S) + S[i,i] - 2*S[i,])
+  lfc[i] <- 0
+  se[i]  <- 0
+  return(list(lfc = lfc,se = se))
+}
+
+# Return the "least extreme" pairwise log-fold change statistics
+# log(f[j]/f[i]) and their standard errors; that is, i != j is chosen
+# so that the log-fold change is closest to zero. Here, the LFC is
+# defined using the natural logarithm (not the base-2 logarithm, which
+# is the convention). The inputs are: f, the MLE estimates; and S, the
+# covariance of log(f).
+compute_lfc_le <- function (f, S) {
+  n   <- length(f)
+  lfc <- rep(0,n)
+  se  <- rep(0,n)
+  for (i in 1:n) {
+    out    <- compute_lfc_pairwise(f,S,i)
+    j      <- order(abs(with(out,lfc/se)))[2]
+    lfc[i] <- out$lfc[j]
+    se[i]  <- out$se[j]
+  }
+  return(list(lfc = lfc,se = se))
+}
