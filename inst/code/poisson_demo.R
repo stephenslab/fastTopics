@@ -13,6 +13,10 @@ s   <- 10^runif(n,-1,1)
 dat <- simulate_poisson_gene_data(n,m,k,s)
 X   <- dat$X
 L   <- dat$L
+out <- add_pseudocounts(X,L,s,0.1)
+X   <- out$X
+L   <- out$L
+s   <- out$s
 Y   <- as(X,"dgCMatrix")
 
 # Fit a Poisson model for each gene.
@@ -24,42 +28,34 @@ print(range(F1 - F2))
 # data.
 e <- 1e-3
 i <- 1
-plot(dat$F + e,F1 + e,pch = 20,log = "xy",xlab = "true F",ylab = "estimated F")
+plot(dat$F + e,F1 + e,pch = 20,log = "xy",xlab = "true frequency",
+     ylab = "estimated frequency")
 abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 
-# Compute the log-fold change and Z-score for each gene j and topic k.
-out1 <- compute_univar_poisson_zscores(X,L,out.em$F0,out.em$F1,s)
-out2 <- compute_univar_poisson_zscores_fast(X,L,out.em$F0,out.em$F1,s)
-out3 <- compute_univar_poisson_zscores_fast(Y,L,out.em$F0,out.em$F1,s)
-print(max(abs(out1$beta - out2$beta)))
-print(max(abs(out1$se   - out2$se)/out2$se,na.rm = TRUE))
-print(max(abs(out1$Z    - out2$Z)))
-print(max(abs(out1$pval - out2$pval)))
-print(max(abs(out1$beta - out3$beta)))
-print(max(abs(out1$se   - out3$se)/out1$se,na.rm = TRUE))
-print(max(abs(out1$Z    - out3$Z)))
-print(max(abs(out1$pval - out3$pval)))
+# Compute the log-fold change, standard error (se) and z-score for
+# each gene j and topic k.
+out1 <- compute_lfc_stats(X,F1,L,s,stat = "le",version = "R")
 
-# Here we show that the Z-score varies (predictably) with the log-fold
+# Here we show that the z-score varies, as expected, with the log-fold
 # change estimate and the average expression level.
-pdat <- data.frame(x = colMeans(X),beta = out1$beta[,i],z = out1$Z[,i])
-pdat <- subset(pdat,beta > -5)
-print(ggplot(pdat,aes(x = x,y = beta,fill = z)) +
+pdat <- data.frame(x = colMeans(X),lfc = out1$lfc[,1],z = out1$z[,1])
+print(ggplot(pdat,aes(x = x,y = lfc,fill = z)) +
   geom_point(size = 2,shape = 21,color = "white") +
-  geom_abline(intercept = 0,slope = 0,color = "gray",linetype = "dotted") +
+  geom_abline(intercept = 0,slope = 0,color = "grayb",linetype = "dotted") +
   scale_x_continuous(trans = "log10") +
   scale_fill_gradient2(low = "darkblue",mid = "skyblue",
                        high = "orangered",midpoint = 0) +
   labs(x = "average expression",y = "log-fold change",fill = "z-score") +
-  theme_cowplot(12))
+  theme_cowplot(font_size = 12))
 
-# Show a traditional volcano plot, in which log-fold change is shown
-# on the x-axis, and the z-score is shown on the y-axis. To illustrate
-# the impact of overall gene expression level on the z-scores, the
-# (log) average expression level is shown by a colour gradient.
-print(ggplot(pdat,aes(x = beta,y = abs(z),fill = log10(x))) +
+# Create a volcano plot in which log-fold change is shown on the
+# x-axis and the z-score is shown on the y-axis. To illustrate the
+# impact of (mean) gene expression level on the z-scores, the (log)
+# average expression level is shown by a colour gradient.
+print(ggplot(pdat,aes(x = lfc,y = abs(z),fill = log10(x))) +
   geom_point(size = 2,shape = 21,color = "white") +
-  labs(x = "log-fold change",y = "|z-score|",fill = "log10(avg.exp.)") +
+  labs(x = "log-fold change",y = "|z-score|",fill = "log10(mean)") +
+  scale_y_continuous(trans = "sqrt") +
   scale_fill_gradient2(low = "skyblue",mid = "gold",
                        high = "orangered",midpoint = 0) +
-  theme_cowplot(12))
+  theme_cowplot(font_size = 12))

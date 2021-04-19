@@ -30,9 +30,24 @@ fit_poisson_models <- function (X, L, s = rep(1,nrow(X)), method, eps = 1e-15,
 
 # TO DO: Explain here what this function does, and how to use it.
 # stat: "vsmean", "le", or an index.
-compute_lfc_stats <- function (X, L, s, mu = NULL, stat,
-                               version = c("Rcpp","R")) {
-
+compute_lfc_stats <- function (X, F, L, s, mu = colSums(X)/sum(s),
+                               stat = "vsmean", version = c("Rcpp","R")) {
+  if (version == "Rcpp") {
+    # TO DO.
+  } else {
+    m   <- ncol(X)
+    k   <- ncol(L)
+    lfc <- matrix(0,m,k)
+    se  <- matrix(0,m,k)
+    z   <- matrix(0,m,k)
+    for (i in 1:m) {
+      out     <- compute_lfc_stats_helper(X[,i],L,F[i,],mu[i],stat)
+      lfc[i,] <- out$lfc
+      se[i,]  <- out$se
+      z[i,]   <- out$z
+    }
+  }
+  return(list(lfc = lfc,se = se,z = z))
 }
 
 # Implements fit_poisson_models for method = "glm".
@@ -95,9 +110,11 @@ compute_lfc_stats_helper <- function (x, L, f, mu, stat) {
     out <- compute_lfc_le(f,S)
   else
     out <- compute_lfc_pairwise(f,S,stat)
+  z <- with(out,lfc/se)
+  z[out$lfc == 0] <- 0
   return(with(out,list(lfc = lfc/log(2),
                        se  = se/log(2),
-                       z   = lfc/se)))
+                       z   = z)))
 }
 
 # Return the log-fold change statistics log(f[i]/mu) and their
@@ -105,7 +122,7 @@ compute_lfc_stats_helper <- function (x, L, f, mu, stat) {
 # comparable statistic such as the median (mu), and S, the covariance
 # of log(f). Here, the LFC is defined using the natural logarithm (not
 # the base-2 logarithm, which is the convention).
-compute_lfc_vs_mean <- function (f, mu, S) {
+compute_lfc_vs_mean <- function (f, mu, S)
   return(list(lfc = log(f/mu),se = sqrt(diag(S))))
 
 # Return the pairwise log-fold change statistics log(f[j]/f[i]) and
@@ -132,9 +149,19 @@ compute_lfc_le <- function (f, S) {
   se  <- rep(0,n)
   for (i in 1:n) {
     out    <- compute_lfc_pairwise(f,S,i)
-    j      <- order(abs(with(out,lfc/se)))[2]
-    lfc[i] <- out$lfc[j]
+    j      <- order(abs(out$lfc))[2]
+    lfc[i] <- -out$lfc[j]
     se[i]  <- out$se[j]
   }
   return(list(lfc = lfc,se = se))
+}
+
+# TO DO: Explain here what this function does, and how to use it.
+add_pseudocounts <- function (X, L, s, e = 0.01) {
+  m <- ncol(X)
+  k <- ncol(L)
+  X <- rbind(X,matrix(e,k,m))
+  L <- rbind(L,diag(k))
+  s <- c(s,rep(1,k))
+  return(list(X = X,L = L,s = s))
 }
