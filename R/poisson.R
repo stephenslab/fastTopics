@@ -1,7 +1,7 @@
 # For each column of the counts matrix, compute maximum-likelihood
-# estimates (MLEs) of the parameters in the single-count Poisson
-# model. Input argument "method" may be set to "glm" or any valid
-# setting for "method" in update_factors_poisson_nmf.
+# estimates (MLEs) of the parameters in the Poisson glm. Input
+# argument "method" may be set to "glm", or to any valid setting for
+# "method" in update_factors_poisson_nmf.
 #
 #' @importFrom stats glm.control
 fit_poisson_models <- function (X, L, method, eps = 1e-15, numiter = 100,
@@ -23,8 +23,48 @@ fit_poisson_models <- function (X, L, method, eps = 1e-15, numiter = 100,
   return(F)
 }
 
-# TO DO: Explain here what this function does, and how to use it.
-# stat: "vsmean", "le", or an index.
+# Fit the Poisson glm, x[i] ~ Poisson(u[i]), using the "glm" function,
+# in which the Poisson rates are u[i] = sum(L[i,]*f). Inputs x and L are
+# the data: x is a vector of length n; and L is an n x k matrix. Input
+# argument f is a vector of length k giving initial estimates of the
+# coefficients.
+#
+#' @importFrom stats formula
+#' @importFrom stats glm
+#' @importFrom stats glm.control
+#' @importFrom stats summary.glm
+#' @importFrom stats poisson
+#'
+fit_poisson_glm <-
+  function (x, L, f = rep(0.5,ncol(L)),
+            control = glm.control(epsilon = 1e-10, maxit = 100)) {
+  k <- length(f)
+  dat <- as.data.frame(cbind(x,L))
+  names(dat) <- c("x",paste0("f",1:k))
+  model <- formula(paste("x ~",paste(names(dat)[-1],collapse = " + "),"- 1"))
+  fit <- suppressWarnings(glm(model,family = poisson(link = "identity"),
+                              data = dat,start = f,control = control))
+  return(list(fit = fit,coef = summary.glm(fit)$coefficients[,"Estimate"]))
+}
+
+# Implements fit_poisson_models for method = "glm".
+fit_poisson_models_glm <- function (X, L, control)  {
+  m <- ncol(X)
+  k <- ncol(L)
+  F <- matrix(0,m,k)
+  for (i in 1:m)
+    F[i,] <- fit_poisson_glm(X[,i],L,control = control)$coef
+  return(F)
+}
+
+# Return log-fold change statistics lfc[j,k], and accompanying
+# standard errors se[j,k] and z-scores z[j,k], under the Poisson glm
+# x[i,j] ~ Pois(u[i,j]), in which the Poisson rates are u[i,j] =
+# sum(L[i,]*F[j,]). The LFC calculations are determined by the "stat"
+# input argument: when stat = "vsmean", lfc[j,k] = log2(F[j,k]/mu[j]);
+# when stat = "le", lfc[j,k] is defined as the "least extreme"
+# pairwise log-fold change; and when stat = k', lfc[j,k] is the
+# pairwise log-fold change statistic lfc[j,k] = log2(F[j,k]/F[j,k']).
 compute_lfc_stats <- function (X, F, L, mu, stat = "vsmean",
                                version = c("Rcpp","R")) {
   if (version == "Rcpp") {
@@ -45,56 +85,13 @@ compute_lfc_stats <- function (X, F, L, mu, stat = "vsmean",
   return(list(lfc = lfc,se = se,z = z))
 }
 
-# Implements fit_poisson_models for method = "glm".
-fit_poisson_models_glm <- function (X, L, control)  {
-  m <- ncol(X)
-  k <- ncol(L)
-  F <- matrix(0,m,k)
-  for (i in 1:m)
-    F[i,] <- fit_poisson_glm(X[,i],L,control = control)$coef
-  return(F)
-}
-
-# Fit the Poisson glm in which the Poisson rates are l1*f1 + ... +
-# lk*fk. Inputs x and L are the data; x is a vector of length n, and L
-# is an n x k matrix. Input argument f is a vector of length k giving
-# initial estimates of the coefficients f1,...,fk.
-#
-#' @importFrom stats formula
-#' @importFrom stats glm
-#' @importFrom stats glm.control
-#' @importFrom stats summary.glm
-#' @importFrom stats poisson
-#'
-fit_poisson_glm <-
-  function (x, L, f = rep(0.5,ncol(L)),
-            control = glm.control(epsilon = 1e-10, maxit = 100)) {
-  k <- length(f)
-  dat <- as.data.frame(cbind(x,L))
-  names(dat) <- c("x",paste0("f",1:k))
-  model <- formula(paste("x ~",paste(names(dat)[-1],collapse = " + "),"- 1"))
-  fit <- suppressWarnings(glm(model,family = poisson(link = "identity"),
-                              data = dat,start = f,control = control))
-  return(list(fit = fit,coef = summary.glm(fit)$coefficients[,"Estimate"]))
-}
-
-# Return the covariance of log(f) in the Poisson glm. See the comments
-# accompanying fit_poisson_glm for an explanation of the model and
-# inputs. The covariance calculations are based on a Laplace
-# approximation to the likelihood, and assume that input f contains
-# MLEs of the coefficients.
-compute_poisson_covariance <- function (x, L, f) {
-  u <- drop(L %*% f)
-  return(chol2inv(chol(tcrossprod(f) * crossprod(sqrt(x)/u*L))))
-}
-
 # Return log-fold change statistics lfc[j], and their standard errors
 # se[j] and z-scores z[j], under the Poisson glm x[i] ~ Pois(u[i]), in
-# which the Poisson rates u[i] are u[i] = L[i,]*f. The LFC
+# which the Poisson rates are u[i] = sum(L[i,]*f). The LFC
 # calculations are determined by the "stat" input argument: when stat
 # = "vsmean", lfc[j] = log2(f[j]/mu); when stat = "le", lfc[j] is
-# defined as the "least extreme" log-fold change; and when stat = k,
-# lfc[j] is the pairwise log-fold change statistic lfc[j] =
+# defined as the "least extreme" pairwise log-fold change; and when
+# stat = k, lfc[j] is the pairwise log-fold change statistic lfc[j] =
 # log2(f[j]/f[k]).
 compute_lfc_stats_helper <- function (x, L, f, mu, stat) {
   S <- compute_poisson_covariance(x,L,f)
@@ -152,6 +149,16 @@ compute_lfc_le <- function (f, S) {
     se[i]  <- out$se[j]
   }
   return(list(lfc = lfc,se = se))
+}
+
+# Return the covariance of log(f) in the Poisson glm, x[i] ~
+# Poisson(u[i]), in which the Poisson rates are u[i] = L[i,]*f. The
+# covariance calculations are based on a Laplace approximation to the
+# likelihood. We assume that the input f contains MLEs of the
+# coefficients.
+compute_poisson_covariance <- function (x, L, f) {
+  u <- drop(L %*% f)
+  return(chol2inv(chol(tcrossprod(f) * crossprod(sqrt(x)/u*L))))
 }
 
 # Add pseudocounts to the data for inference with the Poisson glm;
