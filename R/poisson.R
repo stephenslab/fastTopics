@@ -112,18 +112,20 @@ compute_lfc_stats_helper <- function (x, L, f, mu, stat) {
                        z   = z)))
 }
 
-# Return the log-fold change statistics log(f[i]/mu) and their
-# standard errors given the MLE estimates (f), the mean or a
-# comparable statistic such as the median (mu), and S, the covariance
-# of log(f). Here, the LFC is defined using the natural logarithm (not
-# the base-2 logarithm, which is the convention).
+# Return the log-fold change statistics lfc[i] = log(f[i]/mu) and
+# their standard errors se[i] given the MLE estimates (f), the mean or
+# a comparable statistic such as the median (mu), and S, the
+# covariance of log(f). Here, the log-fold change is defined using the
+# natural logarithm (not the base-2 logarithm, which is the
+# convention).
 compute_lfc_vs_mean <- function (f, mu, S)
   return(list(lfc = log(f/mu),se = sqrt(diag(S))))
 
-# Return the pairwise log-fold change statistics log(f[j]/f[i]) and
-# their standard errors given the MLE estimates (f) and S, the
-# covariance of log(f). Here, the LFC is defined using the natural
-# logarithm (not the base-2 logarithm, which is the convention).
+# Return the pairwise log-fold change statistics lfc[j] =
+# log(f[j]/f[i]) and their standard errors se[j] given the MLE
+# estimates (f), and S, the covariance of log(f). Here, the log-fold
+# change is defined using the natural logarithm (not the base-2
+# logarithm, which is the convention).
 compute_lfc_pairwise <- function (f, S, i) {
   lfc    <- log(f/f[i])
   se     <- sqrt(diag(S) + S[i,i] - 2*S[i,])
@@ -133,11 +135,11 @@ compute_lfc_pairwise <- function (f, S, i) {
 }
 
 # Return the "least extreme" pairwise log-fold change statistics
-# log(f[j]/f[i]) and their standard errors; that is, i != j is chosen
-# so that the log-fold change is closest to zero. Here, the LFC is
-# defined using the natural logarithm (not the base-2 logarithm, which
-# is the convention). The inputs are: f, the MLE estimates; and S, the
-# covariance of log(f).
+# lfc[j] = log(f[j]/f[i]) and their standard errors, se[j]; that is, i
+# != j is chosen so that the log-fold change is closest to zero. Here,
+# the log-fold change is defined using the natural logarithm (not the
+# base-2 logarithm, which is the convention). The inputs are: f, the
+# MLE estimates; and S, the covariance of log(f).
 compute_lfc_le <- function (f, S) {
   n   <- length(f)
   lfc <- rep(0,n)
@@ -151,11 +153,15 @@ compute_lfc_le <- function (f, S) {
   return(list(lfc = lfc,se = se))
 }
 
-# TO DO: Explain here what this function does, and how to use it.
+# Add pseudocounts to the data; specifically, add k rows of counts e
+# to the data matrix and replace the loadings matrix L with
+# rbind(L,I), where I is the k x k identity matrix. This is used to
+# extend ML estimation to MAP estimation for the single-count Poisson
+# model, in which fj is assigned prior Gamma(a,b), with a=1+e, b=1,
+# for j = 1,...,k.
 add_pseudocounts <- function (X, L, e = 0.01) {
   m <- ncol(X)
   k <- ncol(L)
-  X <- rbind(X,matrix(e,k,m))
-  L <- rbind(L,diag(k))
-  return(list(X = X,L = L))
+  return(list(X = rbind(X,matrix(e,k,m)),
+              L = rbind(L,diag(k))))
 }
