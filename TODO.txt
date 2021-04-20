@@ -1,6 +1,10 @@
 to do
 =====
 
++ Implement function to "project" samples onto a previously estimated
+  F (either F from a Poisson NMF model or from a multinomial topic
+  model).
+
 + Implement KKT-based stopping criterion for fit_poisson_nmf.
 
 + Prune functions in misc.R, misc.h and misc.cpp that are no longer
