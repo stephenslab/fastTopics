@@ -13,16 +13,17 @@ s   <- 10^runif(n,-1,1)
 dat <- simulate_poisson_gene_data(n,m,k,s)
 X   <- dat$X
 L   <- dat$L
-out <- add_pseudocounts(X,L,s,0.1)
-X   <- out$X
-L   <- out$L
-s   <- out$s
 Y   <- as(X,"dgCMatrix")
+mu  <- colSums(X)/sum(s)
 
 # Fit a Poisson model for each gene.
-F1 <- fit_poisson_models(X,L,s,method = "glm")
-F2 <- fit_poisson_models(X,L,s,method = "scd",nc = 4)
+out <- add_pseudocounts(X,s*L,0.1)
+X   <- out$X
+L   <- out$L
+F1  <- fit_poisson_models(X,L,method = "glm")
+F2  <- fit_poisson_models(X,L,method = "scd",nc = 4)
 print(range(F1 - F2))
+rm(s)
 
 # Compare the estimates against the Poisson rates used to simulate the
 # data.
@@ -34,14 +35,14 @@ abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 
 # Compute the log-fold change, standard error (se) and z-score for
 # each gene j and topic k.
-out1 <- compute_lfc_stats(X,F1,L,s,stat = "le",version = "R")
+out1 <- compute_lfc_stats(X,F1,L,mu = mu,stat = "vsmean",version = "R")
 
 # Here we show that the z-score varies, as expected, with the log-fold
 # change estimate and the average expression level.
 pdat <- data.frame(x = colMeans(X),lfc = out1$lfc[,1],z = out1$z[,1])
 print(ggplot(pdat,aes(x = x,y = lfc,fill = z)) +
   geom_point(size = 2,shape = 21,color = "white") +
-  geom_abline(intercept = 0,slope = 0,color = "grayb",linetype = "dotted") +
+  geom_abline(intercept = 0,slope = 0,color = "gray",linetype = "dotted") +
   scale_x_continuous(trans = "log10") +
   scale_fill_gradient2(low = "darkblue",mid = "skyblue",
                        high = "orangered",midpoint = 0) +

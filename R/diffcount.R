@@ -208,12 +208,20 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # Compute the per-column averages. (This needs to be done before
   # we add the pseudocounts to the data.)
   colmeans <- colMeans(X)
-
+  
   # Add the pseudocounts to the data.
   X <- rbind(X,matrix(pseudocount,k,ncol(X)))
   s <- c(s,rep(1,k))
   L <- rbind(fit$L,diag(k))
 
+
+  # TO DO: Update this code as needed.
+  #
+  # Enure that none of the topic proportions are exactly zero or
+  # exactly one.
+  L <- pmax(L,eps)
+  L <- pmin(L,1-eps)
+  
   # COMPUTE LOG-FOLD CHANGE STATISTICS
   # ----------------------------------
   # Fit the univariate ("single-count") Poisson models.

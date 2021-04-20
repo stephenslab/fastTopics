@@ -4,34 +4,29 @@
 # setting for "method" in update_factors_poisson_nmf.
 #
 #' @importFrom stats glm.control
-fit_poisson_models <- function (X, L, s = rep(1,nrow(X)), method, eps = 1e-15,
-                                numiter = 100, tol = 1e-8, nc = 1) {
+fit_poisson_models <- function (X, L, method, eps = 1e-15, numiter = 100,
+                                tol = 1e-8, nc = 1) {
 
   # Get the number of topics (k) and the number of data columns (m).
   m <- ncol(X)
   k <- ncol(L)
   
-  # Enure that none of the topic proportions are exactly zero or
-  # exactly one.
-  L <- pmax(L,eps)
-  L <- pmin(L,1-eps)
-
   # For each column of X, compute MLEs of the Poisson model parameters.
   if (method == "glm") {
     control <- glm.control(epsilon = tol,maxit = numiter)
-    F <- fit_poisson_models_glm(X,L,s,control)
+    F <- fit_poisson_models_glm(X,L,control)
   } else {
     control <- list(numiter = numiter,nc = nc,eps = eps)
     F <- matrix(0.5,m,k)
-    F <- update_factors_poisson_nmf(X,F,s*L,1:m,method,control)
+    F <- update_factors_poisson_nmf(X,F,L,1:m,method,control)
   }
   return(F)
 }
 
 # TO DO: Explain here what this function does, and how to use it.
 # stat: "vsmean", "le", or an index.
-compute_lfc_stats <- function (X, F, L, s, mu = colSums(X)/sum(s),
-                               stat = "vsmean", version = c("Rcpp","R")) {
+compute_lfc_stats <- function (X, F, L, mu, stat = "vsmean",
+                               version = c("Rcpp","R")) {
   if (version == "Rcpp") {
     # TO DO.
   } else {
@@ -51,12 +46,12 @@ compute_lfc_stats <- function (X, F, L, s, mu = colSums(X)/sum(s),
 }
 
 # Implements fit_poisson_models for method = "glm".
-fit_poisson_models_glm <- function (X, L, s, control)  {
+fit_poisson_models_glm <- function (X, L, control)  {
   m <- ncol(X)
   k <- ncol(L)
   F <- matrix(0,m,k)
   for (i in 1:m)
-    F[i,] <- fit_poisson_glm(X[,i],s*L,control = control)$coef
+    F[i,] <- fit_poisson_glm(X[,i],L,control = control)$coef
   return(F)
 }
 
@@ -157,11 +152,10 @@ compute_lfc_le <- function (f, S) {
 }
 
 # TO DO: Explain here what this function does, and how to use it.
-add_pseudocounts <- function (X, L, s, e = 0.01) {
+add_pseudocounts <- function (X, L, e = 0.01) {
   m <- ncol(X)
   k <- ncol(L)
   X <- rbind(X,matrix(e,k,m))
   L <- rbind(L,diag(k))
-  s <- c(s,rep(1,k))
-  return(list(X = X,L = L,s = s))
+  return(list(X = X,L = L))
 }
