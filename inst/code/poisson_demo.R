@@ -16,11 +16,10 @@ L   <- dat$L
 Y   <- as(X,"dgCMatrix")
 mu  <- colSums(X)/sum(s)
 
-# Add pseudocounts.
+# Add "pseudocounts" to the data.
 out <- add_pseudocounts(X,s*L,0.1)
 X   <- out$X
 L   <- out$L
-rm(s)
 
 # Fit a Poisson model for each gene.
 F1  <- fit_poisson_models(X,L,method = "glm")

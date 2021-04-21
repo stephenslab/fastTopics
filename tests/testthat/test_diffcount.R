@@ -14,31 +14,27 @@ test_that(paste("All variants of fit_poisson_models and",
   X   <- dat$X
   L   <- dat$L
 
+  # Remove all-zero columns.
+  X <- X[,colSums(X) > 0]
+
+  # Compute the MLE of mu under Poisson model x ~ Pois(s*mu).
+  mu <- colSums(X)/sum(s)
+
   # Add "pseudocounts" to the data.
-  X <- rbind(X,matrix(1,k,m))
-  Y <- as(X,"dgCMatrix")
-  s <- c(s,rep(1,k))
-  L <- rbind(L,diag(k))
+  out <- add_pseudocounts(X,s*L,0.1)
+  X   <- out$X
+  L   <- out$L
   
   # Fit the univariate Poisson models using glm and scd.
-  F1 <- fit_poisson_models(X,L,s,method = "glm")
-  F2 <- fit_poisson_models(X,L,s,method = "scd")
+  F1 <- fit_poisson_models(X,L,method = "glm")
+  F2 <- fit_poisson_models(X,L,method = "scd")
 
   # All four implementations should produce the same, or nearly the
   # same, estimates of the model parameters.
   expect_equal(F1,F2,scale = 1,tolerance = 1e-5)
 
   # Compute the log-fold change statistics.
-  out1 <- compute_univar_poisson_zscores(X,L,fit3$F0,fit3$F1,s)
-  out2 <- compute_univar_poisson_zscores_fast(X,L,fit3$F0,fit3$F1,s)
-  out3 <- compute_univar_poisson_zscores_fast(Y,L,fit3$F0,fit3$F1,s)
-
-  # The different implementations should produce nearly the same
-  # z-scores as the glm calculations.
-  expect_equal(names(fit1),names(out1))
-  expect_lt(median(abs(fit1$Z - out1$Z)),0.05)
-  expect_equal(out1,out2,scale = 1,tolerance = 1e-15)
-  expect_equal(out1,out3,scale = 1,tolerance = 1e-15)
+  out1 <- compute_lfc_stats(X,F1,L,mu,stat = "vsmean",version = "R")
 })
 
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
