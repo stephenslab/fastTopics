@@ -1,6 +1,6 @@
-hpd <- function (x, conf = 0.95) {
+hpd <- function (x, conf.level = 0.95) {
   n <- length(x)
-  m <- round(n*(1 - conf))
+  m <- round(n*(1 - conf.level))
   x <- sort(x)
   y <- x[seq(n-m+1,n)] - x[seq(1,m)]
   i <- which.min(y)
