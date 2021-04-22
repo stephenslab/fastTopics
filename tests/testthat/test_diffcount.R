@@ -1,8 +1,7 @@
 context("diffcount")
 
-test_that(paste("All variants of fit_poisson_models and",
-                "compute_univar_poisson_zscores produce the same, or",
-                "nearly the same, result"),{
+test_that(paste("All variants of fit_poisson_models and compute_lfc_stats",
+                "produce the same, or nearly the same, result"),{
 
   # Simulate gene expression data.
   set.seed(1)

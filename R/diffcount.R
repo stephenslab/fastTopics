@@ -164,7 +164,7 @@
 #' @export
 #' 
 diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
-                                 fit.method = c("em","optim","glm"),
+                                 fit.method = c("scd","em","glm"),
                                  shrink.method = c("ash","none"),
                                  numiter = 100, tol = 1e-8, e = 1e-15,
                                  show.warning = TRUE, verbose = TRUE, ...) {
