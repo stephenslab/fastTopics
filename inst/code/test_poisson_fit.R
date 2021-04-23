@@ -30,11 +30,11 @@ print(compute_poisson_covariance(x,L,out$coef))
 
 # Draw samples from the posterior using random-walk Metropolis.
 samples <- simulate_posterior_poisson(x,L,out$coef,ns = 1e5,s = 0.1)
-print(cov(samples))
+print(cov(log(samples)))
 
 # Get 90% HPD intervals.
-print(hpd(samples[,1],0.9))
-print(hpd(samples[,2],0.9))
+print(hpd(log(samples[,1]),0.9))
+print(hpd(log(samples[,2]),0.9))
 
 # Plot the likelihood surface.
 dat <- expand.grid(t1 = seq(-4,1,0.05),t2 = seq(-4,1,0.02))
@@ -58,7 +58,7 @@ p1 <- ggplot(dat,aes(x = t1,y = t2,z = lik)) +
   theme_cowplot(font_size = 10)
 
 # Plot the Monte Carlo density estimate.
-samples <- as.data.frame(samples)
+samples <- as.data.frame(log(samples))
 names(samples) <- c("k1","k2")
 p2 <- ggplot(samples,aes(x = k1,y = k2)) +
   geom_density_2d(color = "black") +
