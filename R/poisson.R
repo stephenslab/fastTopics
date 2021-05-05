@@ -186,28 +186,34 @@ compute_poisson_covariance <- function (x, L, f) {
 # acceptance rate.
 #
 #' @importFrom stats dpois
-simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 1, e = 1e-15) {
+simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
+                                        e = 1e-15) {
   k <- length(f)
   t <- log(f)
   ar <- 0
   samples <- matrix(0,ns,k)
+  D <- matrix(rnorm(ns*k),ns,k)
+  U <- matrix(runif(ns*k),ns,k)
   for (i in 1:ns) {
-    K <- sample(k)
-    for (j in K) {
+    for (j in 1:k) {
 
       # Randomly suggest moving to tj(new) = tj + d, where d ~ N(0,s).
       tnew    <- t
-      d       <- rnorm(1,sd = s)
+      d       <- s*D[i,j]
       tnew[j] <- t[j] + d
 
       # Compute the Metropolis acceptance probability, and move to the
-      # new state according to this acceptance probability.
+      # new state according to this acceptance probability. Note that
+      # the additional d in the acceptance probability is needed to
+      # account for the fact that we are simulating log(f), not f; see
+      # p. 11 of Devroye (1986) "Non-uniform random variate generation".
       u     <- drop(L %*% exp(t))
       unew  <- drop(L %*% exp(tnew))
       ll    <- sum(dpois(x,u + e,log = TRUE))
       llnew <- sum(dpois(x,unew + e,log = TRUE))
-      a     <- min(1,exp((llnew - ll) + d))
-      if (runif(1) < a) {
+      a     <- exp((llnew - ll) + d)
+      a     <- min(1,a)
+      if (U[i,j] < a) {
         t  <- tnew
         ar <- ar + 1
       }

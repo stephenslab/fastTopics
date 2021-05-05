@@ -10,7 +10,7 @@ diff_count_analysis(
   X,
   s = rowSums(X),
   pseudocount = 0.01,
-  fit.method = c("em", "optim", "glm"),
+  fit.method = c("scd", "em", "glm"),
   shrink.method = c("ash", "none"),
   numiter = 100,
   tol = 1e-08,
@@ -68,9 +68,6 @@ when the largest change between two successive updates is less than
 
 \item{e}{A small, positive scalar included in some computations to
 avoid logarithms of zero and division by zero.}
-
-\item{show.warning}{Set \code{show.warning = FALSE} to suppress a
-message about calculations when mixture proportions are all 0 or 1.}
 
 \item{verbose}{When \code{verbose = TRUE}, progress information is
 printed to the console.}

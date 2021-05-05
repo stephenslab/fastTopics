@@ -30,7 +30,16 @@ cat("Cov(log(f)) estimated via Laplace approximation:\n")
 print(compute_poisson_covariance(x,L,out$coef))
 
 # Draw samples from the posterior using random-walk Metropolis.
-sim <- simulate_posterior_poisson(x,L,out$coef,ns = 1e5,s = 0.3)
+ns <- 1e5
+set.seed(1)
+print(system.time(
+  sim <- simulate_posterior_poisson(x,L,out$coef,ns = ns,s = 0.3)))
+set.seed(1)
+D <- matrix(rnorm(2*ns),ns,2)
+U <- matrix(runif(2*ns),ns,2)
+print(system.time(
+  sim2 <- simulate_posterior_poisson_rcpp(x,L,out$coef,D,U,0.3,1e-15)))
+
 cat("MCMC estimate of Cov(log(f)):\n")
 print(cov(log(sim$samples)))
 cat(sprintf("Acceptance rate: %0.2f%%\n",100*sim$ar))
