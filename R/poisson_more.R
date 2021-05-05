@@ -25,7 +25,7 @@ simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 1, e = 1e-15) {
       fnew[j] <- exp(log(f[j]) + rnorm(1,sd = s))
       u       <- drop(L %*% f)
       unew    <- drop(L %*% fnew)
-      # NOTE: I think I need to fix this acceptance probability via
+      # NOTE: gI think I need to fix this acceptance probability via
       # the change of variables formula to account for the fact that I
       # am sampling log(f), not f.
       a <- min(1,exp(loglik_poisson(x,unew,e) - loglik_poisson(x,u,e)))
