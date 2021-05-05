@@ -13,7 +13,17 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const mat& D,
 
 // FUNCTION DEFINITIONS
 // --------------------
-// TO DO: Explain here what this function does, and how to use it.
+// This is a more efficient C++ implementation of
+// simulate_posterior_poisson. See the description of that function
+// for an explanation of the input arguments. Additional input
+// arguments specific to the C++ implementation are D and U; these
+// inputs should be generated in R as
+//
+//   k = length(f) 
+//   D = matrix(rnorm(ns*k),ns,k)
+//   U = matrix(runif(ns*k),ns,k)
+//
+// where ns is the requesed number of Monte Carlo samples.
 // 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
@@ -35,16 +45,18 @@ double loglik_poisson (const vec& x, const vec& y, double e) {
   return sum(x % log(y + e) - y);
 }
 
-// TO DO: Explain here what this function does, and how to use it.
+// This implements the core part of simulate_posterior_poisson_rcpp.
+// Input argument "samples" should be an ns x k matrix, where ns is
+// the number of Monte Carlo samples to generate, and k = length(t).
 double simulate_posterior_poisson (const vec& x, const mat& L, const mat& D, 
 				   const mat& U, vec& t, mat& samples, 
 				   double s, double e) {
   unsigned int n  = x.n_elem;
   unsigned int ns = samples.n_rows;
   unsigned int k  = samples.n_cols;
-  vec    tnew(k);
-  vec    u(n);
-  vec    unew(n);
+  vec tnew(k);
+  vec u(n);
+  vec unew(n);
   double ar = 0;
   double ll, llnew;
   double a, d;

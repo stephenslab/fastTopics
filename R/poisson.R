@@ -185,6 +185,10 @@ compute_poisson_covariance <- function (x, L, f) {
 # samples of f, where k = length(f), and (2) "ar", the Metropolis
 # acceptance rate.
 #
+# This is mainly used to test simulate_posterior_poisson_rcpp and is
+# not actually used in practice because it is too slow for most
+# practical purposes.
+#
 #' @importFrom stats dpois
 simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
                                         e = 1e-15) {
