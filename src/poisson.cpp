@@ -49,6 +49,7 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const mat& D,
   double ll, llnew;
   double a, d;
   for (unsigned int i = 0; i < ns; i++) {
+    u = L * exp(t);
     for (unsigned int j = 0; j < k; j++) {
 
       // Randomly suggest moving to tj(new) = tj + d, where d ~ N(0,s).
@@ -61,14 +62,14 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const mat& D,
       // the additional d in the acceptance probability is needed to
       // account for the fact that we are simulating log(f), not f; see
       // p. 11 of Devroye (1986) "Non-uniform random variate generation".
-      u     = L * exp(t);
-      unew  = L * exp(tnew);
+      unew  = u + (exp(tnew[j]) - exp(t[j])) * L.col(j);
       ll    = loglik_poisson(x,u,e);
       llnew = loglik_poisson(x,unew,e);
       a     = exp((llnew - ll) + d);
       a     = minimum(1,a);
       if (U(i,j) < a) {
         t = tnew;
+	u = unew;
         ar++;
       }
     }
