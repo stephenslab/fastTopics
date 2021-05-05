@@ -1,7 +1,7 @@
 context("diffcount")
 
-test_that(paste("All variants of fit_poisson_models and compute_lfc_stats",
-                "produce the same, or nearly the same, result"),{
+test_that(paste("All variants of fit_poisson_models should produce the",
+                "same, or nearly the same, result"),{
 
   # Simulate gene expression data.
   set.seed(1)
@@ -23,17 +23,19 @@ test_that(paste("All variants of fit_poisson_models and compute_lfc_stats",
   out <- add_pseudocounts(X,s*L,0.1)
   X   <- out$X
   L   <- out$L
+  Y   <- as(X,"dgCMatrix")
   
   # Fit the univariate Poisson models using glm and scd.
   F1 <- fit_poisson_models(X,L,method = "glm")
-  F2 <- fit_poisson_models(X,L,method = "scd")
+  F2 <- fit_poisson_models(Y,L,method = "glm")
+  F3 <- fit_poisson_models(X,L,method = "scd")
+  F4 <- fit_poisson_models(Y,L,method = "scd")
 
   # All four implementations should produce the same, or nearly the
   # same, estimates of the model parameters.
-  expect_equal(F1,F2,scale = 1,tolerance = 1e-5)
-
-  # Compute the log-fold change statistics.
-  out1 <- compute_lfc_stats(X,F1,L,mu,stat = "vsmean",version = "R")
+  expect_equal(F1,F2,scale = 1,tolerance = 1e-15)
+  expect_equal(F3,F4,scale = 1,tolerance = 1e-15)
+  expect_equal(F1,F3,scale = 1,tolerance = 1e-5)
 })
 
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",

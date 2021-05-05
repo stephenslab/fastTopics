@@ -63,6 +63,15 @@ generate_poismix_data <- function (n, x) {
   return(list(L = L,w = w))
 }
 
+# Given an n x k matrix of topic proportions, where n is the number of
+# samples and k is the number of topics, force "hard" topic
+# assignments; that is, return a topic proportions matrix with all
+# ones and zeros, such that the largest topic proportion in each row
+# is replaced with a 1.
+force_hard_topic_assignments <- function (L)
+  as.matrix(Matrix::sparseMatrix(i = 1:nrow(L),j = apply(L,1,which.max),
+                                 x = 1,dims = dim(L)))
+
 # Compute the log-likelihoods for a Poisson non-negative matrix
 # factorization. This should give the same result as
 # loglik_poisson_nmf, but the computation is done less efficiently
