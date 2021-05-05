@@ -18,34 +18,33 @@ L   <- cbind(s*(1-q),s*q)
 dat <- data.frame(x = x,f1 = L[,1],f2 = L[,2])
 fit <- glm(x ~ f1 + f2 - 1,family = poisson(link = "identity"),
            data = dat,start = c(0.5,0.5),control = control)
-print(coef(fit))
+print(log(coef(fit)))
 
 # Fit the model parameters using glm with family = poisson(link =
 # "identity").
 out <- fit_poisson_glm(x,L)
-print(out$coef)
+print(log(out$coef))
 
 # Compute the covariance of log(f).
 print(compute_poisson_covariance(x,L,out$coef))
 
 # Draw samples from the posterior using random-walk Metropolis.
-samples <- simulate_posterior_poisson(x,L,out$coef,ns = 1e5,s = 0.1)
-print(cov(log(samples)))
+sim <- simulate_posterior_poisson(x,L,out$coef,ns = 1e5,s = 0.3)
+print(cov(log(sim$samples)))
+cat(sprintf("Acceptance rate: %0.2f%%\n",100*sim$ar))
 
 # Get 90% HPD intervals.
-print(hpd(log(samples[,1]),0.9))
-print(hpd(log(samples[,2]),0.9))
+print(hpd(log(sim$samples[,1]),0.9))
+print(hpd(log(sim$samples[,2]),0.9))
 
 # Plot the likelihood surface.
-dat <- expand.grid(t1 = seq(-4,1,0.05),t2 = seq(-4,1,0.02))
+dat     <- expand.grid(t1 = seq(-4,1,0.05),t2 = seq(-4,1,0.02))
+n       <- nrow(dat)
 dat$lik <- 0
-n <- nrow(dat)
-loglik_poisson <- function (x, y, e = 1e-15)
-  return(sum(x*log(y + e) - y))
 for (i in 1:n) {
   f <- exp(c(dat[i,1],dat[i,2]))
   u <- drop(L %*% f)
-  dat[i,"lik"] <- loglik_poisson(x,u)
+  dat[i,"lik"] <- sum(dpois(x,u,log = TRUE))
 }
 dat$lik <- exp(dat$lik - max(dat$lik))
 p1 <- ggplot(dat,aes(x = t1,y = t2,z = lik)) +
@@ -58,9 +57,9 @@ p1 <- ggplot(dat,aes(x = t1,y = t2,z = lik)) +
   theme_cowplot(font_size = 10)
 
 # Plot the Monte Carlo density estimate.
-samples <- as.data.frame(log(samples))
-names(samples) <- c("k1","k2")
-p2 <- ggplot(samples,aes(x = k1,y = k2)) +
+sim$samples <- as.data.frame(log(sim$samples))
+names(sim$samples) <- c("k1","k2")
+p2 <- ggplot(sim$samples,aes(x = k1,y = k2)) +
   geom_density_2d(color = "black") +
   geom_point(data = as.data.frame(t(log(out$coef))),
              mapping = aes(x = f1,y = f2),

@@ -65,6 +65,9 @@ fit_poisson_models_glm <- function (X, L, control)  {
 # when stat = "le", lfc[j,k] is defined as the "least extreme"
 # pairwise log-fold change; and when stat = k', lfc[j,k] is the
 # pairwise log-fold change statistic lfc[j,k] = log2(F[j,k]/F[j,k']).
+#
+# TO DO: Revise this function.
+# 
 compute_lfc_stats <- function (X, F, L, mu, stat = "vsmean",
                                version = c("Rcpp","R")) {
   if (version == "Rcpp") {
@@ -93,6 +96,9 @@ compute_lfc_stats <- function (X, F, L, mu, stat = "vsmean",
 # defined as the "least extreme" pairwise log-fold change; and when
 # stat = k, lfc[j] is the pairwise log-fold change statistic lfc[j] =
 # log2(f[j]/f[k]).
+#
+# TO DO: Revise or remove this function.
+#
 compute_lfc_stats_helper <- function (x, L, f, mu, stat) {
   S <- compute_poisson_covariance(x,L,f)
   if (stat == "vsmean")
@@ -123,6 +129,9 @@ compute_lfc_vs_mean <- function (f, mu, S)
 # covariance of log(f). Here, the log-fold change is defined using the
 # natural logarithm (not the base-2 logarithm, which is the
 # convention).
+#
+# TO DO: Revise or remove this function.
+#
 compute_lfc_pairwise <- function (f, S, i) {
   lfc    <- log(f/f[i])
   se     <- sqrt(diag(S) + S[i,i] - 2*S[i,])
@@ -138,6 +147,9 @@ compute_lfc_pairwise <- function (f, S, i) {
 # zero. Here, the log-fold change is defined using the natural
 # logarithm (not the base-2 logarithm, which is the convention). The
 # inputs are: f, the MLE estimates; and S, the covariance of log(f).
+#
+# TO DO: Revise or remove this function.
+#
 compute_lfc_le <- function (f, S) {
   n   <- length(f)
   lfc <- rep(0,n)
@@ -161,6 +173,46 @@ compute_poisson_covariance <- function (x, L, f) {
   return(chol2inv(chol(tcrossprod(f) * crossprod(sqrt(x)/u*L))))
 }
 
+# TO DO: Explain here what this function does, and how to use it.
+simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 1, e = 1e-15) {
+  k  <- length(f)
+  t  <- log(f)
+  ar <- 0
+  samples <- matrix(0,ns,k)
+  for (i in 1:ns) {
+    K <- sample(k)
+    for (j in K) {
+      tnew    <- t
+      tnew[j] <- t[j] + rnorm(1,sd = s)
+      f       <- exp(t)
+      u       <- drop(L %*% f)
+      ll      <- sum(dpois(x,u,log = TRUE))
+      fnew    <- exp(tnew)
+      unew    <- drop(L %*% fnew)
+      llnew   <- sum(dpois(x,unew,log = TRUE))
+      a       <- min(1,exp((tnew[j] - t[j]) + (llnew - ll)))
+      if (runif(1) < a) {
+        t  <- tnew
+        ar <- ar + 1
+      }
+    }
+    samples[i,] <- exp(t)
+  }
+  return(list(samples = samples,ar = ar/(k*ns)))
+}
+
+# Compute the highest posterior density (HPD) interval from a vector
+# of random draws from the distribution. See Chen & Shao (1999) for
+# background on HPD intervals.
+hpd <- function (x, conf.level = 0.95) {
+  n <- length(x)
+  m <- round(n*(1 - conf.level))
+  x <- sort(x)
+  y <- x[seq(n-m+1,n)] - x[seq(1,m)]
+  i <- which.min(y)
+  return(c(x[i],x[n-m+i]))
+}
+
 # Add pseudocounts to the data for inference with the Poisson glm;
 # specifically, add k rows of counts e to the data matrix, and replace
 # the loadings matrix L with rbind(L,I), where I is the k x k identity
@@ -173,3 +225,4 @@ add_pseudocounts <- function (X, L, e = 0.01) {
   return(list(X = rbind(X,matrix(e,k,m)),
               L = rbind(L,diag(k))))
 }
+
