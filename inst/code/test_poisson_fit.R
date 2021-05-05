@@ -1,4 +1,4 @@
-# TO DO: Explain here what this script does, and how to use it.
+# Verify the Poisson model computations on a small example with k = 2.
 library(ggplot2)
 library(cowplot)
 
@@ -26,14 +26,17 @@ out <- fit_poisson_glm(x,L)
 print(log(out$coef))
 
 # Compute the covariance of log(f).
+cat("Cov(log(f)) estimated via Laplace approximation:\n")
 print(compute_poisson_covariance(x,L,out$coef))
 
 # Draw samples from the posterior using random-walk Metropolis.
 sim <- simulate_posterior_poisson(x,L,out$coef,ns = 1e5,s = 0.3)
+cat("MCMC estimate of Cov(log(f)):\n")
 print(cov(log(sim$samples)))
 cat(sprintf("Acceptance rate: %0.2f%%\n",100*sim$ar))
 
 # Get 90% HPD intervals.
+cat("MCMC estimates of 90% HPD intervals:\n")
 print(hpd(log(sim$samples[,1]),0.9))
 print(hpd(log(sim$samples[,2]),0.9))
 
@@ -56,7 +59,7 @@ p1 <- ggplot(dat,aes(x = t1,y = t2,z = lik)) +
   labs(x = "log(f1)",y = "log(f2)") +
   theme_cowplot(font_size = 10)
 
-# Plot the Monte Carlo density estimate.
+# Plot the MCMC density estimate.
 sim$samples <- as.data.frame(log(sim$samples))
 names(sim$samples) <- c("k1","k2")
 p2 <- ggplot(sim$samples,aes(x = k1,y = k2)) +

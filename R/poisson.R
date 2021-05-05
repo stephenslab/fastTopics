@@ -173,31 +173,51 @@ compute_poisson_covariance <- function (x, L, f) {
   return(chol2inv(chol(tcrossprod(f) * crossprod(sqrt(x)/u*L))))
 }
 
-# TO DO: Explain here what this function does, and how to use it.
+# Simulate draws from the posterior distribution of f via random-walk
+# Metropolis on log(f). The posterior distribution is based on a
+# uniform prior and the Poisson glm likelihood with. Input ns
+# specifies the number of Monte Carlo samples to simulate. Input s
+# determines the width (standard deviation) of the random walk, and
+# input f is the initial state of the Markov chain. Here, t = log(f)
+# is the current state of the Markov chain.
+#
+# The outputs are (1) "samples", an ns x k matrix of Monte Carlo
+# samples of f, where k = length(f), and (2) "ar", the Metropolis
+# acceptance rate.
+#
+#' @importFrom stats dpois
 simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 1, e = 1e-15) {
-  k  <- length(f)
-  t  <- log(f)
+  k <- length(f)
+  t <- log(f)
   ar <- 0
   samples <- matrix(0,ns,k)
   for (i in 1:ns) {
     K <- sample(k)
     for (j in K) {
+
+      # Randomly suggest moving to tj(new) = tj + d, where d ~ N(0,s).
       tnew    <- t
-      tnew[j] <- t[j] + rnorm(1,sd = s)
-      f       <- exp(t)
-      u       <- drop(L %*% f)
-      ll      <- sum(dpois(x,u,log = TRUE))
-      fnew    <- exp(tnew)
-      unew    <- drop(L %*% fnew)
-      llnew   <- sum(dpois(x,unew,log = TRUE))
-      a       <- min(1,exp((tnew[j] - t[j]) + (llnew - ll)))
+      d       <- rnorm(1,sd = s)
+      tnew[j] <- t[j] + d
+
+      # Compute the Metropolis acceptance probability, and move to the
+      # new state according to this acceptance probability.
+      u     <- drop(L %*% exp(t))
+      unew  <- drop(L %*% exp(tnew))
+      ll    <- sum(dpois(x,u + e,log = TRUE))
+      llnew <- sum(dpois(x,unew + e,log = TRUE))
+      a     <- min(1,exp((llnew - ll) + d))
       if (runif(1) < a) {
         t  <- tnew
         ar <- ar + 1
       }
     }
+
+    # Store the current state of the Markov chain.
     samples[i,] <- exp(t)
   }
+
+  # Output the states of the Markov chain and the acceptance rate.
   return(list(samples = samples,ar = ar/(k*ns)))
 }
 
