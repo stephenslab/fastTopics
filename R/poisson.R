@@ -174,12 +174,12 @@ compute_poisson_covariance <- function (x, L, f) {
 }
 
 # Simulate draws from the posterior distribution of f via random-walk
-# Metropolis on log(f). The posterior distribution is based on a
+# Metropolis on t = log(f). The posterior distribution is based on a
 # uniform prior and the Poisson glm likelihood with. Input ns
 # specifies the number of Monte Carlo samples to simulate. Input s
 # determines the width (standard deviation) of the random walk, and
-# input f is the initial state of the Markov chain. Here, t = log(f)
-# is the current state of the Markov chain.
+# input f is the initial state of the Markov chain. In the code below,
+# t = log(f) is the current state of the Markov chain.
 #
 # The outputs are (1) "samples", an ns x k matrix of Monte Carlo
 # samples of f, where k = length(f), and (2) "ar", the Metropolis
