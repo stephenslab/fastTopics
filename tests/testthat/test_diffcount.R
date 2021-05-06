@@ -1,5 +1,9 @@
 context("diffcount")
 
+test_that("Add test(s) here",{
+
+})
+
 test_that(paste("All variants of fit_poisson_models should produce the",
                 "same, or nearly the same, result"),{
 
