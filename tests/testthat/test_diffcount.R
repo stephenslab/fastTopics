@@ -1,7 +1,49 @@
 context("diffcount")
 
-test_that("Add test(s) here",{
+test_that(paste("R and C++ implementations of simulate_posterior_poisson",
+                "produce the same output, and the Monte Carlo estimate of",
+                "the covariance matrix is roughly similar to the covariance",
+                "matrix computed using Laplace's method"),{
+  
+  # Simulate a Poisson data set.
+  set.seed(1)
+  n  <- 200
+  f1 <- 0.1
+  f2 <- 1
+  s  <- sample(10,n,replace = TRUE)
+  q  <- runif(n)
+  u  <- (1-q)*f1 + q*f2
+  x  <- rpois(n,s*u)
+  L  <- cbind(s*(1-q),s*q)
 
+  # Fit the Poisson glm.
+  fit <- fit_poisson_glm(x,L)
+
+  # Compute the covariance of log(f) using Laplace's method.
+  f <- fit$coef
+  S <- compute_poisson_covariance(x,L,f)
+
+  # Draw samples from the posterior using the R and C++
+  # implementations of the random-walk Metropolis algorithm.
+  set.seed(1)
+  ns   <- 1e4
+  i    <- which(x > 0)
+  out1 <- simulate_posterior_poisson(x,L,f,ns = ns,s = 0.3)
+  set.seed(1)
+  D    <- matrix(rnorm(2*ns),ns,2)
+  U    <- matrix(runif(2*ns),ns,2)
+  out2 <- simulate_posterior_poisson_rcpp(x,L,f,D,U,0.3,1e-15)
+  out3 <- simulate_posterior_poisson_sparse_rcpp(x[i],L[i,],colSums(L),f,
+                                                 D,U,0.3,1e-15)
+
+  # The outputs from the R and C++ implementations should be the same.
+  expect_equal(out1,out2,scale = 1,tolerance = 1e-15)
+  expect_equal(out1,out3,scale = 1,tolerance = 1e-15)
+  
+  # The Laplace and MCMC estimates of the covariance matrix should be
+  # roughly similar.
+  Smc <- cov(log(out1$samples))
+  expect_equal(S,Smc,scale = 1,tolerance = 0.01)
 })
 
 test_that(paste("All variants of fit_poisson_models should produce the",
@@ -19,9 +61,6 @@ test_that(paste("All variants of fit_poisson_models should produce the",
 
   # Remove all-zero columns.
   X <- X[,colSums(X) > 0]
-
-  # Compute the MLE of mu under Poisson model x ~ Pois(s*mu).
-  mu <- colSums(X)/sum(s)
 
   # Add "pseudocounts" to the data.
   out <- add_pseudocounts(X,s*L,0.1)
