@@ -126,3 +126,14 @@ fit_pnmf_rank1 <- function (X)
   list(F = matrix(colMeans(X)),
        L = matrix(rowMeans(X)))
 
+# Compute the highest posterior density (HPD) interval from a vector
+# of random draws from the distribution. See Chen & Shao (1999) for
+# background on HPD intervals.
+hpd <- function (x, conf.level = 0.95) {
+  n <- length(x)
+  m <- round(n*(1 - conf.level))
+  x <- sort(x)
+  y <- x[seq(n-m+1,n)] - x[seq(1,m)]
+  i <- which.min(y)
+  return(c(x[i],x[n-m+i]))
+}

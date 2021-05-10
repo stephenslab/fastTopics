@@ -233,18 +233,6 @@ simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
   return(list(samples = samples,ar = ar/(k*ns)))
 }
 
-# Compute the highest posterior density (HPD) interval from a vector
-# of random draws from the distribution. See Chen & Shao (1999) for
-# background on HPD intervals.
-hpd <- function (x, conf.level = 0.95) {
-  n <- length(x)
-  m <- round(n*(1 - conf.level))
-  x <- sort(x)
-  y <- x[seq(n-m+1,n)] - x[seq(1,m)]
-  i <- which.min(y)
-  return(c(x[i],x[n-m+i]))
-}
-
 # Add pseudocounts to the data for inference with the Poisson glm;
 # specifically, add k rows of counts e to the data matrix, and replace
 # the loadings matrix L with rbind(L,I), where I is the k x k identity
