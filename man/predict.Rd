@@ -3,23 +3,29 @@
 \name{predict.poisson_nmf_fit}
 \alias{predict.poisson_nmf_fit}
 \alias{predict.multinom_topic_model_fit}
-\title{Title Goes Here}
+\title{Predict Methods for Poisson NMF and Multinomial Topic Model}
 \usage{
 \method{predict}{poisson_nmf_fit}(object, newdata, numiter = 20, ...)
 
 \method{predict}{multinom_topic_model_fit}(object, newdata, numiter = 20, ...)
 }
 \arguments{
-\item{object}{Describe input argument "object" here.}
+\item{object}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}.}
 
-\item{newdata}{Describe (optional) input "newdata" here.}
+\item{newdata}{An optional counts matrix. If omitted, the loadings
+estimated in the original data are returned.}
 
-\item{numiter}{Describe input "numiter" here.}
+\item{numiter}{The number of updates to perform.}
 
-\item{\dots}{Describe ... here.}
+\item{\dots}{Additional arguments passed to
+\code{\link{fit_poisson_nmf}}.}
 }
 \description{
-Description goes here.
+Predict loadings based on previously fit Poisson NMF,
+  or predict topic proportions based on previously fit multinomial
+  topic model. This can be thought of as projecting data points onto
+  a previously estimated set of factors \code{fit$F}.
 }
 \examples{
 # Simulate a 175 x 1,200 counts matrix.
@@ -52,7 +58,7 @@ abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 
 # Simulate a 175 x 1,200 counts matrix.
 set.seed(1)
-dat <- simulate_multinom_gene_data(175,1200,3)
+dat <- simulate_multinom_gene_data(175,1200,k = 3)
 
 # Split the data into training and test sets.
 train <- dat$X[1:100,]
