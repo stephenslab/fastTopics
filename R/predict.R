@@ -79,7 +79,7 @@
 #' 
 predict.poisson_nmf_fit <- function (object, newdata, numiter = 20, ...) {
   if (missing(newdata))
-    return(fit$L)
+    return(object$L)
   else
     return(project_poisson_nmf(object,newdata,numiter,...)$L)
 }
@@ -95,7 +95,7 @@ predict.poisson_nmf_fit <- function (object, newdata, numiter = 20, ...) {
 predict.multinom_topic_model_fit <- function (object, newdata, numiter = 20,
                                               ...) {
   if (missing(newdata))
-    return(fit$L)
+    return(object$L)
   else
     return(poisson2multinom(project_poisson_nmf(multinom2poisson(object),
                                                 newdata,numiter,...))$L)

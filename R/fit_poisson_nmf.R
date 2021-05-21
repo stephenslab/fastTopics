@@ -285,8 +285,7 @@
 #'   Ke, Z. & Wang, M. (2017). A new SVD approach to optimal topic
 #'   estimation. \emph{arXiv} \url{http://arxiv.org/abs/1704.07016}
 #'
-#' @seealso \code{\link{fit_topic_model}},
-#'   \code{\link{plot_progress_poisson_nmf}}
+#' @seealso \code{\link{fit_topic_model}}, \code{\link{plot_progress}}
 #' 
 #' @examples
 #' # Simulate a (sparse) 80 x 100 counts matrix.
@@ -422,7 +421,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.5-26).\n")
+    cat("(fastTopics 0.5-27).\n")
   }
   
   # INITIALIZE ESTIMATES

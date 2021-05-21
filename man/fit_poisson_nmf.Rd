@@ -376,6 +376,5 @@ Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
   estimation. \emph{arXiv} \url{http://arxiv.org/abs/1704.07016}
 }
 \seealso{
-\code{\link{fit_topic_model}},
-  \code{\link{plot_progress_poisson_nmf}}
+\code{\link{fit_topic_model}}, \code{\link{plot_progress}}
 }
