@@ -63,8 +63,6 @@
 #' 
 #' @return A \code{ggplot} object.
 #'
-#' @importFrom stats prcomp
-#' 
 #' @export
 #' 
 pca_plot <-

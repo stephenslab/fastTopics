@@ -2,7 +2,7 @@
 % Please edit documentation in R/embeddings.R
 \name{tsne_from_topics}
 \alias{tsne_from_topics}
-\title{t-SNE from Poisson NMF or Multinomial Topic Model}
+\title{#' @title t-SNE from Poisson NMF or Multinomial Topic Model}
 \usage{
 tsne_from_topics(
   fit,

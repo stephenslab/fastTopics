@@ -1,4 +1,46 @@
-#' @title t-SNE from Poisson NMF or Multinomial Topic Model
+#' @rdname embeddings_from_topics
+#'
+#' @title Low-dimensional Embeddings from Poisson NMF or Multinomial Topic Model
+#'
+#' @description Describe pca_from_topics here.
+#'
+#' @details Add details here.
+#'
+#' @param fit Describe input argument "fit" here.
+#'
+#' @param dims Describe input argument "dims" here.
+#'
+#' @param center Describe input argument "center" here.
+#'
+#' @param scale. Describe input argument "scale." here.
+#' 
+#' @param \dots Describe additional inputs here.
+#' 
+#' @seealso \code{\link{pca_plot}}, \code{\link{tsne_plot}},
+#'   \code{\link{umap_plot}}
+#'
+#' @importFrom stats prcomp
+#' 
+#' @export
+#' 
+pca_from_topics <- function (fit, dims = 2, center = TRUE, scale. = FALSE,
+                             ...) {
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "\"multinom_topic_model_fit\"")
+  Y <- prcomp(fit$L,retx = TRUE,center = center,scale. = scale.,...)$x
+  return(Y[,1:dims])
+}
+
+#' @rdname embeddings_from_topics
+#' 
+umap_from_topics <- function (fit, dims, ...) {
+
+}
+
+#'
+#' #' @title t-SNE from Poisson NMF or Multinomial Topic Model
 #'
 #' @description Computes a low-dimensional nonlinear embededding of
 #'   the data from the estimated loadings or mixture proportions using
@@ -96,7 +138,7 @@ tsne_from_topics <- function (fit, dims = 2, n = 5000, scaling = NULL,
                               eta = 200, check_duplicates = FALSE,
                               verbose = TRUE, ...) {
     
-  # Check and process input arguments.
+  # Check input argument "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
