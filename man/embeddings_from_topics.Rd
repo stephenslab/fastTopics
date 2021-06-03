@@ -22,7 +22,16 @@ tsne_from_topics(
   ...
 )
 
-umap_from_topics(fit, dims, ...)
+umap_from_topics(
+  fit,
+  dims = 2,
+  n_neighbors = 30,
+  metric = "euclidean",
+  scale = "none",
+  pca = NULL,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
@@ -30,7 +39,9 @@ umap_from_topics(fit, dims, ...)
 
 \item{dims}{The number of dimensions in the embedding. In
 \code{tsne_from_topics}, this is passed as argument \dQuote{dims}
-to \code{\link[Rtsne]{Rtsne}}.}
+to \code{\link[Rtsne]{Rtsne}}. In \code{umap_from_topics}, this is
+passed as argument \dQuote{n_components} to
+\code{\link[uwot]{umap}}.}
 
 \item{center}{A logical value indicating whether columns of
 \code{fit$L} should be zero-centered before performing PCA; passed
@@ -42,10 +53,12 @@ performing PCA; passed as argument \dQuote{scale.} to
 \code{\link[stats]{prcomp}}.}
 
 \item{\dots}{Additional arguments passed to
-\code{\link[stats]{prcomp}} or \code{\link[Rtsne]{Rtsne}}.}
+\code{\link[stats]{prcomp}}, \code{\link[Rtsne]{Rtsne}} or
+\code{\link[uwot]{umap}}.}
 
-\item{pca}{Whether to perform a PCA processing step in t-SNE;
-passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}.}
+\item{pca}{Whether to perform a PCA processing step in t-SNE or
+UMAP; passed as argument \dQuote{pca} to \code{\link[Rtsne]{Rtsne}}
+or \code{\link[uwot]{umap}}.}
 
 \item{normalize}{Whether to normalize the data prior to running
 t-SNE; passed as argument \dQuote{normalize} to
@@ -71,7 +84,18 @@ whether there are duplicate rows in \code{fit$L}; passed as argument
 
 \item{verbose}{If \code{verbose = TRUE}, progress updates are
 printed; passed as argument \dQuote{verbose} to
-\code{\link[Rtsne]{Rtsne}}.}
+\code{\link[Rtsne]{Rtsne}} or \code{\link[uwot]{umap}}.}
+
+\item{n_neighbors}{Number of nearest neighbours in manifold
+approximation; passed as argument \dQuote{n_neighbors} to
+\code{\link[uwot]{umap}}.}
+
+\item{metric}{Distance matrix used to find nearest neighbors;
+passed as argument \dQuote{metric} to
+\code{\link[uwot]{umap}}.}
+
+\item{scale}{Scaling to apply to \code{fit$L}; passed as argument
+\dQuote{scale} to \code{\link[uwot]{umap}}.}
 }
 \value{
 An n x d matrix containing the embedding, where n is the
@@ -84,15 +108,10 @@ Lightweight interface for rapidly producing
   producing embeddings from matrix factorizations or topic models.
 }
 \details{
-Note that since \code{tsne_plot} uses a \emph{nonlinear}
-  transformation of the data, distances between points are less
-  interpretable than a linear transformation obtained by, say, PCA.
-
-Add details here.
-}
-\examples{
-# Add examples here.
-
+Note that since \code{tsne_from_topics} and
+  \code{umap_from_topics} use nonlinear transformations of the data,
+  distances between points are generally less interpretable than a
+  linear transformation obtained by, say, PCA.
 }
 \references{
 Kobak, D. and Berens, P. (2019). The art of using t-SNE for
@@ -102,5 +121,5 @@ single-cell transcriptomics. \emph{Nature Communications} \bold{10},
 \seealso{
 \code{\link{pca_plot}}, \code{\link{tsne_plot}},
   \code{\link{umap_plot}}, \code{\link[stats]{prcomp}},
-  \code{\link[Rtsne]{Rtsne}}
+  \code{\link[Rtsne]{Rtsne}}, \code{\link[uwot]{umap}}
 }
