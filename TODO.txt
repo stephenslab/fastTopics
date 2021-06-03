@@ -8,8 +8,8 @@ to do
 + Implement "t" S3 method to transpose the rows and columns of a
   Poisson NMF fit.
 
-+ Refactor pca_plot, pca_hexbin_plot and tsne_plot code, and the
-  redesign interface for plotting embeddings from the L matrix. Also,
++ Refactor pca_plot, pca_hexbin_plot and tsne_plot code, and redesign
+  the interface for plotting embeddings from the L matrix. Also,
   consider implementing umap_plot and umap_from_topics, and allow for
   using UMAP instead of t-SNE in the Structure plot.
 
