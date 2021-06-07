@@ -167,7 +167,7 @@ loglik_poisson_const <- function (X) {
 loglik_multinom_const <- function (X)
   lgamma(rowSums(X) + 1) + loglik_poisson_const(X)
 
-# Compute the constant terms in the Poisson devainces.
+# Compute the constant terms in the Poisson deviances.
 #
 #' @importFrom Matrix rowSums
 #
@@ -195,7 +195,7 @@ poisson_nmf_kkt <- function (X, F, L, e = 1e-8) {
 }
 
 # Given a Poisson non-negative matrix factorization (F, L), compute
-# the log-likelihoods for the "size factors"; that is, each vetor
+# the log-likelihoods for the "size factors"; that is, each vector
 # element is a log-likelihood for the model t ~ Poisson(s), where
 # t = sum(x) is the total sum of the counts. The size factors, s, are
 # recovered from the poisson2multinom transformation.

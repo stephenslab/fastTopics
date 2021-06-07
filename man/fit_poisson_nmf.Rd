@@ -103,7 +103,7 @@ k matrix, where m is the number of columns in the counts matrix
 provided, input argument \code{k} should be specified instead.}
 
 \item{L}{An optional argument giving the initial estimate of the
-loadings (also known as \dQuote{activations}). It should an n x k
+loadings (also known as \dQuote{activations}). It should be an n x k
 matrix, where n is the number of rows in the counts matrix
 \code{X}, and k > 1 is the rank of the matrix factorization
 (equivalently, the number of \dQuote{topics}). All entries of

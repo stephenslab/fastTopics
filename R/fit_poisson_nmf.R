@@ -255,7 +255,6 @@
 #'   time in seconds (recorded using \code{\link{proc.time}}).}
 #' 
 #' @references
-#'
 #'   Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
 #'   factorization algorithms using extrapolation. \emph{Neural
 #'   Computation} \bold{31}, 417–439.
@@ -421,7 +420,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.5-35).\n")
+    cat("(fastTopics 0.5-36).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -468,7 +467,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #'   provided, input argument \code{k} should be specified instead.
 #'
 #' @param L An optional argument giving the initial estimate of the
-#'   loadings (also known as \dQuote{activations}). It should an n x k
+#'   loadings (also known as \dQuote{activations}). It should be an n x k
 #'   matrix, where n is the number of rows in the counts matrix
 #'   \code{X}, and k > 1 is the rank of the matrix factorization
 #'   (equivalently, the number of \dQuote{topics}). All entries of
@@ -501,7 +500,7 @@ init_poisson_nmf <-
   # Only one of k and (F or L) should be provided.
   if (!(missing(k) & !(missing(F) & missing(L)) |
        (!missing(k) & (missing(F) & missing(L)))))
-    stop("Provide a rank (k) or an initialization F and/or L, but not both")
+    stop("Provide a rank (k) or an initialization of F and/or L, but not both")
   if (missing(k)) {
     if (missing(F))
       k <- ncol(L)

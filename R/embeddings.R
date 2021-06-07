@@ -40,6 +40,42 @@
 #'   \code{\link{umap_plot}}, \code{\link[stats]{prcomp}},
 #'   \code{\link[Rtsne]{Rtsne}}, \code{\link[uwot]{umap}}
 #'
+#' @references
+#' Kobak, D. and Berens, P. (2019). The art of using t-SNE for
+#' single-cell transcriptomics. \emph{Nature Communications} \bold{10},
+#' 5416. \url{https://doi.org/10.1038/s41467-019-13056-x}
+#' 
+#' @examples
+#' library(ggplot2)
+#' library(cowplot)
+#' set.seed(1)
+#' data(pbmc_facs)
+#' 
+#' # Get the Poisson NMF and multinomial topic model fit to the PBMC data.
+#' fit1 <- multinom2poisson(pbmc_facs$fit)
+#' fit2 <- pbmc_facs$fit
+#' fit2 <- poisson2multinom(fit1)
+#' 
+#' # Compute the first two PCs of the loadings matrix (for the topic
+#' # model, fit2, the loadings are the topic proportions).
+#' Y1 <- pca_from_topics(fit1)
+#' Y2 <- pca_from_topics(fit2)
+#' subpop <- pbmc_facs$samples$subpop
+#' quickplot(Y1[,1],Y1[,2],color = subpop) + theme_cowplot()
+#' quickplot(Y2[,1],Y2[,2],color = subpop) + theme_cowplot()
+#'
+#' # Compute a 2-d embedding o the loadings using t-SNE.
+#' Y1 <- tsne_from_topics(fit1)
+#' Y2 <- tsne_from_topics(fit2)k,num_threads = 4)
+#' quickplot(Y1[,1],Y1[,2],color = subpop) + theme_cowplot()
+#' quickplot(Y2[,1],Y2[,2],color = subpop) + theme_cowplot()
+#'
+#' # Compute a 2-d embedding of the loadings using UMAP.
+#' Y1 <- umap_from_topics(fit1)
+#' Y2 <- umap_from_topics(fit2)
+#' quickplot(Y1[,1],Y1[,2],color = subpop) + theme_cowplot()
+#' quickplot(Y2[,1],Y2[,2],color = subpop) + theme_cowplot()
+#' 
 #' @importFrom stats prcomp
 #' 
 #' @export
@@ -85,11 +121,6 @@ pca_from_topics <- function (fit, dims = 2, center = TRUE,
 #' @param verbose If \code{verbose = TRUE}, progress updates are
 #'   printed; passed as argument \dQuote{verbose} to
 #'   \code{\link[Rtsne]{Rtsne}} or \code{\link[uwot]{umap}}.
-#' 
-#' @references
-#' Kobak, D. and Berens, P. (2019). The art of using t-SNE for
-#' single-cell transcriptomics. \emph{Nature Communications} \bold{10},
-#' 5416. \url{https://doi.org/10.1038/s41467-019-13056-x}
 #' 
 #' @importFrom Rtsne Rtsne
 #' 
