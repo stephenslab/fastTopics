@@ -64,7 +64,7 @@
 #' quickplot(Y1[,1],Y1[,2],color = subpop) + theme_cowplot()
 #' quickplot(Y2[,1],Y2[,2],color = subpop) + theme_cowplot()
 #'
-#' # Compute a 2-d embedding o the loadings using t-SNE.
+#' # Compute a 2-d embedding of the loadings using t-SNE.
 #' Y1 <- tsne_from_topics(fit1)
 #' Y2 <- tsne_from_topics(fit2)k,num_threads = 4)
 #' quickplot(Y1[,1],Y1[,2],color = subpop) + theme_cowplot()
@@ -155,7 +155,7 @@ tsne_from_topics <- function (fit, dims = 2, pca = FALSE, normalize = FALSE,
                check_duplicates = check_duplicates,verbose = verbose,...)
   Y <- out$Y
   rownames(Y) <- rownames(fit$L)
-  colnames(Y) <- paste0("d",1:dims)
+  colnames(Y) <- paste0("tsne",1:dims)
   return(Y)
 }
 
@@ -202,6 +202,6 @@ umap_from_topics <- function (fit, dims = 2, n_neighbors = 30,
   Y <- umap(fit$L,n_neighbors = n_neighbors,n_components = dims,pca = pca,
             metric = metric,scale = scale,verbose = verbose,...)
   rownames(Y) <- rownames(fit$L)
-  colnames(Y) <- paste0("d",1:dims)
+  colnames(Y) <- paste0("umap",1:dims)
   return(Y)
 }

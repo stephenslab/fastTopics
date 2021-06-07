@@ -1,3 +1,5 @@
+#' @rdname embedding_plots
+#'
 #' @title PCA Plot
 #'
 #' @description Visualize the structure of the Poisson NMF loadings or
@@ -22,10 +24,148 @@
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}.
 #'
+#' @param Y Description of input argument "Y" goes here.
+#' 
+#' @param fill The quantity to map onto the fill colour of the points
+#'   in the PCA plot. Set \code{fill = "loading"} to vary the fill
+#'   colour according to the loadings (or topic proportions) of the
+#'   select topic, or topics. Alternatively, \code{fill} may be set to a
+#'   data vector with one entry per row of \code{fit$L}, in which case
+#'   the data are mapped to the fill colour of the points. When
+#'   \code{fill = "none"}, the fill colour is not varied.
+#' 
 #' @param k The dimensions or topics selected by number or name. When
 #'   \code{fill = "loading"}, one plot is created per selected dimension
 #'   or topic; when \code{fill = "loading"} and \code{k} is not
 #'   specified, all dimensions or topics are plotted.
+#'
+#' @param fill.label The label used for the fill colour legend.
+#' 
+#' @param ggplot_call The function used to create the plot. Replace
+#'   \code{embedding_plot_2d_ggplot_call} or \code{pca_hexbin_plot_ggplot_call}
+#'   with your own function to customize the appearance of the plot.
+#'
+#' @param plot_grid_call When \code{fill = "loading"} and multiple
+#'   topics (\code{k}) are selected, this is the function used to
+#'   arrange the plots into a grid using \code{\link[cowplot]{plot_grid}}.
+#'   It should be a function accepting a single argument, \code{plots},
+#'   a list of \code{ggplot} objects.
+#' 
+#' @importFrom cowplot plot_grid
+#' 
+#' @export
+#'
+embedding_plot_2d <- function (fit, Y, fill = "loading", k, fill.label,
+                               ggplot_call = embedding_plot_2d_ggplot_call,
+                               plot_grid_call = function (plots) do.call(plot_grid,plots)) {
+    
+  # Check and process input "fit".
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
+         "\"multinom_topic_model_fit\"")
+
+  # Process input argument Y.
+  if (is.null(colnames(Y)))
+    colnames(Y) <- c("d1","d2")
+
+  # Process inputs "fill" and "k".
+  if (!(is.numeric(fill) | all(fill == "loading") | all(fill == "none")))
+    if (!is.factor(fill))
+      fill <- factor(fill)
+  if (missing(k)) {
+    if (all(fill == "loading"))
+      k <- seq(1,ncol(fit$L))
+    else
+      k <- 1
+  }
+  
+  if (all(fill == "loading") & length(k) > 1) {
+
+    # Create a plot for each selected dimension (topic) k, and combine them
+    # using plot_grid. This is done by recursively calling embedding_plot_2d.
+    m     <- length(k)
+    plots <- vector("list",m)
+    names(plots) <- k
+    for (i in 1:m)
+      plots[[i]] <- embedding_plot_2d(fit,Y,fill,k[i],fill.label,ggplot_call,plot_grid_call)
+    return(plot_grid_call(plots))
+  } else {
+      
+    # Get the data (y) mapped to the fill colour.
+    fill.type <- "none"
+    if (missing(fill.label))
+      fill.label <- deparse(substitute(fill))
+    if (length(fill) == 1) {
+      if (fill == "loading") {
+        fill       <- fit$L[,k]
+        fill.type  <- "loading"
+        fill.label <- paste("topic",k)
+      }
+    } else {
+      if (is.numeric(fill))
+        fill.type <- "numeric"
+      else if (is.factor(fill))
+        fill.type <- "factor"
+    }
+  }
+
+  # Create the embedding plot.
+  return(embedding_plot_2d_ggplot_call(Y,fill,fill.type,fill.label))
+}
+
+#' @rdname embedding_plots
+#'
+#' @param fill.type The type of variable mapped to fill colour. The
+#'   fill colour is not varied when \code{fill.type = "none"}.
+#' 
+#' @param fill.label The label used for the fill colour legend.
+#' 
+#' @param font.size Font size used in plot.
+#'
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 scale_fill_manual
+#' @importFrom ggplot2 scale_fill_gradient2
+#' @importFrom ggplot2 scale_fill_gradientn
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_text
+#' @importFrom cowplot theme_cowplot
+#' 
+#' @export
+#' 
+embedding_plot_2d_ggplot_call <- function (Y, fill,
+                                           fill.type = c("loading","numeric","factor","none"),
+                                           fill.label, font.size = 9) {
+  dims <- colnames(Y)
+  fill.type <- match.arg(fill.type)
+  dat <- cbind(Y,data.frame(fill = fill))
+  p <- ggplot(dat,aes_string(x = dims[1],y = dims[2],fill = "fill")) +
+    geom_point(shape = 21,color = "white",stroke = 0.3) +
+    labs(x = dims[1],y = dims[2],fill = fill.label) +
+    theme_cowplot(font.size) +
+    theme(plot.title = element_text(size = font.size,face = "plain"))
+  if (fill.type == "loading")
+    p <- p + scale_fill_gradient2(low = "lightskyblue",mid = "gold",
+                                  high = "orangered",
+                                  midpoint = mean(range(dat$fill)))
+  else if (fill.type == "numeric")
+    p <- p + scale_fill_gradientn(na.value = "lightskyblue",
+                                  colors = c("skyblue","gold","darkorange",
+                                             "magenta"))
+  else if (fill.type == "factor")
+    p <- p + scale_fill_manual(values = c("#e41a1c","#377eb8","#4daf4a",
+                                          "#984ea3","#ff7f00","#ffff33",
+                                          "#a65628","#f781bf","#999999"),
+                               drop = FALSE)
+  else if (fill.type == "none")
+    p <- p + scale_fill_manual(values = "black",guide = "none")
+  return(p)
+}
+
+#' @rdname embedding_plots
 #'
 #' @param out.pca A list containing the result of a principal
 #'   components analysis, typically the result of calling
@@ -39,24 +179,6 @@
 #' @param pcs The two principal components (PCs) to be plotted,
 #'   specified by name or number.
 #'
-#' @param fill The quantity to map onto the fill colour of the points
-#'   in the PCA plot. Set \code{fill = "loading"} to vary the fill
-#'   colour according to the loadings (or mixture proportions) of the
-#'   select topic, or topics. Alternatively, \code{fill} may be set to a
-#'   data vector with one entry per row of \code{fit$L}, in which case
-#'   these data are mapped to the fill colour of the points. When
-#'   \code{fill = "none"}, the fill colour is not varied.
-#' 
-#' @param ggplot_call The function used to create the plot. Replace
-#'   \code{pca_plot_ggplot_call} or \code{pca_hexbin_plot_ggplot_call}
-#'   with your own function to customize the appearance of the plot.
-#'
-#' @param plot_grid_call When multiple topics (\code{k}) are selected,
-#'   and \code{fill = "loading"}, this is the function used to arrange the
-#'   plots into a grid using \code{\link[cowplot]{plot_grid}}. It should
-#'   be a function accepting a single argument, \code{plots}, a list of
-#'   \code{ggplot} objects.
-#' 
 #' @param \dots Additional arguments passed to
 #'   \code{\link[stats]{prcomp}}. These additional arguments are only
 #'   used if \code{out.pca} is not provided.
@@ -136,62 +258,7 @@ pca_plot <-
   }
 }
 
-#' @rdname pca_plot
-#'
-#' @param dat A data frame passed as input to
-#'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, the
-#'   principal components to be plotted. The data frame passed to
-#'   \code{pca_plot_ggplot_call} should also have a \dQuote{y} column,
-#'   which is mapped to the fill colour of the points in the plot.
-#'
-#' @param fill.type The type of variable mapped to fill colour. The
-#'   fill colour is not varied when \code{fill.type = "none"}.
-#' 
-#' @param fill.label The label used for the fill colour legend.
-#' 
-#' @param font.size Font size used in plot.
-#'
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes_string
-#' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 scale_fill_manual
-#' @importFrom ggplot2 scale_fill_gradient2
-#' @importFrom ggplot2 scale_fill_gradientn
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_text
-#' @importFrom cowplot theme_cowplot
-#' 
-#' @export
-#' 
-pca_plot_ggplot_call <-
-  function (dat, pcs, fill.type = c("loading","numeric","factor","none"),
-            fill.label, font.size = 9) {
-  fill.type <- match.arg(fill.type)
-  p <- ggplot(dat,aes_string(x = pcs[1],y = pcs[2],fill = "y")) +
-    geom_point(shape = 21,color = "white",stroke = 0.3) +
-    labs(x = pcs[1],y = pcs[2],fill = fill.label) +
-    theme_cowplot(font.size) +
-    theme(plot.title = element_text(size = font.size,face = "plain"))
-  if (fill.type == "loading")
-    p <- p + scale_fill_gradient2(low = "lightskyblue",mid = "gold",
-                                  high = "orangered",
-                                  midpoint = mean(range(dat$y)))
-  else if (fill.type == "numeric")
-    p <- p + scale_fill_gradientn(na.value = "lightskyblue",
-                                  colors = c("skyblue","gold","darkorange",
-                                             "magenta"))
-  else if (fill.type == "factor")
-    p <- p + scale_fill_manual(values = c("#e41a1c","#377eb8","#4daf4a",
-                                          "#984ea3","#ff7f00","#ffff33",
-                                          "#a65628","#f781bf","#999999"),
-                               drop = FALSE)
-  else if (fill.type == "none")
-    p <- p + scale_fill_manual(values = "black",guide = "none")
-  return(p)
-}
-
-#' @rdname pca_plot
+#' @rdname embedding_plots
 #'
 #' @param bins Number of bins used to create hexagonal 2-d
 #'   histogram. Passed as the \dQuote{bins} argument to
@@ -200,7 +267,7 @@ pca_plot_ggplot_call <-
 #' @param breaks To produce the hexagonal histogram, the counts are
 #'   subdivided into intervals based on \code{breaks}. Passed as the
 #'   \dQuote{breaks} argument to \code{\link{cut}}.
-#' 
+#'
 #' @export
 #' 
 pca_hexbin_plot <- function (fit, out.pca, pcs = 1:2, bins = 40,
@@ -226,7 +293,7 @@ pca_hexbin_plot <- function (fit, out.pca, pcs = 1:2, bins = 40,
   return(ggplot_call(dat,pcs,bins,breaks))
 }
 
-#' @rdname pca_plot
+#' @rdname embedding_plots
 #'
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
@@ -251,7 +318,7 @@ pca_hexbin_plot_ggplot_call <- function (dat, pcs, bins, breaks, font.size = 9)
     theme_cowplot(font_size = font.size) +
     theme(plot.title = element_text(size = font.size,face = "plain"))
 
-#' @title t-SNE Plot
+#' @rdname embedding_plots
 #'
 #' @description Visualize the "structure" of the Poisson NMF loadings
 #'   or multinomial topic model mixture proportions by projection onto a
@@ -277,9 +344,6 @@ pca_hexbin_plot_ggplot_call <- function (dat, pcs, bins, breaks, font.size = 9)
 #' embedding may be pre-computed, and passed as argument \code{tsne}
 #' to \code{tsne_plot}.
 #' 
-#' @param fit An object of class \dQuote{poisson_nmf_fit} or
-#'   \dQuote{multinom_topic_model_fit}.
-#'
 #' @param color The data mapped to the color \dQuote{aesthetic} in the
 #'   plot. When \code{color = "loading"}, the estimated loadings (stored
 #'   the \code{L} matrix) in the Poisson NMF model are plotted; when
@@ -372,34 +436,3 @@ tsne_plot <-
   }
 }
 
-#' @rdname tsne_plot
-#'
-#' @param dat A data frame passed as input to
-#'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   \dQuote{d1}, \dQuote{d2} (the first and second dimensions in the
-#'   2-d embedding), and \dQuote{loading}.
-#'
-#' @param topic.label The name or number of the topic being plotted;
-#'   it is only used to determine the plot title.
-#' 
-#' @param font.size Font size used in plot.
-#'
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes_string
-#' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 scale_fill_gradient2
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_text
-#' @importFrom cowplot theme_cowplot
-#' 
-#' @export
-#' 
-tsne_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
-  ggplot(dat,aes_string(x = "d1",y = "d2",fill = "loading")) +
-    geom_point(shape = 21,color = "white",stroke = 0.3) +
-    scale_fill_gradient2(low = "lightskyblue",mid = "gold",high = "orangered",
-                         midpoint = mean(range(dat$loading))) +
-    labs(x = "tsne 1",y = "tsne 2",title = paste("topic",topic.label)) +
-    theme_cowplot(font.size) +
-    theme(plot.title = element_text(size = font.size,face = "plain"))

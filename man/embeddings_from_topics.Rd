@@ -132,7 +132,7 @@ subpop <- pbmc_facs$samples$subpop
 quickplot(Y1[,1],Y1[,2],color = subpop) + theme_cowplot()
 quickplot(Y2[,1],Y2[,2],color = subpop) + theme_cowplot()
 
-# Compute a 2-d embedding o the loadings using t-SNE.
+# Compute a 2-d embedding of the loadings using t-SNE.
 Y1 <- tsne_from_topics(fit1)
 Y2 <- tsne_from_topics(fit2)k,num_threads = 4)
 quickplot(Y1[,1],Y1[,2],color = subpop) + theme_cowplot()
