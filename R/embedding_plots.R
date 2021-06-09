@@ -82,6 +82,8 @@
 #' p4 <- pca_plot(fit2,pcs = 3:4,fill = "none")
 #' p5 <- pca_plot(fit2,fill = fit2$L[,1])
 #' p6 <- pca_plot(fit2,fill = subpop)
+#' p7 <- pca_hexbin_plot(fit1)
+#' p8 <- pca_hexbin_plot(fit2)
 #'
 #' # Plot the loadings using t-SNE.
 #' p1 <- tsne_plot(fit1,k = 1)
@@ -325,20 +327,16 @@ umap_plot <-
 #'
 #' @export
 #' 
-pca_hexbin_plot <- function (fit, pcs = 1:2, Y, bins = 40,
+pca_hexbin_plot <- function (fit, Y, pcs = 1:2, bins = 40,
                              breaks = c(0,1,10,100,1000,Inf),
                              ggplot_call = pca_hexbin_plot_ggplot_call, ...) {
-  # Check and process inputs.
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
          "\"multinom_topic_model_fit\"")
-  if (missing(out.pca))
-    out.pca <- prcomp(fit$L,...)
-  dat <- as.data.frame(out.pca$x)
-  if (is.numeric(pcs))
-    pcs <- names(dat)[pcs]
-  return(ggplot_call(dat,pcs,bins,breaks))
+  if (missing(Y))
+    Y <- pca_from_topics(fit,dims = ncol(fit$L),...)
+  return(ggplot_call(Y[,pcs],bins,breaks))
 }
 
 #' @rdname embedding_plots
@@ -356,14 +354,15 @@ pca_hexbin_plot <- function (fit, pcs = 1:2, Y, bins = 40,
 #' 
 #' @export
 #' 
-pca_hexbin_plot_ggplot_call <- function (dat, pcs, bins, breaks, font.size = 9)
-  ggplot(dat,aes_string(x = pcs[1],y = pcs[2])) +
-    stat_bin_hex(mapping = aes_q(fill = quote(cut(after_stat(count),breaks))),
-                                 bins = bins) +
-    scale_fill_manual(values = c("gainsboro","lightskyblue","gold","orange",
-                                 "magenta")) +
-    labs(x = pcs[1],y = pcs[2],fill = "count") +
-    theme_cowplot(font_size = font.size) +
-    theme(plot.title = element_text(size = font.size,face = "plain"))
-
-
+pca_hexbin_plot_ggplot_call <- function (Y, bins, breaks, font.size = 9) {
+  Y <- as.data.frame(Y)
+  pcs <- colnames(Y)
+  return(ggplot(Y,aes_string(x = pcs[1],y = pcs[2])) +
+         stat_bin_hex(mapping = aes_q(fill = quote(cut(after_stat(count),
+                                                   breaks))),bins = bins) +
+         scale_fill_manual(values = c("gainsboro","lightskyblue","gold",
+                                      "orange","magenta")) +
+         labs(x = pcs[1],y = pcs[2],fill = "count") +
+         theme_cowplot(font_size = font.size) +
+         theme(plot.title = element_text(size = font.size,face = "plain")))
+}

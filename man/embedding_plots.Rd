@@ -67,15 +67,15 @@ umap_plot(
 
 pca_hexbin_plot(
   fit,
-  pcs = 1:2,
   Y,
+  pcs = 1:2,
   bins = 40,
   breaks = c(0, 1, 10, 100, 1000, Inf),
   ggplot_call = pca_hexbin_plot_ggplot_call,
   ...
 )
 
-pca_hexbin_plot_ggplot_call(dat, pcs, bins, breaks, font.size = 9)
+pca_hexbin_plot_ggplot_call(Y, bins, breaks, font.size = 9)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
@@ -182,6 +182,8 @@ p3 <- pca_plot(fit2,fill = "none")
 p4 <- pca_plot(fit2,pcs = 3:4,fill = "none")
 p5 <- pca_plot(fit2,fill = fit2$L[,1])
 p6 <- pca_plot(fit2,fill = subpop)
+p7 <- pca_hexbin_plot(fit1)
+p8 <- pca_hexbin_plot(fit2)
 
 # Plot the loadings using t-SNE.
 p1 <- tsne_plot(fit1,k = 1)
