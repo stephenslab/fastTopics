@@ -162,6 +162,38 @@ settings can be controlled by the additional arguments
 (\dots). Alternatively, a 2-d embedding may be pre-computed, and
 passed as argument \code{Y}.
 }
+\examples{
+set.seed(1)
+data(pbmc_facs)
+
+# Get the Poisson NMF and multinomial topic models fitted to the
+# PBMC data.
+fit1 <- multinom2poisson(pbmc_facs$fit)
+fit2 <- pbmc_facs$fit
+fit2 <- poisson2multinom(fit1)
+
+# Plot the first two PCs of the loadings matrix (for the
+# multinomial topic model, "fit2", the loadings are the topic
+# proportions).
+subpop <- pbmc_facs$samples$subpop
+p1 <- pca_plot(fit1,k = 1)
+p2 <- pca_plot(fit2)
+p3 <- pca_plot(fit2,fill = "none")
+p4 <- pca_plot(fit2,pcs = 3:4,fill = "none")
+p5 <- pca_plot(fit2,fill = fit2$L[,1])
+p6 <- pca_plot(fit2,fill = subpop)
+
+# Plot the loadings using t-SNE.
+p1 <- tsne_plot(fit1,k = 1)
+p2 <- tsne_plot(fit2)
+p3 <- tsne_plot(fit2,fill = subpop)
+
+# Plot the loadings using UMAP.
+p1 <- umap_plot(fit1,k = 1)
+p2 <- umap_plot(fit2)
+p3 <- umap_plot(fit2,fill = subpop)
+
+}
 \seealso{
 \code{\link{pca_from_topics}},
   \code{\link{tsne_from_topics}},
