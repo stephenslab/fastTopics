@@ -8,7 +8,7 @@
 \alias{umap_plot}
 \alias{pca_hexbin_plot}
 \alias{pca_hexbin_plot_ggplot_call}
-\title{PCA Plot}
+\title{PCA, t-SNE and UMAP Plots}
 \usage{
 embedding_plot_2d(
   fit,
@@ -30,8 +30,9 @@ embedding_plot_2d_ggplot_call(
 
 pca_plot(
   fit,
-  pcs = 1:2,
   Y,
+  pcs = 1:2,
+  n = 10000,
   fill = "loading",
   k,
   fill.label,
@@ -43,6 +44,7 @@ pca_plot(
 tsne_plot(
   fit,
   Y,
+  n = 2000,
   fill = "loading",
   k,
   fill.label,
@@ -54,6 +56,7 @@ tsne_plot(
 umap_plot(
   fit,
   Y,
+  n = 2000,
   fill = "loading",
   k,
   fill.label,
@@ -78,15 +81,14 @@ pca_hexbin_plot_ggplot_call(dat, pcs, bins, breaks, font.size = 9)
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
 \dQuote{multinom_topic_model_fit}.}
 
-\item{Y}{The result of a principal components analysis. It
-should be a matrix containing the rotated data. If not provided,
-principal components will be computed automatically by calling
-\code{\link{pca_from_topics}}.}
+\item{Y}{The n x 2 matrix containing the 2-d embedding, where n is
+the number of rows in \code{fit$L}. If not provided, the embedding
+will be computed automatically.}
 
 \item{fill}{The quantity to map onto the fill colour of the points
 in the PCA plot. Set \code{fill = "loading"} to vary the fill
 colour according to the loadings (or topic proportions) of the
-select topic, or topics. Alternatively, \code{fill} may be set to a
+select topiced or topics. Alternatively, \code{fill} may be set to a
 data vector with one entry per row of \code{fit$L}, in which case
 the data are mapped to the fill colour of the points. When
 \code{fill = "none"}, the fill colour is not varied.}
@@ -116,9 +118,13 @@ fill colour is not varied when \code{fill.type = "none"}.}
 \item{pcs}{The two principal components (PCs) to be plotted,
 specified by name or number.}
 
+\item{n}{The maximum number of points to plot. If \code{n} is less
+than the number of rows of \code{fit$L}, the rows are subsampled at
+random. This argument is ignored if \code{Y} is provided.}
+
 \item{\dots}{Additional arguments passed to
-\code{\link{pca_from_topics}} or
-\code{\link{tsne_from_topics}}. These additional arguments are only
+\code{\link{pca_from_topics}}, \code{\link{tsne_from_topics}} or
+\code{\link{umap_from_topics}}. These additional arguments are only
 used if \code{Y} is not provided.}
 
 \item{bins}{Number of bins used to create hexagonal 2-d
@@ -134,46 +140,27 @@ A \code{ggplot} object.
 }
 \description{
 Visualize the structure of the Poisson NMF loadings or
-  the multinomial topic model mixture proportions by projection onto
-  principal components (PCs). \code{plot_hexbin_plot} is most useful
-  for visualizing the PCs of a data set with thousands of samples, or
-  more... Visualize the "structure" of the Poisson NMF loadings or
-  multinomial topic model mixture proportions by projection onto a
-  2-d surface. Samples in the projection are colored according to the
-  their loadings/proportions. By default, t-SNE is used to compute
-  the 2-d embedding from the loadings or mixture proportions.
+  the multinomial topic model topic proportions by projection onto
+  a 2-d surface. \code{plot_hexbin_plot} is most useful for
+  visualizing the PCs of a data set with thousands of samples or
+  more.
 }
 \details{
-This is a lightweight interface for rapidly producing PCA
-plots from a Poisson non-negative matrix factorization or
-multinomial topic model. The plotting is implemented using
-ggplot2. For more control over the plot's appearance, the plot can
-be customized by modifying the \code{ggplot_call} and
-\code{plot_grid_call} arguments. If not provided, the principal
-components are computed using \code{\link[stats]{prcomp}}.
-
-Since principal components are a \emph{linear} projection
-(\dQuote{rotation}) of the data, distances between points can bee
-more interpretable than nonlinear embedding methods such as t-SNE
-(as visualized using \code{tsne_plot}) and UMAP.
-
 This is a lightweight interface primarily intended to
-expedite creation of scatterplots for visualizing the loadings or
-mixture proportions in 2-d; most of the \dQuote{heavy lifting} is
-done by ggplot2. The 2-d embedding itself is computed by invoking
-function \code{\link{tsne_from_topics}} (unless the \dQuote{tsne}
-input is provided). For more control over the plot's appearance,
-the plot can be customized by modifying the \code{ggplot_call} and
-\code{plot_grid_call} arguments.
+expedite creation of plots for visualizing the loadings or topic
+proportions; most of the heavy lifting is done by ggplot2. The 2-d
+embedding itself is computed by invoking
+\code{\link{pca_from_topics}}, \code{\link{tsne_from_topics}} or
+\code{\link{umap_from_topics}}. For more control over the plot's
+appearance, the plot can be customized by modifying the
+\code{ggplot_call} and \code{plot_grid_call} arguments.
 
-An effective 2-d visualization may also necessitate some
-fine-tunning of the t-SNE settings, such as the
-\dQuote{perplexity}, or the number of samples included in the
-plot. The t-SNE settings can be controlled by the additional
-arguments (\dots) passed to \code{tsne_from_topics}; see
-\code{\link{tsne_from_topics}} for details. Alternatively, a 2-d
-embedding may be pre-computed, and passed as argument \code{tsne}
-to \code{tsne_plot}.
+An effective 2-d visualization may also require some fine-tunning
+of the settings, such as the t-SNE \dQuote{perplexity}, or the
+number of samples included in the plot. The PCA, UMAP, t-SNE
+settings can be controlled by the additional arguments
+(\dots). Alternatively, a 2-d embedding may be pre-computed, and
+passed as argument \code{Y}.
 }
 \seealso{
 \code{\link{pca_from_topics}},
