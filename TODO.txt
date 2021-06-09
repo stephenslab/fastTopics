@@ -3,15 +3,15 @@ to do
 
 + Update pkgdown site.
 
-+ Remove files in inst/derivations/diffcount.
-
-+ Implement "t" S3 method to transpose the rows and columns of a
-  Poisson NMF fit.
-
 + Refactor pca_plot, pca_hexbin_plot and tsne_plot code, and redesign
   the interface for plotting embeddings from the L matrix. Also,
   consider implementing umap_plot and umap_from_topics, and allow for
   using UMAP instead of t-SNE in the Structure plot.
+
++ Remove files in inst/derivations/diffcount.
+
++ Implement "t" S3 method to transpose the rows and columns of a
+  Poisson NMF fit.
 
 + Implement integrations for Seurat, Signac and/or ArchR.
 

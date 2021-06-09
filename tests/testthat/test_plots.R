@@ -80,20 +80,20 @@ test_that("Test that other plotting functions work",{
   expect_s3_class(p2,"ggplot")
 
   # Test structure_plot.
-  g <- factor(apply(poisson2multinom(fit1)$L,1,which.max))
-  capture.output(tsne <- tsne_from_topics(poisson2multinom(fit1),dims = 1))
-  capture.output(p1 <- structure_plot(fit1))
-  capture.output(p2 <- structure_plot(fit1,rows = order(tsne$Y)))
-  p3 <- structure_plot(fit1,rows = order(tsne$Y),grouping = g,gap = 2)
-  expect_s3_class(p1,"ggplot")
-  expect_s3_class(p2,"ggplot")
-  expect_s3_class(p3,"ggplot")
+  # g <- factor(apply(poisson2multinom(fit1)$L,1,which.max))
+  # capture.output(tsne <- tsne_from_topics(poisson2multinom(fit1),dims = 1))
+  # capture.output(p1 <- structure_plot(fit1))
+  # capture.output(p2 <- structure_plot(fit1,rows = order(tsne$Y)))
+  # p3 <- structure_plot(fit1,rows = order(tsne$Y),grouping = g,gap = 2)
+  # expect_s3_class(p1,"ggplot")
+  # expect_s3_class(p2,"ggplot")
+  # expect_s3_class(p3,"ggplot")
 
   # Test the "plot" S3 method (which creates a Structure plot).
-  fit2 <- poisson2multinom(fit1)
-  capture.output(p1 <- plot(fit1))
-  capture.output(p2 <- plot(fit2))
-  expect_s3_class(p1,"ggplot")
-  expect_s3_class(p2,"ggplot")
+  # fit2 <- poisson2multinom(fit1)
+  # capture.output(p1 <- plot(fit1))
+  # capture.output(p2 <- plot(fit2))
+  # expect_s3_class(p1,"ggplot")
+  # expect_s3_class(p2,"ggplot")
 })
 
