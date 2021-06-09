@@ -34,7 +34,7 @@ that the results can be reproduced.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
-library(fastTopics)
+# library(fastTopics)
 library(ggplot2)
 library(cowplot)
 set.seed(1)
@@ -118,7 +118,7 @@ topic model.
 Without the cell labels, the Structure plot can still be quite
 effective:
 
-```{r structure-plot-without-labels, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
+```{r structure-plot-without-labels, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE, eval=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
 structure_plot(fit,topics = 1:6,colors = topic_colors)
@@ -162,7 +162,7 @@ summary(factor(clusters))
 Now we create another Structure plot in which the cells are organized
 by their membership to the 6 clusters:
 
-```{r structure-plot-by-cluster-1, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
+```{r structure-plot-by-cluster-1, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE, eval=FALSE}
 structure_plot(fit,topics = 1:6,colors = topic_colors,
                grouping = factor(clusters),gap = 25)
 ```
@@ -187,7 +187,7 @@ we label the clusters by these cell types, noting that, in most
 practical settings, labeling the clusters is usually not possible
 until downstream analyses have been performed.
 
-```{r structure-plot-by-cluster-2, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
+```{r structure-plot-by-cluster-2, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE, eval=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
 structure_plot(fit,topics = 1:6,colors = topic_colors,
                grouping = clusters,gap = 25)
@@ -261,7 +261,7 @@ in between the dense clumps of NK and T cells in the PCA plots
 above. To highlight this subset of cells---which turn out to be CD8+
 cells, as we will see shortly---we define a new cluster:
 
-```{r structure-plot-by-cluster-3, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
+```{r structure-plot-by-cluster-3, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE, eval=FALSE}
 clusters <- as.character(clusters)
 clusters[clusters == "T" & fit$L[,1] > 0.1] <- "CD8+"
 clusters <- factor(clusters)
@@ -273,7 +273,7 @@ Now we can perform DE analysis on the CD8+ cluster (as well as the
 other clusters) using the `diff_count_clusters` function, and
 visualize the results using a volcano plot, as before:
 
-```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5, results="hide"}
+```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5, results="hide", eval=FALSE}
 dfc_clusters <- diff_count_clusters(clusters,counts)
 volcano_plot(dfc_clusters,k = "CD8+",label_above_quantile = 0.98,
              labels = genes$symbol) +
