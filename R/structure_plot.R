@@ -29,52 +29,47 @@
 #'   as input, the corresponding multinomial topic model fit is
 #'   automatically recovered using \code{\link{poisson2multinom}}.
 #'
-#' @param n The maximum number of samples (rows of the loadings
-#'   matrix) to include in the plot. Including large numbers (e.g.,
-#'   thousands) of samples is not recommended because it dramatically
-#'   slows down the t-SNE computation, and typically there is little to
-#'   no benefit in including large number of samples in the plot due to
-#'   screen resolution limits. Ignored if \code{rows} is provided.
-#'
-#' @param rows Ordering of rows (samples) in plot, after they have
-#'   been grouped. Generated automatically from 1-d t-SNE if not
-#'   provided.
-#'
 #' @param grouping Optional categorical variable (factor) with one
 #'   entry for each row of the loadings matrix \code{fit$L} defining a
 #'   grouping of the samples (rows). The samples (rows) are arranged
 #'   along the horizontal axis according to this grouping, then within
 #'   each group according to \code{rows} or, if not provided, according
-#'   to the 1-d t-SNE embedding.
+#'   to the 1-d UMAP embedding. If \code{grouping} is not a factor, an
+#'   attempt is made to convert it to a factor using \code{as.factor}.
 #' 
 #' @param topics Top-to-bottom ordering of the topics in the structure
-#'   plot; topics[1] is shown on the top, topics[2] is shown next, and
-#'   so on. If the ordering of the topics is not specified, the topics
-#'   are automaticcally ordered so that the topics with the greatest
-#'   \dQuote{mass} are at shown at the bottom of the plot.
+#'   plot; \code{topics[1]} is shown on the top, \code{topics[2]} is
+#'   shown next, and so on. If the ordering of the topics is not
+#'   specified, the topics are automaticcally ordered so that the topics
+#'   with the greatest \dQuote{mass} are at shown at the bottom of the
+#'   plot. The topics may be specified by number or by name.
 #' 
-#' @param colors Colors used to draw topics in Structure plot:
-#'   \code{colors[1]} is the colour used to draw \code{topics[1]},
-#'   \code{colors[2]} is the colour used to draw \code{topics[2]}, and
-#'   so on. The default colour setting is the from
-#'   \url{https://colorbrewer2.org} (qualitative data, \dQuote{9-class
-#'   Set1}).
+#' @param rows Ordering of rows (samples) in the structure plot after
+#'   they have been grouped. If not provided, generated automatically
+#'   from a 1-d UMAP embedding, separately for each group. The rows may
+#'   be specified by number or by name.
+#'
+#' @param n The maximum number of samples (rows of the loadings
+#'   matrix) to include in the plot. Typically there is little to no
+#'   benefit in including large number of samples in the Structure plot
+#'   due to screen resolution limits. Ignored if \code{rows} is
+#'   provided.
+#'
+#' @param colors Colors used to draw topics in Structure plot. The
+#'   default colour setting is the from \url{https://colorbrewer2.org}
+#'   (qualitative data, \dQuote{9-class Set1}).
 #'
 #' @param gap The horizontal spacing between groups. Ignored if
 #'   \code{grouping} is not provided.
 #'
+#' @param n_neighbors Describe input argument "n_neighbors" here.
+#' 
 #' @param perplexity t-SNE perplexity parameter, passed as argument
 #'   \dQuote{perplexity} to \code{\link{tsne_from_topics}}. When
 #'   code{grouping} is provided, \code{perplexity} may be a vector of
 #'   settings of length equal to \code{levels(grouping)}, which allows
 #'   for a different t-SNE perplexity setting for each group.
 #'
-#' @param eta t-SNE learning rate parameter, passed as argument
-#'   \dQuote{eta} to \code{\link{tsne_from_topics}}. When
-#'   code{grouping} is provided, \code{eta} may be a vector of
-#'   settings of length equal to \code{levels(grouping)}, which allows
-#'   for a different t-SNE learning rate for each group.
-#' 
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{structure_plot_ggplot_call} with your own function to
 #'   customize the appearance of the plot.
@@ -96,16 +91,19 @@
 #' structure of human populations. \emph{Science} \bold{298},
 #' 2381–2385.
 #'
+#' @examples
+#' # Add example(s) here.
+#' 
 #' @export
 #'
 structure_plot <-
-  function (fit, n = 2000, rows, grouping, topics,
+  function (fit, grouping, topics, rows = "umap", n = 2000,
             colors = c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                        "#ffff33","#a65628","#f781bf","#999999"),
-            gap = 1, perplexity = 100, eta = 200,
+            gap = 1, n_neighbors = 30, perplexity = 100,
             ggplot_call = structure_plot_ggplot_call, ...) {
 
-  # Check and process inputs.
+  # Check and process input argument "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
@@ -114,18 +112,47 @@ structure_plot <-
     fit <- poisson2multinom(fit)
   n0 <- nrow(fit$L)
   k  <- ncol(fit$L)
+  
+  # Check and process input argument "grouping".
   if (missing(grouping))
     grouping <- factor(rep(1,n0))
-  groups     <- levels(grouping)
-  num_groups <- length(groups)
+  if (!is.factor(grouping))
+    grouping <- as.factor(grouping)
+  if (length(grouping) != n0)
+    stop("Input argument \"grouping\" should be a factor with one entry ",
+         "for each row of fit$L")
+  
+  # Check and process input argument "topics".
   if (missing(topics))
     topics <- order(colMeans(fit$L))
+  if (is.character(topics))
+    topics <- match(topics,colnames(fit$L))
+  if (!all(sort(topics) == 1:k))
+    stop("Input argument \"topics\" should be a reordering of the topics ",
+         "(columns of fit$L) specified by their names or column indices")
+
+  # Check and process input argument "colors".
+  if (length(colors) < k)
+    stop("There must be at least as many colours as topics")
+  colors <- colors[topics]
+
+  # Check and process input arguments "n_neighbors" and "perplexity".
+  if (length(n_neighbors) == 1)
+    n_neighbors <- rep(n_neighbors,nlevels(grouping))
   if (length(perplexity) == 1)
-    perplexity <- rep(perplexity,num_groups)
-  if (length(eta) == 1)
-    eta <- rep(eta,num_groups)
-  names(perplexity) <- groups
-  names(eta)        <- groups
+    perplexity <- rep(perplexity,nlevels(grouping))
+  names(perplexity) <- levels(grouping)
+  names(eta)        <- levels(grouping)
+  
+  # Check and process input arguments "rows" and "n".
+  if (missing(rows)) {
+      
+  } else {
+    n <- length(rows)
+  }
+
+  groups     <- levels(grouping)
+  num_groups <- length(groups)
   if (num_groups == 1) {
 
     # If the ordering of the rows is not provided, determine an

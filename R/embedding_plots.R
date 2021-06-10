@@ -70,7 +70,6 @@
 #' # PBMC data.
 #' fit1 <- multinom2poisson(pbmc_facs$fit)
 #' fit2 <- pbmc_facs$fit
-#' fit2 <- poisson2multinom(fit1)
 #'
 #' # Plot the first two PCs of the loadings matrix (for the
 #' # multinomial topic model, "fit2", the loadings are the topic

@@ -9,10 +9,10 @@
 \usage{
 structure_plot(
   fit,
-  n = 2000,
-  rows,
   grouping,
   topics,
+  rows = "umap",
+  n = 2000,
   colors = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
     "#a65628", "#f781bf", "#999999"),
   gap = 1,
@@ -34,6 +34,25 @@ structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 9)
 as input, the corresponding multinomial topic model fit is
 automatically recovered using \code{\link{poisson2multinom}}.}
 
+\item{grouping}{Optional categorical variable (factor) with one
+entry for each row of the loadings matrix \code{fit$L} defining a
+grouping of the samples (rows). The samples (rows) are arranged
+along the horizontal axis according to this grouping, then within
+each group according to \code{rows} or, if not provided, according
+to the 1-d UMAP embedding. If \code{grouping} is not a factor, an
+attempt is made to convert it to a factor using \code{as.factor}.}
+
+\item{topics}{Top-to-bottom ordering of the topics in the structure
+plot; \code{topics[1]} is shown on the top, \code{topics[2]} is
+shown next, and so on. If the ordering of the topics is not
+specified, the topics are automaticcally ordered so that the topics
+with the greatest \dQuote{mass} are at shown at the bottom of the
+plot. The topics may be specified by index number or by name.}
+
+\item{rows}{Ordering of rows (samples) in the structure plot after
+they have been grouped. Generated automatically from 1-d UMAP
+embedding if not provided.}
+
 \item{n}{The maximum number of samples (rows of the loadings
 matrix) to include in the plot. Including large numbers (e.g.,
 thousands) of samples is not recommended because it dramatically
@@ -41,29 +60,9 @@ slows down the t-SNE computation, and typically there is little to
 no benefit in including large number of samples in the plot due to
 screen resolution limits. Ignored if \code{rows} is provided.}
 
-\item{rows}{Ordering of rows (samples) in plot, after they have
-been grouped. Generated automatically from 1-d t-SNE if not
-provided.}
-
-\item{grouping}{Optional categorical variable (factor) with one
-entry for each row of the loadings matrix \code{fit$L} defining a
-grouping of the samples (rows). The samples (rows) are arranged
-along the horizontal axis according to this grouping, then within
-each group according to \code{rows} or, if not provided, according
-to the 1-d t-SNE embedding.}
-
-\item{topics}{Top-to-bottom ordering of the topics in the structure
-plot; topics[1] is shown on the top, topics[2] is shown next, and
-so on. If the ordering of the topics is not specified, the topics
-are automaticcally ordered so that the topics with the greatest
-\dQuote{mass} are at shown at the bottom of the plot.}
-
-\item{colors}{Colors used to draw topics in Structure plot:
-\code{colors[1]} is the colour used to draw \code{topics[1]},
-\code{colors[2]} is the colour used to draw \code{topics[2]}, and
-so on. The default colour setting is the from
-\url{https://colorbrewer2.org} (qualitative data, \dQuote{9-class
-Set1}).}
+\item{colors}{Colors used to draw topics in Structure plot.. The
+default colour setting is the from \url{https://colorbrewer2.org}
+(qualitative data, \dQuote{9-class Set1}).}
 
 \item{gap}{The horizontal spacing between groups. Ignored if
 \code{grouping} is not provided.}
@@ -135,6 +134,10 @@ embedding of the samples.
 Alternatively, a categorical variable---the grouping---may be
 provided, in which case the samples are arranged according to that
 grouping, then arranged within each group using t-SNE.
+}
+\examples{
+# Add example(s) here.
+
 }
 \references{
 Dey, K. K., Hsiao, C. J. and Stephens, M. (2017). Visualizing the
