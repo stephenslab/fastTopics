@@ -2,6 +2,7 @@
 % Please edit documentation in R/structure_plot.R
 \name{structure_plot}
 \alias{structure_plot}
+\alias{structure_plot_default_embed_method}
 \alias{plot.poisson_nmf_fit}
 \alias{plot.multinom_topic_model_fit}
 \alias{structure_plot_ggplot_call}
@@ -16,13 +17,12 @@ structure_plot(
   colors = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
     "#a65628", "#f781bf", "#999999"),
   gap = 1,
-  embed_method = function(fit, ...) if (nrow(fit$L) < 20) return(rnorm(nrow(fit$L)))
-    else {     d <- dim(fit$L)     message(sprintf("Running tsne on \%s x \%s matrix.",
-    d[1], d[2]))     return(drop(suppressMessages(tsne_from_topics(fit, dims = 1, verbose
-    = FALSE, ...)))) },
+  embed_method = structure_plot_default_embed_method,
   ggplot_call = structure_plot_ggplot_call,
   ...
 )
+
+structure_plot_default_embed_method(fit, ...)
 
 \method{plot}{poisson_nmf_fit}(x, ...)
 

@@ -128,23 +128,13 @@
 #' p4 <- structure_plot(fit,rows = order(y),grouping = subpop,gap = 40,
 #'                      colors = topic_colors)
 #'
-#' @importFrom stats rnorm
-#' 
 #' @export
 #'
 structure_plot <-
   function (fit, grouping, topics, rows, n = 2000,
             colors = c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                        "#ffff33","#a65628","#f781bf","#999999"),
-            gap = 1,
-            embed_method = function (fit,...) if (nrow(fit$L) < 20)
-              return(rnorm(nrow(fit$L)))
-            else {
-              d <- dim(fit$L)
-              message(sprintf("Running tsne on %s x %s matrix.",d[1],d[2]))
-              return(drop(suppressMessages(tsne_from_topics(fit,dims = 1,
-                                             verbose = FALSE,...))))
-            },
+            gap = 1, embed_method = structure_plot_default_embed_method,
             ggplot_call = structure_plot_ggplot_call, ...) {
 
   # Check and process input argument "fit".
@@ -222,6 +212,23 @@ structure_plot <-
   } else {
     out <- compile_grouped_structure_plot_data(fit$L,topics,grouping,gap)
     return(ggplot_call(out$dat,colors,out$ticks))
+  }
+}
+
+#' @rdname structure_plot
+#'
+#' @importFrom stats rnorm
+#' 
+#' @export
+#' 
+structure_plot_default_embed_method <- function (fit,...) {
+  if (nrow(fit$L) < 20)
+    return(rnorm(nrow(fit$L)))
+  else {
+    d <- dim(fit$L)
+    message(sprintf("Running tsne on %s x %s matrix.",d[1],d[2]))
+    return(drop(suppressMessages(tsne_from_topics(fit,dims = 1,
+                                                  verbose = FALSE,...))))
   }
 }
 
