@@ -183,8 +183,8 @@ proportions, we create a Structure plot:
 ```{r structure-plot-with-celltype-labels, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
-structure_plot(fit,topics = 1:6,colors = topic_colors,
-               grouping = samples$subpop,gap = 25)
+structure_plot(fit,colors = topic_colors,topics = 1:6,gap = 25,
+               grouping = samples$subpop)
 ```
 
 The Structure plot is a simply stacked bar chart, in which each topic
@@ -242,8 +242,8 @@ fit_test$L <- predict(fit,counts_test)
 The predictions appear to align well with the provided cell labels:
 
 ```{r structure-plot-test, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
-structure_plot(fit_test,topics = 1:6,colors = topic_colors,
-               grouping = pbmc_facs$samples_test$subpop,gap = 10)
+structure_plot(fit_test,topics = 1:6,colors = topic_colors,gap = 10,
+               grouping = pbmc_facs$samples_test$subpop)
 ```
 
 Topics capture patterns of relative expression

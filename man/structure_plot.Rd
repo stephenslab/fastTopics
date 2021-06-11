@@ -129,7 +129,43 @@ provided, in which case the samples are arranged according to that
 grouping, then arranged within each group using t-SNE.
 }
 \examples{
-# Add example(s) here.
+set.seed(1)
+data(pbmc_facs)
+
+# Get the multinomial topic model fitted to the
+# PBMC data.
+fit <- pbmc_facs$fit
+
+# Create a Structure plot without labels. The samples (rows) are
+# automatically arranged along the x-axis using t-SNE to highlight
+# the structure in the data.
+p1 <- structure_plot(fit)
+
+# Create a Structure plot with the FACS cell-type labels. Within each
+# group (cell-type), the cells (rows) are automatically arranged using
+# t-SNE.
+subpop <- pbmc_facs$samples$subpop
+p2 <- structure_plot(fit,grouping = subpop)
+
+# Next, we apply some customizations to improve the plot: (1) use the
+# "topics" argument to specify the order in which the topic
+# proportions are stacked on top of each other; (2) use the "gap"
+# argrument to increase the whitespace between the groups; (3) use "n"
+# to decrease the number of rows included in the Structure plot; and
+# (4) use "colors" to change the colors used to draw the topic
+# proportions.
+topic_colors <- c("skyblue","forestgreen","darkmagenta",
+                  "dodgerblue","gold","darkorange")
+p3 <- structure_plot(fit,grouping = pbmc_facs$samples$subpop,gap = 20,
+                     n = 1500,topics = c(5,6,1,4,2,3),colors = topic_colors)
+
+# In this final example, we use UMAP instead of t-SNE to arrange all
+# 3,744 cells in the Structure plot. Note that this can be
+# accomplished in a different way by overriding the default setting of
+# "embed_method".
+y <- drop(umap_from_topics(fit,dims = 1))
+p4 <- structure_plot(fit,rows = order(y),grouping = subpop,gap = 40,
+                     colors = topic_colors)
 
 }
 \references{
