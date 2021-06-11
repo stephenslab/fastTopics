@@ -2,9 +2,9 @@
 #'
 #' @description Create a \dQuote{Structure plot} from a multinomial topic
 #'   model fit. The Structure plot represents the estimated topic
-#'   proportions of each sample in a stacked barchart, with bars of
+#'   proportions of each sample in a stacked bar chart, with bars of
 #'   different colors representing different topics. Consequently,
-#'   samples that have similar mixture proportions have similar amounts
+#'   samples that have similar topic proportions have similar amounts
 #'   of each color.
 #'
 #' @details The name \dQuote{Structure plot} comes from its widespread
@@ -15,45 +15,42 @@
 #' is usually some grouping of the samples (e.g., assignment to
 #' pre-defined populations) that guides arrangement of the samples
 #' along the horizontal axis in the bar chart. In other applications,
-#' such as analysis of gene expression data, no pre-defined grouping
-#' exists. Therefore, a \dQuote{smart} arrangement of the samples is,
-#' by default, generated automatically by performing a 1-d t-SNE
-#' embedding of the samples.
-#'
-#' Alternatively, a categorical variable---the grouping---may be
-#' provided, in which case the samples are arranged according to that
-#' grouping, then arranged within each group using t-SNE.
+#' such as analysis of gene expression data, a pre-defined grouping
+#' may not always be available. Therefore, a \dQuote{smart}
+#' arrangement of the samples is, by default, generated automatically
+#' by performing a 1-d embedding of the samples.
 #'
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
 #'   as input, the corresponding multinomial topic model fit is
 #'   automatically recovered using \code{\link{poisson2multinom}}.
 #'
-#' @param grouping Optional categorical variable (factor) with one
+#' @param grouping Optional categorical variable (a factor) with one
 #'   entry for each row of the loadings matrix \code{fit$L} defining a
 #'   grouping of the samples (rows). The samples (rows) are arranged
 #'   along the horizontal axis according to this grouping, then within
 #'   each group according to \code{rows} or, if not provided, according
-#'   to the 1-d UMAP embedding. If \code{grouping} is not a factor, an
-#'   attempt is made to convert it to a factor using \code{as.factor}.
+#'   to the 1-d embedding computed by \code{embed_method}. If
+#'   \code{grouping} is not a factor, an attempt is made to convert it
+#'   to a factor using \code{as.factor}.
 #' 
-#' @param topics Top-to-bottom ordering of the topics in the structure
+#' @param topics Top-to-bottom ordering of the topics in the Structure
 #'   plot; \code{topics[1]} is shown on the top, \code{topics[2]} is
 #'   shown next, and so on. If the ordering of the topics is not
-#'   specified, the topics are automaticcally ordered so that the topics
-#'   with the greatest \dQuote{mass} are at shown at the bottom of the
-#'   plot. The topics may be specified by number or by name.
+#'   specified, the topics are automatically ordered so that the topics
+#'   with the greatest total \dQuote{mass} are at shown at the bottom of
+#'   the plot. The topics may be specified by number or by name.
 #' 
-#' @param rows Ordering of the rows (samples) in the structure plot
+#' @param rows Ordering of the rows (samples) in the Structure plot
 #'   after they have been grouped. This may include all the rows, or a
-#'   subset. If not provided, generated automatically from a 1-d UMAP
-#'   embedding, separately for each group. The rows may be specified by
-#'   number or by name.
+#'   subset of the rows. If not provided, it is generated automatically
+#'   from a 1-d embedding, separately for each group. The rows may be
+#'   specified by number or by name.
 #'
-#' @param n The maximum number of samples (rows of the loadings
-#'   matrix) to include in the plot. Typically there is little to no
-#'   benefit in including large number of samples in the Structure plot
-#'   due to screen resolution limits. Ignored if \code{rows} is
+#' @param n The maximum number of samples (rows of the loadings matrix
+#'   \code{fit$L}) to include in the plot. Typically there is little to
+#'   no benefit in including large number of samples in the Structure
+#'   plot due to screen resolution limits. Ignored if \code{rows} is
 #'   provided.
 #'
 #' @param colors Colors used to draw topics in Structure plot. The
@@ -63,14 +60,20 @@
 #' @param gap The horizontal spacing between groups. Ignored if
 #'   \code{grouping} is not provided.
 #'
-#' @param embed_method Describe input argument "embed_method" here.
+#' @param embed_method The function used to compute an 1-d embedding
+#'   from a loadings matrix \code{fit$L}; ignored if \code{rows} is
+#'   provided. The function must accept the multinomial topic model fit
+#'   as its first input (\dQuote{fit}) and additional arguments may be
+#'   passed (\dots). The output should be a named numeric vector with
+#'   one entry per row of \code{fit$L}, and the names of the entries
+#'   should be the same as the row names of \code{fit$L}.
 #'
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{structure_plot_ggplot_call} with your own function to
 #'   customize the appearance of the plot.
 #'
 #' @param \dots Additional arguments passed to \code{structure_plot}
-#'   (for the \code{plot} method) or \code{\link{tsne_from_topics}} (for
+#'   (for the \code{plot} method) or \code{\link{embed_method}} (for
 #'   function \code{structure_plot}).
 #'
 #' @return A \code{ggplot} object.
