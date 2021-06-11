@@ -17,7 +17,7 @@ jobs:
           name: Install package dependencies
           command: |
             mkdir -p ~/R/Library
-            Rscript -e 'install.packages(c("devtools","remotes","quadprog","MCMCpack","irlba","Rtsne","dplyr","Rcpp","RcppArmadillo","RcppParallel","RcppProgress","progress","ggplot2","ggrepel","cowplot","plotly","htmlwidgets","testthat","Ternary"))'
+            Rscript -e 'install.packages(c("devtools","remotes","quadprog","MCMCpack","irlba","Rtsne","uwot","dplyr","Rcpp","RcppArmadillo","RcppParallel","RcppProgress","progress","ggplot2","ggrepel","cowplot","plotly","htmlwidgets","testthat","Ternary"))'
             Rscript -e 'devtools::install_github("slowkow/ggrepel",upgrade="never",force=TRUE)'
             Rscript -e 'devtools::install_github("stephens999/ashr",upgrade="never",force=TRUE)'
             Rscript -e 'devtools::install_github("linxihui/NNLM",upgrade="never",force=TRUE)'

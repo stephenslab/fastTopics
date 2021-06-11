@@ -60,9 +60,7 @@ LinkingTo:
     RcppParallel,
     RcppArmadillo,
     RcppProgress
-Remotes: 
-    linxihui/NNLM,
-    jlmelville/uwot
+Remotes: linxihui/NNLM
 LazyData: true
 NeedsCompilation: yes
 RoxygenNote: 7.1.1
