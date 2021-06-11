@@ -99,9 +99,13 @@ structure_plot <-
                        "#ffff33","#a65628","#f781bf","#999999"),
             gap = 1,
             embed_method = function (fit,...) if (nrow(fit$L) < 20)
-              rnorm(nrow(fit$L))
-            else
-              drop(umap_from_topics(fit,dims=1,...)),
+              return(rnorm(nrow(fit$L)))
+            else {
+              d <- dim(fit$L)
+              message(sprintf("Running tsne on %s x %s matrix.",d[1],d[2]))
+              return(drop(suppressMessages(tsne_from_topics(fit,dims = 1,
+                                             verbose = FALSE,...))))
+            },
             ggplot_call = structure_plot_ggplot_call, ...) {
 
   # Check and process input argument "fit".
@@ -140,19 +144,26 @@ structure_plot <-
   # Check and process input arguments "rows" and "n".
   if (missing(rows)) {
 
+    # If necessary, randomly subsample the rows.
+    if (n < n0) {
+      rows     <- sample(n0,n)
+      fit      <- select_loadings(fit,rows)
+      grouping <- grouping[rows,drop = FALSE]
+      rows     <- 1:n
+    }
+
     # The ordering of the rows is not provided, so determine an
     # ordering by computing a 1-d embedding of L.
-    if (nlevels(grouping) == 1)
-      rows <- order(embed_method(fit,...))
-    else {
+    if (nlevels(grouping) == 1) {
+      y <- embed_method(fit,...)
+      rows <- order(y)
+    } else {
       rows <- NULL
-      n    <- round(n/n0*table(grouping))
-      for (j in levels(grouping)) {
-        i    <- which(grouping == j)
-        out  <- tsne_from_topics(select_loadings(fit,i),1,n[j],
-                                 perplexity = perplexity[j],
-                                 eta = eta[j],...)
-        rows <- c(rows,i[out$rows[order(out$Y)]])
+      for (group in levels(grouping)) {
+        i <- which(grouping == group)
+        if (length(i) > 0)
+          y <- embed_method(select_loadings(fit,i),...)
+        rows <- c(rows,i[order(y)])
       }
     }
   } else {
@@ -162,14 +173,15 @@ structure_plot <-
     if (is.character(rows))
       rows <- match(rows,rownames(fit$L))
   }
-
+  
   # Prepare the data for plotting and create the Structure plot.
-  if (nlevels(grouping) == 1)
-    return(ggplot_call(compile_structure_plot_data(fit$L[rows,],topics),
-                       colors))
-  else {
-    out <- compile_grouped_structure_plot_data(fit$L[rows,],topics,
-                                               grouping[rows],gap)
+  fit$L <- fit$L[rows,]
+  grouping <- grouping[rows]
+  if (nlevels(grouping) == 1) {
+    dat <- compile_structure_plot_data(fit$L,topics)
+    return(ggplot_call(dat,colors))
+  } else {
+    out <- compile_grouped_structure_plot_data(fit$L,topics,grouping,gap)
     return(ggplot_call(out$dat,colors,out$ticks))
   }
 }

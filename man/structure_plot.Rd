@@ -16,8 +16,10 @@ structure_plot(
   colors = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
     "#a65628", "#f781bf", "#999999"),
   gap = 1,
-  embed_method = function(fit, ...) if (nrow(fit$L) < 20) rnorm(nrow(fit$L)) else
-    drop(umap_from_topics(fit, dims = 1, ...)),
+  embed_method = function(fit, ...) if (nrow(fit$L) < 20) return(rnorm(nrow(fit$L)))
+    else {     d <- dim(fit$L)     message(sprintf("Running tsne on \%s x \%s matrix.",
+    d[1], d[2]))     return(drop(suppressMessages(tsne_from_topics(fit, dims = 1, verbose
+    = FALSE, ...)))) },
   ggplot_call = structure_plot_ggplot_call,
   ...
 )
