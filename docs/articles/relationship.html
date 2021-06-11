@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Exploring the close relationship between topic modeling and non-negative matrix factorization for count data</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2021-02-22</h4>
+            <h4 class="date">2021-06-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/relationship.Rmd"><code>vignettes/relationship.Rmd</code></a></small>
       <div class="hidden name"><code>relationship.Rmd</code></div>
@@ -92,7 +92,7 @@ x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}).
 <p>The fastTopics function <code>fit_poisson_nmf</code> computes maximum-likelihood estimates (MLEs) of the Poisson NMF parameters. These parameters are stored as an <span class="math inline">\(m \times K\)</span> matrix <span class="math inline">\(F\)</span>, and an <span class="math inline">\(n \times K\)</span> matrix <span class="math inline">\(L\)</span>. Drawing the connection to PCA, we call <span class="math inline">\(L\)</span> the “loadings matrix” (also sometimes called the “activations”), and <span class="math inline">\(F\)</span> is the “factors matrix” (or “basis vectors”). Here we siulate a “toy” data set with <span class="math inline">\(n = 80\)</span>, <span class="math inline">\(m = 100\)</span> and <span class="math inline">\(K = 3\)</span>:</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">1</span>)
 <span class="no">dat</span>  <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/simulate_count_data.html">simulate_count_data</a></span>(<span class="fl">80</span>,<span class="fl">100</span>,<span class="fl">3</span>)
-<span class="no">fit1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span>(<span class="no">dat</span>$<span class="no">X</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">3</span>,<span class="kw">numiter</span> <span class="kw">=</span> <span class="fl">200</span>,<span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
+<span class="no">fit1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span>(<span class="no">dat</span>$<span class="no">X</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">3</span>,<span class="kw">numiter</span> <span class="kw">=</span> <span class="fl">200</span>,<span class="kw">verbose</span> <span class="kw">=</span> <span class="st">"none"</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">dat</span>$<span class="no">X</span>),
       <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">fit1</span>$<span class="no">L</span>),
       <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">fit1</span>$<span class="no">F</span>))

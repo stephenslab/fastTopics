@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -156,20 +156,20 @@ inaccuracy in the computation.</p></td>
     </tr>
     <tr>
       <th>family</th>
-      <td><p>If <code>model = "poisson"</code>, the loss function
-corresponding to the Poisson non-negative matrix factorization is
-computed; if <code>model = "multinom"</code>, multinomial topic model
-loss function values are returned. See "Value" for details.</p></td>
+      <td><p>If <code>model = "poisson"</code>, the loss function values
+corresponding to the Poisson non-negative matrix factorization are
+computed; if <code>model = "multinom"</code>, the multinomial topic model
+loss function values are returned.</p></td>
     </tr>
     <tr>
       <th>version</th>
       <td><p>When <code>version == "R"</code>, the computations are
- performed entirely in R; when <code>version == "Rcpp"</code>, an Rcpp
+performed entirely in R; when <code>version == "Rcpp"</code>, an Rcpp
 implementation is used. The R version is typically faster when
- <code>X</code> is a dense matrix, whereas the Rcpp version is faster and
- more memory-efficient when <code>X</code> is a large, sparse matrix. When
- not specified, the most suitable version is called depending on
- whether <code>X</code> is dense or sparse.</p></td>
+<code>X</code> is a dense matrix, whereas the Rcpp version is faster and
+more memory-efficient when <code>X</code> is a large, sparse matrix. When
+not specified, the most suitable version is called depending on
+whether <code>X</code> is dense or sparse.</p></td>
     </tr>
     </table>
 
@@ -178,9 +178,10 @@ implementation is used. The R version is typically faster when
     <p>A numeric vector with one entry per row of <code>X</code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Function <code>cost</code> is mainly for internal use to quickly
-  compute log-likelihoods and deviances; it should not be used
-  directly unless you know what you are doing. In particular, very
+    <p>Function <code>cost</code> computes loss functions proportional
+  to the negative log-likelihoods, and is mainly for internal use to
+  quickly compute log-likelihoods and deviances; it should not be
+  used directly unless you know what you are doing. In particular,
   little argument checking is performed by <code>cost</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -123,13 +123,7 @@
 <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for summary.poisson_nmf_fit</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(
-  <span class='no'>x</span>,
-  <span class='kw'>show.size.factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>show.mixprops</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>show.topic.reps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
-)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>, <span class='kw'>show.mixprops</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>show.topic.reps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for summary.multinom_topic_model_fit</span>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(
@@ -162,11 +156,6 @@ or <code>print.summary</code> method.</p></td>
 usually a result of a call to <code>summary.poisson_nmf_fit</code>.</p></td>
     </tr>
     <tr>
-      <th>show.size.factors</th>
-      <td><p>If <code>TRUE</code>, print a summary of the
-size factors.</p></td>
-    </tr>
-    <tr>
       <th>show.mixprops</th>
       <td><p>If <code>TRUE</code>, print a summary of the mixture
 proportions.</p></td>
@@ -176,6 +165,11 @@ proportions.</p></td>
       <td><p>If <code>TRUE</code>, print a summary of the topic
 representatives.</p></td>
     </tr>
+    <tr>
+      <th>show.size.factors</th>
+      <td><p>If <code>TRUE</code>, print a summary of the
+size factors.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -183,7 +177,7 @@ representatives.</p></td>
     <p>The functions <code>summary.poisson_nmf_fit</code> and
 <code>summary.multinom_topic_model_fit</code> compute and return a list
 of statistics summarizing the model fit. The returned list
-includes the following elements:</p>
+includes some or all of the following elements:</p>
 <dt>n</dt><dd><p>The number of rows in the counts matrix, typically the
   number of samples.</p></dd>
 
@@ -199,16 +193,17 @@ includes the following elements:</p>
 <dt>numiter</dt><dd><p>The number of loadings and/or factor updates
   performed.</p></dd>
 
-<dt>loglik</dt><dd><p>The log-likelihood attained by the Poisson NMF model
-  fit.</p></dd>
+<dt>loglik</dt><dd><p>The Poisson NMF log-likelihood.</p></dd>
 
-<dt>dev</dt><dd><p>The deviance attained by the Poisson NMF model fit.</p></dd>
+<dt>loglik.multinom</dt><dd><p>The multinomial topic model log-likelihood.</p></dd>
+
+<dt>dev</dt><dd><p>The Poisson NMF deviance.</p></dd>
 
 <dt>res</dt><dd><p>The maximum residual of the Karush-Kuhn-Tucker (KKT)
   first-order optimality conditions. This can be used to assess
   convergence of the updates to a (local) solution.</p></dd>
 
-<dt>mixprop</dt><dd><p>Matrix giving a high-level summary of the
+<dt>mixprops</dt><dd><p>Matrix giving a high-level summary of the
   mixture proportions, in which rows correspond to topics, and
   columns are ranges of mixture proportionss.</p></dd>
 

@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -138,7 +138,7 @@
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"scd"</span>, <span class='st'>"em"</span>, <span class='st'>"mu"</span>, <span class='st'>"ccd"</span>),
   <span class='kw'>init.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"topicscore"</span>, <span class='st'>"random"</span>),
   <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"progressbar"</span>, <span class='st'>"detailed"</span>, <span class='st'>"none"</span>)
 )
 
 <span class='fu'>init_poisson_nmf</span>(
@@ -150,7 +150,7 @@
   <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
   <span class='kw'>betamax</span> <span class='kw'>=</span> <span class='fl'>0.99</span>,
   <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"detailed"</span>, <span class='st'>"none"</span>)
 )
 
 <span class='fu'>fit_poisson_nmf_control_default</span>()</pre>
@@ -232,10 +232,11 @@ is used to initialize the model parameters). See &#8216;Details&#8217;.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
-      <td><p>When <code>verbose = TRUE</code>, information about the
-algorithm's progress is printed to the console at each
-iteration. For interpretation of the columns, see the description
-of the <code>progress</code> return value.</p></td>
+      <td><p>When <code>verbose = "detailed"</code>, information about
+the algorithm's progress is printed to the console at each
+iteration; when <code>verbose = "progressbar"</code>, a progress bar is
+shown; and when <code>verbose = "none"</code>, no progress information is
+printed.</p></td>
     </tr>
     <tr>
       <th>F</th>
@@ -250,7 +251,7 @@ provided, input argument <code>k</code> should be specified instead.</p></td>
     <tr>
       <th>L</th>
       <td><p>An optional argument giving the initial estimate of the
-loadings (also known as &#8220;activations&#8221;). It should an n x k
+loadings (also known as &#8220;activations&#8221;). It should be an n x k
 matrix, where n is the number of rows in the counts matrix
 <code>X</code>, and k &gt; 1 is the rank of the matrix factorization
 (equivalently, the number of &#8220;topics&#8221;). All entries of
@@ -321,15 +322,17 @@ with the following elements:</p>
 <dt>progress</dt><dd><p>A data frame containing detailed information about
   the algorithm's progress. The data frame should have <code>numiter</code>
   rows. The columns of the data frame are: "iter", the iteration
-  number; "loglik", the log-likelihood at the current best factor and
-  loading estimates; "dev", the deviance at the current best factor
-  and loading estimates; "res", the maximum residual of the
-  Karush-Kuhn-Tucker (KKT) first-order optimality conditions at the
-  current best factor and loading estimates; "delta.f", the largest
-  change in the factors matrix; "delta.l", the largest change in the
-  loadings matrix; "nonzeros.f", the proportion of entries in the
-  factors matrix that are nonzero; "nonzeros.l", the proportion of
-  entries in the loadings matrix that are nonzero; "extrapolate",
+  number; "loglik", the Poisson NMF log-likelihood at the current
+  best factor and loading estimates; "dev", the deviance at the
+  current best factor and loading estimates; "res", the maximum
+  residual of the Karush-Kuhn-Tucker (KKT) first-order optimality
+  conditions at the current best factor and loading estimates;
+  "loglik.multinom", the multinomial topic model log-likelihood at
+  the current best factor and loading estimates; "delta.f", the
+  largest change in the factors matrix; "delta.l", the largest change
+  in the loadings matrix; "nonzeros.f", the proportion of entries in
+  the factors matrix that are nonzero; "nonzeros.l", the proportion
+  of entries in the loadings matrix that are nonzero; "extrapolate",
   which is 1 if extrapolation is used, otherwise it is 0; "beta", the
   setting of the extrapolation parameter; "betamax", the setting of
   the extrapolation parameter upper bound; and "timing", the elapsed
@@ -383,8 +386,8 @@ model parameters, and (3) the residuals of the Karush-Kuhn-Tucker
 (KKT) first-order conditions. As the iterates approach a stationary
 point of the loss function, the change in the model parameters
 should be small, and the residuals of the KKT system should vanish.
-Use <code><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></code> to plot the improvement
-in the solution over time.</p>
+Use <code><a href='plot_progress.html'>plot_progress</a></code> to plot the improvement in the
+solution over time.</p>
 <p>See <code><a href='fit_topic_model.html'>fit_topic_model</a></code> for additional guidance on model
 fitting, particularly for large or complex data sets.</p>
 <p>The <code>control</code> argument is a list in which any of the
@@ -473,8 +476,7 @@ performed to initialize the loadings matrix when <code>init.method
   estimation. <em>arXiv</em> <a href='http://arxiv.org/abs/1704.07016'>http://arxiv.org/abs/1704.07016</a></p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='fit_topic_model.html'>fit_topic_model</a></code>,
-  <code><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></code></p></div>
+    <div class='dont-index'><p><code><a href='fit_topic_model.html'>fit_topic_model</a></code>, <code><a href='plot_progress.html'>plot_progress</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Simulate a (sparse) 80 x 100 counts matrix.</span>
@@ -488,135 +490,22 @@ performed to initialize the loadings matrix when <code>init.method
 <span class='co'># Run 10 EM updates to find a good initialization.</span>
 <span class='no'>fit0</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>10</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Initializing factors using Topic SCORE algorithm.
 #&gt; Initializing loadings by running 10 SCD updates.</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.
-#&gt; Running 10 SCD updates, without extrapolation (fastTopics 0.5-15).
-#&gt; iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'| nz(F) nz(L) beta
-#&gt;    1 -8.344993376e+03 +7.77727506e+03 2.42e+00 4.2e-01 2.3e-02 0.857 0.950 0.00
-#&gt;    2 -8.327054777e+03 +7.74139786e+03 1.75e+00 1.8e-01 1.8e-01 0.860 0.925 0.00
-#&gt;    3 -8.319017598e+03 +7.72532350e+03 1.12e+00 1.2e-01 1.2e-01 0.870 0.883 0.00
-#&gt;    4 -8.315666120e+03 +7.71862055e+03 9.49e-01 7.1e-02 8.5e-02 0.867 0.854 0.00
-#&gt;    5 -8.314060994e+03 +7.71541029e+03 7.35e-01 6.7e-02 8.1e-02 0.867 0.846 0.00
-#&gt;    6 -8.313151842e+03 +7.71359199e+03 5.57e-01 5.1e-02 7.5e-02 0.867 0.842 0.00
-#&gt;    7 -8.312815325e+03 +7.71291896e+03 3.65e-01 2.8e-02 3.6e-02 0.870 0.842 0.00
-#&gt;    8 -8.312587631e+03 +7.71246357e+03 3.38e-01 3.2e-02 3.9e-02 0.870 0.842 0.00
-#&gt;    9 -8.312415226e+03 +7.71211876e+03 3.10e-01 2.5e-02 3.5e-02 0.870 0.838 0.00
-#&gt;   10 -8.312323028e+03 +7.71193436e+03 2.74e-01 1.7e-02 3.3e-02 0.873 0.838 0.00</div><div class='input'>
+#&gt; Running 10 SCD updates, without extrapolation (fastTopics 0.5-52).</div><div class='input'>
 <span class='co'># Fit the Poisson NMF model by running 50 EM updates.</span>
 <span class='no'>fit_em</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>50</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"em"</span>)</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.
-#&gt; Running 50 EM updates, without extrapolation (fastTopics 0.5-15).
-#&gt; iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'| nz(F) nz(L) beta
-#&gt;   11 -8.312286772e+03 +7.71186185e+03 1.59e-01 4.0e-03 1.7e-02 0.873 0.838 0.00
-#&gt;   12 -8.312266752e+03 +7.71182181e+03 1.32e-01 4.7e-03 1.0e-02 0.873 0.838 0.00
-#&gt;   13 -8.312250346e+03 +7.71178900e+03 1.20e-01 4.8e-03 8.4e-03 0.873 0.838 0.00
-#&gt;   14 -8.312235748e+03 +7.71175980e+03 1.12e-01 4.8e-03 7.7e-03 0.873 0.838 0.00
-#&gt;   15 -8.312222328e+03 +7.71173296e+03 1.06e-01 4.6e-03 7.3e-03 0.873 0.838 0.00
-#&gt;   16 -8.312209774e+03 +7.71170785e+03 1.01e-01 4.4e-03 6.9e-03 0.873 0.838 0.00
-#&gt;   17 -8.312197906e+03 +7.71168412e+03 9.65e-02 4.2e-03 6.6e-03 0.873 0.838 0.00
-#&gt;   18 -8.312186607e+03 +7.71166152e+03 9.23e-02 4.1e-03 6.3e-03 0.873 0.838 0.00
-#&gt;   19 -8.312175797e+03 +7.71163990e+03 8.85e-02 3.9e-03 6.1e-03 0.873 0.838 0.00
-#&gt;   20 -8.312165414e+03 +7.71161913e+03 8.49e-02 3.7e-03 5.9e-03 0.873 0.838 0.00
-#&gt;   21 -8.312155410e+03 +7.71159913e+03 8.15e-02 3.5e-03 5.6e-03 0.873 0.838 0.00
-#&gt;   22 -8.312145744e+03 +7.71157979e+03 7.84e-02 3.4e-03 5.4e-03 0.873 0.838 0.00
-#&gt;   23 -8.312136379e+03 +7.71156106e+03 7.54e-02 3.2e-03 5.2e-03 0.873 0.838 0.00
-#&gt;   24 -8.312127283e+03 +7.71154287e+03 7.25e-02 3.1e-03 5.0e-03 0.873 0.838 0.00
-#&gt;   25 -8.312118424e+03 +7.71152515e+03 6.97e-02 3.0e-03 4.9e-03 0.873 0.838 0.00
-#&gt;   26 -8.312109773e+03 +7.71150785e+03 6.70e-02 2.8e-03 4.7e-03 0.873 0.838 0.00
-#&gt;   27 -8.312101304e+03 +7.71149092e+03 6.44e-02 2.7e-03 4.5e-03 0.873 0.838 0.00
-#&gt;   28 -8.312092992e+03 +7.71147429e+03 6.19e-02 2.6e-03 4.3e-03 0.873 0.838 0.00
-#&gt;   29 -8.312084812e+03 +7.71145793e+03 5.94e-02 2.5e-03 4.1e-03 0.873 0.838 0.00
-#&gt;   30 -8.312076745e+03 +7.71144180e+03 5.71e-02 2.6e-03 4.0e-03 0.873 0.838 0.00
-#&gt;   31 -8.312068774e+03 +7.71142585e+03 5.48e-02 2.6e-03 3.8e-03 0.873 0.838 0.00
-#&gt;   32 -8.312060883e+03 +7.71141007e+03 5.25e-02 2.6e-03 3.6e-03 0.873 0.838 0.00
-#&gt;   33 -8.312053064e+03 +7.71139443e+03 5.04e-02 2.6e-03 3.5e-03 0.873 0.838 0.00
-#&gt;   34 -8.312045310e+03 +7.71137893e+03 4.83e-02 2.7e-03 3.4e-03 0.873 0.838 0.00
-#&gt;   35 -8.312037621e+03 +7.71136355e+03 4.63e-02 2.7e-03 3.5e-03 0.873 0.838 0.00
-#&gt;   36 -8.312030000e+03 +7.71134831e+03 4.43e-02 2.7e-03 3.5e-03 0.873 0.838 0.00
-#&gt;   37 -8.312022457e+03 +7.71133322e+03 4.24e-02 2.7e-03 3.6e-03 0.873 0.838 0.00
-#&gt;   38 -8.312015006e+03 +7.71131832e+03 4.06e-02 2.6e-03 3.6e-03 0.873 0.838 0.00
-#&gt;   39 -8.312007665e+03 +7.71130364e+03 3.92e-02 2.6e-03 3.6e-03 0.873 0.838 0.00
-#&gt;   40 -8.312000457e+03 +7.71128922e+03 3.82e-02 2.6e-03 3.5e-03 0.873 0.838 0.00
-#&gt;   41 -8.311993408e+03 +7.71127512e+03 3.71e-02 2.5e-03 3.5e-03 0.873 0.838 0.00
-#&gt;   42 -8.311986547e+03 +7.71126140e+03 3.59e-02 2.4e-03 3.4e-03 0.873 0.838 0.00
-#&gt;   43 -8.311979901e+03 +7.71124811e+03 3.44e-02 2.4e-03 3.3e-03 0.873 0.838 0.00
-#&gt;   44 -8.311973502e+03 +7.71123531e+03 3.28e-02 2.3e-03 3.2e-03 0.873 0.838 0.00
-#&gt;   45 -8.311967375e+03 +7.71122306e+03 3.15e-02 2.2e-03 3.0e-03 0.873 0.838 0.00
-#&gt;   46 -8.311961545e+03 +7.71121140e+03 3.05e-02 2.1e-03 2.9e-03 0.873 0.838 0.00
-#&gt;   47 -8.311956034e+03 +7.71120037e+03 2.94e-02 2.0e-03 2.7e-03 0.873 0.838 0.00
-#&gt;   48 -8.311950857e+03 +7.71119002e+03 2.82e-02 1.9e-03 2.6e-03 0.873 0.838 0.00
-#&gt;   49 -8.311946026e+03 +7.71118036e+03 2.70e-02 1.8e-03 2.4e-03 0.873 0.838 0.00
-#&gt;   50 -8.311941546e+03 +7.71117140e+03 2.57e-02 1.6e-03 2.2e-03 0.873 0.838 0.00
-#&gt;   51 -8.311937418e+03 +7.71116314e+03 2.43e-02 1.5e-03 2.1e-03 0.873 0.838 0.00
-#&gt;   52 -8.311933636e+03 +7.71115558e+03 2.30e-02 1.4e-03 1.9e-03 0.873 0.838 0.00
-#&gt;   53 -8.311930191e+03 +7.71114869e+03 2.16e-02 1.3e-03 1.7e-03 0.873 0.838 0.00
-#&gt;   54 -8.311927070e+03 +7.71114245e+03 2.03e-02 1.2e-03 1.6e-03 0.873 0.838 0.00
-#&gt;   55 -8.311924256e+03 +7.71113682e+03 1.90e-02 1.1e-03 1.4e-03 0.873 0.838 0.00
-#&gt;   56 -8.311921731e+03 +7.71113177e+03 1.77e-02 1.0e-03 1.3e-03 0.873 0.838 0.00
-#&gt;   57 -8.311919473e+03 +7.71112725e+03 1.64e-02 9.2e-04 1.2e-03 0.873 0.838 0.00
-#&gt;   58 -8.311917462e+03 +7.71112323e+03 1.52e-02 8.3e-04 1.0e-03 0.873 0.838 0.00
-#&gt;   59 -8.311915675e+03 +7.71111966e+03 1.41e-02 7.6e-04 9.2e-04 0.873 0.838 0.00
-#&gt;   60 -8.311914092e+03 +7.71111649e+03 1.30e-02 6.8e-04 8.4e-04 0.873 0.838 0.00</div><div class='input'>
+#&gt; Running 50 EM updates, without extrapolation (fastTopics 0.5-52).</div><div class='input'>
 <span class='co'># Fit the Poisson NMF model by running 50 extrapolated SCD updates.</span>
 <span class='no'>fit_scd</span> <span class='kw'>&lt;-</span> <span class='fu'>fit_poisson_nmf</span>(<span class='no'>X</span>,<span class='kw'>fit0</span> <span class='kw'>=</span> <span class='no'>fit0</span>,<span class='kw'>numiter</span> <span class='kw'>=</span> <span class='fl'>50</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"scd"</span>,
                            <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>extrapolate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>))</div><div class='output co'>#&gt; <span class='message'>Using 4 RcppParallel threads.</span></div><div class='output co'>#&gt; Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.
-#&gt; Running 50 SCD updates, with extrapolation (fastTopics 0.5-15).
-#&gt; iter   log-likelihood        deviance res(KKT)  |F-F'|  |L-L'| nz(F) nz(L) beta
-#&gt;   11 -8.312215913e+03 +7.71172013e+03 2.36e-01 2.4e-02 4.7e-02 0.870 0.833 0.55
-#&gt;   12 -8.312086577e+03 +7.71146146e+03 3.40e-01 3.9e-02 7.7e-02 0.870 0.829 0.61
-#&gt;   13 -8.311948939e+03 +7.71118618e+03 2.68e-01 4.7e-02 7.5e-02 0.873 0.825 0.67
-#&gt;   14 -8.311918236e+03 +7.71112478e+03 9.37e-01 5.8e-02 1.1e-01 0.877 0.821 0.73
-#&gt;   15 -8.311918236e+03 +7.71112478e+03 9.37e-01 2.2e-16 4.4e-16 0.877 0.821 0.55
-#&gt;   16 -8.311869339e+03 +7.71102699e+03 1.58e-01 3.1e-02 4.7e-02 0.877 0.821 0.60
-#&gt;   17 -8.311838943e+03 +7.71096619e+03 7.44e-02 4.7e-02 6.7e-02 0.873 0.825 0.66
-#&gt;   18 -8.311825788e+03 +7.71093988e+03 1.15e-01 7.5e-02 6.1e-02 0.873 0.825 0.73
-#&gt;   19 -8.311825788e+03 +7.71093988e+03 1.15e-01 2.2e-16 4.4e-16 0.873 0.825 0.55
-#&gt;   20 -8.311797032e+03 +7.71088237e+03 7.92e-02 3.2e-02 1.8e-02 0.873 0.825 0.60
-#&gt;   21 -8.311771664e+03 +7.71083164e+03 4.37e-01 3.8e-02 2.9e-02 0.873 0.821 0.66
-#&gt;   22 -8.311771362e+03 +7.71083103e+03 6.12e-02 3.4e-02 3.2e-02 0.877 0.825 0.73
-#&gt;   23 -8.311771362e+03 +7.71083103e+03 6.12e-02 0.0e+00 0.0e+00 0.877 0.825 0.55
-#&gt;   24 -8.311763753e+03 +7.71081581e+03 5.60e-02 5.9e-03 1.3e-02 0.877 0.825 0.60
-#&gt;   25 -8.311754187e+03 +7.71079668e+03 4.33e-02 1.2e-02 2.2e-02 0.870 0.825 0.66
-#&gt;   26 -8.311738834e+03 +7.71076597e+03 4.61e-02 2.3e-02 3.4e-02 0.870 0.825 0.73
-#&gt;   27 -8.311680259e+03 +7.71064882e+03 9.24e-02 5.3e-02 7.1e-02 0.867 0.829 0.80
-#&gt;   28 -8.311680259e+03 +7.71064882e+03 9.24e-02 2.2e-16 4.4e-16 0.867 0.829 0.60
-#&gt;   29 -8.311634223e+03 +7.71055675e+03 7.58e-02 3.8e-02 4.2e-02 0.867 0.829 0.66
-#&gt;   30 -8.311614638e+03 +7.71051758e+03 8.19e-02 1.2e-02 8.8e-03 0.870 0.829 0.00
-#&gt;   31 -8.311591608e+03 +7.71047152e+03 5.74e-02 1.9e-02 1.4e-02 0.863 0.829 0.73
-#&gt;   32 -8.311567997e+03 +7.71042430e+03 6.39e-02 3.4e-02 2.8e-02 0.867 0.829 0.80
-#&gt;   33 -8.311544223e+03 +7.71037675e+03 9.40e-02 5.2e-02 5.2e-02 0.867 0.829 0.88
-#&gt;   34 -8.311544223e+03 +7.71037675e+03 9.40e-02 2.2e-16 4.4e-16 0.867 0.829 0.66
-#&gt;   35 -8.311515033e+03 +7.71031837e+03 1.01e-01 1.8e-02 2.8e-02 0.867 0.829 0.73
-#&gt;   36 -8.311515033e+03 +7.71031837e+03 1.01e-01 2.2e-16 4.4e-16 0.867 0.829 0.54
-#&gt;   37 -8.311499593e+03 +7.71028749e+03 5.49e-01 9.9e-03 2.3e-02 0.863 0.825 0.60
-#&gt;   38 -8.311498485e+03 +7.71028528e+03 9.21e-02 9.0e-03 1.2e-02 0.863 0.825 0.66
-#&gt;   39 -8.311498485e+03 +7.71028528e+03 9.21e-02 2.2e-16 4.4e-16 0.863 0.825 0.49
-#&gt;   40 -8.311495473e+03 +7.71027925e+03 4.59e-02 2.3e-03 3.9e-03 0.863 0.825 0.54
-#&gt;   41 -8.311493113e+03 +7.71027453e+03 2.91e-02 4.5e-03 5.8e-03 0.863 0.825 0.60
-#&gt;   42 -8.311491427e+03 +7.71027116e+03 1.53e-02 6.6e-03 9.5e-03 0.863 0.825 0.66
-#&gt;   43 -8.311490839e+03 +7.71026998e+03 1.63e-02 8.4e-03 1.4e-02 0.863 0.825 0.72
-#&gt;   44 -8.311490839e+03 +7.71026998e+03 1.63e-02 0.0e+00 0.0e+00 0.863 0.825 0.54
-#&gt;   45 -8.311490567e+03 +7.71026944e+03 1.78e-02 1.6e-03 4.3e-03 0.863 0.825 0.60
-#&gt;   46 -8.311490505e+03 +7.71026932e+03 9.88e-03 2.2e-03 6.4e-03 0.863 0.825 0.66
-#&gt;   47 -8.311490505e+03 +7.71026932e+03 9.88e-03 4.4e-16 4.4e-16 0.863 0.825 0.49
-#&gt;   48 -8.311490431e+03 +7.71026917e+03 8.39e-03 6.3e-04 8.5e-04 0.863 0.825 0.54
-#&gt;   49 -8.311490356e+03 +7.71026902e+03 6.02e-03 1.3e-03 1.0e-03 0.863 0.825 0.60
-#&gt;   50 -8.311490320e+03 +7.71026895e+03 3.95e-03 4.2e-04 7.5e-04 0.863 0.825 0.00
-#&gt;   51 -8.311490280e+03 +7.71026887e+03 3.09e-03 5.7e-04 1.0e-03 0.863 0.825 0.66
-#&gt;   52 -8.311490227e+03 +7.71026876e+03 4.67e-03 1.1e-03 1.9e-03 0.863 0.825 0.72
-#&gt;   53 -8.311490199e+03 +7.71026870e+03 5.34e-03 1.6e-03 3.2e-03 0.863 0.825 0.79
-#&gt;   54 -8.311490199e+03 +7.71026870e+03 5.34e-03 0.0e+00 0.0e+00 0.863 0.825 0.59
-#&gt;   55 -8.311490198e+03 +7.71026870e+03 5.12e-03 5.1e-04 1.1e-03 0.863 0.825 0.65
-#&gt;   56 -8.311490198e+03 +7.71026870e+03 5.12e-03 2.2e-16 4.4e-16 0.863 0.825 0.49
-#&gt;   57 -8.311490197e+03 +7.71026870e+03 1.65e-03 2.4e-04 5.8e-04 0.863 0.825 0.54
-#&gt;   58 -8.311490197e+03 +7.71026870e+03 1.22e-03 2.7e-04 6.3e-04 0.863 0.825 0.59
-#&gt;   59 -8.311490197e+03 +7.71026870e+03 1.22e-03 0.0e+00 0.0e+00 0.863 0.825 0.45
-#&gt;   60 -8.311490195e+03 +7.71026870e+03 8.02e-04 1.5e-04 7.8e-05 0.863 0.825 0.49</div><div class='input'>
+#&gt; Running 50 SCD updates, with extrapolation (fastTopics 0.5-52).</div><div class='input'>
 <span class='co'># Compare the two fits.</span>
 <span class='no'>fits</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>em</span> <span class='kw'>=</span> <span class='no'>fit_em</span>,<span class='kw'>scd</span> <span class='kw'>=</span> <span class='no'>fit_scd</span>)
-<span class='fu'><a href='compare_poisson_nmf_fits.html'>compare_poisson_nmf_fits</a></span>(<span class='no'>fits</span>)</div><div class='output co'>#&gt;     k    loglik      dev loglik.diff  dev.diff          res nonzeros.f
+<span class='fu'><a href='compare_fits.html'>compare_fits</a></span>(<span class='no'>fits</span>)</div><div class='output co'>#&gt;     k    loglik      dev loglik.diff  dev.diff          res nonzeros.f
 #&gt; em  3 -8311.914 7711.116   0.0000000 0.0000000 0.0130190646  0.8733333
 #&gt; scd 3 -8311.490 7710.269   0.4238966 0.8477933 0.0008019524  0.8633333
 #&gt;     nonzeros.l numiter runtime
-#&gt; em      0.8375      60   0.085
-#&gt; scd     0.8250      60   0.104</div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>)</div><div class='img'><img src='fit_poisson_nmf-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_progress_poisson_nmf.html'>plot_progress_poisson_nmf</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"res"</span>)</div><div class='img'><img src='fit_poisson_nmf-2.png' alt='' width='700' height='433' /></div><div class='input'>
+#&gt; em      0.8375      60   0.078
+#&gt; scd     0.8250      60   0.079</div><div class='input'><span class='fu'><a href='plot_progress.html'>plot_progress</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"loglik"</span>)</div><div class='img'><img src='fit_poisson_nmf-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_progress.html'>plot_progress</a></span>(<span class='no'>fits</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"res"</span>)</div><div class='img'><img src='fit_poisson_nmf-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Recover the topic model. After this step, the L matrix contains the</span>
 <span class='co'># mixture proportions ("loadings"), and the F matrix contains the</span>
 <span class='co'># word frequencies ("factors").</span>

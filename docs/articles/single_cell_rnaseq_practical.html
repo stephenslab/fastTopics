@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a topic model, Part 2: practical implementation</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2021-02-22</h4>
+            <h4 class="date">2021-06-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/single_cell_rnaseq_practical.Rmd"><code>vignettes/single_cell_rnaseq_practical.Rmd</code></a></small>
       <div class="hidden name"><code>single_cell_rnaseq_practical.Rmd</code></div>
@@ -91,8 +91,7 @@
 <h2 class="hasAnchor">
 <a href="#assessing-convergence-of-model-fitting" class="anchor"></a>Assessing convergence of model fitting</h2>
 <p>The topic model was fitted using the <code>fit_topic_model</code> function. This function, as we mentioned, hides most of the complexities of model fitting. Nevertheless, it is a good idea to check that the model fitting has converged to a maximum-likelihood solution. This can be easily done in <strong>fastTopics</strong>:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="../reference/plot_progress_poisson_nmf.html">plot_progress_poisson_nmf</a></span>(<span class="no">fit</span>,<span class="kw">x</span> <span class="kw">=</span> <span class="st">"iter"</span>,<span class="kw">add.point.every</span> <span class="kw">=</span> <span class="fl">10</span>,
-                          <span class="kw">colors</span> <span class="kw">=</span> <span class="st">"black"</span>) +
+<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="../reference/plot_progress.html">plot_progress</a></span>(<span class="no">fit</span>,<span class="kw">x</span> <span class="kw">=</span> <span class="st">"iter"</span>,<span class="kw">add.point.every</span> <span class="kw">=</span> <span class="fl">10</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="st">"black"</span>) +
   <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="kw">font_size</span> <span class="kw">=</span> <span class="fl">10</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/plot-loglik-1.png" width="480" style="display: block; margin: auto;"></p>
 <p>Internally, <code>fit_topic_model</code> first fits a non-negative matrix factorization to the count data, then converts the fitted NMF to a topic model, so the plot shows the improvement in the NMF model fit over time (improvement is measured by the NMF likelihood, not the multinomial topic model likelihood). Judging by this plot, the parameter estimates get close to a maxium-likelihood solution after about 150 updates.</p>
@@ -127,7 +126,7 @@
 <p>Without the cell labels, the Structure plot can still be quite effective:</p>
 <div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">topic_colors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"skyblue"</span>,<span class="st">"forestgreen"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"dodgerblue"</span>,
                   <span class="st">"gold"</span>,<span class="st">"darkorange"</span>)
-<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>)</pre></body></html></div>
+<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-without-labels-1.png" width="780" style="display: block; margin: auto;"></p>
 <p>From this Structure plot, we see the clustering of the cells into B cells (dark blue), CD14+ monocytes (green) and CD34+ cells (purple). The clustering of the NK (light blue) and T cells (mixtures of yellow and orange) is less distinct, and this is reflected by more sharing of topics (mostly topic 6) among NK and T cells.</p>
 <p>Of course, without the cell labels, we cannot know that the topics correspond to these cell types without further downstream analyses—for this, we will perform a differential expression analysis (continue reading).</p>
@@ -145,8 +144,8 @@
 <span class="co">#    1    2    3    4    5    6 </span>
 <span class="co">#  400  207 1047  797  616  707</span></pre></body></html></div>
 <p>Now we create another Structure plot in which the cells are organized by their membership to the 6 clusters:</p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,
-               <span class="kw">grouping</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="no">clusters</span>),<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>,
+               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">clusters</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-by-cluster-1-1.png" width="900" style="display: block; margin: auto;"></p>
 <p>Judging by the Structure plot, the <em>k</em>-means clusters look sensible, the one exception being that the T cells (cells with high proportions of topics 5 and 6) seem to be rather arbitrarily split into clusters 1 and 3. Therefore, we merge these two clusters:</p>
 <div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">clusters</span>[<span class="no">clusters</span> <span class="kw">==</span> <span class="fl">3</span>] <span class="kw">&lt;-</span> <span class="fl">1</span>
@@ -154,18 +153,18 @@
 <p>We have found that visual inspection of the clusters followed by manual refinement is often be needed to get the “right” clustering.</p>
 <p>With the benefit of hindsight, we know that these 5 clusters correspond to 5 cell types: B cells, T cells, natural killer (NK) cellls, CD14+ monoytes and CD34+ cells. For clarity of presentation, we label the clusters by these cell types, noting that, in most practical settings, labeling the clusters is usually not possible until downstream analyses have been performed.</p>
 <div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(<span class="no">clusters</span>) <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"T"</span>,<span class="st">"CD14+"</span>,<span class="st">"B"</span>,<span class="st">"CD34+"</span>,<span class="st">"NK"</span>)
-<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,
-               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">clusters</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>)</pre></body></html></div>
+<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>,
+               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">clusters</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-by-cluster-2-1.png" width="900" style="display: block; margin: auto;"></p>
 <p>This new Structure plot better highlights the heterogeneity within the clusters, particularly in the T cells. Within the T cells cluster, there is distinctive subset of cells with contributions from topic 1 (the “NK cells” topic, in light blue).</p>
 <p>For clustering, it is also sometimes helpful to visualize the clusters in PCA plots which show the projection of the cells onto PCs of the mixture proportions:</p>
 <div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">cluster_colors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"gold"</span>,<span class="st">"forestgreen"</span>,<span class="st">"dodgerblue"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"skyblue"</span>)
-<span class="fu"><a href="../reference/pca_plot.html">pca_plot</a></span>(<span class="no">fit</span>,<span class="kw">fill</span> <span class="kw">=</span> <span class="no">clusters</span>) +
+<span class="fu"><a href="../reference/embedding_plots.html">pca_plot</a></span>(<span class="no">fit</span>,<span class="kw">fill</span> <span class="kw">=</span> <span class="no">clusters</span>) +
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_fill_manual</a></span>(<span class="kw">values</span> <span class="kw">=</span> <span class="no">cluster_colors</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/pca-plot-1-1.png" width="420" style="display: block; margin: auto;"></p>
 <p>(Note that the CD14+ and CD34+ cells separate better in PCs 3 and 4.)</p>
 <p>When there are many overlapping points, as is the case here, a plotting instead the density of the points can show the clustering more clearly:</p>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="../reference/pca_plot.html">pca_hexbin_plot</a></span>(<span class="no">fit</span>,<span class="kw">bins</span> <span class="kw">=</span> <span class="fl">24</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="../reference/embedding_plots.html">pca_hexbin_plot</a></span>(<span class="no">fit</span>,<span class="kw">bins</span> <span class="kw">=</span> <span class="fl">24</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/pca-plot-2-1.png" width="450" style="display: block; margin: auto;"></p>
 <p>In particular, the separation of the T cells and NK cells into two clusters is more clear in the density (“hexbin”) plot.</p>
 <p>This example is only meant to illustrate clustering of the cells by the estimated mixture proportions; <em>k</em>-means may not be the best clustering technique for all data sets. For more complex data sets, some ingenuity may be needed to identify and visualize clusters.</p>
@@ -187,8 +186,8 @@
 <div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">clusters</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(<span class="no">clusters</span>)
 <span class="no">clusters</span>[<span class="no">clusters</span> <span class="kw">==</span> <span class="st">"T"</span> <span class="kw">&amp;</span> <span class="no">fit</span>$<span class="no">L</span>[,<span class="fl">1</span>] <span class="kw">&gt;</span> <span class="fl">0.1</span>] <span class="kw">&lt;-</span> <span class="st">"CD8+"</span>
 <span class="no">clusters</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="no">clusters</span>)
-<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,
-               <span class="kw">grouping</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="no">clusters</span>),<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>)</pre></body></html></div>
+<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>,
+               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">clusters</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-by-cluster-3-1.png" width="900" style="display: block; margin: auto;"></p>
 <p>Now we can perform DE analysis on the CD8+ cluster (as well as the other clusters) using the <code>diff_count_clusters</code> function, and visualize the results using a volcano plot, as before:</p>
 <div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="no">dfc_clusters</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">clusters</span>,<span class="no">counts</span>)
@@ -219,11 +218,11 @@
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.5-15 Matrix_1.2-18    </span>
+<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.5-52 Matrix_1.2-18    </span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
 <span class="co">#  [1] httr_1.4.2         tidyr_1.0.0        jsonlite_1.6       viridisLite_0.3.0 </span>
-<span class="co">#  [5] RcppParallel_4.4.2 shiny_1.4.0        assertthat_0.2.1   mixsqp_0.3-44     </span>
+<span class="co">#  [5] RcppParallel_4.4.2 shiny_1.4.0        assertthat_0.2.1   mixsqp_0.3-46     </span>
 <span class="co">#  [9] yaml_2.2.0         progress_1.2.2     ggrepel_0.9.0      pillar_1.4.3      </span>
 <span class="co"># [13] backports_1.1.5    lattice_0.20-38    quantreg_5.54      glue_1.3.1        </span>
 <span class="co"># [17] quadprog_1.5-8     digest_0.6.23      promises_1.1.0     colorspace_1.4-1  </span>
@@ -239,9 +238,9 @@
 <span class="co"># [57] compiler_3.6.2     pkgdown_1.5.1      rlang_0.4.5        grid_3.6.2        </span>
 <span class="co"># [61] htmlwidgets_1.5.1  crosstalk_1.0.0    labeling_0.3       rmarkdown_2.3     </span>
 <span class="co"># [65] gtable_0.3.0       R6_2.4.1           knitr_1.26         dplyr_0.8.3       </span>
-<span class="co"># [69] fastmap_1.0.1      zeallot_0.1.0      rprojroot_1.3-2    desc_1.2.0        </span>
-<span class="co"># [73] stringi_1.4.3      SQUAREM_2017.10-1  Rcpp_1.0.5         vctrs_0.2.1       </span>
-<span class="co"># [77] tidyselect_0.2.5   xfun_0.11          coda_0.19-3</span></pre></body></html></div>
+<span class="co"># [69] fastmap_1.0.1      uwot_0.1.10        zeallot_0.1.0      rprojroot_1.3-2   </span>
+<span class="co"># [73] desc_1.2.0         stringi_1.4.3      SQUAREM_2017.10-1  Rcpp_1.0.5        </span>
+<span class="co"># [77] vctrs_0.2.1        tidyselect_0.2.5   xfun_0.11          coda_0.19-3</span></pre></body></html></div>
 </div>
   </div>
 

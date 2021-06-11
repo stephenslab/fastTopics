@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -126,7 +126,10 @@
     <tr>
       <th>fit</th>
       <td><p>An object of class &#8220;multinom_topic_model_fit&#8221;,
-such as an output from <code>poisson2multinom</code>.</p></td>
+such as an output from <code>poisson2multinom</code>. If a Poisson NMF
+fit is provided (that is, an object of class
+&#8220;poisson_nmf_fit&#8221;), the fit object is immediately returned
+&#8220;as is&#8221;.</p></td>
     </tr>
     <tr>
       <th>X</th>
