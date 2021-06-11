@@ -73,7 +73,7 @@
 #'   customize the appearance of the plot.
 #'
 #' @param \dots Additional arguments passed to \code{structure_plot}
-#'   (for the \code{plot} method) or \code{\link{embed_method}} (for
+#'   (for the \code{plot} method) or \code{embed_method} (for
 #'   function \code{structure_plot}).
 #'
 #' @return A \code{ggplot} object.

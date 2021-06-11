@@ -84,7 +84,7 @@ should be the same as the row names of \code{fit$L}.}
 customize the appearance of the plot.}
 
 \item{\dots}{Additional arguments passed to \code{structure_plot}
-(for the \code{plot} method) or \code{\link{embed_method}} (for
+(for the \code{plot} method) or \code{embed_method} (for
 function \code{structure_plot}).}
 
 \item{x}{An object of class \dQuote{poisson_nmf_fit} or
