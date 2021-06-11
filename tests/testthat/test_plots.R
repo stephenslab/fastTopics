@@ -67,17 +67,17 @@ test_that("Test that other plotting functions work",{
   plot_progress(list(scd = poisson2multinom(fit1),em = poisson2multinom(fit2)))
   
   # Test loadings_plot.
-  x  <- factor(sample(1:4,80,replace = TRUE))
+  x  <- factor(sample(1:4,200,replace = TRUE))
   p1 <- loadings_plot(fit1,x)
   p2 <- loadings_plot(poisson2multinom(fit1),x)
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
 
   # Test tsne_plot and umap_plot.
-  capture.output(p1 <- tsne_plot(fit1,color = "loading"))
-  capture.output(p2 <- tsne_plot(fit2,color = "loading"))
-  capture.output(p3 <- umap_plot(fit1,color = "loading"))
-  capture.output(p4 <- umap_plot(fit2,color = "loading"))
+  capture.output(p1 <- tsne_plot(fit1,fill = "loading"))
+  capture.output(p2 <- tsne_plot(fit2,fill = "loading"))
+  capture.output(p3 <- umap_plot(fit1,fill = "loading"))
+  capture.output(p4 <- umap_plot(fit2,fill = "loading"))
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
   expect_s3_class(p3,"ggplot")
