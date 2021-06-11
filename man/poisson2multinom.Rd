@@ -11,7 +11,9 @@ poisson2multinom(fit)
 output from \code{fit_poisson_nmf}. It does not make sense for a
 multinomial topic model to have less than two topics, so an error
 will be reported when k < 2, where k is the rank of the matrix
-factorization.}
+factorization. If a multinomial topic model fit is provided (that
+is, an object of class \dQuote{multinom_topic_model_fit}), the fit
+object is immediately returned \dQuote{as is}.}
 }
 \value{
 The return value is the list \code{fit}, in which

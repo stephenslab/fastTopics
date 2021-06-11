@@ -11,13 +11,13 @@ structure_plot(
   fit,
   grouping,
   topics,
-  rows = "umap",
+  rows,
   n = 2000,
   colors = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
     "#a65628", "#f781bf", "#999999"),
   gap = 1,
-  perplexity = 100,
-  eta = 200,
+  embed_method = function(fit, ...) if (nrow(fit$L) < 20) rnorm(nrow(fit$L)) else
+    drop(umap_from_topics(fit, dims = 1, ...)),
   ggplot_call = structure_plot_ggplot_call,
   ...
 )
@@ -47,37 +47,28 @@ plot; \code{topics[1]} is shown on the top, \code{topics[2]} is
 shown next, and so on. If the ordering of the topics is not
 specified, the topics are automaticcally ordered so that the topics
 with the greatest \dQuote{mass} are at shown at the bottom of the
-plot. The topics may be specified by index number or by name.}
+plot. The topics may be specified by number or by name.}
 
-\item{rows}{Ordering of rows (samples) in the structure plot after
-they have been grouped. Generated automatically from 1-d UMAP
-embedding if not provided.}
+\item{rows}{Ordering of the rows (samples) in the structure plot
+after they have been grouped. This may include all the rows, or a
+subset. If not provided, generated automatically from a 1-d UMAP
+embedding, separately for each group. The rows may be specified by
+number or by name.}
 
 \item{n}{The maximum number of samples (rows of the loadings
-matrix) to include in the plot. Including large numbers (e.g.,
-thousands) of samples is not recommended because it dramatically
-slows down the t-SNE computation, and typically there is little to
-no benefit in including large number of samples in the plot due to
-screen resolution limits. Ignored if \code{rows} is provided.}
+matrix) to include in the plot. Typically there is little to no
+benefit in including large number of samples in the Structure plot
+due to screen resolution limits. Ignored if \code{rows} is
+provided.}
 
-\item{colors}{Colors used to draw topics in Structure plot.. The
+\item{colors}{Colors used to draw topics in Structure plot. The
 default colour setting is the from \url{https://colorbrewer2.org}
 (qualitative data, \dQuote{9-class Set1}).}
 
 \item{gap}{The horizontal spacing between groups. Ignored if
 \code{grouping} is not provided.}
 
-\item{perplexity}{t-SNE perplexity parameter, passed as argument
-\dQuote{perplexity} to \code{\link{tsne_from_topics}}. When
-code{grouping} is provided, \code{perplexity} may be a vector of
-settings of length equal to \code{levels(grouping)}, which allows
-for a different t-SNE perplexity setting for each group.}
-
-\item{eta}{t-SNE learning rate parameter, passed as argument
-\dQuote{eta} to \code{\link{tsne_from_topics}}. When
-code{grouping} is provided, \code{eta} may be a vector of
-settings of length equal to \code{levels(grouping)}, which allows
-for a different t-SNE learning rate for each group.}
+\item{embed_method}{Describe input argument "embed_method" here.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{structure_plot_ggplot_call} with your own function to
@@ -94,14 +85,14 @@ automatically recovered using \code{\link{poisson2multinom}}.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-\dQuote{sample}, \dQuote{topic} and \dQuote{mixprop}: column
-\dQuote{sample} contains the positions of the samples (rows of the
-loadings matrix) along the horizontal axis; column \dQuote{topic} is a
-topic (corresponding to columns of the loadings matrix); and column
-\dQuote{mixprop} is the mixture proportion for the given sample.}
+\dQuote{sample}, \dQuote{topic} and \dQuote{prop}: the
+\dQuote{sample} column contains the positions of the samples (rows
+of the L matrix) along the horizontal axis; the \dQuote{topic}
+column is a topic (a column of L); and the \dQuote{prop} column is
+the topic proportion for the respective sample.}
 
 \item{ticks}{The placement of the group labels along the horizontal
-axis, and their names. For data that is not grouped, use
+axis, and their names. For data that are not grouped, use
 \code{ticks = NULL}.}
 
 \item{font.size}{Font size used in plot.}

@@ -44,10 +44,11 @@
 #'   with the greatest \dQuote{mass} are at shown at the bottom of the
 #'   plot. The topics may be specified by number or by name.
 #' 
-#' @param rows Ordering of rows (samples) in the structure plot after
-#'   they have been grouped. If not provided, generated automatically
-#'   from a 1-d UMAP embedding, separately for each group. The rows may
-#'   be specified by number or by name.
+#' @param rows Ordering of the rows (samples) in the structure plot
+#'   after they have been grouped. This may include all the rows, or a
+#'   subset. If not provided, generated automatically from a 1-d UMAP
+#'   embedding, separately for each group. The rows may be specified by
+#'   number or by name.
 #'
 #' @param n The maximum number of samples (rows of the loadings
 #'   matrix) to include in the plot. Typically there is little to no
@@ -62,13 +63,7 @@
 #' @param gap The horizontal spacing between groups. Ignored if
 #'   \code{grouping} is not provided.
 #'
-#' @param n_neighbors Describe input argument "n_neighbors" here.
-#' 
-#' @param perplexity t-SNE perplexity parameter, passed as argument
-#'   \dQuote{perplexity} to \code{\link{tsne_from_topics}}. When
-#'   code{grouping} is provided, \code{perplexity} may be a vector of
-#'   settings of length equal to \code{levels(grouping)}, which allows
-#'   for a different t-SNE perplexity setting for each group.
+#' @param embed_method Describe input argument "embed_method" here.
 #'
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{structure_plot_ggplot_call} with your own function to
@@ -93,14 +88,20 @@
 #'
 #' @examples
 #' # Add example(s) here.
+#'
+#' @importFrom stats rnorm
 #' 
 #' @export
 #'
 structure_plot <-
-  function (fit, grouping, topics, rows = "umap", n = 2000,
+  function (fit, grouping, topics, rows, n = 2000,
             colors = c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                        "#ffff33","#a65628","#f781bf","#999999"),
-            gap = 1, n_neighbors = 30, perplexity = 100,
+            gap = 1,
+            embed_method = function (fit,...) if (nrow(fit$L) < 20)
+              rnorm(nrow(fit$L))
+            else
+              drop(umap_from_topics(fit,dims=1,...)),
             ggplot_call = structure_plot_ggplot_call, ...) {
 
   # Check and process input argument "fit".
@@ -136,46 +137,14 @@ structure_plot <-
     stop("There must be at least as many colours as topics")
   colors <- colors[topics]
 
-  # Check and process input arguments "n_neighbors" and "perplexity".
-  if (length(n_neighbors) == 1)
-    n_neighbors <- rep(n_neighbors,nlevels(grouping))
-  if (length(perplexity) == 1)
-    perplexity <- rep(perplexity,nlevels(grouping))
-  names(perplexity) <- levels(grouping)
-  names(eta)        <- levels(grouping)
-  
   # Check and process input arguments "rows" and "n".
   if (missing(rows)) {
-      
-  } else {
-    n <- length(rows)
-  }
 
-  groups     <- levels(grouping)
-  num_groups <- length(groups)
-  if (num_groups == 1) {
-
-    # If the ordering of the rows is not provided, determine an
-    # ordering by computing a 1-d embedding from the mixture
-    # proportions.
-    if (missing(rows)) {
-      out  <- tsne_from_topics(fit,1,n,perplexity = perplexity,eta = eta,...)
-      rows <- out$rows[order(out$Y)]
-    }
-
-    # Prepare the data for plotting. Note that it is important to
-    # subset the rows *after* recovering the parameters of the
-    # multinomial topic model.
-    dat <- compile_structure_plot_data(fit$L[rows,],topics)
-
-    # Create the Structure plot.
-    return(ggplot_call(dat,colors))
-  } else {
-
-    # If the ordering of the rows is not provided, determine an
-    # ordering by computing a 1-d embedding from the mixture
-    # proportions, separately for each group.
-    if (missing(rows)) {
+    # The ordering of the rows is not provided, so determine an
+    # ordering by computing a 1-d embedding of L.
+    if (nlevels(grouping) == 1)
+      rows <- order(embed_method(fit,...))
+    else {
       rows <- NULL
       n    <- round(n/n0*table(grouping))
       for (j in levels(grouping)) {
@@ -186,14 +155,21 @@ structure_plot <-
         rows <- c(rows,i[out$rows[order(out$Y)]])
       }
     }
+  } else {
+    if (!missing(n))
+      warning("Input argument \"n\" is ignored when \"rows\" is specified")
+    n <- length(rows)
+    if (is.character(rows))
+      rows <- match(rows,rownames(fit$L))
+  }
 
-    # Prepare the data for plotting. Note that it is important to
-    # subset the rows *after* recovering the parameters of the
-    # multinomial topic model.
+  # Prepare the data for plotting and create the Structure plot.
+  if (nlevels(grouping) == 1)
+    return(ggplot_call(compile_structure_plot_data(fit$L[rows,],topics),
+                       colors))
+  else {
     out <- compile_grouped_structure_plot_data(fit$L[rows,],topics,
                                                grouping[rows],gap)
-
-    # Create the Structure plot.
     return(ggplot_call(out$dat,colors,out$ticks))
   }
 }
@@ -229,14 +205,14 @@ plot.multinom_topic_model_fit <- function (x, ...)
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   \dQuote{sample}, \dQuote{topic} and \dQuote{mixprop}: column
-#'   \dQuote{sample} contains the positions of the samples (rows of the
-#'   loadings matrix) along the horizontal axis; column \dQuote{topic} is a
-#'   topic (corresponding to columns of the loadings matrix); and column
-#'   \dQuote{mixprop} is the mixture proportion for the given sample.
+#'   \dQuote{sample}, \dQuote{topic} and \dQuote{prop}: the
+#'   \dQuote{sample} column contains the positions of the samples (rows
+#'   of the L matrix) along the horizontal axis; the \dQuote{topic}
+#'   column is a topic (a column of L); and the \dQuote{prop} column is
+#'   the topic proportion for the respective sample.
 #'
 #' @param ticks The placement of the group labels along the horizontal
-#'   axis, and their names. For data that is not grouped, use
+#'   axis, and their names. For data that are not grouped, use
 #'   \code{ticks = NULL}.
 #'
 #' @param font.size Font size used in plot.
@@ -257,56 +233,51 @@ plot.multinom_topic_model_fit <- function (x, ...)
 #'
 structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
                                         font.size = 9)
-  ggplot(dat,aes_string(x = "sample",y = "mixprop",color = "topic",
+  ggplot(dat,aes_string(x = "sample",y = "prop",color = "topic",
                         fill = "topic")) +
     geom_col() +
-    scale_x_continuous(limits = c(0,max(dat$sample) + 1),
-                       breaks = ticks,labels = names(ticks)) +
+    scale_x_continuous(limits = c(0,max(dat$sample) + 1),breaks = ticks,
+                       labels = names(ticks)) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
-    labs(x = "",y = "mixture proportion") +
+    labs(x = "",y = "topic proportion") +
     theme_cowplot(font.size) +
     theme(axis.line   = element_blank(),
           axis.ticks  = element_blank(),
           axis.text.x = element_text(angle = 45,hjust = 1))
 
 # This is used by structure_plot to create a data frame suitable for
-# plotting with ggplot. Input argument L is the "loadings" matrix from
-# a multinomial topic model fit---each row of L is a vector of mixture
-# proportions. Input argument "topics" is the vector of the selected
-# topics (that is, selected columns of L). The output is a data frame
-# with three columns: "sample", a row of L (numeric); "topic", a topic
-# (factor); and "mixprop", the mixture proportion for the given sample
+# plotting with ggplot. Input argument L is the topic proportions
+# matrix. Input argument "topics" is the vector of the selected topics
+# (that is, selected columns of L). The output is a data frame with
+# three columns: "sample", a row of L (numeric); "topic", a topic
+# (factor); and "prop", the topic proportion for the given sample
 # (numeric).
 compile_structure_plot_data <- function (L, topics) {
-  n   <- nrow(L)
-  k   <- length(topics)
-  dat <- data.frame(sample  = rep(1:n,times = k),
-                    topic   = rep(topics,each = n),
-                    mixprop = c(L[,topics]))
+  n <- nrow(L)
+  k <- length(topics)
+  dat <- data.frame(sample = rep(1:n,times = k),
+                    topic  = rep(topics,each = n),
+                    prop   = c(L[,topics]))
   dat$topic <- factor(dat$topic,topics)
   return(dat)
 }
 
 # This is used by structure_plot to create a data frame suitable for
 # plotting with ggplot when the data are grouped. Input argument L is
-# the "loadings" matrix from a multinomiial topic model fit---each row
-# of L is a vector of mixture proportions. Input argument "topics" is
-# the vector of the selected topics (that is, selected columns of L).
-# Input argument "grouping" is a factor with one entry for each row of
-# L giving the grouping for the rows of L. The rows of L (and,
-# correspondingly, the grouping vector) should be arranged in order of
-# the groups; that is, "sort(grouping)" should be the same as
-# "grouping". Finally, the value "gap" (zero by default) is added to
-# the sample indices in each group to provide a visual spacing of the
-# groups.
+# the topic proportions matrix. Input argument "topics" is the vector
+# of selected topics (that is, selected columns of L).  Input argument
+# "grouping" is a factor with one entry for each row of L giving the
+# assigned group. The rows of L (and, correspondingly, the grouping
+# vector) should already ordered by the groups; that is, grouping =
+# sort(grouping). Finally, a "gap" is added to the sample indices in
+# each group to provide a visual spacing of the groups.
 compile_grouped_structure_plot_data <- function (L, topics, grouping,
                                                  gap = 0) {
-  ng    <- nlevels(grouping)
-  ticks <- rep(0,ng)
+  ticks <- rep(0,nlevels(grouping))
   names(ticks) <- levels(grouping)
-  dat   <- NULL
-  m     <- 0
+  dat <- NULL
+  m <- 0
   for (j in levels(grouping)) {
     i          <- which(grouping == j)
     out        <- compile_structure_plot_data(L[i,],topics)
