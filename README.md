@@ -14,7 +14,7 @@ indexing") and Poisson non-negative matrix factorization. The package
 provides tools to compare, annotate and visualize model fits,
 including functions to efficiently create "structure plots" and
 identify key features in topics. The fastTopics package is a successor
-to the [CountClust package][countclust].
+to the [CountClust package][countclust]. 
 
 If you find a bug, or you have a question or feedback on this software,
 please post an [issue][issues].
