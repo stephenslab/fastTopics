@@ -18,7 +18,7 @@
 #' \deqn{\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk},} in which \eqn{K}
 #' is a user-specified tuning parameter specifying the rank of the
 #' matrix factorization. Function \code{fit_poisson_nmf} computes
-#' maximum-likelihood estimates (MLEs) of the parameters.  For
+#' maximum-likelihood estimates (MLEs) of the parameters. For
 #' additional mathematical background, and an explanation of how
 #' Poisson NMF is connected to topic modeling, see the vignette:
 #' \code{vignette(topic = "relationship",package = "fastTopics")}.
