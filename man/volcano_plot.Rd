@@ -53,7 +53,7 @@ volcano_plot_ly_call(dat, y.label, title, width, height)
 \arguments{
 \item{diff_count_result}{An object of class
 \dQuote{topic_model_diff_count}, usually an output from
-\code{\link{diff_count_analysis}}.}
+\code{\link{de_analysis}}.}
 
 \item{k}{The topic, or topics, selected by number or name. When not
 specified, all topics are plotted.}
@@ -106,7 +106,7 @@ the function used to arrange the plots into a grid using
 a single argument, \code{plots}, a list of \code{ggplot} objects.}
 
 \item{x}{An object of class \dQuote{topic_model_diff_count},
-usually an output from \code{\link{diff_count_analysis}}.}
+usually an output from \code{\link{de_analysis}}.}
 
 \item{\dots}{Additional arguments passed to \code{volcano_plot}.}
 
@@ -169,5 +169,5 @@ visually attractive manner.
 Use interactive volcano plot is created using the \dQuote{plotly}
 package. The \dQuote{hover text} shows the label (see input argument
 \dQuote{labels}) and detailed LFC statistics as they were
-calculated by \code{\link{diff_count_analysis}}.
+calculated by \code{\link{de_analysis}}.
 }

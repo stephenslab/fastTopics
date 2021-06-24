@@ -400,11 +400,11 @@ loadings_plot_ggplot_call <- function (dat, topic.label, font.size = 9)
 #' Use interactive volcano plot is created using the \dQuote{plotly}
 #' package. The \dQuote{hover text} shows the label (see input argument
 #' \dQuote{labels}) and detailed LFC statistics as they were
-#' calculated by \code{\link{diff_count_analysis}}.
+#' calculated by \code{\link{de_analysis}}.
 #' 
 #' @param diff_count_result An object of class
 #'   \dQuote{topic_model_diff_count}, usually an output from
-#'   \code{\link{diff_count_analysis}}.
+#'   \code{\link{de_analysis}}.
 #'
 #' @param k The topic, or topics, selected by number or name. When not
 #'   specified, all topics are plotted.
@@ -517,7 +517,7 @@ volcano_plot <-
 #' @rdname volcano_plot
 #'
 #' @param x An object of class \dQuote{topic_model_diff_count},
-#'   usually an output from \code{\link{diff_count_analysis}}.
+#'   usually an output from \code{\link{de_analysis}}.
 #'
 #' @param \dots Additional arguments passed to \code{volcano_plot}.
 #' 

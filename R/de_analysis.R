@@ -1,4 +1,4 @@
-#' @title Differential Count Analysis with a Multinomial Topic Model
+#' @title Differential Expression Analysis using a Topic Model
 #'
 #' @description Implements methods for analysis of differential count
 #' analysis using a topic model. These methods are motivated by gene
@@ -7,9 +7,9 @@
 #' improve accuracy of the differential expression analysis, an
 #' empirical Bayes method is used to \dQuote{stabilize} the
 #' estimates. A special case of \dQuote{hard} topic assignments is
-#' also implemented---that is, the mixture proportions are all zeros
+#' also implemented---that is, the topic proportions are all zeros
 #' and ones---which involves greatly simplified (and faster)
-#' calculations. Use \code{diff_count_clusters} for this special case.
+#' calculations. Use \code{de_clusters} for this special case.
 #'
 #' @details The methods are based on the following univariate
 #' (\dQuote{single-count}) Poisson model: \deqn{x_i ~ Poisson(s_i
@@ -30,10 +30,10 @@
 #'
 #' When each \eqn{s_i} (specified by input argument \code{s}) is equal
 #' the total count for sample i (this is the default setting in
-#' \code{diff_count_analysis}), the Poisson model will closely
-#' approximate a binomial model of the count data, so that the Poisson
-#' model parameters \eqn{f_0, f_1} represent binomial probabilities.
-#' In this case, \eqn{\beta} represents the LFC in \emph{relative}
+#' \code{de_analysis}), the Poisson model will closely approximate a
+#' binomial model of the count data, so that the Poisson model
+#' parameters \eqn{f_0, f_1} represent binomial probabilities.  In
+#' this case, \eqn{\beta} represents the LFC in \emph{relative}
 #' occurrence. (This Poisson approximation to the binomial is most
 #' accurate when the total counts \code{rowSums(X)} are large and
 #' \eqn{f_0, f_1} are small.)
@@ -82,14 +82,11 @@
 #'   the choice of \code{s}.
 #' 
 #' @param pseudocount Observations with this value are added to the
-#'   counts matrix to stabilize calculation of the LFC estimates and
-#'   other statistics.
+#'   counts matrix to stabilize maximum-likelihood estimation.
 #'
-#' @param fit.method Method used to estimate LFC and compute test
-#'   statistics. The \code{"glm"} and \code{"optim"} computations are
-#'   particularly slow, and it is recommended to use \code{fit.method =
-#'   "em"} for most data sets. See \dQuote{Details} for more
-#'   information.
+#' @param fit.method Method used to fit the Poisson models.
+#'   \code{fit.method = "glm"} is the slowest method, and is mainly used
+#'   for testing.
 #' 
 #' @param shrink.method Method used to stabilize the LFC estimates.
 #'   When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
@@ -97,24 +94,23 @@
 #'   "none"}, no stabilization is performed, and the \dQuote{raw} LFC
 #'   estimates are returned.
 #' 
-#' @param numiter Maximum number of iterations performed in
-#'   optimization of the Poisson model parameters. When
-#'   \code{fit.method = "glm"}, this is passed as argument \code{maxit}
-#'   to the \code{glm} function; when \code{fit.method = "optim"}, this
-#'   is passed as argument \code{maxit} to the \code{optim} function.
+#' @param numiter Maximum number of iterations performed in fitting
+#'   the Poisson models. When \code{fit.method = "glm"}, this is passed
+#'   as argument \code{maxit} to the \code{glm} function.
 #'
-#' @param tol Controls the convergence tolerance for the optimization
-#'   of the Poisson model parameters. When \code{fit.method = "glm"},
-#'   this is passed as argument \code{epsilon} to function \code{glm};
-#'   when \code{fit.method = "optim"}, the \code{factr} optimization
-#'   setting is set to \code{tol * .Machine$double.eps}. When
-#'   \code{fit.method = "em"}, the EM algorithm will be stopped early
-#'   when the largest change between two successive updates is less than
-#'   \code{tol}.
+#' @param minval A small, positive number. All topic proportions less
+#'   than this value and greater than \code{1-minval} are set to this
+#'   value.
 #' 
-#' @param e A small, positive scalar included in some computations to
-#'   avoid logarithms of zero and division by zero.
+#' @param tol Controls the convergence tolerance for fitting the
+#'   Poisson models. When \code{fit.method = "glm"}, this is passed as
+#'   argument \code{epsilon} to function \code{glm}.
+#' 
+#' @param eps A small, non-negative number added to the terms inside
+#'   the logarithms to avoid computing logarithms of zero.
 #'
+#' @param nc Number of threads used in the multithreaded computations.
+#' 
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
 #'
@@ -123,7 +119,7 @@
 #' 
 #' @return The return value is a list of m x k matrices, where m is
 #'   the number of columns in the counts matrix, and k is the number of
-#'   topics (for \code{diff_count_clusters}, m is the number of
+#'   topics (for \code{de_clusters}, m is the number of
 #'   clusters), and an additional vector:
 #'
 #' \item{colmeans}{A vector of length m containing the count averages
@@ -163,11 +159,11 @@
 #' 
 #' @export
 #' 
-diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
-                                 fit.method = c("scd","em","glm"),
-                                 shrink.method = c("ash","none"),
-                                 numiter = 100, tol = 1e-8, e = 1e-15,
-                                 show.warning = TRUE, verbose = TRUE, ...) {
+de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
+                         fit.method = c("scd","em","mu","ccd","glm"),
+                         shrink.method = c("ash","none"),
+                         numiter = 20, minval = 1e-8, tol = 1e-8,
+                         eps = 1e-15, nc = 1, verbose = TRUE, ...) {
 
   # Check and process input argument "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
@@ -188,9 +184,8 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # Check input argument "s".
   verify.positive.vector(s)
   if (length(s) != nrow(X))
-    stop("Input argument \"s\" should be a vector of positive numbers, with ",
-         "length(s) = nrow(X)")
-  normalize.by.totalcounts <- all(s == rowSums(X))
+    stop("Input argument \"s\" should be a vector of positive numbers, ",
+         "in which length(s) = nrow(X)")
   
   # Check input argument "pseudocount".
   if (any(pseudocount <= 0))
@@ -199,63 +194,38 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # Process input arguments "fit.method" and "shrink.method".
   fit.method    <- match.arg(fit.method)
   shrink.method <- match.arg(shrink.method)
-  
-  # Get the number of topics (k) and the number of rows in the counts
-  # matrix (m).
-  m <- nrow(fit$F)
+
+  # Get the number of rows (n) and columns (m) in the counts matrix, and
+  # the number of groups or topics (k).
+  n <- nrow(X)
+  m <- ncol(X)
   k <- ncol(fit$F)
 
-  # Compute the per-column averages. (This needs to be done before
-  # we add the pseudocounts to the data.)
+  # Compute the per-column averages. (We need to do this before
+  # adding the pseudocounts to the data.)
   colmeans <- colMeans(X)
   
-  # Add the pseudocounts to the data.
-  X <- rbind(X,matrix(pseudocount,k,ncol(X)))
-  s <- c(s,rep(1,k))
-  L <- rbind(fit$L,diag(k))
-
-
-  # TO DO: Update this code as needed.
-  #
-  # Enure that none of the topic proportions are exactly zero or
+  # Ensure that none of the topic proportions are exactly zero or
   # exactly one.
-  L <- pmax(L,eps)
-  L <- pmin(L,1-eps)
+  L <- pmax(L,minval)
+  L <- pmin(L,1 - minval)
   
-  # COMPUTE LOG-FOLD CHANGE STATISTICS
-  # ----------------------------------
-  # Fit the univariate ("single-count") Poisson models.
+  # Add "pseudocounts" to the data.
+  out <- add_pseudocounts(X,s*L,pseudocount)
+  X   <- out$X
+  L   <- out$L
+  
+  # FIT POISSON MODELS
+  # ------------------
+  # For each column of the counts matrix, compute maximum-likelihood
+  # estimates (MLEs) of the parameters in the Poisson glm, x ~
+  # Poisson(u), in which the Poisson rates are u = sum(L*f)
   if (verbose)
-    cat(sprintf("Fitting %d x %d = %d univariate Poisson models.\n",m,k,m*k))
-
-  # If all the mixture proportions are zeros or ones (or very close to
-  # being zero or one), we can use the faster (analytical)
-  # calculations implemented in fit_univar_poisson_models_hard;
-  # otherwise, we call fit_univar_poisson_models.
-  if (fit.method != "glm" & max(pmin(L,1-L)) <= 1e-14) {
-    if (show.warning)
-      warning("All mixture proportions are either zero or one; using ",
-              "simpler single-topic calculations for model parameter ",
-              "estimates")
-    out <- fit_univar_poisson_models_hard(X,L,s,e)
-  } else
-    out <- fit_univar_poisson_models(X,L,s,
-                                     ifelse(fit.method == "em","em-rcpp",
-                                            fit.method),
-                                     e,numiter,tol,verbose)
-  if (normalize.by.totalcounts)
-    if (any(out$F0 > 0.9) | any(out$F1 > 0.9))
-      warning("One or more F0, F1 estimates are close to or greater than ",
-              "1, so Poisson approximation to binomial may be poor; see ",
-              "help(diff_count_analysis) for more information")
-    
-  # If glm was not used, compute the test statistics.
-  if (fit.method != "glm") {
-    if (verbose)
-      cat("Computing log-fold change statistics.\n")
-    out <- compute_univar_poisson_zscores_fast(X,L,out$F0,out$F1,s,e)
-  }
-
+    cat("Fitting Poisson models.\n")
+  F <- fit_poisson_models(X,L,fit.method,eps,numiter,tol,nc)
+  
+  return(list(F = F))
+  
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------
   # If requested, use "adaptive shrinkage" to stabilize the log-fold
@@ -289,23 +259,22 @@ diff_count_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
 
   # Return the Poisson model MLEs and the log-fold change statistics.
   out$colmeans <- colmeans
-  class(out) <- c("topic_model_diff_count","list")
+  class(out) <- c("topic_model_de_analysis","list")
   return(out)
 }
 
-#' @rdname diff_count_analysis
+#' @rdname de_analysis
 #'
 #' @param cluster A factor, or vector that can be converted to a
 #'   factor such as an integer or character vector, giving an assignment
 #'   of samples (rows of \code{X}) to clusters. This could be, for
 #'   example, the "cluster" output from \code{\link[stats]{kmeans}}.
 #'
-#' @param \dots Additional arguments passed to
-#'   \code{diff_count_analysis}.
+#' @param \dots Additional arguments passed to \code{de_analysis}.
 #' 
 #' @export
 #'
-diff_count_clusters <- function (cluster, X, ...) {
+de_clusters <- function (cluster, X, ...) {
   if (!is.factor(cluster))
     cluster <- factor(cluster)
 
@@ -319,7 +288,7 @@ diff_count_clusters <- function (cluster, X, ...) {
   }
 
   fit <- fit_multinom_model(cluster,X)
-  return(diff_count_analysis(fit,X,show.warning = FALSE,...))
+  return(de_analysis(fit,X,...))
 }
 
 # Perform adaptive shrinkage on the unknowns b = f1 - f0.
