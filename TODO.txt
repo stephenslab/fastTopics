@@ -1,42 +1,24 @@
 to do
 =====
 
-+ Implement function to "project" samples onto a previously estimated
-  F (either F from a Poisson NMF model or from a multinomial topic
-  model).
++ Remove poisson2.R.
+
++ Remove files in inst/derivations/diffcount.
 
 + Implement KKT-based stopping criterion for fit_poisson_nmf.
 
 + Prune functions in misc.R, misc.h and misc.cpp that are no longer
   used.
 
-+ Update pkgdown site.
-
-+ Remove files in inst/derivations/diffcount.
-
 + Implement "t" S3 method to transpose the rows and columns of a
   Poisson NMF fit.
-
-+ Refactor pca_plot, pca_hexbin_plot and tsne_plot code, and the
-  redesign interface for plotting embeddings from the L matrix. Also,
-  consider implementing umap_plot and umap_from_topics, and allow for
-  using UMAP instead of t-SNE in the Structure plot.
 
 + Implement integrations for Seurat, Signac and/or ArchR.
 
 + Implement backtracking line search option for SCD algorithm.
 
-+ Update the pkgdown site.
-  
 + Create vignette giving more details about the different optimization
   algorithms. (Then simplify the fit_poisson_nmf example.)
 
-+ Create vignette illustrating application of fastTopics to gene
-  expression (single-cell RNA-seq) data, with a focus on visualizing
-  the results, and implementing differential expression analysis using
-  the fitted topic model.
-
 + Create vignette illustrating application of fastTopics to text data,
   with a focus on the different ways to visualize the results.
-
-+ Add CITATION.
