@@ -111,7 +111,7 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
     }
 
     // Store the current state of the Markov chain.
-    samples.row(i) = exp(t);
+    samples.row(i) = t;
   }
 
   ar /= k*ns;

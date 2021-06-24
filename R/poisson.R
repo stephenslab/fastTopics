@@ -66,8 +66,8 @@ fit_poisson_glm <-
 # Markov chain.
 #
 # The outputs are (1) "samples", an ns x k matrix of Monte Carlo
-# samples of f, where k = length(f), and (2) "ar", the Metropolis
-# acceptance rate.
+# samples of t = log(f), where k = length(f), and (2) "ar", the
+# Metropolis acceptance rate.
 #
 # This is mainly used to test simulate_posterior_poisson_rcpp and is
 # not actually used in practice because it is too slow.
@@ -110,7 +110,7 @@ simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
     }
 
     # Store the current state of the Markov chain.
-    samples[i,] <- exp(t)
+    samples[i,] <- t
   }
 
   # Output the states of the Markov chain and the acceptance rate.

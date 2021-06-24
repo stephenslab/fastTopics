@@ -36,13 +36,13 @@ U   <- matrix(runif(2*ns),ns,2)
 sim <- simulate_posterior_poisson_rcpp(x,L,out$coef,D,U,0.3,1e-15)
 
 cat("MCMC estimate of Cov(log(f)):\n")
-print(cov(log(sim$samples)))
+print(cov(sim$samples))
 cat(sprintf("Acceptance rate: %0.2f%%\n",100*sim$ar))
 
 # Get 90% HPD intervals.
 cat("MCMC estimates of 90% HPD intervals:\n")
-print(hpd(log(sim$samples[,1]),0.9))
-print(hpd(log(sim$samples[,2]),0.9))
+print(hpd(sim$samples[,1],0.9))
+print(hpd(sim$samples[,2],0.9))
 
 # Plot the likelihood surface.
 dat     <- expand.grid(t1 = seq(-4,1,0.05),t2 = seq(-4,1,0.02))
@@ -64,7 +64,7 @@ p1 <- ggplot(dat,aes(x = t1,y = t2,z = lik)) +
   theme_cowplot(font_size = 10)
 
 # Plot the MCMC density estimate.
-sim$samples <- as.data.frame(log(sim$samples))
+sim$samples <- as.data.frame(sim$samples)
 names(sim$samples) <- c("k1","k2")
 p2 <- ggplot(sim$samples,aes(x = k1,y = k2)) +
   geom_density_2d(color = "black") +

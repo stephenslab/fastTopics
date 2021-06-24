@@ -1,4 +1,4 @@
-context("diffcount")
+context("de_analysis")
 
 test_that(paste("R and C++ implementations of simulate_posterior_poisson",
                 "produce the same output, and the Monte Carlo estimate of",
@@ -42,7 +42,7 @@ test_that(paste("R and C++ implementations of simulate_posterior_poisson",
   
   # The Laplace and MCMC estimates of the covariance matrix should be
   # roughly similar.
-  Smc <- cov(log(out1$samples))
+  Smc <- cov(out1$samples)
   expect_equal(S,Smc,scale = 1,tolerance = 0.01)
 })
 
@@ -84,7 +84,8 @@ test_that(paste("All variants of fit_poisson_models should produce the",
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
                 "true probabilities (relative gene expression levels) when",
                 "provided with the true topic proportions"),{
-
+  skip("test needs to be revised")                 
+                    
   # Simulate gene expression data.
   set.seed(1)
   n   <- 800
