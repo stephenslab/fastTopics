@@ -217,14 +217,12 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   
   # FIT POISSON MODELS
   # ------------------
-  # For each column of the counts matrix, compute maximum-likelihood
-  # estimates (MLEs) of the parameters in the Poisson glm, x ~
-  # Poisson(u), in which the Poisson rates are u = sum(L*f)
+  # For each column j of the counts matrix, compute MLEs of the
+  # parameters in the Poisson glm, x ~ Poisson(u), in which the
+  # Poisson rates are u = sum(L*f), and f = F[j,].
   if (verbose)
     cat("Fitting Poisson models.\n")
   F <- fit_poisson_models(X,L,fit.method,eps,numiter,tol,nc)
-  
-  return(list(F = F))
   
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------

@@ -14,9 +14,8 @@ dat <- simulate_multinom_gene_data(n,m,k,sparse = TRUE)
 X   <- dat$X
 L   <- dat$L
 
-# Fit a Poisson model (approximating a binomial model) to each
-# combination of gene j and topic k, and compute the log-fold change
-# statistics.
+# Fit a Poisson model (approximating a binomial model) to each gene
+# (row) j, and compute the log-fold change statistics.
 fit <- init_poisson_nmf(X,L = L,init.method = "random")
 de1 <- de_analysis(fit,X,fit.method = "glm")
 de2 <- de_analysis(fit,X,fit.method = "scd")

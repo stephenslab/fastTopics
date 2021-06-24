@@ -57,17 +57,10 @@ List simulate_posterior_poisson_sparse_rcpp (const arma::vec& x,
   return List::create(Named("samples") = samples,Named("ar") = ar);
 }
 
-// This should give the same, or nearly the same, result as
-// sum(dpois(x,y,log = TRUE)) so long as sumy = sum(y), except that
-// terms that do not depend on the Poisson rates u are not included.
-double loglik_poisson (const vec& x, const vec& y, double sumy, double e) {
-  return dot(x,log(y + e)) - sumy;
-}
-
 // This implements the core part of simulate_posterior_poisson_rcpp
 // and simulate_posterior_poisson_sparse_rcpp. Input argument
 // "samples" should be an ns x k matrix, where ns is the number of
-// Monte Carlo samples to generate, and k = length(t).
+// Monte Carlo samples to generate, and k = length(f).
 double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
 				   const vec& f, const mat& D, const mat& U, 
 				   mat& samples, double s, double e) {
@@ -82,13 +75,13 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
   double ll, llnew, su, sunew, a, b, d;
 
   // Compute the log-density at the initial state.
-  u  = L * exp(t);
+  u  = L*exp(t);
   su = dot(w,exp(t));
   ll = loglik_poisson(x,u,su,e);
   for (unsigned int i = 0; i < ns; i++) {
 
-    // Recompute the Poisson rates (u)and their sum (su).
-    u  = L * exp(t);
+    // Recompute the Poisson rates (u) and their sum (su).
+    u  = L*exp(t);
     su = dot(w,exp(t));
     for (unsigned int j = 0; j < k; j++) {
 
@@ -99,18 +92,18 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
 
       // Compute the Metropolis acceptance probability, and move to the
       // new state according to this acceptance probability. Note that
-      // the additional d in the acceptance probability is needed to
+      // the additional "d" in the acceptance probability is needed to
       // account for the fact that we are simulating log(f), not f; see
       // p. 11 of Devroye (1986) "Non-uniform random variate generation".
-      b     = exp(tnew[j]) - exp(t[j]);
-      unew  = u + b*L.col(j);
+      b = exp(tnew[j]) - exp(t[j]);
+      unew = u + b*L.col(j);
       sunew = su + b*w[j];
       llnew = loglik_poisson(x,unew,sunew,e);
       a = exp((llnew - ll) + d);
       a = minimum(1,a);
       if (U(i,j) < a) {
-        t  = tnew;
-	u  = unew;
+        t = tnew;
+	u = unew;
 	su = sunew;
 	ll = llnew;
         ar++;
@@ -125,3 +118,9 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
   return ar;
 }
 
+// This should produce the same, or nearly the same, result as
+// sum(dpois(x,y,log = TRUE)) so long as sumy = sum(y), except that
+// terms that do not depend on the Poisson rates u are not included.
+double loglik_poisson (const vec& x, const vec& y, double sumy, double e) {
+  return dot(x,log(y + e)) - sumy;
+}
