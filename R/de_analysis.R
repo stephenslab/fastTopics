@@ -107,6 +107,12 @@
 #' @param tol Controls the convergence tolerance for fitting the
 #'   Poisson models. When \code{fit.method = "glm"}, this is passed as
 #'   argument \code{epsilon} to function \code{glm}.
+#'
+#' @param conf.level Describe input argument "conf.level" here.
+#' 
+#' @param ns Describe input argument "ns" here.
+#'
+#' @param rw Describe input argument "rw" here.
 #' 
 #' @param eps A small, non-negative number added to the terms inside
 #'   the logarithms to avoid computing logarithms of zero.
@@ -165,7 +171,8 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                          fit.method = c("scd","em","mu","ccd","glm"),
                          lfc.stat = "le", shrink.method = c("ash","none"),
                          numiter = 20, minval = 1e-8, tol = 1e-8,
-                         eps = 1e-15, nc = 1, verbose = TRUE, ...) {
+                         conf.level = 0.9, ns = 1000, rw = 0.3, eps = 1e-15,
+                         nc = 1, verbose = TRUE, ...) {
 
   # CHECK AND PROCESS INPUTS
   # ------------------------
@@ -236,17 +243,29 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # parameters in the Poisson glm, x ~ Poisson(u), in which the
   # Poisson rates are u = sum(L*f), and f = F[j,].
   if (verbose)
-    cat(sprintf("Fitting %d x %d Poisson models using method=\"%s\".\n",
+    cat(sprintf("Fitting %d Poisson models with k=%d using method=\"%s\".\n",
                 m,k,fit.method))
   F <- fit_poisson_models(X,L,fit.method,eps,numiter,tol,nc)
   dimnames(F) <- dimnames(fit$F)
 
   # COMPUTE LOG-FOLD CHANGE STATISTICS
   # ----------------------------------
-  
-  # Return the Poisson model MLEs (F) and the estimates under the
-  # "null" model (f0).
-  out <- list(F = F,f0 = f0)
+  # TO DO: Add some extra description here.
+  if (verbose) {
+    cat("Computing log-fold change statistics from ")
+    cat(sprintf("%d Poisson models with k=%d.\n",m,k))
+  }
+  i <- c(5018,13171,13978,15685,sample(m,20))
+  X <- X[,i]
+  F <- F[i,]
+  f0 <- f0[i]
+  out <- compute_lfc_stats(X,F,L,f0,lfc.stat,ns,conf.level,rw,eps,nc,verbose)
+
+  # Return the Poisson model MLEs (F), the log-fold change statistics
+  # (est, low, high, z, lpval), and the relative rates under the "null"
+  # model (f0).
+  out$F <- F
+  out$f0 <- f0
   class(out) <- c("topic_model_de_analysis","list")
   return(out)
   

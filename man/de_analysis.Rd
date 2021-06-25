@@ -16,6 +16,9 @@ de_analysis(
   numiter = 20,
   minval = 1e-08,
   tol = 1e-08,
+  conf.level = 0.9,
+  ns = 1000,
+  rw = 0.3,
   eps = 1e-15,
   nc = 1,
   verbose = TRUE,
@@ -63,6 +66,12 @@ value.}
 \item{tol}{Controls the convergence tolerance for fitting the
 Poisson models. When \code{fit.method = "glm"}, this is passed as
 argument \code{epsilon} to function \code{glm}.}
+
+\item{conf.level}{Describe input argument "conf.level" here.}
+
+\item{ns}{Describe input argument "ns" here.}
+
+\item{rw}{Describe input argument "rw" here.}
 
 \item{eps}{A small, non-negative number added to the terms inside
 the logarithms to avoid computing logarithms of zero.}
