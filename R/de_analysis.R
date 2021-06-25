@@ -87,6 +87,8 @@
 #' @param fit.method Method used to fit the Poisson models.
 #'   \code{fit.method = "glm"} is the slowest method, and is mainly used
 #'   for testing.
+#'
+#' @param lfc.stat Description of "lfc.stat" input argument goes here.
 #' 
 #' @param shrink.method Method used to stabilize the LFC estimates.
 #'   When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
@@ -161,7 +163,7 @@
 #' 
 de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                          fit.method = c("scd","em","mu","ccd","glm"),
-                         shrink.method = c("ash","none"),
+                         lfc.stat = "le", shrink.method = c("ash","none"),
                          numiter = 20, minval = 1e-8, tol = 1e-8,
                          eps = 1e-15, nc = 1, verbose = TRUE, ...) {
 
@@ -201,10 +203,6 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   m <- ncol(X)
   k <- ncol(fit$F)
 
-  # Compute the per-column averages. (We need to do this before
-  # adding the pseudocounts to the data.)
-  colmeans <- colMeans(X)
-  
   # Ensure that none of the topic proportions are exactly zero or
   # exactly one.
   L <- pmax(L,minval)
@@ -214,6 +212,10 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   out <- add_pseudocounts(X,s*L,pseudocount)
   X   <- out$X
   L   <- out$L
+
+  # Compute f0 in the "null" model x ~ Poisson(u), u = s*f0. (This
+  # calculation is performed for each column of the counts matrix.)
+  f0 <- rowSums(X)/sum(s)
   
   # FIT POISSON MODELS
   # ------------------

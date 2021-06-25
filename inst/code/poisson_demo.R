@@ -18,22 +18,24 @@ Y   <- as(X,"dgCMatrix")
 mu  <- colSums(X)/sum(s)
 
 # Add "pseudocounts" to the data.
-out <- add_pseudocounts(X,s*L,0.1)
-X   <- out$X
-L   <- out$L
+out <- add_pseudocounts(X,s*L,0.01)
+X <- out$X
+L <- out$L
 
 # Fit a Poisson model for each gene.
-F1  <- fit_poisson_models(X,L,method = "glm")
-F2  <- fit_poisson_models(X,L,method = "scd",nc = 4)
+F1 <- fit_poisson_models(X,L,method = "glm")
+F2 <- fit_poisson_models(X,L,method = "scd",nc = 4)
 print(range(F1 - F2))
 
 # Compare the estimates against the Poisson rates used to simulate the
 # data.
-e <- 1e-3
+e <- 1e-4
 i <- 1
 plot(dat$F + e,F1 + e,pch = 20,log = "xy",xlab = "true frequency",
      ylab = "estimated frequency")
 abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
+
+stop()
 
 # Compute the log-fold change, standard error (se) and z-score for
 # each gene j and topic k.
