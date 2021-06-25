@@ -5,11 +5,12 @@
 # - Implement parlapply version of this.
 # - Allow for calculation of different LFC statistics.
 # - Add p-value calculation.
+# - Fill out roxygen2 docs.
 #
 #' @importFrom stats runif
 #' @importFrom stats rnorm
-compute_lfc_stats <- function (X, F, L, f0, ns = 1000, conf.level = 0.9,
-                               s = 0.3, e = 1e-15, nc = 1) {
+compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
+                               conf.level = 0.9, s = 0.3, e = 1e-15, nc = 1) {
   n <- nrow(F)
   k <- ncol(F)
 

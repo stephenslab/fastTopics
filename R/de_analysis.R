@@ -156,7 +156,7 @@
 #' 2084–2092.
 #' 
 #' @importFrom Matrix rowSums
-#' @importFrom Matrix colMeans
+#' @importFrom Matrix colSums
 #' @importFrom ashr ash
 #' 
 #' @export
@@ -206,7 +206,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # Compute f0 in the "null" model x ~ Poisson(u), u = s*f0. (This
   # calculation is performed for each column of the counts matrix. It
   # must be done before adding pseudocounts to the data.)
-  f0 <- rowSums(X)/sum(s)
+  f0 <- colSums(X)/sum(s)
   
   # Ensure that none of the topic proportions are exactly zero or
   # exactly one.
