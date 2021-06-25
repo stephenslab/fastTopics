@@ -15,7 +15,8 @@ dat <- simulate_poisson_gene_data(n,m,k,s)
 X   <- dat$X
 L   <- dat$L
 Y   <- as(X,"dgCMatrix")
-mu  <- colSums(X)/sum(s)
+mu  <- colMeans(X)
+f0  <- colSums(X)/sum(s)
 
 # Add "pseudocounts" to the data.
 out <- add_pseudocounts(X,s*L,0.01)
@@ -35,18 +36,15 @@ plot(dat$F + e,F1 + e,pch = 20,log = "xy",xlab = "true frequency",
      ylab = "estimated frequency")
 abline(a = 0,b = 1,col = "dodgerblue",lty = "dotted")
 
-stop()
-
-# Compute the log-fold change, standard error (se) and z-score for
-# each gene j and topic k.
-out1 <- compute_lfc_stats(X,F1,L,mu = mu,stat = "vsmean",version = "R")
+# Compute the log-fold change statistics for each gene j and topic k.
+out <- compute_lfc_stats(X,F1,L,f0)
 
 # Here we show that the z-score varies, as expected, with the log-fold
 # change estimate and the average expression level.
-pdat <- data.frame(x = colMeans(X),lfc = out1$lfc[,1],z = out1$z[,1])
+pdat <- data.frame(x = mu,lfc = out$est[,1],z = out$z[,1])
 print(ggplot(pdat,aes(x = x,y = lfc,fill = z)) +
   geom_point(size = 2,shape = 21,color = "white") +
-  geom_abline(intercept = 0,slope = 0,color = "gray",linetype = "dotted") +
+  geom_abline(intercept = 0,slope = 0,color = "black",linetype = "dotted") +
   scale_x_continuous(trans = "log10") +
   scale_fill_gradient2(low = "darkblue",mid = "skyblue",
                        high = "orangered",midpoint = 0) +
@@ -61,6 +59,6 @@ print(ggplot(pdat,aes(x = lfc,y = abs(z),fill = log10(x))) +
   geom_point(size = 2,shape = 21,color = "white") +
   labs(x = "log-fold change",y = "|z-score|",fill = "log10(mean)") +
   scale_y_continuous(trans = "sqrt") +
-  scale_fill_gradient2(low = "skyblue",mid = "gold",
-                       high = "orangered",midpoint = 0) +
+  scale_fill_gradient2(low = "skyblue",mid = "gold",high = "orangered",
+                       midpoint = 0) +
   theme_cowplot(font_size = 12))

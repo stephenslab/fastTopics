@@ -117,44 +117,6 @@ simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
   return(list(samples = samples,ar = ar/(k*ns)))
 }
 
-# compute_lfc_le_old = function (lf) {
-#   k <- length(lf)
-#   b <- rep(0,k)
-#   for (i in 1:k) {
-#     x    <- lf[i] - lf
-#     x[i] <- Inf
-#     b[i] <- x[which.min(abs(x))]
-#   }    
-#   return(b)
-# }
-
-# TO DO: Explain here what this function does, and how (and when) to
-# use it.
-compute_lfc0 <- function (samples, f, f0, conf.level = 0.9) {
-  k    <- length(f)
-  low  <- rep(0,k)
-  high <- rep(0,k)
-  est  <- log(f) - log(f0)
-  for (i in 1:k) {
-    out     <- hpd(samples[,i] - log(f0),conf.level)
-    low[i]  <- out[1]
-    high[i] <- out[2]
-  }
-  return(rbind(est = est,low = low,high = high))
-}
-
-# TO DO: Explain here what this function does, and how (and when) to
-# use it.
-wcompute_lfc_pairwise <- function (samples, t, conf.level = 0.9) {
-  # TO DO.
-}
-
-# TO DO: Explain here what this function does, and how (and when) to
-# use it.
-compute_lfc_le <- function (samples, t, conf.level = 0.9) {
-  # TO DO.
-}
-
 # Return the covariance of t = log(f) in the Poisson glm, x[i] ~
 # Poisson(u[i]), in which the Poisson rates are u[i] = L[i,]*f. The
 # covariance calculations are based on a Laplace approximation to the

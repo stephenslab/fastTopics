@@ -203,20 +203,22 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   m <- ncol(X)
   k <- ncol(fit$F)
 
+  # Compute f0 in the "null" model x ~ Poisson(u), u = s*f0. (This
+  # calculation is performed for each column of the counts matrix. It
+  # must be done before adding pseudocounts to the data.)
+  f0 <- rowSums(X)/sum(s)
+  
   # Ensure that none of the topic proportions are exactly zero or
   # exactly one.
   L <- pmax(L,minval)
   L <- pmin(L,1 - minval)
   
-  # Add "pseudocounts" to the data.
+  # Add "pseudocounts" to the data, and get the Poisson NMF loadings
+  # matrix.
   out <- add_pseudocounts(X,s*L,pseudocount)
   X   <- out$X
   L   <- out$L
 
-  # Compute f0 in the "null" model x ~ Poisson(u), u = s*f0. (This
-  # calculation is performed for each column of the counts matrix.)
-  f0 <- rowSums(X)/sum(s)
-  
   # FIT POISSON MODELS
   # ------------------
   # For each column j of the counts matrix, compute MLEs of the
@@ -225,6 +227,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (verbose)
     cat("Fitting Poisson models.\n")
   F <- fit_poisson_models(X,L,fit.method,eps,numiter,tol,nc)
+  return(list(F = F))
   
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------

@@ -44,12 +44,6 @@ cat("MCMC estimates of 90% HPD intervals:\n")
 print(hpd(sim$samples[,1],0.9))
 print(hpd(sim$samples[,2],0.9))
 
-# TO DO: Explain here what these lines of code do.
-f0 <- sum(x)/sum(s)
-print(compute_lfc0(sim$samples,out$coef,f0))
-
-stop()
-
 # Plot the likelihood surface.
 dat     <- expand.grid(t1 = seq(-4,1,0.05),t2 = seq(-4,1,0.02))
 n       <- nrow(dat)
