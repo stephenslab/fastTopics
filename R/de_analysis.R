@@ -84,7 +84,7 @@
 #' @param pseudocount Observations with this value are added to the
 #'   counts matrix to stabilize maximum-likelihood estimation.
 #'
-#' @param fit.method Method used to fit the Poisson models.
+#' @param fit.method Method used to fit the Poisson models.  Note that
 #'   \code{fit.method = "glm"} is the slowest method, and is mainly used
 #'   for testing.
 #'
@@ -167,6 +167,8 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                          numiter = 20, minval = 1e-8, tol = 1e-8,
                          eps = 1e-15, nc = 1, verbose = TRUE, ...) {
 
+  # CHECK AND PROCESS INPUTS
+  # ------------------------
   # Check and process input argument "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
@@ -194,7 +196,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     stop("Input argument \"pseudocount\" should be a positive number")
 
   # Process input arguments "fit.method" and "shrink.method".
-  fit.method    <- match.arg(fit.method)
+  fit.method <- match.arg(fit.method)
   shrink.method <- match.arg(shrink.method)
 
   # Get the number of rows (n) and columns (m) in the counts matrix, and
@@ -203,21 +205,30 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   m <- ncol(X)
   k <- ncol(fit$F)
 
-  # Compute f0 in the "null" model x ~ Poisson(u), u = s*f0. (This
-  # calculation is performed for each column of the counts matrix. It
-  # must be done before adding pseudocounts to the data.)
+  # FIT NULL MODELS
+  # ---------------
+  # Compute the MLE f0 in the "null" model x ~ Poisson(u), with u =
+  # s*f0. (This calculation is performed for each column of the counts
+  # matrix. It must be done before adding pseudocounts to the data.)
+  # Equivalently, this is the maximum-likelihood estimate of the
+  # binomial probability in the "null" Binomial model x ~ Binom(s,p0).
   f0 <- colSums(X)/sum(s)
+  names(f0) <- rownames(fit$F)
   
   # Ensure that none of the topic proportions are exactly zero or
   # exactly one.
+  L <- fit$L
   L <- pmax(L,minval)
   L <- pmin(L,1 - minval)
-  
+
+  # SET UP DATA FOR POISSON MODELS
+  # ------------------------------
   # Add "pseudocounts" to the data, and get the Poisson NMF loadings
-  # matrix.
+  # matrix. From this point on, we will fit Poisson glm models x ~
+  # Poisson (u), u = sum(L*f), where x is a column of X.
   out <- add_pseudocounts(X,s*L,pseudocount)
-  X   <- out$X
-  L   <- out$L
+  X <- out$X
+  L <- out$L
 
   # FIT POISSON MODELS
   # ------------------
@@ -225,9 +236,19 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # parameters in the Poisson glm, x ~ Poisson(u), in which the
   # Poisson rates are u = sum(L*f), and f = F[j,].
   if (verbose)
-    cat("Fitting Poisson models.\n")
+    cat(sprintf("Fitting %d x %d Poisson models using method=\"%s\".\n",
+                m,k,fit.method))
   F <- fit_poisson_models(X,L,fit.method,eps,numiter,tol,nc)
-  return(list(F = F))
+  dimnames(F) <- dimnames(fit$F)
+
+  # COMPUTE LOG-FOLD CHANGE STATISTICS
+  # ----------------------------------
+  
+  # Return the Poisson model MLEs (F) and the estimates under the
+  # "null" model (f0).
+  out <- list(F = F,f0 = f0)
+  class(out) <- c("topic_model_de_analysis","list")
+  return(out)
   
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------

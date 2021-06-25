@@ -11,6 +11,7 @@ de_analysis(
   s = rowSums(X),
   pseudocount = 0.01,
   fit.method = c("scd", "em", "mu", "ccd", "glm"),
+  lfc.stat = "le",
   shrink.method = c("ash", "none"),
   numiter = 20,
   minval = 1e-08,
@@ -39,9 +40,11 @@ the choice of \code{s}.}
 \item{pseudocount}{Observations with this value are added to the
 counts matrix to stabilize maximum-likelihood estimation.}
 
-\item{fit.method}{Method used to fit the Poisson models.
+\item{fit.method}{Method used to fit the Poisson models.  Note that
 \code{fit.method = "glm"} is the slowest method, and is mainly used
 for testing.}
+
+\item{lfc.stat}{Description of "lfc.stat" input argument goes here.}
 
 \item{shrink.method}{Method used to stabilize the LFC estimates.
 When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
