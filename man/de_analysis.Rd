@@ -11,7 +11,7 @@ de_analysis(
   s = rowSums(X),
   pseudocount = 0.01,
   fit.method = c("scd", "em", "mu", "ccd", "glm"),
-  lfc.stat = "le",
+  lfc.stat = "vsnull",
   shrink.method = c("ash", "none"),
   numiter = 20,
   minval = 1e-08,

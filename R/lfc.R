@@ -1,16 +1,23 @@
-# TO DO: Explain in detail what this function does, and how (and when)
-# to use it.
+# This is the workhorse function used by de_analysis for computing the
+# log-fold change (LFC) statistics. Most of the input arguments are
+# explained in the documentation for de_analysis. A couple notes about
+# the input arguments: (1) f0 should be a estimate of the paramter f0
+# in the the "null" model x ~ Poisson(u), with u = s*f0; (2) F and L
+# should specify the parameters of the Poisson glm models; that is, F
+# should be returned from fit_poisson_models(X,L,...) in which L =
+# s*fit$L, and "fit" is a multinomial topic model fit.
 #
-# TO DO:
-# - Allow for calculation of different LFC statistics.
+# TO DO: Describe the outputs.
+#
+# TO DO: Allow for calculation of different LFC statistics.
 #
 #' @importFrom parallel makeCluster
 #' @importFrom parallel stopCluster
 #' @importFrom pbapply pblapply
 #' @importFrom pbapply pboptions
 compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
-                               conf.level = 0.9, rw = 0.3, e = 1e-15, nc = 1,
-                               verbose = TRUE) {
+                               conf.level = 0.9, rw = 0.3, e = 1e-15,
+                               nc = 1, verbose = TRUE) {
 
   # Get the number of columns in the counts matrix (m) and the number
   # of topics (k).
@@ -41,7 +48,6 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
     low[j,]  <- out[[j]]["low",]
     high[j,] <- out[[j]]["high",]
   }
-  cat("\n")
 
   # Compute the z-scores and -log10 p-values.
   z <- est/(2*(mean - low))
@@ -52,7 +58,9 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
               lpval = -lpfromz(z)))
 }
 
-# TO DO: Explain here what this function does, and how to use it.
+# This implements the core computation for compute_lfc_stats. See the
+# comments accompanying function compute_lfc_stats for details.
+#
 #' @importFrom stats runif
 #' @importFrom stats rnorm
 compute_lfc_stats_helper <- function (j, X, F, L, f0, ns, conf.level, rw, e) {
@@ -60,25 +68,32 @@ compute_lfc_stats_helper <- function (j, X, F, L, f0, ns, conf.level, rw, e) {
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
   samples <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,rw,e)$samples
-  return(compute_lfc_vsf0(samples,F[j,],f0[j],conf.level))
+  return(compute_lfc_vsnull(samples,F[j,],f0[j],conf.level))
 }
   
 # TO DO: Explain here what this function does, and how (and when) to
 # use it.
 #
 #' @importFrom Matrix colMeans
-compute_lfc_vsf0 <- function (samples, f, f0, conf.level) {
+compute_lfc_vsnull <- function (samples, f, f0, conf.level) {
+
+  # Set up storage for some of the the outputs.
   k    <- length(f)
   mean <- rep(0,k)
   low  <- rep(0,k)
   high <- rep(0,k)
+  
   est  <- log(f) - log(f0)
   mean <- colMeans(samples - log(f0))
+
+  # Repeat for each topic.
   for (i in 1:k) {
     out     <- hpd(samples[,i] - log(f0),conf.level)
     low[i]  <- out[1]
     high[i] <- out[2]
   }
+
+  # TO DO: Summarize the return values.
   return(rbind(est  = est,
                mean = mean,
                low  = low,

@@ -169,7 +169,7 @@
 #' 
 de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                          fit.method = c("scd","em","mu","ccd","glm"),
-                         lfc.stat = "le", shrink.method = c("ash","none"),
+                         lfc.stat = "vsnull", shrink.method = c("ash","none"),
                          numiter = 20, minval = 1e-8, tol = 1e-8,
                          conf.level = 0.9, ns = 1000, rw = 0.3, eps = 1e-15,
                          nc = 1, verbose = TRUE, ...) {
