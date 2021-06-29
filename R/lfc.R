@@ -2,20 +2,27 @@
 # to use it.
 #
 # TO DO:
-# - Implement parlapply version of this.
 # - Allow for calculation of different LFC statistics.
 #
-#' @importFrom stats runif
-#' @importFrom stats rnorm
-#' @importFrom progress progress_bar
+#' @importFrom parallel makeCluster
+#' @importFrom parallel stopCluster
+#' @importFrom pbapply pblapply
+#' @importFrom pbapply pboptions
 compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
-                               conf.level = 0.9, rw = 0.3, e = 1e-15,
-                               nc = 1, verbose = TRUE) {
+                               conf.level = 0.9, rw = 0.3, e = 1e-15, nc = 1,
+                               verbose = TRUE) {
 
   # Get the number of columns in the counts matrix (m) and the number
   # of topics (k).
   m <- ncol(X)
   k <- ncol(F)
+
+  # Compute the log-fold change statistics.
+  cl  <- makeCluster(nc)
+  opb <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
+  out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,f0,ns,conf.level,rw,e)
+  pboptions(opb)
+  stopCluster(cl)
 
   # Allocate storage for the outputs.
   est  <- matrix(0,m,k)
@@ -27,26 +34,35 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
   dimnames(low)  <- dimnames(F)
   dimnames(high) <- dimnames(F)
 
-  # Repeat for each column of X.
+  # Fill in the outputs.
   for (j in 1:m) {
-    cat(j," ",sep="")
-    D        <- matrix(rnorm(ns*k),ns,k)
-    U        <- matrix(runif(ns*k),ns,k)
-    samples  <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,rw,e)$samples
-    out      <- compute_lfc_vsf0(samples,F[j,],f0[j],conf.level)
-    est[j,]  <- out["est",]
-    mean[j,] <- out["mean",]
-    low[j,]  <- out["low",]
-    high[j,] <- out["high",]
+    est[j,]  <- out[[j]]["est",]
+    mean[j,] <- out[[j]]["mean",]
+    low[j,]  <- out[[j]]["low",]
+    high[j,] <- out[[j]]["high",]
   }
   cat("\n")
 
   # Compute the z-scores and -log10 p-values.
   z <- est/(2*(mean - low))
-  return(list(est = est/log(2),low = low/log(2),high = high/log(2),
-              z = z,lpval = -lpfromz(z)))
+  return(list(est   = est/log(2),
+              low   = low/log(2),
+              high  = high/log(2),
+              z     = z,
+              lpval = -lpfromz(z)))
 }
 
+# TO DO: Explain here what this function does, and how to use it.
+#' @importFrom stats runif
+#' @importFrom stats rnorm
+compute_lfc_stats_helper <- function (j, X, F, L, f0, ns, conf.level, rw, e) {
+  k <- ncol(F)
+  D <- matrix(rnorm(ns*k),ns,k)
+  U <- matrix(runif(ns*k),ns,k)
+  samples <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,rw,e)$samples
+  return(compute_lfc_vsf0(samples,F[j,],f0[j],conf.level))
+}
+  
 # TO DO: Explain here what this function does, and how (and when) to
 # use it.
 #

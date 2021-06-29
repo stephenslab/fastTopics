@@ -255,10 +255,6 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     cat("Computing log-fold change statistics from ")
     cat(sprintf("%d Poisson models with k=%d.\n",m,k))
   }
-  i <- c(5018,13171,13978,15685,sample(m,20))
-  X <- X[,i]
-  F <- F[i,]
-  f0 <- f0[i]
   out <- compute_lfc_stats(X,F,L,f0,lfc.stat,ns,conf.level,rw,eps,nc,verbose)
 
   # Return the Poisson model MLEs (F), the log-fold change statistics
