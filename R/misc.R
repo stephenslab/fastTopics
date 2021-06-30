@@ -15,6 +15,12 @@ lpfromz <- function (z)
 is.sparse.matrix <- function (x)
   inherits(x,"dgCMatrix")
 
+# Efficiently extract the nonzero elements from column j of sparse
+# matrix A (a member of class "dgCMatrix"). Output "x" contains the
+# nonzero values, and output "i" contains the
+get.nonzeros <- function (A, j)
+  list(x = A[,j,drop = FALSE]@x,i = A[,j,drop = FALSE]@i + 1)
+
 # Check if the matrix contains one or more all-zero columns.
 #
 #' @importFrom Matrix colSums

@@ -18,6 +18,7 @@
 #
 # TO DO: Allow for calculation of different LFC statistics.
 #
+#' @importFrom Matrix colSums
 #' @importFrom parallel makeCluster
 #' @importFrom parallel stopCluster
 #' @importFrom parallel clusterExport
@@ -34,8 +35,9 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
 
   # Compute the log-fold change statistics.
   # cl <- makeCluster(nc)
+  ls  <- colSums(L)
   opb <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
-  out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,f0,ns,conf.level,
+  out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,ls,f0,ns,conf.level,
                   rw,e,cl = nc)
   pboptions(opb)
   # stopCluster(cl)
@@ -67,17 +69,22 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
               lpval = -lpfromz(z)))
 }
 
-# This implements the core computation for compute_lfc_stats. See the
-# comments accompanying function compute_lfc_stats for details.
+# This implements the core computation for compute_lfc_stats.
 #
 #' @importFrom stats runif
 #' @importFrom stats rnorm
-compute_lfc_stats_helper <- function (j, X, F, L, f0, ns, conf.level, rw, e) {
+compute_lfc_stats_helper <- function (j, X, F, L, ls, f0, ns,
+                                      conf.level, rw, e) {
   k <- ncol(F)
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
-  samples <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,rw,e)$samples
-  return(compute_lfc_vsnull(samples,F[j,],f0[j],conf.level))
+  if (is.sparse.matrix(X)) {
+    dat <- get.nonzeros(X,j)
+    out <- simulate_posterior_poisson_sparse_rcpp(dat$x,L[dat$i,],ls,
+                                                  F[j,],D,U,rw,e)
+  } else
+    out <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,rw,e)
+  return(compute_lfc_vsnull(out$samples,F[j,],f0[j],conf.level))
 }
   
 # TO DO: Explain here what this function does, and how (and when) to
