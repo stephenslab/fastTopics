@@ -21,7 +21,6 @@
 #' @importFrom Matrix colSums
 #' @importFrom parallel makeCluster
 #' @importFrom parallel stopCluster
-#' @importFrom parallel clusterExport
 #' @importFrom pbapply pblapply
 #' @importFrom pbapply pboptions
 compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
@@ -34,13 +33,20 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
   k <- ncol(F)
 
   # Compute the log-fold change statistics.
-  # cl <- makeCluster(nc)
-  ls  <- colSums(L)
+  ls <- colSums(L)
   opb <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
-  out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,ls,f0,ns,conf.level,
-                  rw,e,cl = nc)
+  if (nc == 1) {
+    print("no multithreading")
+    out <- lapply(1:m,compute_lfc_stats_helper,X,F,L,ls,f0,ns,
+                  conf.level,rw,e)
+  } else {
+    print(nc)
+    cl <- makeCluster(nc)
+    out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,ls,f0,ns,
+                    conf.level,rw,e,cl = cl)
+    stopCluster(cl)
+  }
   pboptions(opb)
-  # stopCluster(cl)
 
   # Allocate storage for the outputs.
   est  <- matrix(0,m,k)

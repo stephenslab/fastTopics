@@ -27,11 +27,11 @@ test_that(paste("R and C++ implementations of simulate_posterior_poisson",
   # implementations of the random-walk Metropolis algorithm.
   set.seed(1)
   ns   <- 1e4
-  i    <- which(x > 0)
   out1 <- simulate_posterior_poisson(x,L,f,ns = ns,s = 0.3)
   set.seed(1)
-  D    <- matrix(rnorm(2*ns),ns,2)
-  U    <- matrix(runif(2*ns),ns,2)
+  i <- which(x > 0)
+  D <- matrix(rnorm(2*ns),ns,2)
+  U <- matrix(runif(2*ns),ns,2)
   out2 <- simulate_posterior_poisson_rcpp(x,L,f,D,U,0.3,1e-15)
   out3 <- simulate_posterior_poisson_sparse_rcpp(x[i],L[i,],colSums(L),f,
                                                  D,U,0.3,1e-15)
