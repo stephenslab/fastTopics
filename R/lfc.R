@@ -1,18 +1,26 @@
 # This is the workhorse function used by de_analysis for computing the
 # log-fold change (LFC) statistics. Most of the input arguments are
-# explained in the documentation for de_analysis. A couple notes about
-# the input arguments: (1) f0 should be a estimate of the paramter f0
-# in the the "null" model x ~ Poisson(u), with u = s*f0; (2) F and L
-# should specify the parameters of the Poisson glm models; that is, F
-# should be returned from fit_poisson_models(X,L,...) in which L =
+# explained in the documentation for de_analysis. Please however bear
+# in mind the following: (1) f0 should be a estimate of the paramter
+# f0 in the the "null" model x ~ Poisson(u), with u = s*f0; (2) F and
+# L should specify the parameters of the Poisson glm models; that is,
+# F should be returned from fit_poisson_models(X,L,...) in which L =
 # s*fit$L, and "fit" is a multinomial topic model fit.
 #
-# TO DO: Describe the outputs.
+# The return value is a list containing five matrices of the same
+# dimension as F. The matrices are: (1) "est", the estimated LFC
+# statistics; (2) "low", the estimated lower limits of the HPD
+# intervals; (3) "high", the estimated upper limits of the HPD
+# intervals; (4) "z", the z-scores determined from the LFC estimates
+# and the HPD intervals; and (5) "lpval", the -log10 two-tailed
+# p-values computed from the z-scores. Note that all outputted LFC
+# statistics are defined with the base-2 logarithm.
 #
 # TO DO: Allow for calculation of different LFC statistics.
 #
 #' @importFrom parallel makeCluster
 #' @importFrom parallel stopCluster
+#' @importFrom parallel clusterExport
 #' @importFrom pbapply pblapply
 #' @importFrom pbapply pboptions
 compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
@@ -25,11 +33,12 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
   k <- ncol(F)
 
   # Compute the log-fold change statistics.
-  cl  <- makeCluster(nc)
+  # cl <- makeCluster(nc)
   opb <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
-  out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,f0,ns,conf.level,rw,e)
+  out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,f0,ns,conf.level,
+                  rw,e,cl = nc)
   pboptions(opb)
-  stopCluster(cl)
+  # stopCluster(cl)
 
   # Allocate storage for the outputs.
   est  <- matrix(0,m,k)
@@ -41,7 +50,7 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
   dimnames(low)  <- dimnames(F)
   dimnames(high) <- dimnames(F)
 
-  # Fill in the outputs.
+  # Fill in the outputs, row by row.
   for (j in 1:m) {
     est[j,]  <- out[[j]]["est",]
     mean[j,] <- out[[j]]["mean",]

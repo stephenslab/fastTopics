@@ -11,7 +11,8 @@ X     <- X[,i]
 genes <- genes[i,]
 fit$F <- fit$F[i,]
 
-out <- de_analysis(fit,X,s = rowSums(X) + 1,ns = 1000,nc = 4)
+print(system.time(
+  out <- de_analysis(fit,X,s = rowSums(X) + 1,ns = 4000,nc = 4)))
 
 k <- 4
 dat <- as.data.frame(cbind(low  = out$low[,k],
@@ -20,4 +21,4 @@ dat <- as.data.frame(cbind(low  = out$low[,k],
                            z    = out$z[,k]))
 rownames(dat) <- genes$symbol
 dat <- dat[order(dat$z,decreasing = TRUE),]
-print(dat,digits = 2)
+# print(dat,digits = 2)
