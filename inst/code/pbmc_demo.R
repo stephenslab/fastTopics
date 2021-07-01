@@ -13,7 +13,6 @@ i     <- c(5018,13171,13978,15685,sample(m,2000))
 X     <- X[,i]
 genes <- genes[i,]
 fit$F <- fit$F[i,]
-
 print(system.time(
   out1 <- de_analysis(fit,X,s = rowSums(X) + 1,ns = 1000,nc = 1)))
 print(system.time(

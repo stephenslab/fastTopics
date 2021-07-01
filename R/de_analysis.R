@@ -165,7 +165,10 @@
 #' @importFrom Matrix colSums
 #' @importFrom ashr ash
 #' @importFrom parallel splitIndices
-#' @importFrom parallel mclapply
+#' @importFrom parallel makeCluster
+#' @importFrom parallel stopCluster
+#' @importFrom pbapply pblapply
+#' @importFrom pbapply pboptions
 #'
 #' @export
 #' 
@@ -260,7 +263,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
   if (nc == 1)
-    out <- compute_lfc_stats(X,F,L,D,U,f0,lfc.stat,conf.level,rw,eps)
+    out <- compute_lfc_stats(X,F,L,D,U,f0)
   else {
     cols <- splitIndices(m,nc)
     dat <- vector("list",nc)
@@ -269,13 +272,12 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
       j <- cols[[i]]
       dat[[i]] <- list(X = X[,j],F = F[j,],f0 = f0[j])
     }
-    parlapplyf <- function (dat, L, D, U, lfc.stat, conf.level, rw, eps)
-      compute_lfc_stats(dat$X,dat$F,L,D,U,dat$f0,lfc.stat,conf.level,rw,eps)
-  # cl <- makeCluster(nc)
-  # out <- parLapply(cl = cl,dat,parlapplyf,L,D,U,lfc.stat,conf.level,rw,eps)
-  # stopCluster(cl)
-    out <- mclapply(dat,parlapplyf,L,D,U,lfc.stat,conf.level,rw,eps,
-                    mc.cores = nc)
+    parlapplyf <- function (dat, L, D, U, conf.level, rw, e)
+      compute_lfc_stats(dat$X,dat$F,L,D,U,dat$f0,conf.level,rw,e)
+    pbo <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
+    cl <- makeCluster(nc)
+    out <- pblapply(dat,parlapplyf,L,D,U,conf.level,rw,eps,cl = cl)
+    stopCluster(cl)
   }
 
   # Return the Poisson model MLEs (F), the log-fold change statistics

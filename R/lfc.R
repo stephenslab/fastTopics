@@ -19,7 +19,7 @@
 # TO DO: Allow for calculation of different LFC statistics.
 #
 #' @importFrom Matrix colSums
-compute_lfc_stats <- function (X, F, L, D, U, f0, stat = "vsnull", 
+compute_lfc_stats <- function (X, F, L, D, U, f0, 
                                conf.level = 0.9, rw = 0.3, e = 1e-15) {
 
   # Get the number of counts matrix columns (m) and the number of
@@ -54,6 +54,12 @@ compute_lfc_stats <- function (X, F, L, D, U, f0, stat = "vsnull",
               high  = high/log(2),
               z     = z,
               lpval = -lpfromz(z)))
+}
+
+# This is the multithreaded variant of compute_lfc_stats. See the
+# comments accompanying compute_lfc_stats for details.
+compute_lfc_stats_multicore <- function () {
+
 }
 
 # This implements the core computation for compute_lfc_stats.
