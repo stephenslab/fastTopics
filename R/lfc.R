@@ -19,27 +19,15 @@
 # TO DO: Allow for calculation of different LFC statistics.
 #
 #' @importFrom Matrix colSums
-#' @importFrom parallel makeCluster
-#' @importFrom parallel stopCluster
-#' @importFrom pbapply pblapply
-#' @importFrom pbapply pboptions
+#' @importFrom progress progress_bar
 compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
                                conf.level = 0.9, rw = 0.3, e = 1e-15,
                                nc = 1, verbose = TRUE) {
 
-  # Get the number of columns in the counts matrix (m) and the number
-  # of topics (k).
-  m <- ncol(X)
+  # Get the number of counts matrix columns (m) and the number of
+  # topics (k).
+  m <- nrow(F)
   k <- ncol(F)
-
-  # Compute the log-fold change statistics.
-  ls  <- colSums(L)
-  opb <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70,nout = 20)
-  cl  <- makeCluster(nc)
-  out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,ls,f0,ns,conf.level,rw,e,
-                  cl = cl)
-  stopCluster(cl)
-  pboptions(opb)
 
   # Allocate storage for the outputs.
   est  <- matrix(0,m,k)
@@ -52,11 +40,17 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
   dimnames(high) <- dimnames(F)
 
   # Fill in the outputs, row by row.
+  ls <- colSums(L)
+  if (verbose)
+    pb <- progress_bar$new(total = m)
   for (j in 1:m) {
-    est[j,]  <- out[[j]]["est",]
-    mean[j,] <- out[[j]]["mean",]
-    low[j,]  <- out[[j]]["low",]
-    high[j,] <- out[[j]]["high",]
+    if (verbose)
+      pb$tick()
+    out <- compute_lfc_stats_helper(j,X,F,L,ls,f0,ns,conf.level,rw,e)
+    est[j,]  <- out["est",]
+    mean[j,] <- out["mean",]
+    low[j,]  <- out["low",]
+    high[j,] <- out["high",]
   }
 
   # Compute the z-scores and -log10 p-values.
