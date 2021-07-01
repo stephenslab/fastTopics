@@ -274,7 +274,8 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # cl <- makeCluster(nc)
   # out <- parLapply(cl = cl,dat,parlapplyf,L,D,U,lfc.stat,conf.level,rw,eps)
   # stopCluster(cl)
-    out <- mclapply(dat,parlapplyf,L,D,U,lfc.stat,conf.level,rw,eps)
+    out <- mclapply(dat,parlapplyf,L,D,U,lfc.stat,conf.level,rw,eps,
+                    mc.cores = nc)
   }
 
   # Return the Poisson model MLEs (F), the log-fold change statistics
