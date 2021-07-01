@@ -164,7 +164,9 @@
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums
 #' @importFrom ashr ash
-#' 
+#' @importFrom parallel splitIndices
+#' @importFrom parallel mclapply
+#'
 #' @export
 #' 
 de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
@@ -255,14 +257,32 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     cat("Computing log-fold change statistics from ")
     cat(sprintf("%d Poisson models with k=%d.\n",m,k))
   }
-  out <- compute_lfc_stats(X,F,L,f0,lfc.stat,ns,conf.level,rw,eps,nc,verbose)
+  D <- matrix(rnorm(ns*k),ns,k)
+  U <- matrix(runif(ns*k),ns,k)
+  if (nc == 1)
+    out <- compute_lfc_stats(X,F,L,D,U,f0,lfc.stat,conf.level,rw,eps)
+  else {
+    cols <- splitIndices(m,nc)
+    dat <- vector("list",nc)
+    names(dat) <- paste0("dat",1:nc)
+    for (i in 1:nc) {
+      j <- cols[[i]]
+      dat[[i]] <- list(X = X[,j],F = F[j,],f0 = f0[j])
+    }
+    parlapplyf <- function (dat, L, D, U, lfc.stat, conf.level, rw, eps)
+      compute_lfc_stats(dat$X,dat$F,L,D,U,dat$f0,lfc.stat,conf.level,rw,eps)
+  # cl <- makeCluster(nc)
+  # out <- parLapply(cl = cl,dat,parlapplyf,L,D,U,lfc.stat,conf.level,rw,eps)
+  # stopCluster(cl)
+    out <- mclapply(dat,parlapplyf,L,D,U,lfc.stat,conf.level,rw,eps)
+  }
 
   # Return the Poisson model MLEs (F), the log-fold change statistics
   # (est, low, high, z, lpval), and the relative rates under the "null"
   # model (f0).
-  out$F <- F
-  out$f0 <- f0
-  class(out) <- c("topic_model_de_analysis","list")
+  # out$F <- F
+  # out$f0 <- f0
+  # class(out) <- c("topic_model_de_analysis","list")
   return(out)
   
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE

@@ -19,10 +19,8 @@
 # TO DO: Allow for calculation of different LFC statistics.
 #
 #' @importFrom Matrix colSums
-#' @importFrom progress progress_bar
-compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
-                               conf.level = 0.9, rw = 0.3, e = 1e-15,
-                               nc = 1, verbose = TRUE) {
+compute_lfc_stats <- function (X, F, L, D, U, f0, stat = "vsnull", 
+                               conf.level = 0.9, rw = 0.3, e = 1e-15) {
 
   # Get the number of counts matrix columns (m) and the number of
   # topics (k).
@@ -41,12 +39,8 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
 
   # Fill in the outputs, row by row.
   ls <- colSums(L)
-  if (verbose)
-    pb <- progress_bar$new(total = m)
   for (j in 1:m) {
-    if (verbose)
-      pb$tick()
-    out <- compute_lfc_stats_helper(j,X,F,L,ls,f0,ns,conf.level,rw,e)
+    out <- compute_lfc_stats_helper(j,X,F,L,D,U,ls,f0,conf.level,rw,e)
     est[j,]  <- out["est",]
     mean[j,] <- out["mean",]
     low[j,]  <- out["low",]
@@ -66,11 +60,9 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
 #
 #' @importFrom stats runif
 #' @importFrom stats rnorm
-compute_lfc_stats_helper <- function (j, X, F, L, ls, f0, ns,
+compute_lfc_stats_helper <- function (j, X, F, L, D, U, ls, f0, 
                                       conf.level, rw, e) {
   k <- ncol(F)
-  D <- matrix(rnorm(ns*k),ns,k)
-  U <- matrix(runif(ns*k),ns,k)
   if (is.sparse.matrix(X)) {
     dat <- get.nonzeros(X,j)
     out <- simulate_posterior_poisson_sparse_rcpp(dat$x,L[dat$i,],ls,
