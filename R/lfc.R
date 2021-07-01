@@ -33,19 +33,12 @@ compute_lfc_stats <- function (X, F, L, f0, stat = "vsnull", ns = 1000,
   k <- ncol(F)
 
   # Compute the log-fold change statistics.
-  ls <- colSums(L)
-  opb <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
-  if (nc == 1) {
-    print("no multithreading")
-    out <- lapply(1:m,compute_lfc_stats_helper,X,F,L,ls,f0,ns,
-                  conf.level,rw,e)
-  } else {
-    print(nc)
-    cl <- makeCluster(nc)
-    out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,ls,f0,ns,
-                    conf.level,rw,e,cl = cl)
-    stopCluster(cl)
-  }
+  ls  <- colSums(L)
+  opb <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70,nout = 20)
+  cl  <- makeCluster(nc)
+  out <- pblapply(1:m,compute_lfc_stats_helper,X,F,L,ls,f0,ns,conf.level,rw,e,
+                  cl = cl)
+  stopCluster(cl)
   pboptions(opb)
 
   # Allocate storage for the outputs.

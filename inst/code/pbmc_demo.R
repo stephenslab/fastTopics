@@ -1,3 +1,5 @@
+library(Matrix)
+# library(fastTopics)
 set.seed(1)
 data(pbmc_facs)
 genes <- pbmc_facs$genes
