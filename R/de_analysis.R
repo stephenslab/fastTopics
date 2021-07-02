@@ -164,11 +164,8 @@
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums
 #' @importFrom ashr ash
-#' @importFrom parallel splitIndices
-#' @importFrom parallel makeCluster
-#' @importFrom parallel stopCluster
-#' @importFrom pbapply pblapply
-#' @importFrom pbapply pboptions
+#' @importFrom stats rnorm
+#' @importFrom stats runif
 #'
 #' @export
 #' 
@@ -250,6 +247,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (verbose)
     cat(sprintf("Fitting %d Poisson models with k=%d using method=\"%s\".\n",
                 m,k,fit.method))
+  nc <- initialize.multithreading(nc)
   F <- fit_poisson_models(X,L,fit.method,eps,numiter,tol,nc)
   dimnames(F) <- dimnames(fit$F)
 
@@ -263,21 +261,11 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
   if (nc == 1)
-    out <- compute_lfc_stats(X,F,L,D,U,f0)
+    out <- compute_lfc_stats(X,F,L,f0,D,U,conf.level,rw,eps,lfc.stat)
   else {
-    cols <- splitIndices(m,nc)
-    dat <- vector("list",nc)
-    names(dat) <- paste0("dat",1:nc)
-    for (i in 1:nc) {
-      j <- cols[[i]]
-      dat[[i]] <- list(X = X[,j],F = F[j,],f0 = f0[j])
-    }
-    parlapplyf <- function (dat, L, D, U, conf.level, rw, e)
-      compute_lfc_stats(dat$X,dat$F,L,D,U,dat$f0,conf.level,rw,e)
-    pbo <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
-    cl <- makeCluster(nc)
-    out <- pblapply(dat,parlapplyf,L,D,U,conf.level,rw,eps,cl = cl)
-    stopCluster(cl)
+    message(sprintf("Using %d SOCK threads.",nc))
+    out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,conf.level,rw,eps,
+                                       lfc.stat,nc)
   }
 
   # Return the Poisson model MLEs (F), the log-fold change statistics

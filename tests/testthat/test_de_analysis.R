@@ -81,6 +81,9 @@ test_that(paste("All variants of fit_poisson_models should produce the",
   expect_equal(F1,F3,scale = 1,tolerance = 1e-5)
 })
 
+# TO DO: Add tests for single-thread vs. multithreaded variants of
+# de_analysis.
+
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
                 "true probabilities (relative gene expression levels) when",
                 "provided with the true topic proportions"),{

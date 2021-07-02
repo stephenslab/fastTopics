@@ -1,11 +1,17 @@
 # This is the workhorse function used by de_analysis for computing the
-# log-fold change (LFC) statistics. Most of the input arguments are
-# explained in the documentation for de_analysis. Please however bear
-# in mind the following: (1) f0 should be a estimate of the paramter
-# f0 in the the "null" model x ~ Poisson(u), with u = s*f0; (2) F and
-# L should specify the parameters of the Poisson glm models; that is,
-# F should be returned from fit_poisson_models(X,L,...) in which L =
-# s*fit$L, and "fit" is a multinomial topic model fit.
+# log-fold change (LFC) statistics using a topic model. Most of the
+# input arguments are explained in the documentation accompanying
+# de_analysis. Please also bear in mind the following the additional
+# points: (1) f0 should be a estimate of the paramter f0 in the the
+# "null" model x ~ Poisson(u), with u = s*f0; (2) F and L should
+# specify the parameters of the Poisson glm models; that is, F should
+# be returned from fit_poisson_models(X,L,...) in which L = s*fit$L,
+# and "fit" is a multinomial topic model fit; (3) inputs D and U
+# should be ns x k matrices, where k = ncol(F) is the number of topics
+# and ns is the number of Monte Carlo samples to simulate, and D
+# should contain normally distributed random numbers simulated using
+# rnorm(mean = 0,sd = 1, and U should contain uniformly distributed
+# random numbers simulated using runif(min = 0,max = 1).
 #
 # The return value is a list containing five matrices of the same
 # dimension as F. The matrices are: (1) "est", the estimated LFC
@@ -18,9 +24,14 @@
 #
 # TO DO: Allow for calculation of different LFC statistics.
 #
+#' @importFrom stats rnorm
+#' @importFrom stats runif
 #' @importFrom Matrix colSums
-compute_lfc_stats <- function (X, F, L, D, U, f0, 
-                               conf.level = 0.9, rw = 0.3, e = 1e-15) {
+compute_lfc_stats <- function (X, F, L, f0,
+                               D = matrix(rnorm(ns*k),1000,ncol(F)),
+                               U = matrix(runif(ns*k),1000,ncol(F)),
+                               conf.level = 0.9, rw = 0.3,
+                               e = 1e-15, lfc.stat = "vsnull") {
 
   # Get the number of counts matrix columns (m) and the number of
   # topics (k).
@@ -37,10 +48,12 @@ compute_lfc_stats <- function (X, F, L, D, U, f0,
   dimnames(low)  <- dimnames(F)
   dimnames(high) <- dimnames(F)
 
-  # Fill in the outputs, row by row.
+  # Fill in the outputs, row by row. The core computation is performed
+  # by compute_lfc_helper.
   ls <- colSums(L)
   for (j in 1:m) {
-    out <- compute_lfc_stats_helper(j,X,F,L,D,U,ls,f0,conf.level,rw,e)
+      out <- compute_lfc_stats_helper(j,X,F,L,D,U,ls,f0,lfc.stat,
+                                      conf.level,rw,e)
     est[j,]  <- out["est",]
     mean[j,] <- out["mean",]
     low[j,]  <- out["low",]
@@ -58,15 +71,40 @@ compute_lfc_stats <- function (X, F, L, D, U, f0,
 
 # This is the multithreaded variant of compute_lfc_stats. See the
 # comments accompanying compute_lfc_stats for details.
-compute_lfc_stats_multicore <- function () {
+#
+#' @importFrom parallel splitIndices
+#' @importFrom parallel makeCluster
+#' @importFrom parallel stopCluster
+#' @importFrom pbapply pblapply
+#' @importFrom pbapply pboptions
+compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, conf.level,
+                                         rw, e, lfc.stat, nc) {
 
+  # Split the data among the nc requesed threads.
+  m <- nrow(F)
+  cols <- splitIndices(m,nc)
+  dat  <- vector("list",nc)
+  for (i in 1:nc) {
+    j <- cols[[i]]
+    dat[[i]] <- list(X = X[,j],F = F[j,],f0 = f0[j])
+  }
+
+  # Distribution the calculations using pblapply.
+  lfc.stat <- 1
+  pblapplyf <- function (dat, L, D, U, conf.level, rw, e, lfc.stat)
+    compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,conf.level,rw,e,lfc.stat)
+  pbo <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
+  cl <- makeCluster(nc)
+  out <- pblapply(dat,pblapplyf,L,D,U,conf.level,rw,e,lfc.stat,cl = cl)
+  stopCluster(cl)
+
+  # TO DO: Combine the outputs.
+  
+  return(out)
 }
 
 # This implements the core computation for compute_lfc_stats.
-#
-#' @importFrom stats runif
-#' @importFrom stats rnorm
-compute_lfc_stats_helper <- function (j, X, F, L, D, U, ls, f0, 
+compute_lfc_stats_helper <- function (j, X, F, L, D, U, ls, f0, lfc.stat,
                                       conf.level, rw, e) {
   k <- ncol(F)
   if (is.sparse.matrix(X)) {
