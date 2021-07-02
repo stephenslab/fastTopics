@@ -81,8 +81,27 @@ test_that(paste("All variants of fit_poisson_models should produce the",
   expect_equal(F1,F3,scale = 1,tolerance = 1e-5)
 })
 
-# TO DO: Add tests for single-thread vs. multithreaded variants of
-# de_analysis.
+test_that(paste("de_analysis with and withoout multithreading should give",
+                "the same result"),{
+
+  # Simulate gene expression data.
+  set.seed(1)
+  n   <- 800
+  m   <- 1000
+  k   <- 4
+  dat <- simulate_multinom_gene_data(n,m,k,sparse = TRUE)
+  X   <- dat$X
+  L   <- dat$L
+
+  # Run de_analysis twice, using the single-threaded computations (nc
+  # = 1) and again using the multithreaded computations (nc = 4). As
+  # long as the sequence of pseudorandom numbers is the same, the
+  # output should be the same.
+  fit <- init_poisson_nmf(X,L = L,init.method = "random")
+  set.seed(1); capture.output(de1 <- de_analysis(fit,X,nc = 1))
+  set.seed(1); capture.output(de2 <- de_analysis(fit,X,nc = 4))
+  expect_equal(de1,de2,scale = 1,tolerance = 1e-15)
+})
 
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
                 "true probabilities (relative gene expression levels) when",
