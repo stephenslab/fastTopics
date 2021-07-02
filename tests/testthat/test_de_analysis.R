@@ -94,12 +94,12 @@ test_that(paste("de_analysis with and withoout multithreading should give",
   L   <- dat$L
 
   # Run de_analysis twice, using the single-threaded computations (nc
-  # = 1) and again using the multithreaded computations (nc = 4). As
+  # = 1) and again using the multithreaded computations (nc = 2). As
   # long as the sequence of pseudorandom numbers is the same, the
   # output should be the same.
   fit <- init_poisson_nmf(X,L = L,init.method = "random")
   set.seed(1); capture.output(de1 <- de_analysis(fit,X,nc = 1))
-  set.seed(1); capture.output(de2 <- de_analysis(fit,X,nc = 4))
+  set.seed(1); capture.output(de2 <- de_analysis(fit,X,nc = 2))
   expect_equal(de1,de2,scale = 1,tolerance = 1e-15)
 })
 
