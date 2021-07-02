@@ -43,20 +43,23 @@ compute_lfc_stats <- function (X, F, L, f0,
   mean <- matrix(0,m,k)
   low  <- matrix(0,m,k)
   high <- matrix(0,m,k)
+  ar   <- rep(0,m)
   dimnames(est)  <- dimnames(F)
   dimnames(mean) <- dimnames(F)
   dimnames(low)  <- dimnames(F)
   dimnames(high) <- dimnames(F)
+  names(ar)      <- rownames(F)
 
   # Fill in the outputs, row by row. The core computation is performed
   # by compute_lfc_helper.
   ls <- colSums(L)
   for (j in 1:m) {
     out <- compute_lfc_stats_helper(j,X,F,L,D,U,ls,f0,lfc.stat,conf.level,rw,e)
-    est[j,]  <- out["est",]
-    mean[j,] <- out["mean",]
-    low[j,]  <- out["low",]
-    high[j,] <- out["high",]
+    est[j,]  <- out$dat["est",]
+    mean[j,] <- out$dat["mean",]
+    low[j,]  <- out$dat["low",]
+    high[j,] <- out$dat["high",]
+    ar[j]    <- out$ar
   }
 
   # Compute the z-scores and -log10 p-values.
@@ -65,7 +68,8 @@ compute_lfc_stats <- function (X, F, L, f0,
               low   = low/log(2),
               high  = high/log(2),
               z     = z,
-              lpval = -lpfromz(z)))
+              lpval = -lpfromz(z),
+              ar    = ar))
 }
 
 # This is the multithreaded variant of compute_lfc_stats. See the
@@ -107,12 +111,14 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, lfc.stat,
               low   = matrix(0,m,k),
               high  = matrix(0,m,k),
               z     = matrix(0,m,k),
-              lpval = matrix(0,m,k))
+              lpval = matrix(0,m,k),
+              ar    = rep(0,m))
   dimnames(out$est)   <- dimnames(F)
   dimnames(out$low)   <- dimnames(F)
   dimnames(out$high)  <- dimnames(F)
   dimnames(out$z)     <- dimnames(F)
   dimnames(out$lpval) <- dimnames(F)
+  names(out$ar)       <- rownames(F)
   for (i in 1:nc) {
     j <- cols[[i]]
     out$est[j,]   <- ans[[i]]$est
@@ -120,6 +126,7 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, lfc.stat,
     out$high[j,]  <- ans[[i]]$high
     out$z[j,]     <- ans[[i]]$z
     out$lpval[j,] <- ans[[i]]$lpval
+    out$ar[j]     <- ans[[i]]$ar
   }
   return(out)
 }
@@ -134,7 +141,8 @@ compute_lfc_stats_helper <- function (j, X, F, L, D, U, ls, f0, lfc.stat,
                                                   F[j,],D,U,rw,e)
   } else
     out <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,rw,e)
-  return(compute_lfc_vsnull(out$samples,F[j,],f0[j],conf.level))
+  dat <- compute_lfc_vsnull(out$samples,F[j,],f0[j],conf.level)
+  return(list(dat = dat,ar = out$ar))
 }
   
 # TO DO: Explain here what this function does, and how (and when) to
@@ -155,6 +163,8 @@ compute_lfc_vsnull <- function (samples, f, f0, conf.level) {
   # Repeat for each topic.
   for (i in 1:k) {
     out     <- hpd(samples[,i] - log(f0),conf.level)
+    #  if (any(is.na(out)))
+    #   browser()
     low[i]  <- out[1]
     high[i] <- out[2]
   }
