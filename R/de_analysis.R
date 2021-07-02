@@ -261,10 +261,11 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
   if (nc == 1)
-    out <- compute_lfc_stats(X,F,L,f0,D,U,conf.level,rw,eps)
+    out <- compute_lfc_stats(X,F,L,f0,D,U,lfc.stat,conf.level,rw,eps)
   else {
     message(sprintf("Using %d SOCK threads.",nc))
-    out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,conf.level,rw,eps,nc)
+    out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,lfc.stat,
+                                       conf.level,rw,eps,nc)
   }
 
   # Return the Poisson model MLEs (F), the log-fold change statistics
