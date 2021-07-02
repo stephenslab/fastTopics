@@ -14,7 +14,7 @@ de_analysis(
   lfc.stat = "vsnull",
   shrink.method = c("ash", "none"),
   numiter = 20,
-  minval = 1e-08,
+  minval = 1e-10,
   tol = 1e-08,
   conf.level = 0.9,
   ns = 1000,

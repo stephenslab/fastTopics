@@ -422,7 +422,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-43).\n")
+    cat("(fastTopics 0.6-44).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -928,7 +928,7 @@ safeguard.fit <- function (fit, minval) {
 fit_poisson_nmf_control_default <- function()
   list(numiter           = 4,
        init.numiter      = 10,
-       minval            = 1e-15,
+       minval            = 1e-10,
        eps               = 1e-8,
        zero.threshold    = 1e-6,
        nc                = as.integer(NA),

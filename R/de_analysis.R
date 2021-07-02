@@ -172,9 +172,9 @@
 de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                          fit.method = c("scd","em","mu","ccd","glm"),
                          lfc.stat = "vsnull", shrink.method = c("ash","none"),
-                         numiter = 20, minval = 1e-8, tol = 1e-8,
-                         conf.level = 0.9, ns = 1000, rw = 0.3, eps = 1e-15,
-                         nc = 1, verbose = TRUE, ...) {
+                         numiter = 20, minval = 1e-10, tol = 1e-8,
+                         conf.level = 0.9, ns = 1000, rw = 0.3,
+                         eps = 1e-15, nc = 1, verbose = TRUE, ...) {
 
   # CHECK AND PROCESS INPUTS
   # ------------------------
@@ -249,6 +249,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                 m,k,fit.method))
   nc <- initialize.multithreading(nc)
   F <- fit_poisson_models(X,L,fit.method,eps,numiter,tol,nc)
+  F <- pmax(F,minval)
   dimnames(F) <- dimnames(fit$F)
 
   # COMPUTE LOG-FOLD CHANGE STATISTICS

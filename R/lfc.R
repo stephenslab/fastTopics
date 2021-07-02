@@ -163,8 +163,6 @@ compute_lfc_vsnull <- function (samples, f, f0, conf.level) {
   # Repeat for each topic.
   for (i in 1:k) {
     out     <- hpd(samples[,i] - log(f0),conf.level)
-    #  if (any(is.na(out)))
-    #   browser()
     low[i]  <- out[1]
     high[i] <- out[2]
   }
