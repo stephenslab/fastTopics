@@ -261,54 +261,17 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
   if (nc == 1)
-    out <- compute_lfc_stats(X,F,L,f0,D,U,conf.level,rw,eps,lfc.stat)
+    out <- compute_lfc_stats(X,F,L,f0,D,U,conf.level,rw,eps)
   else {
     message(sprintf("Using %d SOCK threads.",nc))
-    out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,conf.level,rw,eps,
-                                       lfc.stat,nc)
+    out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,conf.level,rw,eps,nc)
   }
 
   # Return the Poisson model MLEs (F), the log-fold change statistics
   # (est, low, high, z, lpval), and the relative rates under the "null"
   # model (f0).
-  # out$F <- F
-  # out$f0 <- f0
-  # class(out) <- c("topic_model_de_analysis","list")
-  return(out)
-  
-  # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
-  # --------------------------------------------
-  # If requested, use "adaptive shrinkage" to stabilize the log-fold
-  # change estimates. 
-  if (shrink.method == "ash") {
-    if (verbose)
-      cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
-    res <- shrink_lfc(out$F1 - out$F0,out$se,...)
-    out$F1   <- out$F0 + res$b
-    out$beta <- log2(out$F1/out$F0)
-    out$se   <- res$se
-    out$Z    <- res$Z
-    out$pval <- res$pval
-  }
-
-  # PREPARE OUTPUTS
-  # ---------------
-  # Copy the row and column names used in "fit".
-  rownames(out$F0)   <- rownames(fit$F)
-  rownames(out$F1)   <- rownames(fit$F)
-  rownames(out$beta) <- rownames(fit$F)
-  rownames(out$se)   <- rownames(fit$F)
-  rownames(out$Z)    <- rownames(fit$F)
-  rownames(out$pval) <- rownames(fit$F)
-  colnames(out$F0)   <- colnames(fit$F)
-  colnames(out$F1)   <- colnames(fit$F)
-  colnames(out$beta) <- colnames(fit$F)
-  colnames(out$se)   <- colnames(fit$F)
-  colnames(out$Z)    <- colnames(fit$F)
-  colnames(out$pval) <- colnames(fit$F)
-
-  # Return the Poisson model MLEs and the log-fold change statistics.
-  out$colmeans <- colmeans
+  out$F <- F
+  out$f0 <- f0
   class(out) <- c("topic_model_de_analysis","list")
   return(out)
 }

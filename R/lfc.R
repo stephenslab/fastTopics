@@ -31,7 +31,7 @@ compute_lfc_stats <- function (X, F, L, f0,
                                D = matrix(rnorm(ns*k),1000,ncol(F)),
                                U = matrix(runif(ns*k),1000,ncol(F)),
                                conf.level = 0.9, rw = 0.3,
-                               e = 1e-15, lfc.stat = "vsnull") {
+                               e = 1e-15) {
 
   # Get the number of counts matrix columns (m) and the number of
   # topics (k).
@@ -52,8 +52,7 @@ compute_lfc_stats <- function (X, F, L, f0,
   # by compute_lfc_helper.
   ls <- colSums(L)
   for (j in 1:m) {
-      out <- compute_lfc_stats_helper(j,X,F,L,D,U,ls,f0,lfc.stat,
-                                      conf.level,rw,e)
+    out <- compute_lfc_stats_helper(j,X,F,L,D,U,ls,f0,conf.level,rw,e)
     est[j,]  <- out["est",]
     mean[j,] <- out["mean",]
     low[j,]  <- out["low",]
@@ -78,33 +77,55 @@ compute_lfc_stats <- function (X, F, L, f0,
 #' @importFrom pbapply pblapply
 #' @importFrom pbapply pboptions
 compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, conf.level,
-                                         rw, e, lfc.stat, nc) {
-
-  # Split the data among the nc requesed threads.
+                                         rw, e, nc) {
+    
+  # Get the number of counts matrix columns (m) and the number of
+  # topics (k).
   m <- nrow(F)
+  k <- ncol(F)
+  
+  # Split the data among the nc requesed threads.
   cols <- splitIndices(m,nc)
-  dat  <- vector("list",nc)
+  dat <- vector("list",nc)
   for (i in 1:nc) {
     j <- cols[[i]]
     dat[[i]] <- list(X = X[,j],F = F[j,],f0 = f0[j])
   }
 
   # Distribution the calculations using pblapply.
-  lfc.stat <- 1
-  pblapplyf <- function (dat, L, D, U, conf.level, rw, e, lfc.stat)
-    compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,conf.level,rw,e,lfc.stat)
+  pblapplyf <- function (dat, L, D, U, conf.level, rw, e)
+    compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,conf.level,rw,e)
   pbo <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
   cl <- makeCluster(nc)
-  out <- pblapply(dat,pblapplyf,L,D,U,conf.level,rw,e,lfc.stat,cl = cl)
+  ans <- pblapply(cl = cl,dat,pblapplyf,L,D,U,conf.level,rw,e)
+  pboptions(pbo)
   stopCluster(cl)
 
-  # TO DO: Combine the outputs.
-  
+  # Combine the individual compute_lfc_stats outputs, and output the
+  # combined result.
+  out <- list(est   = matrix(0,m,k),
+              low   = matrix(0,m,k),
+              high  = matrix(0,m,k),
+              z     = matrix(0,m,k),
+              lpval = matrix(0,m,k))
+  dimnames(out$est)   <- dimnames(F)
+  dimnames(out$low)   <- dimnames(F)
+  dimnames(out$high)  <- dimnames(F)
+  dimnames(out$z)     <- dimnames(F)
+  dimnames(out$lpval) <- dimnames(F)
+  for (i in 1:nc) {
+    j <- cols[[i]]
+    out$est[j,]   <- ans[[i]]$est
+    out$low[j,]   <- ans[[i]]$low
+    out$high[j,]  <- ans[[i]]$high
+    out$z[j,]     <- ans[[i]]$z
+    out$lpval[j,] <- ans[[i]]$lpval
+  }
   return(out)
 }
 
 # This implements the core computation for compute_lfc_stats.
-compute_lfc_stats_helper <- function (j, X, F, L, D, U, ls, f0, lfc.stat,
+compute_lfc_stats_helper <- function (j, X, F, L, D, U, ls, f0, 
                                       conf.level, rw, e) {
   k <- ncol(F)
   if (is.sparse.matrix(X)) {
