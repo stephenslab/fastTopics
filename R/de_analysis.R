@@ -262,9 +262,15 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
   if (nc == 1)
-    out <- compute_lfc_stats(X,F,L,f0,D,U,lfc.stat,conf.level,rw,eps)
+    out <- compute_lfc_stats(X,F,L,f0,D,U,lfc.stat,conf.level,rw,eps,verbose)
   else {
     message(sprintf("Using %d SOCK threads.",nc))
+    if (verbose)
+      message("Progress bar cannot be shown when multithreading is used. ",
+              "For large data sets, runtime may be assessed by performing ",
+              "an initial test run with a small number of Monte Carlo ",
+              "samples, e.g., ns = 10; the total runtime should scale ",
+              "roughly linearly in ns, the number of Monte Carlo samples.")
     out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,lfc.stat,
                                        conf.level,rw,eps,nc)
   }

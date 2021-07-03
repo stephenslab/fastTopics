@@ -27,11 +27,12 @@
 #' @importFrom stats rnorm
 #' @importFrom stats runif
 #' @importFrom Matrix colSums
+#' @importFrom progress progress_bar
 compute_lfc_stats <- function (X, F, L, f0,
                                D = matrix(rnorm(ns*k),1000,ncol(F)),
                                U = matrix(runif(ns*k),1000,ncol(F)),
                                lfc.stat = "vsnull", conf.level = 0.9,
-                               rw = 0.3, e = 1e-15) {
+                               rw = 0.3, e = 1e-15, verbose = TRUE) {
 
   # Get the number of counts matrix columns (m) and the number of
   # topics (k).
@@ -53,7 +54,11 @@ compute_lfc_stats <- function (X, F, L, f0,
   # Fill in the outputs, row by row. The core computation is performed
   # by compute_lfc_helper.
   ls <- colSums(L)
+  if (verbose)
+    pb <- progress_bar$new(total = m)
   for (j in 1:m) {
+    if (verbose)
+      pb$tick()
     out <- compute_lfc_stats_helper(j,X,F,L,D,U,ls,f0,lfc.stat,conf.level,rw,e)
     est[j,]  <- out$dat["est",]
     mean[j,] <- out$dat["mean",]
@@ -78,8 +83,7 @@ compute_lfc_stats <- function (X, F, L, f0,
 #' @importFrom parallel splitIndices
 #' @importFrom parallel makeCluster
 #' @importFrom parallel stopCluster
-#' @importFrom pbapply pblapply
-#' @importFrom pbapply pboptions
+#' @importFrom parallel parLapply
 compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, lfc.stat,
                                          conf.level, rw, e, nc) {
     
@@ -96,13 +100,12 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, lfc.stat,
     dat[[i]] <- list(X = X[,j],F = F[j,],f0 = f0[j])
   }
 
-  # Distribution the calculations using pblapply.
-  pblapplyf <- function (dat, L, D, U, lfc.stat, conf.level, rw, e)
-    compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,lfc.stat,conf.level,rw,e)
-  pbo <- pboptions(type = "txt",style = 3,char = "=",txt.width = 70)
+  # Distribute the calculations using parLapply.
+  parlapplyf <- function (dat, L, D, U, lfc.stat, conf.level, rw, e)
+    compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,lfc.stat,conf.level,rw,e,
+                      verbose = FALSE)
   cl <- makeCluster(nc)
-  ans <- pblapply(cl = cl,dat,pblapplyf,L,D,U,lfc.stat,conf.level,rw,e)
-  pboptions(pbo)
+  ans <- parLapply(cl = cl,dat,parlapplyf,L,D,U,lfc.stat,conf.level,rw,e)
   stopCluster(cl)
 
   # Combine the individual compute_lfc_stats outputs, and output the
