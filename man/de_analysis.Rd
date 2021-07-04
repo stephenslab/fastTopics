@@ -2,7 +2,6 @@
 % Please edit documentation in R/de_analysis.R
 \name{de_analysis}
 \alias{de_analysis}
-\alias{de_clusters}
 \title{Differential Expression Analysis using a Topic Model}
 \usage{
 de_analysis(
@@ -12,7 +11,6 @@ de_analysis(
   pseudocount = 0.01,
   fit.method = c("scd", "em", "mu", "ccd", "glm"),
   lfc.stat = "vsnull",
-  shrink.method = c("ash", "none"),
   numiter = 20,
   minval = 1e-10,
   tol = 1e-08,
@@ -21,11 +19,8 @@ de_analysis(
   rw = 0.3,
   eps = 1e-15,
   nc = 1,
-  verbose = TRUE,
-  ...
+  verbose = TRUE
 )
-
-de_clusters(cluster, X, ...)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
@@ -48,12 +43,6 @@ counts matrix to stabilize maximum-likelihood estimation.}
 for testing.}
 
 \item{lfc.stat}{Description of "lfc.stat" input argument goes here.}
-
-\item{shrink.method}{Method used to stabilize the LFC estimates.
-When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
-implemented in the ashr package is used. When \code{shrink.method =
-"none"}, no stabilization is performed, and the \dQuote{raw} LFC
-estimates are returned.}
 
 \item{numiter}{Maximum number of iterations performed in fitting
 the Poisson models. When \code{fit.method = "glm"}, this is passed
@@ -80,13 +69,6 @@ the logarithms to avoid computing logarithms of zero.}
 
 \item{verbose}{When \code{verbose = TRUE}, progress information is
 printed to the console.}
-
-\item{\dots}{Additional arguments passed to \code{de_analysis}.}
-
-\item{cluster}{A factor, or vector that can be converted to a
-factor such as an integer or character vector, giving an assignment
-of samples (rows of \code{X}) to clusters. This could be, for
-example, the "cluster" output from \code{\link[stats]{kmeans}}.}
 }
 \value{
 The return value is a list of m x k matrices, where m is
@@ -116,75 +98,10 @@ The return value is a list of m x k matrices, where m is
   zero.}
 }
 \description{
-Implements methods for analysis of differential count
-analysis using a topic model. These methods are motivated by gene
-expression studies, but could have other uses, such as identifying
-\dQuote{key words} in topics derived from text documents. To
-improve accuracy of the differential expression analysis, an
-empirical Bayes method is used to \dQuote{stabilize} the
-estimates. A special case of \dQuote{hard} topic assignments is
-also implemented---that is, the topic proportions are all zeros
-and ones---which involves greatly simplified (and faster)
-calculations. Use \code{de_clusters} for this special case.
-}
-\details{
-The methods are based on the following univariate
-(\dQuote{single-count}) Poisson model: \deqn{x_i ~ Poisson(s_i
-\lambda_i),} in which the Poisson rates are defined as
-\deqn{\lambda_i = (1 - q_i) f_0 + q_i f_1,} and where the two
-unknowns to be estimated are \eqn{f_0, f_1 > 0.} This model is
-applied separately to each count (column of the counts matrix), and
-to each topic k. The \eqn{q_i}'s are the topic probabilities for a
-given topic. An EM algorithm is used to compute maximum-likelihood
-estimates (MLEs) of the two unknowns.
-
-The log-fold change (LFC) statistics are defined as the log-ratio
-of the two Poisson rate parameters, \eqn{\beta = \log_2(f_1/f_0)}.
-This statistic measures the increase (or decrease) in occurance in
-one topic compared to all other topics. The use of the base-2
-logarithm comes from the convention used in gene expression
-studies.
-
-When each \eqn{s_i} (specified by input argument \code{s}) is equal
-the total count for sample i (this is the default setting in
-\code{de_analysis}), the Poisson model will closely approximate a
-binomial model of the count data, so that the Poisson model
-parameters \eqn{f_0, f_1} represent binomial probabilities.  In
-this case, \eqn{\beta} represents the LFC in \emph{relative}
-occurrence. (This Poisson approximation to the binomial is most
-accurate when the total counts \code{rowSums(X)} are large and
-\eqn{f_0, f_1} are small.)
-
-Other choices for \code{s} are possible, and implement different
-normalization schemes for the counts, and different interpretations
-of the LFC statistics. Setting \code{s} to all ones implements the
-differential count analysis with no normalization, and \eqn{\beta}
-represents the LFC in \emph{absolute} occurrence. This choice could
-be appropriate in settings where the total count is well-controlled
-across samples (rows of \code{X}).
-
-When \code{fit.method = "glm"}, the LFC estimates and test
-statistics are implemented by \code{\link[stats]{glm}} with
-\code{formula = x ~ b0 + b - 1} and \code{family = poisson(link =
-"identity")}, where the unknowns are defined as \eqn{b_0 = f_0} and
-\eqn{b = f_1 - f_0}. The outputted z-scores are p-values are for
-the \code{b} coefficient; that is, they are test statistics for the
-test that \eqn{f_0} and \eqn{f_1} are not equal.
-
-When \code{fit.method = "optim"} or \code{fit.method = "em"},
-maximum-likelihood estimates are computed using
-\code{\link[stats]{optim}} or using a fast EM algorithm, and test
-statistics (standard errors, z-scores and p-values) are based on a
-Laplace approximation to the likelihood at the MLE. These
-calculations closely reproduce the test statistic calculations in
-\code{\link[stats]{glm}}.
-
-We recommend setting \code{shrink.method = "ash"}, which uses the
-\dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
-accuracy of the LFC estimates. The improvement in accuracy is
-greatest for genes with low expression, or when the sample size is
-small (or both). We follow the settings used in \code{lfcShrink}
-from the DESeq2 package, with \code{type = "ashr"}.
+Implements methods for differential expression
+  analysis using a topic model. These methods are motivated by gene
+  expression studies, but could have other uses, such as identifying
+  topic keywords.
 }
 \references{
 Stephens, M. (2016). False discovery rates: a new deal.

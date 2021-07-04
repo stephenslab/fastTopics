@@ -34,8 +34,8 @@
 #' 
 #' @export
 #'
-fit_multinom_model <- function (cluster, X, verbose = c("none","detailed"),
-                                ...) {
+fit_multinom_model <- function (cluster, X,
+                                verbose = c("none","detailed"), ...) {
 
   # Check the input data matrix.
   verify.count.matrix(X)

@@ -20,5 +20,5 @@ dat <- as.data.frame(cbind(low  = out$low[,k],
                            z    = out$z[,k]))
 rownames(dat) <- paste(genes$symbol,genes$ensembl,sep="_")
 dat <- dat[order(dat$z,decreasing = TRUE),]
-print(head(dat,n = 4),digits = 2)
-print(tail(dat,n = 4),digits = 2)
+print(head(dat,n = 4),digits = 4)
+print(tail(dat,n = 4),digits = 4)

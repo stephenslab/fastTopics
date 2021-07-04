@@ -1,9 +1,11 @@
 to do
 =====
 
-+ Remove poisson2.R.
++ Update poisson_demo.R.
 
-+ Remove files in inst/derivations/diffcount.
++ Update multinom_demo.R.
+
++ Implement adaptive shrinkage step in de_analysis.
 
 + Implement KKT-based stopping criterion for fit_poisson_nmf.
 
@@ -16,6 +18,9 @@ to do
 + Implement integrations for Seurat, Signac and/or ArchR.
 
 + Implement backtracking line search option for SCD algorithm.
+
++ Create vignette giving more details about the differential
+  expression analysis.
 
 + Create vignette giving more details about the different optimization
   algorithms. (Then simplify the fit_poisson_nmf example.)

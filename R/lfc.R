@@ -68,6 +68,11 @@ compute_lfc_stats <- function (X, F, L, f0,
   }
 
   # Compute the z-scores and -log10 p-values.
+  #
+  # TO DO:
+  #  - Correct the z-score calculation.
+  #  - Handle special cases, e.g., when low >= mean.
+  #
   z <- est/(2*(mean - low))
   return(list(est   = est/log(2),
               low   = low/log(2),
