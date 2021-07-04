@@ -5,6 +5,12 @@ to do
 
 + Update multinom_demo.R.
 
++ Allow for calculation of different LFC statistics.
+
++ Fill out @details for de_analysis.
+
++ Add de_analysis example(s).
+
 + Implement adaptive shrinkage step in de_analysis.
 
 + Implement KKT-based stopping criterion for fit_poisson_nmf.

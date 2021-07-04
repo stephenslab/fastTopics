@@ -1,28 +1,31 @@
 # This is the workhorse function used by de_analysis for computing the
-# log-fold change (LFC) statistics using a topic model. Most of the
-# input arguments are explained in the documentation accompanying
-# de_analysis. Please also bear in mind the following the additional
-# points: (1) f0 should be a estimate of the paramter f0 in the the
-# "null" model x ~ Poisson(u), with u = s*f0; (2) F and L should
-# specify the parameters of the Poisson glm models; that is, F should
-# be returned from fit_poisson_models(X,L,...) in which L = s*fit$L,
-# and "fit" is a multinomial topic model fit; (3) inputs D and U
-# should be ns x k matrices, where k = ncol(F) is the number of topics
-# and ns is the number of Monte Carlo samples to simulate, and D
-# should contain normally distributed random numbers simulated using
+# log-fold change (LFC) statistics using a topic model. It runs a
+# simple Markov chain Monte Carlo algorithm to simulate the posterior
+# distribution of the LFC statistics, then computes key posterior
+# quantities from the simulated Monte Carlo samples.
+#
+# Most of the input arguments are explained in the documentation
+# accompanying de_analysis. Please also bear in mind the following the
+# additional points: (1) f0 should be a estimate of the paramter f0 in
+# the the "null" model x ~ Poisson(u), with u = s*f0; (2) F and L
+# should specify the parameters of the Poisson glm models; that is, F
+# should be returned from fit_poisson_models(X,L,...) in which L =
+# s*fit$L, and "fit" is a multinomial topic model fit; (3) inputs D
+# and U should be ns x k matrices, where k = ncol(F) is the number of
+# topics and ns is the number of Monte Carlo samples to simulate, and
+# D should contain normally distributed random numbers simulated using
 # rnorm(mean = 0,sd = 1, and U should contain uniformly distributed
 # random numbers simulated using runif(min = 0,max = 1).
 #
 # The return value is a list containing five matrices of the same
-# dimension as F. The matrices are: (1) "est", the estimated LFC
-# statistics; (2) "low", the estimated lower limits of the HPD
-# intervals; (3) "high", the estimated upper limits of the HPD
+# dimension as F. Several of these matrices contain posterior
+# quantities estimated via MCMC. The matrices are: (1) "est", the
+# estimated LFC statistics; (2) "low", the estimated lower limits of
+# the HPD intervals; (3) "high", the estimated upper limits of the HPD
 # intervals; (4) "z", the z-scores determined from the LFC estimates
 # and the HPD intervals; and (5) "lpval", the -log10 two-tailed
 # p-values computed from the z-scores. Note that all outputted LFC
 # statistics are defined with the base-2 logarithm.
-#
-# TO DO: Allow for calculation of different LFC statistics.
 #
 #' @importFrom stats rnorm
 #' @importFrom stats runif

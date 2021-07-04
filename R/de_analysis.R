@@ -14,7 +14,7 @@
 #'   \code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).
 #'
 #' @param s A numeric vector of length n determining how the rates are
-#'   scaled in the Poisson model. See \dQuote{Details} for guidance on
+#'   scaled in the Poisson models. See \dQuote{Details} for guidance on
 #'   the choice of \code{s}.
 #' 
 #' @param pseudocount Observations with this value are added to the
@@ -24,7 +24,14 @@
 #'   \code{fit.method = "glm"} is the slowest method, and is mainly used
 #'   for testing.
 #'
-#' @param lfc.stat Description of "lfc.stat" input argument goes here.
+#' @param shrink.method Method used to stabilize the LFC estimates.
+#'   When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
+#'   implemented in the ashr package is used. When \code{shrink.method =
+#'   "none"}, no stabilization is performed, and the \dQuote{raw} LFC
+#'   estimates are returned.
+#'
+#' @param lfc.stat The log-fold change statistics computed. If
+#'   \code{lfc.stat = "vs.norm"}
 #' 
 #' @param numiter Maximum number of iterations performed in fitting
 #'   the Poisson models. When \code{fit.method = "glm"}, this is passed
@@ -51,6 +58,9 @@
 #' 
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
+#'
+#' @param \dots When \code{shrink.method = "ash"}, these are
+#'   additional arguments passed to \code{\link[ashr]{ash}}.
 #'
 #' @return The return value is a list of m x k matrices, where m is
 #'   the number of columns in the counts matrix, and k is the number of
@@ -98,9 +108,10 @@
 #' 
 de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                          fit.method = c("scd","em","mu","ccd","glm"),
-                         lfc.stat = "vsnull", numiter = 20, minval = 1e-10,
-                         tol = 1e-8, conf.level = 0.9, ns = 1000, rw = 0.3,
-                         eps = 1e-15, nc = 1, verbose = TRUE) {
+                         shrink.method = c("ash","none"), lfc.stat = "de",
+                         numiter = 20, minval = 1e-10, tol = 1e-8,
+                         conf.level = 0.9, ns = 1000, rw = 0.3, eps = 1e-15,
+                         nc = 1, verbose = TRUE, ...) {
 
   # CHECK AND PROCESS INPUTS
   # ------------------------
@@ -150,14 +161,14 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   f0 <- colSums(X)/sum(s)
   names(f0) <- rownames(fit$F)
   
+  # SET UP DATA FOR FITTING POISSON MODELS
+  # --------------------------------------
   # Ensure that none of the topic proportions are exactly zero or
   # exactly one.
   L <- fit$L
   L <- pmax(L,minval)
   L <- pmin(L,1 - minval)
 
-  # SET UP DATA FOR POISSON MODELS
-  # ------------------------------
   # Add "pseudocounts" to the data, and get the Poisson NMF loadings
   # matrix. From this point on, we will fit Poisson glm models x ~
   # Poisson (u), u = sum(L*f), where x is a column of X.
@@ -180,7 +191,9 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
 
   # COMPUTE LOG-FOLD CHANGE STATISTICS
   # ----------------------------------
-  # TO DO: Add some extra description here.
+  # Perform MCMC to simulate the posterior distribution of the LFC
+  # statistics, then compute key posterior quantities from the
+  # simulated Monte Carlo samples.
   if (verbose) {
     cat("Computing log-fold change statistics from ")
     cat(sprintf("%d Poisson models with k=%d.\n",m,k))
@@ -201,11 +214,67 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                                        rw,eps,nc)
   }
 
+  # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
+  # --------------------------------------------
+  # If requested, use adaptive shrinkage to stabilize the log-fold
+  # change estimates.
+  if (shrink.method == "ash") {
+    if (verbose)
+      cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
+    res <- shrink_lfc(out$F1 - out$F0,out$se,...)
+    out$F1   <- out$F0 + res$b
+    out$beta <- log2(out$F1/out$F0)
+    out$se   <- res$se
+    out$Z    <- res$Z
+    out$pval <- res$pval
+  }
+  
   # Return the Poisson model MLEs (F), the log-fold change statistics
   # (est, low, high, z, lpval), and the relative rates under the "null"
   # model (f0).
   out$F <- F
   out$f0 <- f0
   class(out) <- c("topic_model_de_analysis","list")
+  return(out)
+}
+
+# Perform adaptive shrinkage on the unknowns b = f1 - f0.
+shrink_lfc <- function (b, se, ...) {
+
+  # Get the number of effect estimates (m) and the number of topics (k).
+  m <- nrow(b)
+  k <- ncol(b)
+
+  # Initialize the outputs.
+  out <- list(b    = b,
+              se   = se,
+              Z    = matrix(0,m,k),
+              pval = matrix(0,m,k))
+
+  # Repeat for each topic.
+  for (j in 1:k) {
+    i <- which(!is.na(out$se[,j]))
+    if (length(i) > 0) {
+
+      # Run adaptive shrinkage, then extract the posterior estimates (b)
+      # and standard errors (se).
+      ans <- ash(out$b[i,j],out$se[i,j],mixcompdist = "normal",
+                 method = "shrink",...)
+      b   <- ans$result$PosteriorMean
+      se  <- ans$result$PosteriorSD
+      z   <- b/se
+
+      # Store the stabilized estimates.
+      out$b[i,j]    <- b
+      out$se[i,j]   <- se
+      out$Z[i,j]    <- z
+      out$pval[i,j] <- -lpfromz(z)
+    }
+  }
+
+  # TO DO: Add row and column names to the outputs, if necessary.
+  
+  # Output the posterior estimates (b), the posterior standard errors
+  # (se), the z-scores (Z) and -log10 p-values (pval).
   return(out)
 }

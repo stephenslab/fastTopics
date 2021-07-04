@@ -10,6 +10,7 @@ de_analysis(
   s = rowSums(X),
   pseudocount = 0.01,
   fit.method = c("scd", "em", "mu", "ccd", "glm"),
+  shrink.method = c("ash", "none"),
   lfc.stat = "vsnull",
   numiter = 20,
   minval = 1e-10,
@@ -41,6 +42,12 @@ counts matrix to stabilize maximum-likelihood estimation.}
 \item{fit.method}{Method used to fit the Poisson models.  Note that
 \code{fit.method = "glm"} is the slowest method, and is mainly used
 for testing.}
+
+\item{shrink.method}{Method used to stabilize the LFC estimates.
+When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
+implemented in the ashr package is used. When \code{shrink.method =
+"none"}, no stabilization is performed, and the \dQuote{raw} LFC
+estimates are returned.}
 
 \item{lfc.stat}{Description of "lfc.stat" input argument goes here.}
 

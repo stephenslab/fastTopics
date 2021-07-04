@@ -37,8 +37,6 @@ plot(dat$F + 1e-4,de2$F + 1e-4,pch = 4,cex = 0.5,log = "xy",xlab = "true",
      ylab = "estimated")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 
-stop()
-
 # Here we show that the z-score varies (predictably) with the log-fold
 # change estimate and the average expression level.
 pdat <- data.frame(x = out3$colmeans,beta = out3$beta[,i],z = out3$Z[,i])
