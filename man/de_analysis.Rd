@@ -11,7 +11,7 @@ de_analysis(
   pseudocount = 0.01,
   fit.method = c("scd", "em", "mu", "ccd", "glm"),
   shrink.method = c("ash", "none"),
-  lfc.stat = "vsnull",
+  lfc.stat = "de",
   numiter = 20,
   minval = 1e-10,
   tol = 1e-08,
@@ -20,7 +20,8 @@ de_analysis(
   rw = 0.3,
   eps = 1e-15,
   nc = 1,
-  verbose = TRUE
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{
@@ -33,7 +34,7 @@ automatically recovered using \code{\link{poisson2multinom}}.}
 \code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).}
 
 \item{s}{A numeric vector of length n determining how the rates are
-scaled in the Poisson model. See \dQuote{Details} for guidance on
+scaled in the Poisson models. See \dQuote{Details} for guidance on
 the choice of \code{s}.}
 
 \item{pseudocount}{Observations with this value are added to the
@@ -49,7 +50,12 @@ implemented in the ashr package is used. When \code{shrink.method =
 "none"}, no stabilization is performed, and the \dQuote{raw} LFC
 estimates are returned.}
 
-\item{lfc.stat}{Description of "lfc.stat" input argument goes here.}
+\item{lfc.stat}{The log-fold change statistics returned:
+\code{lfc.stat = "vsnull"}, the log-fold change relative to the
+null; \code{lfc.stat = le"}, the \dQuote{least extreme} LFC; or a
+topic name or number, in which case the LFC is defined relative to
+the selected topic. See \dQuote{Details} for more detailed
+explanations of these choices.}
 
 \item{numiter}{Maximum number of iterations performed in fitting
 the Poisson models. When \code{fit.method = "glm"}, this is passed
@@ -76,6 +82,9 @@ the logarithms to avoid computing logarithms of zero.}
 
 \item{verbose}{When \code{verbose = TRUE}, progress information is
 printed to the console.}
+
+\item{\dots}{When \code{shrink.method = "ash"}, these are
+additional arguments passed to \code{\link[ashr]{ash}}.}
 }
 \value{
 The return value is a list of m x k matrices, where m is
@@ -109,6 +118,9 @@ Implements methods for differential expression
   analysis using a topic model. These methods are motivated by gene
   expression studies, but could have other uses, such as identifying
   topic keywords.
+}
+\details{
+TO DO: Add details here.
 }
 \references{
 Stephens, M. (2016). False discovery rates: a new deal.

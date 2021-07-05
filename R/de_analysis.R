@@ -5,6 +5,8 @@
 #'   expression studies, but could have other uses, such as identifying
 #'   topic keywords.
 #'
+#' @details TO DO: Add details here.
+#' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
 #'   as input, the corresponding multinomial topic model fit is
@@ -30,8 +32,12 @@
 #'   "none"}, no stabilization is performed, and the \dQuote{raw} LFC
 #'   estimates are returned.
 #'
-#' @param lfc.stat The log-fold change statistics computed. If
-#'   \code{lfc.stat = "vs.norm"}
+#' @param lfc.stat The log-fold change statistics returned:
+#'   \code{lfc.stat = "vsnull"}, the log-fold change relative to the
+#'   null; \code{lfc.stat = le"}, the \dQuote{least extreme} LFC; or a
+#'   topic name or number, in which case the LFC is defined relative to
+#'   the selected topic. See \dQuote{Details} for more detailed
+#'   explanations of these choices.
 #' 
 #' @param numiter Maximum number of iterations performed in fitting
 #'   the Poisson models. When \code{fit.method = "glm"}, this is passed
@@ -145,6 +151,9 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   fit.method <- match.arg(fit.method)
   shrink.method <- match.arg(shrink.method)
 
+  # Process input argument "lfc.stat".
+  # TO DO.
+  
   # Get the number of rows (n) and columns (m) in the counts matrix, and
   # the number of groups or topics (k).
   n <- nrow(X)
