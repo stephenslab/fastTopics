@@ -52,7 +52,8 @@ library(fastTopics)
 
 Note that installing the package will require a C++ compiler setup
 that is appropriate for the version of R installed on your
-computer. For details, refer to the [CRAN documentation][cran].
+computer. For details, refer to the documentation on the
+[CRAN website][cran].
 
 For guidance on using fastTopics to analyze gene expression data, see
 the [single-cell RNA-seq vignette, part 1][vignette-scrnaseq-1] and
