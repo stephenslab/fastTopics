@@ -92,7 +92,10 @@ is used to initialize the model parameters). See \sQuote{Details}.}
 the algorithm's progress is printed to the console at each
 iteration; when \code{verbose = "progressbar"}, a progress bar is
 shown; and when \code{verbose = "none"}, no progress information is
-printed.}
+printed. See the description of the \dQuote{progress} return value
+for an explanation of \code{verbose = "detailed"} console
+output. (Note that some columns of the \dQuote{progress} data frame
+are not shown in the console output.)}
 
 \item{F}{An optional argument giving is the initial estimate of the
 factors (also known as \dQuote{basis vectors}). It should be an m x
@@ -167,22 +170,25 @@ with the following elements:
 
 \item{progress}{A data frame containing detailed information about
   the algorithm's progress. The data frame should have \code{numiter}
-  rows. The columns of the data frame are: "iter", the iteration
-  number; "loglik", the Poisson NMF log-likelihood at the current
-  best factor and loading estimates; "dev", the deviance at the
-  current best factor and loading estimates; "res", the maximum
-  residual of the Karush-Kuhn-Tucker (KKT) first-order optimality
-  conditions at the current best factor and loading estimates;
-  "loglik.multinom", the multinomial topic model log-likelihood at
-  the current best factor and loading estimates; "delta.f", the
-  largest change in the factors matrix; "delta.l", the largest change
-  in the loadings matrix; "nonzeros.f", the proportion of entries in
-  the factors matrix that are nonzero; "nonzeros.l", the proportion
-  of entries in the loadings matrix that are nonzero; "extrapolate",
-  which is 1 if extrapolation is used, otherwise it is 0; "beta", the
-  setting of the extrapolation parameter; "betamax", the setting of
-  the extrapolation parameter upper bound; and "timing", the elapsed
-  time in seconds (recorded using \code{\link{proc.time}}).}
+  rows. The columns of the data frame are: \dQuote{iter}, the
+  iteration number; \dQuote{loglik}, the Poisson NMF log-likelihood
+  at the current best factor and loading estimates;
+  \dQuote{loglik.multinom}, the multinomial topic model
+  log-likelihood at the current best factor and loading estimates;
+  \dQuote{dev}, the deviance at the current best factor and loading
+  estimates; \dQuote{res}, the maximum residual of the
+  Karush-Kuhn-Tucker (KKT) first-order optimality conditions at the
+  current best factor and loading estimates; \dQuote{delta.f}, the
+  largest change in the factors matrix; \dQuote{delta.l}, the largest
+  change in the loadings matrix; \dQuote{nonzeros.f}, the proportion
+  of entries in the factors matrix that are nonzero;
+  \dQuote{nonzeros.l}, the proportion of entries in the loadings
+  matrix that are nonzero; \dQuote{extrapolate}, which is 1 if
+  extrapolation is used, otherwise it is 0; \dQuote{beta}, the
+  setting of the extrapolation parameter; \dQuote{betamax}, the
+  setting of the extrapolation parameter upper bound; and
+  \dQuote{timing}, the elapsed time in seconds (recorded using
+  \code{\link{proc.time}}).}
 }
 \description{
 Approximate the input matrix \code{X} by the
@@ -204,7 +210,7 @@ are modeled by the Poisson distribution: \deqn{x_{ij} \sim
 \deqn{\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk},} in which \eqn{K}
 is a user-specified tuning parameter specifying the rank of the
 matrix factorization. Function \code{fit_poisson_nmf} computes
-maximum-likelihood estimates (MLEs) of the parameters.  For
+maximum-likelihood estimates (MLEs) of the parameters. For
 additional mathematical background, and an explanation of how
 Poisson NMF is connected to topic modeling, see the vignette:
 \code{vignette(topic = "relationship",package = "fastTopics")}.
@@ -232,10 +238,10 @@ The cyclic co-ordinate descent (CCD) and sequential co-ordinate
 descent (SCD) updates adopt the same optimization strategy, but
 differ in the implementation details. In practice, we have found
 that the CCD and SCD updates arrive at the same solution when
-initialized "sufficiently close" to a stationary point. The CCD
-implementation is adapted from the C++ code developed by Cho-Jui
-Hsieh and Inderjit Dhillon, which is available for download at
-\url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
+initialized \dQuote{sufficiently close} to a stationary point. The
+CCD implementation is adapted from the C++ code developed by
+Cho-Jui Hsieh and Inderjit Dhillon, which is available for download
+at \url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
 implementation is based on version 0.4-3 of the NNLM package.
 
 An additional re-scaling step is performed after each update to
@@ -260,9 +266,10 @@ algorithm settings (as they are defined by
 
 \describe{
 
-\item{\code{numiter}}{Number of "inner loop" iterations to run when
-  performing and update of the factors or loadings. This must be set
-  to 1 for \code{method = "mu"} and \code{method = "ccd"}.}
+\item{\code{numiter}}{Number of \dQuote{inner loop} iterations to
+  run when performing and update of the factors or loadings. This
+  must be set to 1 for \code{method = "mu"} and \code{method =
+  "ccd"}.}
 
 \item{\code{nc}}{Number of RcppParallel threads to use for the
   updates. When \code{nc} is \code{NA}, the default number of threads

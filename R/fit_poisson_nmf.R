@@ -46,10 +46,10 @@
 #' descent (SCD) updates adopt the same optimization strategy, but
 #' differ in the implementation details. In practice, we have found
 #' that the CCD and SCD updates arrive at the same solution when
-#' initialized "sufficiently close" to a stationary point. The CCD
-#' implementation is adapted from the C++ code developed by Cho-Jui
-#' Hsieh and Inderjit Dhillon, which is available for download at
-#' \url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
+#' initialized \dQuote{sufficiently close} to a stationary point. The
+#' CCD implementation is adapted from the C++ code developed by
+#' Cho-Jui Hsieh and Inderjit Dhillon, which is available for download
+#' at \url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
 #' implementation is based on version 0.4-3 of the NNLM package.
 #'
 #' An additional re-scaling step is performed after each update to
@@ -74,9 +74,10 @@
 #' 
 #' \describe{
 #'
-#' \item{\code{numiter}}{Number of "inner loop" iterations to run when
-#'   performing and update of the factors or loadings. This must be set
-#'   to 1 for \code{method = "mu"} and \code{method = "ccd"}.}
+#' \item{\code{numiter}}{Number of \dQuote{inner loop} iterations to
+#'   run when performing and update of the factors or loadings. This
+#'   must be set to 1 for \code{method = "mu"} and \code{method =
+#'   "ccd"}.}
 #'
 #' \item{\code{nc}}{Number of RcppParallel threads to use for the
 #'   updates. When \code{nc} is \code{NA}, the default number of threads
@@ -186,7 +187,10 @@
 #'   the algorithm's progress is printed to the console at each
 #'   iteration; when \code{verbose = "progressbar"}, a progress bar is
 #'   shown; and when \code{verbose = "none"}, no progress information is
-#'   printed.
+#'   printed. See the description of the \dQuote{progress} return value
+#'   for an explanation of \code{verbose = "detailed"} console
+#'   output. (Note that some columns of the \dQuote{progress} data frame
+#'   are not shown in the console output.)
 #'
 #' @return \code{init_poisson_nmf} and \code{fit_poisson_nmf} both
 #' return an object capturing the optimization algorithm state (for
@@ -237,22 +241,25 @@
 #' 
 #' \item{progress}{A data frame containing detailed information about
 #'   the algorithm's progress. The data frame should have \code{numiter}
-#'   rows. The columns of the data frame are: "iter", the iteration
-#'   number; "loglik", the Poisson NMF log-likelihood at the current
-#'   best factor and loading estimates; "dev", the deviance at the
-#'   current best factor and loading estimates; "res", the maximum
-#'   residual of the Karush-Kuhn-Tucker (KKT) first-order optimality
-#'   conditions at the current best factor and loading estimates;
-#'   "loglik.multinom", the multinomial topic model log-likelihood at
-#'   the current best factor and loading estimates; "delta.f", the
-#'   largest change in the factors matrix; "delta.l", the largest change
-#'   in the loadings matrix; "nonzeros.f", the proportion of entries in
-#'   the factors matrix that are nonzero; "nonzeros.l", the proportion
-#'   of entries in the loadings matrix that are nonzero; "extrapolate",
-#'   which is 1 if extrapolation is used, otherwise it is 0; "beta", the
-#'   setting of the extrapolation parameter; "betamax", the setting of
-#'   the extrapolation parameter upper bound; and "timing", the elapsed
-#'   time in seconds (recorded using \code{\link{proc.time}}).}
+#'   rows. The columns of the data frame are: \dQuote{iter}, the
+#'   iteration number; \dQuote{loglik}, the Poisson NMF log-likelihood
+#'   at the current best factor and loading estimates;
+#'   \dQuote{loglik.multinom}, the multinomial topic model
+#'   log-likelihood at the current best factor and loading estimates;
+#'   \dQuote{dev}, the deviance at the current best factor and loading
+#'   estimates; \dQuote{res}, the maximum residual of the
+#'   Karush-Kuhn-Tucker (KKT) first-order optimality conditions at the
+#'   current best factor and loading estimates; \dQuote{delta.f}, the
+#'   largest change in the factors matrix; \dQuote{delta.l}, the largest
+#'   change in the loadings matrix; \dQuote{nonzeros.f}, the proportion
+#'   of entries in the factors matrix that are nonzero;
+#'   \dQuote{nonzeros.l}, the proportion of entries in the loadings
+#'   matrix that are nonzero; \dQuote{extrapolate}, which is 1 if
+#'   extrapolation is used, otherwise it is 0; \dQuote{beta}, the
+#'   setting of the extrapolation parameter; \dQuote{betamax}, the
+#'   setting of the extrapolation parameter upper bound; and
+#'   \dQuote{timing}, the elapsed time in seconds (recorded using
+#'   \code{\link{proc.time}}).}
 #' 
 #' @references
 #'   Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
@@ -420,7 +427,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.5-53).\n")
+    cat("(fastTopics 0.5-54).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -602,7 +609,7 @@ init_poisson_nmf <-
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
   progress        <- as.data.frame(matrix(0,0,13))
-  names(progress) <- c("iter","loglik","dev","res","loglik.multinom",
+  names(progress) <- c("iter","loglik","loglik.multinom","dev","res",
                        "delta.f","delta.l","nonzeros.f","nonzeros.l",
                        "extrapolate","beta","betamax","timing")
 
@@ -649,7 +656,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
   loglik.const    <- sum(loglik_poisson_const(X))
   dev.const       <- sum(deviance_poisson_const(X))
   progress        <- as.data.frame(matrix(0,numiter,13))
-  names(progress) <- c("iter","loglik","dev","res","loglik.multinom",
+  names(progress) <- c("iter","loglik","loglik.multinom","dev","res",
                        "delta.f","delta.l","nonzeros.f","nonzeros.l",
                        "extrapolate","beta","betamax","timing")
 
