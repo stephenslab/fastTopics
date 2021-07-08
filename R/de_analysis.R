@@ -1,3 +1,5 @@
+#' @rdname de_analysis
+#' 
 #' @title Differential Expression Analysis using a Topic Model
 #'
 #' @description Implements methods for differential expression
@@ -19,13 +21,47 @@
 #' unknowns \eqn{f_j} are small.) Other choices for \code{s} are
 #' possible, and implement different normalization schemes.
 #'
-#' TO DO: Describe LFC statistics here.
+#' TO DO: Describe LFC statistics here, and given Poisson null model.
 #' 
 #' We recommend setting \code{shrink.method = "ash"}, which uses the
 #' \dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
 #' accuracy of the LFC estimates. We follow the settings used in
 #' \code{lfcShrink} from the DESeq2 package, with \code{type =
 #' "ashr"}.
+#' 
+#' The \code{control} argument is a list in which any of the
+#' following named components will override the default optimization
+#' algorithm settings (as they are defined by
+#' \code{fit_poisson_nmf_control_default}):
+#' 
+#' \describe{
+#'
+#' \item{\code{numiter}}{Maximum number of iterations performed in
+#'   fitting the Poisson models. When \code{fit.method = "glm"}, this is
+#'   passed as argument \code{maxit} to the \code{glm} function.}
+#'
+#' \item{\code{minval}}{A small, positive number. All topic
+#'   proportions less than this value and greater than \code{1 - minval}
+#'   are set to this value.}
+#' 
+#' \item{\code{tol}}{Controls the convergence tolerance for fitting
+#'   the Poisson models. When \code{fit.method = "glm"}, this is passed
+#'   as argument \code{epsilon} to function \code{glm}.}
+#'
+#' \item{\code{conf.level}}{The size of the highest posterior density
+#'   (HPD) intervals. Should be a number greater than 0 and less than 1.}
+#' 
+#' \item{\code{ns}}{Number of Monte Carlo samples simulated by
+#'   random-walk MCMC for estimating posterior LFC quantities.}
+#'
+#' \item{\code{rw}}{The standard deviation of the normal density used
+#'   to propose new states in the random-walk MCMC.}
+#' 
+#' \item{\code{eps}}{A small, non-negative number added to the terms
+#'   inside the logarithms to avoid computing logarithms of zero.}
+#'
+#' \item{\code{nc}}{Number of threads used in the multithreaded
+#'   computations.}}
 #' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
@@ -54,34 +90,13 @@
 #'
 #' @param lfc.stat The log-fold change statistics returned:
 #'   \code{lfc.stat = "vsnull"}, the log-fold change relative to the
-#'   null; \code{lfc.stat = le"}, the \dQuote{least extreme} LFC; or a
+#'   null; \code{lfc.stat = "le"}, the \dQuote{least extreme} LFC; or a
 #'   topic name or number, in which case the LFC is defined relative to
 #'   the selected topic. See \dQuote{Details} for more detailed
 #'   explanations of these choices.
 #' 
-#' @param numiter Maximum number of iterations performed in fitting
-#'   the Poisson models. When \code{fit.method = "glm"}, this is passed
-#'   as argument \code{maxit} to the \code{glm} function.
-#'
-#' @param minval A small, positive number. All topic proportions less
-#'   than this value and greater than \code{1-minval} are set to this
-#'   value.
-#' 
-#' @param tol Controls the convergence tolerance for fitting the
-#'   Poisson models. When \code{fit.method = "glm"}, this is passed as
-#'   argument \code{epsilon} to function \code{glm}.
-#'
-#' @param conf.level Describe input argument "conf.level" here.
-#' 
-#' @param ns Number of Monte Carlo samples simulated by random-walk
-#'   MCMC for estimating posterior LFC quantities.
-#'
-#' @param rw Describe input argument "rw" here.
-#' 
-#' @param eps A small, non-negative number added to the terms inside
-#'   the logarithms to avoid computing logarithms of zero.
-#'
-#' @param nc Number of threads used in the multithreaded computations.
+#' @param control A list of parameters controlling behaviour of
+#'   the optimization and Monte Carlo algorithms. See \sQuote{Details}.
 #' 
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
@@ -89,32 +104,27 @@
 #' @param \dots When \code{shrink.method = "ash"}, these are
 #'   additional arguments passed to \code{\link[ashr]{ash}}.
 #'
-#' @return The return value is a list of m x k matrices, where m is
-#'   the number of columns in the counts matrix, and k is the number of
-#'   topics (for \code{de_clusters}, m is the number of
-#'   clusters), and an additional vector:
+#' @return A list with the following elements:
 #'
-#' \item{colmeans}{A vector of length m containing the count averages
-#'   (\code{colMeans(X)}).}
+#'   \item{est}{The log-fold change estimates.}
 #'
-#' \item{F0}{Estimates of the Poisson model parameters \eqn{f_0}.}
+#'   \item{low}{Describe "low" here.}
 #'
-#' \item{F1}{Estimates of the Poisson model parameters \eqn{f_1}.}
+#'   \item{high}{Describe "high" here.}
 #'
-#' \item{beta}{LFC estimates \code{beta = log2(F1/F0)}.}
+#'   \item{z}{Describe "z" here.}
 #'
-#' \item{se}{Standard errors of the Poisson glm parameters \eqn{b =
-#'   f_1 - f_0}. }
+#'   \item{lpval}{Describe "lpval" here.}
+#' 
+#'   \item{F}{Maximum-likelihood estimates of the Poisson model
+#'     parameters.}
 #'
-#' \item{Z}{z-scores for the Poisson glm parameters \eqn{b = f_1 -
-#'   f_0}.}
-#'
-#' \item{pval}{-log10 two-tailed p-values computed from the
-#'   z-scores. In some extreme cases the calculations may produce zero
-#'   or negative standard errors, in which case the standard errors are
-#'   set to \code{NA} and the z-scores and -log10 p-values are set to
-#'   zero.}
-#'
+#'   \item{f0}{Maximum-likelihood estimates of the null model
+#'      parameters.}
+#' 
+#'   \item{ar}{A vector containing the Metropolis acceptance ratios
+#'     from each MCMC run.}
+#' 
 #' @references
 #' Stephens, M. (2016). False discovery rates: a new deal.
 #' \emph{Biostatistics} \bold{18}(2), kxw041.
@@ -124,21 +134,20 @@
 #' distributions for sequence count data: removing the noise and
 #' preserving large differences. \emph{Bioinformatics} \bold{35}(12),
 #' 2084–2092.
-#' 
+#'
+#' @importFrom utils modifyList
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums
-#' @importFrom ashr ash
 #' @importFrom stats rnorm
 #' @importFrom stats runif
+#' @importFrom ashr ash
 #'
 #' @export
 #' 
 de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                          fit.method = c("scd","em","mu","ccd","glm"),
                          shrink.method = c("ash","none"), lfc.stat = "de",
-                         numiter = 20, minval = 1e-10, tol = 1e-8,
-                         conf.level = 0.9, ns = 1000, rw = 0.3, eps = 1e-15,
-                         nc = 1, verbose = TRUE, ...) {
+                         control = list(), verbose = TRUE, ...) {
 
   # CHECK AND PROCESS INPUTS
   # ------------------------
@@ -158,9 +167,15 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
 
+  # Get the number of rows (n) and columns (m) in the counts matrix, and
+  # the number of groups or topics (k).
+  n <- nrow(X)
+  m <- ncol(X)
+  k <- ncol(fit$F)
+
   # Check input argument "s".
   verify.positive.vector(s)
-  if (length(s) != nrow(X))
+  if (length(s) != n)
     stop("Input argument \"s\" should be a vector of positive numbers, ",
          "in which length(s) = nrow(X)")
   
@@ -172,15 +187,16 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   fit.method <- match.arg(fit.method)
   shrink.method <- match.arg(shrink.method)
 
-  # Process input argument "lfc.stat".
-  # TO DO.
+  # Check and process input argument "control".
+  control <- modifyList(de_analysis_control_default(),control,keep.null = TRUE)
   
-  # Get the number of rows (n) and columns (m) in the counts matrix, and
-  # the number of groups or topics (k).
-  n <- nrow(X)
-  m <- ncol(X)
-  k <- ncol(fit$F)
-
+  # Process input argument "lfc.stat".
+  if (!(all(lfc.stat == "vsnull") |
+        all(lfc.stat == "de") |
+        any(lfc.stat == 1:k)))
+    stop("Input argument \"lfc.stat\" should be either \"vsnull\", \"de\" ",
+         "or a number between 1 and k, where k is the number of topics")
+    
   # FIT NULL MODELS
   # ---------------
   # Compute the MLE f0 in the "null" model x ~ Poisson(u), with u =
@@ -308,3 +324,17 @@ shrink_lfc <- function (b, se, ...) {
   # (se), the z-scores (Z) and -log10 p-values (pval).
   return(out)
 }
+
+#' @rdname de_analysis
+#'
+#' @export
+#' 
+de_analysis_control_default <- function()
+  list(numiter    = 20,
+       minval     = 1e-10,
+       tol        = 1e-8,
+       conf.level = 0.9,
+       ns         = 1000,
+       rw         = 0.3,
+       eps        = 1e-15,
+       nc         = 1)
