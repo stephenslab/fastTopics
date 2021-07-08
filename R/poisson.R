@@ -84,12 +84,14 @@ simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
   samples <- matrix(0,ns,k)
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
+  M <- matrix(sample(k,ns*k,replace = TRUE),ns,k)
   for (i in 1:ns) {
-    for (j in 1:k) {
+    for (t in 1:k) {
 
       # Randomly suggest moving to gj* = gj + d, where d ~ N(0,s).
+      j       <- M[i,t]
       gnew    <- g
-      d       <- s*D[i,j]
+      d       <- s*D[i,t]
       gnew[j] <- g[j] + d
 
       # Compute the Metropolis acceptance probability, and move to the
@@ -104,7 +106,7 @@ simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
       llnew <- sum(dpois(x,unew + e,log = TRUE))
       a     <- exp((llnew - ll) + d)
       a     <- min(1,a)
-      if (U[i,j] < a) {
+      if (U[i,t] < a) {
         g  <- gnew
         ar <- ar + 1
       }

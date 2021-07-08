@@ -34,7 +34,8 @@
 compute_lfc_stats <- function (X, F, L, f0,
                                D = matrix(rnorm(ns*k),1000,ncol(F)),
                                U = matrix(runif(ns*k),1000,ncol(F)),
-                               lfc.stat = "vsnull", conf.level = 0.9,
+                               M = matrix(sample(k,ns*k,replace=TRUE),ns,k)-1,
+                               lfc.stat = "de", conf.level = 0.9,
                                rw = 0.3, e = 1e-15, verbose = TRUE) {
 
   # Get the number of counts matrix columns (m) and the number of
@@ -62,7 +63,8 @@ compute_lfc_stats <- function (X, F, L, f0,
   for (j in 1:m) {
     if (verbose)
       pb$tick()
-    out <- compute_lfc_stats_helper(j,X,F,L,D,U,ls,f0,lfc.stat,conf.level,rw,e)
+    out <- compute_lfc_stats_helper(j,X,F,L,D,U,M,ls,f0,lfc.stat,
+                                    conf.level,rw,e)
     est[j,]  <- out$dat["est",]
     mean[j,] <- out$dat["mean",]
     low[j,]  <- out$dat["low",]
@@ -92,7 +94,7 @@ compute_lfc_stats <- function (X, F, L, f0,
 #' @importFrom parallel makeCluster
 #' @importFrom parallel stopCluster
 #' @importFrom parallel parLapply
-compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, lfc.stat,
+compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
                                          conf.level, rw, e, nc) {
     
   # Get the number of counts matrix columns (m) and the number of
@@ -109,11 +111,11 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, lfc.stat,
   }
 
   # Distribute the calculations using parLapply.
-  parlapplyf <- function (dat, L, D, U, lfc.stat, conf.level, rw, e)
-    compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,lfc.stat,conf.level,rw,e,
+  parlapplyf <- function (dat, L, D, U, M, lfc.stat, conf.level, rw, e)
+    compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,M,lfc.stat,conf.level,rw,e,
                       verbose = FALSE)
   cl <- makeCluster(nc)
-  ans <- parLapply(cl = cl,dat,parlapplyf,L,D,U,lfc.stat,conf.level,rw,e)
+  ans <- parLapply(cl = cl,dat,parlapplyf,L,D,U,M,lfc.stat,conf.level,rw,e)
   stopCluster(cl)
 
   # Combine the individual compute_lfc_stats outputs, and output the
@@ -143,15 +145,15 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, lfc.stat,
 }
 
 # This implements the core computation for compute_lfc_stats.
-compute_lfc_stats_helper <- function (j, X, F, L, D, U, ls, f0, lfc.stat,
+compute_lfc_stats_helper <- function (j, X, F, L, D, U, M, ls, f0, lfc.stat,
                                       conf.level, rw, e) {
   k <- ncol(F)
   if (is.sparse.matrix(X)) {
     dat <- get.nonzeros(X,j)
     out <- simulate_posterior_poisson_sparse_rcpp(dat$x,L[dat$i,],ls,
-                                                  F[j,],D,U,rw,e)
+                                                  F[j,],D,U,M,rw,e)
   } else
-    out <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,rw,e)
+    out <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,M,rw,e)
   dat <- compute_lfc_vsnull(out$samples,F[j,],f0[j],conf.level)
   return(list(dat = dat,ar = out$ar))
 }

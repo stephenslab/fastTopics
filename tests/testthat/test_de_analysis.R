@@ -32,9 +32,10 @@ test_that(paste("R and C++ implementations of simulate_posterior_poisson",
   i <- which(x > 0)
   D <- matrix(rnorm(2*ns),ns,2)
   U <- matrix(runif(2*ns),ns,2)
-  out2 <- simulate_posterior_poisson_rcpp(x,L,f,D,U,0.3,1e-15)
+  M <- matrix(sample(2,2*ns,replace = TRUE),ns,2) - 1
+  out2 <- simulate_posterior_poisson_rcpp(x,L,f,D,U,M,0.3,1e-15)
   out3 <- simulate_posterior_poisson_sparse_rcpp(x[i],L[i,],colSums(L),f,
-                                                 D,U,0.3,1e-15)
+                                                 D,U,M,0.3,1e-15)
 
   # The outputs from the R and C++ implementations should be the same.
   expect_equal(out1,out2,scale = 1,tolerance = 1e-15)
@@ -81,16 +82,17 @@ test_that(paste("All variants of fit_poisson_models should produce the",
   expect_equal(F1,F3,scale = 1,tolerance = 1e-5)
 })
 
-test_that(paste("de_analysis with and withoout multithreading should give",
-                "the same result"),{
+test_that(paste("de_analysis with and without multithreading, using a",
+                "sparse or dense counts matrix, produces the same result"),{
 
   # Simulate gene expression data.
   set.seed(1)
   n   <- 800
   m   <- 1000
   k   <- 4
-  dat <- simulate_multinom_gene_data(n,m,k,sparse = TRUE)
+  dat <- simulate_multinom_gene_data(n,m,k,sparse = FALSE)
   X   <- dat$X
+  Y   <- as(X,"dgCMatrix")
   L   <- dat$L
 
   # Run de_analysis twice, using the single-threaded computations (nc
@@ -98,9 +100,13 @@ test_that(paste("de_analysis with and withoout multithreading should give",
   # long as the sequence of pseudorandom numbers is the same, the
   # output should be the same.
   fit <- init_poisson_nmf(X,L = L,init.method = "random")
-  set.seed(1); capture.output(de1 <- de_analysis(fit,X,nc = 1))
-  set.seed(1); capture.output(de2 <- de_analysis(fit,X,nc = 2))
+  set.seed(1); capture.output(de1 <- de_analysis(fit,X,control = list(nc = 1)))
+  set.seed(1); capture.output(de2 <- de_analysis(fit,X,control = list(nc = 2)))
+  set.seed(1); capture.output(de3 <- de_analysis(fit,Y,control = list(nc = 1)))
+  set.seed(1); capture.output(de4 <- de_analysis(fit,Y,control = list(nc = 2)))
   expect_equal(de1,de2,scale = 1,tolerance = 1e-15)
+  expect_equal(de1,de3,scale = 1,tolerance = 1e-15)
+  expect_equal(de1,de4,scale = 1,tolerance = 1e-15)
 })
 
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",

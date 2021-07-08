@@ -9,31 +9,36 @@ double loglik_poisson (const vec& x, const vec& y, double sumy, double e);
 
 double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
 				   const vec& f, const mat& D, const mat& U, 
-				   mat& samples, double s, double e);
+				   const mat& M, mat& samples, double s, 
+				   double e);
 
 // FUNCTION DEFINITIONS
 // --------------------
 // This is a more efficient C++ implementation of the R function
 // simulate_posterior_poisson. See the description of that function
 // for an explanation of the input arguments. Additional input
-// arguments specific to the C++ implementation are D and U; these
+// arguments specific to the C++ implementation are D, U and M; these
 // inputs should be generated in R as
 //
 //   k = length(f) 
 //   D = matrix(rnorm(ns*k),ns,k)
 //   U = matrix(runif(ns*k),ns,k)
+//   M = matrix(sample(k,ns*k,replace = TRUE),ns,k) - 1
 //
-// where ns is the requesed number of Monte Carlo samples.
+// where ns is the number of Monte Carlo samples to simulate. Note in
+// particular that the 1 needs to be subtracted from the random
+// indices M because the indices in C++ start at zero.
 // 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 List simulate_posterior_poisson_rcpp (const arma::vec& x, const arma::mat& L,
 				      const arma::vec& f, const arma::mat& D,
-				      const arma::mat& U, double s, double e) {
+				      const arma::mat& U, const arma::mat& M,
+				      double s, double e) {
   unsigned int ns = D.n_rows;
   unsigned int k  = D.n_cols;
   mat samples(ns,k);
-  double ar = simulate_posterior_poisson(x,L,sum(L,0),f,D,U,samples,s,e);
+  double ar = simulate_posterior_poisson(x,L,sum(L,0),f,D,U,M,samples,s,e);
   return List::create(Named("samples") = samples,Named("ar") = ar);
 }
 
@@ -49,11 +54,12 @@ List simulate_posterior_poisson_sparse_rcpp (const arma::vec& x,
 					     const arma::vec& f,
 					     const arma::mat& D,
 					     const arma::mat& U, 
+					     const arma::mat& M,
 					     double s, double e) {
   unsigned int ns = D.n_rows;
   unsigned int k  = D.n_cols;
   mat samples(ns,k);
-  double ar = simulate_posterior_poisson(x,L,w,f,D,U,samples,s,e);
+  double ar = simulate_posterior_poisson(x,L,w,f,D,U,M,samples,s,e);
   return List::create(Named("samples") = samples,Named("ar") = ar);
 }
 
@@ -63,10 +69,12 @@ List simulate_posterior_poisson_sparse_rcpp (const arma::vec& x,
 // Monte Carlo samples to generate, and k = length(f).
 double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
 				   const vec& f, const mat& D, const mat& U, 
-				   mat& samples, double s, double e) {
+				   const mat& M, mat& samples, double s, 
+				   double e) {
   unsigned int n  = x.n_elem;
   unsigned int ns = samples.n_rows;
   unsigned int k  = samples.n_cols;
+  unsigned int j;
   vec g = log(f);
   vec gnew(k);
   vec u(n);
@@ -83,10 +91,11 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
     // Recompute the Poisson rates (u) and their sum (su).
     u  = L*exp(g);
     su = dot(w,exp(g));
-    for (unsigned int j = 0; j < k; j++) {
+    for (unsigned int t = 0; t < k; t++) {
 
       // Randomly suggest moving to gj* = gj + d, where d ~ N(0,s).
-      d        = s*D(i,j);
+      j        = M(i,t);
+      d        = s*D(i,t);
       gnew     = g;
       gnew(j) += d;
 
@@ -102,7 +111,7 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
       llnew = loglik_poisson(x,unew,sunew,e);
       a = exp((llnew - ll) + d);
       a = minimum(1,a);
-      if (U(i,j) < a) {
+      if (U(i,t) < a) {
         g  = gnew;
 	u  = unew;
 	su = sunew;

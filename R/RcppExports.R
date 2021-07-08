@@ -77,12 +77,12 @@ ccd_kl_update2_rcpp <- function(L, u, w, x0, numiter, e) {
     .Call('_fastTopics_ccd_kl_update2_rcpp', PACKAGE = 'fastTopics', L, u, w, x0, numiter, e)
 }
 
-simulate_posterior_poisson_rcpp <- function(x, L, f, D, U, s, e) {
-    .Call('_fastTopics_simulate_posterior_poisson_rcpp', PACKAGE = 'fastTopics', x, L, f, D, U, s, e)
+simulate_posterior_poisson_rcpp <- function(x, L, f, D, U, M, s, e) {
+    .Call('_fastTopics_simulate_posterior_poisson_rcpp', PACKAGE = 'fastTopics', x, L, f, D, U, M, s, e)
 }
 
-simulate_posterior_poisson_sparse_rcpp <- function(x, L, w, f, D, U, s, e) {
-    .Call('_fastTopics_simulate_posterior_poisson_sparse_rcpp', PACKAGE = 'fastTopics', x, L, w, f, D, U, s, e)
+simulate_posterior_poisson_sparse_rcpp <- function(x, L, w, f, D, U, M, s, e) {
+    .Call('_fastTopics_simulate_posterior_poisson_sparse_rcpp', PACKAGE = 'fastTopics', x, L, w, f, D, U, M, s, e)
 }
 
 scd_update_factors_rcpp <- function(A, W, H, j, numiter, e) {

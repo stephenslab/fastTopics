@@ -212,8 +212,8 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # Ensure that none of the topic proportions are exactly zero or
   # exactly one.
   L <- fit$L
-  L <- pmax(L,minval)
-  L <- pmin(L,1 - minval)
+  L <- pmax(L,control$minval)
+  L <- pmin(L,1 - control$minval)
 
   # Add "pseudocounts" to the data, and get the Poisson NMF loadings
   # matrix. From this point on, we will fit Poisson glm models x ~
@@ -230,9 +230,10 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (verbose)
     cat(sprintf("Fitting %d Poisson models with k=%d using method=\"%s\".\n",
                 m,k,fit.method))
-  nc <- initialize.multithreading(nc)
-  F <- fit_poisson_models(X,L,fit.method,eps,numiter,tol,nc)
-  F <- pmax(F,minval)
+  nc <- initialize.multithreading(control$nc)
+  F <- fit_poisson_models(X,L,fit.method,control$eps,control$numiter,
+                          control$tol,control$nc)
+  F <- pmax(F,control$minval)
   dimnames(F) <- dimnames(fit$F)
 
   # COMPUTE LOG-FOLD CHANGE STATISTICS
@@ -244,36 +245,40 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     cat("Computing log-fold change statistics from ")
     cat(sprintf("%d Poisson models with k=%d.\n",m,k))
   }
+  ns <- control$ns
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
+  M <- matrix(sample(k,ns*k,replace = TRUE),ns,k) - 1
   if (nc == 1)
-    out <- compute_lfc_stats(X,F,L,f0,D,U,lfc.stat,conf.level,rw,eps,verbose)
+    out <- compute_lfc_stats(X,F,L,f0,D,U,M,lfc.stat,control$conf.level,
+                             control$rw,control$eps,verbose)
   else {
-    message(sprintf("Using %d SOCK threads.",nc))
+    message(sprintf("Using %d SOCK threads.",control$nc))
     if (verbose)
       message("Progress bar cannot be shown when multithreading is used. ",
               "For large data sets, the total runtime may be estimated by ",
               "performing an initial test run with a small number of Monte ",
               "Carlo samples, e.g., ns = 10; the total runtime should scale ",
               "roughly linearly in ns, the number of Monte Carlo samples.")
-    out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,lfc.stat,conf.level,
-                                       rw,eps,nc)
+    out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,M,lfc.stat,
+                                       control$conf.level,control$rw,
+                                       control$eps,control$nc)
   }
 
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------
   # If requested, use adaptive shrinkage to stabilize the log-fold
   # change estimates.
-  if (shrink.method == "ash") {
-    if (verbose)
-      cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
-    res <- shrink_lfc(out$F1 - out$F0,out$se,...)
-    out$F1   <- out$F0 + res$b
-    out$beta <- log2(out$F1/out$F0)
-    out$se   <- res$se
-    out$Z    <- res$Z
-    out$pval <- res$pval
-  }
+  # if (shrink.method == "ash") {
+  #   if (verbose)
+  #    cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
+  #  res <- shrink_lfc(out$F1 - out$F0,out$se,...)
+  #  out$F1   <- out$F0 + res$b
+  #  out$beta <- log2(out$F1/out$F0)
+  #  out$se   <- res$se
+  #  out$Z    <- res$Z
+  #  out$pval <- res$pval
+  # }
   
   # Return the Poisson model MLEs (F), the log-fold change statistics
   # (est, low, high, z, lpval), and the relative rates under the "null"
