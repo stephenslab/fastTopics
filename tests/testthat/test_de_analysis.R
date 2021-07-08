@@ -104,9 +104,9 @@ test_that(paste("de_analysis with and without multithreading, using a",
   set.seed(1); capture.output(de2 <- de_analysis(fit,X,control = list(nc = 2)))
   set.seed(1); capture.output(de3 <- de_analysis(fit,Y,control = list(nc = 1)))
   set.seed(1); capture.output(de4 <- de_analysis(fit,Y,control = list(nc = 2)))
-  expect_equal(de1,de2,scale = 1,tolerance = 1e-15)
-  expect_equal(de1,de3,scale = 1,tolerance = 1e-15)
-  expect_equal(de1,de4,scale = 1,tolerance = 1e-15)
+  expect_equal(de1,de2,scale = 1,tolerance = 1e-14)
+  expect_equal(de1,de3,scale = 1,tolerance = 1e-14)
+  expect_equal(de1,de4,scale = 1,tolerance = 1e-14)
 })
 
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
