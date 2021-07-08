@@ -40,7 +40,7 @@ the choice of \code{s}.}
 \item{pseudocount}{Observations with this value are added to the
 counts matrix to stabilize maximum-likelihood estimation.}
 
-\item{fit.method}{Method used to fit the Poisson models.  Note that
+\item{fit.method}{Method used to fit the Poisson models. Note that
 \code{fit.method = "glm"} is the slowest method, and is mainly used
 for testing.}
 
@@ -71,7 +71,8 @@ argument \code{epsilon} to function \code{glm}.}
 
 \item{conf.level}{Describe input argument "conf.level" here.}
 
-\item{ns}{Describe input argument "ns" here.}
+\item{ns}{Number of Monte Carlo samples simulated by random-walk
+MCMC for estimating posterior LFC quantities.}
 
 \item{rw}{Describe input argument "rw" here.}
 
@@ -117,10 +118,30 @@ The return value is a list of m x k matrices, where m is
 Implements methods for differential expression
   analysis using a topic model. These methods are motivated by gene
   expression studies, but could have other uses, such as identifying
-  topic keywords.
+  \dQuote{key words} for topics.
 }
 \details{
-TO DO: Add details here.
+The methods are based on the Poisson model \deqn{x_i ~
+Poisson(s_i \lambda_i),} in which the Poisson rates are
+\deqn{\lambda_i = \sum_{j=1}^k s_i l_{ij} f_j,} in which the
+\eqn{l_{ik}} are the topic proportions and the \eqn{f_j} are the
+unknowns to be estimated. This model is applied separately to each
+column of \code{X}. When \eqn{s_i} (specified by input argument
+\code{s}) is equal the total count in row i (this is the default),
+the Poisson model will closely approximate a binomial model of the
+count data, and the unknowns \eqn{f_j} will approximate binomial
+probabilities. (The Poisson approximation to the binomial is most
+accurate when the total counts \code{rowSums(X)} are large and the
+unknowns \eqn{f_j} are small.) Other choices for \code{s} are
+possible, and implement different normalization schemes.
+
+TO DO: Describe LFC statistics here.
+
+We recommend setting \code{shrink.method = "ash"}, which uses the
+\dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
+accuracy of the LFC estimates. We follow the settings used in
+\code{lfcShrink} from the DESeq2 package, with \code{type =
+"ashr"}.
 }
 \references{
 Stephens, M. (2016). False discovery rates: a new deal.

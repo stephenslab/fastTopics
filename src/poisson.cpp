@@ -67,43 +67,44 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
   unsigned int n  = x.n_elem;
   unsigned int ns = samples.n_rows;
   unsigned int k  = samples.n_cols;
-  vec t = log(f);
-  vec tnew(k);
+  vec g = log(f);
+  vec gnew(k);
   vec u(n);
   vec unew(n);
   double ar = 0;
   double ll, llnew, su, sunew, a, b, d;
 
   // Compute the log-density at the initial state.
-  u  = L*exp(t);
-  su = dot(w,exp(t));
+  u  = L*exp(g);
+  su = dot(w,exp(g));
   ll = loglik_poisson(x,u,su,e);
   for (unsigned int i = 0; i < ns; i++) {
 
     // Recompute the Poisson rates (u) and their sum (su).
-    u  = L*exp(t);
-    su = dot(w,exp(t));
+    u  = L*exp(g);
+    su = dot(w,exp(g));
     for (unsigned int j = 0; j < k; j++) {
 
-      // Randomly suggest moving to tj(new) = tj + d, where d ~ N(0,s).
+      // Randomly suggest moving to gj* = gj + d, where d ~ N(0,s).
       d        = s*D(i,j);
-      tnew     = t;
-      tnew(j) += d;
+      gnew     = g;
+      gnew(j) += d;
 
-      // Compute the Metropolis acceptance probability, and move to the
-      // new state according to this acceptance probability. Note that
-      // the additional "d" in the acceptance probability is needed to
-      // account for the fact that we are simulating log(f), not f; see
-      // p. 11 of Devroye (1986) "Non-uniform random variate generation".
-      b = exp(tnew[j]) - exp(t[j]);
-      unew = u + b*L.col(j);
+      // Compute the Metropolis acceptance probability, and move to
+      // the new state according to this acceptance probability. Note
+      // that the additional "d" in the acceptance probability is
+      // needed to account for the fact that we are simulating g =
+      // log(f), not f; see p. 11 of Devroye (1986) "Non-uniform
+      // random variate generation".
+      b     = exp(gnew[j]) - exp(g[j]);
+      unew  = u + b*L.col(j);
       sunew = su + b*w[j];
       llnew = loglik_poisson(x,unew,sunew,e);
       a = exp((llnew - ll) + d);
       a = minimum(1,a);
       if (U(i,j) < a) {
-        t = tnew;
-	u = unew;
+        g  = gnew;
+	u  = unew;
 	su = sunew;
 	ll = llnew;
         ar++;
@@ -111,7 +112,7 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
     }
 
     // Store the current state of the Markov chain.
-    samples.row(i) = t;
+    samples.row(i) = g;
   }
 
   ar /= k*ns;
