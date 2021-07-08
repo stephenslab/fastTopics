@@ -65,24 +65,25 @@ additional arguments passed to \code{\link[ashr]{ash}}.}
 \value{
 A list with the following elements:
 
-  \item{est}{The log-fold change estimates.}
+\item{est}{The log-fold change estimates.}
 
-  \item{low}{Describe "low" here.}
+\item{low}{Lower limits of estimated HPD intervals.}
 
-  \item{high}{Describe "high" here.}
+\item{high}{Upper limits of estimated HPD intervals.}
 
-  \item{z}{Describe "z" here.}
+\item{z}{z-scores for LFC estimates.}
 
-  \item{lpval}{Describe "lpval" here.}
+\item{lpval}{-log10 two-tailed p-values obtained from the
+  z-scores.}
 
-  \item{F}{Maximum-likelihood estimates of the Poisson model
-    parameters.}
+\item{F}{Maximum-likelihood estimates of the Poisson model
+  parameters.}
 
-  \item{f0}{Maximum-likelihood estimates of the null model
-     parameters.}
+\item{f0}{Maximum-likelihood estimates of the null model
+   parameters.}
 
-  \item{ar}{A vector containing the Metropolis acceptance ratios
-    from each MCMC run.}
+\item{ar}{A vector containing the Metropolis acceptance ratios
+  from each MCMC run.}
 }
 \description{
 Implements methods for differential expression
@@ -91,8 +92,8 @@ Implements methods for differential expression
   \dQuote{key words} for topics.
 }
 \details{
-The methods are based on the Poisson model \deqn{x_i ~
-Poisson(s_i \lambda_i),} in which the Poisson rates are
+The methods are based on the Poisson model
+\deqn{x_i ~ Poisson(\lambda_i),} in which the Poisson rates are
 \deqn{\lambda_i = \sum_{j=1}^k s_i l_{ij} f_j,} in which the
 \eqn{l_{ik}} are the topic proportions and the \eqn{f_j} are the
 unknowns to be estimated. This model is applied separately to each
@@ -105,7 +106,24 @@ accurate when the total counts \code{rowSums(X)} are large and the
 unknowns \eqn{f_j} are small.) Other choices for \code{s} are
 possible, and implement different normalization schemes.
 
-TO DO: Describe LFC statistics here, and given Poisson null model.
+To allow for some flexibility, \code{de_analysis} allows for the
+log-fold change to be measured in several ways.
+
+One option is to compare against the probability under the null
+model: \eqn{LFC(j) = \log(f_j/f_0)}, where \eqn{f_0} is the single
+parameter in the Poisson model \eqn{x_i ~ Poisson(\lambda_i)} with
+rates \eqn{\lambda_i s_i f_0}. This LFC definition is chosen with
+\code{lfc.stat = "vsnull"}.
+
+Another option is to compare against a chosen topic, k: \eqn{LFC(j)
+= \log(f_j/f_k)}. This LFC definition is selected by setting
+\code{lfc.stat = k}.
+
+A final option (which is the default) computes the \dQuote{least
+extreme} LFC, defined as \eqn{LFC(j) = log(f_j/f_k)} such that
+\eqn{k} is the topic other than \eqn{j} that gives the ratio
+\eqn{f_j/f_k} closest to 1. This option is chosen with
+\code{lfc.stat = "de"}.
 
 We recommend setting \code{shrink.method = "ash"}, which uses the
 \dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
