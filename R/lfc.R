@@ -145,8 +145,8 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
 }
 
 # This implements the core computation for compute_lfc_stats.
-compute_lfc_stats_helper <- function (j, X, F, L, D, U, M, ls, f0, lfc.stat,
-                                      conf.level, rw, e) {
+compute_lfc_stats_helper <- function (j, X, F, L, D, U, M, ls, f0,
+                                      lfc.stat, conf.level, rw, e) {
   k <- ncol(F)
   if (is.sparse.matrix(X)) {
     dat <- get.nonzeros(X,j)

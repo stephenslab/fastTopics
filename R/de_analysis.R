@@ -208,12 +208,15 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # Check and process input argument "control".
   control <- modifyList(de_analysis_control_default(),control,keep.null = TRUE)
   
-  # Process input argument "lfc.stat".
-  if (!(all(lfc.stat == "vsnull") |
-        all(lfc.stat == "de") |
-        any(lfc.stat == 1:k)))
-    stop("Input argument \"lfc.stat\" should be either \"vsnull\", \"de\" ",
-         "or a number between 1 and k, where k is the number of topics")
+  # Check and process input argument "lfc.stat".
+  if (!(all(lfc.stat == "vsnull") | all(lfc.stat == "de"))) {
+    if (!(any(lfc.stat == 1:k) | any(lfc.stat == colnames(fit$F))))
+      stop("Input argument \"lfc.stat\" should be either \"vsnull\", \"de\" ",
+           "a number between 1 and k, where k is the number of topics, or ",
+           "a name of a topic (column of fit$F)")
+    if (is.character(lfc.stat))
+      lfc.stat <- match(lfc.stat,colnames(fit$F))
+  }
     
   # FIT NULL MODELS
   # ---------------
