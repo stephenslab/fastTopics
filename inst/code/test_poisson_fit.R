@@ -33,11 +33,13 @@ print(compute_poisson_covariance(x,L,out$coef))
 ns  <- 1e5
 D   <- matrix(rnorm(2*ns),ns,2)
 U   <- matrix(runif(2*ns),ns,2)
-sim <- simulate_posterior_poisson_rcpp(x,L,out$coef,D,U,0.3,1e-15)
+M   <- matrix(sample(2,2*ns,replace = TRUE),ns,2) - 1
+sim <- simulate_posterior_poisson_rcpp(x,L,out$coef,D,U,M,0.3,1e-15)
+cat("Acceptance rates:\n")
+print(drop(sim$ar))
 
 cat("MCMC estimate of Cov(log(f)):\n")
 print(cov(sim$samples))
-cat(sprintf("Acceptance rate: %0.2f%%\n",100*sim$ar))
 
 # Get 90% HPD intervals.
 cat("MCMC estimates of 90% HPD intervals:\n")

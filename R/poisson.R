@@ -67,7 +67,7 @@ fit_poisson_glm <-
 #
 # The outputs are (1) "samples", an ns x k matrix of Monte Carlo
 # samples of g = log(f), where k = length(f), and (2) "ar", the
-# Metropolis acceptance rate.
+# Metropolis acceptance rate for each co-ordinate k.
 #
 # This is mainly used to test simulate_posterior_poisson_rcpp and is
 # not actually used in practice because it is too slow.
@@ -78,9 +78,10 @@ fit_poisson_glm <-
 #' 
 simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
                                         e = 1e-15) {
-  k  <- length(f)
-  g  <- log(f)
-  ar <- 0
+  k       <- length(f)
+  g       <- log(f)
+  ar      <- rep(0,k)
+  visits  <- rep(0,k)
   samples <- matrix(0,ns,k)
   D <- matrix(rnorm(ns*k),ns,k)
   U <- matrix(runif(ns*k),ns,k)
@@ -89,10 +90,11 @@ simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
     for (t in 1:k) {
 
       # Randomly suggest moving to gj* = gj + d, where d ~ N(0,s).
-      j       <- M[i,t]
-      gnew    <- g
-      d       <- s*D[i,t]
-      gnew[j] <- g[j] + d
+      j         <- M[i,t]
+      gnew      <- g
+      d         <- s*D[i,t]
+      gnew[j]   <- g[j] + d
+      visits[j] <- visits[j] + 1
 
       # Compute the Metropolis acceptance probability, and move to the
       # new state according to this acceptance probability. Note that
@@ -107,8 +109,8 @@ simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
       a     <- exp((llnew - ll) + d)
       a     <- min(1,a)
       if (U[i,t] < a) {
-        g  <- gnew
-        ar <- ar + 1
+        g <- gnew
+        ar[j] <- ar[j] + 1
       }
     }
 
@@ -116,8 +118,8 @@ simulate_posterior_poisson <- function (x, L, f, ns = 1000, s = 0.3,
     samples[i,] <- g
   }
 
-  # Output the states of the Markov chain and the acceptance rate.
-  return(list(samples = samples,ar = ar/(k*ns)))
+  # Output the states of the Markov chain and the acceptance rates.
+  return(list(samples = samples,ar = ar/visits))
 }
 
 # Return the covariance of g = log(f) in the Poisson glm, x[i] ~

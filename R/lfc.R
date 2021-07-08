@@ -48,12 +48,12 @@ compute_lfc_stats <- function (X, F, L, f0,
   mean <- matrix(0,m,k)
   low  <- matrix(0,m,k)
   high <- matrix(0,m,k)
-  ar   <- rep(0,m)
+  ar   <- matrix(0,m,k)
   dimnames(est)  <- dimnames(F)
   dimnames(mean) <- dimnames(F)
   dimnames(low)  <- dimnames(F)
   dimnames(high) <- dimnames(F)
-  names(ar)      <- rownames(F)
+  dimnames(ar)   <- dimnames(F)
 
   # Fill in the outputs, row by row. The core computation is performed
   # by compute_lfc_helper.
@@ -69,7 +69,7 @@ compute_lfc_stats <- function (X, F, L, f0,
     mean[j,] <- out$dat["mean",]
     low[j,]  <- out$dat["low",]
     high[j,] <- out$dat["high",]
-    ar[j]    <- out$ar
+    ar[j,]   <- out$ar
   }
 
   # Compute the z-scores and -log10 p-values.
@@ -125,13 +125,13 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
               high  = matrix(0,m,k),
               z     = matrix(0,m,k),
               lpval = matrix(0,m,k),
-              ar    = rep(0,m))
+              ar    = matrix(0,m,k))
   dimnames(out$est)   <- dimnames(F)
   dimnames(out$low)   <- dimnames(F)
   dimnames(out$high)  <- dimnames(F)
   dimnames(out$z)     <- dimnames(F)
   dimnames(out$lpval) <- dimnames(F)
-  names(out$ar)       <- rownames(F)
+  dimnames(out$ar)    <- dimnames(F)
   for (i in 1:nc) {
     j <- cols[[i]]
     out$est[j,]   <- ans[[i]]$est
@@ -139,7 +139,7 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
     out$high[j,]  <- ans[[i]]$high
     out$z[j,]     <- ans[[i]]$z
     out$lpval[j,] <- ans[[i]]$lpval
-    out$ar[j]     <- ans[[i]]$ar
+    out$ar[j,]    <- ans[[i]]$ar
   }
   return(out)
 }

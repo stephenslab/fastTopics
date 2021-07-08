@@ -36,7 +36,9 @@ test_that(paste("R and C++ implementations of simulate_posterior_poisson",
   out2 <- simulate_posterior_poisson_rcpp(x,L,f,D,U,M,0.3,1e-15)
   out3 <- simulate_posterior_poisson_sparse_rcpp(x[i],L[i,],colSums(L),f,
                                                  D,U,M,0.3,1e-15)
-
+  out2$ar <- drop(out2$ar)
+  out3$ar <- drop(out3$ar)
+  
   # The outputs from the R and C++ implementations should be the same.
   expect_equal(out1,out2,scale = 1,tolerance = 1e-15)
   expect_equal(out1,out3,scale = 1,tolerance = 1e-15)

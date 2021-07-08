@@ -265,6 +265,8 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                                        control$eps,control$nc)
   }
 
+  # TO DO: Give warning when some acceptance rates are zero.
+  
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------
   # If requested, use adaptive shrinkage to stabilize the log-fold

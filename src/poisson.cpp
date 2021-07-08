@@ -7,10 +7,10 @@ using namespace arma;
 // ---------------------
 double loglik_poisson (const vec& x, const vec& y, double sumy, double e);
 
-double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
-				   const vec& f, const mat& D, const mat& U, 
-				   const mat& M, mat& samples, double s, 
-				   double e);
+void simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
+				 const vec& f, const mat& D, const mat& U, 
+				 const mat& M, mat& samples, vec& ar,
+				 double s, double e);
 
 // FUNCTION DEFINITIONS
 // --------------------
@@ -38,7 +38,8 @@ List simulate_posterior_poisson_rcpp (const arma::vec& x, const arma::mat& L,
   unsigned int ns = D.n_rows;
   unsigned int k  = D.n_cols;
   mat samples(ns,k);
-  double ar = simulate_posterior_poisson(x,L,sum(L,0),f,D,U,M,samples,s,e);
+  vec ar(k);
+  simulate_posterior_poisson(x,L,sum(L,0),f,D,U,M,samples,ar,s,e);
   return List::create(Named("samples") = samples,Named("ar") = ar);
 }
 
@@ -59,7 +60,8 @@ List simulate_posterior_poisson_sparse_rcpp (const arma::vec& x,
   unsigned int ns = D.n_rows;
   unsigned int k  = D.n_cols;
   mat samples(ns,k);
-  double ar = simulate_posterior_poisson(x,L,w,f,D,U,M,samples,s,e);
+  vec ar(k);
+  simulate_posterior_poisson(x,L,w,f,D,U,M,samples,ar,s,e);
   return List::create(Named("samples") = samples,Named("ar") = ar);
 }
 
@@ -67,10 +69,10 @@ List simulate_posterior_poisson_sparse_rcpp (const arma::vec& x,
 // and simulate_posterior_poisson_sparse_rcpp. Input argument
 // "samples" should be an ns x k matrix, where ns is the number of
 // Monte Carlo samples to generate, and k = length(f).
-double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
-				   const vec& f, const mat& D, const mat& U, 
-				   const mat& M, mat& samples, double s, 
-				   double e) {
+void simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
+				 const vec& f, const mat& D, const mat& U, 
+				 const mat& M, mat& samples, vec& ar,
+				 double s, double e) {
   unsigned int n  = x.n_elem;
   unsigned int ns = samples.n_rows;
   unsigned int k  = samples.n_cols;
@@ -79,8 +81,10 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
   vec gnew(k);
   vec u(n);
   vec unew(n);
-  double ar = 0;
+  vec visits(n);
   double ll, llnew, su, sunew, a, b, d;
+  ar.fill(0);
+  visits.fill(0);
 
   // Compute the log-density at the initial state.
   u  = L*exp(g);
@@ -98,6 +102,7 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
       d        = s*D(i,t);
       gnew     = g;
       gnew(j) += d;
+      visits(j)++;
 
       // Compute the Metropolis acceptance probability, and move to
       // the new state according to this acceptance probability. Note
@@ -116,7 +121,7 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
 	u  = unew;
 	su = sunew;
 	ll = llnew;
-        ar++;
+        ar(j)++;
       }
     }
 
@@ -124,8 +129,8 @@ double simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
     samples.row(i) = g;
   }
 
-  ar /= k*ns;
-  return ar;
+  // Compute the finall acceptance rates.
+  ar /= visits;
 }
 
 // This should produce the same, or nearly the same, result as
