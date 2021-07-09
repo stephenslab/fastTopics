@@ -72,13 +72,10 @@ compute_lfc_stats <- function (X, F, L, f0,
     ar[j,]    <- out$ar
   }
 
-  # Compute the z-scores and -log10 p-values.
-  #
-  # TO DO: Correct the z-score calculation, and implement this as a
-  # function.
-  #
-  z <- est/(2*(mean - lower))
-  z[lower >= mean] <- NA
+  # Compute the z-scores and -log10 p-values, then output the LFC
+  # estimates (est), lower and upper limits of the HPD intervals, the
+  # z-scores (z), p-values (lpval) and MCMC acceptance rates (ar).
+  z <- compute_zscores(est,mean,lower,upper)
   return(list(est   = est/log(2),
               lower = lower/log(2),
               upper = upper/log(2),
@@ -154,23 +151,23 @@ compute_lfc_stats_helper <- function (j, X, F, L, D, U, M, ls, f0,
                                                   F[j,],D,U,M,rw,e)
   } else
     out <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,M,rw,e)
-  # if (lfc.stat == "vsnull")
+  if (lfc.stat == "vsnull")
     dat <- compute_lfc_vsnull(F[j,],f0[j],out$samples,conf.level)
-  # else if (lfc.stat == "de") {
-  #  # TO DO.
-  # } else {
-  #   # TO DO.
-  # }
+  else if (lfc.stat == "de") {
+   # TO DO.
+  } else
+    dat <- compute_lfc_pairwise(F[j,],lfc.stat,out$samples,conf.level)
   return(list(dat = dat,ar = out$ar))
 }
   
-# Compute posterior statistics for LFC comparing against null
-# parameter, LFC(j) = log(pj/p0). The inputs are: f, the estimates of
+# Compute posterior statistics for LFC comparing against the null
+# parameter, LFC(j) = log(fj/f0). The inputs are: f, the estimates of
 # the Poisson model parameters; f0, the estimate of the null model
 # parameter; samples, an ns x k matrix of Monte Carlo samples used to
-# approximate the posterior distribution of f, where k is the number
-# of topics and ns is the number of samples; and "conf.level", a
-# number between 0 and 1 giving the desired size of the HPD interval.
+# approximate the posterior distribution of g = log(f), where k is the
+# number of topics and ns is the number of samples; and "conf.level",
+# a number between 0 and 1 giving the desired size of the HPD
+# interval.
 #
 # The return value is a 4 x k matrix containing LFC statistics: (1)
 # point estimate (est), posterior mean (mean), lower limit of the HPD
@@ -202,14 +199,72 @@ compute_lfc_vsnull <- function (f, f0, samples, conf.level) {
                upper = upper))
 }
 
-# TO DO: Explain here what this function does, and how (and when) to
-# use it.
-compute_lfc_pairwise <- function (f, samples, conf.level) {
-  # TO DO.
+# Compute "pairwise" LFC posterior statistics LFC(k) = log(fk,fj). The
+# inputs are: f, the estimates of the Poisson model parameters; j, the
+# topic to compare with; samples, an ns x k matrix of Monte Carlo
+# samples used to approximate the posterior distribution of g =
+# log(f), where k is the number of topics and ns is the number of
+# samples; and "conf.level", a number between 0 and 1 giving the
+# desired size of the HPD interval.
+#
+# The return value is a 4 x k matrix containing LFC statistics: (1)
+# point estimate (est), posterior mean (mean), lower limit of the HPD
+# interval (lower) and upper limit (upper).
+# 
+#' @importFrom Matrix colMeans
+compute_lfc_pairwise <- function (f, j, samples, conf.level) {
+    
+  # Compute the point estimates and posterior means.
+  est     <- log(f/f[,j])
+  samples <- samples - log(samples[,j])
+  mean    <- colMeans(samples)
+  est[j]  <- 0
+  mean[j] <- 0
+
+  # Compute the HPD intervals.
+  k      <- length(f)
+  topics <- setdiff(1:k,j)
+  lower  <- rep(0,k)
+  upper  <- rep(0,k)
+  for (i in topics) {
+    out      <- hpd(samples[,i],conf.level)
+    lower[i] <- out[1]
+    upper[i] <- out[2]
+  }
+
+  # Output the point estimate (est), posterior mean (mean) and
+  # limits of the HPD interval (lower, upper) as a 4 x k matrix.
+  return(rbind(est   = est,
+               mean  = mean,
+               lower = lower,
+               upper = upper))
 }
 
 # TO DO: Explain here what this function does, and how (and when) to
 # use it.
 compute_lfc_le <- function (f, samples, conf.level) {
   # TO DO.
+}
+
+# Compute z-scores given the point estimates (est), posterior means
+# (mean), and lower and upper limits of the HPD intervals.
+compute_zscores <- function (est, mean, lower, upper) {
+  z <- est
+  i <- which(est < 0)
+  j <- which(est >= 0)
+  est0   <- est[i]
+  est1   <- est[j]
+  mean0  <- mean[i]
+  mean1  <- mean[j]
+  lower0 <- lower[i]
+  lower1 <- lower[j]
+  upper0 <- upper[i]
+  upper1 <- upper[j]
+  z0 <- est0/(2*(mean0 - lower0))
+  z1 <- est1/(2*(upper1 - mean1))
+  z0[lower0 >= mean0] <- NA
+  z1[upper1 <= mean1] <- NA
+  z[i] <- z0
+  z[j] <- z1
+  return(z)
 }
