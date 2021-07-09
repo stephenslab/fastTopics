@@ -7,8 +7,6 @@ to do
 
 + Update pbmc_demo.R.
 
-+ Allow for calculation of different LFC statistics.
-
 + Add de_analysis example(s).
 
 + Implement adaptive shrinkage step in de_analysis.

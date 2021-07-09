@@ -1,5 +1,15 @@
 context("de_analysis")
 
+test_that("le_diff_rcpp gives the same result as le.diff",{
+  set.seed(1)
+  n <- 1000
+  m <- 20
+  X <- matrix(rnorm(n*m),n,m)
+  Y1 <- t(apply(X,1,le.diff))
+  Y2 <- le_diff_rcpp(X)
+  expect_equal(Y1,Y2,scale = 1,tolerance = 1e-15)
+})
+
 test_that(paste("R and C++ implementations of simulate_posterior_poisson",
                 "produce the same output, and the Monte Carlo estimate of",
                 "the covariance matrix is roughly similar to the covariance",

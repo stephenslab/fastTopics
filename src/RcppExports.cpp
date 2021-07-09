@@ -92,6 +92,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// le_diff_rcpp
+arma::mat le_diff_rcpp(const arma::mat& X);
+RcppExport SEXP _fastTopics_le_diff_rcpp(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(le_diff_rcpp(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 // x_over_crossprod_rcpp
 arma::vec x_over_crossprod_rcpp(const arma::vec& i, const arma::vec& j, const arma::vec& x, const arma::mat& A, const arma::mat& B, double e);
 RcppExport SEXP _fastTopics_x_over_crossprod_rcpp(SEXP iSEXP, SEXP jSEXP, SEXP xSEXP, SEXP ASEXP, SEXP BSEXP, SEXP eSEXP) {
@@ -398,6 +409,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastTopics_ccd_update_factors_sparse_parallel_rcpp", (DL_FUNC) &_fastTopics_ccd_update_factors_sparse_parallel_rcpp, 4},
     {"_fastTopics_cost_rcpp", (DL_FUNC) &_fastTopics_cost_rcpp, 5},
     {"_fastTopics_cost_sparse_rcpp", (DL_FUNC) &_fastTopics_cost_sparse_rcpp, 5},
+    {"_fastTopics_le_diff_rcpp", (DL_FUNC) &_fastTopics_le_diff_rcpp, 1},
     {"_fastTopics_x_over_crossprod_rcpp", (DL_FUNC) &_fastTopics_x_over_crossprod_rcpp, 6},
     {"_fastTopics_mixem_rcpp", (DL_FUNC) &_fastTopics_mixem_rcpp, 4},
     {"_fastTopics_pnmfem_update_factors_rcpp", (DL_FUNC) &_fastTopics_pnmfem_update_factors_rcpp, 5},

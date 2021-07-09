@@ -25,6 +25,10 @@ cost_sparse_rcpp <- function(X, A, B, e, poisson) {
     .Call('_fastTopics_cost_sparse_rcpp', PACKAGE = 'fastTopics', X, A, B, e, poisson)
 }
 
+le_diff_rcpp <- function(X) {
+    .Call('_fastTopics_le_diff_rcpp', PACKAGE = 'fastTopics', X)
+}
+
 x_over_crossprod_rcpp <- function(i, j, x, A, B, e) {
     .Call('_fastTopics_x_over_crossprod_rcpp', PACKAGE = 'fastTopics', i, j, x, A, B, e)
 }

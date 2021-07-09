@@ -82,7 +82,22 @@ normalize.rows.by.max <- function (A) {
     stop("Input argument \"A\" should be a matrix")
   return(A / apply(A,1,max))
 }
-  
+
+# For vector x, return a vector of the same length y containing the
+# "least extreme" differences y(i) = x(i) - x(j), in which j is the
+# index not equal to i such that abs(x(i) - x(j)) is the smallest
+# possible.
+le.diff <- function (x) {
+  n <- length(x)
+  y <- rep(0,n)
+  for (i in 1:n) {
+    d <- x[i] - x
+    j <- order(abs(d))[2]
+    y[i] <- d[j]
+  }
+  return(y)
+}
+
 # Rescale the factors (F) and loadings (F) with the property that the
 # matrix reconstruction L*F' remains the same after rescaling;
 # specifically, rescale the columns of F and L so that, for each k,

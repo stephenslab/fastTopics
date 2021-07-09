@@ -12,7 +12,7 @@ fit   <- pbmc_facs$fit
 # print(timing)
 # testthat::expect_equal(out1,out2,scale = 1,tolerance = 1e-15)
 # out <- out2
-out <- de_analysis(fit,X,control = list(nc = 4))
+out <- de_analysis(fit,X,lfc.stat = "de",control = list(ns = 1000,nc = 4))
 k <- 4
 dat <- as.data.frame(cbind(lower = out$lower[,k],
                            est   = out$est[,k],

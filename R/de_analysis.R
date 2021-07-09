@@ -285,8 +285,12 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                                        control$conf.level,control$rw,
                                        control$eps,control$nc)
   }
-
-  # TO DO: Give warning when some acceptance rates are zero.
+  if (any(out$ar == 0))
+    warning("One or more MCMC simulations yielded acceptance rates of zero; ",
+            "consider increasing the number of Monte Carlo samples ",
+            "(control$ns) or modifying the noise level of the random-walk ",
+            "proposal distribution (control$rw) to improve the acceptance ",
+            "rates")
   
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------
@@ -299,8 +303,8 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   #  out$F1   <- out$F0 + res$b
   #  out$beta <- log2(out$F1/out$F0)
   #  out$se   <- res$se
-  #  out$Z    <- res$Z
-  #  out$pval <- res$pval
+  #  out$z    <- res$z
+  #  out$lpval <- res$lpval
   # }
   
   # Return the Poisson model MLEs (F), the log-fold change statistics
@@ -312,7 +316,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   return(out)
 }
 
-# Perform adaptive shrinkage on the unknowns b = f1 - f0.
+# Perform adaptive shrinkage on ...
 shrink_lfc <- function (b, se, ...) {
 
   # Get the number of effect estimates (m) and the number of topics (k).

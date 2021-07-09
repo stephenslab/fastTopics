@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.6-55
+Version: 0.6-56
 Date: 2021-07-09
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
