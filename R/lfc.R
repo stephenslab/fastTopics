@@ -20,8 +20,8 @@
 # The return value is a list containing five matrices of the same
 # dimension as F. Several of these matrices contain posterior
 # quantities estimated via MCMC. The matrices are: (1) "est", the
-# estimated LFC statistics; (2) "low", the estimated lower limits of
-# the HPD intervals; (3) "high", the estimated upper limits of the HPD
+# estimated LFC statistics; (2) "lower", the estimated lower limits of
+# the HPD intervals; (3) "upper", the estimated upper limits of the HPD
 # intervals; (4) "z", the z-scores determined from the LFC estimates
 # and the HPD intervals; and (5) "lpval", the -log10 two-tailed
 # p-values computed from the z-scores. Note that all outputted LFC
@@ -44,16 +44,16 @@ compute_lfc_stats <- function (X, F, L, f0,
   k <- ncol(F)
 
   # Allocate storage for the outputs.
-  est  <- matrix(0,m,k)
-  mean <- matrix(0,m,k)
-  low  <- matrix(0,m,k)
-  high <- matrix(0,m,k)
-  ar   <- matrix(0,m,k)
-  dimnames(est)  <- dimnames(F)
-  dimnames(mean) <- dimnames(F)
-  dimnames(low)  <- dimnames(F)
-  dimnames(high) <- dimnames(F)
-  dimnames(ar)   <- dimnames(F)
+  est   <- matrix(0,m,k)
+  mean  <- matrix(0,m,k)
+  lower <- matrix(0,m,k)
+  upper <- matrix(0,m,k)
+  ar    <- matrix(0,m,k)
+  dimnames(est)   <- dimnames(F)
+  dimnames(mean)  <- dimnames(F)
+  dimnames(lower) <- dimnames(F)
+  dimnames(upper) <- dimnames(F)
+  dimnames(ar)    <- dimnames(F)
 
   # Fill in the outputs, row by row. The core computation is performed
   # by compute_lfc_helper.
@@ -65,23 +65,22 @@ compute_lfc_stats <- function (X, F, L, f0,
       pb$tick()
     out <- compute_lfc_stats_helper(j,X,F,L,D,U,M,ls,f0,lfc.stat,
                                     conf.level,rw,e)
-    est[j,]  <- out$dat["est",]
-    mean[j,] <- out$dat["mean",]
-    low[j,]  <- out$dat["low",]
-    high[j,] <- out$dat["high",]
-    ar[j,]   <- out$ar
+    est[j,]   <- out$dat["est",]
+    mean[j,]  <- out$dat["mean",]
+    lower[j,] <- out$dat["lower",]
+    upper[j,] <- out$dat["upper",]
+    ar[j,]    <- out$ar
   }
 
   # Compute the z-scores and -log10 p-values.
   #
-  # TO DO:
-  #  - Correct the z-score calculation.
-  #  - Handle special cases, e.g., when low >= mean.
+  # TO DO: Correct the z-score calculation.
   #
-  z <- est/(2*(mean - low))
+  z <- est/(2*(mean - lower))
+  z[lower >= mean] <- NA
   return(list(est   = est/log(2),
-              low   = low/log(2),
-              high  = high/log(2),
+              lower = lower/log(2),
+              upper = upper/log(2),
               z     = z,
               lpval = -lpfromz(z),
               ar    = ar))
@@ -121,22 +120,22 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
   # Combine the individual compute_lfc_stats outputs, and output the
   # combined result.
   out <- list(est   = matrix(0,m,k),
-              low   = matrix(0,m,k),
-              high  = matrix(0,m,k),
+              lower = matrix(0,m,k),
+              upper = matrix(0,m,k),
               z     = matrix(0,m,k),
               lpval = matrix(0,m,k),
               ar    = matrix(0,m,k))
   dimnames(out$est)   <- dimnames(F)
-  dimnames(out$low)   <- dimnames(F)
-  dimnames(out$high)  <- dimnames(F)
+  dimnames(out$lower) <- dimnames(F)
+  dimnames(out$upper) <- dimnames(F)
   dimnames(out$z)     <- dimnames(F)
   dimnames(out$lpval) <- dimnames(F)
   dimnames(out$ar)    <- dimnames(F)
   for (i in 1:nc) {
     j <- cols[[i]]
     out$est[j,]   <- ans[[i]]$est
-    out$low[j,]   <- ans[[i]]$low
-    out$high[j,]  <- ans[[i]]$high
+    out$lower[j,] <- ans[[i]]$lower
+    out$upper[j,] <- ans[[i]]$upper
     out$z[j,]     <- ans[[i]]$z
     out$lpval[j,] <- ans[[i]]$lpval
     out$ar[j,]    <- ans[[i]]$ar
@@ -154,59 +153,62 @@ compute_lfc_stats_helper <- function (j, X, F, L, D, U, M, ls, f0,
                                                   F[j,],D,U,M,rw,e)
   } else
     out <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,M,rw,e)
-  dat <- compute_lfc_vsnull(out$samples,F[j,],f0[j],conf.level)
+  # if (lfc.stat == "vsnull")
+    dat <- compute_lfc_vsnull(F[j,],f0[j],out$samples,conf.level)
+  # else if (lfc.stat == "de") {
+  #  # TO DO.
+  # } else {
+  #   # TO DO.
+  # }
   return(list(dat = dat,ar = out$ar))
 }
   
-# TO DO: Explain here what this function does, and how (and when) to
-# use it.
+# Compute posterior statistics for LFC comparing against null
+# parameter, LFC(j) = log(pj/p0). The inputs are: f, the estimates of
+# the Poisson model parameters; f0, the estimate of the null model
+# parameter; samples, an ns x k matrix of Monte Carlo samples used to
+# approximate the posterior distribution of f, where k is the number
+# of topics and ns is the number of samples; and "conf.level", a
+# number between 0 and 1 giving the desired size of the HPD interval.
 #
+# The return value is a 4 x k matrix containing LFC statistics: (1)
+# point estimate (est), posterior mean (mean), lower limit of the HPD
+# interval (lower) and upper limit (upper).
+# 
 #' @importFrom Matrix colMeans
-compute_lfc_vsnull <- function (samples, f, f0, conf.level) {
+compute_lfc_vsnull <- function (f, f0, samples, conf.level) {
 
-  # Set up storage for some of the the outputs.
-  k    <- length(f)
-  mean <- rep(0,k)
-  low  <- rep(0,k)
-  high <- rep(0,k)
-  
-  est  <- log(f) - log(f0)
-  mean <- colMeans(samples - log(f0))
+  # Compute the point estimates and posterior means.
+  est     <- log(f) - log(f0)
+  samples <- samples - log(f0)
+  mean    <- colMeans(samples)
 
-  # Repeat for each topic.
+  # Compute the HPD intervals.
+  k     <- length(f)
+  lower <- rep(0,k)
+  upper <- rep(0,k)
   for (i in 1:k) {
-    out     <- hpd(samples[,i] - log(f0),conf.level)
-    low[i]  <- out[1]
-    high[i] <- out[2]
+    out      <- hpd(samples[,i],conf.level)
+    lower[i] <- out[1]
+    upper[i] <- out[2]
   }
 
-  # TO DO: Summarize the return values.
-  return(rbind(est  = est,
-               mean = mean,
-               low  = low,
-               high = high))
+  # Output the point estimate (est), posterior mean (mean) and
+  # limits of the HPD interval (lower, upper) as a 4 x k matrix.
+  return(rbind(est   = est,
+               mean  = mean,
+               lower = lower,
+               upper = upper))
 }
 
 # TO DO: Explain here what this function does, and how (and when) to
 # use it.
-compute_lfc_pairwise <- function (samples, t, conf.level) {
+compute_lfc_pairwise <- function (f, samples, conf.level) {
   # TO DO.
 }
 
 # TO DO: Explain here what this function does, and how (and when) to
 # use it.
-compute_lfc_le <- function (samples, t, conf.level) {
+compute_lfc_le <- function (f, samples, conf.level) {
   # TO DO.
 }
-
-# compute_lfc_le_old = function (lf) {
-#   k <- length(lf)
-#   b <- rep(0,k)
-#   for (i in 1:k) {
-#     x    <- lf[i] - lf
-#     x[i] <- Inf
-#     b[i] <- x[which.min(abs(x))]
-#   }    
-#   return(b)
-# }
-

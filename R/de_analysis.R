@@ -125,9 +125,9 @@
 #'
 #' \item{est}{The log-fold change estimates.}
 #'
-#' \item{low}{Lower limits of estimated HPD intervals.}
+#' \item{lower}{Lower limits of estimated HPD intervals.}
 #'
-#' \item{high}{Upper limits of estimated HPD intervals.}
+#' \item{upper}{Upper limits of estimated HPD intervals.}
 #'
 #' \item{z}{z-scores for LFC estimates.}
 #'
@@ -304,7 +304,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # }
   
   # Return the Poisson model MLEs (F), the log-fold change statistics
-  # (est, low, high, z, lpval), and the relative rates under the "null"
+  # (est, lower, upper, z, lpval), and the relative rates under the "null"
   # model (f0).
   out$F <- F
   out$f0 <- f0

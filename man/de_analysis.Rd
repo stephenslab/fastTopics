@@ -67,9 +67,9 @@ A list with the following elements:
 
 \item{est}{The log-fold change estimates.}
 
-\item{low}{Lower limits of estimated HPD intervals.}
+\item{lower}{Lower limits of estimated HPD intervals.}
 
-\item{high}{Upper limits of estimated HPD intervals.}
+\item{upper}{Upper limits of estimated HPD intervals.}
 
 \item{z}{z-scores for LFC estimates.}
 

@@ -7,8 +7,6 @@ to do
 
 + Allow for calculation of different LFC statistics.
 
-+ Fill out @details for de_analysis.
-
 + Add de_analysis example(s).
 
 + Implement adaptive shrinkage step in de_analysis.
