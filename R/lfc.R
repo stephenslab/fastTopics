@@ -74,7 +74,8 @@ compute_lfc_stats <- function (X, F, L, f0,
 
   # Compute the z-scores and -log10 p-values.
   #
-  # TO DO: Correct the z-score calculation.
+  # TO DO: Correct the z-score calculation, and implement this as a
+  # function.
   #
   z <- est/(2*(mean - lower))
   z[lower >= mean] <- NA
