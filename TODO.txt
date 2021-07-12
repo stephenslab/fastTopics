@@ -1,19 +1,21 @@
 to do
 =====
 
-+ Refactor code in lfc.R.
++ Create small vignette to illustrate new methods.
+
++ Refactor code in lfc.R, and add more comments as needed.
 
 + Implement adaptive shrinkage step in de_analysis.
 
 + Add tests for de_analysis.
 
++ Update pbmc_demo.R, and add comments.
+
++ Add de_analysis example(s).
+
 + Update poisson_demo.R.
 
 + Update multinom_demo.R.
-
-+ Update pbmc_demo.R.
-
-+ Add de_analysis example(s).
 
 + Implement KKT-based stopping criterion for fit_poisson_nmf.
 
