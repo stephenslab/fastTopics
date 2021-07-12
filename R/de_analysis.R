@@ -153,6 +153,9 @@
 #' preserving large differences. \emph{Bioinformatics} \bold{35}(12),
 #' 2084–2092.
 #'
+#' @examples
+#' # Add example(s) here.
+#'
 #' @importFrom utils modifyList
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums
@@ -295,13 +298,17 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------
   # If requested, use adaptive shrinkage to stabilize the log-fold
-  # change estimates.
+  # change estimates. Here we need to carefully edge cases such as
+  # se's of zero.
   if (shrink.method == "ash") {
     if (verbose)
       cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
-    res     <- with(out,shrink_estimates(est,est/z,...))
+    se <- with(out,est/z)
+    se[out$z == 0] <- NA
+    se[out$est == 0] <- 0
+    res     <- shrink_estimates(out$est,se,...)
     out$est <- res$b
-    out$z   <- with(res,b/se)
+    out$z   <- res$z
   }
     
   # Compute the -log10 two-tailed p-values computed from the z-scores.
@@ -317,19 +324,31 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
 }
 
 # Perform adaptive shrinkage on the matrix of effect estimates b and
-# their standard errors.
+# their standard errors, then output the revised effect estimates (b),
+# standard errors (se) and z-scores. All effects i in which either
+# b[i] or se[i] is missing (NA) are not revised.
 shrink_estimates <- function (b, se, ...) {
 
-  # Run adaptive shrinkage, then extract the posterior estimates
-  # (b) and the standard errors (se).
-  i     <- which(!is.na(b) & !is.na(se))
-  out   <- ash(b[i],se[i],mixcompdist = "normal",method = "shrink",...)
-  b[i]  <- out$result$PosteriorMean
-  se[i] <- out$result$PosteriorSD
+  # Set up the z-scores output.
+  z <- b
+  z[is.na(b) | is.na(se)] <- NA
+  
+  # Run adaptive shrinkage.
+  i   <- which(!(is.na(b) | is.na(se)))
+  out <- ash(b[i],se[i],mixcompdist = "normal",method = "shrink",...)
+  b1  <- out$result$PosteriorMean
+  se1 <- out$result$PosteriorSD
+  
+  # Extract the posterior estimates and their standard errors. 
+  b[i]  <- b1
+  se[i] <- se1
+  z[i]  <- b[i]/se[i]
+  z[i[b1 == 0]] <- NA
+  z[i[se1 == 0]] <- 0
 
-  # Output the stabilized estimates (b) and the revised standard
-  # errors (se).
-  return(list(b = b,se = se))
+  # Output the revised estimates (b), standard errors (se) and
+  # z-scores (z).
+  return(list(b = b,se = se,z = z))
 }
 
 #' @rdname de_analysis

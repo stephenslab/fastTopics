@@ -165,6 +165,10 @@ algorithm settings (as they are defined by
 \item{\code{nc}}{Number of threads used in the multithreaded
   computations.}}
 }
+\examples{
+# Add example(s) here.
+
+}
 \references{
 Stephens, M. (2016). False discovery rates: a new deal.
 \emph{Biostatistics} \bold{18}(2), kxw041.

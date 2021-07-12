@@ -1,15 +1,14 @@
 to do
 =====
 
-+ Create small vignette to illustrate new methods.
++ Update pbmc_demo.R, and add comments.
+
++ Create small vignette (pbmc_de_analysis.Rmd) to illustrate new
+  methods.
 
 + Refactor code in lfc.R, and add more comments as needed.
 
-+ Implement adaptive shrinkage step in de_analysis.
-
 + Add tests for de_analysis.
-
-+ Update pbmc_demo.R, and add comments.
 
 + Add de_analysis example(s).
 

@@ -75,11 +75,11 @@ compute_lfc_stats <- function (X, F, L, f0,
   # estimates (est), lower and upper limits of the HPD intervals, the
   # z-scores (z) and MCMC acceptance rates (ar).
   z <- compute_zscores(est,mean,lower,upper)
-  return(list(est   = est/log(2),
+  return(list(ar    = ar,
+              est   = est/log(2),
               lower = lower/log(2),
               upper = upper/log(2),
-              z     = z,
-              ar    = ar))
+              z     = z))
 }
 
 # This is the multithreaded variant of compute_lfc_stats. See the
@@ -115,23 +115,23 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
 
   # Combine the individual compute_lfc_stats outputs, and output the
   # combined result.
-  out <- list(est   = matrix(0,m,k),
+  out <- list(ar    = matrix(0,m,k),
+              est   = matrix(0,m,k),
               lower = matrix(0,m,k),
               upper = matrix(0,m,k),
-              z     = matrix(0,m,k),
-              ar    = matrix(0,m,k))
+              z     = matrix(0,m,k))              
+  dimnames(out$ar)    <- dimnames(F)
   dimnames(out$est)   <- dimnames(F)
   dimnames(out$lower) <- dimnames(F)
   dimnames(out$upper) <- dimnames(F)
   dimnames(out$z)     <- dimnames(F)
-  dimnames(out$ar)    <- dimnames(F)
   for (i in 1:nc) {
     j <- cols[[i]]
+    out$ar[j,]    <- ans[[i]]$ar
     out$est[j,]   <- ans[[i]]$est
     out$lower[j,] <- ans[[i]]$lower
     out$upper[j,] <- ans[[i]]$upper
     out$z[j,]     <- ans[[i]]$z
-    out$ar[j,]    <- ans[[i]]$ar
   }
   return(out)
 }
@@ -152,7 +152,7 @@ compute_lfc_stats_helper <- function (j, X, F, L, D, U, M, ls, f0,
     dat <- compute_lfc_le(F[j,],out$samples,conf.level)
   else
     dat <- compute_lfc_pairwise(F[j,],lfc.stat,out$samples,conf.level)
-  return(list(dat = dat,ar = out$ar))
+  return(list(ar = out$ar,dat = dat))
 }
   
 # Compute posterior statistics for LFC comparing against the null

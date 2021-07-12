@@ -16,11 +16,9 @@ fit   <- pbmc_facs$fit
 # testthat::expect_equal(out1,out2,scale = 1,tolerance = 1e-15)
 # out <- out2
 set.seed(1)
-out1 <- de_analysis(fit,X,shrink.method = "none",lfc.stat = "de",
-                    control = list(nc = 4))
+out1 <- de_analysis(fit,X,shrink.method = "none",control = list(nc = 4))
 set.seed(1)
-out2 <- de_analysis(fit,X,shrink.method = "ash",lfc.stat = "de",
-                    control = list(nc = 4))
+out2 <- de_analysis(fit,X,control = list(nc = 4))
 out <- out2
 k <- 4
 dat <- as.data.frame(cbind(lower = out$lower[,k],
@@ -48,7 +46,7 @@ p1 <- ggplot(pdat,aes(x = lfc,y = z,fill = f0,label = gene)) +
                   segment.color = "darkgray",segment.size = 0.25,
                   min.segment.length = 0,max.overlaps = Inf,
                   na.rm = TRUE) +
-  scale_y_continuous(trans = "sqrt",limits = c(0,50),
+  scale_y_continuous(trans = "sqrt",
                      breaks = c(0,1,2,5,10,20,50,100)) +
   scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
                        na.value = "gainsboro",
