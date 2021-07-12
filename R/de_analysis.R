@@ -296,17 +296,17 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # --------------------------------------------
   # If requested, use adaptive shrinkage to stabilize the log-fold
   # change estimates.
-  # if (shrink.method == "ash") {
-  #   if (verbose)
-  #    cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
-  #  res <- shrink_lfc(out$F1 - out$F0,out$se,...)
-  #  out$F1   <- out$F0 + res$b
-  #  out$beta <- log2(out$F1/out$F0)
-  #  out$se   <- res$se
-  #  out$z    <- res$z
-  #  out$lpval <- res$lpval
-  # }
-  
+  if (shrink.method == "ash") {
+    if (verbose)
+      cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
+    res     <- with(out,shrink_estimates(est,est/z,...))
+    out$est <- res$b
+    out$z   <- with(res,b/se)
+  }
+    
+  # Compute the -log10 two-tailed p-values computed from the z-scores.
+  out$lpval <- -lpfromz(out$z)
+    
   # Return the Poisson model MLEs (F), the log-fold change statistics
   # (est, lower, upper, z, lpval), and the relative rates under the "null"
   # model (f0).
@@ -316,45 +316,20 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   return(out)
 }
 
-# Perform adaptive shrinkage on ...
-shrink_lfc <- function (b, se, ...) {
+# Perform adaptive shrinkage on the matrix of effect estimates b and
+# their standard errors.
+shrink_estimates <- function (b, se, ...) {
 
-  # Get the number of effect estimates (m) and the number of topics (k).
-  m <- nrow(b)
-  k <- ncol(b)
+  # Run adaptive shrinkage, then extract the posterior estimates
+  # (b) and the standard errors (se).
+  i     <- which(!is.na(b) & !is.na(se))
+  out   <- ash(b[i],se[i],mixcompdist = "normal",method = "shrink",...)
+  b[i]  <- out$result$PosteriorMean
+  se[i] <- out$result$PosteriorSD
 
-  # Initialize the outputs.
-  out <- list(b    = b,
-              se   = se,
-              Z    = matrix(0,m,k),
-              pval = matrix(0,m,k))
-
-  # Repeat for each topic.
-  for (j in 1:k) {
-    i <- which(!is.na(out$se[,j]))
-    if (length(i) > 0) {
-
-      # Run adaptive shrinkage, then extract the posterior estimates (b)
-      # and standard errors (se).
-      ans <- ash(out$b[i,j],out$se[i,j],mixcompdist = "normal",
-                 method = "shrink",...)
-      b   <- ans$result$PosteriorMean
-      se  <- ans$result$PosteriorSD
-      z   <- b/se
-
-      # Store the stabilized estimates.
-      out$b[i,j]    <- b
-      out$se[i,j]   <- se
-      out$Z[i,j]    <- z
-      out$pval[i,j] <- -lpfromz(z)
-    }
-  }
-
-  # TO DO: Add row and column names to the outputs, if necessary.
-  
-  # Output the posterior estimates (b), the posterior standard errors
-  # (se), the z-scores (Z) and -log10 p-values (pval).
-  return(out)
+  # Output the stabilized estimates (b) and the revised standard
+  # errors (se).
+  return(list(b = b,se = se))
 }
 
 #' @rdname de_analysis
@@ -365,7 +340,7 @@ de_analysis_control_default <- function()
   list(numiter    = 20,
        minval     = 1e-10,
        tol        = 1e-8,
-       conf.level = 0.9,
+       conf.level = 0.68,
        ns         = 1000,
        rw         = 0.3,
        eps        = 1e-15,

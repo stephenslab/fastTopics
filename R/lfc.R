@@ -21,10 +21,9 @@
 # dimension as F. Several of these matrices contain posterior
 # quantities estimated via MCMC. The matrices are: (1) "est", the
 # estimated LFC statistics; (2) "lower", the estimated lower limits of
-# the HPD intervals; (3) "upper", the estimated upper limits of the HPD
-# intervals; (4) "z", the z-scores determined from the LFC estimates
-# and the HPD intervals; and (5) "lpval", the -log10 two-tailed
-# p-values computed from the z-scores. Note that all outputted LFC
+# the HPD intervals; (3) "upper", the estimated upper limits of the
+# HPD intervals; (4) and "z", the z-scores determined from the LFC
+# estimates and the HPD intervals. Note that all outputted LFC
 # statistics are defined with the base-2 logarithm.
 #
 #' @importFrom stats rnorm
@@ -35,7 +34,7 @@ compute_lfc_stats <- function (X, F, L, f0,
                                D = matrix(rnorm(ns*k),1000,ncol(F)),
                                U = matrix(runif(ns*k),1000,ncol(F)),
                                M = matrix(sample(k,ns*k,replace=TRUE),ns,k)-1,
-                               lfc.stat = "de", conf.level = 0.9,
+                               lfc.stat = "de", conf.level = 0.68,
                                rw = 0.3, e = 1e-15, verbose = TRUE) {
 
   # Get the number of counts matrix columns (m) and the number of
@@ -74,13 +73,12 @@ compute_lfc_stats <- function (X, F, L, f0,
 
   # Compute the z-scores and -log10 p-values, then output the LFC
   # estimates (est), lower and upper limits of the HPD intervals, the
-  # z-scores (z), p-values (lpval) and MCMC acceptance rates (ar).
+  # z-scores (z) and MCMC acceptance rates (ar).
   z <- compute_zscores(est,mean,lower,upper)
   return(list(est   = est/log(2),
               lower = lower/log(2),
               upper = upper/log(2),
               z     = z,
-              lpval = -lpfromz(z),
               ar    = ar))
 }
 
@@ -121,13 +119,11 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
               lower = matrix(0,m,k),
               upper = matrix(0,m,k),
               z     = matrix(0,m,k),
-              lpval = matrix(0,m,k),
               ar    = matrix(0,m,k))
   dimnames(out$est)   <- dimnames(F)
   dimnames(out$lower) <- dimnames(F)
   dimnames(out$upper) <- dimnames(F)
   dimnames(out$z)     <- dimnames(F)
-  dimnames(out$lpval) <- dimnames(F)
   dimnames(out$ar)    <- dimnames(F)
   for (i in 1:nc) {
     j <- cols[[i]]
@@ -135,7 +131,6 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
     out$lower[j,] <- ans[[i]]$lower
     out$upper[j,] <- ans[[i]]$upper
     out$z[j,]     <- ans[[i]]$z
-    out$lpval[j,] <- ans[[i]]$lpval
     out$ar[j,]    <- ans[[i]]$ar
   }
   return(out)
