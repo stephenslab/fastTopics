@@ -166,7 +166,33 @@ algorithm settings (as they are defined by
   computations.}}
 }
 \examples{
-# Add example(s) here.
+# Perform a differential expression (DE) analysis using the previously
+# fitted multinomial topic model. Note that the de_analysis call may
+# take several minutes to complete.
+set.seed(1)
+data(pbmc_facs)
+de <- de_analysis(pbmc_facs$fit,pbmc_facs$counts,control = list(nc = 2))
+
+# Compile the DE results for topic 4 into a table, and rank the genes
+# by z-score.
+k <- 4
+dat <- as.data.frame(cbind(lower = de$lower[,k],
+                           est   = de$est[,k],
+                           mean  = de$est[,k],
+                           upper = de$upper[,k],
+                           z     = de$z[,k]))
+rownames(dat) <- with(pbmc_facs$genes,paste(symbol,ensembl,sep = "_"))
+dat <- subset(dat,!is.na(z))
+dat <- dat[order(dat$z,decreasing = TRUE),]
+
+# Among the top genes are CD79A, a gene marker for B cells, and MS4A1,
+# a B-lymphocyte surface molecule involved in B-cell development and
+# differentiation.
+head(dat)
+
+# The genes ranked at the bottom are genes that do not appear (i.e.,
+# are not expressed) in the topic, but are highly expressed elsewhere.
+tail(dat)
 
 }
 \references{

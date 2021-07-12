@@ -10,8 +10,6 @@ to do
 
 + Add tests for de_analysis.
 
-+ Add de_analysis example(s).
-
 + Update poisson_demo.R.
 
 + Update multinom_demo.R.
