@@ -30,9 +30,9 @@ p1 <- ggplot(pdat1,aes(x = b1,y = b2)) +
   theme_cowplot(font_size = 10)
 
 # Create a volcano plot to visualize the DE results for topic k = 4.
-pdat2 <- data.frame(lfc  = out$est[,k],
-                    z    = abs(out$z[,k]),
-                    f0   = log10(out$f0),
+pdat2 <- data.frame(lfc  = out2$est[,k],
+                    z    = abs(out2$z[,k]),
+                    f0   = log10(out2$f0),
                     gene = genes$symbol,
                     stringsAsFactors = FALSE)
 rows <- which(!with(pdat2,lfc > 1 & z > 8))
@@ -44,10 +44,10 @@ p2 <- ggplot(pdat2,aes(x = lfc,y = z,fill = f0,label = gene)) +
                   segment.color = "darkgray",segment.size = 0.25,
                   min.segment.length = 0,max.overlaps = Inf,
                   na.rm = TRUE) +
-  scale_y_continuous(trans = "sqrt",
+  scale_y_continuous(trans = "sqrt",limits = c(0,80),
                      breaks = c(0,1,2,5,10,20,50,100)) +
   scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
                        na.value = "gainsboro",
-                       midpoint = mean(range(pdat$f0,na.rm = TRUE))) +
+                       midpoint = mean(range(pdat2$f0,na.rm = TRUE))) +
   labs(x = "log-fold change",y = "|z-score|",fill = "log10(f0)") +
   theme_cowplot(font_size = 10)
