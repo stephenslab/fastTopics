@@ -8,19 +8,22 @@ output:
     theme: readable
 ---
 
-*Add overview here.*
+In this short vignette I will illustrate the new differential
+expression (DE) methods using a small subset of the PBMC single-cell
+RNA-seq data.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
                       fig.align = "center",dpi = 120)
 ```
 
-Load the packages:
+Load fastTopics and a few other packages used in the analysis:
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
-# library(fastTopics)
+library(fastTopics)
 library(ggplot2)
+library(ggrepel)
 library(cowplot)
 ```
 
@@ -31,21 +34,95 @@ data(pbmc_facs)
 dim(pbmc_facs$counts)
 ```
 
+A pre-fitted topic model is provided, so we can quickly move on to the
+DE analysis:
+
+```{r summarize-fit}
+summary(pbmc_facs$fit)
+```
+
+As a reminder, the topics largely capture the FACS cell-type labeling,
+with two topics capturing heterogeneity in T cells:
+
+```{r structure-plot-with-celltype-labels, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
+topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
+                  "gold","darkorange")
+structure_plot(fit,topics = 1:6,colors = topic_colors,
+               grouping = samples$subpop,gap = 25)
+```
+
 Perform a differential expression analysis, first without the
 shrinkage step:
 
 ```{r de-analysis-1}
 set.seed(1)
-out1 <- de_analysis(fit,X,shrink.method = "none",control = list(nc = 4))
+de1 <- de_analysis(pbmc_facs$fit,pbmc_facs$counts,shrink.method = "none",
+                   control = list(nc = 4))
+```
+
+For reproducible results, we need to set the seed because posteriors
+of the log-fold change (LFC) statistics are estimated using MCMC. Here
+we inspect the distribution of acceptance rates for all combinations
+of genes and topics:
+
+```{r plot-acceptance-rates, fig.width=3, fig.height=2.5}
+ggplot(data.frame(x = c(de1$ar)),aes(x)) +
+  geom_histogram(color = "white",fill = "black",bins = 50) +
+  labs(x = "acceptance rate",y = "Monte Carlo samples") +
+  theme_cowplot(font_size = 10)
 ```
 
 Perform a second DE analysis in which we use adaptive shrinkage (ash)
-to stabilize the LFC estimates.
+to stabilize the LFC estimates:
 
 ```{r de-analysis-2}
 set.seed(1)
-out2 <- de_analysis(fit,X,shrink.method = "ash",control = list(nc = 4))
+de2 <- de_analysis(pbmc_facs$fit,pbmc_facs$counts,shrink.method = "ash",
+                   control = list(nc = 4))
 ```
 
-TO DO: Plot raw LFC estimates vs. stabilized estimates.
+The adaptive shrinkage does indeed shrink the smallest LFC estimates
+(with higher levels of uncertainty) toward zero. This plot compares
+the raw LFC estimates against the stabilized LFC estimates for topic
+4:
 
+```{r raw-vs-ash, fig.width=3, fig.height=3}
+k <- 4
+pdat <- data.frame(b1 = de1$est[,k],b2 = de2$est[,k])
+ggplot(pdat,aes(x = b1,y = b2)) +
+  geom_point(color = "darkblue") +
+  geom_abline(intercept = 0,slope = 1,color = "magenta",linetype = "dotted") +
+  labs(x = "MLE estimate",y = "stabilized MLE estimate") +
+  theme_cowplot(font_size = 10)
+```
+
+Here we visualize the results (with shrinkage) for topic 4 by plotting
+the LFC estimates in the x-axis vs. a measure of support (here we use
+z-scores) in the y-axis (a "volcano plot"). We highlight genes with
+LFC > 1 and z-score > 8; the null-model probabilities $f_0$ are shown
+in different colours to distinguish genes that have high or low
+overall levels of expression.
+
+```{r volcano-plot, fig.width=5, fig.height=4, warning=FALSE}
+pdat <- data.frame(lfc  = de2$est[,k],
+                   z    = abs(de2$z[,k]),
+                   f0   = log10(de2$f0),
+                   gene = pbmc_facs$genes$symbol,
+                   stringsAsFactors = FALSE)
+rows <- which(!with(pdat,lfc > 1 & z > 10))
+pdat[rows,"gene"] <- ""
+ggplot(pdat,aes(x = lfc,y = z,fill = f0,label = gene)) +
+  geom_point(color = "white",stroke = 0.3,shape = 21) +
+  geom_text_repel(color = "darkgray",size = 2.2,fontface = "italic",
+                  segment.color = "darkgray",segment.size = 0.2,
+                  min.segment.length = 0,max.overlaps = Inf) +
+  scale_y_continuous(trans = "sqrt",limits = c(0,75),
+                     breaks = c(0,1,2,5,10,20,50)) +
+  scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
+                       na.value = "gainsboro",midpoint = -4) +
+  labs(x = "log-fold change",y = "|z-score|",fill = "log10(f0)") +
+  theme_cowplot(font_size = 10)
+```
+
+Indeed, the top DE genes such as *CD79A*, *CD19* and *MS4A1* point to
+this topic capturing gene expression in B cells.
