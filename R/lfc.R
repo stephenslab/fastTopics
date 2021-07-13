@@ -234,7 +234,7 @@ compute_hpd_intervals <- function (samples, conf.level,
     lower[i] <- out[1]
     upper[i] <- out[2]
   }
-  return(list(lower = lower,upper = lower))
+  return(list(lower = lower,upper = upper))
 }
 
 # Compute z-scores given the point estimates (est), posterior means
