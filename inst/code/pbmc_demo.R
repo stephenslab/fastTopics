@@ -24,7 +24,7 @@ hist(out2$ar,n = 64)
 k <- 4
 pdat1 <- data.frame(b1 = out1$est[,k],b2 = out2$est[,k])
 p1 <- ggplot(pdat1,aes(x = b1,y = b2)) +
-  geom_point(shape = 21,color = "white",fill = "black",na.rm = TRUE) +
+  geom_point(shape = 21,color = "white",fill = "darkblue",na.rm = TRUE) +
   geom_abline(intercept = 0,slope = 1,color = "magenta",linetype = "dotted") +
   labs(x = "MLE estimate",y = "stabilized MLE estimate") +
   theme_cowplot(font_size = 10)

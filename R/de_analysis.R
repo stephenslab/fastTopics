@@ -25,17 +25,17 @@
 #' log-fold change to be measured in several ways.
 #'
 #' One option is to compare against the probability under the null
-#' model: \eqn{LFC(j) = \log(f_j/f_0)}, where \eqn{f_0} is the single
+#' model: \eqn{LFC(j) = log2(f_j/f_0)}, where \eqn{f_0} is the single
 #' parameter in the Poisson model \eqn{x_i ~ Poisson(\lambda_i)} with
 #' rates \eqn{\lambda_i s_i f_0}. This LFC definition is chosen with
 #' \code{lfc.stat = "vsnull"}.
 #'
 #' Another option is to compare against a chosen topic, k: \eqn{LFC(j)
-#' = \log(f_j/f_k)}. This LFC definition is selected by setting
+#' = log2(f_j/f_k)}. This LFC definition is selected by setting
 #' \code{lfc.stat = k}.
 #'
 #' A final option (which is the default) computes the \dQuote{least
-#' extreme} LFC, defined as \eqn{LFC(j) = log(f_j/f_k)} such that
+#' extreme} LFC, defined as \eqn{LFC(j) = log2(f_j/f_k)} such that
 #' \eqn{k} is the topic other than \eqn{j} that gives the ratio
 #' \eqn{f_j/f_k} closest to 1. This option is chosen with
 #' \code{lfc.stat = "de"}.
@@ -45,6 +45,10 @@
 #' accuracy of the LFC estimates. We follow the settings used in
 #' \code{lfcShrink} from the DESeq2 package, with \code{type =
 #' "ashr"}.
+#'
+#' Note that all LFC statistics are defined using the base-2 logarithm
+#' following the conventioned used in differential expression
+#' analysis.
 #' 
 #' The \code{control} argument is a list in which any of the
 #' following named components will override the default optimization

@@ -23,8 +23,10 @@
 # estimated LFC statistics; (2) "lower", the estimated lower limits of
 # the HPD intervals; (3) "upper", the estimated upper limits of the
 # HPD intervals; (4) and "z", the z-scores determined from the LFC
-# estimates and the HPD intervals. Note that all outputted LFC
-# statistics are defined with the base-2 logarithm.
+# estimates and the HPD intervals.
+#
+# Note that all outputted LFC statistics are defined with the base-2
+# logarithm.
 #
 #' @importFrom stats rnorm
 #' @importFrom stats runif
@@ -71,15 +73,14 @@ compute_lfc_stats <- function (X, F, L, f0,
     ar[j,]    <- out$ar
   }
 
-  # Compute the z-scores and -log10 p-values, then output the LFC
-  # estimates (est), lower and upper limits of the HPD intervals, the
-  # z-scores (z) and MCMC acceptance rates (ar).
-  z <- compute_zscores(est,mean,lower,upper)
+  # Compute the z-scores, then output the LFC estimates (est), lower
+  # and upper limits of the HPD intervals, the z-scores (z), and MCMC
+  # acceptance rates (ar).
   return(list(ar    = ar,
               est   = est/log(2),
               lower = lower/log(2),
               upper = upper/log(2),
-              z     = z))
+              z     = compute_zscores(est,mean,lower,upper)))
 }
 
 # This is the multithreaded variant of compute_lfc_stats. See the
@@ -169,28 +170,11 @@ compute_lfc_stats_helper <- function (j, X, F, L, D, U, M, ls, f0,
 # 
 #' @importFrom Matrix colMeans
 compute_lfc_vsnull <- function (f, f0, samples, conf.level) {
-
-  # Compute the point estimates and posterior means.
   est     <- log(f) - log(f0)
   samples <- samples - log(f0)
   mean    <- colMeans(samples)
-
-  # Compute the HPD intervals.
-  k     <- length(f)
-  lower <- rep(0,k)
-  upper <- rep(0,k)
-  for (i in 1:k) {
-    out      <- hpd(samples[,i],conf.level)
-    lower[i] <- out[1]
-    upper[i] <- out[2]
-  }
-
-  # Output the point estimate (est), posterior mean (mean) and
-  # limits of the HPD interval (lower, upper) as a 4 x k matrix.
-  return(rbind(est   = est,
-               mean  = mean,
-               lower = lower,
-               upper = upper))
+  ans     <- compute_hpd_intervals(samples,conf.level)
+  return(rbind(est = est,mean = mean,lower = ans$lower,upper = ans$upper))
 }
 
 # Compute "pairwise" LFC posterior statistics LFC(k) = log(fk,fj). The
@@ -207,31 +191,14 @@ compute_lfc_vsnull <- function (f, f0, samples, conf.level) {
 # 
 #' @importFrom Matrix colMeans
 compute_lfc_pairwise <- function (f, j, samples, conf.level) {
-    
-  # Compute the point estimates and posterior means.
+  k       <- length(f)
   est     <- log(f/f[j])
   samples <- samples - samples[,j]
   mean    <- colMeans(samples)
+  ans     <- compute_hpd_intervals(samples,conf.level,setdiff(1:k,j))
   est[j]  <- 0
   mean[j] <- 0
-
-  # Compute the HPD intervals.
-  k      <- length(f)
-  topics <- setdiff(1:k,j)
-  lower  <- rep(0,k)
-  upper  <- rep(0,k)
-  for (i in topics) {
-    out      <- hpd(samples[,i],conf.level)
-    lower[i] <- out[1]
-    upper[i] <- out[2]
-  }
-
-  # Output the point estimate (est), posterior mean (mean) and
-  # limits of the HPD interval (lower, upper) as a 4 x k matrix.
-  return(rbind(est   = est,
-               mean  = mean,
-               lower = lower,
-               upper = upper))
+  return(rbind(est = est,mean = mean,lower = ans$lower,upper = ans$upper))
 }
 
 # Compute posterior estimates of the "least extreme" LFC statistics
@@ -249,32 +216,30 @@ compute_lfc_pairwise <- function (f, j, samples, conf.level) {
 # 
 #' @importFrom Matrix colMeans
 compute_lfc_le <- function (f, samples, conf.level) {
-
-  # Compute the point estimates and posterior means.
-  k       <- length(f)
-  est     <- drop(le_diff_rcpp(matrix(log(f),1,k)))
+  est     <- drop(le_diff_rcpp(matrix(log(f),1,length(f))))
   samples <- le_diff_rcpp(samples)
   mean    <- colMeans(samples)
+  ans     <- compute_hpd_intervals(samples,conf.level)
+  return(rbind(est = est,mean = mean,lower = ans$lower,upper = ans$upper))
+}
 
-  # Compute the HPD intervals.
+# Output an HPD interval for each column of the samples matrix.
+compute_hpd_intervals <- function (samples, conf.level,
+                                   cols = seq(1,ncol(samples))) {
+  k     <- ncol(samples)
   lower <- rep(0,k)
   upper <- rep(0,k)
-  for (i in 1:k) {
+  for (i in cols) {
     out      <- hpd(samples[,i],conf.level)
     lower[i] <- out[1]
     upper[i] <- out[2]
   }
-  
-  # Output the point estimate (est), posterior mean (mean) and
-  # limits of the HPD interval (lower, upper) as a 4 x k matrix.
-  return(rbind(est   = est,
-               mean  = mean,
-               lower = lower,
-               upper = upper))
+  return(list(lower = lower,upper = lower))
 }
 
 # Compute z-scores given the point estimates (est), posterior means
-# (mean), and lower and upper limits of the HPD intervals.
+# (mean), and lower and upper limits of the HPD intervals (lower,
+# upper).
 compute_zscores <- function (est, mean, lower, upper) {
   z <- est
   i <- which(est < 0)

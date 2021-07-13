@@ -1,14 +1,12 @@
 to do
 =====
 
-+ Update pbmc_demo.R, and add comments.
-
 + Create small vignette (pbmc_de_analysis.Rmd) to illustrate new
   methods.
 
-+ Refactor code in lfc.R, and add more comments as needed.
++ Update volcano plots.
 
-+ Add tests for de_analysis.
++ Add/revise tests for de_analysis and volcano plot functions.
 
 + Update poisson_demo.R.
 
