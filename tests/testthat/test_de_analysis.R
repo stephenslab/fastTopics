@@ -125,9 +125,9 @@ test_that(paste("de_analysis with and without multithreading, using a",
     set.seed(1)
     capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
                                       control = list(ns = 100,nc = 2)))
-    expect_equal(de1,de2,scale = 1,tolerance = 1e-10)
-    expect_equal(de1,de3,scale = 1,tolerance = 1e-10)
-    expect_equal(de1,de4,scale = 1,tolerance = 1e-10)
+    expect_equal(de1,de2,scale = 1,tolerance = 1e-6)
+    expect_equal(de1,de3,scale = 1,tolerance = 1e-6)
+    expect_equal(de1,de4,scale = 1,tolerance = 1e-6)
   }
 })
 

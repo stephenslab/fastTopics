@@ -1,0 +1,51 @@
+---
+title: "Illustration of the new DE methods in fastTopics"
+author: Peter Carbonetto
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    highlight: textmate
+    theme: readable
+---
+
+*Add overview here.*
+
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
+                      fig.align = "center",dpi = 120)
+```
+
+Load the packages:
+
+```{r load-pkgs, message=FALSE, warning=FALSE}
+library(Matrix)
+# library(fastTopics)
+library(ggplot2)
+library(cowplot)
+```
+
+Load the UMI counts for 3,774 cells:
+
+```{r load-data}
+data(pbmc_facs)
+dim(pbmc_facs$counts)
+```
+
+Perform a differential expression analysis, first without the
+shrinkage step:
+
+```{r de-analysis-1}
+set.seed(1)
+out1 <- de_analysis(fit,X,shrink.method = "none",control = list(nc = 4))
+```
+
+Perform a second DE analysis in which we use adaptive shrinkage (ash)
+to stabilize the LFC estimates.
+
+```{r de-analysis-2}
+set.seed(1)
+out2 <- de_analysis(fit,X,shrink.method = "ash",control = list(nc = 4))
+```
+
+TO DO: Plot raw LFC estimates vs. stabilized estimates.
+
