@@ -42,13 +42,14 @@ summary(pbmc_facs$fit)
 ```
 
 As a reminder, the topics largely capture the FACS cell-type labeling,
-with two topics capturing heterogeneity in T cells:
+with the topic proportions capturing some missed heterogeneity within
+the FACS populations:
 
 ```{r structure-plot-with-celltype-labels, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
-structure_plot(fit,topics = 1:6,colors = topic_colors,
-               grouping = samples$subpop,gap = 25)
+structure_plot(pbmc_facs$fit,topics = 1:6,colors = topic_colors,
+               grouping = pbmc_facs$samples$subpop,gap = 25)
 ```
 
 Perform a differential expression analysis, first without the
@@ -61,11 +62,11 @@ de1 <- de_analysis(pbmc_facs$fit,pbmc_facs$counts,shrink.method = "none",
 ```
 
 For reproducible results, we need to set the seed because posteriors
-of the log-fold change (LFC) statistics are estimated using MCMC. Here
-we inspect the distribution of acceptance rates for all combinations
-of genes and topics:
+of the log-fold change (LFC) statistics are estimated using
+MCMC. Let's check the acceptance rates for all combinations of genes
+and topics:
 
-```{r plot-acceptance-rates, fig.width=3, fig.height=2.5}
+```{r plot-acceptance-rates, fig.width=3.25, fig.height=2.5}
 ggplot(data.frame(x = c(de1$ar)),aes(x)) +
   geom_histogram(color = "white",fill = "black",bins = 50) +
   labs(x = "acceptance rate",y = "Monte Carlo samples") +
@@ -96,12 +97,12 @@ ggplot(pdat,aes(x = b1,y = b2)) +
   theme_cowplot(font_size = 10)
 ```
 
-Here we visualize the results (with shrinkage) for topic 4 by plotting
-the LFC estimates in the x-axis vs. a measure of support (here we use
-z-scores) in the y-axis (a "volcano plot"). We highlight genes with
-LFC > 1 and z-score > 8; the null-model probabilities $f_0$ are shown
-in different colours to distinguish genes that have high or low
-overall levels of expression.
+Finally, we visualize the results for topic 4 by plotting the
+(stabilized) LFC estimates in the x-axis vs. a measure of support
+(here we use z-scores) in the y-axis; *i.e.*, a volcano plot. In this
+plot we highlight genes with LFC > 1 and z-score > 8. The null-model
+probabilities $f_0$ are mapped to colour to distinguish genes that
+have high or low overall levels of expression.
 
 ```{r volcano-plot, fig.width=5, fig.height=4, warning=FALSE}
 pdat <- data.frame(lfc  = de2$est[,k],
@@ -124,5 +125,16 @@ ggplot(pdat,aes(x = lfc,y = z,fill = f0,label = gene)) +
   theme_cowplot(font_size = 10)
 ```
 
-Indeed, the top DE genes such as *CD79A*, *CD19* and *MS4A1* point to
-this topic capturing gene expression in B cells.
+The top DE genes such as *CD79A*, *CD19* and *MS4A1* point to this
+topic capturing gene expression in B cells, which aligns well with the
+FACS labeling.
+
+Session info
+------------
+
+This is the version of R and the packages that were used to generate
+these results:
+
+```{r session-info}
+sessionInfo()
+```

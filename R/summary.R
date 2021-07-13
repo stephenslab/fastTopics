@@ -137,7 +137,7 @@ print.summary.multinom_topic_model_fit <-
   cat(sprintf("  Max KKT residual: %+0.6e\n",x$res))
   if (!(show.size.factors | show.mixprops | show.topic.reps))
     message("Set show.size.factors = TRUE, show.mixprops = TRUE and/or ",
-            "show.topic.reps = TRUE in print(...) to show more informataion")
+            "show.topic.reps = TRUE in print(...) for more information")
   if (show.size.factors & !is.null(x$s)) {
     cat(sprintf("Size factors:\n"))
     q        <- quantile(x$s)
