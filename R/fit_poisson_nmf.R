@@ -74,9 +74,10 @@
 #' 
 #' \describe{
 #'
-#' \item{\code{numiter}}{Number of "inner loop" iterations to run when
-#'   performing and update of the factors or loadings. This must be set
-#'   to 1 for \code{method = "mu"} and \code{method = "ccd"}.}
+#' \item{\code{numiter}}{Number of \dQuote{inner loop} iterations to
+#'   run when performing and update of the factors or loadings. This
+#'   must be set to 1 for \code{method = "mu"} and \code{method =
+#'   "ccd"}.}
 #'
 #' \item{\code{nc}}{Number of RcppParallel threads to use for the
 #'   updates. When \code{nc} is \code{NA}, the default number of threads
