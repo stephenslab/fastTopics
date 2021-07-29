@@ -1,26 +1,36 @@
 #' @rdname select_loadings
 #'
-#' @title Extract or Re-order Data Rows in Multinomial Topic Model 
+#' @title Extract or Re-order Data Rows in Poisson NMF or Multinomial Topic Model Fit
 #'
 #' @description This function can be used to extract estimates for a
 #'   subset of the count data, or to re-order the rows of the loadings
-#'   matrix in a multinomial topic model fit.
+#'   matrix.
 #'
-#' @param .data Multinomial Topic Model fit; that is, an object of
-#'   class \dQuote{multinom_topic_model_fit}, such as an output from
-#'   \code{fit_topic_model}.
+#' @param .data Poisson NMF or Multinomial Topic Model fit; that is,
+#'   an object of class \dQuote{poisson_nmf_fit} or
+#'   \dQuote{multinom_topic_model_fit}, such as an output from
+#'   \code{\link{fit_poisson_nmf}} or \code{\link{fit_topic_model}}.
 #'
 #' @param loadings Indices (names or numbers) giving data rows to
 #'   keep. If not specified, all rows are kept.
 #' 
 #' @param \dots Other arguments passed to the generic select function.
 #' 
-#' @return A multinomial topic model fit containing the selected
-#'   data rows only.
+#' @return A Poisson NMF or multinomial topic model fit containing the
+#'   selected data rows only.
 #'
 #' @importFrom dplyr select
 #'
 #' @aliases select
+#' 
+#' @method select poisson_nmf_fit
+#'
+#' @export
+#' 
+select.poisson_nmf_fit <- function (.data, loadings, ...)
+  select_loadings(.data,loadings,...)
+
+#' @rdname select_loadings
 #' 
 #' @method select multinom_topic_model_fit
 #'
@@ -34,8 +44,9 @@ select.multinom_topic_model_fit <- function (.data, loadings, ...)
 #' @export
 #'
 select_loadings <- function (.data, loadings, ...) {
-  if (!inherits(.data,"multinom_topic_model_fit"))
-    stop("Input argument \"fit\" should be an object of class ",
+  if (!(inherits(fit,"poisson_nmf_fit") |
+        inherits(fit,"multinom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
          "\"multinom_topic_model_fit\"")
   verify.fit(.data)
   n <- nrow(.data$L)
