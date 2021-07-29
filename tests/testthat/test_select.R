@@ -47,3 +47,24 @@ test_that(paste("Select S3 method correctly subsets and re-orders the",
   expect_equal(colnames(fit3$L),c("k3","k1+k2"))
   expect_equal(fit3,fit4)
 })
+
+test_that(paste("select followed by poisson2multinom gives the same result",
+                "as poisson2multinom followed by select"),{
+
+  # Generate a 80 x 100 data matrix to factorize.
+  set.seed(1)
+  n <- 80
+  m <- 100
+  k <- 3
+  X <- generate_test_data(n,m,k)$X
+
+  # Run 20 EM updates.
+  capture.output(fit <- fit_poisson_nmf(X,k = k,numiter = 20,method = "em"))
+  rows <- sample(n,20)
+
+  # Check that select followed by poisson2multinom gives the same
+  # result as poisson2multinom followed by select.
+  fit1 <- poisson2multinom(select(fit,rows))
+  fit2 <- select(poisson2multinom(fit),rows)
+  expect_equal(fit1,fit2,scale = 1,tolerance = 1e-15)
+})
