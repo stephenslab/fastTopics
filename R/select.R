@@ -34,7 +34,7 @@ select.multinom_topic_model_fit <- function (.data, loadings, ...)
 #' @export
 #'
 select_loadings <- function (.data, loadings, ...) {
-  if (!inherits(fit,"multinom_topic_model_fit"))
+  if (!inherits(.data,"multinom_topic_model_fit"))
     stop("Input argument \"fit\" should be an object of class ",
          "\"multinom_topic_model_fit\"")
   verify.fit(.data)
