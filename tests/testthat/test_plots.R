@@ -88,7 +88,7 @@ test_that("Test that other plotting functions work",{
   capture.output(y <- drop(tsne_from_topics(poisson2multinom(fit1),dims = 1)))
   capture.output(p1 <- structure_plot(fit1))
   capture.output(p2 <- structure_plot(fit1,grouping = grouping,gap = 5))
-  p3 <- structure_plot(fit1,rows = order(y))
+  p3 <- structure_plot(fit1,loadings_plot = order(y))
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
   expect_s3_class(p3,"ggplot")

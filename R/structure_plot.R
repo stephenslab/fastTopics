@@ -25,15 +25,6 @@
 #'   as input, the corresponding multinomial topic model fit is
 #'   automatically recovered using \code{\link{poisson2multinom}}.
 #'
-#' @param grouping Optional categorical variable (a factor) with one
-#'   entry for each row of the loadings matrix \code{fit$L} defining a
-#'   grouping of the samples (rows). The samples (rows) are arranged
-#'   along the horizontal axis according to this grouping, then within
-#'   each group according to \code{rows} or, if not provided, according
-#'   to the 1-d embedding computed by \code{embed_method}. If
-#'   \code{grouping} is not a factor, an attempt is made to convert it
-#'   to a factor using \code{as.factor}.
-#' 
 #' @param topics Top-to-bottom ordering of the topics in the Structure
 #'   plot; \code{topics[1]} is shown on the top, \code{topics[2]} is
 #'   shown next, and so on. If the ordering of the topics is not
@@ -41,17 +32,29 @@
 #'   with the greatest total \dQuote{mass} are at shown at the bottom of
 #'   the plot. The topics may be specified by number or by name.
 #' 
-#' @param rows Ordering of the rows (samples) in the Structure plot
-#'   after they have been grouped. This may include all the rows, or a
-#'   subset of the rows. If not provided, it is generated automatically
-#'   from a 1-d embedding, separately for each group. The rows may be
-#'   specified by number or by name.
+#' @param grouping Optional categorical variable (a factor) with one
+#'   entry for each row of the loadings matrix \code{fit$L} defining a
+#'   grouping of the samples (rows). The samples (rows) are arranged
+#'   along the horizontal axis according to this grouping, then within
+#'   each group according to \code{loadings_order}. If
+#'   \code{grouping} is not a factor, an attempt is made to convert it
+#'   to a factor using \code{as.factor}. Note that if
+#'   \code{loadings_order} is specified manually, \code{grouping} should
+#'   be the groups for the rows of \code{fit$L} \emph{before} reordering.
+#' 
+#' @param loadings_order Ordering of the rows of the loadings matrix
+#'   \code{fit$L} along the horizontal axis the Structure plot (after
+#'   they have been grouped). If \code{loadings_order = "embed"}, the
+#'   ordering is generated automatically from a 1-d embedding,
+#'   separately for each group. The rows may be specified by number or
+#'   by name. Note that \code{loadings_order} may include all the rows
+#'   of \code{fit$L}, or a subset.
 #'
 #' @param n The maximum number of samples (rows of the loadings matrix
 #'   \code{fit$L}) to include in the plot. Typically there is little to
 #'   no benefit in including large number of samples in the Structure
-#'   plot due to screen resolution limits. Ignored if \code{rows} is
-#'   provided.
+#'   plot due to screen resolution limits. Ignored if
+#'   \code{loadings_order} is provided.
 #'
 #' @param colors Colors used to draw topics in Structure plot. The
 #'   default colour setting is the from \url{https://colorbrewer2.org}
@@ -61,12 +64,13 @@
 #'   \code{grouping} is not provided.
 #'
 #' @param embed_method The function used to compute an 1-d embedding
-#'   from a loadings matrix \code{fit$L}; ignored if \code{rows} is
-#'   provided. The function must accept the multinomial topic model fit
-#'   as its first input (\dQuote{fit}) and additional arguments may be
-#'   passed (\dots). The output should be a named numeric vector with
-#'   one entry per row of \code{fit$L}, and the names of the entries
-#'   should be the same as the row names of \code{fit$L}.
+#'   from a loadings matrix \code{fit$L}; only used if
+#'   \code{loadings_order = "embed"}. The function must accept the
+#'   multinomial topic model fit as its first input (\dQuote{fit}) and
+#'   additional arguments may be passed (\dots). The output should be a
+#'   named numeric vector with one entry per row of \code{fit$L}, and
+#'   the names of the entries should be the same as the row names of
+#'   \code{fit$L}.
 #'
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{structure_plot_ggplot_call} with your own function to
@@ -96,15 +100,15 @@
 #' # Get the multinomial topic model fitted to the
 #' # PBMC data.
 #' fit <- pbmc_facs$fit
-#' 
-#' # Create a Structure plot without labels. The samples (rows) are
-#' # automatically arranged along the x-axis using t-SNE to highlight
-#' # the structure in the data.
+#'
+#' # Create a Structure plot without labels. The samples (rows of L) are
+#' # automatically arranged along the x-axis using t-SNE to highlight the
+#' # structure in the data.
 #' p1 <- structure_plot(fit)
 #'
 #' # Create a Structure plot with the FACS cell-type labels. Within each
-#' # group (cell-type), the cells (rows) are automatically arranged using
-#' # t-SNE.
+#' # group (cell-type), the cells (rows of L) are automatically arranged
+#' # using t-SNE.
 #' subpop <- pbmc_facs$samples$subpop
 #' p2 <- structure_plot(fit,grouping = subpop)
 #'
@@ -112,26 +116,31 @@
 #' # "topics" argument to specify the order in which the topic
 #' # proportions are stacked on top of each other; (2) use the "gap"
 #' # argrument to increase the whitespace between the groups; (3) use "n"
-#' # to decrease the number of rows included in the Structure plot; and
-#' # (4) use "colors" to change the colors used to draw the topic
+#' # to decrease the number of rows of L included in the Structure plot;
+#' # and (4) use "colors" to change the colors used to draw the topic
 #' # proportions.
 #' topic_colors <- c("skyblue","forestgreen","darkmagenta",
 #'                   "dodgerblue","gold","darkorange")
 #' p3 <- structure_plot(fit,grouping = pbmc_facs$samples$subpop,gap = 20,
 #'                      n = 1500,topics = c(5,6,1,4,2,3),colors = topic_colors)
 #'
-#' # In this final example, we use UMAP instead of t-SNE to arrange all
-#' # 3,744 cells in the Structure plot. Note that this can be
-#' # accomplished in a different way by overriding the default setting of
-#' # "embed_method".
+#' # In this example, we use UMAP instead of t-SNE to arrange all 3,744
+#' # cells in the Structure plot. Note that this can be accomplished in a
+#' # different way by overriding the default setting of "embed_method".
 #' y <- drop(umap_from_topics(fit,dims = 1))
-#' p4 <- structure_plot(fit,rows = order(y),grouping = subpop,gap = 40,
-#'                      colors = topic_colors)
+#' p4 <- structure_plot(fit,loadings_order = order(y),grouping = subpop,
+#'                      gap = 40,colors = topic_colors)
+#'
+#' # In this final example, we plot a random subset of 400 cells, and
+#' # arrange the cells randomly along the horizontal axis of the
+#' # Structure plot.
+#' p5 <- structure_plot(fit,loadings_order = sample(3744,400),gap = 10,
+#'                      grouping = subpop,colors = topic_colors)
 #'
 #' @export
 #'
 structure_plot <-
-  function (fit, grouping, topics, rows, n = 2000,
+  function (fit, topics, grouping, loadings_order = "embed", n = 2000,
             colors = c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                        "#ffff33","#a65628","#f781bf","#999999"),
             gap = 1, embed_method = structure_plot_default_embed_method,
@@ -147,15 +156,6 @@ structure_plot <-
   n0 <- nrow(fit$L)
   k  <- ncol(fit$L)
   
-  # Check and process input argument "grouping".
-  if (missing(grouping))
-    grouping <- factor(rep(1,n0))
-  if (!is.factor(grouping))
-    grouping <- as.factor(grouping)
-  if (length(grouping) != n0)
-    stop("Input argument \"grouping\" should be a factor with one entry ",
-         "for each row of fit$L")
-  
   # Check and process input argument "topics".
   if (missing(topics))
     topics <- order(colMeans(fit$L))
@@ -165,47 +165,55 @@ structure_plot <-
     stop("Input argument \"topics\" should be a reordering of the topics ",
          "(columns of fit$L) specified by their names or column indices")
 
+  # Check and process input argument "grouping".
+  if (missing(grouping))
+    grouping <- factor(rep(1,n0))
+  if (!is.factor(grouping))
+    grouping <- as.factor(grouping)
+  if (length(grouping) != n0)
+    stop("Input argument \"grouping\" should be a factor with one entry ",
+         "for each row of fit$L")
+
   # Check and process input argument "colors".
   if (length(colors) < k)
     stop("There must be at least as many colours as topics")
   colors <- colors[topics]
 
-  # Check and process input arguments "rows" and "n".
-  if (missing(rows)) {
+  # Check and process input arguments "loadings_order" and "n".
+  if (all(loadings_order == "embed")) {
 
-    # If necessary, randomly subsample the rows.
+    # If necessary, randomly subsample the rows of L.
     if (n < n0) {
-      rows     <- sample(n0,n)
-      fit      <- select_loadings(fit,rows)
+      rows <- sample(n0,n)
+      fit <- select_loadings(fit,rows)
       grouping <- grouping[rows,drop = FALSE]
-      rows     <- 1:n
     }
 
     # The ordering of the rows is not provided, so determine an
     # ordering by computing a 1-d embedding of L.
     if (nlevels(grouping) == 1) {
       y <- embed_method(fit,...)
-      rows <- order(y)
+      loadings_order <- order(y)
     } else {
-      rows <- NULL
+      loadings_order <- NULL
       for (group in levels(grouping)) {
         i <- which(grouping == group)
         if (length(i) > 0)
           y <- embed_method(select_loadings(fit,i),...)
-        rows <- c(rows,i[order(y)])
+        loadings_order <- c(loadings_order,i[order(y)])
       }
     }
   } else {
     if (!missing(n))
-      warning("Input argument \"n\" is ignored when \"rows\" is specified")
-    n <- length(rows)
-    if (is.character(rows))
-      rows <- match(rows,rownames(fit$L))
+      warning("Input argument \"n\" is ignored when \"loadings_order\" is ",
+              "not \"embed\"")
+    if (is.character(loadings_order))
+      loadings_order <- match(loadings_order,rownames(fit$L))
   }
   
-  # Prepare the data for plotting and create the Structure plot.
-  fit$L <- fit$L[rows,]
-  grouping <- grouping[rows]
+  # Prepare the data for plotting and create the structure plot.
+  fit$L <- fit$L[loadings_order,]
+  grouping <- grouping[loadings_order,drop = FALSE]
   if (nlevels(grouping) == 1) {
     dat <- compile_structure_plot_data(fit$L,topics)
     return(ggplot_call(dat,colors))

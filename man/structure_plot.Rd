@@ -10,9 +10,9 @@
 \usage{
 structure_plot(
   fit,
-  grouping,
   topics,
-  rows,
+  grouping,
+  loadings_order = "embed",
   n = 2000,
   colors = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
     "#a65628", "#f781bf", "#999999"),
@@ -36,15 +36,6 @@ structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 9)
 as input, the corresponding multinomial topic model fit is
 automatically recovered using \code{\link{poisson2multinom}}.}
 
-\item{grouping}{Optional categorical variable (a factor) with one
-entry for each row of the loadings matrix \code{fit$L} defining a
-grouping of the samples (rows). The samples (rows) are arranged
-along the horizontal axis according to this grouping, then within
-each group according to \code{rows} or, if not provided, according
-to the 1-d embedding computed by \code{embed_method}. If
-\code{grouping} is not a factor, an attempt is made to convert it
-to a factor using \code{as.factor}.}
-
 \item{topics}{Top-to-bottom ordering of the topics in the Structure
 plot; \code{topics[1]} is shown on the top, \code{topics[2]} is
 shown next, and so on. If the ordering of the topics is not
@@ -52,17 +43,29 @@ specified, the topics are automatically ordered so that the topics
 with the greatest total \dQuote{mass} are at shown at the bottom of
 the plot. The topics may be specified by number or by name.}
 
-\item{rows}{Ordering of the rows (samples) in the Structure plot
-after they have been grouped. This may include all the rows, or a
-subset of the rows. If not provided, it is generated automatically
-from a 1-d embedding, separately for each group. The rows may be
-specified by number or by name.}
+\item{grouping}{Optional categorical variable (a factor) with one
+entry for each row of the loadings matrix \code{fit$L} defining a
+grouping of the samples (rows). The samples (rows) are arranged
+along the horizontal axis according to this grouping, then within
+each group according to \code{loadings_order}. If
+\code{grouping} is not a factor, an attempt is made to convert it
+to a factor using \code{as.factor}. Note that if
+\code{loadings_order} is specified manually, \code{grouping} should
+be the groups for the rows of \code{fit$L} \emph{before} reordering.}
+
+\item{loadings_order}{Ordering of the rows of the loadings matrix
+\code{fit$L} along the horizontal axis the Structure plot (after
+they have been grouped). If \code{loadings_order = "embed"}, the
+ordering is generated automatically from a 1-d embedding,
+separately for each group. The rows may be specified by number or
+by name. Note that \code{loadings_order} may include all the rows
+of \code{fit$L}, or a subset.}
 
 \item{n}{The maximum number of samples (rows of the loadings matrix
 \code{fit$L}) to include in the plot. Typically there is little to
 no benefit in including large number of samples in the Structure
-plot due to screen resolution limits. Ignored if \code{rows} is
-provided.}
+plot due to screen resolution limits. Ignored if
+\code{loadings_order} is provided.}
 
 \item{colors}{Colors used to draw topics in Structure plot. The
 default colour setting is the from \url{https://colorbrewer2.org}
@@ -72,12 +75,13 @@ default colour setting is the from \url{https://colorbrewer2.org}
 \code{grouping} is not provided.}
 
 \item{embed_method}{The function used to compute an 1-d embedding
-from a loadings matrix \code{fit$L}; ignored if \code{rows} is
-provided. The function must accept the multinomial topic model fit
-as its first input (\dQuote{fit}) and additional arguments may be
-passed (\dots). The output should be a named numeric vector with
-one entry per row of \code{fit$L}, and the names of the entries
-should be the same as the row names of \code{fit$L}.}
+from a loadings matrix \code{fit$L}; only used if
+\code{loadings_order = "embed"}. The function must accept the
+multinomial topic model fit as its first input (\dQuote{fit}) and
+additional arguments may be passed (\dots). The output should be a
+named numeric vector with one entry per row of \code{fit$L}, and
+the names of the entries should be the same as the row names of
+\code{fit$L}.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{structure_plot_ggplot_call} with your own function to
@@ -139,14 +143,14 @@ data(pbmc_facs)
 # PBMC data.
 fit <- pbmc_facs$fit
 
-# Create a Structure plot without labels. The samples (rows) are
-# automatically arranged along the x-axis using t-SNE to highlight
-# the structure in the data.
+# Create a Structure plot without labels. The samples (rows of L) are
+# automatically arranged along the x-axis using t-SNE to highlight the
+# structure in the data.
 p1 <- structure_plot(fit)
 
 # Create a Structure plot with the FACS cell-type labels. Within each
-# group (cell-type), the cells (rows) are automatically arranged using
-# t-SNE.
+# group (cell-type), the cells (rows of L) are automatically arranged
+# using t-SNE.
 subpop <- pbmc_facs$samples$subpop
 p2 <- structure_plot(fit,grouping = subpop)
 
@@ -154,21 +158,26 @@ p2 <- structure_plot(fit,grouping = subpop)
 # "topics" argument to specify the order in which the topic
 # proportions are stacked on top of each other; (2) use the "gap"
 # argrument to increase the whitespace between the groups; (3) use "n"
-# to decrease the number of rows included in the Structure plot; and
-# (4) use "colors" to change the colors used to draw the topic
+# to decrease the number of rows of L included in the Structure plot;
+# and (4) use "colors" to change the colors used to draw the topic
 # proportions.
 topic_colors <- c("skyblue","forestgreen","darkmagenta",
                   "dodgerblue","gold","darkorange")
 p3 <- structure_plot(fit,grouping = pbmc_facs$samples$subpop,gap = 20,
                      n = 1500,topics = c(5,6,1,4,2,3),colors = topic_colors)
 
-# In this final example, we use UMAP instead of t-SNE to arrange all
-# 3,744 cells in the Structure plot. Note that this can be
-# accomplished in a different way by overriding the default setting of
-# "embed_method".
+# In this example, we use UMAP instead of t-SNE to arrange all 3,744
+# cells in the Structure plot. Note that this can be accomplished in a
+# different way by overriding the default setting of "embed_method".
 y <- drop(umap_from_topics(fit,dims = 1))
-p4 <- structure_plot(fit,rows = order(y),grouping = subpop,gap = 40,
-                     colors = topic_colors)
+p4 <- structure_plot(fit,loadings_order = order(y),grouping = subpop,
+                     gap = 40,colors = topic_colors)
+
+# In this final example, we plot a random subset of 400 cells, and
+# arrange the cells randomly along the horizontal axis of the
+# Structure plot.
+p5 <- structure_plot(fit,loadings_order = sample(3744,400),gap = 10,
+                     grouping = subpop,colors = topic_colors)
 
 }
 \references{
