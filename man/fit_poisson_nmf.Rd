@@ -71,7 +71,8 @@ is only implemented for \code{method = "em"} and \code{method =
 
 \item{known.factors}{Describe input argument "known.factors" here.}
 
-\item{known.loadings}{Describe input argument "known.loadings" here.}
+\item{known.loadings}{Describe input argument "known.loadings"
+here.}
 
 \item{method}{The method to use for updating the factors and
 loadings. Four methods are implemented: multiplicative updates,
