@@ -13,6 +13,8 @@ fit_poisson_nmf(
   numiter = 100,
   update.factors = seq(1, ncol(X)),
   update.loadings = seq(1, nrow(X)),
+  known.factors = NULL,
+  known.loadings = NULL,
   method = c("scd", "em", "mu", "ccd"),
   init.method = c("topicscore", "random"),
   control = list(),
@@ -66,6 +68,10 @@ by rescaling. When \code{NULL}, all loadings are fixed. This option
 is only implemented for \code{method = "em"} and \code{method =
 "scd"}. If another method is selected, the default setting of
 \code{update.loadings} must be used.}
+
+\item{known.factors}{Describe input argument "known.factors" here.}
+
+\item{known.loadings}{Describe input argument "known.loadings" here.}
 
 \item{method}{The method to use for updating the factors and
 loadings. Four methods are implemented: multiplicative updates,

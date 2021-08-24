@@ -161,6 +161,10 @@
 #'   is only implemented for \code{method = "em"} and \code{method =
 #'   "scd"}. If another method is selected, the default setting of
 #'   \code{update.loadings} must be used.
+#'
+#' @param known.factors Describe input argument "known.factors" here.
+#'
+#' @param known.loadings Describe input argument "known.loadings" here.
 #' 
 #' @param method The method to use for updating the factors and
 #'   loadings. Four methods are implemented: multiplicative updates,
@@ -332,6 +336,7 @@
 fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                              update.factors = seq(1,ncol(X)),
                              update.loadings = seq(1,nrow(X)),
+                             known.factors = NULL, known.loadings = NULL,
                              method = c("scd","em","mu","ccd"),
                              init.method = c("topicscore","random"),
                              control = list(),
@@ -361,6 +366,10 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   update.loadings <- sort(update.loadings)
   if (length(update.factors) == 0 & length(update.loadings) == 0)
     stop("None of the factors or loadings have been selected for updating")
+
+  # Check and process input arguments "known.factors" and
+  # "known.loadings".
+  # TO DO.
   
   # Check and process input arguments "method" and "init.method".
   method      <- match.arg(method)
@@ -427,7 +436,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.5-59).\n")
+    cat("(fastTopics 0.5-101).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -435,7 +444,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
   # Re-scale the initial estimates of the factors and loadings so that
   # they are on same scale on average. This is intended to improve
   # numerical stability of the updates.
-  fit <- rescale.fit(fit)
+  if (is.null(known.factors) & is.null(known.loadings))
+    fit <- rescale.fit(fit)
 
   # Initialize the estimates of the factors and loadings. To prevent
   # the updates from getting "stuck", force the initial estimates to
@@ -448,7 +458,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     cat("iter loglik(PoisNMF) loglik(multinom) res(KKT)  |F-F'|  |L-L'|",
         "nz(F) nz(L) beta\n")
   fit <- fit_poisson_nmf_main_loop(X,fit,numiter,update.factors,
-                                   update.loadings,method,control,
+                                   update.loadings,known.factors,
+                                   known.loadings,method,control,
                                    verbose)
 
   # Output the updated "fit".
@@ -646,7 +657,8 @@ init_poisson_nmf <-
 #
 #' @importFrom progress progress_bar
 fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
-                                       update.loadings, method, control,
+                                       update.loadings, known.factors,
+                                       known.loadings, method, control,
                                        verbose) {
   if (verbose == "progressbar")
     pb <- progress_bar$new(total = numiter)
@@ -683,7 +695,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
       # loadings.
       extrapolate <- FALSE
       fit <- update_poisson_nmf(X,fit,update.factors,update.loadings,
-                                method,control)
+                                known.factors,known.loadings,method,
+                                control)
     }
     t2 <- proc.time()
 
@@ -736,24 +749,31 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
 # Note that "update.factors" and "update.loadings" is ignored for
 # method = "mu" and method = "ccd".
 update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
-                                method, control) {
+                                known.factors, known.loadings, method,
+                                control) {
 
   # Update the loadings ("activations"). The factors are forced to be
   # non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
   if (length(update.loadings) > 0) {
+    L0    <- fit$L
     fit$L <- update_loadings_poisson_nmf(X,fit$F,fit$L,update.loadings,
                                          method,control)
     fit$L <- pmax(fit$L,control$minval)
+    if (!is.null(known.loadings))
+      fit$L[,known.loadings] <- L0[,known.loadings]
   }
 
   # Update the factors ("basis vectors"). The loadings are forced to
   # be non-negative, or positive; the latter can promote better
   # convergence for some algorithms.
   if (length(update.factors) > 0) {
+    F0    <- fit$F
     fit$F <- update_factors_poisson_nmf(X,fit$F,fit$L,update.factors,
                                         method,control)
     fit$F <- pmax(fit$F,control$minval)
+    if (!is.null(known.factors))
+      fit$F[,known.factors] <- F0[,known.factors]
   }
   
   # The extrapolated and "current best" estimates are the same as the
@@ -764,7 +784,8 @@ update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
   fit$Ln <- fit$L
 
   # Re-scale the factors and loadings.
-  fit <- rescale.fit(fit)
+  if (is.null(known.factors) & is.null(known.loadings))
+    fit <- rescale.fit(fit)
 
   # Compute the value of the objective ("loss") function at the updated
   # estimates.
