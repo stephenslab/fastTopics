@@ -437,7 +437,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.5-102).\n")
+    cat("(fastTopics 0.5-103).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -688,8 +688,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
       # Perform an "extrapolated" update of the factors and loadings.
       extrapolate <- TRUE
       fit <- update_poisson_nmf_extrapolated(X,fit,update.factors,
-                                             update.loadings,known.factors,
-                                             known.loadings,method,control)
+                                             update.loadings,method,control)
     } else {
 
       # Perform a basic coordinate-wise update of the factors and
@@ -816,8 +815,7 @@ update_poisson_nmf <- function (X, fit, update.factors, update.loadings,
 # Note that "update.factors" and "update.loadings" is ignored for
 # method = "mu" and method = "ccd".
 update_poisson_nmf_extrapolated <- function (X, fit, update.factors,
-                                             update.loadings, known.factors,
-                                             known.loadings, method,
+                                             update.loadings, method,
                                              control) {
 
   # Store the value of the objective (loss) function at the current
@@ -826,21 +824,15 @@ update_poisson_nmf_extrapolated <- function (X, fit, update.factors,
 
   # Compute the extrapolated update for the loadings ("activations").
   # Note that when beta is zero, Ly = Ln.
-  L0 <- fit$Ln
-  Ln <- update_loadings_poisson_nmf(X,fit$Fy,fit$Ly,update.loadings,
-                                    method,control)
-  if (!is.null(known.loadings))
-    Ln[,known.loadings] <- L0[,known.loadings]
+  Ln     <- update_loadings_poisson_nmf(X,fit$Fy,fit$Ly,update.loadings,
+                                        method,control)
   Ln     <- pmax(Ln,control$minval)
   fit$Ly <- pmax(Ln + fit$beta*(Ln - fit$Ln),control$minval)
 
   # Compute the extrapolated update for the factors ("basis vectors").
   # Note that when beta = 0, Fy = Fn.
-  F0 <- fit$Fn
-  Fn <- update_factors_poisson_nmf(X,fit$Fy,fit$Ly,update.factors,
+  Fn     <- update_factors_poisson_nmf(X,fit$Fy,fit$Ly,update.factors,
                                        method,control)
-  if (!is.null(known.factors))
-    Fn[,known.factors] <- F0[,known.factors]
   Fn     <- pmax(Fn,control$minval)
   fit$Fy <- pmax(Fn + fit$beta*(Fn - fit$Fn),control$minval)
   
