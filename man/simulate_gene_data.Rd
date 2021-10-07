@@ -6,7 +6,7 @@
 \title{Simulate Gene Expression Data from Poisson NMF or Multinomial
   Topic Model}
 \usage{
-simulate_poisson_gene_data(n, m, k, s, sparse = FALSE)
+simulate_poisson_gene_data(n, m, k, s, p = 1, sparse = FALSE)
 
 simulate_multinom_gene_data(n, m, k, sparse = FALSE)
 }
@@ -20,10 +20,14 @@ at least 2.}
 \item{k}{Number of factors, or \dQuote{topics}, used to generate
 the data. Should be 2 or more.}
 
-\item{s}{A vector of \dQuote{size factors}; each row of the
-loadings matrix \code{L} is scaled by the entries of \code{s}
-before generating the counts. This should be a vector of length n
+\item{s}{Vector of \dQuote{size factors}; each row of the loadings
+matrix \code{L} is scaled by the entries of \code{s} before
+generating the counts. This should be a vector of length n
 containing only positive values.}
+
+\item{p}{Probability that \code{F[i,j]} is equal to the mean rate.
+Smaller values of \code{p} will result in more factors that are the
+same across topics.}
 
 \item{sparse}{If \code{sparse = TRUE}, convert the counts matrix to
 a sparse matrix in compressed, column-oriented format; see

@@ -209,10 +209,14 @@ simulate_toy_gene_data <- function (n, m, k, s) {
 #' @param k Number of factors, or \dQuote{topics}, used to generate
 #'   the data. Should be 2 or more.
 #'
-#' @param s A vector of \dQuote{size factors}; each row of the
-#'   loadings matrix \code{L} is scaled by the entries of \code{s}
-#'   before generating the counts. This should be a vector of length n
+#' @param s Vector of \dQuote{size factors}; each row of the loadings
+#'   matrix \code{L} is scaled by the entries of \code{s} before
+#'   generating the counts. This should be a vector of length n
 #'   containing only positive values.
+#'
+#' @param p Probability that \code{F[i,j]} is equal to the mean rate.
+#'   Smaller values of \code{p} will result in more factors that are the
+#'   same across topics.
 #' 
 #' @param sparse If \code{sparse = TRUE}, convert the counts matrix to
 #'   a sparse matrix in compressed, column-oriented format; see
@@ -231,7 +235,7 @@ simulate_toy_gene_data <- function (n, m, k, s) {
 #' 
 #' @export
 #'
-simulate_poisson_gene_data <- function (n, m, k, s, sparse = FALSE) {
+simulate_poisson_gene_data <- function (n, m, k, s, p = 1, sparse = FALSE) {
 
   # Check inputs.
   if (!(is.scalar(n) & all(n >= 2)))
@@ -246,7 +250,7 @@ simulate_poisson_gene_data <- function (n, m, k, s, sparse = FALSE) {
     s <- rep(1,n)
   
   # Simulate the data.
-  F <- generate_poisson_rates(m,k)
+  F <- generate_poisson_rates(m,k,p)
   L <- generate_mixture_proportions(n,k)
   X <- generate_poisson_nmf_counts(F,s*L)
   if (sparse)
@@ -351,11 +355,12 @@ generate_mixture_proportions <- function (n, k) {
 # model) according to the following procedure. For each count: (1)
 # generate u = abs(r) - 5, where r ~ N(0,2); (2) for each topic k,
 # generate the Poisson rate as exp(max(t,-5)), where t ~ 0.95 *
-# N(u,s/10) + 0.05 * N(u,s), and s = exp(-u/8).
+# N(u,s/10) + 0.05 * N(u,s) with probability p, t = u with
+# probability 1-p, and s = exp(-u/8).
 #
 #' @importFrom stats runif
 #' @importFrom stats rnorm
-generate_poisson_rates <- function (m, k) {
+generate_poisson_rates <- function (m, k, p = 1) {
   F <- matrix(0,m,k)
   for (j in 1:m) {
     u <- abs(rnorm(1,0,2)) - 5
@@ -363,6 +368,7 @@ generate_poisson_rates <- function (m, k) {
     a <- runif(k)
     z <- (a >= 0.05) * rnorm(k,u,s/10) +
          (a < 0.05)  * rnorm(k,u,s)
+    z[runif(k) < 1-p] <- u
     F[j,] <- exp(pmax(-5,z))
   }
   return(F)
