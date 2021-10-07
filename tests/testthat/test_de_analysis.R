@@ -165,7 +165,8 @@ test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
   expect_s3_class(p4,"plotly")
 })
 
-test_that("DE statistics are correct for k = 2 topics",{
+test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
+                "for k = 2 topics"),{
 
   # Simulate gene expression data.
   set.seed(1)
@@ -182,7 +183,7 @@ test_that("DE statistics are correct for k = 2 topics",{
   m <- ncol(X)
 
   # Fit a multinomial topic model with k = 2 topics.
-  fit <- fit_topic_model(X,k = 2)
+  capture.output(fit <- fit_topic_model(X,k = 2))
   
   # Compute "pairwise" LFC statistics.
   capture.output(de1 <- de_analysis(fit,X,lfc.stat = "k1"))
@@ -190,14 +191,23 @@ test_that("DE statistics are correct for k = 2 topics",{
 
   # By definition LFC(k) where k is the same as lfc.stat should be
   # zero, and the z-scores and p-values should be NA.
-  expect_equivalent(de1$est[,"k1"],rep(0,m),scale = 1,tolerance = 1e-5)
-  expect_equivalent(de2$est[,"k2"],rep(0,m),scale = 1,tolerance = 1e-5)
-  expect_equivalent(de1$lower[,"k1"],rep(0,m),scale = 1,tolerance = 1e-5)
-  expect_equivalent(de2$lower[,"k2"],rep(0,m),scale = 1,tolerance = 1e-5)
-  expect_equivalent(de1$upper[,"k1"],rep(0,m),scale = 1,tolerance = 1e-5)
-  expect_equivalent(de2$upper[,"k2"],rep(0,m),scale = 1,tolerance = 1e-5)
-  expect_equivalent(de1$z[,"k1"],rep(as.numeric(NA),m))
-  expect_equivalent(de2$z[,"k2"],rep(as.numeric(NA),m))
-  expect_equivalent(de1$lpval[,"k1"],rep(as.numeric(NA),m))
-  expect_equivalent(de2$lpval[,"k2"],rep(as.numeric(NA),m))
+  expect_equivalent(de1$est[,1],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$est[,2],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$lower[,1],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$lower[,2],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$upper[,1],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$upper[,2],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$z[,1],rep(as.numeric(NA),m))
+  expect_equivalent(de2$z[,2],rep(as.numeric(NA),m))
+  expect_equivalent(de1$lpval[,1],rep(as.numeric(NA),m))
+  expect_equivalent(de2$lpval[,2],rep(as.numeric(NA),m))
+  
+  # Compute "least extreme" LFC statistics.
+  capture.output(de <- de_analysis(fit,X,lfc.stat = "le"))
+  
+  expect_equal(de$est[,1],-de$est[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$lower[,1],-de$upper[,2],scale = 1,tolerance =  1e-15)
+  expect_equal(de$upper[,1],-de$lower[,2],scale = 1,tolerance =  1e-15)
+  expect_equal(de$z[,1],-de$z[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$lpval[,1],de$lpval[,2],scale = 1,tolerance = 1e-15)
 })
