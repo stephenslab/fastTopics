@@ -163,3 +163,30 @@ hpd <- function (x, conf.level = 0.68) {
   i <- which.min(y)
   return(c(x[i],x[n-m+i]))
 }
+
+# This replicates the minimum Kullback-Leibler (KL) divergence
+# calculation used in ExtractTopFeatures from CountClust, with method
+# = "poisson". Input F should be an n x k matrix of frequency
+# estimates from the multinomial topic model, where n is the number of
+# data columns, and k is the number of topics. The return value is a
+# matrix of the same dimension as F containing the minimum
+# KL-divergence calculations.
+min_kl_poisson <- function (F, e = 1e-15) {
+    
+  # Get the number of rows (n)and columns (k) of F.
+  n <- nrow(F)
+  k <- ncol(F)
+
+  # Compute the minimum KL-divergence measure for each row and column
+  # of F.
+  D <- matrix(0,n,k)
+  for (i in 1:n) {
+    f <- F[i,] + e
+    for (j in 1:k) {
+      y      <- f[j]*log(f[j]/f) + f - f[j]
+      D[i,j] <- min(y[-j])
+    }
+  }
+  
+  return(D)
+}

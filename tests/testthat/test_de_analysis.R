@@ -196,7 +196,7 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   capture.output(de1 <- de_analysis(fit,X,lfc.stat = "k1"))
   capture.output(de2 <- de_analysis(fit,X,lfc.stat = "k2"))
 
-  # By definition LFC(k) where k is the same as lfc.stat should be
+  # By definition, LFC(k) where k is the same as lfc.stat should be
   # zero, and the z-scores and p-values should be NA.
   expect_equivalent(de1$est[,1],rep(0,m),scale = 1,tolerance = 1e-5)
   expect_equivalent(de2$est[,2],rep(0,m),scale = 1,tolerance = 1e-5)
@@ -211,7 +211,9 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   
   # Compute "least extreme" LFC statistics.
   capture.output(de <- de_analysis(fit,X,lfc.stat = "le"))
-  
+
+  # By definition, LFC(1) should always be the same as -LFC(2) when
+  # there are only two topics. Other quantities follow similarly.
   expect_equal(de$est[,1],-de$est[,2],scale = 1,tolerance = 1e-15)
   expect_equal(de$lower[,1],-de$upper[,2],scale = 1,tolerance =  1e-15)
   expect_equal(de$upper[,1],-de$lower[,2],scale = 1,tolerance =  1e-15)
