@@ -31,14 +31,16 @@
 #' \code{lfc.stat = "vsnull"}.
 #'
 #' Another option is to compare against a chosen topic, k: \eqn{LFC(j)
-#' = log2(f_j/f_k)}. This LFC definition is selected by setting
+#' = log2(f_j/f_k)}. By definition, \eqn{LFC(k)} is zero, and
+#' statistics such as z-scores and p-values for topic k are set to
+#' \code{NA}. This LFC definition is selected by setting
 #' \code{lfc.stat = k}.
 #'
 #' A final option (which is the default) computes the \dQuote{least
 #' extreme} LFC, defined as \eqn{LFC(j) = log2(f_j/f_k)} such that
 #' \eqn{k} is the topic other than \eqn{j} that gives the ratio
 #' \eqn{f_j/f_k} closest to 1. This option is chosen with
-#' \code{lfc.stat = "de"}.
+#' \code{lfc.stat = "le"}.
 #' 
 #' We recommend setting \code{shrink.method = "ash"}, which uses the
 #' \dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
@@ -197,7 +199,7 @@
 #' 
 de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
                          fit.method = c("scd","em","mu","ccd","glm"),
-                         shrink.method = c("ash","none"), lfc.stat = "de",
+                         shrink.method = c("ash","none"), lfc.stat = "le",
                          control = list(), verbose = TRUE, ...) {
 
   # CHECK AND PROCESS INPUTS
@@ -242,9 +244,9 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   control <- modifyList(de_analysis_control_default(),control,keep.null = TRUE)
   
   # Check and process input argument "lfc.stat".
-  if (!(all(lfc.stat == "vsnull") | all(lfc.stat == "de"))) {
+  if (!(all(lfc.stat == "vsnull") | all(lfc.stat == "le"))) {
     if (!(any(lfc.stat == 1:k) | any(lfc.stat == colnames(fit$F))))
-      stop("Input argument \"lfc.stat\" should be either \"vsnull\", \"de\" ",
+      stop("Input argument \"lfc.stat\" should be either \"vsnull\", \"le\" ",
            "a number between 1 and k, where k is the number of topics, or ",
            "a name of a topic (column of fit$F)")
     if (is.character(lfc.stat))
@@ -334,7 +336,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     if (verbose)
       cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
     se <- with(out,est/z)
-    se[out$z == 0] <- NA
+    se[out$z == 0] <- as.numeric(NA)
     se[out$est == 0] <- 0
     res     <- shrink_estimates(out$est,se,...)
     out$est <- res$b
@@ -361,7 +363,7 @@ shrink_estimates <- function (b, se, ...) {
 
   # Set up the z-scores output.
   z <- b
-  z[is.na(b) | is.na(se)] <- NA
+  z[is.na(b) | is.na(se)] <- as.numeric(NA)
   
   # Run adaptive shrinkage.
   i   <- which(!(is.na(b) | is.na(se)))
@@ -373,7 +375,7 @@ shrink_estimates <- function (b, se, ...) {
   b[i]  <- b1
   se[i] <- se1
   z[i]  <- b[i]/se[i]
-  z[i[b1 == 0]] <- NA
+  z[i[b1 == 0]] <- as.numeric(NA)
   z[i[se1 == 0]] <- 0
 
   # Output the revised estimates (b), standard errors (se) and

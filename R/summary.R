@@ -253,7 +253,8 @@ compare_fits <- function (fits) {
     out[i,"k"]          <- ncol(fit$F)
     out[i,"loglik"]     <- ifelse(inherits(fit,"poisson_nmf_fit"),x$loglik,
                                   x$loglik.multinom)
-    out[i,"dev"]        <- ifelse(inherits(fit,"poisson_nmf_fit"),x$dev,NA)
+    out[i,"dev"]        <- ifelse(inherits(fit,"poisson_nmf_fit"),
+                                  x$dev,as.numeric(NA))
     out[i,"res"]        <- x$res
     out[i,"nonzeros.f"] <- x$nonzeros.f
     out[i,"nonzeros.l"] <- x$nonzeros.l

@@ -36,7 +36,7 @@ compute_lfc_stats <- function (X, F, L, f0,
                                D = matrix(rnorm(ns*k),1000,ncol(F)),
                                U = matrix(runif(ns*k),1000,ncol(F)),
                                M = matrix(sample(k,ns*k,replace=TRUE),ns,k)-1,
-                               lfc.stat = "de", conf.level = 0.68,
+                               lfc.stat = "le", conf.level = 0.68,
                                rw = 0.3, e = 1e-15, verbose = TRUE) {
 
   # Get the number of counts matrix columns (m) and the number of
@@ -149,7 +149,7 @@ compute_lfc_stats_helper <- function (j, X, F, L, D, U, M, ls, f0,
     out <- simulate_posterior_poisson_rcpp(X[,j],L,F[j,],D,U,M,rw,e)
   if (lfc.stat == "vsnull")
     dat <- compute_lfc_vsnull(F[j,],f0[j],out$samples,conf.level)
-  else if (lfc.stat == "de")
+  else if (lfc.stat == "le")
     dat <- compute_lfc_le(F[j,],out$samples,conf.level)
   else
     dat <- compute_lfc_pairwise(F[j,],lfc.stat,out$samples,conf.level)
@@ -187,8 +187,9 @@ compute_lfc_vsnull <- function (f, f0, samples, conf.level) {
 #
 # The return value is a 4 x k matrix containing LFC statistics: (1)
 # point estimate (est), posterior mean (mean), lower limit of the HPD
-# interval (lower) and upper limit (upper).
-# 
+# interval (lower) and upper limit (upper). By definition column j of
+# this matrix is all zeros.
+#
 #' @importFrom Matrix colMeans
 compute_lfc_pairwise <- function (f, j, samples, conf.level) {
   k       <- length(f)
@@ -196,9 +197,9 @@ compute_lfc_pairwise <- function (f, j, samples, conf.level) {
   samples <- samples - samples[,j]
   mean    <- colMeans(samples)
   ans     <- compute_hpd_intervals(samples,conf.level,setdiff(1:k,j))
-  est[j]  <- 0
-  mean[j] <- 0
-  return(rbind(est = est,mean = mean,lower = ans$lower,upper = ans$upper))
+  out     <- rbind(est = est,mean = mean,lower = ans$lower,upper = ans$upper)
+  out[,j] <- 0
+  return(out)
 }
 
 # Compute posterior estimates of the "least extreme" LFC statistics
@@ -254,8 +255,8 @@ compute_zscores <- function (est, mean, lower, upper) {
   upper1 <- upper[j]
   z0 <- est0/(2*(mean0 - lower0))
   z1 <- est1/(2*(upper1 - mean1))
-  z0[lower0 >= mean0] <- NA
-  z1[upper1 <= mean1] <- NA
+  z0[lower0 >= mean0] <- as.numeric(NA)
+  z1[upper1 <= mean1] <- as.numeric(NA)
   z[i] <- z0
   z[j] <- z1
   return(z)

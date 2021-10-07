@@ -12,7 +12,7 @@ de_analysis(
   pseudocount = 0.01,
   fit.method = c("scd", "em", "mu", "ccd", "glm"),
   shrink.method = c("ash", "none"),
-  lfc.stat = "de",
+  lfc.stat = "le",
   control = list(),
   verbose = TRUE,
   ...
@@ -116,14 +116,16 @@ rates \eqn{\lambda_i s_i f_0}. This LFC definition is chosen with
 \code{lfc.stat = "vsnull"}.
 
 Another option is to compare against a chosen topic, k: \eqn{LFC(j)
-= log2(f_j/f_k)}. This LFC definition is selected by setting
+= log2(f_j/f_k)}. By definition, \eqn{LFC(k)} is zero, and
+statistics such as z-scores and p-values for topic k are set to
+\code{NA}. This LFC definition is selected by setting
 \code{lfc.stat = k}.
 
 A final option (which is the default) computes the \dQuote{least
 extreme} LFC, defined as \eqn{LFC(j) = log2(f_j/f_k)} such that
 \eqn{k} is the topic other than \eqn{j} that gives the ratio
 \eqn{f_j/f_k} closest to 1. This option is chosen with
-\code{lfc.stat = "de"}.
+\code{lfc.stat = "le"}.
 
 We recommend setting \code{shrink.method = "ash"}, which uses the
 \dQuote{adaptive shrinkage} method (Stephens, 2016) to improve

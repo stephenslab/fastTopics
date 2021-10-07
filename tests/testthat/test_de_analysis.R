@@ -112,7 +112,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
   # long as the sequence of pseudorandom numbers is the same, the
   # output should be the same.
   fit <- init_poisson_nmf(X,L = L,init.method = "random")
-  for (lfc.stat in c("de","vsnull",paste0("k",1:4))) {
+  for (lfc.stat in c("le","vsnull",paste0("k",1:4))) {
     set.seed(1)
     capture.output(de1 <- de_analysis(fit,X,lfc.stat = lfc.stat,
                                       control = list(ns = 100,nc = 1)))
@@ -163,4 +163,41 @@ test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
   expect_s3_class(p2,"ggplot")
   expect_s3_class(p3,"plotly")
   expect_s3_class(p4,"plotly")
+})
+
+test_that("DE statistics are correct for k = 2 topics",{
+
+  # Simulate gene expression data.
+  set.seed(1)
+  n   <- 100
+  m   <- 200
+  k   <- 2
+  s   <- 10^runif(n,-1,1)
+  dat <- simulate_poisson_gene_data(n,m,k,s)
+  X   <- dat$X
+  L   <- dat$L
+
+  # Remove all-zero columns.
+  X <- X[,colSums(X) > 0]
+  m <- ncol(X)
+
+  # Fit a multinomial topic model with k = 2 topics.
+  fit <- fit_topic_model(X,k = 2)
+  
+  # Compute "pairwise" LFC statistics.
+  capture.output(de1 <- de_analysis(fit,X,lfc.stat = "k1"))
+  capture.output(de2 <- de_analysis(fit,X,lfc.stat = "k2"))
+
+  # By definition LFC(k) where k is the same as lfc.stat should be
+  # zero, and the z-scores and p-values should be NA.
+  expect_equivalent(de1$est[,"k1"],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$est[,"k2"],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$lower[,"k1"],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$lower[,"k2"],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$upper[,"k1"],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$upper[,"k2"],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$z[,"k1"],rep(as.numeric(NA),m))
+  expect_equivalent(de2$z[,"k2"],rep(as.numeric(NA),m))
+  expect_equivalent(de1$lpval[,"k1"],rep(as.numeric(NA),m))
+  expect_equivalent(de2$lpval[,"k2"],rep(as.numeric(NA),m))
 })
