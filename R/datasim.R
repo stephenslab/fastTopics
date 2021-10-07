@@ -368,7 +368,8 @@ generate_poisson_rates <- function (m, k, p = 1) {
     a <- runif(k)
     z <- (a >= 0.05) * rnorm(k,u,s/10) +
          (a < 0.05)  * rnorm(k,u,s)
-    z[runif(k) < 1-p] <- u
+    if (p < 1)
+      z[runif(k) < 1-p] <- u
     F[j,] <- exp(pmax(-5,z))
   }
   return(F)
