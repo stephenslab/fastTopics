@@ -86,14 +86,19 @@ normalize.rows.by.max <- function (A) {
 # For vector x, return a vector of the same length y containing the
 # "least extreme" differences y(i) = x(i) - x(j), in which j is the
 # index not equal to i such that abs(x(i) - x(j)) is the smallest
-# possible.
+# possible. The length of x should be 2 or more.
 le.diff <- function (x) {
   n <- length(x)
-  y <- rep(0,n)
-  for (i in 1:n) {
-    d <- x[i] - x
-    j <- order(abs(d))[2]
-    y[i] <- d[j]
+  if (n == 2) {
+    y <- x[1] - x[2]
+    y <- c(y,-y)
+  } else {
+    y <- rep(0,n)
+    for (i in 1:n) {
+      d <- x[i] - x
+      j <- order(abs(d))[2]
+      y[i] <- d[j]
+    }
   }
   return(y)
 }

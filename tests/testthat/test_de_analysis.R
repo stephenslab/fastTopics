@@ -2,9 +2,16 @@ context("de_analysis")
 
 test_that("le_diff_rcpp gives the same result as le.diff",{
   set.seed(1)
-  n <- 1000
-  m <- 20
-  X <- matrix(rnorm(n*m),n,m)
+  n  <- 1000
+  m  <- 20
+  X  <- matrix(rnorm(n*m),n,m)
+  Y1 <- t(apply(X,1,le.diff))
+  Y2 <- le_diff_rcpp(X)
+  expect_equal(Y1,Y2,scale = 1,tolerance = 1e-15)
+
+  # Next check the calculations for the special case of two elements.
+  m  <- 2
+  X  <- matrix(rnorm(n*m),n,m)
   Y1 <- t(apply(X,1,le.diff))
   Y2 <- le_diff_rcpp(X)
   expect_equal(Y1,Y2,scale = 1,tolerance = 1e-15)

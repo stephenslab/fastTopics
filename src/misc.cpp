@@ -46,25 +46,30 @@ arma::vec x_over_crossprod_rcpp (const arma::vec& i, const arma::vec& j,
 // possible.
 void le_diff (const vec& x, vec& y) {
   unsigned int n = x.n_elem;
-  uvec indices = sort_index(x);
-  unsigned int i, j, k;
-  double a, b;
-  i = indices(0);
-  j = indices(1);
-  y(i) = x(i) - x(j);
-  i = indices(n-1);
-  j = indices(n-2);
-  y(i) = x(i) - x(j);
-  for (unsigned int t = 1; t < n-1; t++) {
-    i = indices(t-1);
-    j = indices(t);
-    k = indices(t+1);
-    a = x(j) - x(i);
-    b = x(k) - x(j);
-    if (a <= b)
-      y(j) = x(j) - x(i);
-    else
-      y(j) = x(j) - x(k);
+  if (n == 2) {
+    y(0) = x(0) - x(1);
+    y(1) = -y(0);
+  } else {
+    uvec indices = sort_index(x);
+    unsigned int i, j, k;
+    double a, b;
+    i = indices(0);
+    j = indices(1);
+    y(i) = x(i) - x(j);
+    i = indices(n-1);
+    j = indices(n-2);
+    y(i) = x(i) - x(j);
+    for (unsigned int t = 1; t < n-1; t++) {
+      i = indices(t-1);
+      j = indices(t);
+      k = indices(t+1);
+      a = x(j) - x(i);
+      b = x(k) - x(j);
+      if (a <= b)
+        y(j) = x(j) - x(i);
+      else
+        y(j) = x(j) - x(k);
+    }
   }
 }
 
