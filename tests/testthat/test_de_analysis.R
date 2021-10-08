@@ -132,9 +132,9 @@ test_that(paste("de_analysis with and without multithreading, using a",
     set.seed(1)
     capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
                                       control = list(ns = 100,nc = 2)))
-    expect_equal(de1,de2,scale = 1,tolerance = 1e-6)
-    expect_equal(de1,de3,scale = 1,tolerance = 1e-6)
-    expect_equal(de1,de4,scale = 1,tolerance = 1e-6)
+    expect_equal(de1,de2,scale = 1,tolerance = 1e-5)
+    expect_equal(de1,de3,scale = 1,tolerance = 1e-5)
+    expect_equal(de1,de4,scale = 1,tolerance = 1e-5)
   }
 })
 
@@ -200,14 +200,16 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   # zero, and the z-scores and p-values should be NA.
   expect_equivalent(de1$est[,1],rep(0,m),scale = 1,tolerance = 1e-5)
   expect_equivalent(de2$est[,2],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$postmean[,1],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$postmean[,2],rep(0,m),scale = 1,tolerance = 1e-5)
   expect_equivalent(de1$lower[,1],rep(0,m),scale = 1,tolerance = 1e-5)
   expect_equivalent(de2$lower[,2],rep(0,m),scale = 1,tolerance = 1e-5)
   expect_equivalent(de1$upper[,1],rep(0,m),scale = 1,tolerance = 1e-5)
   expect_equivalent(de2$upper[,2],rep(0,m),scale = 1,tolerance = 1e-5)
-  expect_equivalent(de1$z[,1],rep(as.numeric(NA),m))
-  expect_equivalent(de2$z[,2],rep(as.numeric(NA),m))
-  expect_equivalent(de1$lpval[,1],rep(as.numeric(NA),m))
-  expect_equivalent(de2$lpval[,2],rep(as.numeric(NA),m))
+  expect_equivalent(de1$z[,1],rep(0,m))
+  expect_equivalent(de2$z[,2],rep(0,m))
+  expect_equivalent(de1$lpval[,1],rep(0,m))
+  expect_equivalent(de2$lpval[,2],rep(0,m))
   
   # Compute "least extreme" LFC statistics.
   capture.output(de <- de_analysis(fit,X,lfc.stat = "le"))
@@ -215,6 +217,7 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   # By definition, LFC(1) should always be the same as -LFC(2) when
   # there are only two topics. Other quantities follow similarly.
   expect_equal(de$est[,1],-de$est[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$postmean[,1],-de$postmean[,2],scale = 1,tolerance = 1e-15)
   expect_equal(de$lower[,1],-de$upper[,2],scale = 1,tolerance =  1e-15)
   expect_equal(de$upper[,1],-de$lower[,2],scale = 1,tolerance =  1e-15)
   expect_equal(de$z[,1],-de$z[,2],scale = 1,tolerance = 1e-15)

@@ -118,18 +118,18 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
 
   # Combine the individual compute_lfc_stats outputs, and output the
   # combined result.
-  out <- list(ar    = matrix(0,m,k),
-              est   = matrix(0,m,k),
-              post  = matrix(0,m,k),
-              lower = matrix(0,m,k),
-              upper = matrix(0,m,k),
-              z     = matrix(0,m,k))              
+  out <- list(ar       = matrix(0,m,k),
+              est      = matrix(0,m,k),
+              postmean = matrix(0,m,k),
+              lower    = matrix(0,m,k),
+              upper    = matrix(0,m,k),
+              z        = matrix(0,m,k))              
   dimnames(out$ar)       <- dimnames(F)
   dimnames(out$est)      <- dimnames(F)
   dimnames(out$postmean) <- dimnames(F)
   dimnames(out$lower)    <- dimnames(F)
   dimnames(out$upper)    <- dimnames(F)
-  dimnames(out$z)         <- dimnames(F)
+  dimnames(out$z)        <- dimnames(F)
   for (i in 1:nc) {
     j <- cols[[i]]
     out$ar[j,]       <- ans[[i]]$ar
