@@ -44,9 +44,9 @@
 #' 
 #' We recommend setting \code{shrink.method = "ash"}, which uses the
 #' \dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
-#' accuracy of the LFC estimates. We follow the settings used in
-#' \code{lfcShrink} from the DESeq2 package, with \code{type =
-#' "ashr"}.
+#' accuracy of the posterior mean estimates and z-scores. We follow
+#' the settings used in \code{lfcShrink} from the DESeq2 package, with
+#' \code{type = "ashr"}.
 #'
 #' Note that all LFC statistics are defined using the base-2 logarithm
 #' following the conventioned used in differential expression
@@ -107,7 +107,7 @@
 #'
 #' @param shrink.method Method used to stabilize the LFC estimates.
 #'   When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
-#'   implemented in the ashr package is used. When \code{shrink.method =
+#'   implemented in the ashr package is used to compute posterior. When \code{shrink.method =
 #'   "none"}, no stabilization is performed, and the \dQuote{raw} LFC
 #'   estimates are returned.
 #'
@@ -131,14 +131,19 @@
 #'
 #' \item{est}{The log-fold change estimates.}
 #'
+#' \item{postmean}{Posterior mean LFC estimates.}
+#' 
 #' \item{lower}{Lower limits of estimated HPD intervals.}
 #'
 #' \item{upper}{Upper limits of estimated HPD intervals.}
 #'
-#' \item{z}{z-scores for LFC estimates.}
+#' \item{z}{z-scores for posterior mean LFC estimates.}
 #'
 #' \item{lpval}{-log10 two-tailed p-values obtained from the
 #'   z-scores.}
+#'
+#' \item{lfsr}{When \code{shrink.method = "ash"} only, this output
+#'   contains the estimated local false sign rates.}
 #' 
 #' \item{F}{Maximum-likelihood estimates of the Poisson model
 #'   parameters.}
@@ -326,7 +331,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
             "(control$ns) or modifying the noise level of the random-walk ",
             "proposal distribution (control$rw) to improve the acceptance ",
             "rates")
-  
+
   # STABILIZE ESTIMATES USING ADAPTIVE SHRINKAGE
   # --------------------------------------------
   # If requested, use adaptive shrinkage to stabilize the log-fold
@@ -334,21 +339,25 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # se's of zero.
   if (shrink.method == "ash") {
     if (verbose)
-      cat("Stabilizing log-fold change estimates using adaptive shrinkage.\n")
-    se <- with(out,est/z)
+      cat("Stabilizing posterior log-fold change estimates using adaptive",
+          "shrinkage.\n")
+    se <- with(out,postmean/z)
     se[out$z == 0] <- as.numeric(NA)
-    se[out$est == 0] <- 0
-    res     <- shrink_estimates(out$est,se,...)
-    out$est <- res$b
-    out$z   <- res$z
-  }
+    se[out$postmean == 0] <- 0
+    res          <- shrink_estimates(out$postmean,se,...)
+    out$postmean <- res$b
+    out$z        <- res$z
+    out$lfsr     <- res$lfsr
+    dimnames(out$lfsr) <- dimnames(F)
+  } else
+    out$lfsr <- as.numeric(NA)
     
   # Compute the -log10 two-tailed p-values computed from the z-scores.
   out$lpval <- -lpfromz(out$z)
-    
+
   # Return the Poisson model MLEs (F), the log-fold change statistics
-  # (est, lower, upper, z, lpval), and the relative rates under the "null"
-  # model (f0).
+  # (est, postmean, lower, upper, z, lpval) and local false sign
+  # rates (lfsr), and the relative rates under the "null" model (f0).
   out$F <- F
   out$f0 <- f0
   class(out) <- c("topic_model_de_analysis","list")
@@ -360,7 +369,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
 # standard errors (se) and z-scores. All effects i in which either
 # b[i] or se[i] is missing (NA) are not revised.
 shrink_estimates <- function (b, se, ...) {
-
+  
   # Set up the z-scores output.
   z <- b
   z[is.na(b) | is.na(se)] <- as.numeric(NA)
@@ -375,12 +384,21 @@ shrink_estimates <- function (b, se, ...) {
   b[i]  <- b1
   se[i] <- se1
   z[i]  <- b[i]/se[i]
-  z[i[b1 == 0]] <- as.numeric(NA)
-  z[i[se1 == 0]] <- 0
+  z[i[b1 == 0]]  <- 0
+  z[i[se1 == 0]] <- as.numeric(NA)
 
-  # Output the revised estimates (b), standard errors (se) and
-  # z-scores (z).
-  return(list(b = b,se = se,z = z))
+  # Extract the lfsr estimates.
+  m       <- nrow(b)
+  k       <- ncol(b)
+  lfsr    <- matrix(as.numeric(NA),m,k)
+  lfsr[i] <- out$result$lfsr
+  
+  # Output the revised estimates (b), the standard errors (se) the
+  # z-scores (z) and the local false sign rates (lfsr).
+  return(list(b    = b,
+              se   = se,
+              z    = z,
+              lfsr = lfsr))
 }
 
 #' @rdname de_analysis

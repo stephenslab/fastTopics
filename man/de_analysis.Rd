@@ -42,7 +42,7 @@ for testing.}
 
 \item{shrink.method}{Method used to stabilize the LFC estimates.
 When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
-implemented in the ashr package is used. When \code{shrink.method =
+implemented in the ashr package is used to compute posterior. When \code{shrink.method =
 "none"}, no stabilization is performed, and the \dQuote{raw} LFC
 estimates are returned.}
 
@@ -67,14 +67,19 @@ A list with the following elements:
 
 \item{est}{The log-fold change estimates.}
 
+\item{postmean}{Posterior mean LFC estimates.}
+
 \item{lower}{Lower limits of estimated HPD intervals.}
 
 \item{upper}{Upper limits of estimated HPD intervals.}
 
-\item{z}{z-scores for LFC estimates.}
+\item{z}{z-scores for posterior mean LFC estimates.}
 
 \item{lpval}{-log10 two-tailed p-values obtained from the
   z-scores.}
+
+\item{lfsr}{When \code{shrink.method = "ash"} only, this output
+  contains the estimated local false sign rates.}
 
 \item{F}{Maximum-likelihood estimates of the Poisson model
   parameters.}
@@ -129,9 +134,9 @@ extreme} LFC, defined as \eqn{LFC(j) = log2(f_j/f_k)} such that
 
 We recommend setting \code{shrink.method = "ash"}, which uses the
 \dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
-accuracy of the LFC estimates. We follow the settings used in
-\code{lfcShrink} from the DESeq2 package, with \code{type =
-"ashr"}.
+accuracy of the posterior mean estimates and z-scores. We follow
+the settings used in \code{lfcShrink} from the DESeq2 package, with
+\code{type = "ashr"}.
 
 Note that all LFC statistics are defined using the base-2 logarithm
 following the conventioned used in differential expression

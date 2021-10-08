@@ -20,9 +20,10 @@
 # The return value is a list containing five matrices of the same
 # dimension as F. Several of these matrices contain posterior
 # quantities estimated via MCMC. The matrices are: (1) "est", the
-# estimated LFC statistics; (2) "lower", the estimated lower limits of
-# the HPD intervals; (3) "upper", the estimated upper limits of the
-# HPD intervals; (4) and "z", the z-scores determined from the LFC
+# point estimates of the LFC statistics; (2) "postmean", the posterior
+# mean estimates (3) "lower", the estimated lower limits of the HPD
+# intervals; (4) "upper", the estimated upper limits of the HPD
+# intervals; (5) and "z", the z-scores determined from the LFC
 # estimates and the HPD intervals.
 #
 # Note that all outputted LFC statistics are defined with the base-2
@@ -45,16 +46,16 @@ compute_lfc_stats <- function (X, F, L, f0,
   k <- ncol(F)
 
   # Allocate storage for the outputs.
-  est   <- matrix(0,m,k)
-  mean  <- matrix(0,m,k)
-  lower <- matrix(0,m,k)
-  upper <- matrix(0,m,k)
-  ar    <- matrix(0,m,k)
-  dimnames(est)   <- dimnames(F)
-  dimnames(mean)  <- dimnames(F)
-  dimnames(lower) <- dimnames(F)
-  dimnames(upper) <- dimnames(F)
-  dimnames(ar)    <- dimnames(F)
+  est      <- matrix(0,m,k)
+  postmean <- matrix(0,m,k)
+  lower    <- matrix(0,m,k)
+  upper    <- matrix(0,m,k)
+  ar       <- matrix(0,m,k)
+  dimnames(est)      <- dimnames(F)
+  dimnames(postmean) <- dimnames(F)
+  dimnames(lower)    <- dimnames(F)
+  dimnames(upper)    <- dimnames(F)
+  dimnames(ar)       <- dimnames(F)
 
   # Fill in the outputs, row by row. The core computation is performed
   # by compute_lfc_helper.
@@ -66,21 +67,22 @@ compute_lfc_stats <- function (X, F, L, f0,
       pb$tick()
     out <- compute_lfc_stats_helper(j,X,F,L,D,U,M,ls,f0,lfc.stat,
                                     conf.level,rw,e)
-    est[j,]   <- out$dat["est",]
-    mean[j,]  <- out$dat["mean",]
-    lower[j,] <- out$dat["lower",]
-    upper[j,] <- out$dat["upper",]
-    ar[j,]    <- out$ar
+    est[j,]      <- out$dat["est",]
+    postmean[j,] <- out$dat["postmean",]
+    lower[j,]    <- out$dat["lower",]
+    upper[j,]    <- out$dat["upper",]
+    ar[j,]       <- out$ar
   }
 
-  # Compute the z-scores, then output the LFC estimates (est), lower
-  # and upper limits of the HPD intervals, the z-scores (z), and MCMC
-  # acceptance rates (ar).
-  return(list(ar    = ar,
-              est   = est/log(2),
-              lower = lower/log(2),
-              upper = upper/log(2),
-              z     = compute_zscores(est,mean,lower,upper)))
+  # Compute the z-scores, then output the LFC point estimates (est),
+  # the posterior means (postmean), lower and upper limits of the HPD
+  # intervals, the z-scores (z), and MCMC acceptance rates (ar).
+  return(list(ar       = ar,
+              est      = est/log(2),
+              postmean = postmean/log(2),
+              lower    = lower/log(2),
+              upper    = upper/log(2),
+              z        = compute_zscores(postmean,lower,upper)))
 }
 
 # This is the multithreaded variant of compute_lfc_stats. See the
@@ -118,21 +120,24 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
   # combined result.
   out <- list(ar    = matrix(0,m,k),
               est   = matrix(0,m,k),
+              post  = matrix(0,m,k),
               lower = matrix(0,m,k),
               upper = matrix(0,m,k),
               z     = matrix(0,m,k))              
-  dimnames(out$ar)    <- dimnames(F)
-  dimnames(out$est)   <- dimnames(F)
-  dimnames(out$lower) <- dimnames(F)
-  dimnames(out$upper) <- dimnames(F)
-  dimnames(out$z)     <- dimnames(F)
+  dimnames(out$ar)       <- dimnames(F)
+  dimnames(out$est)      <- dimnames(F)
+  dimnames(out$postmean) <- dimnames(F)
+  dimnames(out$lower)    <- dimnames(F)
+  dimnames(out$upper)    <- dimnames(F)
+  dimnames(out$z)         <- dimnames(F)
   for (i in 1:nc) {
     j <- cols[[i]]
-    out$ar[j,]    <- ans[[i]]$ar
-    out$est[j,]   <- ans[[i]]$est
-    out$lower[j,] <- ans[[i]]$lower
-    out$upper[j,] <- ans[[i]]$upper
-    out$z[j,]     <- ans[[i]]$z
+    out$ar[j,]       <- ans[[i]]$ar
+    out$est[j,]      <- ans[[i]]$est
+    out$postmean[j,] <- ans[[i]]$postmean
+    out$lower[j,]    <- ans[[i]]$lower
+    out$upper[j,]    <- ans[[i]]$upper
+    out$z[j,]        <- ans[[i]]$z
   }
   return(out)
 }
@@ -165,16 +170,19 @@ compute_lfc_stats_helper <- function (j, X, F, L, D, U, M, ls, f0,
 # number between 0 and 1 giving the desired size of the HPD interval.
 #
 # The return value is a 4 x k matrix containing LFC statistics: (1)
-# point estimate (est), posterior mean (mean), lower limit of the HPD
-# interval (lower) and upper limit (upper).
+# point estimate (est), posterior mean (postmean), lower limit of the
+# HPD interval (lower) and upper limit (upper).
 # 
 #' @importFrom Matrix colMeans
 compute_lfc_vsnull <- function (f, f0, samples, conf.level) {
-  est     <- log(f) - log(f0)
-  samples <- samples - log(f0)
-  mean    <- colMeans(samples)
-  ans     <- compute_hpd_intervals(samples,conf.level)
-  return(rbind(est = est,mean = mean,lower = ans$lower,upper = ans$upper))
+  est      <- log(f) - log(f0)
+  samples  <- samples - log(f0)
+  postmean <- colMeans(samples)
+  ans      <- compute_hpd_intervals(samples,conf.level)
+  return(rbind(est      = est,
+               postmean = postmean,
+               lower    = ans$lower,
+               upper    = ans$upper))
 }
 
 # Compute "pairwise" LFC posterior statistics LFC(k) = log(fk,fj). The
@@ -186,19 +194,22 @@ compute_lfc_vsnull <- function (f, f0, samples, conf.level) {
 # size of the HPD interval.
 #
 # The return value is a 4 x k matrix containing LFC statistics: (1)
-# point estimate (est), posterior mean (mean), lower limit of the HPD
-# interval (lower) and upper limit (upper). By definition column j of
-# this matrix is all zeros.
+# point estimate (est), posterior mean (postmean), lower limit of the
+# HPD interval (lower) and upper limit (upper). By definition column j
+# of this matrix is all zeros.
 #
 #' @importFrom Matrix colMeans
 compute_lfc_pairwise <- function (f, j, samples, conf.level) {
-  k       <- length(f)
-  est     <- log(f/f[j])
-  samples <- samples - samples[,j]
-  mean    <- colMeans(samples)
-  ans     <- compute_hpd_intervals(samples,conf.level,setdiff(1:k,j))
-  out     <- rbind(est = est,mean = mean,lower = ans$lower,upper = ans$upper)
-  out[,j] <- 0
+  k        <- length(f)
+  est      <- log(f/f[j])
+  samples  <- samples - samples[,j]
+  postmean <- colMeans(samples)
+  ans      <- compute_hpd_intervals(samples,conf.level,setdiff(1:k,j))
+  out      <- rbind(est      = est,
+                    postmean = postmean,
+                    lower    = ans$lower,
+                    upper    = ans$upper)
+  out[,j]  <- 0
   return(out)
 }
 
@@ -212,16 +223,19 @@ compute_lfc_pairwise <- function (f, j, samples, conf.level) {
 # giving the desired size of the HPD interval.
 #
 # The return value is a 4 x k matrix containing LFC statistics: (1)
-# point estimate (est), posterior mean (mean), lower limit of the HPD
-# interval (lower) and upper limit (upper).
+# point estimate (est), posterior mean (postmean), lower limit of the
+# HPD interval (lower) and upper limit (upper).
 # 
 #' @importFrom Matrix colMeans
 compute_lfc_le <- function (f, samples, conf.level) {
-  est     <- drop(le_diff_rcpp(matrix(log(f),1,length(f))))
-  samples <- le_diff_rcpp(samples)
-  mean    <- colMeans(samples)
-  ans     <- compute_hpd_intervals(samples,conf.level)
-  return(rbind(est = est,mean = mean,lower = ans$lower,upper = ans$upper))
+  est      <- drop(le_diff_rcpp(matrix(log(f),1,length(f))))
+  samples  <- le_diff_rcpp(samples)
+  postmean <- colMeans(samples)
+  ans      <- compute_hpd_intervals(samples,conf.level)
+  return(rbind(est      = est,
+               postmean = postmean,
+               lower    = ans$lower,
+               upper    = ans$upper))
 }
 
 # Output an HPD interval for each column of the samples matrix.
@@ -238,25 +252,22 @@ compute_hpd_intervals <- function (samples, conf.level,
   return(list(lower = lower,upper = upper))
 }
 
-# Compute z-scores given the point estimates (est), posterior means
-# (mean), and lower and upper limits of the HPD intervals (lower,
-# upper).
-compute_zscores <- function (est, mean, lower, upper) {
-  z <- est
-  i <- which(est < 0)
-  j <- which(est >= 0)
-  est0   <- est[i]
-  est1   <- est[j]
-  mean0  <- mean[i]
-  mean1  <- mean[j]
+# Compute z-scores given posterior mean estimates (postmean), and
+# lower and upper limits of the HPD intervals (lower, upper).
+compute_zscores <- function (postmean, lower, upper) {
+  z <- postmean
+  i <- which(postmean < 0)
+  j <- which(postmean >= 0)
+  postmean0 <- postmean[i]
+  postmean1 <- postmean[j]
   lower0 <- lower[i]
   lower1 <- lower[j]
   upper0 <- upper[i]
   upper1 <- upper[j]
-  z0 <- est0/(2*(mean0 - lower0))
-  z1 <- est1/(2*(upper1 - mean1))
-  z0[lower0 >= mean0] <- as.numeric(NA)
-  z1[upper1 <= mean1] <- as.numeric(NA)
+  z0 <- postmean0/(2*(postmean0 - lower0))
+  z1 <- postmean1/(2*(upper1 - postmean1))
+  z0[lower0 >= postmean0] <- as.numeric(NA)
+  z1[upper1 <= postmean1] <- as.numeric(NA)
   z[i] <- z0
   z[j] <- z1
   return(z)
