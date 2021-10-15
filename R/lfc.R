@@ -264,8 +264,8 @@ compute_zscores <- function (postmean, lower, upper) {
   lower1 <- lower[j]
   upper0 <- upper[i]
   upper1 <- upper[j]
-  z0 <- postmean0/(2*(postmean0 - lower0))
-  z1 <- postmean1/(2*(upper1 - postmean1))
+  z0 <- postmean0/(postmean0 - lower0)
+  z1 <- postmean1/(upper1 - postmean1)
   z0[lower0 >= postmean0] <- as.numeric(NA)
   z1[upper1 <= postmean1] <- as.numeric(NA)
   z[i] <- z0

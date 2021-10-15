@@ -145,7 +145,7 @@ analysis.
 The \code{control} argument is a list in which any of the
 following named components will override the default optimization
 algorithm settings (as they are defined by
-\code{fit_poisson_nmf_control_default}):
+\code{de_analysis_control_default}):
 
 \describe{
 

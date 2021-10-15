@@ -188,5 +188,6 @@ min_kl_poisson <- function (F, e = 1e-15) {
     }
   }
   
+  dimnames(D) <- dimnames(F)
   return(D)
 }
