@@ -256,19 +256,22 @@ compute_hpd_intervals <- function (samples, conf.level,
 # lower and upper limits of the HPD intervals (lower, upper).
 compute_zscores <- function (postmean, lower, upper) {
   z <- postmean
-  i <- which(postmean < 0)
-  j <- which(postmean >= 0)
-  postmean0 <- postmean[i]
-  postmean1 <- postmean[j]
-  lower0 <- lower[i]
-  lower1 <- lower[j]
-  upper0 <- upper[i]
-  upper1 <- upper[j]
-  z0 <- postmean0/(postmean0 - lower0)
-  z1 <- postmean1/(upper1 - postmean1)
-  z0[lower0 >= postmean0] <- as.numeric(NA)
+
+  # First fix all the negative z-scores.
+  i         <- which(postmean < 0)
+  postmean1 <- postmean[i]
+  upper1    <- upper[i]
+  z1        <- postmean1/(upper1 - postmean1)
   z1[upper1 <= postmean1] <- as.numeric(NA)
-  z[i] <- z0
-  z[j] <- z1
+  z[i]      <- z1
+
+  # Next, fix all the positive z-scores.
+  i         <- which(postmean > 0)
+  postmean1 <- postmean[i]
+  lower1    <- lower[i]
+  z1        <- postmean1/(postmean1 - lower1)
+  z1[lower1 >= postmean1] <- as.numeric(NA)
+  z[i]      <- z1
+
   return(z)
 }

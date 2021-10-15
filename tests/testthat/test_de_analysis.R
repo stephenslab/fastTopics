@@ -122,16 +122,16 @@ test_that(paste("de_analysis with and without multithreading, using a",
   for (lfc.stat in c("le","vsnull",paste0("k",1:4))) {
     set.seed(1)
     capture.output(de1 <- de_analysis(fit,X,lfc.stat = lfc.stat,
-                                      control = list(ns = 100,nc = 1)))
+                                      control = list(nc = 1)))
     set.seed(1)
     capture.output(de2 <- de_analysis(fit,X,lfc.stat = lfc.stat,
-                                      control = list(ns = 100,nc = 2)))
+                                      control = list(nc = 2)))
     set.seed(1)
     capture.output(de3 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
-                                      control = list(ns = 100,nc = 1)))
+                                      control = list(nc = 1)))
     set.seed(1)
     capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
-                                      control = list(ns = 100,nc = 2)))
+                                      control = list(nc = 2)))
     expect_equal(de1,de2,scale = 1,tolerance = 1e-5)
     expect_equal(de1,de3,scale = 1,tolerance = 1e-5)
     expect_equal(de1,de4,scale = 1,tolerance = 1e-5)
