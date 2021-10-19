@@ -89,32 +89,34 @@ compute_lfc_stats <- function (X, F, L, f0,
 # comments accompanying compute_lfc_stats for details.
 #
 #' @importFrom parallel splitIndices
-#' @importFrom parallel makeCluster
-#' @importFrom parallel stopCluster
-#' @importFrom parallel parLapply
+#' @importFrom pbapply pblapply
+#' @importFrom pbapply pboptions
 compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
-                                         conf.level, rw, e, nc) {
+                                         conf.level, rw, e, nc, nsplit = 100) {
     
   # Get the number of counts matrix columns (m) and the number of
   # topics (k).
   m <- nrow(F)
   k <- ncol(F)
   
-  # Split the data among the nc requesed threads.
-  cols <- splitIndices(m,nc)
-  dat <- vector("list",nc)
-  for (i in 1:nc) {
-    j <- cols[[i]]
+  # Split the data.
+  nsplit <- min(m,nsplit)
+  cols   <- splitIndices(m,nsplit)
+  dat    <- vector("list",nsplit)
+  for (i in 1:nsplit) {
+    j        <- cols[[i]]
     dat[[i]] <- list(X = X[,j],F = F[j,],f0 = f0[j])
   }
 
-  # Distribute the calculations using parLapply.
+  # Distribute the calculations using pblapply.
   parlapplyf <- function (dat, L, D, U, M, lfc.stat, conf.level, rw, e)
     compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,M,lfc.stat,conf.level,rw,e,
                       verbose = FALSE)
-  cl <- makeCluster(nc)
-  ans <- parLapply(cl = cl,dat,parlapplyf,L,D,U,M,lfc.stat,conf.level,rw,e)
-  stopCluster(cl)
+  op  <- pboptions(type = "txt",txt.width = 70)
+# cl  <- makeCluster(nc)
+  ans <- pblapply(cl = nc,dat,parlapplyf,L,D,U,M,lfc.stat,conf.level,rw,e)
+# stopCluster(cl)
+  pboptions(op)
 
   # Combine the individual compute_lfc_stats outputs, and output the
   # combined result.
@@ -130,7 +132,7 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
   dimnames(out$lower)    <- dimnames(F)
   dimnames(out$upper)    <- dimnames(F)
   dimnames(out$z)        <- dimnames(F)
-  for (i in 1:nc) {
+  for (i in 1:nsplit) {
     j <- cols[[i]]
     out$ar[j,]       <- ans[[i]]$ar
     out$est[j,]      <- ans[[i]]$est

@@ -174,7 +174,10 @@ algorithm settings (as they are defined by
   inside the logarithms to avoid computing logarithms of zero.}
 
 \item{\code{nc}}{Number of threads used in the multithreaded
-  computations.}}
+  computations. Note that the multithreading relies on forking hence
+  is not avvailable on Windows; will return an error on Windows
+  unless \code{nc = 1}. See \code{\link[parallel]{mclapply}} for
+  details.}}
 }
 \examples{
 # Perform a differential expression (DE) analysis using the previously

@@ -338,15 +338,15 @@ generate_multinom_topic_model_counts <- function (F, L, s) {
 # is 1 <= n <= k with probability proportional to 2^(-n); (2) sample
 # the indices of the nonzero mixture proportions uniformly at random;
 # (3) sample the nonzero mixture proportions from the Dirichlet
-# distribution with alpha = 1 (so that all topics are equally likely).
+# distribution with shape parameter alpha.
 #
 #' @importFrom MCMCpack rdirichlet
-generate_mixture_proportions <- function (n, k) {
+generate_mixture_proportions <- function (n, k, alpha = rep(1,k)) {
   L  <- matrix(0,n,k)
   k1 <- sample(k,n,replace = TRUE,prob = 2^(-seq(1,k)))
   for (i in 1:n) {
     j      <- sample(k,k1[i])
-    L[i,j] <- rdirichlet(1,rep(1,k1[i]))
+    L[i,j] <- rdirichlet(1,alpha[j])
   }
   return(L)
 }

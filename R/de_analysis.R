@@ -84,7 +84,10 @@
 #'   inside the logarithms to avoid computing logarithms of zero.}
 #'
 #' \item{\code{nc}}{Number of threads used in the multithreaded
-#'   computations.}}
+#'   computations. Note that the multithreading relies on forking hence
+#'   is not avvailable on Windows; will return an error on Windows
+#'   unless \code{nc = 1}. See \code{\link[parallel]{mclapply}} for
+#'   details.}}
 #' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
@@ -247,6 +250,9 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
 
   # Check and process input argument "control".
   control <- modifyList(de_analysis_control_default(),control,keep.null = TRUE)
+  if (control$nc > 1 & .Platform$OS.type == "windows")
+    stop("Multithreading is not available on Windows; try again with ",
+         "control$nc = 1")
   
   # Check and process input argument "lfc.stat".
   if (!(all(lfc.stat == "vsnull") | all(lfc.stat == "le"))) {
@@ -314,13 +320,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     out <- compute_lfc_stats(X,F,L,f0,D,U,M,lfc.stat,control$conf.level,
                              control$rw,control$eps,verbose)
   else {
-    message(sprintf("Using %d SOCK threads.",control$nc))
-    if (verbose)
-      message("Progress bar cannot be shown when multithreading is used. ",
-              "For large data sets, the total runtime may be estimated by ",
-              "performing an initial test run with a small number of Monte ",
-              "Carlo samples, e.g., ns = 10; the total runtime should scale ",
-              "roughly linearly in ns, the number of Monte Carlo samples.")
+    message(sprintf("Using %d threads.",control$nc))
     out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,M,lfc.stat,
                                        control$conf.level,control$rw,
                                        control$eps,control$nc)
