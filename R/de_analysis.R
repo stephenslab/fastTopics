@@ -87,7 +87,13 @@
 #'   computations. Note that the multithreading relies on forking hence
 #'   is not avvailable on Windows; will return an error on Windows
 #'   unless \code{nc = 1}. See \code{\link[parallel]{mclapply}} for
-#'   details.}}
+#'   details.}
+#'
+#' \item{\code{nsplit}}{The number of data splits used in the
+#'   multithreaded computations (only relevant when \code{nc > 1}). More
+#'   splits increase the granularity of the progress bar, but can also
+#'   slow down the mutithreaded computations by introducing more
+#'   overhead in the call to \code{\link[pbapply]{pblapply}}.}}
 #' 
 #' @param fit An object of class \dQuote{poisson_nmf_fit} or
 #'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
@@ -323,7 +329,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     message(sprintf("Using %d threads.",control$nc))
     out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,M,lfc.stat,
                                        control$conf.level,control$rw,
-                                       control$eps,control$nc)
+                                       control$eps,control$nc,control$nsplit)
   }
   if (any(out$ar == 0))
     warning("One or more MCMC simulations yielded acceptance rates of zero; ",
@@ -413,4 +419,5 @@ de_analysis_control_default <- function()
        ns         = 1000,
        rw         = 0.3,
        eps        = 1e-15,
-       nc         = 1)
+       nc         = 1,
+       nsplit     = 100)

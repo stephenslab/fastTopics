@@ -13,9 +13,11 @@ fit   <- pbmc_facs$fit
 # Perform the differential expression analysis, with and without
 # shrinkage.
 set.seed(1)
-out1 <- de_analysis(fit,X,shrink.method = "none",control = list(nc = 4))
+out1 <- de_analysis(fit,X,shrink.method = "none",
+                    control = list(nc = 4,nsplit = 400))
 set.seed(1)
-out2 <- de_analysis(fit,X,shrink.method = "ash",control = list(nc = 4))
+out2 <- de_analysis(fit,X,shrink.method = "ash",
+                    control = list(nc = 4,nsplit = 400))
 
 # Plot the distribution of MCMC acceptance rates.
 hist(out2$ar,n = 64)
