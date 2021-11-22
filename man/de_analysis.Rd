@@ -79,7 +79,7 @@ A list with the following elements:
   z-scores. When \code{shrink.method = "ash"}, this is \code{NA}, and
   the s-values are returned instead (see below).}
 
-\item{lsval}{-log10 s-values returned by \code{\link[ashr]{ash}},
+\item{svalue}{s-values returned by \code{\link[ashr]{ash}}.
   s-values are analogous to the more frequentlly used q-values, but
   based on the local false sign rate; see Stephens (2016) for
   details.}

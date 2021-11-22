@@ -179,9 +179,13 @@ test_that(paste("de_analysis with and without multithreading, using a",
     capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
                                       shrink.method = "ash",
                                       control = list(nc = 2)))
-    expect_equal(de1,de2,scale = 1,tolerance = 1e-15)
-    expect_equal(de1,de3,scale = 1,tolerance = 1e-15)
-    expect_equal(de1,de4,scale = 1,tolerance = 1e-15)
+    de1$ash$logLR <- NA
+    de2$ash$logLR <- NA
+    de3$ash$logLR <- NA
+    de4$ash$logLR <- NA
+    expect_equal(de1,de2,scale = 1,tolerance = 1e-12)
+    expect_equal(de1,de3,scale = 1,tolerance = 1e-12)
+    expect_equal(de1,de4,scale = 1,tolerance = 1e-12)
   }
 })
 

@@ -152,7 +152,7 @@
 #'   z-scores. When \code{shrink.method = "ash"}, this is \code{NA}, and
 #'   the s-values are returned instead (see below).}
 #'
-#' \item{lsval}{-log10 s-values returned by \code{\link[ashr]{ash}},
+#' \item{svalue}{s-values returned by \code{\link[ashr]{ash}}.
 #'   s-values are analogous to the more frequentlly used q-values, but
 #'   based on the local false sign rate; see Stephens (2016) for
 #'   details.}
@@ -366,21 +366,16 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     out$z        <- res$z
     out$lfsr     <- res$lfsr
     out$lpval    <- as.numeric(NA)
-    out$lsval    <- res$svalue
+    out$svalue   <- res$svalue
     out$ash      <- res$ash
-    dimnames(out$lfsr)  <- dimnames(F)
-    dimnames(out$lsval) <- dimnames(F)
-    
-    # Compute the -log10 s-values.
-    minlpval <- min(c(1e-256,res$svalue[res$svalue > 0]),is.na = TRUE)
-    for (i in 1:k)
-      out$lsval[,i] <- -log10(pmax(minlpval,res$svalue[,i]))
+    dimnames(out$lfsr)   <- dimnames(F)
+    dimnames(out$svalue) <- dimnames(F)
   } else {
 
     # Compute the -log10 two-tailed p-values computed from the z-scores.
-    out$lpval <- -lpfromz(out$z)
-    out$lsval <- as.numeric(NA)
-    out$lfsr  <- as.numeric(NA)
+    out$lpval  <- -lpfromz(out$z)
+    out$svalue <- as.numeric(NA)
+    out$lfsr   <- as.numeric(NA)
   }
 
   # Return the Poisson model MLEs (F), the log-fold change statistics
