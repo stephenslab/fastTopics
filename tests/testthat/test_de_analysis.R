@@ -104,7 +104,7 @@ test_that(paste("All variants of fit_poisson_models should produce the",
 test_that(paste("de_analysis with and without multithreading, using a",
                 "sparse or dense counts matrix, with shrink.method =",
                 "\"none\", produces the same result"),{
-
+  
   # Simulate gene expression data.
   set.seed(1)
   n   <- 800
@@ -137,9 +137,9 @@ test_that(paste("de_analysis with and without multithreading, using a",
     capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
                                       shrink.method = "none",
                                       control = list(nc = 2)))
-    expect_equal(de1,de2,scale = 1,tolerance = 1e-5)
-    expect_equal(de1,de3,scale = 1,tolerance = 1e-5)
-    expect_equal(de1,de4,scale = 1,tolerance = 1e-5)
+    expect_equal(de1,de2,scale = 1,tolerance = 1e-12)
+    expect_equal(de1,de3,scale = 1,tolerance = 1e-12)
+    expect_equal(de1,de4,scale = 1,tolerance = 1e-12)
   }
 })
 
@@ -179,9 +179,9 @@ test_that(paste("de_analysis with and without multithreading, using a",
     capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
                                       shrink.method = "ash",
                                       control = list(nc = 2)))
-    expect_equal(de1,de2,scale = 1,tolerance = 1e-5)
-    expect_equal(de1,de3,scale = 1,tolerance = 1e-5)
-    expect_equal(de1,de4,scale = 1,tolerance = 1e-5)
+    expect_equal(de1,de2,scale = 1,tolerance = 1e-15)
+    expect_equal(de1,de3,scale = 1,tolerance = 1e-15)
+    expect_equal(de1,de4,scale = 1,tolerance = 1e-15)
   }
 })
 
@@ -307,8 +307,8 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   expect_equivalent(de2$upper[,2],rep(0,m),scale = 1,tolerance = 1e-5)
   expect_equivalent(de1$z[,1],rep(0,m))
   expect_equivalent(de2$z[,2],rep(0,m))
-  expect_equivalent(de1$lpval[,1],rep(0,m))
-  expect_equivalent(de2$lpval[,2],rep(0,m))
+  expect_equivalent(de1$lfsr[,1],rep(0.5,m))
+  expect_equivalent(de2$lfsr[,2],rep(0.5,m))
   
   # Compute "least extreme" LFC statistics.
   capture.output(de <- de_analysis(fit,X,lfc.stat="le",shrink.method="ash"))
@@ -320,5 +320,5 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   expect_equal(de$lower[,1],-de$upper[,2],scale = 1,tolerance = 1e-15)
   expect_equal(de$upper[,1],-de$lower[,2],scale = 1,tolerance = 1e-15)
   expect_equal(de$z[,1],-de$z[,2],scale = 1,tolerance = 1e-15)
-  expect_equal(de$lpval[,1],de$lpval[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$lfsr[,1],de$lfsr[,2],scale = 1,tolerance = 1e-15)
 })

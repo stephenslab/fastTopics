@@ -370,9 +370,9 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     out$ash      <- res$ash
     dimnames(out$lfsr)  <- dimnames(F)
     dimnames(out$lsval) <- dimnames(F)
-
+    
     # Compute the -log10 s-values.
-    minlpval     <- min(c(1e-256,res$svalue[res$svalue > 0]))
+    minlpval <- min(c(1e-256,res$svalue[res$svalue > 0]),is.na = TRUE)
     for (i in 1:k)
       out$lsval[,i] <- -log10(pmax(minlpval,res$svalue[,i]))
   } else {
@@ -386,7 +386,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # Return the Poisson model MLEs (F), the log-fold change statistics
   # (est, postmean, lower, upper, z, lpval) and local false sign
   # rates (lfsr), and the relative rates under the "null" model (f0).
-  out$F <- F
+  out$F  <- F
   out$f0 <- f0
   class(out) <- c("topic_model_de_analysis","list")
   return(out)
