@@ -143,6 +143,48 @@ test_that(paste("de_analysis with and without multithreading, using a",
   }
 })
 
+test_that(paste("de_analysis with and without multithreading, using a",
+                "sparse or dense counts matrix, with shrink.method =",
+                "\"ash\", produces the same result"),{
+
+  # Simulate gene expression data.
+  set.seed(1)
+  n   <- 800
+  m   <- 1000
+  k   <- 4
+  dat <- simulate_multinom_gene_data(n,m,k,sparse = FALSE)
+  X   <- dat$X
+  Y   <- as(X,"dgCMatrix")
+  L   <- dat$L
+
+  # Run de_analysis twice, using the single-threaded computations (nc
+  # = 1) and again using the multithreaded computations (nc = 2). As
+  # long as the sequence of pseudorandom numbers is the same, the
+  # output should be the same.
+  fit <- init_poisson_nmf(X,L = L,init.method = "random")
+  for (lfc.stat in c("le","vsnull",paste0("k",1:4))) {
+    set.seed(1)
+    capture.output(de1 <- de_analysis(fit,X,lfc.stat = lfc.stat,
+                                      shrink.method = "ash",
+                                      control = list(nc = 1)))
+    set.seed(1)
+    capture.output(de2 <- de_analysis(fit,X,lfc.stat = lfc.stat,
+                                      shrink.method = "ash",
+                                      control = list(nc = 2)))
+    set.seed(1)
+    capture.output(de3 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
+                                      shrink.method = "ash",
+                                      control = list(nc = 1)))
+    set.seed(1)
+    capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
+                                      shrink.method = "ash",
+                                      control = list(nc = 2)))
+    expect_equal(de1,de2,scale = 1,tolerance = 1e-5)
+    expect_equal(de1,de3,scale = 1,tolerance = 1e-5)
+    expect_equal(de1,de4,scale = 1,tolerance = 1e-5)
+  }
+})
+
 test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
                 "true probabilities (relative gene expression levels) when",
                 "provided with the true topic proportions"),{
@@ -198,10 +240,8 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   capture.output(fit <- fit_topic_model(X,k = 2))
   
   # Compute "pairwise" LFC statistics.
-  capture.output(de1 <- de_analysis(fit,X,lfc.stat = "k1",
-                                    shrink.method = "none"))
-  capture.output(de2 <- de_analysis(fit,X,lfc.stat = "k2",
-                                    shrink.method = "none"))
+  capture.output(de1 <- de_analysis(fit,X,lfc.stat="k1",shrink.method="none"))
+  capture.output(de2 <- de_analysis(fit,X,lfc.stat="k2",shrink.method="none"))
 
   # By definition, LFC(k) where k is the same as lfc.stat should be
   # zero, and the z-scores and p-values should be NA.
@@ -219,14 +259,66 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   expect_equivalent(de2$lpval[,2],rep(0,m))
   
   # Compute "least extreme" LFC statistics.
-  capture.output(de <- de_analysis(fit,X,lfc.stat = "le"))
+  capture.output(de <- de_analysis(fit,X,lfc.stat="le",shrink.method="none"))
 
   # By definition, LFC(1) should always be the same as -LFC(2) when
   # there are only two topics. Other quantities follow similarly.
   expect_equal(de$est[,1],-de$est[,2],scale = 1,tolerance = 1e-15)
   expect_equal(de$postmean[,1],-de$postmean[,2],scale = 1,tolerance = 1e-15)
-  expect_equal(de$lower[,1],-de$upper[,2],scale = 1,tolerance =  1e-15)
-  expect_equal(de$upper[,1],-de$lower[,2],scale = 1,tolerance =  1e-15)
+  expect_equal(de$lower[,1],-de$upper[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$upper[,1],-de$lower[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$z[,1],-de$z[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$lpval[,1],de$lpval[,2],scale = 1,tolerance = 1e-15)
+})
+
+test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
+                "for k = 2 topics, with shrink.method = \"ash\""),{
+
+  # Simulate gene expression data.
+  set.seed(1)
+  n   <- 100
+  m   <- 200
+  k   <- 2
+  s   <- 10^runif(n,-1,1)
+  dat <- simulate_poisson_gene_data(n,m,k,s)
+  X   <- dat$X
+  L   <- dat$L
+
+  # Remove all-zero columns.
+  X <- X[,colSums(X) > 0]
+  m <- ncol(X)
+
+  # Fit a multinomial topic model with k = 2 topics.
+  capture.output(fit <- fit_topic_model(X,k = 2))
+  
+  # Compute "pairwise" LFC statistics.
+  capture.output(de1 <- de_analysis(fit,X,lfc.stat="k1",shrink.method="ash"))
+  capture.output(de2 <- de_analysis(fit,X,lfc.stat="k2",shrink.method="ash"))
+
+  # By definition, LFC(k) where k is the same as lfc.stat should be
+  # zero, and the z-scores and p-values should be NA.
+  expect_equivalent(de1$est[,1],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$est[,2],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$postmean[,1],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$postmean[,2],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$lower[,1],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$lower[,2],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$upper[,1],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de2$upper[,2],rep(0,m),scale = 1,tolerance = 1e-5)
+  expect_equivalent(de1$z[,1],rep(0,m))
+  expect_equivalent(de2$z[,2],rep(0,m))
+  expect_equivalent(de1$lpval[,1],rep(0,m))
+  expect_equivalent(de2$lpval[,2],rep(0,m))
+  
+  # Compute "least extreme" LFC statistics.
+  capture.output(de <- de_analysis(fit,X,lfc.stat="le",shrink.method="ash"))
+
+  # By definition, LFC(1) should always be the same as -LFC(2) when
+  # there are only two topics. Other quantities follow similarly.
+  expect_equal(de$est[,1],-de$est[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$postmean[,1],-de$postmean[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$lower[,1],-de$upper[,2],scale = 1,tolerance = 1e-15)
+  expect_equal(de$upper[,1],-de$lower[,2],scale = 1,tolerance = 1e-15)
   expect_equal(de$z[,1],-de$z[,2],scale = 1,tolerance = 1e-15)
   expect_equal(de$lpval[,1],de$lpval[,2],scale = 1,tolerance = 1e-15)
 })
