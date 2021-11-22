@@ -102,7 +102,8 @@ test_that(paste("All variants of fit_poisson_models should produce the",
 })
 
 test_that(paste("de_analysis with and without multithreading, using a",
-                "sparse or dense counts matrix, produces the same result"),{
+                "sparse or dense counts matrix, with shrink.method =",
+                "\"none\", produces the same result"),{
 
   # Simulate gene expression data.
   set.seed(1)
@@ -122,15 +123,19 @@ test_that(paste("de_analysis with and without multithreading, using a",
   for (lfc.stat in c("le","vsnull",paste0("k",1:4))) {
     set.seed(1)
     capture.output(de1 <- de_analysis(fit,X,lfc.stat = lfc.stat,
+                                      shrink.method = "none",
                                       control = list(nc = 1)))
     set.seed(1)
     capture.output(de2 <- de_analysis(fit,X,lfc.stat = lfc.stat,
+                                      shrink.method = "none",
                                       control = list(nc = 2)))
     set.seed(1)
     capture.output(de3 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
+                                      shrink.method = "none",
                                       control = list(nc = 1)))
     set.seed(1)
     capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
+                                      shrink.method = "none",
                                       control = list(nc = 2)))
     expect_equal(de1,de2,scale = 1,tolerance = 1e-5)
     expect_equal(de1,de3,scale = 1,tolerance = 1e-5)
@@ -173,7 +178,7 @@ test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
 })
 
 test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
-                "for k = 2 topics"),{
+                "for k = 2 topics, with shrink.method = \"none\""),{
 
   # Simulate gene expression data.
   set.seed(1)
@@ -193,8 +198,10 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   capture.output(fit <- fit_topic_model(X,k = 2))
   
   # Compute "pairwise" LFC statistics.
-  capture.output(de1 <- de_analysis(fit,X,lfc.stat = "k1"))
-  capture.output(de2 <- de_analysis(fit,X,lfc.stat = "k2"))
+  capture.output(de1 <- de_analysis(fit,X,lfc.stat = "k1",
+                                    shrink.method = "none"))
+  capture.output(de2 <- de_analysis(fit,X,lfc.stat = "k2",
+                                    shrink.method = "none"))
 
   # By definition, LFC(k) where k is the same as lfc.stat should be
   # zero, and the z-scores and p-values should be NA.

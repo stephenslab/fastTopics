@@ -42,9 +42,9 @@ for testing.}
 
 \item{shrink.method}{Method used to stabilize the LFC estimates.
 When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
-implemented in the ashr package is used to compute posterior. When \code{shrink.method =
-"none"}, no stabilization is performed, and the \dQuote{raw} LFC
-estimates are returned.}
+implemented in the ashr package is used to compute posterior. When
+\code{shrink.method = "none"}, no stabilization is performed, and
+the \dQuote{raw} LFC estimates are returned.}
 
 \item{lfc.stat}{The log-fold change statistics returned:
 \code{lfc.stat = "vsnull"}, the log-fold change relative to the
@@ -76,10 +76,21 @@ A list with the following elements:
 \item{z}{z-scores for posterior mean LFC estimates.}
 
 \item{lpval}{-log10 two-tailed p-values obtained from the
-  z-scores.}
+  z-scores. When \code{shrink.method = "ash"}, this is \code{NA}, and
+  the s-values are returned instead (see below).}
+
+\item{lsval}{-log10 s-values returned by \code{\link[ashr]{ash}},
+  s-values are analogous to the more frequentlly used q-values, but
+  based on the local false sign rate; see Stephens (2016) for
+  details.}
 
 \item{lfsr}{When \code{shrink.method = "ash"} only, this output
   contains the estimated local false sign rates.}
+
+\item{ash}{When \code{shrink.method = "ash"} only, this output
+  contains the \code{\link[ashr]{ash}} return value (after removing
+  the \code{"data"}, \code{"result"} and \code{"call"} list
+  elements).}
 
 \item{F}{Maximum-likelihood estimates of the Poisson model
   parameters.}
