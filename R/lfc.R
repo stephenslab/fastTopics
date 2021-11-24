@@ -33,12 +33,13 @@
 #' @importFrom stats runif
 #' @importFrom Matrix colSums
 #' @importFrom progress progress_bar
-compute_lfc_stats <- function (X, F, L, f0,
-                               D = matrix(rnorm(ns*k),1000,ncol(F)),
-                               U = matrix(runif(ns*k),1000,ncol(F)),
-                               M = matrix(sample(k,ns*k,replace=TRUE),ns,k)-1,
-                               lfc.stat = "le", conf.level = 0.68,
-                               rw = 0.3, e = 1e-15, verbose = TRUE) {
+compute_lfc_stats <-
+  function (X, F, L, f0,
+            D = matrix(rnorm(1000s*k),1000,ncol(F)),
+            U = matrix(runif(1000*k),1000,ncol(F)),
+            M = matrix(sample(k,1000*k,replace=TRUE),1000,k)-1,
+            lfc.stat = "le", conf.level = 0.68, rw = 0.3, e = 1e-15,
+            verbose = TRUE) {
 
   # Get the number of counts matrix columns (m) and the number of
   # topics (k).
