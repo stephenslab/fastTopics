@@ -11,9 +11,6 @@ to do
 
 + Implement KKT-based stopping criterion for fit_poisson_nmf.
 
-+ Prune functions in misc.R, misc.h and misc.cpp that are no longer
-  used.
-
 + Refactor pca_plot, pca_hexbin_plot and tsne_plot code, and redesign
   the interface for plotting embeddings from the L matrix. Also,
   consider implementing umap_plot and umap_from_topics, and allow for
