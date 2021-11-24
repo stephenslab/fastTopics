@@ -26,7 +26,7 @@ jobs:
           install.packages(c("remotes","rcmdcheck"))
           install.packages(c("devtools","remotes","quadprog","MCMCpack"))
           install.packages(c("irlba","Rtsne","uwot","dplyr","Rcpp"))
-          install.packages(c("RcppArmadillo","RcppParallel","RcppProgress"))
+          install.packages(c("RcppArmadillo","RcppParallel","pbapply"))
           install.packages(c("progress","ggplot2","ggrepel","cowplot"))
           install.packages(c("plotly","htmlwidgets","testthat","Ternary"))
           remotes::install_github("slowkow/ggrepel",upgrade="never",force=TRUE)
