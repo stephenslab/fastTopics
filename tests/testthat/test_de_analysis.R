@@ -120,6 +120,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
   # long as the sequence of pseudorandom numbers is the same, the
   # output should be the same.
   fit <- init_poisson_nmf(X,L = L,init.method = "random")
+  nc <- ifelse(.Platform$OS.type == "windows",1,2)
   for (lfc.stat in c("le","vsnull",paste0("k",1:4))) {
     set.seed(1)
     capture.output(de1 <- de_analysis(fit,X,lfc.stat = lfc.stat,
@@ -128,7 +129,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
     set.seed(1)
     capture.output(de2 <- de_analysis(fit,X,lfc.stat = lfc.stat,
                                       shrink.method = "none",
-                                      control = list(nc = 2)))
+                                      control = list(nc = nc)))
     set.seed(1)
     capture.output(de3 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
                                       shrink.method = "none",
@@ -136,7 +137,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
     set.seed(1)
     capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
                                       shrink.method = "none",
-                                      control = list(nc = 2)))
+                                      control = list(nc = nc)))
     expect_equal(de1,de2,scale = 1,tolerance = 1e-12)
     expect_equal(de1,de3,scale = 1,tolerance = 1e-12)
     expect_equal(de1,de4,scale = 1,tolerance = 1e-12)
@@ -162,6 +163,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
   # long as the sequence of pseudorandom numbers is the same, the
   # output should be the same.
   fit <- init_poisson_nmf(X,L = L,init.method = "random")
+  nc <- ifelse(.Platform$OS.type == "windows",1,2)
   for (lfc.stat in c("le","vsnull",paste0("k",1:4))) {
     set.seed(1)
     capture.output(de1 <- de_analysis(fit,X,lfc.stat = lfc.stat,
@@ -170,7 +172,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
     set.seed(1)
     capture.output(de2 <- de_analysis(fit,X,lfc.stat = lfc.stat,
                                       shrink.method = "ash",
-                                      control = list(nc = 2)))
+                                      control = list(nc = nc)))
     set.seed(1)
     capture.output(de3 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
                                       shrink.method = "ash",
@@ -178,7 +180,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
     set.seed(1)
     capture.output(de4 <- de_analysis(fit,Y,lfc.stat = lfc.stat,
                                       shrink.method = "ash",
-                                      control = list(nc = 2)))
+                                      control = list(nc = nc)))
     de1$ash$logLR <- NA
     de2$ash$logLR <- NA
     de3$ash$logLR <- NA

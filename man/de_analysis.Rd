@@ -186,7 +186,7 @@ algorithm settings (as they are defined by
 
 \item{\code{nc}}{Number of threads used in the multithreaded
   computations. Note that the multithreading relies on forking hence
-  is not avvailable on Windows; will return an error on Windows
+  is not available on Windows; will return an error on Windows
   unless \code{nc = 1}. See \code{\link[parallel]{mclapply}} for
   details.}
 
