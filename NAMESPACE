@@ -16,13 +16,8 @@ export(cost)
 export(de_analysis)
 export(de_analysis_control_default)
 export(deviance_poisson_nmf)
-<<<<<<< HEAD
-=======
-export(diff_count_analysis)
-export(diff_count_clusters)
 export(embedding_plot_2d)
 export(embedding_plot_2d_ggplot_call)
->>>>>>> master
 export(fit_multinom_model)
 export(fit_poisson_nmf)
 export(fit_poisson_nmf_control_default)

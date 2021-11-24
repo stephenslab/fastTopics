@@ -1,6 +1,8 @@
 to do
 =====
 
++ Update pkgdown site.
+
 + Update volcano plots.
 
 + Add/revise tests for volcano plot functions.
@@ -17,8 +19,7 @@ to do
   consider implementing umap_plot and umap_from_topics, and allow for
   using UMAP instead of t-SNE in the Structure plot.
 
-+ Remove files in inst/derivations/diffcount. (And remove other files
-  that are no longer needed or out of date.)
++ Clean up files that are no longer needed or out of date.
 
 + Implement "t" S3 method to transpose the rows and columns of a
   Poisson NMF fit.

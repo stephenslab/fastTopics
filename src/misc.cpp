@@ -94,14 +94,6 @@ void getcolnonzeros (const sp_mat& A, uvec& i, unsigned int j) {
     i(t) = ai.row();
 }
 
-// Copy all selected elements A(i,j) into vector a. Vectors i and a
-// should have the same length.
-void getcolelems (const mat& A, const uvec& i, unsigned int j, vec& a) {
-  unsigned int n = i.n_elem;
-  for (unsigned int t = 0; t < n; t++)
-    a(t) = A(i(t),j);
-}
-
 // Scale each column A[,i] by b[i].
 void scalecols (mat& A, const vec& b) {
   vec c = b;

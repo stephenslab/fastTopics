@@ -5,7 +5,7 @@ verify.positive.vector <- function (x, arg.name = deparse(substitute(x))) {
                "which all entries are finite, non-missing and positive")
   if (!is.numeric(x))
     stop(msg)
-  else if (any(x <= 0) | any(is.infinite(x)) | any(is.na(x)))
+  else if (any(x <= 0) | any(is.infinite(x)) | anyNA(x))
     stop(msg)
   return(TRUE)
 }
@@ -18,7 +18,7 @@ verify.nonnegative.matrix <- function (x, arg.name = deparse(substitute(x))) {
                "all entries should be finite and non-missing")
   if (!((is.matrix(x) & is.numeric(x)) | is.sparse.matrix(x)))
     stop(msg)
-  else if (any(x < 0) | any(is.infinite(x)) | any(is.na(x)))
+  else if (any(x < 0) | any(is.infinite(x)) | anyNA(x))
     stop(msg)
   return(TRUE)
 }
