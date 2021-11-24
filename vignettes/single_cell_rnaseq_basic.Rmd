@@ -183,8 +183,8 @@ proportions, we create a Structure plot:
 ```{r structure-plot-with-celltype-labels, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
-structure_plot(fit,topics = 1:6,colors = topic_colors,
-               grouping = samples$subpop,gap = 25)
+structure_plot(fit,colors = topic_colors,topics = 1:6,gap = 25,
+               grouping = samples$subpop)
 ```
 
 The Structure plot is a simply stacked bar chart, in which each topic
@@ -216,6 +216,35 @@ mixture of three topics (topics 1, 5 and 6). To help us understand
 what aspects of T cell diversity are captured by these topics, we need
 to first understand how topics capture shared patterns of gene
 expression.
+
+Predicting topics in other cells
+--------------------------------
+
+Having fitted a topic model to single-cell data, it is easy to use
+that model to predict the topic proportions for other cells that were
+not used to fit the model. We illustrate this with a separate
+collection of 1,000 cells drawn from the same PBMC data set:
+
+```{r test-data}
+counts_test <- pbmc_facs$counts_test
+dim(counts_test)
+```
+
+The "predict" function estimates the topic proportions based on a
+previously fit topic model.
+
+```{r predict, results="hide", message=FALSE}
+fit_test   <- fit
+fit_test$s <- NULL
+fit_test$L <- predict(fit,counts_test)
+```
+
+The predictions appear to align well with the provided cell labels:
+
+```{r structure-plot-test, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
+structure_plot(fit_test,topics = 1:6,colors = topic_colors,gap = 10,
+               grouping = pbmc_facs$samples_test$subpop)
+```
 
 Topics capture patterns of relative expression
 ----------------------------------------------

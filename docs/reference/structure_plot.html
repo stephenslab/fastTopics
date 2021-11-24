@@ -41,10 +41,10 @@
 
 <meta property="og:title" content="Structure Plot — structure_plot" />
 <meta property="og:description" content="Create a &amp;#8220;Structure plot&amp;#8221; from a multinomial topic
-  model fit. The Structure plot represents the estimated mixture
-  proportions of each sample as a stacked barchart, with bars of
+  model fit. The Structure plot represents the estimated topic
+  proportions of each sample in a stacked bar chart, with bars of
   different colors representing different topics. Consequently,
-  samples that have similar mixture proportions have similar amounts
+  samples that have similar topic proportions have similar amounts
   of each color." />
 
 
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -111,33 +111,34 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Structure Plot</h1>
-    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/structure_plot.R'><code>R/structure_plot.R</code></a></small>
     <div class="hidden name"><code>structure_plot.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Create a &#8220;Structure plot&#8221; from a multinomial topic
-  model fit. The Structure plot represents the estimated mixture
-  proportions of each sample as a stacked barchart, with bars of
+  model fit. The Structure plot represents the estimated topic
+  proportions of each sample in a stacked bar chart, with bars of
   different colors representing different topics. Consequently,
-  samples that have similar mixture proportions have similar amounts
+  samples that have similar topic proportions have similar amounts
   of each color.</p>
     </div>
 
     <pre class="usage"><span class='fu'>structure_plot</span>(
   <span class='no'>fit</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2000</span>,
-  <span class='no'>rows</span>,
   <span class='no'>grouping</span>,
   <span class='no'>topics</span>,
+  <span class='no'>rows</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2000</span>,
   <span class='kw'>colors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"#e41a1c"</span>, <span class='st'>"#377eb8"</span>, <span class='st'>"#4daf4a"</span>, <span class='st'>"#984ea3"</span>, <span class='st'>"#ff7f00"</span>, <span class='st'>"#ffff33"</span>,
     <span class='st'>"#a65628"</span>, <span class='st'>"#f781bf"</span>, <span class='st'>"#999999"</span>),
   <span class='kw'>gap</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>perplexity</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>eta</span> <span class='kw'>=</span> <span class='fl'>200</span>,
+  <span class='kw'>embed_method</span> <span class='kw'>=</span> <span class='no'>structure_plot_default_embed_method</span>,
   <span class='kw'>ggplot_call</span> <span class='kw'>=</span> <span class='no'>structure_plot_ggplot_call</span>,
   <span class='no'>...</span>
 )
+
+<span class='fu'>structure_plot_default_embed_method</span>(<span class='no'>fit</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for poisson_nmf_fit</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
@@ -158,45 +159,46 @@ as input, the corresponding multinomial topic model fit is
 automatically recovered using <code><a href='poisson2multinom.html'>poisson2multinom</a></code>.</p></td>
     </tr>
     <tr>
-      <th>n</th>
-      <td><p>The maximum number of samples (rows of the loadings
-matrix) to include in the plot. Including large numbers (e.g.,
-thousands) of samples is not recommended because it dramatically
-slows down the t-SNE computation, and typically there is little to
-no benefit in including large number of samples in the plot due to
-screen resolution limits. Ignored if <code>rows</code> is provided.</p></td>
-    </tr>
-    <tr>
-      <th>rows</th>
-      <td><p>Ordering of rows (samples) in plot, after they have
-been grouped. Generated automatically from 1-d t-SNE if not
-provided.</p></td>
-    </tr>
-    <tr>
       <th>grouping</th>
-      <td><p>Optional categorical variable (factor) with one
+      <td><p>Optional categorical variable (a factor) with one
 entry for each row of the loadings matrix <code>fit$L</code> defining a
 grouping of the samples (rows). The samples (rows) are arranged
 along the horizontal axis according to this grouping, then within
 each group according to <code>rows</code> or, if not provided, according
-to the 1-d t-SNE embedding.</p></td>
+to the 1-d embedding computed by <code>embed_method</code>. If
+<code>grouping</code> is not a factor, an attempt is made to convert it
+to a factor using <code>as.factor</code>.</p></td>
     </tr>
     <tr>
       <th>topics</th>
-      <td><p>Top-to-bottom ordering of the topics in the structure
-plot; topics[1] is shown on the top, topics[2] is shown next, and
-so on. If the ordering of the topics is not specified, the topics
-are automaticcally ordered so that the topics with the greatest
-&#8220;mass&#8221; are at shown at the bottom of the plot.</p></td>
+      <td><p>Top-to-bottom ordering of the topics in the Structure
+plot; <code>topics[1]</code> is shown on the top, <code>topics[2]</code> is
+shown next, and so on. If the ordering of the topics is not
+specified, the topics are automatically ordered so that the topics
+with the greatest total &#8220;mass&#8221; are at shown at the bottom of
+the plot. The topics may be specified by number or by name.</p></td>
+    </tr>
+    <tr>
+      <th>rows</th>
+      <td><p>Ordering of the rows (samples) in the Structure plot
+after they have been grouped. This may include all the rows, or a
+subset of the rows. If not provided, it is generated automatically
+from a 1-d embedding, separately for each group. The rows may be
+specified by number or by name.</p></td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td><p>The maximum number of samples (rows of the loadings matrix
+<code>fit$L</code>) to include in the plot. Typically there is little to
+no benefit in including large number of samples in the Structure
+plot due to screen resolution limits. Ignored if <code>rows</code> is
+provided.</p></td>
     </tr>
     <tr>
       <th>colors</th>
-      <td><p>Colors used to draw topics in Structure plot:
-<code>colors[1]</code> is the colour used to draw <code>topics[1]</code>,
-<code>colors[2]</code> is the colour used to draw <code>topics[2]</code>, and
-so on. The default colour setting is the from
-<a href='https://colorbrewer2.org'>https://colorbrewer2.org</a> (qualitative data, &#8220;9-class
-Set1&#8221;).</p></td>
+      <td><p>Colors used to draw topics in Structure plot. The
+default colour setting is the from <a href='https://colorbrewer2.org'>https://colorbrewer2.org</a>
+(qualitative data, &#8220;9-class Set1&#8221;).</p></td>
     </tr>
     <tr>
       <th>gap</th>
@@ -204,20 +206,14 @@ Set1&#8221;).</p></td>
 <code>grouping</code> is not provided.</p></td>
     </tr>
     <tr>
-      <th>perplexity</th>
-      <td><p>t-SNE perplexity parameter, passed as argument
-&#8220;perplexity&#8221; to <code><a href='tsne_from_topics.html'>tsne_from_topics</a></code>. When
-codegrouping is provided, <code>perplexity</code> may be a vector of
-settings of length equal to <code><a href='https://rdrr.io/r/base/levels.html'>levels(grouping)</a></code>, which allows
-for a different t-SNE perplexity setting for each group.</p></td>
-    </tr>
-    <tr>
-      <th>eta</th>
-      <td><p>t-SNE learning rate parameter, passed as argument
-&#8220;eta&#8221; to <code><a href='tsne_from_topics.html'>tsne_from_topics</a></code>. When
-codegrouping is provided, <code>eta</code> may be a vector of
-settings of length equal to <code><a href='https://rdrr.io/r/base/levels.html'>levels(grouping)</a></code>, which allows
-for a different t-SNE learning rate for each group.</p></td>
+      <th>embed_method</th>
+      <td><p>The function used to compute an 1-d embedding
+from a loadings matrix <code>fit$L</code>; ignored if <code>rows</code> is
+provided. The function must accept the multinomial topic model fit
+as its first input (&#8220;fit&#8221;) and additional arguments may be
+passed (...). The output should be a named numeric vector with
+one entry per row of <code>fit$L</code>, and the names of the entries
+should be the same as the row names of <code>fit$L</code>.</p></td>
     </tr>
     <tr>
       <th>ggplot_call</th>
@@ -228,7 +224,7 @@ customize the appearance of the plot.</p></td>
     <tr>
       <th>...</th>
       <td><p>Additional arguments passed to <code>structure_plot</code>
-(for the <code>plot</code> method) or <code><a href='tsne_from_topics.html'>tsne_from_topics</a></code> (for
+(for the <code>plot</code> method) or <code>embed_method</code> (for
 function <code>structure_plot</code>).</p></td>
     </tr>
     <tr>
@@ -242,16 +238,16 @@ automatically recovered using <code><a href='poisson2multinom.html'>poisson2mult
       <th>dat</th>
       <td><p>A data frame passed as input to
 <code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></code>, containing, at a minimum, columns
-&#8220;sample&#8221;, &#8220;topic&#8221; and &#8220;mixprop&#8221;: column
-&#8220;sample&#8221; contains the positions of the samples (rows of the
-loadings matrix) along the horizontal axis; column &#8220;topic&#8221; is a
-topic (corresponding to columns of the loadings matrix); and column
-&#8220;mixprop&#8221; is the mixture proportion for the given sample.</p></td>
+&#8220;sample&#8221;, &#8220;topic&#8221; and &#8220;prop&#8221;: the
+&#8220;sample&#8221; column contains the positions of the samples (rows
+of the L matrix) along the horizontal axis; the &#8220;topic&#8221;
+column is a topic (a column of L); and the &#8220;prop&#8221; column is
+the topic proportion for the respective sample.</p></td>
     </tr>
     <tr>
       <th>ticks</th>
       <td><p>The placement of the group labels along the horizontal
-axis, and their names. For data that is not grouped, use
+axis, and their names. For data that are not grouped, use
 <code>ticks = NULL</code>.</p></td>
     </tr>
     <tr>
@@ -272,13 +268,10 @@ Structure software (Rosenberg <em>et al</em>, 2002).</p>
 is usually some grouping of the samples (e.g., assignment to
 pre-defined populations) that guides arrangement of the samples
 along the horizontal axis in the bar chart. In other applications,
-such as analysis of gene expression data, no pre-defined grouping
-exists. Therefore, a &#8220;smart&#8221; arrangement of the samples is,
-by default, generated automatically by performing a 1-d t-SNE
-embedding of the samples.</p>
-<p>Alternatively, a categorical variable---the grouping---may be
-provided, in which case the samples are arranged according to that
-grouping, then arranged within each group using t-SNE.</p>
+such as analysis of gene expression data, a pre-defined grouping
+may not always be available. Therefore, a &#8220;smart&#8221;
+arrangement of the samples is, by default, generated automatically
+by performing a 1-d embedding of the samples.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Dey, K. K., Hsiao, C. J. and Stephens, M. (2017). Visualizing the
@@ -289,6 +282,40 @@ Kidd, K. K., Zhivotovsky, L. A. and Feldman, M. W. (2002). Genetic
 structure of human populations. <em>Science</em> <b>298</b>,
 2381–2385.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>1</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>pbmc_facs</span>)
+
+<span class='co'># Get the multinomial topic model fitted to the</span>
+<span class='co'># PBMC data.</span>
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='no'>pbmc_facs</span>$<span class='no'>fit</span>
+
+<span class='co'># Create a Structure plot without labels. The samples (rows) are</span>
+<span class='co'># automatically arranged along the x-axis using t-SNE to highlight</span>
+<span class='co'># the structure in the data.</span>
+<span class='no'>p1</span> <span class='kw'>&lt;-</span> <span class='fu'>structure_plot</span>(<span class='no'>fit</span>)</div><div class='output co'>#&gt; <span class='message'>Running tsne on 2000 x 6 matrix.</span></div><div class='input'>
+<span class='co'># Create a Structure plot with the FACS cell-type labels. Within each</span>
+<span class='co'># group (cell-type), the cells (rows) are automatically arranged using</span>
+<span class='co'># t-SNE.</span>
+<span class='no'>subpop</span> <span class='kw'>&lt;-</span> <span class='no'>pbmc_facs</span>$<span class='no'>samples</span>$<span class='no'>subpop</span>
+<span class='no'>p2</span> <span class='kw'>&lt;-</span> <span class='fu'>structure_plot</span>(<span class='no'>fit</span>,<span class='kw'>grouping</span> <span class='kw'>=</span> <span class='no'>subpop</span>)</div><div class='output co'>#&gt; <span class='message'>Running tsne on 428 x 6 matrix.</span></div><div class='output co'>#&gt; <span class='message'>Running tsne on 89 x 6 matrix.</span></div><div class='output co'>#&gt; <span class='message'>Running tsne on 337 x 6 matrix.</span></div><div class='output co'>#&gt; <span class='message'>Running tsne on 356 x 6 matrix.</span></div><div class='output co'>#&gt; <span class='message'>Running tsne on 790 x 6 matrix.</span></div><div class='input'>
+<span class='co'># Next, we apply some customizations to improve the plot: (1) use the</span>
+<span class='co'># "topics" argument to specify the order in which the topic</span>
+<span class='co'># proportions are stacked on top of each other; (2) use the "gap"</span>
+<span class='co'># argrument to increase the whitespace between the groups; (3) use "n"</span>
+<span class='co'># to decrease the number of rows included in the Structure plot; and</span>
+<span class='co'># (4) use "colors" to change the colors used to draw the topic</span>
+<span class='co'># proportions.</span>
+<span class='no'>topic_colors</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"skyblue"</span>,<span class='st'>"forestgreen"</span>,<span class='st'>"darkmagenta"</span>,
+                  <span class='st'>"dodgerblue"</span>,<span class='st'>"gold"</span>,<span class='st'>"darkorange"</span>)
+<span class='no'>p3</span> <span class='kw'>&lt;-</span> <span class='fu'>structure_plot</span>(<span class='no'>fit</span>,<span class='kw'>grouping</span> <span class='kw'>=</span> <span class='no'>pbmc_facs</span>$<span class='no'>samples</span>$<span class='no'>subpop</span>,<span class='kw'>gap</span> <span class='kw'>=</span> <span class='fl'>20</span>,
+                     <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>1500</span>,<span class='kw'>topics</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>5</span>,<span class='fl'>6</span>,<span class='fl'>1</span>,<span class='fl'>4</span>,<span class='fl'>2</span>,<span class='fl'>3</span>),<span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>topic_colors</span>)</div><div class='output co'>#&gt; <span class='message'>Running tsne on 295 x 6 matrix.</span></div><div class='output co'>#&gt; <span class='message'>Running tsne on 72 x 6 matrix.</span></div><div class='output co'>#&gt; <span class='message'>Running tsne on 287 x 6 matrix.</span></div><div class='output co'>#&gt; <span class='message'>Running tsne on 264 x 6 matrix.</span></div><div class='output co'>#&gt; <span class='message'>Running tsne on 582 x 6 matrix.</span></div><div class='input'>
+<span class='co'># In this final example, we use UMAP instead of t-SNE to arrange all</span>
+<span class='co'># 3,744 cells in the Structure plot. Note that this can be</span>
+<span class='co'># accomplished in a different way by overriding the default setting of</span>
+<span class='co'># "embed_method".</span>
+<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/drop.html'>drop</a></span>(<span class='fu'><a href='embeddings_from_topics.html'>umap_from_topics</a></span>(<span class='no'>fit</span>,<span class='kw'>dims</span> <span class='kw'>=</span> <span class='fl'>1</span>))</div><div class='output co'>#&gt; <span class='message'>10:48:18 UMAP embedding parameters a = 1.896 b = 0.8006</span></div><div class='output co'>#&gt; <span class='message'>10:48:18 Read 3774 rows and found 6 numeric columns</span></div><div class='output co'>#&gt; <span class='message'>10:48:18 Using FNN for neighbor search, n_neighbors = 30</span></div><div class='output co'>#&gt; <span class='message'>10:48:18 Commencing smooth kNN distance calibration using 2 threads</span></div><div class='output co'>#&gt; <span class='message'>10:48:19 111 smooth knn distance failures</span></div><div class='output co'>#&gt; <span class='message'>10:48:19 Initializing from normalized Laplacian + noise</span></div><div class='output co'>#&gt; <span class='message'>10:48:20 Commencing optimization for 500 epochs, with 138012 positive edges</span></div><div class='output co'>#&gt; <span class='message'>10:48:25 Optimization finished</span></div><div class='input'><span class='no'>p4</span> <span class='kw'>&lt;-</span> <span class='fu'>structure_plot</span>(<span class='no'>fit</span>,<span class='kw'>rows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/order.html'>order</a></span>(<span class='no'>y</span>),<span class='kw'>grouping</span> <span class='kw'>=</span> <span class='no'>subpop</span>,<span class='kw'>gap</span> <span class='kw'>=</span> <span class='fl'>40</span>,
+                     <span class='kw'>colors</span> <span class='kw'>=</span> <span class='no'>topic_colors</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

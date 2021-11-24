@@ -103,10 +103,10 @@ le.diff <- function (x) {
   return(y)
 }
 
-# Rescale the factors (F) and loadings (F) with the property that the
-# matrix reconstruction L*F' remains the same after rescaling;
-# specifically, rescale the columns of F and L so that, for each k,
-# column k of F has the same mean as column k of L.
+# Rescale the factors (F) and loadings (L) with the property that
+# tcrossprod(L,F) remains the same after rescaling; specifically,
+# rescale the columns of F and L so that, for each k, column k of F
+# has the same mean as column k of L.
 #
 #' @importFrom Matrix colMeans
 #'

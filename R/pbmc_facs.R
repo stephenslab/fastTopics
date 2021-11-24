@@ -9,11 +9,12 @@
 #'   (RNA-seq) of 10 bead-enriched subpopulations of PBMCs (Donor A),
 #'   described in Zheng \emph{et al} (2017). The data are unique
 #'   molecular identifier (UMI) counts for 16,791 genes in 3,774 cells.
-#'   (Genes with no expression in any of the cells were removed.)  Since
+#'   (Genes with no expression in any of the cells were removed.) Since
 #'   the majority of the UMI counts are zero, they are efficiently
 #'   stored as a 3,774 x 16,791 sparse matrix. These data are used in
 #'   the vignette illustrating how fastTopics can be used to analyze to
-#'   single-cell RNA-seq data.
+#'   single-cell RNA-seq data. Data for a separate set of 1,000 cells is
+#'   provided as a "test set" to evaluate out-of-sample predictions.
 #'
 #' @format \code{pbmc_facs} is a list with the following elements:
 #' 
@@ -22,18 +23,23 @@
 #'   \item{counts}{3,774 x 16,791 sparse matrix of UMI counts, with
 #'      rows corresponding to samples (cells) and columns corresponding to
 #'      genes. It is an object of class \code{"dgCMatrix"}).}
+#'
+#'   \item{counts_test}{UMI counts for an additional test set of 1,000
+#'     cells.}
 #' 
 #'   \item{samples}{Data frame containing information about the
 #'     samples, including cell barcode and source FACS population
 #'     ("celltype" and "facs_subpop").}
+#'
+#'   \item{samples_test}{Sample information for the additional test
+#'      set of 1,000 cells.}
 #' 
 #'   \item{genes}{Data frame containing information and the genes,
 #'     including gene symbol and Ensembl identifier.}
 #'
 #'   \item{fit}{Poisson non-negative matrix factorization (NMF) fitted
-#'     to the UMI count data, with rank \code{k = 6}. See the vignette
-#'     how the Poisson NMF model fitting was performed.}
-#' }
+#'     to the UMI count data \code{counts}, with rank \code{k = 6}. See
+#'     the vignette how the Poisson NMF model fitting was performed.}}
 #'
 #' @source
 #' \url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}

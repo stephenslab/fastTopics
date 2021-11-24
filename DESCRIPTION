@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.6-80
-Date: 2021-11-22
+Version: 0.6-81
+Date: 2021-11-24
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
 Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
@@ -39,6 +39,7 @@ Imports:
     irlba,
     dplyr,
     Rtsne,
+    uwot,
     ashr,
     Rcpp (>= 1.0.1),
     RcppParallel (>= 4.4.1),
@@ -62,6 +63,7 @@ LinkingTo:
     RcppArmadillo
 Remotes: linxihui/NNLM
 LazyData: true
+LazyDataCompression: xz
 NeedsCompilation: yes
 RoxygenNote: 7.1.2
 VignetteBuilder: knitr

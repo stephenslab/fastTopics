@@ -1,0 +1,41 @@
+# For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
+# https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+name: R-CMD-check
+
+jobs:
+  R-CMD-check:
+    runs-on: macOS-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      _R_CHECK_FORCE_SUGGESTS_: false
+    steps:
+      - uses: actions/checkout@v2
+      - uses: r-lib/actions/setup-r@v1
+      - name: Install dependencies
+        run: |
+          install.packages(c("remotes","rcmdcheck"))
+          install.packages(c("devtools","remotes","quadprog","MCMCpack"))
+          install.packages(c("irlba","Rtsne","uwot","dplyr","Rcpp"))
+          install.packages(c("RcppArmadillo","RcppParallel","RcppProgress"))
+          install.packages(c("progress","ggplot2","ggrepel","cowplot"))
+          install.packages(c("plotly","htmlwidgets","testthat","Ternary"))
+          remotes::install_github("slowkow/ggrepel",upgrade="never",force=TRUE)
+          remotes::install_github("stephens999/ashr",upgrade="never",force=TRUE)
+          remotes::install_github("linxihui/NNLM",upgrade="never",force=TRUE)
+        shell: Rscript {0}
+      - name: Check
+        run: |
+          options(crayon.enabled = TRUE)
+          rcmdcheck::rcmdcheck(args = c("--no-manual","--ignore-vignettes"),
+                               error_on = "error",build_args = "--no-build-vignettes")
+        shell: Rscript {0}

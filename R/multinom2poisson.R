@@ -5,7 +5,10 @@
 #'   estimates for a multinomial topic model.
 #'
 #' @param fit An object of class \dQuote{multinom_topic_model_fit},
-#'   such as an output from \code{poisson2multinom}.
+#'   such as an output from \code{poisson2multinom}. If a Poisson NMF
+#'   fit is provided (that is, an object of class
+#'   \dQuote{poisson_nmf_fit}), the fit object is immediately returned
+#'   \dQuote{as is}.
 #'
 #' @param X Optional n x m matrix of counts, or pseudocounts. It can
 #'   be a sparse matrix (class \code{"dgCMatrix"}) or dense matrix
@@ -25,6 +28,8 @@
 multinom2poisson <- function (fit, X) {
 
   # Check input argument "fit".
+  if (inherits(fit,"poisson_nmf_fit"))
+    return(fit)
   if (!inherits(fit,"multinom_topic_model_fit"))
     stop("Input argument \"fit\" should be an object of class ",
          "\"multinom_topic_model_fit\"")

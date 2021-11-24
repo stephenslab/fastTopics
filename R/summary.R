@@ -9,8 +9,6 @@
 #'   result of calling \code{\link{fit_topic_model}} or
 #'   \code{\link{poisson2multinom}}.
 #'
-#' @method summary poisson_nmf_fit
-#'
 #' @return The functions \code{summary.poisson_nmf_fit} and
 #' \code{summary.multinom_topic_model_fit} compute and return a list
 #' of statistics summarizing the model fit. The returned list
@@ -50,6 +48,8 @@
 #'   "most representative", we mean the row (or sample) with the highest
 #'   proportion of counts drawn from the topic i.}
 #' 
+#' @method summary poisson_nmf_fit
+#'
 #' @export
 #' 
 summary.poisson_nmf_fit <- function (object, ...) {
@@ -60,10 +60,10 @@ summary.poisson_nmf_fit <- function (object, ...) {
 
 #' @rdname summary.poisson_nmf_fit
 #'
-#' @method summary multinom_topic_model_fit
-#'
 #' @importFrom stats quantile
 #' 
+#' @method summary multinom_topic_model_fit
+#'
 #' @export
 #' 
 summary.multinom_topic_model_fit <- function (object, ...) {

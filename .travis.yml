@@ -8,7 +8,7 @@ r_check_args: --as-cran
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
 install:
-  - R -e 'install.packages(c("devtools","covr","testthat","knitr","rmarkdown","quadprog","MCMCpack","irlba","Rtsne","dplyr","Rcpp","RcppArmadillo","RcppParallel","progress","pbapply","ggplot2","ggrepel","cowplot","plotly","htmlwidgets","Ternary"))'
+  - R -e 'install.packages(c("devtools","covr","testthat","knitr","rmarkdown","quadprog","MCMCpack","irlba","Rtsne","uwot","dplyr","Rcpp","RcppArmadillo","RcppParallel","progress","pbapply","ggplot2","ggrepel","cowplot","plotly","htmlwidgets","Ternary"))'
   - R -e 'devtools::install_github("linxihui/NNLM",upgrade="never",force=TRUE)'
   - R -e 'devtools::install_github("slowkow/ggrepel",upgrade="never",force=TRUE)'
   - R -e 'devtools::install_github("stephens999/ashr",upgrade="never",force=TRUE)'

@@ -1,8 +1,5 @@
 citHeader("To cite the fastTopics package, please use:")
 
-year <- sub("-.*", "", meta$Date)
-note <- sprintf("R package version %s", meta$Version)
-
 citEntry(entry = "Article",
          title = paste("Visualizing the structure of RNA-seq expression data",
                        "using grade of membership models"),
@@ -21,19 +18,20 @@ citEntry(entry = "Article",
                  "data using grade of membership models. PLoS Genetics",
                  "13(3), e1006599, doi:10.1371/journal.pgen.1006599"))
 
-citEntry(entry = "Manual",
-         title = "fastTopics: fast algorithms for fitting topic models and non-negative matrix factorizations to count data",
-         author = personList(as.person("Peter Carbonetto"),
-                             as.person("Kevin Luo"),
-                             as.person("Kushal Dey"),
-                             as.person("Joyce Hsiao"),
-                             as.person("Matthew Stephens")),
-         year = year,
-         note = note,
-         url = "https://github.com/stephenslab/fastTopics",
-         textVersion = 
-           paste0("Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao and ",
-                  "Matthew Stephens (",year,"). fastTopics: fast algorithms ",
-                  "fo fitting topic models and non-negative matrix ",
-                  "factorizations to count data. ",note,". ",
-                  "https://github.com/stephenslab/fastTopics"))
+citEntry(entry = "Article",
+  title   = paste("Non-negative matrix factorization algorithms greatly",
+                  "improve topic model fits"),
+  author  = personList(as.person("Peter Carbonetto"),
+                       as.person("Abhishek Sarkar"),
+                       as.person("Zihao Wang"),
+                       as.person("Matthew Stephens")),
+  journal = "arXiv",
+  volume  = "2105.13440",
+  eprint  = "2105.13440",
+  year    = "2021",
+  archivePrefix = "arXiv",
+  url = "https://arxiv.org/abs/2105.13440",
+  textVersion = paste("Peter Carbonetto, Abhishek Sarkar, Zihao Wang",
+                      "and Matthew Stephens (2021). Non-negative matrix",
+                      "factorization algorithms greatly improve topic model",
+                      "fits. arXiv, 2105.13440, 2021."))

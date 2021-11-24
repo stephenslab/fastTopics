@@ -121,7 +121,7 @@ effective:
 ```{r structure-plot-without-labels, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
                   "gold","darkorange")
-structure_plot(fit,topics = 1:6,colors = topic_colors)
+structure_plot(fit,colors = topic_colors)
 ```
 
 From this Structure plot, we see the clustering of the cells into B
@@ -163,8 +163,8 @@ Now we create another Structure plot in which the cells are organized
 by their membership to the 6 clusters:
 
 ```{r structure-plot-by-cluster-1, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
-structure_plot(fit,topics = 1:6,colors = topic_colors,
-               grouping = factor(clusters),gap = 25)
+structure_plot(fit,topics = 1:6,colors = topic_colors,gap = 25,
+               grouping = clusters)
 ```
 
 Judging by the Structure plot, the *k*-means clusters look sensible,
@@ -189,8 +189,8 @@ until downstream analyses have been performed.
 
 ```{r structure-plot-by-cluster-2, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
-structure_plot(fit,topics = 1:6,colors = topic_colors,
-               grouping = clusters,gap = 25)
+structure_plot(fit,topics = 1:6,colors = topic_colors,gap = 25,
+               grouping = clusters)
 ```
 
 This new Structure plot better highlights the heterogeneity within the
@@ -265,8 +265,8 @@ cells, as we will see shortly---we define a new cluster:
 clusters <- as.character(clusters)
 clusters[clusters == "T" & fit$L[,1] > 0.1] <- "CD8+"
 clusters <- factor(clusters)
-structure_plot(fit,topics = 1:6,colors = topic_colors,
-               grouping = factor(clusters),gap = 25)
+structure_plot(fit,topics = 1:6,colors = topic_colors,gap = 25,
+               grouping = clusters)
 ```
 
 Now we can perform DE analysis on the CD8+ cluster (as well as the

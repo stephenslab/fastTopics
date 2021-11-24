@@ -18,7 +18,7 @@
 #' \deqn{\lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk},} in which \eqn{K}
 #' is a user-specified tuning parameter specifying the rank of the
 #' matrix factorization. Function \code{fit_poisson_nmf} computes
-#' maximum-likelihood estimates (MLEs) of the parameters.  For
+#' maximum-likelihood estimates (MLEs) of the parameters. For
 #' additional mathematical background, and an explanation of how
 #' Poisson NMF is connected to topic modeling, see the vignette:
 #' \code{vignette(topic = "relationship",package = "fastTopics")}.
@@ -46,10 +46,10 @@
 #' descent (SCD) updates adopt the same optimization strategy, but
 #' differ in the implementation details. In practice, we have found
 #' that the CCD and SCD updates arrive at the same solution when
-#' initialized "sufficiently close" to a stationary point. The CCD
-#' implementation is adapted from the C++ code developed by Cho-Jui
-#' Hsieh and Inderjit Dhillon, which is available for download at
-#' \url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
+#' initialized \dQuote{sufficiently close} to a stationary point. The
+#' CCD implementation is adapted from the C++ code developed by
+#' Cho-Jui Hsieh and Inderjit Dhillon, which is available for download
+#' at \url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
 #' implementation is based on version 0.4-3 of the NNLM package.
 #'
 #' An additional re-scaling step is performed after each update to
@@ -187,7 +187,10 @@
 #'   the algorithm's progress is printed to the console at each
 #'   iteration; when \code{verbose = "progressbar"}, a progress bar is
 #'   shown; and when \code{verbose = "none"}, no progress information is
-#'   printed.
+#'   printed. See the description of the \dQuote{progress} return value
+#'   for an explanation of \code{verbose = "detailed"} console
+#'   output. (Note that some columns of the \dQuote{progress} data frame
+#'   are not shown in the console output.)
 #'
 #' @return \code{init_poisson_nmf} and \code{fit_poisson_nmf} both
 #' return an object capturing the optimization algorithm state (for
@@ -238,25 +241,27 @@
 #' 
 #' \item{progress}{A data frame containing detailed information about
 #'   the algorithm's progress. The data frame should have \code{numiter}
-#'   rows. The columns of the data frame are: "iter", the iteration
-#'   number; "loglik", the Poisson NMF log-likelihood at the current
-#'   best factor and loading estimates; "dev", the deviance at the
-#'   current best factor and loading estimates; "res", the maximum
-#'   residual of the Karush-Kuhn-Tucker (KKT) first-order optimality
-#'   conditions at the current best factor and loading estimates;
-#'   "loglik.multinom", the multinomial topic model log-likelihood at
-#'   the current best factor and loading estimates; "delta.f", the
-#'   largest change in the factors matrix; "delta.l", the largest change
-#'   in the loadings matrix; "nonzeros.f", the proportion of entries in
-#'   the factors matrix that are nonzero; "nonzeros.l", the proportion
-#'   of entries in the loadings matrix that are nonzero; "extrapolate",
-#'   which is 1 if extrapolation is used, otherwise it is 0; "beta", the
-#'   setting of the extrapolation parameter; "betamax", the setting of
-#'   the extrapolation parameter upper bound; and "timing", the elapsed
-#'   time in seconds (recorded using \code{\link{proc.time}}).}
+#'   rows. The columns of the data frame are: \dQuote{iter}, the
+#'   iteration number; \dQuote{loglik}, the Poisson NMF log-likelihood
+#'   at the current best factor and loading estimates;
+#'   \dQuote{loglik.multinom}, the multinomial topic model
+#'   log-likelihood at the current best factor and loading estimates;
+#'   \dQuote{dev}, the deviance at the current best factor and loading
+#'   estimates; \dQuote{res}, the maximum residual of the
+#'   Karush-Kuhn-Tucker (KKT) first-order optimality conditions at the
+#'   current best factor and loading estimates; \dQuote{delta.f}, the
+#'   largest change in the factors matrix; \dQuote{delta.l}, the largest
+#'   change in the loadings matrix; \dQuote{nonzeros.f}, the proportion
+#'   of entries in the factors matrix that are nonzero;
+#'   \dQuote{nonzeros.l}, the proportion of entries in the loadings
+#'   matrix that are nonzero; \dQuote{extrapolate}, which is 1 if
+#'   extrapolation is used, otherwise it is 0; \dQuote{beta}, the
+#'   setting of the extrapolation parameter; \dQuote{betamax}, the
+#'   setting of the extrapolation parameter upper bound; and
+#'   \dQuote{timing}, the elapsed time in seconds (recorded using
+#'   \code{\link{proc.time}}).}
 #' 
 #' @references
-#'
 #'   Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
 #'   factorization algorithms using extrapolation. \emph{Neural
 #'   Computation} \bold{31}, 417–439.
@@ -286,8 +291,7 @@
 #'   Ke, Z. & Wang, M. (2017). A new SVD approach to optimal topic
 #'   estimation. \emph{arXiv} \url{http://arxiv.org/abs/1704.07016}
 #'
-#' @seealso \code{\link{fit_topic_model}},
-#'   \code{\link{plot_progress_poisson_nmf}}
+#' @seealso \code{\link{fit_topic_model}}, \code{\link{plot_progress}}
 #' 
 #' @examples
 #' # Simulate a (sparse) 80 x 100 counts matrix.
@@ -423,7 +427,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-80).\n")
+    cat("(fastTopics 0.6-81).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -470,7 +474,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
 #'   provided, input argument \code{k} should be specified instead.
 #'
 #' @param L An optional argument giving the initial estimate of the
-#'   loadings (also known as \dQuote{activations}). It should an n x k
+#'   loadings (also known as \dQuote{activations}). It should be an n x k
 #'   matrix, where n is the number of rows in the counts matrix
 #'   \code{X}, and k > 1 is the rank of the matrix factorization
 #'   (equivalently, the number of \dQuote{topics}). All entries of
@@ -503,7 +507,7 @@ init_poisson_nmf <-
   # Only one of k and (F or L) should be provided.
   if (!(missing(k) & !(missing(F) & missing(L)) |
        (!missing(k) & (missing(F) & missing(L)))))
-    stop("Provide a rank (k) or an initialization F and/or L, but not both")
+    stop("Provide a rank (k) or an initialization of F and/or L, but not both")
   if (missing(k)) {
     if (missing(F))
       k <- ncol(L)
@@ -605,7 +609,7 @@ init_poisson_nmf <-
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
   progress        <- as.data.frame(matrix(0,0,13))
-  names(progress) <- c("iter","loglik","dev","res","loglik.multinom",
+  names(progress) <- c("iter","loglik","loglik.multinom","dev","res",
                        "delta.f","delta.l","nonzeros.f","nonzeros.l",
                        "extrapolate","beta","betamax","timing")
 
@@ -652,7 +656,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
   loglik.const    <- sum(loglik_poisson_const(X))
   dev.const       <- sum(deviance_poisson_const(X))
   progress        <- as.data.frame(matrix(0,numiter,13))
-  names(progress) <- c("iter","loglik","dev","res","loglik.multinom",
+  names(progress) <- c("iter","loglik","loglik.multinom","dev","res",
                        "delta.f","delta.l","nonzeros.f","nonzeros.l",
                        "extrapolate","beta","betamax","timing")
 

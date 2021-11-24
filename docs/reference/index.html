@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -130,15 +130,27 @@
       <tr>
         
         <td>
-          <p><code><a href="compare_poisson_nmf_fits.html">compare_poisson_nmf_fits()</a></code> </p>
+          <p><code><a href="compare_fits.html">compare_fits()</a></code> </p>
         </td>
-        <td><p>Summarize and Compare Poisson NMF Model Fits</p></td>
+        <td><p>Summarize and Compare Model Fits</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="diff_count_analysis.html">diff_count_analysis()</a></code> <code><a href="diff_count_analysis.html">diff_count_clusters()</a></code> </p>
         </td>
         <td><p>Differential Count Analysis with a Multinomial Topic Model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="embedding_plots.html">embedding_plot_2d()</a></code> <code><a href="embedding_plots.html">embedding_plot_2d_ggplot_call()</a></code> <code><a href="embedding_plots.html">pca_plot()</a></code> <code><a href="embedding_plots.html">tsne_plot()</a></code> <code><a href="embedding_plots.html">umap_plot()</a></code> <code><a href="embedding_plots.html">pca_hexbin_plot()</a></code> <code><a href="embedding_plots.html">pca_hexbin_plot_ggplot_call()</a></code> </p>
+        </td>
+        <td><p>PCA, t-SNE and UMAP Plots</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="embeddings_from_topics.html">pca_from_topics()</a></code> <code><a href="embeddings_from_topics.html">tsne_from_topics()</a></code> <code><a href="embeddings_from_topics.html">umap_from_topics()</a></code> </p>
+        </td>
+        <td><p>Low-dimensional Embeddings from Poisson NMF or Multinomial Topic Model</p></td>
       </tr><tr>
         
         <td>
@@ -190,27 +202,27 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="pca_plot.html">pca_plot()</a></code> <code><a href="pca_plot.html">pca_plot_ggplot_call()</a></code> <code><a href="pca_plot.html">pca_hexbin_plot()</a></code> <code><a href="pca_plot.html">pca_hexbin_plot_ggplot_call()</a></code> </p>
-        </td>
-        <td><p>PCA Plot</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="plot_loglik_vs_rank.html">plot_loglik_vs_rank()</a></code> <code><a href="plot_loglik_vs_rank.html">loglik_vs_rank_ggplot_call()</a></code> </p>
         </td>
-        <td><p>Plot Log-Likelihood Versus Poisson NMF Rank</p></td>
+        <td><p>Plot Log-Likelihood Versus Rank</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plot_progress_poisson_nmf.html">plot_progress_poisson_nmf()</a></code> </p>
+          <p><code><a href="plot_progress.html">plot_progress()</a></code> </p>
         </td>
-        <td><p>Plot Progress of Poisson NMF Optimization Over Time</p></td>
+        <td><p>Plot Progress of Model Fitting Over Time</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="poisson2multinom.html">poisson2multinom()</a></code> </p>
         </td>
         <td><p>Recover Multinomial Topic Model Fit from Poisson NMF fit</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="predict.html">predict(<i>&lt;poisson_nmf_fit&gt;</i>)</a></code> <code><a href="predict.html">predict(<i>&lt;multinom_topic_model_fit&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Predict Methods for Poisson NMF and Multinomial Topic Model</p></td>
       </tr><tr>
         
         <td>
@@ -239,7 +251,7 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="structure_plot.html">structure_plot()</a></code> <code><a href="structure_plot.html">plot(<i>&lt;poisson_nmf_fit&gt;</i>)</a></code> <code><a href="structure_plot.html">plot(<i>&lt;multinom_topic_model_fit&gt;</i>)</a></code> <code><a href="structure_plot.html">structure_plot_ggplot_call()</a></code> </p>
+          <p><code><a href="structure_plot.html">structure_plot()</a></code> <code><a href="structure_plot.html">structure_plot_default_embed_method()</a></code> <code><a href="structure_plot.html">plot(<i>&lt;poisson_nmf_fit&gt;</i>)</a></code> <code><a href="structure_plot.html">plot(<i>&lt;multinom_topic_model_fit&gt;</i>)</a></code> <code><a href="structure_plot.html">structure_plot_ggplot_call()</a></code> </p>
         </td>
         <td><p>Structure Plot</p></td>
       </tr><tr>
@@ -248,18 +260,6 @@
           <p><code><a href="summary.poisson_nmf_fit.html">summary(<i>&lt;poisson_nmf_fit&gt;</i>)</a></code> <code><a href="summary.poisson_nmf_fit.html">summary(<i>&lt;multinom_topic_model_fit&gt;</i>)</a></code> <code><a href="summary.poisson_nmf_fit.html">print(<i>&lt;summary.poisson_nmf_fit&gt;</i>)</a></code> <code><a href="summary.poisson_nmf_fit.html">print(<i>&lt;summary.multinom_topic_model_fit&gt;</i>)</a></code> </p>
         </td>
         <td><p>Summarize Poisson NMF or Multinomial Topic Model Fit</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="tsne_from_topics.html">tsne_from_topics()</a></code> </p>
-        </td>
-        <td><p>t-SNE from Poisson NMF or Multinomial Topic Model</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="tsne_plot.html">tsne_plot()</a></code> <code><a href="tsne_plot.html">tsne_plot_ggplot_call()</a></code> </p>
-        </td>
-        <td><p>t-SNE Plot</p></td>
       </tr><tr>
         
         <td>

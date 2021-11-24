@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts</h1>
                         <h4 class="author">Peter Carbonetto</h4>
             
-            <h4 class="date">2021-02-22</h4>
+            <h4 class="date">2021-06-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/single_cell_rnaseq_basic.Rmd"><code>vignettes/single_cell_rnaseq_basic.Rmd</code></a></small>
       <div class="hidden name"><code>single_cell_rnaseq_basic.Rmd</code></div>
@@ -149,33 +149,49 @@
 <p>To visualize the relationship between the cell labels and the mixture proportions, we create a Structure plot:</p>
 <div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">topic_colors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"skyblue"</span>,<span class="st">"forestgreen"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"dodgerblue"</span>,
                   <span class="st">"gold"</span>,<span class="st">"darkorange"</span>)
-<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,
-               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">samples</span>$<span class="no">subpop</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>)</pre></body></html></div>
+<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>,
+               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">samples</span>$<span class="no">subpop</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_basic_files/figure-html/structure-plot-with-celltype-labels-1.png" width="900" style="display: block; margin: auto;"></p>
 <p>The Structure plot is a simply stacked bar chart, in which each topic is represented as a bar of a different colour. Being <em>proportions</em>, the mixture proportions for each cell must sum to 1, so the total height of the bars is the same for all cells, which makes it easier to compare across cells. Patterns begin to emerge when the cells are arranged so that cells with similar mixture proportions are positioned close to each other. This arrangement is automated in <code>structure_plot</code>.</p>
 <p>From this Structure plot, it is evident that topics 1 (lighter blue), 2 (green) and 4 (darker blue) closely correspond to the NK, CD14+ and B cell types, respectively; the expression in these cells is largely explained by a single topic. NK cells show more heterogeneity in expression than the CD14+ and B cells.</p>
 <p>The mixture proportions uncover some surprises in the cells labeled as “CD34+”: while their expression is largely explained by topic 3 (purple), some cells appear to be mislabeled—they should have been labeled as B cells or CD14+ cells. Other cells are best fit by a mixture of several topics.</p>
 <p>Finally, the topic model captures interesting substructure within the T cells. Two patterns stand out from the Structure plot: first, most T cells are a mixture of two topics, 5 (yellow) and 6 (orange), with wide variation in the mixing proportions for these two topics; second, there is a distinctive subset of T cells that is represented as a mixture of three topics (topics 1, 5 and 6). To help us understand what aspects of T cell diversity are captured by these topics, we need to first understand how topics capture shared patterns of gene expression.</p>
 </div>
+<div id="predicting-topics-in-other-cells" class="section level2">
+<h2 class="hasAnchor">
+<a href="#predicting-topics-in-other-cells" class="anchor"></a>Predicting topics in other cells</h2>
+<p>Having fitted a topic model to single-cell data, it is easy to use that model to predict the topic proportions for other cells that were not used to fit the model. We illustrate this with a separate collection of 1,000 cells drawn from the same PBMC data set:</p>
+<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="no">counts_test</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">counts_test</span>
+<span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">counts_test</span>)
+<span class="co"># [1]  1000 16791</span></pre></body></html></div>
+<p>The “predict” function estimates the topic proportions based on a previously fit topic model.</p>
+<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">fit_test</span>   <span class="kw">&lt;-</span> <span class="no">fit</span>
+<span class="no">fit_test</span>$<span class="no">s</span> <span class="kw">&lt;-</span> <span class="kw">NULL</span>
+<span class="no">fit_test</span>$<span class="no">L</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="no">fit</span>,<span class="no">counts_test</span>)</pre></body></html></div>
+<p>The predictions appear to align well with the provided cell labels:</p>
+<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit_test</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">10</span>,
+               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">pbmc_facs</span>$<span class="no">samples_test</span>$<span class="no">subpop</span>)</pre></body></html></div>
+<p><img src="single_cell_rnaseq_basic_files/figure-html/structure-plot-test-1.png" width="900" style="display: block; margin: auto;"></p>
+</div>
 <div id="topics-capture-patterns-of-relative-expression" class="section level2">
 <h2 class="hasAnchor">
 <a href="#topics-capture-patterns-of-relative-expression" class="anchor"></a>Topics capture patterns of relative expression</h2>
 <p>Above, we explained that the topic model represents cells as mixtures of topics. In our running example, some of the topics seem to have a straightforward interpretation as known cell types. More precisely, each topic captures an expression pattern, encoded as a vector of <span class="math inline">\(m\)</span> relative expression levels (<span class="math inline">\(m\)</span> is the number of genes). In <strong>fastTopics</strong>, the relative expression levels for all topics are stored as an <span class="math inline">\(m \times K\)</span> matrix:</p>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">fit</span>$<span class="no">F</span>)
+<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">fit</span>$<span class="no">F</span>)
 <span class="co"># [1] 16791     6</span></pre></body></html></div>
 <p>Because the expression patterns are encoded by <em>relative expression levels</em>, the estimates of relative expression are directly comparable across topics. For example, gene <em>CD79B</em> is an important component of B cell differentiation, so we would expect higher expression in B cells. Indeed, this is what we find in the topic 4 (we multiplied the estimates by <span class="math inline">\(10^6\)</span> only to make them easier to read):</p>
-<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">genes</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">genes</span>
+<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">genes</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">genes</span>
 <span class="no">j</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span>(<span class="fl">1e6</span> * <span class="no">fit</span>$<span class="no">F</span>[<span class="no">j</span>,])
 <span class="co">#   k1   k2   k3   k4   k5   k6 </span>
 <span class="co">#   40    0    0 2135  199    0</span></pre></body></html></div>
 <p>Expression of <em>CD79A</em>—a known marker gene for B cells—provides an even stronger clue, as it is uniquely expressed in topic 4:</p>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="no">j</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>)
+<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">j</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span>(<span class="fl">1e6</span> * <span class="no">fit</span>$<span class="no">F</span>[<span class="no">j</span>,])
 <span class="co">#   k1   k2   k3   k4   k5   k6 </span>
 <span class="co">#    0    0    0 2747    0    0</span></pre></body></html></div>
 <p>By contrast, genes that are highly expressed in all topics, e.g., <em>COX4I1</em>, provide little useful information:</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">j</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"COX4I1"</span>)
+<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="no">j</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"COX4I1"</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span>(<span class="fl">1e6</span> * <span class="no">fit</span>$<span class="no">F</span>[<span class="no">j</span>,])
 <span class="co">#   k1   k2   k3   k4   k5   k6 </span>
 <span class="co"># 1231 3535 1444 1759 1158 2104</span></pre></body></html></div>
@@ -185,7 +201,7 @@
 <h2 class="hasAnchor">
 <a href="#interpreting-topics-by-analyzing-gene-expression-differences" class="anchor"></a>Interpreting topics by analyzing gene expression differences</h2>
 <p>To set the stage for differential expression (DE) analysis using a topic model, we begin with a classic DE analysis using the available cell-type labels. This analysis centers on calculation of the <em>log-fold change</em> (LFC) statistic. For a given group or cluster, the LFC is defined as the (base-2) log-ratio of two expectations: the mean expression (<em>i.e.</em>, mean UMI count) for all cells belonging to the specifed group over the mean expression among cells not belonging to the group. For example, genes <em>CD79A</em> and <em>CD79B</em> are overexpressed in B cells, by a multiplicative factor of <span class="math inline">\(2^{5.66} \approx 50\)</span> and <span class="math inline">\(2^{4.9} \approx 30\)</span>, respectively, and they are underexpressed in the other four cell types:</p>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">dfc_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">samples</span>$<span class="no">subpop</span>,<span class="no">counts</span>)
+<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="no">dfc_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">samples</span>$<span class="no">subpop</span>,<span class="no">counts</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">dfc_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>,],
       <span class="no">dfc_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>,])
 <span class="co"># Fitting 16791 x 5 = 83955 univariate Poisson models.</span>
@@ -195,12 +211,12 @@
 <span class="co"># [1,] 5.659506 -10.438944 -2.815194 -7.180773 -4.596314</span>
 <span class="co"># [2,] 4.936403  -4.131096 -2.611642 -2.859923 -3.454288</span></pre></body></html></div>
 <p><strong>fastTopics</strong> extends the classic DE analysis to allow for <em>partial membership</em> to groups. This generalized DE analysis is implemented in <code>diff_count_analysis</code>:</p>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">dfa_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit</span>,<span class="no">counts</span>)
+<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="no">dfa_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit</span>,<span class="no">counts</span>)
 <span class="co"># Fitting 16791 x 6 = 100746 univariate Poisson models.</span>
 <span class="co"># Computing log-fold change statistics.</span>
 <span class="co"># Stabilizing log-fold change estimates using adaptive shrinkage.</span></pre></body></html></div>
 <p>As in the standard analysis, it outputs LFC estimates:</p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">dfa_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>,],
+<div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">dfa_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79A"</span>,],
       <span class="no">dfa_out</span>$<span class="no">beta</span>[<span class="no">genes</span>$<span class="no">symbol</span> <span class="kw">==</span> <span class="st">"CD79B"</span>,])
 <span class="co">#              k1         k2        k3       k4        k5        k6</span>
 <span class="co"># [1,] -10.986622 -10.651502 -11.04399 17.21208 -9.930242 -10.82830</span>
@@ -208,17 +224,17 @@
 <p>These LFC statistics have the same interpretation (the standard LFC emerges as a special case when the all mixture proportions are 0 or 1). The LFC estimates are noticeably larger in the B cells topic (topic 4), particularly so for <em>CD79A</em>. In fact, <em>CD79A</em> is almost uniquely expressed in topic 4.</p>
 <p>Up to this point, we have illustrated the DE analysis with known genes such as <em>CD79A</em>. Ultimately, we would like to <em>discover</em> genes relevant to a topic (of known or unknown biological relevance).</p>
 <p>To discover genes, a natural thing to do would be to rank candidates by their LFC. The complication is that lowly expressed genes could also produce, by chance, large LFCs, and we would not want to rank these genes highly. The <em>volcano plot</em> balances these two concerns: the LFC is shown on the x-axis, and the <em>p</em>-value or <em>z</em>-score, quantifying support for differential expression, is shown on the <em>y</em>-axis. Here is volcano plot for topic 4:</p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">4</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.995</span>,
+<div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">4</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.995</span>,
              <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_basic_files/figure-html/volcano-plot-b-1.png" width="540" style="display: block; margin: auto;"></p>
 <p>Typically, the most interesting genes are found in the top-right portion of the volcano plot—that is, genes with large LFC and strong support (small <em>p</em>-value or high-magnitude <em>z</em>-score). Indeed, B-cell genes, among them <em>CD79A</em> and <em>CD79B</em>, appear near the top-right corner of the volcano plot.</p>
 <p>(Note that the x-axis in the volcano plot ranges between -15 and 15; by default, LFC estimates outside this range are projected onto this range. You can use the <code>betamax</code> argument to change how the LFC estimates are shown in the volcano plot.)</p>
 <p>Likewise, natural killer genes such as <em>NKG7</em> emerge at the top of the volcano plot for topic 1:</p>
-<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">1</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.995</span>,
+<div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">1</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.995</span>,
              <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_basic_files/figure-html/volcano-plot-nk-1.png" width="540" style="display: block; margin: auto;"></p>
 <p>T-cell-specific expression patterns are captured by topic 6 (e.g., genes <em>CD3D</em>, <em>CD3E</em>):</p>
-<div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">6</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.9925</span>,
+<div class="sourceCode" id="cb23"><html><body><pre class="r"><span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">6</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.9925</span>,
              <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>)</pre></body></html></div>
 <p><img src="single_cell_rnaseq_basic_files/figure-html/volcano-plot-t-1.png" width="540" style="display: block; margin: auto;"></p>
 <p>See also <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html">Part 2</a> for more DE analysis examples.</p>
@@ -227,7 +243,7 @@
 <h2 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h2>
 <p>This is the version of R and the packages that were used to generate these results.</p>
-<div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
+<div class="sourceCode" id="cb24"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
 <span class="co"># R version 3.6.2 (2019-12-12)</span>
 <span class="co"># Platform: x86_64-apple-darwin15.6.0 (64-bit)</span>
 <span class="co"># Running under: macOS Catalina 10.15.7</span>
@@ -243,7 +259,7 @@
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.5-15 Matrix_1.2-18    </span>
+<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.5-52 Matrix_1.2-18    </span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
 <span class="co">#  [1] ggrepel_0.9.0      Rcpp_1.0.5         invgamma_1.1       lattice_0.20-38   </span>
@@ -253,17 +269,17 @@
 <span class="co"># [17] httr_1.4.2         pillar_1.4.3       progress_1.2.2     rlang_0.4.5       </span>
 <span class="co"># [21] lazyeval_0.2.2     data.table_1.12.8  irlba_2.3.3        SparseM_1.78      </span>
 <span class="co"># [25] rmarkdown_2.3      pkgdown_1.5.1      labeling_0.3       desc_1.2.0        </span>
-<span class="co"># [29] Rtsne_0.15         stringr_1.4.0      htmlwidgets_1.5.1  munsell_0.5.0     </span>
-<span class="co"># [33] mixsqp_0.3-44      compiler_3.6.2     xfun_0.11          pkgconfig_2.0.3   </span>
-<span class="co"># [37] SQUAREM_2017.10-1  mcmc_0.9-6         htmltools_0.4.0    tidyselect_0.2.5  </span>
-<span class="co"># [41] tibble_2.1.3       quadprog_1.5-8     viridisLite_0.3.0  withr_2.1.2       </span>
-<span class="co"># [45] crayon_1.3.4       dplyr_0.8.3        MASS_7.3-51.4      grid_3.6.2        </span>
-<span class="co"># [49] jsonlite_1.6       gtable_0.3.0       lifecycle_0.1.0    magrittr_1.5      </span>
-<span class="co"># [53] scales_1.1.0       RcppParallel_4.4.2 stringi_1.4.3      farver_2.0.1      </span>
-<span class="co"># [57] fs_1.3.1           vctrs_0.2.1        tools_3.6.2        glue_1.3.1        </span>
-<span class="co"># [61] purrr_0.3.3        hms_0.5.2          yaml_2.2.0         colorspace_1.4-1  </span>
-<span class="co"># [65] ashr_2.2-51        memoise_1.1.0      plotly_4.9.2       knitr_1.26        </span>
-<span class="co"># [69] quantreg_5.54      MCMCpack_1.4-5</span></pre></body></html></div>
+<span class="co"># [29] Rtsne_0.15         stringr_1.4.0      htmlwidgets_1.5.1  uwot_0.1.10       </span>
+<span class="co"># [33] munsell_0.5.0      mixsqp_0.3-46      compiler_3.6.2     xfun_0.11         </span>
+<span class="co"># [37] pkgconfig_2.0.3    SQUAREM_2017.10-1  mcmc_0.9-6         htmltools_0.4.0   </span>
+<span class="co"># [41] tidyselect_0.2.5   tibble_2.1.3       quadprog_1.5-8     viridisLite_0.3.0 </span>
+<span class="co"># [45] withr_2.1.2        crayon_1.3.4       dplyr_0.8.3        MASS_7.3-51.4     </span>
+<span class="co"># [49] grid_3.6.2         jsonlite_1.6       gtable_0.3.0       lifecycle_0.1.0   </span>
+<span class="co"># [53] magrittr_1.5       scales_1.1.0       RcppParallel_4.4.2 stringi_1.4.3     </span>
+<span class="co"># [57] farver_2.0.1       fs_1.3.1           vctrs_0.2.1        tools_3.6.2       </span>
+<span class="co"># [61] glue_1.3.1         purrr_0.3.3        hms_0.5.2          yaml_2.2.0        </span>
+<span class="co"># [65] colorspace_1.4-1   ashr_2.2-51        memoise_1.1.0      plotly_4.9.2      </span>
+<span class="co"># [69] knitr_1.26         quantreg_5.54      MCMCpack_1.4-5</span></pre></body></html></div>
 </div>
   </div>
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot Log-Likelihood Versus Poisson NMF Rank — plot_loglik_vs_rank • fastTopics</title>
+<title>Plot Log-Likelihood Versus Rank — plot_loglik_vs_rank • fastTopics</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Plot Log-Likelihood Versus Poisson NMF Rank — plot_loglik_vs_rank" />
-<meta property="og:description" content="Create a plot showing the improvement in the Poisson
-  NMF log-likelihood as the rank of the matrix factorization or the
+<meta property="og:title" content="Plot Log-Likelihood Versus Rank — plot_loglik_vs_rank" />
+<meta property="og:description" content="Create a plot showing the improvement in the
+  log-likelihood as the rank of the matrix factorization or the
   number of topics (&amp;#8220;k&amp;#8221;) increases." />
 
 
@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
       </span>
     </div>
 
@@ -107,14 +107,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot Log-Likelihood Versus Poisson NMF Rank</h1>
-    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
+    <h1>Plot Log-Likelihood Versus Rank</h1>
+    <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/other_plots.R'><code>R/other_plots.R</code></a></small>
     <div class="hidden name"><code>plot_loglik_vs_rank.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Create a plot showing the improvement in the Poisson
-  NMF log-likelihood as the rank of the matrix factorization or the
+    <p>Create a plot showing the improvement in the
+  log-likelihood as the rank of the matrix factorization or the
   number of topics (&#8220;k&#8221;) increases.</p>
     </div>
 
@@ -129,7 +129,7 @@
       <th>fits</th>
       <td><p>A list with 2 more list elements, in which each list
 element is an object of class <code>"poisson_nmf_fit"</code> or
-<code>"multinom_topic_model_fit"</code>. If two or more fits shares the
+<code>"multinom_topic_model_fit"</code>. If two or more fits share the
 same rank, or number of topics, the largest log-likelihood is
 plotted.</p></td>
     </tr>

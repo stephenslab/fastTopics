@@ -50,7 +50,7 @@ test_that("Test that pca_plot and pca_hexbin_plot work",{
 
 test_that("Test that other plotting functions work",{
   set.seed(1)
-  dat <- generate_test_data(80,100,3)
+  dat <- generate_test_data(200,100,3)
   X   <- dat$X
   capture.output(fit0 <- init_poisson_nmf(X,k = 3))
   capture.output(
@@ -67,34 +67,36 @@ test_that("Test that other plotting functions work",{
   plot_progress(list(scd = poisson2multinom(fit1),em = poisson2multinom(fit2)))
   
   # Test loadings_plot.
-  x  <- factor(sample(1:4,80,replace = TRUE))
+  x  <- factor(sample(1:4,200,replace = TRUE))
   p1 <- loadings_plot(fit1,x)
   p2 <- loadings_plot(poisson2multinom(fit1),x)
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
 
-  # Test tsne_plot.
-  capture.output(p1 <- tsne_plot(fit1,color = "mixprop",perplexity = 10))
-  capture.output(p2 <- tsne_plot(fit1,color = "loading",perplexity = 10))
+  # Test tsne_plot and umap_plot.
+  capture.output(p1 <- tsne_plot(fit1,fill = "loading"))
+  capture.output(p2 <- tsne_plot(fit2,fill = "loading"))
+  capture.output(p3 <- umap_plot(fit1,fill = "loading",verbose = FALSE))
+  capture.output(p4 <- umap_plot(fit2,fill = "loading",verbose = FALSE))
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
+  expect_s3_class(p3,"ggplot")
+  expect_s3_class(p4,"ggplot")
 
   # Test structure_plot.
-  g <- factor(apply(poisson2multinom(fit1)$L,1,which.max))
-  capture.output(tsne <- tsne_from_topics(poisson2multinom(fit1),dims = 1,
-                                          perplexity = 20))
-  capture.output(p1 <- structure_plot(fit1,perplexity = 20))
-  capture.output(p2 <- structure_plot(fit1,rows = order(tsne$Y)))
-  p3 <- structure_plot(fit1,rows = order(tsne$Y),grouping = g,gap = 2)
+  grouping <- factor(apply(poisson2multinom(fit1)$L,1,which.max))
+  capture.output(y <- drop(tsne_from_topics(poisson2multinom(fit1),dims = 1)))
+  capture.output(p1 <- structure_plot(fit1))
+  capture.output(p2 <- structure_plot(fit1,grouping = grouping,gap = 5))
+  p3 <- structure_plot(fit1,loadings_order = order(y))
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
   expect_s3_class(p3,"ggplot")
 
   # Test the "plot" S3 method (which creates a Structure plot).
   fit2 <- poisson2multinom(fit1)
-  capture.output(p1 <- plot(fit1,perplexity = 20))
-  capture.output(p2 <- plot(fit2,perplexity = 20))
+  capture.output(p1 <- plot(fit1))
+  capture.output(p2 <- plot(fit2))
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
 })
-

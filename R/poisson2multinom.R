@@ -8,7 +8,9 @@
 #'   output from \code{fit_poisson_nmf}. It does not make sense for a
 #'   multinomial topic model to have less than two topics, so an error
 #'   will be reported when k < 2, where k is the rank of the matrix
-#'   factorization.
+#'   factorization. If a multinomial topic model fit is provided (that
+#'   is, an object of class \dQuote{multinom_topic_model_fit}), the fit
+#'   object is immediately returned \dQuote{as is}.
 #'
 #' @return The return value is the list \code{fit}, in which
 #'   \code{fit$F} and \code{fit$L} are the parameters of the multinomial
@@ -22,6 +24,8 @@
 poisson2multinom <- function (fit) {
 
   # Check input argument "fit".
+  if (inherits(fit,"multinom_topic_model_fit"))
+    return(fit)
   if (!inherits(fit,"poisson_nmf_fit"))
     stop("Input argument \"fit\" should be an object of class ",
          "\"poisson_nmf_fit\"")
