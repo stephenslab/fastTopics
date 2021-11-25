@@ -139,8 +139,8 @@ test_that(paste("de_analysis with and without multithreading, using a",
                                       shrink.method = "none",
                                       control = list(nc = nc)))
     expect_equal(de1,de2,scale = 1,tolerance = 1e-12)
-    expect_equal(de1,de3,scale = 1,tolerance = 1e-12)
-    expect_equal(de1,de4,scale = 1,tolerance = 1e-12)
+    expect_equal(de1,de3,scale = 1,tolerance = 1e-8)
+    expect_equal(de1,de4,scale = 1,tolerance = 1e-8)
   }
 })
 
