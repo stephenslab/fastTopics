@@ -1,8 +1,6 @@
 to do
 =====
 
-+ Update the de_analysis roxygen2 docs, including the example(s).
-
 + Fix Appveyor tests.
 
 + Fix CircleCI tests.
