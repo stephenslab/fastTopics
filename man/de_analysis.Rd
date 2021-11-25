@@ -202,7 +202,7 @@ algorithm settings (as they are defined by
 # take several minutes to complete.
 set.seed(1)
 data(pbmc_facs)
-de <- de_analysis(pbmc_facs$fit,pbmc_facs$counts,control = list(nc = 2))
+de <- de_analysis(pbmc_facs$fit,pbmc_facs$counts)
 
 # Compile the DE results for topic 4 into a table, and rank the genes
 # by z-score.

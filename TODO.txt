@@ -1,6 +1,8 @@
 to do
 =====
 
++ Update the de_analysis roxygen2 docs, including the example(s).
+
 + Fix all CI tests.
 
 + Update pkgdown site.
