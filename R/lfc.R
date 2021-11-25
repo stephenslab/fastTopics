@@ -106,7 +106,7 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
   dat    <- vector("list",nsplit)
   for (i in 1:nsplit) {
     j        <- cols[[i]]
-    dat[[i]] <- list(X = X[,j],F = F[j,],f0 = f0[j])
+    dat[[i]] <- list(X = X[,j,drop = FALSE],F = F[j,,drop = FALSE],f0 = f0[j])
   }
 
   # Distribute the calculations using pblapply.

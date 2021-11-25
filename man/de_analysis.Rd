@@ -40,11 +40,12 @@ counts matrix to stabilize maximum-likelihood estimation.}
 \code{fit.method = "glm"} is the slowest method, and is mainly used
 for testing.}
 
-\item{shrink.method}{Method used to stabilize the LFC estimates.
-When \code{shrink.method = "ash"}, the "adaptive shrinkage" method
-implemented in the ashr package is used to compute posterior. When
-\code{shrink.method = "none"}, no stabilization is performed, and
-the \dQuote{raw} LFC estimates are returned.}
+\item{shrink.method}{Method used to stabilize the posterior mean
+LFC estimates.  When \code{shrink.method = "ash"}, the "adaptive
+shrinkage" method implemented in the ashr package is used to
+compute posterior. When \code{shrink.method = "none"}, no
+stabilization is performed, and the \dQuote{raw} posterior mean LFC
+estimates are returned.}
 
 \item{lfc.stat}{The log-fold change statistics returned:
 \code{lfc.stat = "vsnull"}, the log-fold change relative to the
@@ -79,10 +80,9 @@ A list with the following elements:
   z-scores. When \code{shrink.method = "ash"}, this is \code{NA}, and
   the s-values are returned instead (see below).}
 
-\item{svalue}{s-values returned by \code{\link[ashr]{ash}}.
-  s-values are analogous to the more frequentlly used q-values, but
-  based on the local false sign rate; see Stephens (2016) for
-  details.}
+\item{svalue}{s-values returned by
+  \code{\link[ashr]{ash}}. s-values are analogous to q-values, but
+  based on the local false sign rate; see Stephens (2016).}
 
 \item{lfsr}{When \code{shrink.method = "ash"} only, this output
   contains the estimated local false sign rates.}
@@ -128,7 +128,7 @@ log-fold change to be measured in several ways.
 One option is to compare against the probability under the null
 model: \eqn{LFC(j) = log2(f_j/f_0)}, where \eqn{f_0} is the single
 parameter in the Poisson model \eqn{x_i ~ Poisson(\lambda_i)} with
-rates \eqn{\lambda_i s_i f_0}. This LFC definition is chosen with
+rates \eqn{\lambda_i = s_i f_0}. This LFC definition is chosen with
 \code{lfc.stat = "vsnull"}.
 
 Another option is to compare against a chosen topic, k: \eqn{LFC(j)
@@ -198,32 +198,30 @@ algorithm settings (as they are defined by
 }
 \examples{
 # Perform a differential expression (DE) analysis using the previously
-# fitted multinomial topic model. Note that the de_analysis call may
+# fitted multinomial topic model. Note that the de_analysis call could
 # take several minutes to complete.
 set.seed(1)
 data(pbmc_facs)
 de <- de_analysis(pbmc_facs$fit,pbmc_facs$counts)
 
 # Compile the DE results for topic 4 into a table, and rank the genes
-# by z-score.
+# by the posterior mean log-fold change, limiting to DE genes identified
+# with low lfsr ("local false sign rate").
 k <- 4
-dat <- as.data.frame(cbind(lower = de$lower[,k],
-                           est   = de$est[,k],
-                           mean  = de$est[,k],
-                           upper = de$upper[,k],
-                           z     = de$z[,k]))
+dat <- data.frame(postmean = de$postmean[,k],
+                  z        = de$z[,k],
+                  lfsr     = de$lfsr[,k])
 rownames(dat) <- with(pbmc_facs$genes,paste(symbol,ensembl,sep = "_"))
-dat <- subset(dat,!is.na(z))
-dat <- dat[order(dat$z,decreasing = TRUE),]
+dat <- subset(dat,lfsr < 0.01)
+dat <- dat[order(dat$postmean,decreasing = TRUE),]
 
-# Among the top genes are CD79A, a gene marker for B cells, and MS4A1,
-# a B-lymphocyte surface molecule involved in B-cell development and
-# differentiation.
-head(dat)
+# Genes at the top of this ranking are genes that are much more
+# highly expressed in the topic compared to other topics.
+head(dat,n = 10)
 
-# The genes ranked at the bottom are genes that do not appear (i.e.,
-# are not expressed) in the topic, but are highly expressed elsewhere.
-tail(dat)
+# The genes at the bottom of the ranking are genes that are much less
+# expressed in the topic.
+tail(dat,n = 10)
 
 }
 \references{

@@ -151,7 +151,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
   # Simulate gene expression data.
   set.seed(1)
   n   <- 800
-  m   <- 1000
+  m   <- 100
   k   <- 4
   dat <- simulate_multinom_gene_data(n,m,k,sparse = FALSE)
   X   <- dat$X
@@ -185,20 +185,13 @@ test_that(paste("de_analysis with and without multithreading, using a",
     de2$ash$logLR <- NA
     de3$ash$logLR <- NA
     de4$ash$logLR <- NA
-    sval1 <- de1$svalue
-    sval2 <- de2$svalue
-    sval3 <- de3$svalue
-    sval4 <- de4$svalue
     de1$svalue <- NA
     de2$svalue <- NA
     de3$svalue <- NA
     de4$svalue <- NA
-    expect_equal(de1,de2,scale = 1,tolerance = 1e-12)
-    expect_equal(de1,de3,scale = 1,tolerance = 1e-12)
-    expect_equal(de1,de4,scale = 1,tolerance = 1e-12)
-    expect_equal(sval1,sval2,scale = 1,tolerance = 1e-5)
-    expect_equal(sval1,sval3,scale = 1,tolerance = 1e-5)
-    expect_equal(sval1,sval4,scale = 1,tolerance = 1e-5)
+    expect_equal(de1,de2,scale = 1,tolerance = 1e-8)
+    expect_equal(de1,de3,scale = 1,tolerance = 1e-8)
+    expect_equal(de1,de4,scale = 1,tolerance = 1e-8)
   }
 })
 
