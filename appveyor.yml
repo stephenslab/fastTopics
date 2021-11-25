@@ -19,7 +19,7 @@ environment:
     WARNINGS_ARE_ERRORS:
     R_VERSION: release
     R_ARCH: x64
-    R_CHECK_ARGS: --no-manual --as-cran
+    R_CHECK_ARGS: --no-manual --no-examples --as-cran
 
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.

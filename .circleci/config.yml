@@ -32,8 +32,8 @@ jobs:
           command: R CMD build --no-build-vignettes --no-manual .
       - run:
           name: Check package
-          no_output_timeout: 60m
-          command: R CMD check --as-cran --ignore-vignettes --no-manual *tar.gz
+          no_output_timeout: 55m
+          command: R CMD check --as-cran --ignore-vignettes --no-manual --no-examples *tar.gz
       - store_artifacts:
           path: fastTopics.Rcheck/
       - save_cache:
