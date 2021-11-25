@@ -2,11 +2,12 @@
 #'
 #' @title Volcano Plot
 #'
-#' @description Create one or more "volcano" plots to visualize the
-#'   results of a differential count analysis using a topic model. A
-#'   volcano plot is a scatterplot in which the log-fold change (LFC),
-#'   estimated using a multinomial topic model, is plotted against the
-#'   p-value or z-score. 
+#' @description Create a \dQuote{volcano} plot to visualize the
+#'   results of a differential count analysis using a topic model. Here,
+#'   the volcano plot is a scatterplot in which the posterior mean
+#'   log-fold change (LFC), estimated by running the methods implemented
+#'   in \code{\link{de_analysis}}, is plotted against the estimated
+#'   z-score.
 #'
 #' @details The colour of the points is varied by the average count,
 #' on the logarithmic scale; since the evidence (z-score or p-value)
@@ -27,52 +28,26 @@
 #' visually attractive manner.
 #'
 #' Use interactive volcano plot is created using the \dQuote{plotly}
-#' package. The \dQuote{hover text} shows the label (see input argument
-#' \dQuote{labels}) and detailed LFC statistics as they were
-#' calculated by \code{\link{diff_count_analysis}}.
+#' package. The \dQuote{hover text} shows the label (see input
+#' argument \dQuote{labels}) and detailed LFC statistics as they were
+#' calculated by \code{\link{de_analysis}}.
 #' 
-#' @param diff_count_result An object of class
-#'   \dQuote{topic_model_diff_count}, usually an output from
-#'   \code{\link{diff_count_analysis}}.
+#' @param de An object of class \dQuote{topic_model_de_analysis},
+#' usually an output from \code{\link{de_analysis}}.
 #'
-#' @param k The topic, or topics, selected by number or name. When not
-#'   specified, all topics are plotted.
+#' @param k The topic, selected by number or name.
 #'
 #' @param labels Character vector specifying how the points in the
 #'   volcano plot are labeled. This should be a character vector with
-#'   one entry per LFC estimate (row of
-#'   \code{diff_count_result$beta}). When not specified, the row names
-#'   of \code{diff_count_result$beta} are used, if available. Labels are
-#'   added to the plot using \code{\link[ggrepel]{geom_text_repel}}.
+#'   one entry per LFC estimate (row of \code{de$postmean}). When not
+#'   specified, the row names of \code{de$postmean} are used. When
+#'   available. labels are added to the plot using
+#'   \code{\link[ggrepel]{geom_text_repel}}.
 #'
-#' @param y The measure of support to plot in the y-axis: use \code{y
-#'   = "zscore"} to plot the z-score magnitudes; use \code{y = "pvalue"}
-#'   to plot the -log1 p-values.
-#'
-#' @param betamax Truncate the LFC statistics (\code{beta}) by this
-#'   amount. Any statistics greater than than \code{betamax} are set to
-#'   \code{betamax}, and any statistics less than \code{-betamax} are
-#'   set to \code{-betamax}.
-#'
-#' @param label_above_lfc Only z-scores or p-values (depending on
-#'   choice of \code{y}) with LFC estimates above this value are
-#'   labeled in the volcano plot.
+#' @param do.label Describe input argument "do.label" here.
 #' 
-#' @param label_above_quantile Only z-scores or p-values (depending on
-#'   choice of \code{y}) above this quantile are labeled in the volcano
-#'   plot.
-#'
-#' @param subsample_below_quantile A number between 0 and 1. If
-#'   greater than zero, LFC estimates with z-scores or p-values below
-#'   this quantile will be subsampled according to
-#'   \code{subsample_rate}. This can be helpful to reduce the number of
-#'   points plotted for a large data set.
-#'
-#' @param subsample_rate A number between 0 and 1 giving the
-#'   proportion of LFC estimates with small z-scores that are included
-#'   in the plot, uniformly at random. This is only used if
-#'   \code{subsample_below_quantile} is greater than zero.
-#'
+#' @param ymax Describe input argument "ymax" here.
+#' 
 #' @param max.overlaps Argument passed to
 #'   \code{\link[ggrepel]{geom_text_repel}}.
 #' 
@@ -80,83 +55,51 @@
 #'   \code{volcano_plot_ggplot_call} with your own function to customize
 #'   the appearance of the plot.
 #'
-#' @param plot_grid_call When multiple topics are selected, this is
-#'   the function used to arrange the plots into a grid using
-#'   \code{\link[cowplot]{plot_grid}}. It should be a function accepting
-#'   a single argument, \code{plots}, a list of \code{ggplot} objects.
-#'
 #' @return A \code{ggplot} object or a \code{plotly} object.
 #'
-#' @importFrom cowplot plot_grid
-#'
+#' @seealso \code{\link{de_analysis}}
+#' 
+#' @examples
+#' # See help(de_analysis) for examples.
+#' 
 #' @export
 #' 
 volcano_plot <-
-  function (diff_count_result, k, labels, y = c("zscore", "pvalue"),
-            betamax = 15, label_above_lfc = 0, label_above_quantile = 0.99, 
-            subsample_below_quantile = 0, subsample_rate = 0.1,
-            max.overlaps = Inf, ggplot_call = volcano_plot_ggplot_call,
-            plot_grid_call = function (plots) do.call(plot_grid,plots)) {
-    
-  # Check and process input arguments.
-  y <- match.arg(y)
-  if (!inherits(diff_count_result,"topic_model_diff_count"))
-    stop("Input \"diff_count_result\" should be an object of class ",
-         "\"topic_model_diff_count\"")
-  beta <- diff_count_result$beta
-  if (missing(k))
-    k <- seq(1,ncol(beta))
+  function (de, k, labels, do.label = volcano_plot_do_label_default,
+            ymax = Inf, max.overlaps = Inf,
+            ggplot_call = volcano_plot_ggplot_call) {
+  if (!inherits(de,"topic_model_de_analysis"))
+    stop("Input \"de\" should be an object of class ",
+         "\"topic_model_de_analysis\"")
+  n <- nrow(de$postmean)
   if (missing(labels)) {
-    if (!is.null(rownames(beta)))
-      labels <- rownames(beta)
+    if (!is.null(rownames(de$postmean)))
+      labels <- rownames(de$postmean)
     else
-      labels <- as.character(seq(1,nrow(beta)))
+      labels <- as.character(seq(1,n))
   }
-  if (!(is.character(labels) & length(labels) == nrow(beta)))
+  if (!(is.character(labels) & length(labels) == n))
     stop("Input argument \"labels\", when specified, should be a character ",
-         "vector with one entry per log-fold change statistic (column of ",
+         "vector with one entry per log-fold change estimate (column of ",
          "the counts matrix)")
-
-  if (length(k) == 1) {
-    if (y == "zscore")
-      y.label <- "|z-score|"
-    else if (y == "pvalue")
-      y.label <- "-log10 p-value"
-    dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
-                                     label_above_lfc,label_above_quantile,
-                                     subsample_below_quantile,subsample_rate)
-    dat$beta <- dat$beta.truncated
-    return(ggplot_call(dat,y.label,k,max.overlaps))
-  } else {
-
-    # Create a volcano plot for each selected topic, and combine them
-    # using plot_grid. This is done by recursively calling volcano_plot.
-    m     <- length(k)
-    plots <- vector("list",m)
-    names(plots) <- k
-    for (i in 1:m)
-      plots[[i]] <- volcano_plot(diff_count_result,k[i],labels,y,betamax,
-                                 label_above_lfc,label_above_quantile,
-                                 subsample_below_quantile,subsample_rate,
-                                 max.overlaps,ggplot_call,NULL)
-    return(plot_grid_call(plots))
-  }
+  dat <- compile_volcano_plot_data(de,k,labels,do.label)
+  return(ggplot_call(dat,max.overlaps))
 }
 
 #' @rdname volcano_plot
 #'
-#' @param x An object of class \dQuote{topic_model_diff_count},
-#'   usually an output from \code{\link{diff_count_analysis}}.
+#' @param x An object of class \dQuote{topic_model_de_analysis},
+#'   usually an output from \code{\link{de_analysis}}.
 #'
 #' @param \dots Additional arguments passed to \code{volcano_plot}.
 #' 
 #' @importFrom graphics plot
 #' 
-#' @method plot topic_model_diff_count
+#' @method plot topic_model_de_analysis
 #'
 #' @export
 #'
-plot.topic_model_diff_count <- function (x, ...)
+plot.topic_model_de_analysis <- function (x, ...)
   volcano_plot(x,...)
 
 #' @rdname volcano_plot
@@ -180,8 +123,7 @@ plot.topic_model_diff_count <- function (x, ...)
 #' 
 #' @export
 #' 
-volcano_plotly <- function (diff_count_result, k, file, labels,
-                            y = c("zscore", "pvalue"), betamax = 15,
+volcano_plotly <- function (de, k, file, labels,
                             subsample_below_quantile = 0,
                             subsample_rate = 0.1, width = 500, height = 500,
                             title = paste("topic",k),
@@ -189,10 +131,10 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
 
   # Check and process input arguments.
   y <- match.arg(y)
-  if (!inherits(diff_count_result,"topic_model_diff_count"))
-    stop("Input \"diff_count_result\" should be an object of class ",
-         "\"topic_model_diff_count\"")
-  beta <- diff_count_result$beta
+  if (!inherits(de_result,"topic_model_de_analysis"))
+    stop("Input \"de\" should be an object of class ",
+         "\"topic_model_de_analysis\"")
+  beta <- de_result$beta
   if (missing(labels)) {
     if (!is.null(rownames(beta)))
       labels <- rownames(beta)
@@ -205,7 +147,7 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
          "the counts matrix)")
 
   # Compile the plotting data.
-  dat <- compile_volcano_plot_data(diff_count_result,k,labels,y,betamax,
+  dat <- compile_volcano_plot_data(de_result,k,labels,y,betamax,
                                    -Inf,0,subsample_below_quantile,
                                    subsample_rate)
 
@@ -219,6 +161,21 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
     saveWidget(p,file,selfcontained = TRUE,title = title)
   return(p)
 }
+
+#' @rdname volcano_plot
+#'
+#' @param lfc Describe input argument "lfc" here.
+#'
+#' @param z Describe input argument "z" here.
+#'
+#' @importFrom stats quantile
+#' 
+#' @export
+#' 
+volcano_plot_do_label_default <- function (lfc, z)
+  abs(z) >= quantile(abs(z),0.999,na.rm = TRUE) |
+    lfc <= quantile(lfc,0.001,na.rm = TRUE) |
+    lfc >= quantile(lfc,0.999,na.rm = TRUE)
 
 #' @rdname volcano_plot
 #'
@@ -240,36 +197,31 @@ volcano_plotly <- function (diff_count_result, k, file, labels,
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
 #' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 scale_x_continuous
 #' @importFrom ggplot2 scale_y_continuous
-#' @importFrom ggplot2 scale_fill_gradient2
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 theme
-#' @importFrom ggplot2 expansion
 #' @importFrom ggplot2 element_text
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom cowplot theme_cowplot
 #' 
 #' @export
 #' 
-volcano_plot_ggplot_call <- function (dat, y.label, topic.label,
-                                      max.overlaps = Inf, font.size = 9)
-  ggplot(dat,aes_string(x = "beta",y = "y",fill = "mean",label = "label")) +
+volcano_plot_ggplot_call <- function (dat, max.overlaps = Inf, font.size = 9)
+  ggplot(dat,aes_string(x="postmean",y = "z",fill = "lfsr",label = "label")) +
     geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
-    scale_x_continuous(expand = expansion(mult = 0.2),breaks = seq(-15,15,5)) +
-    scale_y_continuous(trans = "sqrt",
-      breaks = c(0,1,2,5,10,20,50,100,200,500,1e3,2e3,5e3,1e4,2e4,5e4)) +
-    scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
-                         na.value = "gainsboro",
-                         midpoint = mean(range(dat$mean))) +
     geom_text_repel(color = "darkgray",size = 2.25,fontface = "italic",
                     segment.color = "darkgray",segment.size = 0.25,
                     min.segment.length = 0,max.overlaps = max.overlaps,
                     na.rm = TRUE) +
-    labs(x = "log-fold change",y = y.label,fill = "log10 mean",
-         title = paste("topic",topic.label)) +
+    #scale_x_continuous(expand=expansion(mult = 0.2),breaks = seq(-15,15,5)) +
+    scale_y_continuous(trans = "sqrt",
+      breaks = c(0,1,2,5,10,20,50,100,200,500,1e3,2e3,5e3,1e4,2e4,5e4)) +
+    # scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
+    #                      na.value = "gainsboro",
+    #                      midpoint = mean(range(dat$mean))) +
+    labs(x = "log-fold change",y = "|z-score|") +
     theme_cowplot(font.size) +
-    theme(plot.title = element_text(size = font.size,face = "plain"))   
+    theme(plot.title = element_text(size = font.size,face = "plain"))
 
 #' @rdname volcano_plot
 #'
@@ -306,43 +258,17 @@ volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
 
 # This is used by volcano_plot and volcano_plotly to compile the data
 # frame passed to ggplot.
-#
-#' @importFrom stats quantile
-compile_volcano_plot_data <-
-  function (diff_count_result, k, labels, y, betamax, label_above_lfc,
-            label_above_quantile, subsample_below_quantile, subsample_rate) {
-  dat <- with(diff_count_result,
-                data.frame(label = labels,
-                           mean  = colmeans,
-                           beta  = beta[,k],
-                           se    = se[,k],
-                           z     = Z[,k],
-                           pval  = pval[,k],
-                           y     = 0,
-                           stringsAsFactors = FALSE))
-  n <- nrow(dat)
-  if (y == "zscore")
-    dat$y <- abs(diff_count_result$Z[,k])
-  else if (y == "pvalue")
-    dat$y <- diff_count_result$pval[,k]
-  rows     <- which(dat$mean > 0)
-  dat      <- dat[rows,]
-  dat$mean <- log10(dat$mean)
-  if (is.infinite(label_above_quantile))
-    y0 <- Inf
+compile_volcano_plot_data <- function (de, k, labels, do.label) {
+  if (is.null(de$lfsr))
+    lfsr <- as.numeric(NA)
   else
-    y0 <- quantile(dat$y,label_above_quantile)
-  dat$label[with(dat,beta < label_above_lfc | y < y0)] <- ""
-  if (subsample_below_quantile > 0) {
-    y0    <- quantile(dat$y,subsample_below_quantile)
-    rows1 <- which(dat$y >= y0)
-    rows2 <- which(dat$y < y0)
-    rows2 <- sample(rows2,ceiling(subsample_rate * length(rows2)))
-    rows  <- sort(c(rows1,rows2))
-    message(sprintf("%d out of %d data points will be included in plot",
-                    length(rows),n))
-    dat   <- dat[rows,]
-  }
-  dat <- transform(dat,beta.truncated = sign(beta) * pmin(betamax,abs(beta)))
+    lfsr <- de$lfsr[,k]
+  dat <- data.frame(label    = labels,
+                    postmean = de$postmean[,k],
+                    z        = de$z[,k],
+                    lfsr     = lfsr,
+                    stringsAsFactors = FALSE)
+  dat$label[which(!do.label(dat$postmean,dat$z))] <- ""
+  dat$z <- abs(dat$z)
   return(dat)
 }

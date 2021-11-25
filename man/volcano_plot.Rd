@@ -2,36 +2,30 @@
 % Please edit documentation in R/volcano_plots.R
 \name{volcano_plot}
 \alias{volcano_plot}
-\alias{plot.topic_model_diff_count}
+\alias{plot.topic_model_de_analysis}
 \alias{volcano_plotly}
+\alias{volcano_plot_do_label_default}
 \alias{volcano_plot_ggplot_call}
 \alias{volcano_plot_ly_call}
 \title{Volcano Plot}
 \usage{
 volcano_plot(
-  diff_count_result,
+  de,
   k,
   labels,
-  y = c("zscore", "pvalue"),
-  betamax = 15,
-  label_above_lfc = 0,
-  label_above_quantile = 0.99,
-  subsample_below_quantile = 0,
-  subsample_rate = 0.1,
+  do.label = volcano_plot_do_label_default,
+  ymax = Inf,
   max.overlaps = Inf,
-  ggplot_call = volcano_plot_ggplot_call,
-  plot_grid_call = function(plots) do.call(plot_grid, plots)
+  ggplot_call = volcano_plot_ggplot_call
 )
 
-\method{plot}{topic_model_diff_count}(x, ...)
+\method{plot}{topic_model_de_analysis}(x, ...)
 
 volcano_plotly(
-  diff_count_result,
+  de,
   k,
   file,
   labels,
-  y = c("zscore", "pvalue"),
-  betamax = 15,
   subsample_below_quantile = 0,
   subsample_rate = 0.1,
   width = 500,
@@ -39,6 +33,8 @@ volcano_plotly(
   title = paste("topic", k),
   plot_ly_call = volcano_plot_ly_call
 )
+
+volcano_plot_do_label_default(lfc, z)
 
 volcano_plot_ggplot_call(
   dat,
@@ -51,47 +47,21 @@ volcano_plot_ggplot_call(
 volcano_plot_ly_call(dat, y.label, title, width, height)
 }
 \arguments{
-\item{diff_count_result}{An object of class
-\dQuote{topic_model_diff_count}, usually an output from
-\code{\link{diff_count_analysis}}.}
+\item{de}{An object of class \dQuote{topic_model_de_analysis},
+usually an output from \code{\link{de_analysis}}.}
 
-\item{k}{The topic, or topics, selected by number or name. When not
-specified, all topics are plotted.}
+\item{k}{The topic, selected by number or name.}
 
 \item{labels}{Character vector specifying how the points in the
 volcano plot are labeled. This should be a character vector with
-one entry per LFC estimate (row of
-\code{diff_count_result$beta}). When not specified, the row names
-of \code{diff_count_result$beta} are used, if available. Labels are
-added to the plot using \code{\link[ggrepel]{geom_text_repel}}.}
+one entry per LFC estimate (row of \code{de$postmean}). When not
+specified, the row names of \code{de$postmean} are used. When
+available. labels are added to the plot using
+\code{\link[ggrepel]{geom_text_repel}}.}
 
-\item{y}{The measure of support to plot in the y-axis: use \code{y
-= "zscore"} to plot the z-score magnitudes; use \code{y = "pvalue"}
-to plot the -log1 p-values.}
+\item{do.label}{Describe input argument "do.label" here.}
 
-\item{betamax}{Truncate the LFC statistics (\code{beta}) by this
-amount. Any statistics greater than than \code{betamax} are set to
-\code{betamax}, and any statistics less than \code{-betamax} are
-set to \code{-betamax}.}
-
-\item{label_above_lfc}{Only z-scores or p-values (depending on
-choice of \code{y}) with LFC estimates above this value are
-labeled in the volcano plot.}
-
-\item{label_above_quantile}{Only z-scores or p-values (depending on
-choice of \code{y}) above this quantile are labeled in the volcano
-plot.}
-
-\item{subsample_below_quantile}{A number between 0 and 1. If
-greater than zero, LFC estimates with z-scores or p-values below
-this quantile will be subsampled according to
-\code{subsample_rate}. This can be helpful to reduce the number of
-points plotted for a large data set.}
-
-\item{subsample_rate}{A number between 0 and 1 giving the
-proportion of LFC estimates with small z-scores that are included
-in the plot, uniformly at random. This is only used if
-\code{subsample_below_quantile} is greater than zero.}
+\item{ymax}{Describe input argument "ymax" here.}
 
 \item{max.overlaps}{Argument passed to
 \code{\link[ggrepel]{geom_text_repel}}.}
@@ -100,13 +70,8 @@ in the plot, uniformly at random. This is only used if
 \code{volcano_plot_ggplot_call} with your own function to customize
 the appearance of the plot.}
 
-\item{plot_grid_call}{When multiple topics are selected, this is
-the function used to arrange the plots into a grid using
-\code{\link[cowplot]{plot_grid}}. It should be a function accepting
-a single argument, \code{plots}, a list of \code{ggplot} objects.}
-
-\item{x}{An object of class \dQuote{topic_model_diff_count},
-usually an output from \code{\link{diff_count_analysis}}.}
+\item{x}{An object of class \dQuote{topic_model_de_analysis},
+usually an output from \code{\link{de_analysis}}.}
 
 \item{\dots}{Additional arguments passed to \code{volcano_plot}.}
 
@@ -125,6 +90,10 @@ file using \code{\link[htmlwidgets]{saveWidget}}.}
 \code{volcano_plot_ly_call} with your own function to customize
 the appearance of the interactive plot.}
 
+\item{lfc}{}
+
+\item{z}{}
+
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
 \dQuote{label}, \dQuote{mean}, \dQuote{beta}, \dQuote{se},
@@ -141,11 +110,12 @@ Only used to determine the plot title.}
 A \code{ggplot} object or a \code{plotly} object.
 }
 \description{
-Create one or more "volcano" plots to visualize the
-  results of a differential count analysis using a topic model. A
-  volcano plot is a scatterplot in which the log-fold change (LFC),
-  estimated using a multinomial topic model, is plotted against the
-  p-value or z-score.
+Create a \dQuote{volcano} plot to visualize the
+  results of a differential count analysis using a topic model. Here,
+  the volcano plot is a scatterplot in which the posterior mean
+  log-fold change (LFC), estimated by running the methods implemented
+  in \code{\link{de_analysis}}, is plotted against the estimated
+  z-score.
 }
 \details{
 The colour of the points is varied by the average count,
@@ -167,7 +137,14 @@ The \dQuote{ggrepel} package is used to arrange the labels in a
 visually attractive manner.
 
 Use interactive volcano plot is created using the \dQuote{plotly}
-package. The \dQuote{hover text} shows the label (see input argument
-\dQuote{labels}) and detailed LFC statistics as they were
-calculated by \code{\link{diff_count_analysis}}.
+package. The \dQuote{hover text} shows the label (see input
+argument \dQuote{labels}) and detailed LFC statistics as they were
+calculated by \code{\link{de_analysis}}.
+}
+\examples{
+# See help(de_analysis) for examples.
+
+}
+\seealso{
+\code{\link{de_analysis}}
 }

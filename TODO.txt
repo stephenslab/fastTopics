@@ -5,7 +5,9 @@ to do
 
 + Fix CircleCI tests.
 
-+ Update volcano plots.
++ Update volcano_plot and volcano_plotly.
+
++ Add an example for volcano_plot.
 
 + Add/revise tests for volcano plot functions.
 
