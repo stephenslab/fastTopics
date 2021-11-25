@@ -37,10 +37,12 @@ plot(dat$F + 1e-4,de2$F + 1e-4,pch = 4,cex = 0.5,log = "xy",xlab = "true",
      ylab = "estimated")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 
-# Here we show that the z-score varies (predictably) with the log-fold
+# Here we show that the z-score varies (as expected) with the log-fold
 # change estimate and the average expression level.
-pdat <- data.frame(x = out3$colmeans,beta = out3$beta[,i],z = out3$Z[,i])
-print(ggplot(pdat,aes(x = x,y = beta,fill = z)) +
+pdat <- data.frame(f0       = rep(de3$f0,4),
+                   postmean = as.vector(de3$postmean),
+                   z        = as.vector(de3$z))
+print(ggplot(pdat,aes(x = f0,y = postmean,fill = z)) +
   geom_point(size = 2,shape = 21,color = "white") +
   geom_abline(intercept = 0,slope = 0,color = "black",linetype = "dotted") +
   scale_x_continuous(trans = "log10") +
@@ -48,9 +50,3 @@ print(ggplot(pdat,aes(x = x,y = beta,fill = z)) +
                        high = "orangered",midpoint = 0) +
   labs(x = "average expression",y = "log-fold change",fill = "z-score") +
   theme_cowplot(12))
-
-# Show a traditional volcano plot, in which log-fold change is shown
-# on the x-axis, and the z-score is shown on the y-axis. To illustrate
-# the impact of overall gene expression level on the z-scores, the
-# (log) average expression level is shown by a colour gradient.
-print(volcano_plot(out3,k = 1))

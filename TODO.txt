@@ -3,17 +3,17 @@ to do
 
 + Update the de_analysis roxygen2 docs, including the example(s).
 
-+ Fix all CI tests.
++ Fix Appveyor tests.
 
-+ Update pkgdown site.
++ Fix CircleCI tests.
 
 + Update volcano plots.
 
 + Add/revise tests for volcano plot functions.
 
-+ Clean up files in inst/code that are no longer needed or out of date.
++ Update pkgdown site.
 
-+ Update poisson_demo.R and multinom_demo.R.
++ Update the vignettes.
 
 + Implement KKT-based stopping criterion for fit_poisson_nmf.
 
