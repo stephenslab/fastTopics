@@ -15,7 +15,10 @@
 #'   they were calculated by \code{\link{de_analysis}}.
 #' 
 #' @param de An object of class \dQuote{topic_model_de_analysis},
-#' usually an output from \code{\link{de_analysis}}.
+#'   usually an output from \code{\link{de_analysis}}. It is better to
+#'   run \code{de_analysis} with \code{shrink.method = "ash"} so that
+#'   the points in the volcano plot can be coloured by their local false
+#'   sign rate (lfsr).
 #'
 #' @param k The topic, selected by number or name.
 #'
@@ -242,10 +245,16 @@ volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
 # This is used by volcano_plot and volcano_plotly to compile the data
 # frame passed to ggplot.
 compile_volcano_plot_data <- function (de, k, ymax, labels, do.label) {
+  if (all(is.na(de$lfsr))) {
+    message("lfsr is not available, probably because \"shrink.method\" was ",
+            "not set to \"ash\"; lfsr in plot should be ignored")
+    lfsr <- 0
+  } else
+    lfsr <- de$lfsr[,k]
   dat <- data.frame(label    = labels,
                     postmean = de$postmean[,k],
                     z        = de$z[,k],
-                    lfsr     = de$lfsr[,k],
+                    lfsr     = lfsr,
                     stringsAsFactors = FALSE)
   dat$label[which(!do.label(dat$postmean,dat$z))] <- ""
   dat$z <- pmin(ymax,abs(dat$z))

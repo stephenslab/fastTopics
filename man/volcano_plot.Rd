@@ -43,7 +43,10 @@ volcano_plot_ly_call(dat, y.label, title, width, height)
 }
 \arguments{
 \item{de}{An object of class \dQuote{topic_model_de_analysis},
-usually an output from \code{\link{de_analysis}}.}
+usually an output from \code{\link{de_analysis}}. It is better to
+run \code{de_analysis} with \code{shrink.method = "ash"} so that
+the points in the volcano plot can be coloured by their local false
+sign rate (lfsr).}
 
 \item{k}{The topic, selected by number or name.}
 

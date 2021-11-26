@@ -204,9 +204,9 @@ set.seed(1)
 data(pbmc_facs)
 de <- de_analysis(pbmc_facs$fit,pbmc_facs$counts)
 
-# Compile the DE results for topic 4 into a table, and rank the genes
-# by the posterior mean log-fold change, limiting to DE genes identified
-# with low lfsr ("local false sign rate").
+# Compile the DE analysis results for topic 4 into a table, and
+rank the genes by the posterior mean log-fold change, limiting to
+DE genes identified # with low lfsr ("local false sign rate").
 k <- 4
 dat <- data.frame(postmean = de$postmean[,k],
                   z        = de$z[,k],
@@ -222,6 +222,9 @@ head(dat,n = 10)
 # The genes at the bottom of the ranking are genes that are much less
 # expressed in the topic.
 tail(dat,n = 10)
+
+# Create a volcano plot from the DE results for topic 4.
+volcano_plot(de,k = k,ymax = 50,labels = pbmc_facs$genes$symbol)
 
 }
 \references{
