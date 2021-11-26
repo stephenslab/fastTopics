@@ -16,6 +16,7 @@ volcano_plot(
   do.label = volcano_plot_do_label_default,
   ymax = Inf,
   max.overlaps = Inf,
+  plot.title = paste("topic", k),
   ggplot_call = volcano_plot_ggplot_call
 )
 
@@ -36,13 +37,7 @@ volcano_plotly(
 
 volcano_plot_do_label_default(lfc, z)
 
-volcano_plot_ggplot_call(
-  dat,
-  y.label,
-  topic.label,
-  max.overlaps = Inf,
-  font.size = 9
-)
+volcano_plot_ggplot_call(dat, plot.title, max.overlaps = Inf, font.size = 9)
 
 volcano_plot_ly_call(dat, y.label, title, width, height)
 }
@@ -59,12 +54,21 @@ specified, the row names of \code{de$postmean} are used. When
 available. labels are added to the plot using
 \code{\link[ggrepel]{geom_text_repel}}.}
 
-\item{do.label}{Describe input argument "do.label" here.}
+\item{do.label}{The function used to deetermine which LFC estimates
+to label. Replace \code{volcano_plot_do_label_default} with your
+own function to customize the labeling of points in the volcano
+plot.}
 
-\item{ymax}{Describe input argument "ymax" here.}
+\item{ymax}{z-scores greater than \code{ymax} (in magnitude) are
+shown as \code{max}. Setting \code{ymax} to a finite value can
+improve the volcano plot when some z-scores are much larger (in
+magnitude) than others.}
 
 \item{max.overlaps}{Argument passed to
 \code{\link[ggrepel]{geom_text_repel}}.}
+
+\item{plot.title}{Description of input argument "plot.title" goes
+here.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{volcano_plot_ggplot_call} with your own function to customize
@@ -90,19 +94,14 @@ file using \code{\link[htmlwidgets]{saveWidget}}.}
 \code{volcano_plot_ly_call} with your own function to customize
 the appearance of the interactive plot.}
 
-\item{lfc}{}
+\item{lfc}{Describe input argument "lfc" here.}
 
-\item{z}{}
+\item{z}{Describe input argument "z" here.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
 \dQuote{label}, \dQuote{mean}, \dQuote{beta}, \dQuote{se},
 \dQuote{z}, \dQuote{pval} and \dQuote{label}.}
-
-\item{y.label}{Label to use in the plot for \dQuote{dat$y}.}
-
-\item{topic.label}{The name or number of the topic being plotted.
-Only used to determine the plot title.}
 
 \item{font.size}{Font size used in plot.}
 }
@@ -118,28 +117,10 @@ Create a \dQuote{volcano} plot to visualize the
   z-score.
 }
 \details{
-The colour of the points is varied by the average count,
-on the logarithmic scale; since the evidence (z-score or p-value)
-typically increases with more observed counts, the variables with
-smallest average counts should usually appear toward the bottom of
-the volcano plot. Only points above a specified z-score (or
-p-value) quantile are labeled. Note that points with an average
-count of zero or less are not shown.
-
-To better accommodate situations in which some z-scores (or
-p-values) are much larger than all the others, the z-scores and
--log10 p-values are plotted on the square-root scale. To change
-this, as well as other aspects, of the plot, replace
-\code{volcano_plot_ggplot_call} with your own function; see input
-argument \dQuote{ggplot_call}.
-
-The \dQuote{ggrepel} package is used to arrange the labels in a
-visually attractive manner.
-
-Use interactive volcano plot is created using the \dQuote{plotly}
-package. The \dQuote{hover text} shows the label (see input
-argument \dQuote{labels}) and detailed LFC statistics as they were
-calculated by \code{\link{de_analysis}}.
+Interactive volcano plots can be created using the
+  \dQuote{plotly} package. The \dQuote{hover text} shows the label
+  (see input argument \dQuote{labels}) and detailed LFC statistics as
+  they were calculated by \code{\link{de_analysis}}.
 }
 \examples{
 # See help(de_analysis) for examples.

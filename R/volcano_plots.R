@@ -9,28 +9,10 @@
 #'   in \code{\link{de_analysis}}, is plotted against the estimated
 #'   z-score.
 #'
-#' @details The colour of the points is varied by the average count,
-#' on the logarithmic scale; since the evidence (z-score or p-value)
-#' typically increases with more observed counts, the variables with
-#' smallest average counts should usually appear toward the bottom of
-#' the volcano plot. Only points above a specified z-score (or
-#' p-value) quantile are labeled. Note that points with an average
-#' count of zero or less are not shown.
-#'
-#' To better accommodate situations in which some z-scores (or
-#' p-values) are much larger than all the others, the z-scores and
-#' -log10 p-values are plotted on the square-root scale. To change
-#' this, as well as other aspects, of the plot, replace
-#' \code{volcano_plot_ggplot_call} with your own function; see input
-#' argument \dQuote{ggplot_call}.
-#'
-#' The \dQuote{ggrepel} package is used to arrange the labels in a
-#' visually attractive manner.
-#'
-#' Use interactive volcano plot is created using the \dQuote{plotly}
-#' package. The \dQuote{hover text} shows the label (see input
-#' argument \dQuote{labels}) and detailed LFC statistics as they were
-#' calculated by \code{\link{de_analysis}}.
+#' @details Interactive volcano plots can be created using the
+#'   \dQuote{plotly} package. The \dQuote{hover text} shows the label
+#'   (see input argument \dQuote{labels}) and detailed LFC statistics as
+#'   they were calculated by \code{\link{de_analysis}}.
 #' 
 #' @param de An object of class \dQuote{topic_model_de_analysis},
 #' usually an output from \code{\link{de_analysis}}.
@@ -44,12 +26,20 @@
 #'   available. labels are added to the plot using
 #'   \code{\link[ggrepel]{geom_text_repel}}.
 #'
-#' @param do.label Describe input argument "do.label" here.
+#' @param do.label The function used to deetermine which LFC estimates
+#'   to label. Replace \code{volcano_plot_do_label_default} with your
+#'   own function to customize the labeling of points in the volcano
+#'   plot.
 #' 
-#' @param ymax Describe input argument "ymax" here.
+#' @param ymax z-scores greater than \code{ymax} (in magnitude) are
+#'   shown as \code{max}. Setting \code{ymax} to a finite value can
+#'   improve the volcano plot when some z-scores are much larger (in
+#'   magnitude) than others.
 #' 
 #' @param max.overlaps Argument passed to
 #'   \code{\link[ggrepel]{geom_text_repel}}.
+#'
+#' @param plot.title The title of the plot.
 #' 
 #' @param ggplot_call The function used to create the plot. Replace
 #'   \code{volcano_plot_ggplot_call} with your own function to customize
@@ -66,7 +56,7 @@
 #' 
 volcano_plot <-
   function (de, k, labels, do.label = volcano_plot_do_label_default,
-            ymax = Inf, max.overlaps = Inf,
+            ymax = Inf, max.overlaps = Inf, plot.title = paste("topic",k),
             ggplot_call = volcano_plot_ggplot_call) {
   if (!inherits(de,"topic_model_de_analysis"))
     stop("Input \"de\" should be an object of class ",
@@ -82,8 +72,8 @@ volcano_plot <-
     stop("Input argument \"labels\", when specified, should be a character ",
          "vector with one entry per log-fold change estimate (column of ",
          "the counts matrix)")
-  dat <- compile_volcano_plot_data(de,k,labels,do.label)
-  return(ggplot_call(dat,max.overlaps))
+  dat <- compile_volcano_plot_data(de,k,ymax,labels,do.label)
+  return(ggplot_call(dat,plot.title,max.overlaps))
 }
 
 #' @rdname volcano_plot
@@ -184,10 +174,8 @@ volcano_plot_do_label_default <- function (lfc, z)
 #'   \dQuote{label}, \dQuote{mean}, \dQuote{beta}, \dQuote{se},
 #'   \dQuote{z}, \dQuote{pval} and \dQuote{label}.
 #' 
-#' @param y.label Label to use in the plot for \dQuote{dat$y}.
-#' 
-#' @param topic.label The name or number of the topic being plotted.
-#'   Only used to determine the plot title.
+#' @param plot.title Description of input argument "plot.title" goes
+#'   here.
 #' 
 #' @param max.overlaps Argument passed to
 #'   \code{\link[ggrepel]{geom_text_repel}}.
@@ -206,22 +194,24 @@ volcano_plot_do_label_default <- function (lfc, z)
 #' 
 #' @export
 #' 
-volcano_plot_ggplot_call <- function (dat, max.overlaps = Inf, font.size = 9)
-  ggplot(dat,aes_string(x="postmean",y = "z",fill = "lfsr",label = "label")) +
-    geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
-    geom_text_repel(color = "darkgray",size = 2.25,fontface = "italic",
-                    segment.color = "darkgray",segment.size = 0.25,
-                    min.segment.length = 0,max.overlaps = max.overlaps,
-                    na.rm = TRUE) +
-    #scale_x_continuous(expand=expansion(mult = 0.2),breaks = seq(-15,15,5)) +
-    scale_y_continuous(trans = "sqrt",
-      breaks = c(0,1,2,5,10,20,50,100,200,500,1e3,2e3,5e3,1e4,2e4,5e4)) +
-    # scale_fill_gradient2(low = "deepskyblue",mid = "gold",high = "orangered",
-    #                      na.value = "gainsboro",
-    #                      midpoint = mean(range(dat$mean))) +
-    labs(x = "log-fold change",y = "|z-score|") +
-    theme_cowplot(font.size) +
-    theme(plot.title = element_text(size = font.size,face = "plain"))
+volcano_plot_ggplot_call <- function (dat, plot.title, max.overlaps = Inf,
+                                      font.size = 9) {
+  dat$lfsr <- cut(dat$lfsr,c(-1,0.001,0.01,0.05,Inf))
+  return(ggplot(dat,aes_string(x = "postmean",y = "z",fill = "lfsr",
+                               label = "label")) +
+         geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
+         geom_text_repel(color = "darkgray",size = 2.25,fontface = "italic",
+                         segment.color = "darkgray",segment.size = 0.25,
+                         min.segment.length = 0,max.overlaps = max.overlaps,
+                         na.rm = TRUE) +
+         scale_y_continuous(trans = "sqrt",
+                            breaks = c(0,1,2,5,10,20,50,100,200,500,
+                                1000,2000,5000,1e4,2e4,5e4)) +
+         scale_fill_manual(values = c("deepskyblue","gold","orange","coral")) +
+         labs(x = "log-fold change",y = "|z-score|",title = plot.title) +
+         theme_cowplot(font.size) +
+         theme(plot.title = element_text(size = font.size,face = "plain")))
+}
 
 #' @rdname volcano_plot
 #'
@@ -258,7 +248,7 @@ volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
 
 # This is used by volcano_plot and volcano_plotly to compile the data
 # frame passed to ggplot.
-compile_volcano_plot_data <- function (de, k, labels, do.label) {
+compile_volcano_plot_data <- function (de, k, ymax, labels, do.label) {
   if (is.null(de$lfsr))
     lfsr <- as.numeric(NA)
   else
@@ -269,6 +259,6 @@ compile_volcano_plot_data <- function (de, k, labels, do.label) {
                     lfsr     = lfsr,
                     stringsAsFactors = FALSE)
   dat$label[which(!do.label(dat$postmean,dat$z))] <- ""
-  dat$z <- abs(dat$z)
+  dat$z <- pmin(ymax,abs(dat$z))
   return(dat)
 }
