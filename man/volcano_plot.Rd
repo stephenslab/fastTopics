@@ -67,8 +67,7 @@ magnitude) than others.}
 \item{max.overlaps}{Argument passed to
 \code{\link[ggrepel]{geom_text_repel}}.}
 
-\item{plot.title}{Description of input argument "plot.title" goes
-here.}
+\item{plot.title}{The title of the plot.}
 
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{volcano_plot_ggplot_call} with your own function to customize
@@ -94,14 +93,13 @@ file using \code{\link[htmlwidgets]{saveWidget}}.}
 \code{volcano_plot_ly_call} with your own function to customize
 the appearance of the interactive plot.}
 
-\item{lfc}{Describe input argument "lfc" here.}
+\item{lfc}{A vector of log-fold change estimates.}
 
-\item{z}{Describe input argument "z" here.}
+\item{z}{A vector of z-scores of the same length as \code{lfc}.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-\dQuote{label}, \dQuote{mean}, \dQuote{beta}, \dQuote{se},
-\dQuote{z}, \dQuote{pval} and \dQuote{label}.}
+\dQuote{postmean}, \dQuote{z}, \dQuote{lfsr} and \dQuote{label}.}
 
 \item{font.size}{Font size used in plot.}
 }

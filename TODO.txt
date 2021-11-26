@@ -1,11 +1,9 @@
 to do
 =====
 
-+ Fix Appveyor tests.
++ Update volcano_plot.
 
-+ Fix CircleCI tests.
-
-+ Update volcano_plot and volcano_plotly.
++ Update volcano_plotly.
 
 + Add an example for volcano_plot.
 

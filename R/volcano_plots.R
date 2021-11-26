@@ -154,9 +154,9 @@ volcano_plotly <- function (de, k, file, labels,
 
 #' @rdname volcano_plot
 #'
-#' @param lfc Describe input argument "lfc" here.
+#' @param lfc A vector of log-fold change estimates.
 #'
-#' @param z Describe input argument "z" here.
+#' @param z A vector of z-scores of the same length as \code{lfc}.
 #'
 #' @importFrom stats quantile
 #' 
@@ -171,14 +171,7 @@ volcano_plot_do_label_default <- function (lfc, z)
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   \dQuote{label}, \dQuote{mean}, \dQuote{beta}, \dQuote{se},
-#'   \dQuote{z}, \dQuote{pval} and \dQuote{label}.
-#' 
-#' @param plot.title Description of input argument "plot.title" goes
-#'   here.
-#' 
-#' @param max.overlaps Argument passed to
-#'   \code{\link[ggrepel]{geom_text_repel}}.
+#'   \dQuote{postmean}, \dQuote{z}, \dQuote{lfsr} and \dQuote{label}.
 #' 
 #' @param font.size Font size used in plot.
 #'
@@ -206,7 +199,7 @@ volcano_plot_ggplot_call <- function (dat, plot.title, max.overlaps = Inf,
                          na.rm = TRUE) +
          scale_y_continuous(trans = "sqrt",
                             breaks = c(0,1,2,5,10,20,50,100,200,500,
-                                1000,2000,5000,1e4,2e4,5e4)) +
+                                       1000,2000,5000,1e4,2e4,5e4)) +
          scale_fill_manual(values = c("deepskyblue","gold","orange","coral")) +
          labs(x = "log-fold change",y = "|z-score|",title = plot.title) +
          theme_cowplot(font.size) +
@@ -249,14 +242,10 @@ volcano_plot_ly_call <- function (dat, y.label, title, width, height) {
 # This is used by volcano_plot and volcano_plotly to compile the data
 # frame passed to ggplot.
 compile_volcano_plot_data <- function (de, k, ymax, labels, do.label) {
-  if (is.null(de$lfsr))
-    lfsr <- as.numeric(NA)
-  else
-    lfsr <- de$lfsr[,k]
   dat <- data.frame(label    = labels,
                     postmean = de$postmean[,k],
                     z        = de$z[,k],
-                    lfsr     = lfsr,
+                    lfsr     = de$lfsr[,k],
                     stringsAsFactors = FALSE)
   dat$label[which(!do.label(dat$postmean,dat$z))] <- ""
   dat$z <- pmin(ymax,abs(dat$z))
