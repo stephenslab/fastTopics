@@ -1,18 +1,18 @@
 #' @rdname volcano_plot
 #'
-#' @title Volcano Plot
+#' @title Volcano Plots for Visualizing Results of Differential Expression Analysis
 #'
 #' @description Create a \dQuote{volcano} plot to visualize the
 #'   results of a differential count analysis using a topic model. Here,
 #'   the volcano plot is a scatterplot in which the posterior mean
 #'   log-fold change (LFC), estimated by running the methods implemented
 #'   in \code{\link{de_analysis}}, is plotted against the estimated
-#'   z-score.
+#'   z-score. Use \code{volcano_plotly} to create an interactive volcano
+#'   plot.
 #'
 #' @details Interactive volcano plots can be created using the
 #'   \dQuote{plotly} package. The \dQuote{hover text} shows the label
-#'   (see input argument \dQuote{labels}) and detailed LFC statistics as
-#'   they were calculated by \code{\link{de_analysis}}.
+#'   and detailed LFC statistics.
 #' 
 #' @param de An object of class \dQuote{topic_model_de_analysis},
 #'   usually an output from \code{\link{de_analysis}}. It is better to

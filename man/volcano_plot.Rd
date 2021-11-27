@@ -7,7 +7,7 @@
 \alias{volcano_plot_do_label_default}
 \alias{volcano_plot_ggplot_call}
 \alias{volcano_plot_ly_call}
-\title{Volcano Plot}
+\title{Volcano Plots for Visualizing Results of Differential Expression Analysis}
 \usage{
 volcano_plot(
   de,
@@ -113,13 +113,13 @@ Create a \dQuote{volcano} plot to visualize the
   the volcano plot is a scatterplot in which the posterior mean
   log-fold change (LFC), estimated by running the methods implemented
   in \code{\link{de_analysis}}, is plotted against the estimated
-  z-score.
+  z-score. Use \code{volcano_plotly} to create an interactive volcano
+  plot.
 }
 \details{
 Interactive volcano plots can be created using the
   \dQuote{plotly} package. The \dQuote{hover text} shows the label
-  (see input argument \dQuote{labels}) and detailed LFC statistics as
-  they were calculated by \code{\link{de_analysis}}.
+  and detailed LFC statistics.
 }
 \examples{
 # See help(de_analysis) for examples.
