@@ -5,10 +5,10 @@ to do
 
 + Update volcano_plotly.
 
-+ Add an example for volcano_plot.
-
 + Add/revise tests for volcano plot functions, with and without
   shrink.method = "ash".
+
++ Add/revise tests for volcano_plotly.
 
 + Update pkgdown site.
 

@@ -195,10 +195,9 @@ test_that(paste("de_analysis with and without multithreading, using a",
   }
 })
 
-test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
-                "true probabilities (relative gene expression levels) when",
+test_that(paste("de_analysis with s = rowSums(X) closely recovers true",
+                "probabilities (relative gene expression levels) when",
                 "provided with the true topic proportions"),{
-  skip("test needs to be revised")                 
                     
   # Simulate gene expression data.
   set.seed(1)
@@ -212,21 +211,17 @@ test_that(paste("diff_count_analysis with s = rowSums(X) closely recovers",
   # Fit a Poisson model (approximating a binomial model) to each gene
   # and topic, and compute the log-fold change statistics.
   fit <- init_poisson_nmf(X,L = L,init.method = "random")
-  ans <- diff_count_analysis(fit,X,verbose = FALSE)
+  de  <- de_analysis(fit,X,verbose = FALSE)
 
-  # The f1 estimates should be close to the multinomial probabilities
-  # that were used to simulate the data.
-  expect_equal(dat$F,ans$F1,scale = 1,tolerance = 1e-4)
+  # The parameter estimates should be close to the multinomial
+  # probabilities that were used to simulate the data.
+  expect_equal(dat$F,de$F,scale = 1,tolerance = 1e-4)
 
-  # Create volcano plots from the diff_count_analysis output.
-  p1 <- volcano_plot(ans,y = "zscore")
-  p2 <- volcano_plot(ans,y = "pvalue")
-  p3 <- volcano_plotly(ans,k = 1,y = "zscore")
-  p4 <- volcano_plotly(ans,k = 1,y = "pvalue")
+  # Create a volcano plot from the de_analysis output.
+  p1 <- volcano_plot(de,k = 1)
+  # p2 <- volcano_plotly(de,k = 1)
   expect_s3_class(p1,"ggplot")
-  expect_s3_class(p2,"ggplot")
-  expect_s3_class(p3,"plotly")
-  expect_s3_class(p4,"plotly")
+  # expect_s3_class(p2,"plotly")
 })
 
 test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
