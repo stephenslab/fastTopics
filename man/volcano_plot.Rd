@@ -27,11 +27,10 @@ volcano_plotly(
   k,
   file,
   labels,
-  subsample_below_quantile = 0,
-  subsample_rate = 0.1,
+  ymax = Inf,
   width = 500,
   height = 500,
-  title = paste("topic", k),
+  plot.title = paste("topic", k),
   plot_ly_call = volcano_plot_ly_call
 )
 
@@ -39,7 +38,7 @@ volcano_plot_do_label_default(lfc, z)
 
 volcano_plot_ggplot_call(dat, plot.title, max.overlaps = Inf, font.size = 9)
 
-volcano_plot_ly_call(dat, y.label, title, width, height)
+volcano_plot_ly_call(dat, title, width, height)
 }
 \arguments{
 \item{de}{An object of class \dQuote{topic_model_de_analysis},
@@ -90,8 +89,6 @@ file using \code{\link[htmlwidgets]{saveWidget}}.}
 \item{height}{Height of the plot in pixels. Passed as argument
 \dQuote{height} to \code{\link[plotly]{plot_ly}}.}
 
-\item{title}{The text used for the plot title.}
-
 \item{plot_ly_call}{The function used to create the plot. Replace
 \code{volcano_plot_ly_call} with your own function to customize
 the appearance of the interactive plot.}
@@ -102,7 +99,8 @@ the appearance of the interactive plot.}
 
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-\dQuote{postmean}, \dQuote{z}, \dQuote{lfsr} and \dQuote{label}.}
+\dQuote{f0}, \dQuote{postmean}, \dQuote{z}, \dQuote{zabs},
+\dQuote{lfsr} and \dQuote{label}.}
 
 \item{font.size}{Font size used in plot.}
 }
