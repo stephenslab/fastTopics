@@ -135,9 +135,9 @@ volcano_plotly <- function (de, k, file, labels,
          "vector with one entry per log-fold change estimate (column of ",
          "the counts matrix)")
   dat <- compile_volcano_plot_data(de,k,ymax,labels)
-  p <- volcano_plot_ly_call(dat,title,width,height)
+  p <- volcano_plot_ly_call(dat,plot.title,width,height)
   if (!missing(file))
-    saveWidget(p,file,selfcontained = TRUE,title = title)
+    saveWidget(p,file,selfcontained = TRUE,title = plot.title)
   return(p)
 }
 
@@ -204,7 +204,7 @@ volcano_plot_ggplot_call <- function (dat, plot.title, max.overlaps = Inf,
 #' 
 #' @export
 #' 
-volcano_plot_ly_call <- function (dat, title, width, height) {
+volcano_plot_ly_call <- function (dat, plot.title, width, height) {
   dat$fill <- cut(dat$lfsr,c(-1,0.001,0.01,0.05,Inf))
   p <- plot_ly(data = dat,x = ~postmean,y = ~sqrt(zabs),color = ~fill,
                colors = c("deepskyblue","gold","orange","coral"),
@@ -225,7 +225,7 @@ volcano_plot_ly_call <- function (dat, title, width, height) {
                                 font = list(color = "black",family = "arial",
                                             size = 12)),
               font = list(family = "arial",size = 12),
-              showlegend = FALSE,title = title)
+              showlegend = FALSE,title = plot.title)
   return(p)
 }
 

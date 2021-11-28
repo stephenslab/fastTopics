@@ -205,8 +205,8 @@ data(pbmc_facs)
 de <- de_analysis(pbmc_facs$fit,pbmc_facs$counts)
 
 # Compile the DE analysis results for topic 4 into a table, and
-rank the genes by the posterior mean log-fold change, limiting to
-DE genes identified # with low lfsr ("local false sign rate").
+# rank the genes by the posterior mean log-fold change, limiting to
+# DE genes identified with low lfsr ("local false sign rate").
 k <- 4
 dat <- data.frame(postmean = de$postmean[,k],
                   z        = de$z[,k],

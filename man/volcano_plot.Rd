@@ -38,7 +38,7 @@ volcano_plot_do_label_default(lfc, z)
 
 volcano_plot_ggplot_call(dat, plot.title, max.overlaps = Inf, font.size = 9)
 
-volcano_plot_ly_call(dat, title, width, height)
+volcano_plot_ly_call(dat, plot.title, width, height)
 }
 \arguments{
 \item{de}{An object of class \dQuote{topic_model_de_analysis},
