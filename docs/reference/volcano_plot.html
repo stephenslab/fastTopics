@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Volcano Plot — volcano_plot • fastTopics</title>
+<title>Volcano Plots for Visualizing Results of Differential Expression Analysis — volcano_plot • fastTopics</title>
 
 
 <!-- jquery -->
@@ -39,12 +39,14 @@
 
 
 
-<meta property="og:title" content="Volcano Plot — volcano_plot" />
-<meta property="og:description" content="Create one or more &quot;volcano&quot; plots to visualize the
-  results of a differential count analysis using a topic model. A
-  volcano plot is a scatterplot in which the log-fold change (LFC),
-  estimated using a multinomial topic model, is plotted against the
-  p-value or z-score." />
+<meta property="og:title" content="Volcano Plots for Visualizing Results of Differential Expression Analysis — volcano_plot" />
+<meta property="og:description" content="Create a &amp;#8220;volcano&amp;#8221; plot to visualize the
+  results of a differential count analysis using a topic model. Here,
+  the volcano plot is a scatterplot in which the posterior mean
+  log-fold change (LFC), estimated by running the methods implemented
+  in de_analysis, is plotted against the estimated
+  z-score. Use volcano_plotly to create an interactive volcano
+  plot." />
 
 
 
@@ -76,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6-93</span>
       </span>
     </div>
 
@@ -109,129 +111,99 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Volcano Plot</h1>
+    <h1>Volcano Plots for Visualizing Results of Differential Expression Analysis</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/volcano_plots.R'><code>R/volcano_plots.R</code></a></small>
     <div class="hidden name"><code>volcano_plot.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Create one or more "volcano" plots to visualize the
-  results of a differential count analysis using a topic model. A
-  volcano plot is a scatterplot in which the log-fold change (LFC),
-  estimated using a multinomial topic model, is plotted against the
-  p-value or z-score.</p>
+    <p>Create a &#8220;volcano&#8221; plot to visualize the
+  results of a differential count analysis using a topic model. Here,
+  the volcano plot is a scatterplot in which the posterior mean
+  log-fold change (LFC), estimated by running the methods implemented
+  in <code><a href='de_analysis.html'>de_analysis</a></code>, is plotted against the estimated
+  z-score. Use <code>volcano_plotly</code> to create an interactive volcano
+  plot.</p>
     </div>
 
     <pre class="usage"><span class='fu'>volcano_plot</span>(
-  <span class='no'>diff_count_result</span>,
+  <span class='no'>de</span>,
   <span class='no'>k</span>,
   <span class='no'>labels</span>,
-  <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"zscore"</span>, <span class='st'>"pvalue"</span>),
-  <span class='kw'>betamax</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-  <span class='kw'>label_above_lfc</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>label_above_quantile</span> <span class='kw'>=</span> <span class='fl'>0.99</span>,
-  <span class='kw'>subsample_below_quantile</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>subsample_rate</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>do.label</span> <span class='kw'>=</span> <span class='no'>volcano_plot_do_label_default</span>,
+  <span class='kw'>ymax</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>max.overlaps</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>ggplot_call</span> <span class='kw'>=</span> <span class='no'>volcano_plot_ggplot_call</span>,
-  <span class='kw'>plot_grid_call</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>plots</span>) <span class='fu'><a href='https://rdrr.io/r/base/do.call.html'>do.call</a></span>(<span class='no'>plot_grid</span>, <span class='no'>plots</span>)
+  <span class='kw'>plot.title</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='st'>"topic"</span>, <span class='no'>k</span>),
+  <span class='kw'>ggplot_call</span> <span class='kw'>=</span> <span class='no'>volcano_plot_ggplot_call</span>
 )
 
-<span class='co'># S3 method for topic_model_diff_count</span>
+<span class='co'># S3 method for topic_model_de_analysis</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
 <span class='fu'>volcano_plotly</span>(
-  <span class='no'>diff_count_result</span>,
+  <span class='no'>de</span>,
   <span class='no'>k</span>,
   <span class='no'>file</span>,
   <span class='no'>labels</span>,
-  <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"zscore"</span>, <span class='st'>"pvalue"</span>),
-  <span class='kw'>betamax</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-  <span class='kw'>subsample_below_quantile</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>subsample_rate</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>ymax</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>500</span>,
   <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>500</span>,
-  <span class='kw'>title</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='st'>"topic"</span>, <span class='no'>k</span>),
+  <span class='kw'>plot.title</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='st'>"topic"</span>, <span class='no'>k</span>),
   <span class='kw'>plot_ly_call</span> <span class='kw'>=</span> <span class='no'>volcano_plot_ly_call</span>
 )
 
-<span class='fu'>volcano_plot_ggplot_call</span>(
-  <span class='no'>dat</span>,
-  <span class='no'>y.label</span>,
-  <span class='no'>topic.label</span>,
-  <span class='kw'>max.overlaps</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>font.size</span> <span class='kw'>=</span> <span class='fl'>9</span>
-)
+<span class='fu'>volcano_plot_do_label_default</span>(<span class='no'>lfc</span>, <span class='no'>z</span>)
 
-<span class='fu'>volcano_plot_ly_call</span>(<span class='no'>dat</span>, <span class='no'>y.label</span>, <span class='no'>title</span>, <span class='no'>width</span>, <span class='no'>height</span>)</pre>
+<span class='fu'>volcano_plot_ggplot_call</span>(<span class='no'>dat</span>, <span class='no'>plot.title</span>, <span class='kw'>max.overlaps</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>font.size</span> <span class='kw'>=</span> <span class='fl'>9</span>)
+
+<span class='fu'>volcano_plot_ly_call</span>(<span class='no'>dat</span>, <span class='no'>plot.title</span>, <span class='no'>width</span>, <span class='no'>height</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>diff_count_result</th>
-      <td><p>An object of class
-&#8220;topic_model_diff_count&#8221;, usually an output from
-<code><a href='diff_count_analysis.html'>diff_count_analysis</a></code>.</p></td>
+      <th>de</th>
+      <td><p>An object of class &#8220;topic_model_de_analysis&#8221;,
+usually an output from <code><a href='de_analysis.html'>de_analysis</a></code>. It is better to
+run <code>de_analysis</code> with <code>shrink.method = "ash"</code> so that
+the points in the volcano plot can be coloured by their local false
+sign rate (lfsr).</p></td>
     </tr>
     <tr>
       <th>k</th>
-      <td><p>The topic, or topics, selected by number or name. When not
-specified, all topics are plotted.</p></td>
+      <td><p>The topic, selected by number or name.</p></td>
     </tr>
     <tr>
       <th>labels</th>
       <td><p>Character vector specifying how the points in the
 volcano plot are labeled. This should be a character vector with
-one entry per LFC estimate (row of
-<code>diff_count_result$beta</code>). When not specified, the row names
-of <code>diff_count_result$beta</code> are used, if available. Labels are
-added to the plot using <code><a href='https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html'>geom_text_repel</a></code>.</p></td>
+one entry per LFC estimate (row of <code>de$postmean</code>). When not
+specified, the row names of <code>de$postmean</code> are used. When
+available. labels are added to the plot using
+<code><a href='https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html'>geom_text_repel</a></code>.</p></td>
     </tr>
     <tr>
-      <th>y</th>
-      <td><p>The measure of support to plot in the y-axis: use <code>y
-= "zscore"</code> to plot the z-score magnitudes; use <code>y = "pvalue"</code>
-to plot the -log1 p-values.</p></td>
-    </tr>
-    <tr>
-      <th>betamax</th>
-      <td><p>Truncate the LFC statistics (<code>beta</code>) by this
-amount. Any statistics greater than than <code>betamax</code> are set to
-<code>betamax</code>, and any statistics less than <code>-betamax</code> are
-set to <code>-betamax</code>.</p></td>
-    </tr>
-    <tr>
-      <th>label_above_lfc</th>
-      <td><p>Only z-scores or p-values (depending on
-choice of <code>y</code>) with LFC estimates above this value are
-labeled in the volcano plot.</p></td>
-    </tr>
-    <tr>
-      <th>label_above_quantile</th>
-      <td><p>Only z-scores or p-values (depending on
-choice of <code>y</code>) above this quantile are labeled in the volcano
+      <th>do.label</th>
+      <td><p>The function used to deetermine which LFC estimates
+to label. Replace <code>volcano_plot_do_label_default</code> with your
+own function to customize the labeling of points in the volcano
 plot.</p></td>
     </tr>
     <tr>
-      <th>subsample_below_quantile</th>
-      <td><p>A number between 0 and 1. If
-greater than zero, LFC estimates with z-scores or p-values below
-this quantile will be subsampled according to
-<code>subsample_rate</code>. This can be helpful to reduce the number of
-points plotted for a large data set.</p></td>
-    </tr>
-    <tr>
-      <th>subsample_rate</th>
-      <td><p>A number between 0 and 1 giving the
-proportion of LFC estimates with small z-scores that are included
-in the plot, uniformly at random. This is only used if
-<code>subsample_below_quantile</code> is greater than zero.</p></td>
+      <th>ymax</th>
+      <td><p>z-scores greater than <code>ymax</code> (in magnitude) are
+shown as <code>max</code>. Setting <code>ymax</code> to a finite value can
+improve the volcano plot when some z-scores are much larger (in
+magnitude) than others.</p></td>
     </tr>
     <tr>
       <th>max.overlaps</th>
       <td><p>Argument passed to
 <code><a href='https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html'>geom_text_repel</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>plot.title</th>
+      <td><p>The title of the plot.</p></td>
     </tr>
     <tr>
       <th>ggplot_call</th>
@@ -240,16 +212,9 @@ in the plot, uniformly at random. This is only used if
 the appearance of the plot.</p></td>
     </tr>
     <tr>
-      <th>plot_grid_call</th>
-      <td><p>When multiple topics are selected, this is
-the function used to arrange the plots into a grid using
-<code><a href='https://rdrr.io/pkg/cowplot/man/plot_grid.html'>plot_grid</a></code>. It should be a function accepting
-a single argument, <code>plots</code>, a list of <code>ggplot</code> objects.</p></td>
-    </tr>
-    <tr>
       <th>x</th>
-      <td><p>An object of class &#8220;topic_model_diff_count&#8221;,
-usually an output from <code><a href='diff_count_analysis.html'>diff_count_analysis</a></code>.</p></td>
+      <td><p>An object of class &#8220;topic_model_de_analysis&#8221;,
+usually an output from <code><a href='de_analysis.html'>de_analysis</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -263,16 +228,12 @@ file using <code><a href='https://rdrr.io/pkg/htmlwidgets/man/saveWidget.html'>s
     <tr>
       <th>width</th>
       <td><p>Width of the plot in pixels. Passed as argument
-&#8220;width&#8221; to <code><a href='https://docs.ropensci.org/plotly/reference/plot_ly.html'>plot_ly</a></code>.</p></td>
+&#8220;width&#8221; to <code><a href='https://rdrr.io/pkg/plotly/man/plot_ly.html'>plot_ly</a></code>.</p></td>
     </tr>
     <tr>
       <th>height</th>
       <td><p>Height of the plot in pixels. Passed as argument
-&#8220;height&#8221; to <code><a href='https://docs.ropensci.org/plotly/reference/plot_ly.html'>plot_ly</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>title</th>
-      <td><p>The text used for the plot title.</p></td>
+&#8220;height&#8221; to <code><a href='https://rdrr.io/pkg/plotly/man/plot_ly.html'>plot_ly</a></code>.</p></td>
     </tr>
     <tr>
       <th>plot_ly_call</th>
@@ -281,20 +242,19 @@ file using <code><a href='https://rdrr.io/pkg/htmlwidgets/man/saveWidget.html'>s
 the appearance of the interactive plot.</p></td>
     </tr>
     <tr>
+      <th>lfc</th>
+      <td><p>A vector of log-fold change estimates.</p></td>
+    </tr>
+    <tr>
+      <th>z</th>
+      <td><p>A vector of z-scores of the same length as <code>lfc</code>.</p></td>
+    </tr>
+    <tr>
       <th>dat</th>
       <td><p>A data frame passed as input to
 <code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></code>, containing, at a minimum, columns
-&#8220;label&#8221;, &#8220;mean&#8221;, &#8220;beta&#8221;, &#8220;se&#8221;,
-&#8220;z&#8221;, &#8220;pval&#8221; and &#8220;label&#8221;.</p></td>
-    </tr>
-    <tr>
-      <th>y.label</th>
-      <td><p>Label to use in the plot for &#8220;dat$y&#8221;.</p></td>
-    </tr>
-    <tr>
-      <th>topic.label</th>
-      <td><p>The name or number of the topic being plotted.
-Only used to determine the plot title.</p></td>
+&#8220;f0&#8221;, &#8220;postmean&#8221;, &#8220;z&#8221;, &#8220;zabs&#8221;,
+&#8220;lfsr&#8221; and &#8220;label&#8221;.</p></td>
     </tr>
     <tr>
       <th>font.size</th>
@@ -307,26 +267,17 @@ Only used to determine the plot title.</p></td>
     <p>A <code>ggplot</code> object or a <code>plotly</code> object.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The colour of the points is varied by the average count,
-on the logarithmic scale; since the evidence (z-score or p-value)
-typically increases with more observed counts, the variables with
-smallest average counts should usually appear toward the bottom of
-the volcano plot. Only points above a specified z-score (or
-p-value) quantile are labeled. Note that points with an average
-count of zero or less are not shown.</p>
-<p>To better accommodate situations in which some z-scores (or
-p-values) are much larger than all the others, the z-scores and
--log10 p-values are plotted on the square-root scale. To change
-this, as well as other aspects, of the plot, replace
-<code>volcano_plot_ggplot_call</code> with your own function; see input
-argument &#8220;ggplot_call&#8221;.</p>
-<p>The &#8220;ggrepel&#8221; package is used to arrange the labels in a
-visually attractive manner.</p>
-<p>Use interactive volcano plot is created using the &#8220;plotly&#8221;
-package. The &#8220;hover text&#8221; shows the label (see input argument
-&#8220;labels&#8221;) and detailed LFC statistics as they were
-calculated by <code><a href='diff_count_analysis.html'>diff_count_analysis</a></code>.</p>
+    <p>Interactive volcano plots can be created using the
+  &#8220;plotly&#8221; package. The &#8220;hover text&#8221; shows the label
+  and detailed LFC statistics.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
+    <div class='dont-index'><p><code><a href='de_analysis.html'>de_analysis</a></code></p></div>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'># See help(de_analysis) for examples.
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

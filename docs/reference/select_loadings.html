@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Extract or Re-order Data Rows in Multinomial Topic Model — select.multinom_topic_model_fit • fastTopics</title>
+<title>Extract or Re-order Data Rows in Poisson NMF or Multinomial Topic Model Fit — select.poisson_nmf_fit • fastTopics</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,10 @@
 
 
 
-<meta property="og:title" content="Extract or Re-order Data Rows in Multinomial Topic Model — select.multinom_topic_model_fit" />
+<meta property="og:title" content="Extract or Re-order Data Rows in Poisson NMF or Multinomial Topic Model Fit — select.poisson_nmf_fit" />
 <meta property="og:description" content="This function can be used to extract estimates for a
   subset of the count data, or to re-order the rows of the loadings
-  matrix in a multinomial topic model fit." />
+  matrix." />
 
 
 
@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6-93</span>
       </span>
     </div>
 
@@ -107,7 +107,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Extract or Re-order Data Rows in Multinomial Topic Model</h1>
+    <h1>Extract or Re-order Data Rows in Poisson NMF or Multinomial Topic Model Fit</h1>
     <small class="dont-index">Source: <a href='https://github.com/stephenslab/fastTopics/blob/master/R/select.R'><code>R/select.R</code></a></small>
     <div class="hidden name"><code>select_loadings.Rd</code></div>
     </div>
@@ -115,10 +115,13 @@
     <div class="ref-description">
     <p>This function can be used to extract estimates for a
   subset of the count data, or to re-order the rows of the loadings
-  matrix in a multinomial topic model fit.</p>
+  matrix.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for multinom_topic_model_fit</span>
+    <pre class="usage"><span class='co'># S3 method for poisson_nmf_fit</span>
+<span class='fu'>select</span>(<span class='no'>.data</span>, <span class='no'>loadings</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for multinom_topic_model_fit</span>
 <span class='fu'>select</span>(<span class='no'>.data</span>, <span class='no'>loadings</span>, <span class='no'>...</span>)
 
 <span class='fu'>select_loadings</span>(<span class='no'>.data</span>, <span class='no'>loadings</span>, <span class='no'>...</span>)</pre>
@@ -128,9 +131,10 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>.data</th>
-      <td><p>Multinomial Topic Model fit; that is, an object of
-class &#8220;multinom_topic_model_fit&#8221;, such as an output from
-<code>fit_topic_model</code>.</p></td>
+      <td><p>Poisson NMF or Multinomial Topic Model fit; that is,
+an object of class &#8220;poisson_nmf_fit&#8221; or
+&#8220;multinom_topic_model_fit&#8221;, such as an output from
+<code><a href='fit_poisson_nmf.html'>fit_poisson_nmf</a></code> or <code><a href='fit_topic_model.html'>fit_topic_model</a></code>.</p></td>
     </tr>
     <tr>
       <th>loadings</th>
@@ -145,8 +149,8 @@ keep. If not specified, all rows are kept.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A multinomial topic model fit containing the selected
-  data rows only.</p>
+    <p>A Poisson NMF or multinomial topic model fit containing the
+  selected data rows only.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

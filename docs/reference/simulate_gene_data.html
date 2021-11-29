@@ -86,7 +86,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6-93</span>
       </span>
     </div>
 
@@ -141,7 +141,7 @@
   used to simulate factors, loadings and counts.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>simulate_poisson_gene_data</span>(<span class='no'>n</span>, <span class='no'>m</span>, <span class='no'>k</span>, <span class='no'>s</span>, <span class='kw'>sparse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>simulate_poisson_gene_data</span>(<span class='no'>n</span>, <span class='no'>m</span>, <span class='no'>k</span>, <span class='no'>s</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>sparse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='fu'>simulate_multinom_gene_data</span>(<span class='no'>n</span>, <span class='no'>m</span>, <span class='no'>k</span>, <span class='kw'>sparse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
 
@@ -165,10 +165,16 @@ the data. Should be 2 or more.</p></td>
     </tr>
     <tr>
       <th>s</th>
-      <td><p>A vector of &#8220;size factors&#8221;; each row of the
-loadings matrix <code>L</code> is scaled by the entries of <code>s</code>
-before generating the counts. This should be a vector of length n
+      <td><p>Vector of &#8220;size factors&#8221;; each row of the loadings
+matrix <code>L</code> is scaled by the entries of <code>s</code> before
+generating the counts. This should be a vector of length n
 containing only positive values.</p></td>
+    </tr>
+    <tr>
+      <th>p</th>
+      <td><p>Probability that <code>F[i,j]</code> is equal to the mean rate.
+Smaller values of <code>p</code> will result in more factors that are the
+same across topics.</p></td>
     </tr>
     <tr>
       <th>sparse</th>
