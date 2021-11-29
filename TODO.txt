@@ -1,18 +1,12 @@
 to do
 =====
 
-+ Update volcano_plot.
-
-+ Update volcano_plotly.
-
 + Add/revise tests for volcano plot functions, with and without
   shrink.method = "ash".
 
-+ Add/revise tests for volcano_plotly.
++ Update the vignettes.
 
 + Update pkgdown site.
-
-+ Update the vignettes.
 
 + Implement KKT-based stopping criterion for fit_poisson_nmf.
 
