@@ -1,9 +1,6 @@
 to do
 =====
 
-+ Add/revise tests for volcano plot functions, with and without
-  shrink.method = "ash".
-
 + Update the vignettes.
 
 + Update pkgdown site.

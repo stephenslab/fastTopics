@@ -235,8 +235,7 @@ structure_plot_default_embed_method <- function (fit,...) {
   else {
     d <- dim(fit$L)
     message(sprintf("Running tsne on %s x %s matrix.",d[1],d[2]))
-    return(drop(suppressMessages(tsne_from_topics(fit,dims = 1,
-                                                  verbose = FALSE,...))))
+    return(drop(suppressMessages(tsne_from_topics(fit,dims = 1,...))))
   }
 }
 
