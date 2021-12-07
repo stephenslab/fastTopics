@@ -173,7 +173,7 @@ hpd <- function (x, conf.level = 0.68) {
 # KL-divergence calculations.
 min_kl_poisson <- function (F, e = 1e-15) {
     
-  # Get the number of rows (n)and columns (k) of F.
+  # Get the number of rows (n) and columns (k) of F.
   n <- nrow(F)
   k <- ncol(F)
 
@@ -190,4 +190,20 @@ min_kl_poisson <- function (F, e = 1e-15) {
   
   dimnames(D) <- dimnames(F)
   return(D)
+}
+
+# Compute "least extreme" LFC statistics LFC(j) = log2(fj/fk) given
+# frequency estimates F. Input F should be an n x k matrix of
+# frequency estimates from the multinomial topic model, where n is the
+# number of data columns, and k is the number of topics. The return
+# value is a matrix of the same dimension as F containing the LFC
+# estimates.
+le_lfc <- function (F, e = 1e-15) {
+  n <- nrow(F)
+  k <- ncol(F)
+  B <- matrix(0,n,k)
+  for (i in 1:n)
+    B[i,] <- le.diff(log2(F[i,] + e))
+  dimnames(B) <- dimnames(F)
+  return(B)
 }

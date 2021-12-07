@@ -139,7 +139,7 @@
 #'
 #' @return A list with the following elements:
 #'
-#' \item{est}{The log-fold change estimates.}
+#' \item{est}{The log-fold change maximum-likelihood estimates.}
 #'
 #' \item{postmean}{Posterior mean LFC estimates.}
 #' 
