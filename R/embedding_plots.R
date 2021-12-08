@@ -159,7 +159,7 @@ embedding_plot_2d <-
   }
 
   # Create the embedding plot.
-  return(embedding_plot_2d_ggplot_call(Y,fill,fill.type,fill.label))
+  return(ggplot_call(Y,fill,fill.type,fill.label))
 }
 
 #' @rdname embedding_plots
