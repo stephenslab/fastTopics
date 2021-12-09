@@ -4,7 +4,7 @@ library(Matrix)
 
 # Simulate data.
 set.seed(1)
-n   <- 100
+n   <- 120
 m   <- 1000
 k   <- 4
 dat <- simulate_multinom_gene_data(n,m,k,sparse = TRUE)
@@ -34,5 +34,5 @@ F <- pmax(F,1e-8)
 # Compare the estimates obtained by computing MLEs under the
 # multinomial topic model against the estimates obtained by running
 # fit_poisson_models.
-plot(fit$F + 1e-6,F + 1e-6,pch = 20,log = "xy")
+plot(fit$F + 1e-6,F + 1e-6,pch = 4,cex = 0.5,log = "xy")
 abline(a = 0,b = 1,col = "skyblue",lty = "dotted")
