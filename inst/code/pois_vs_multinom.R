@@ -36,3 +36,8 @@ F <- pmax(F,1e-8)
 # fit_poisson_models.
 plot(fit$F + 1e-6,F + 1e-6,pch = 4,cex = 0.5,log = "xy")
 abline(a = 0,b = 1,col = "skyblue",lty = "dotted")
+
+# Note that the model parameters estimated in fit_poisson_models no
+# longer represent frequencies, but they come close.
+print(colSums(fit$F))
+print(colSums(F))
