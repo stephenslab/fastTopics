@@ -3,6 +3,12 @@ to do
 
 + Output posterior median as well as posterior mean in de_analysis.
 
++ Add note of warning to de_analysis docs about "lower" and "upper"
+  not updated to reflect adaptive shrinkage step.
+
++ Fix "lower" and "upper" outputs to reflect adaptive shrinkage step
+  in de_analysis.
+
 + Update the vignettes.
 
 + Update pkgdown site.
