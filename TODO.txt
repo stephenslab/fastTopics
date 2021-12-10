@@ -1,6 +1,8 @@
 to do
 =====
 
++ Output posterior median as well as posterior mean in de_analysis.
+
 + Update the vignettes.
 
 + Update pkgdown site.

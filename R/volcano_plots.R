@@ -208,9 +208,12 @@ volcano_plot_ly_call <- function (dat, plot.title, width, height) {
   dat$fill <- cut(dat$lfsr,c(-1,0.001,0.01,0.05,Inf))
   p <- plot_ly(data = dat,x = ~postmean,y = ~sqrt(zabs),color = ~fill,
                colors = c("deepskyblue","gold","orange","coral"),
-               text = ~sprintf(paste0("%s\nmean: %0.2e\nlogFC: %+0.3f\n",
+               text = ~sprintf(paste0("%s\nmean(null): %0.2e\n",
+                                      "logFC(lower): %+0.3f\n",
+                                      "logFC(mean): %+0.3f\n",
+                                      "logFC(upper): %0.3f\n",
                                       "z-score: %+0.3f\nlfsr: %0.2e"),
-                               label,f0,postmean,z,lfsr),
+                               label,f0,lower,postmean,upper,z,lfsr),
                type = "scatter",mode = "markers",hoverinfo = "text",
                width = width,height = height,
                marker = list(line = list(color = "white",width = 1),
@@ -240,7 +243,9 @@ compile_volcano_plot_data <- function (de, k, ymax, labels, do.label = NULL) {
     lfsr <- de$lfsr[,k]
   dat <- data.frame(label    = labels,
                     f0       = de$f0,
+                    lower    = de$lower[,k],
                     postmean = de$postmean[,k],
+                    upper    = de$upper[,k],
                     z        = de$z[,k],
                     lfsr     = lfsr,
                     stringsAsFactors = FALSE)
