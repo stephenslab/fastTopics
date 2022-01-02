@@ -1,6 +1,8 @@
 to do
 =====
 
++ Fix de_analysis(verbose = FALSE) when multithreading is used.
+
 + Output posterior median as well as posterior mean in de_analysis.
 
 + Add note of warning to de_analysis docs about "lower" and "upper"
