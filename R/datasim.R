@@ -345,8 +345,11 @@ generate_mixture_proportions <- function (n, k, alpha = rep(1,k)) {
   L  <- matrix(0,n,k)
   k1 <- sample(k,n,replace = TRUE,prob = 2^(-seq(1,k)))
   for (i in 1:n) {
-    j      <- sample(k,k1[i])
-    L[i,j] <- rdirichlet(1,alpha[j])
+    j <- sample(k,k1[i])
+    if (length(j) == 1)
+      L[i,j] <- 1
+    else
+      L[i,j] <- rdirichlet(1,alpha[j])
   }
   return(L)
 }
