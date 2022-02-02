@@ -1,6 +1,9 @@
 to do
 =====
 
++ Fix labeling of topics in structure plots so that the topic names
+  are shown, rather than the topic numbers.
+
 + Fix de_analysis(verbose = FALSE) when multithreading is used.
 
 + Output posterior median as well as posterior mean in de_analysis.
