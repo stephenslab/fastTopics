@@ -234,9 +234,8 @@ The "predict" function estimates the topic proportions based on a
 previously fit topic model.
 
 ```{r predict, results="hide", message=FALSE}
-fit_test   <- fit
-fit_test$s <- NULL
-fit_test$L <- predict(fit,counts_test)
+Ltest <- predict(fit,counts_test)
+fit_test <- init_poisson_nmf(X = counts_test,L = Ltest,init.method = "random")
 ```
 
 The predictions appear to align well with the provided cell labels:
