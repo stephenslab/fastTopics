@@ -599,3 +599,75 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   expect_equal(compare_loadings_ignoring_rescaling(fit0,fit4,i0),0,
                scale = 1,tolerance = 1e-15)
 })
+
+test_that("no output from init_poisson_nmf when nc = 1,verbose='none'", {
+  x <- generate_test_data(n = 50,m = 100,k = 3)$X
+  out <- capture.output(fit0 <-
+                          init_poisson_nmf(x,k = 3,control = list(nc = 1),
+                                           verbose="none"))
+  expect_equal(out, character(0))
+})
+
+test_that("no messages from init_poisson_nmf when nc = 1,verbose='none'", {
+  x <- generate_test_data(n = 50,m = 100,k = 3)$X
+  out <- capture.output(fit0 <-
+                          init_poisson_nmf(x,k = 3,control = list(nc = 1),
+                                           verbose="none"),
+                        type="message")
+  expect_equal(out, character(0))
+})
+
+test_that("no output from fit_poisson_nmf when nc = 1,verbose='none'", {
+  x <- generate_test_data(n = 50,m = 100,k = 3)$X
+  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
+  out <- capture.output(fit <-
+                          fit_poisson_nmf(x,fit0 = fit0,control = list(nc = 1),
+                                          verbose="none"))
+  expect_equal(out, character(0))
+})
+
+test_that("no output from fit_poisson_nmf when nc = 1,verbose='none'", {
+  x <- generate_test_data(n = 50,m = 100,k = 3)$X
+  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
+  out <- capture.output(fit <-
+                          fit_poisson_nmf(x,fit0 = fit0,control = list(nc = 1),
+                                          verbose="none"),
+                        type="message")
+  expect_equal(out, character(0))
+})
+
+test_that("no output from init_poisson_nmf when nc = 2,verbose='none'", {
+  x <- generate_test_data(n = 50,m = 100,k = 3)$X
+  out <- capture.output(fit0 <-
+                          init_poisson_nmf(x,k = 3,control = list(nc = 2),
+                                           verbose="none"))
+  expect_equal(out, character(0))
+})
+
+test_that("no messages from init_poisson_nmf when nc = 2,verbose='none'", {
+  x <- generate_test_data(n = 50,m = 100,k = 3)$X
+  out <- capture.output(fit0 <-
+                          init_poisson_nmf(x,k = 3,control = list(nc = 2),
+                                           verbose="none"),
+                        type="message")
+  expect_equal(out, character(0))
+})
+
+test_that("no output from fit_poisson_nmf when nc = 2,verbose='none'", {
+  x <- generate_test_data(n = 50,m = 100,k = 3)$X
+  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
+  out <- capture.output(fit <-
+                          fit_poisson_nmf(x,fit0 = fit0,control = list(nc = 2),
+                                          verbose="none"))
+  expect_equal(out, character(0))
+})
+
+test_that("no output from fit_poisson_nmf when nc = 2,verbose='none'", {
+  x <- generate_test_data(n = 50,m = 100,k = 3)$X
+  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
+  out <- capture.output(fit <-
+                          fit_poisson_nmf(x,fit0 = fit0,control = list(nc = 2),
+                                          verbose="none"),
+                        type="message")
+  expect_equal(out, character(0))
+})
