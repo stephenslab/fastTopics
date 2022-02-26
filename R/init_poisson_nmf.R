@@ -105,7 +105,7 @@ init_poisson_nmf <-
         if (verbose == "detailed")
           cat(sprintf("Initializing loadings by running %d SCD updates.\n",
                       control$init.numiter))
-        control$nc <- initialize.multithreading(control$nc)
+        control$nc <- initialize.multithreading(control$nc,verbose != "none")
         s <- rowSums(X)
         L <- matrix(s,n,k)
         L <- scd_update_loadings(X,L,t(F),1:n,control$init.numiter,

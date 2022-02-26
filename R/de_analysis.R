@@ -315,7 +315,7 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   if (verbose)
     cat(sprintf("Fitting %d Poisson models with k=%d using method=\"%s\".\n",
                 m,k,fit.method))
-  nc <- initialize.multithreading(control$nc)
+  nc <- initialize.multithreading(control$nc,verbose)
   F <- fit_poisson_models(X,L,fit.method,control$eps,control$numiter,
                           control$tol,control$nc)
   F <- pmax(F,control$minval)
@@ -338,10 +338,10 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     out <- compute_lfc_stats(X,F,L,f0,D,U,M,lfc.stat,control$conf.level,
                              control$rw,control$eps,verbose)
   else {
-    message(sprintf("Using %d threads.",control$nc))
     out <- compute_lfc_stats_multicore(X,F,L,f0,D,U,M,lfc.stat,
                                        control$conf.level,control$rw,
-                                       control$eps,control$nc,control$nsplit)
+                                       control$eps,control$nc,control$nsplit,
+                                       verbose)
   }
   if (any(out$ar == 0))
     warning("One or more MCMC simulations yielded acceptance rates of zero; ",
