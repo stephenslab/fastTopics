@@ -98,7 +98,7 @@ init_poisson_nmf <-
               "instead.\n")
         F <- rand(m,k)
         L <- rand(n,k)
-    } else {
+      } else {
         
         # Fit the loadings by running a small number of sequential
         # co-ordinate descent (SCD) updates.
