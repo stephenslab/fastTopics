@@ -580,13 +580,13 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   # The factors that are not selected for updating should not change,
   # aside from a rescaling.
   expect_equal(compare_factors_ignoring_rescaling(fit0,fit1,j0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 2e-15)
   expect_equal(compare_factors_ignoring_rescaling(fit0,fit2,j0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 2e-15)
   expect_equal(compare_factors_ignoring_rescaling(fit0,fit3,j0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 2e-15)
   expect_equal(compare_factors_ignoring_rescaling(fit0,fit4,j0),0,
-               scale = 1,tolerance = 1e-15)
+               scale = 1,tolerance = 2e-15)
 
   # The loadings that are not selected for updating should not change,
   # aside from a rescaling.
