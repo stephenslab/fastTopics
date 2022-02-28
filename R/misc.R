@@ -129,13 +129,13 @@ rand <- function (n, m, min = 0, max = 1)
 #' @importFrom RcppParallel setThreadOptions
 #' @importFrom RcppParallel defaultNumThreads
 #'
-initialize.multithreading <- function (n) {
+initialize.multithreading <- function (n,verbose = FALSE) {
   if (is.na(n)) {
     setThreadOptions()
     n <- defaultNumThreads()
   } else
     setThreadOptions(numThreads = n)
-  if (n > 1)
+  if (verbose && n > 1)
     message(sprintf("Using %d RcppParallel threads.",n))
   return(n)
 }

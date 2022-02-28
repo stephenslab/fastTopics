@@ -93,7 +93,8 @@ compute_lfc_stats <-
 #' @importFrom pbapply pblapply
 #' @importFrom pbapply pboptions
 compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
-                                         conf.level, rw, e, nc, nsplit = 100) {
+                                         conf.level, rw, e, nc, nsplit = 100,
+                                         verbose = TRUE) {
     
   # Get the number of counts matrix columns (m) and the number of
   # topics (k).
@@ -113,10 +114,12 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
   parlapplyf <- function (dat, L, D, U, M, lfc.stat, conf.level, rw, e)
     compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,M,lfc.stat,conf.level,rw,e,
                       verbose = FALSE)
-  op  <- pboptions(type = "txt",txt.width = 70)
-# cl  <- makeCluster(nc)
+  if (verbose) {
+    op  <- pboptions(type = "txt",txt.width = 70)
+  } else {
+    op  <- pboptions(type = NULL)
+  }
   ans <- pblapply(cl = nc,dat,parlapplyf,L,D,U,M,lfc.stat,conf.level,rw,e)
-# stopCluster(cl)
   pboptions(op)
 
   # Combine the individual compute_lfc_stats outputs, and output the

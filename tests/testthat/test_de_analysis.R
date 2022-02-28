@@ -335,3 +335,43 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   expect_equal(de$z[,1],-de$z[,2],scale = 1,tolerance = 1e-15)
   expect_equal(de$lfsr[,1],de$lfsr[,2],scale = 1,tolerance = 1e-15)
 })
+
+test_that("no output from de_analysis when nc = 1,verbose = FALSE", {
+  x <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X
+  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
+  out <- capture.output(result <-
+                          de_analysis(fit0, x,control = list(nc = 1),
+                                          verbose = FALSE))
+  expect_equal(out, character(0))
+})
+
+test_that("no messages from de_analysis when nc = 1,verbose = FALSE", {
+  x <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X
+  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
+  out <- capture.output(result <-
+                          de_analysis(fit0, x,control = list(nc = 1),
+                                      verbose = FALSE),
+                        type="message")
+  expect_equal(out, character(0))
+})
+
+test_that("no output from de_analysis when nc = 2,verbose = FALSE", {
+  skip_on_os("windows")
+  x <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X
+  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
+  out <- capture.output(result <-
+                          de_analysis(fit0, x,control = list(nc = 2),
+                                          verbose = FALSE))
+  expect_equal(out, character(0))
+})
+
+test_that("no messages from de_analysis when nc = 2,verbose = FALSE", {
+  skip_on_os("windows")
+  x <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X
+  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
+  out <- capture.output(result <-
+                          de_analysis(fit0, x,control = list(nc = 2),
+                                      verbose = FALSE),
+                        type="message")
+  expect_equal(out, character(0))
+})
