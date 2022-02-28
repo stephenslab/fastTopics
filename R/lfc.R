@@ -114,11 +114,10 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
   parlapplyf <- function (dat, L, D, U, M, lfc.stat, conf.level, rw, e)
     compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,M,lfc.stat,conf.level,rw,e,
                       verbose = FALSE)
-  if (verbose) {
-    op  <- pboptions(type = "txt",txt.width = 70)
-  } else {
-    op  <- pboptions(type = NULL)
-  }
+  if (verbose)
+    op <- pboptions(type = "txt",txt.width = 70)
+  else
+    op <- pboptions(type = NULL)
   ans <- pblapply(cl = nc,dat,parlapplyf,L,D,U,M,lfc.stat,conf.level,rw,e)
   pboptions(op)
 

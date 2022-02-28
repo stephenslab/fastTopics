@@ -336,42 +336,24 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
   expect_equal(de$lfsr[,1],de$lfsr[,2],scale = 1,tolerance = 1e-15)
 })
 
-test_that("no output from de_analysis when nc = 1,verbose = FALSE", {
-  x <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X
-  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
-  out <- capture.output(result <-
-                          de_analysis(fit0, x,control = list(nc = 1),
-                                          verbose = FALSE))
-  expect_equal(out, character(0))
-})
-
-test_that("no messages from de_analysis when nc = 1,verbose = FALSE", {
-  x <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X
-  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
-  out <- capture.output(result <-
-                          de_analysis(fit0, x,control = list(nc = 1),
-                                      verbose = FALSE),
-                        type="message")
-  expect_equal(out, character(0))
-})
-
-test_that("no output from de_analysis when nc = 2,verbose = FALSE", {
-  skip_on_os("windows")
-  x <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X
-  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
-  out <- capture.output(result <-
-                          de_analysis(fit0, x,control = list(nc = 2),
-                                          verbose = FALSE))
-  expect_equal(out, character(0))
-})
-
-test_that("no messages from de_analysis when nc = 2,verbose = FALSE", {
-  skip_on_os("windows")
-  x <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X
-  fit0 <- init_poisson_nmf(x,k = 3,verbose="none")
-  out <- capture.output(result <-
-                          de_analysis(fit0, x,control = list(nc = 2),
-                                      verbose = FALSE),
-                        type="message")
-  expect_equal(out, character(0))
+test_that("no output from de_analysis when verbose = FALSE",{
+  set.seed(1)
+  X <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X
+  fit0 <- init_poisson_nmf(X,k = 3,verbose = "none")
+  out1 <- capture.output(
+      result <- de_analysis(fit0,X,control = list(nc = 1),verbose = FALSE),
+    type = "output")
+  out2 <- capture.output(
+      result <- de_analysis(fit0,X,control = list(nc = 2),verbose = FALSE),
+    type = "output")
+  out3 <- capture.output(
+      result <- de_analysis(fit0,X,control = list(nc = 1),verbose = FALSE),
+    type = "message")
+  out4 <- capture.output(
+      result <- de_analysis(fit0,X,control = list(nc = 2),verbose = FALSE),
+    type = "message")
+  expect_equal(out1,character(0))
+  expect_equal(out2,character(0))
+  expect_equal(out3,character(0))
+  expect_equal(out4,character(0))
 })
