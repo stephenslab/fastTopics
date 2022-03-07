@@ -161,8 +161,8 @@ structure_plot <-
     topics <- order(colMeans(fit$L))
   if (is.character(topics))
     topics <- match(topics,colnames(fit$L))
-  if (!all(sort(topics) == 1:k))
-    stop("Input argument \"topics\" should be a reordering of the topics ",
+  if (!all(is.element(topics,1:k)))
+    stop("Input argument \"topics\" should be a subset of the topics ",
          "(columns of fit$L) specified by their names or column indices")
 
   # Check and process input argument "grouping".
