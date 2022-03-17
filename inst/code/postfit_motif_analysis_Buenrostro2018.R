@@ -2,7 +2,7 @@
 # and perform TF motif enrichment analysis using HOMER.
 de <- readRDS("DA_regions_topics_noshrinkage_10000iters.rds")
 
-# Select regions with p-value less than 0.01.
+# Select regions with p-value less than 0.1.
 regions <-
   select_de_genes(de,k = 4,
                   subset = function (postmean,lpval,lfsr,rank,quantile)
