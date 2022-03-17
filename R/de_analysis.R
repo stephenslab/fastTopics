@@ -452,7 +452,8 @@ de_analysis_control_default <- function()
 # rows of de$postmean).
 select_de_genes <-
   function (de, k,
-            subset = function(postmean,lpval,lfsr,rank,quantile) lfsr < 0.05) {
+            subset = function (postmean, lpval, lfsr, rank, quantile)
+              lfsr < 0.05) {
 
   # Compile data used to select genes.
   n <- nrow(de$postmean)

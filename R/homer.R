@@ -1,5 +1,6 @@
-#' @title Run HOMER for Motif Enrichment
-#' 
+#' @title Perform HOMER Motif Enrichment Analysis Using DE Positions
+#'
+#' @description http://homer.ucsd.edu/homer/
 #' See http://homer.ucsd.edu/homer/ngs/peakMotifs.html for more details.
 #' 
 #' @param regions.file BED file of the peak regions.
@@ -20,33 +21,51 @@
 #' @param background BED file of the background regions
 #' 
 #' @return A data frame of motif enrichment results loaed from HOMER's output 'knownResults.txt'
+#'
+#' @importFrom utils read.table
+#' @importFrom utils write.table
 #' 
 #' @export
 #' 
-run_homer <- function(pos.file,
-                      genome,
-                      homer.exec = "findMotifsGenome.pl",
-                      out.dir = "out",
-                      region.size = 200,
-                      motif.length = c(8,10,12),
-                      optimize.count = 2,
-                      homer.options = "-h -S 25 -p 1") {
+run_homer <-
+  function (de, k, genome, positions, 
+            subset = function (postmean, lpval, lfsr, rank, quantile)
+              lfsr < 0.05,
+            homer.exec = "findMotifsGenome.pl",
+            out.dir = tempdir(),
+            homer.options = "-len 8,10,12 -size 200 -mis 2 -h -S 25 -p 1",
+            verbose = TRUE) {
 
-  # if(!dir.exists(out.dir))
-  #   dir.create(out.dir,recursive = TRUE)
-  #   homer.path <- normalizePath(homer.path)
-  #   if(!file_test('-x', homer.path)){
-  #     stop(homer.path, " does not exist or is not executable!")
-  #   }
+  # Get the positions if they are not provided.
+  if (missing(positions)) {
+    out <- strsplit(rownames(de$postmean),"_")
+    positions <- data.frame(chr = sapply(out,"[[",1),
+                            start = sapply(out,"[[",2),
+                            end = sapply(out,"[[",3),
+                            stringsAsFactors = FALSE)
+  }
 
-  system(paste(homer.exec,pos.file,genome,out.dir,
-    '-len', paste0(motif.length, collapse = ','),
-    '-size', region.size,
-    '-mis', optimize.count,
-    '-S', n.motifs,
-  ))
+  # Select the differentially expressed positions.
+  rows <- select_de_genes(de,k,subset)
+  if (verbose)
+    cat(sprintf("%d out of %d positions selected\n",
+                length(rows),nrow(de$postmean)))
+
+  # Write the positions to a BED file.
+  pos.file <- file.path(out.dir,"positions.bed")
+  if (verbose)
+    cat("Writing selected positions to",pos.file,"\n")
+  write.table(positions,pos.file,quote = FALSE,sep = " ",row.names = FALSE,
+              col.names = FALSE)
+
+  homer.command <- paste(homer.exec,pos.file,genome,out.dir,homer.options)
+  if (verbose) {
+    cat("Performing HOMER motif enrichment analysis:\n")
+    cat(homer.command,"\n")
+  }
+  out <- system(homer.command)
   res <-
-    read.csv(file.path(out.dir, "knownResults.txt"), sep="\t", header=TRUE, check.names=F, stringsAsFactors=F)
+    read.table(file.path(out.dir, "knownResults.txt"),sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
     return(res)
 }
 

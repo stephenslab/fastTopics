@@ -10,14 +10,8 @@ regions <-
 
 # For each topic, perform TF motif enrichment analysis using HOMER
 # hypergeometric test.
-homer_res        <- vector("list", ncol(DA_res$z))
-names(homer_res) <- colnames(DA_res$z)
-for (k in 1:ncol(DA_res$z)) {
-  homer_res[[k]] <-
-    run_homer(selected_regions$filenames[k],
-              genome = "hg19",
-              homer.path = homerpath,
-              use.hypergeometric = TRUE,
-              out.dir = "/Users/pcarbo/homer/findMotifsGenome.pl",
-              n.cores = 2)
-}
+res <- run_homer(de,k = 4,genome = "hg19",
+                 subset = function (postmean,lpval,lfsr,rank,quantile)
+                   lpval > 1,
+                 homer.exec = "~/homer/bin/findMotifsGenome.pl")
+
