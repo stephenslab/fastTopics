@@ -440,3 +440,40 @@ de_analysis_control_default <- function()
        eps        = 1e-15,
        nc         = 1,
        nsplit     = 100)
+
+#' Select regions based on differential accessibility result and save selected regions as BED files.
+#' 
+#' @param de Differential accessibility result from `de_analysis`.
+#' @param method Method to select regions.
+#' `pval` selects regions in which p-value < `thresh.pval`.
+#' `lfsr` selects regions in which lfsr > `thresh.lfsr`.
+#' `logFC` selects regions in which beta > `thresh.logFC`.
+#' `topPercent` selects top regions in higest `topPercent`,
+#' `topN` selects the top `n.regions` regions.
+#' @param out.dir Output directory.
+#'
+#' @return A list of selected regions for each topic
+select_genes <-
+  function (de, k,
+            subset = function(postmean,lpval,lfsr,rank,quantile) lfsr < 0.05) {
+
+  # Compile data used to select genes.
+  n <- nrow(de$postmean)
+  dat <- data.frame(postmean = de$postmean[,k],
+                    lpval    = de$lpval[,k],
+                    lfsr     = as.numeric(NA),
+                    rank     = rank(-de$postmean[,k],na.last = TRUE,
+                                    ties.method = "average"),
+                    quantile = rank(de$postmean[,k],na.last = FALSE,
+                                    ties.method = "average")/n)
+  if (!all(is.na(de$lfsr)))
+    dat$lfsr <- de$lfsr[,k]
+  
+  # Select the genes according to the provided subset function.
+  x <- rep(FALSE,n)
+  names(x) <- rownames(de$postmean)
+  for (i in 1:n)
+    x[i] <- all(subset(dat[i,"postmean"],dat[i,"lpval"],dat[i,"lfsr"],
+                       dat[i,"rank"],dat[i,"quantile"]))
+  return(which(x))
+}
