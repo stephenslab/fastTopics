@@ -441,19 +441,16 @@ de_analysis_control_default <- function()
        nc         = 1,
        nsplit     = 100)
 
-#' Select regions based on differential accessibility result and save selected regions as BED files.
-#' 
-#' @param de Differential accessibility result from `de_analysis`.
-#' @param method Method to select regions.
-#' `pval` selects regions in which p-value < `thresh.pval`.
-#' `lfsr` selects regions in which lfsr > `thresh.lfsr`.
-#' `logFC` selects regions in which beta > `thresh.logFC`.
-#' `topPercent` selects top regions in higest `topPercent`,
-#' `topN` selects the top `n.regions` regions.
-#' @param out.dir Output directory.
-#'
-#' @return A list of selected regions for each topic
-select_genes <-
+# Select genes based on a de_analysis result. Input "de" is an object
+# of class "topic_model_de_analysis"; k is a topic, and "subset" is a
+# function that returns TRUE or FALSE depending on whether to select
+# the gene based on the DE analysis result. Here, "rank" and
+# "quantile" should be interpreted as the rank and quantile of the
+# gene based on the posterior mean estimate of the log-fold change, so
+# that largest positive log-fold change has rank 1 and quantile 1.
+# The output is a vector of gene indices (e.g., corresponding to
+# rows of de$postmean).
+select_de_genes <-
   function (de, k,
             subset = function(postmean,lpval,lfsr,rank,quantile) lfsr < 0.05) {
 
