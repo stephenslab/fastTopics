@@ -2,7 +2,7 @@
 % Please edit documentation in R/homer.R
 \name{run_homer}
 \alias{run_homer}
-\title{Perform HOMER Motif Enrichment Analysis Using DE Positions}
+\title{Perform HOMER Motif Enrichment Analysis Based on DE Genomic Positions}
 \usage{
 run_homer(
   de,
@@ -17,35 +17,51 @@ run_homer(
 )
 }
 \arguments{
-\item{genome}{Genome assembly; e.g., "hg19"}
+\item{de}{An object of class \dQuote{topic_model_de_analysis},
+usually the result of running \code{\link{de_analysis}}.}
 
-\item{out.dir}{Output directory.}
+\item{k}{Use the DE analysis results for this topic.}
 
-\item{regions.file}{BED file of the peak regions.}
+\item{positions}{A table of genomic positions corresponding to rows
+of the \code{de_analysis} results. Specifically, it should a data
+frame with four columns: \dQuote{chr}, chromosome name or number;
+\dQuote{start}, start position of genomic feature; \dQuote{end},
+end position of genomic feature; and \dQuote{name}, the name of the
+genomic feature. If not specified, the genomic positions will be
+extracted from the row names of \code{de$postmean}, in which the
+row names are expected to be of the form \code{chr_start_end}.}
 
-\item{homer.path}{Directory path to 'findMotifsGenome.pl' excutable file.}
+\item{genome}{The genome parameter passed to
+\code{findMotifsGenome.pl}.}
 
-\item{region.size}{Size of the regions used for motif finding (default=200)}
+\item{subset}{Describe input argument "subset" here.}
 
-\item{motif.length}{Length of motifs to be found (default=8,10,12).
-HOMER will find motifs of each size separately and then combine the results at the end.
-The length of time it takes to find motifs increases greatly with increasing size.}
+\item{homer.exec}{The name or file path of the HOMER
+\code{findMotifsGenome.pl} excutable.}
 
-\item{optimize.count}{Number of mismatches allowed in global optimization phase (default=2)}
+\item{out.dir}{The positions BED file and HOMER results are written
+to this directory.}
 
-\item{n.motifs}{Number of motifs to find (default=25)}
+\item{homer.options}{Character string used to override default
+\code{findMotifsGenome.pl} options.}
 
-\item{use.hypergeometric}{Whether to use hypergeometric distribution to score motif enrichment
-By default, findMotifsGenome.pl uses the binomial distribution to score motifs, which is faster.
-This works well when the number of background sequences greatly out number the target sequences.
-If the number of background sequences is smaller than target sequences, it is recommended to use the hypergeometric distribution.}
-
-\item{background}{BED file of the background regions}
+\item{verbose}{When \code{verbose = TRUE}, progress information is
+printed to the console.}
 }
 \value{
-A data frame of motif enrichment results loaed from HOMER's output 'knownResults.txt'
+A data frame of motif enrichment results loaed from HOMER's
+  output 'knownResults.txt'
 }
 \description{
-http://homer.ucsd.edu/homer/
-See http://homer.ucsd.edu/homer/ngs/peakMotifs.html for more details.
+Run HOMER motif finding algorithm
+  (\code{findMotifsGenome.pl}) to identify motifs enriched for
+  differentially expressed (DE) genomic positions. See
+  \url{http://homer.ucsd.edu} for more information.
+}
+\references{
+Heinz, S., Benner, C., Spann, N., Bertolino, E., Lin, Y. C., Laslo,
+P., Cheng, J. X., Murre, C., Singh, H. and Glass, C. K. (2010).
+Simple combinations of lineage-determining transcription factors
+prime cis-regulatory elements required for macrophage and B cell
+identities. \emph{Molecular Cell} \bold{38}, 576-589.
 }
