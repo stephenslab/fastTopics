@@ -12,7 +12,7 @@ run_homer(
   subset = function(postmean, lpval, lfsr, rank, quantile) lfsr < 0.05,
   homer.exec = "findMotifsGenome.pl",
   out.dir = tempdir(),
-  homer.options = "-len 8,10,12 -size 200 -mis 2 -h -S 25 -p 1",
+  homer.options = "-len 8,10,12 -size 200 -mis 2 -S 25 -p 1 -h",
   verbose = TRUE
 )
 }

@@ -33,7 +33,7 @@ run_homer <-
               lfsr < 0.05,
             homer.exec = "findMotifsGenome.pl",
             out.dir = tempdir(),
-            homer.options = "-len 8,10,12 -size 200 -mis 2 -h -S 25 -p 1",
+            homer.options = "-len 8,10,12 -size 200 -mis 2 -S 25 -p 1 -h",
             verbose = TRUE) {
 
   # Get the positions if they are not provided.
@@ -57,17 +57,20 @@ run_homer <-
   pos.file <- file.path(out.dir,"positions.bed")
   if (verbose)
     cat("Writing selected positions to",pos.file,"\n")
-  write.table(positions[rows,],pos.file,sep = " ",quote = FALSE,
+  write.table(positions[rows,],pos.file,sep = "\t",quote = FALSE,
               row.names = FALSE,col.names = FALSE)
 
-  homer.command <- paste(homer.exec,pos.file,genome,out.dir,homer.options)
+  # Run the HOMER motif enrichment analysis.
+  homer.dir <- file.path(out.dir,"homer")
+  homer.command <- paste(homer.exec,pos.file,genome,homer.dir,homer.options)
   if (verbose) {
-    cat("Performing HOMER motif enrichment analysis:\n")
+    cat("Performing HOMER motif enrichment analysis.\n")
     cat(homer.command,"\n")
   }
-  out <- system(homer.command)
-  res <-
-    read.table(file.path(out.dir, "knownResults.txt"),sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
-    return(res)
+  system.out <- system(homer.command,intern = TRUE)
+  homer.out <- read.table(file.path(homer.dir,"knownResults.txt"),
+                          sep = "\t",header = TRUE,check.names = FALSE,
+                          stringsAsFactors = FALSE)
+  return(res)
 }
 

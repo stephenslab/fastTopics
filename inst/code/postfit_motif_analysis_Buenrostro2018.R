@@ -9,5 +9,4 @@ regions <- select_de_genes(de,k = 4,subset = select_small_pvals)
 
 # For each topic, perform TF motif enrichment analysis using HOMER
 # hypergeometric test.
-res <- run_homer(de,k = 4,subset = select_small_pvals,
-                 homer.exec = "~/homer/bin/findMotifsGenome.pl")
+res <- run_homer(de,k = 4,subset = select_small_pvals)
