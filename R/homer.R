@@ -96,8 +96,8 @@ run_homer <-
   }
   system.out <- system(homer.command,intern = TRUE)
   homer.out <- read.table(file.path(homer.dir,"knownResults.txt"),
-                          sep = "\t",header = TRUE,check.names = FALSE,
-                          stringsAsFactors = FALSE)
+                          sep = "\t",comment.char = "",header = TRUE,
+                          check.names = FALSE,stringsAsFactors = FALSE)
   return(list(system.out = system.out,homer.out = homer.out))
 }
 
