@@ -38,11 +38,13 @@ run_homer <-
 
   # Get the positions if they are not provided.
   if (missing(positions)) {
-    out <- strsplit(rownames(de$postmean),"_")
-    positions <- data.frame(chr = sapply(out,"[[",1),
-                            start = sapply(out,"[[",2),
-                            end = sapply(out,"[[",3),
-                            stringsAsFactors = FALSE)
+    feature_names <- rownames(de$postmean)
+    out           <- strsplit(feature_names,"_")
+    positions     <- data.frame(chr   = sapply(out,"[[",1),
+                                start = sapply(out,"[[",2),
+                                end   = sapply(out,"[[",3),
+                                name  = feature_names,
+                                stringsAsFactors = FALSE)
   }
 
   # Select the differentially expressed positions.
@@ -51,12 +53,12 @@ run_homer <-
     cat(sprintf("%d out of %d positions selected\n",
                 length(rows),nrow(de$postmean)))
 
-  # Write the positions to a BED file.
+  # Write the selected positions to a BED file.
   pos.file <- file.path(out.dir,"positions.bed")
   if (verbose)
     cat("Writing selected positions to",pos.file,"\n")
-  write.table(positions,pos.file,quote = FALSE,sep = " ",row.names = FALSE,
-              col.names = FALSE)
+  write.table(positions[rows,],pos.file,sep = " ",quote = FALSE,
+              row.names = FALSE,col.names = FALSE)
 
   homer.command <- paste(homer.exec,pos.file,genome,out.dir,homer.options)
   if (verbose) {
