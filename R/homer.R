@@ -28,7 +28,7 @@
 #' @export
 #' 
 run_homer <-
-  function (de, k, genome, positions, 
+  function (de, k, positions, genome = "hg19",
             subset = function (postmean, lpval, lfsr, rank, quantile)
               lfsr < 0.05,
             homer.exec = "findMotifsGenome.pl",
