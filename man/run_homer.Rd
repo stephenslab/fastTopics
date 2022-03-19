@@ -2,7 +2,7 @@
 % Please edit documentation in R/homer.R
 \name{run_homer}
 \alias{run_homer}
-\title{Perform HOMER Motif Enrichment Analysis Based on DE Genomic Positions}
+\title{Perform HOMER Motif Enrichment Analysis using DE Genomic Positions}
 \usage{
 run_homer(
   de,
@@ -29,7 +29,10 @@ frame with four columns: \dQuote{chr}, chromosome name or number;
 end position of genomic feature; and \dQuote{name}, the name of the
 genomic feature. If not specified, the genomic positions will be
 extracted from the row names of \code{de$postmean}, in which the
-row names are expected to be of the form \code{chr_start_end}.}
+row names are expected to be of the form \code{chr_start_end}. The
+genomic positions will be written to a BED file (see
+\url{https://genome.ucsc.edu/FAQ/FAQformat.html} for more
+information about BED files).}
 
 \item{genome}{The genome parameter passed to
 \code{findMotifsGenome.pl}.}
@@ -49,8 +52,8 @@ to this directory.}
 printed to the console.}
 }
 \value{
-A data frame of motif enrichment results loaed from HOMER's
-  output 'knownResults.txt'
+A data frame containing the motif enrichment results. It
+  is created from the \code{knownResults.txt} HOMER output.
 }
 \description{
 Run HOMER motif finding algorithm

@@ -39,8 +39,8 @@
 #' @param verbose When \code{verbose = TRUE}, progress information is
 #'   printed to the console.
 #' 
-#' @return A data frame of motif enrichment results loaed from HOMER's
-#'   output 'knownResults.txt'
+#' @return A data frame containing the motif enrichment results. It
+#'   is created from the \code{knownResults.txt} HOMER output.
 #'
 #' @importFrom utils read.table
 #' @importFrom utils write.table
@@ -94,10 +94,10 @@ run_homer <-
     cat("Performing HOMER motif enrichment analysis:\n")
     cat(homer.command,"\n")
   }
-  system.out <- system(homer.command,intern = TRUE)
-  homer.out <- read.table(file.path(homer.dir,"knownResults.txt"),
-                          sep = "\t",comment.char = "",header = TRUE,
-                          check.names = FALSE,stringsAsFactors = FALSE)
-  return(list(system.out = system.out,homer.out = homer.out))
+  system.out <- system(homer.command,ignore.stderr = TRUE,intern = TRUE)
+  res <- read.table(file.path(homer.dir,"knownResults.txt"),
+                    sep = "\t",comment.char = "",header = TRUE,
+                    check.names = FALSE,stringsAsFactors = FALSE)
+  return(list(system = system.out,known_results = res))
 }
 
