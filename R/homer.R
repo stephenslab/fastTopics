@@ -94,10 +94,11 @@ run_homer <-
     cat("Performing HOMER motif enrichment analysis:\n")
     cat(homer.command,"\n")
   }
-  system.out <- system(homer.command,ignore.stderr = TRUE,intern = TRUE)
+  system.out <- system(homer.command,ignore.stderr = TRUE,
+                       ignore.stdout = TRUE,intern = TRUE)
   res <- read.table(file.path(homer.dir,"knownResults.txt"),
                     sep = "\t",comment.char = "",header = TRUE,
                     check.names = FALSE,stringsAsFactors = FALSE)
-  return(list(system = system.out,known_results = res))
+  return(res)
 }
 
