@@ -158,12 +158,15 @@ fit_topic_model <-
 #' 
 #' @param numiter Describe input argument "numiter" here.
 #'
+#' @param minval Describe input argument "minval" here.
+#' 
 #' @param eps Describe input argument "eps" here.
 #' 
 #' @export
 #' 
 fit_topic_model_map <- function (X, fit0, alpha.factors, alpha.loadings,
-                                 numiter = 100, eps = 1e-8, verbose = TRUE) {
+                                 numiter = 100, minval = 1e-15, eps = 1e-8,
+                                 verbose = TRUE) {
 
   # Verify and process inputs "X" and "fit0". 
   if (!(inherits(fit0,"poisson_nmf_fit") |
@@ -179,6 +182,8 @@ fit_topic_model_map <- function (X, fit0, alpha.factors, alpha.loadings,
   # model parameter constraints.
   F <- normalize.cols(fit0$F)
   L <- normalize.rows(fit0$L)
+  F <- pmax(F,minval)
+  L <- pmax(L,minval)
   s <- fit0$s
   n <- nrow(L)
   m <- nrow(F)
@@ -196,10 +201,34 @@ fit_topic_model_map <- function (X, fit0, alpha.factors, alpha.loadings,
   # the estimates over time by computing the posterior up to a
   # constant of proportionality.
   logposterior <- rep(0,numiter)
-  for (i in 1:numiter) {
+  for (iter in 1:numiter) {
+
+    # Apply the EM update for L.
+    P <- matrix(0,m,k)
+    for (i in 1:n) {
+      for (j in 1:m)
+        P[j,] <- F[j,]*L[i,]/sum(F[j,]*L[i,])
+      L[i,] <- X[i,] %*% P + alpha.loadings[i,] - 1
+    }
+    if (any(L < 0))
+      cat("*")
+    L <- pmax(L,minval)
+    L <- normalize.rows(L)
+    
+    # Apply the EM update for F.
+    P <- matrix(0,n,k)
+    for (j in 1:m) {
+      for (i in 1:n)
+        P[i,] <- F[j,]*L[i,]/sum(F[j,]*L[i,])
+      F[j,] <- X[,j] %*% P + alpha.factors[j,] - 1
+    }
+    if (any(F < 0))
+      cat("*")
+    F <- pmax(F,minval)
+    F <- normalize.cols(F)
     fit <- list(F = F,L = L,s = s)
     class(fit) <- c("multinom_topic_model_fit","list")
-    logposterior[i] <-
+    logposterior[iter] <-
       sum(logposterior_multinom_topic_model(X,fit,alpha.factors,
                                             alpha.loadings,eps))
   }

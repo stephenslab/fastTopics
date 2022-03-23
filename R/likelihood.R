@@ -231,4 +231,4 @@ loglik_size_factors <- function (X, F, L)
 # two matrices of the same dimension. The return value is a vector
 # with one entry for each column of x (or alpha).
 lddirichlet <- function (x, alpha, e = 1e-8)
-  colSums(log((alpha + e) - 1) * x)
+  colSums(((alpha + e) - 1) * log(x))
