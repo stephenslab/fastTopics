@@ -2,6 +2,7 @@
 % Please edit documentation in R/fit_topic_model.R
 \name{fit_topic_model}
 \alias{fit_topic_model}
+\alias{fit_topic_model_map}
 \title{Simple Interface for Fitting a Multinomial Topic Model}
 \usage{
 fit_topic_model(
@@ -16,6 +17,16 @@ fit_topic_model(
   control.main = list(numiter = 4),
   control.refine = list(numiter = 4, extrapolate = TRUE),
   verbose = c("progressbar", "detailed", "none")
+)
+
+fit_topic_model_map(
+  X,
+  fit0,
+  alpha.factors,
+  alpha.loadings,
+  numiter = 100,
+  eps = 1e-08,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -60,6 +71,16 @@ refinement step. This is passed as argument "control" to
 = "detailed"}, information about the progress of the model fitting
 is printed to the console. See \code{\link{fit_poisson_nmf}} for
 more information.}
+
+\item{fit0}{Describe input argument "fit0" here.}
+
+\item{alpha.factors}{Describe input argument "alpha.factors" here.}
+
+\item{alpha.loadings}{Describe input argument "alpha.loadings" here.}
+
+\item{numiter}{Describe input argument "numiter" here.}
+
+\item{eps}{Describe input argument "eps" here.}
 }
 \value{
 A multinomial topic model fit; see

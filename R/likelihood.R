@@ -72,6 +72,27 @@ loglik_multinom_topic_model <- function (X, fit, e = 1e-8)
   loglik_helper(X,fit,"loglik.multinom",e)
 
 #' @rdname likelihood
+#'
+#' @param alpha.factors Describe input argument "alpha.factors" here.
+#'
+#' @param alpha.loadings Describe input argumnt "alpha.loadings" here.
+#'
+#' @importFrom MCMCpack ddirichlet
+#' 
+#' @export
+#' 
+logposterior_multinom_topic_model <- function (X, fit, alpha.factors,
+                                               alpha.loadings, e = 1e-8) {
+  if (missing(alpha.factors))
+    alpha.factors <- matrix(1,m,k)
+  if (missing(alpha.loadings))
+    alpha.loadings <- matrix(1,n,k)
+  return(loglik_multinom_topic_model(X,fit,e) +
+         sum(lddirichlet(fit$F,alpha.factors,e)) +
+         sum(lddirichlet(t(fit$L),t(alpha.loadings),e)))
+}
+
+#' @rdname likelihood
 #' 
 #' @export
 #' 
@@ -130,7 +151,7 @@ loglik_helper <- function (X, fit,
   if (!(inherits(fit,"poisson_nmf_fit") |
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input argument \"fit\" should be an object of class ",
-         "\"multinom_topic_model_fit\" or \"multinom_topic_model_fit\"")
+         "\"poisson_nmf_fit\" or \"multinom_topic_model_fit\"")
   if (output.type == "loglik.multinom") {
     if (inherits(fit,"poisson_nmf_fit"))
       fit <- poisson2multinom(fit)
@@ -203,3 +224,11 @@ poisson_nmf_kkt <- function (X, F, L, e = 1e-8) {
 #' @importFrom stats dpois
 loglik_size_factors <- function (X, F, L)
   suppressWarnings(dpois(rowSums(X),get_multinom_from_pnmf(F,L)$s,log = TRUE))
+
+# For each column x[,i], compute the log-density of the Dirichlet
+# distribution at x[,i] with shape parameter alpha[,i], omitting terms
+# that do not depend on the random variable x. The inputs should be
+# two matrices of the same dimension. The return value is a vector
+# with one entry for each column of x (or alpha).
+lddirichlet <- function (x, alpha, e = 1e-8)
+  colSums(log((alpha + e) - 1) * x)

@@ -3,6 +3,7 @@
 \name{loglik_poisson_nmf}
 \alias{loglik_poisson_nmf}
 \alias{loglik_multinom_topic_model}
+\alias{logposterior_multinom_topic_model}
 \alias{deviance_poisson_nmf}
 \alias{cost}
 \title{NMF and Topic Model Likelihoods and Deviances}
@@ -10,6 +11,14 @@
 loglik_poisson_nmf(X, fit, e = 1e-08)
 
 loglik_multinom_topic_model(X, fit, e = 1e-08)
+
+logposterior_multinom_topic_model(
+  X,
+  fit,
+  alpha.factors,
+  alpha.loadings,
+  e = 1e-08
+)
 
 deviance_poisson_nmf(X, fit, e = 1e-08)
 
@@ -28,6 +37,10 @@ output from \code{\link{fit_poisson_nmf}} or
 logarithms to avoid computing logarithms of zero. This prevents
 numerical problems at the cost of introducing a very small
 inaccuracy in the computation.}
+
+\item{alpha.factors}{Describe input argument "alpha.factors" here.}
+
+\item{alpha.loadings}{Describe input argumnt "alpha.loadings" here.}
 
 \item{A}{The n x k matrix of loadings. It should be a dense matrix.}
 

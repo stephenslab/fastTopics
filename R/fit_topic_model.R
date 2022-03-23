@@ -1,3 +1,5 @@
+#' @rdname fit_topic_model
+#' 
 #' @title Simple Interface for Fitting a Multinomial Topic Model
 #'
 #' @description Fits a multinomial topic model to the count data,
@@ -144,4 +146,65 @@ fit_topic_model <-
   
   # Output the multinomial topic model fit.
   return(poisson2multinom(fit))
+}
+
+#' @rdname fit_topic_model
+#'
+#' @param fit0 Describe input argument "fit0" here.
+#'
+#' @param alpha.factors Describe input argument "alpha.factors" here.
+#'
+#' @param alpha.loadings Describe input argument "alpha.loadings" here.
+#' 
+#' @param numiter Describe input argument "numiter" here.
+#'
+#' @param eps Describe input argument "eps" here.
+#' 
+#' @export
+#' 
+fit_topic_model_map <- function (X, fit0, alpha.factors, alpha.loadings,
+                                 numiter = 100, eps = 1e-8, verbose = TRUE) {
+
+  # Verify and process inputs "X" and "fit0". 
+  if (!(inherits(fit0,"poisson_nmf_fit") |
+        inherits(fit0,"multinom_topic_model_fit")))
+    stop("Input argument \"fit0\" should be an object of class ",
+         "\"poisson_nmf_fit\" or \"multinom_topic_model_fit\"")
+  if (inherits(fit0,"poisson_nmf_fit"))
+    fit0 <- poisson2multinom(fit0)
+  verify.fit.and.count.matrix(X,fit0)
+  
+  # Get the initial estimates of the word frequencies (F) and topic
+  # proportions (L). Make sure F and L satisfy the multinomial topic
+  # model parameter constraints.
+  F <- normalize.cols(fit0$F)
+  L <- normalize.rows(fit0$L)
+  s <- fit0$s
+  n <- nrow(L)
+  m <- nrow(F)
+  k <- ncol(F)
+
+  # Set default values for the Dirichlet priors on F and L if not
+  # provided.
+  if (missing(alpha.factors))
+    alpha.factors <- matrix(1,m,k)
+  if (missing(alpha.loadings))
+    alpha.loadings <- matrix(1,n,k)
+
+  # Iterate the updates of the factors (i.e., word frequencies) and
+  # loadings (i.e., topic proportions), and assess the improvement in
+  # the estimates over time by computing the posterior up to a
+  # constant of proportionality.
+  logposterior <- rep(0,numiter)
+  for (i in 1:numiter) {
+    fit <- list(F = F,L = L,s = s)
+    class(fit) <- c("multinom_topic_model_fit","list")
+    logposterior[i] <-
+      sum(logposterior_multinom_topic_model(X,fit,alpha.factors,
+                                            alpha.loadings,eps))
+  }
+  
+  # Output the updated multinomial topic model fit (F, L) and the
+  # improvement in the log-posterior over time (logposterior).
+  return(list(F = F,L = L,logposterior = logposterior))
 }
