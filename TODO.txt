@@ -1,6 +1,9 @@
 to do
 =====
 
++ Implement function to fit LDA model by initializing with MLEs for
+  Poisson NMF or multinomial topic model.
+
 + Fix labeling of topics in structure plots so that the topic names
   are shown, rather than the topic numbers.
 
