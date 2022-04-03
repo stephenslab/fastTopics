@@ -7,8 +7,6 @@ to do
 + Fix labeling of topics in structure plots so that the topic names
   are shown, rather than the topic numbers.
 
-+ Output posterior median as well as posterior mean in de_analysis.
-
 + Add note of warning to de_analysis docs about "lower" and "upper"
   not updated to reflect adaptive shrinkage step.
 
