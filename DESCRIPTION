@@ -54,8 +54,6 @@ Imports:
 Suggests:
     NNLM,
     Ternary,
-    tm,
-    topicmodels,
     testthat,
     knitr,
     rmarkdown
