@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_lda.R
 \name{fit_lda}
 \alias{fit_lda}
-\title{Add Title Here.}
+\title{Fit LDA Model Initialized with Maximum-LikeLihood Estimates}
 \usage{
 fit_lda(
   X,
@@ -16,28 +16,51 @@ fit_lda(
 )
 }
 \arguments{
-\item{X}{Describe input argument "X" here.}
+\item{fit0}{An object of class \dQuote{poisson_nmf_fit} or
+\dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
+as input, the corresponding multinomial topic model fit is
+automatically recovered using \code{\link{poisson2multinom}}.}
 
-\item{fit0}{Describe input argument "fit0" here.}
+\item{estimate.alpha}{Indicates if the parameter \dQuote{alpha} is
+fixed or estimated; see \code{help("TopicModelcontrol-class")} for
+details.}
 
-\item{estimate.alpha}{Describe input argument "estimate.alpha" here.}
+\item{iter.max}{The maximum number of variational EM iteration to
+perform; see \code{help("TopicModelcontrol-class")} for
+details.}
 
-\item{iter.max}{Describe input argument "numiter" here.}
+\item{minval}{All model parameters in \code{fit0} smaller than
+\code{minval} are set to \code{minval} before initializing the LDA
+fit.}
 
-\item{minval}{Describe input argument "minval" here.}
+\item{control}{Control parameters passed to
+\code{\link[topicmodels]{LDA}}.}
 
-\item{control}{Describe input argument "control" here.}
+\item{\dots}{Additional arguments passed to
+\code{\link[topicmodels]{LDA}}.}
 
-\item{\dots}{Describe input arguments "..." here.}
+\item{The}{n x m counts matrix. It can be a sparse matrix (class
+\code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).}
 }
 \description{
-Add description here.
+Fit a Latent Dirichlet Allocation (LDA) model using
+  \code{\link{LDA}} from the \code{topicmodels} package, in which the
+  model parameters are initialized from maximum-likelihood estimates
+  of a Poisson NMF or multinomial topic model.
 }
 \examples{
 library(Matrix)
+library(modeltools)
 set.seed(1)
 X <- simulate_count_data(80,100,k = 4,sparse = TRUE)$X
 fit <- fit_topic_model(X,k = 4)
 lda <- fit_lda(X,fit)
+
+# Dirichlet prior for topic proportions.
+lda@alpha
+
+# Compare LDA and maximum-likelihood estimates.
+plot(fit$F,t(posterior(lda)$terms),pch = 20)
+plot(fit$L,posterior(lda)$topics,pch = 20)
 
 }

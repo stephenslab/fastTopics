@@ -26,7 +26,7 @@
 #'
 #' @param scale. A logical value indicating whether columns of
 #'   \code{fit$L} should be scaled to have unit variance prior to
-#'   performing PCA; passed as argument \dQuote{scale.} to
+#'   performing PCA; passed as argument \dQuote{scale} to
 #'   \code{\link[stats]{prcomp}}.
 #' 
 #' @param \dots Additional arguments passed to
