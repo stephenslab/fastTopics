@@ -85,7 +85,10 @@ fit_lda <- function (X, fit0, estimate.alpha = TRUE, iter.max = 20,
   control0$estimate.alpha <- FALSE
   control0$verbose <- 0
   if (control$verbose > 0)
-    cat("Initializing LDA model.\n")
+      cat("Initializing LDA model.\n")
+  #
+  # TO DO: Use method = "Gibbs" instead.
+  # 
   lda0       <- topicmodels::LDA(X,k,control = control0,...)
   lda0@beta  <- t(log(fit0$F))
   lda0@gamma <- fit0$L
