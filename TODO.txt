@@ -1,11 +1,8 @@
 to do
 =====
 
-+ 
-
-+ Implement function to fit LDA model (with Gibbs or variational EM)
-  by initializing with MLEs for Poisson NMF or multinomial topic
-  model.
++ Implement function to fit LDA model by initializing with Poisson NMF
+  or multinomial topic model MLE.
 
 + Fix labeling of topics in structure plots so that the topic names
   are shown, rather than the topic numbers.
