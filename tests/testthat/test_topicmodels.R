@@ -1,6 +1,6 @@
 context("topicmodels")
 
-test_that("R and C++ versions oftopicmodels::cost gives same result",{
+test_that("R and C++ versions of topicmodels::cost gives same result",{
   set.seed(1)
   n <- 8
   m <- 12
