@@ -173,7 +173,7 @@ deviance_poisson_const <- function (X) {
   if (is.matrix(X))
     return(2*rowSums(X*(log(X + e) - 1)))
   else
-    return(2*rowSums(apply.nonzeros(X,function (x) x*(log(x) - 1))))
+    return(2*rowSums(apply.nonzeros(X,function (x) x*(log(x + e) - 1))))
 }
 
 # Compute the residuals of the first-order Karush-Kuhn-Tucker (KKT)
