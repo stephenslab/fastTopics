@@ -202,4 +202,10 @@ poisson_nmf_kkt <- function (X, F, L, e = 1e-8) {
 #
 #' @importFrom stats dpois
 loglik_size_factors <- function (X, F, L)
-  suppressWarnings(dpois(rowSums(X),get_multinom_from_pnmf(F,L)$s,log = TRUE))
+  ldpois(rowSums(X),get_multinom_from_pnmf(F,L)$s)
+
+# Compute the log-density for the Poisson distribution with rate
+# lambda at x. Inputs x and lambda may be vectors, and x need not be
+# integer-valued.
+ldpois <- function (x, lambda)
+  x*log(lambda) - lambda - lfactorial(x)

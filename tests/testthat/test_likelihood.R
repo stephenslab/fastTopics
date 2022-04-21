@@ -168,3 +168,23 @@ test_that(paste("loglik_poisson_nmf and loglik_multinom_topic_model plus",
           dpois(rowSums(X),fit2$s,log = TRUE)
   expect_equal(f1,f2,scale = 1,tolerance = 1e-14)
 })
+
+test_that("ldpois works for non-integer x",{
+  set.seed(1)
+  n <- 100
+  lambda <- abs(4*rnorm(n))
+  x <- rpois(n,lambda)
+  y1 <- ldpois(x,lambda)
+  y2 <- ldpois(x + 0.001,lambda)
+  expect_equal(y1,y2,scale = 1,tolerance = 0.01)
+})
+
+test_that("ldpois gives same result as dpois for integer x",{
+  set.seed(1)
+  n <- 100
+  lambda <- abs(4*rnorm(n))
+  x <- rpois(n,lambda)
+  y1 <- dpois(x,lambda,log = TRUE)
+  y2 <- ldpois(x,lambda)
+  expect_equal(y1,y2,scale = 1,tolerance = 1e-15)
+})

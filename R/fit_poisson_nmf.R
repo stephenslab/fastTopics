@@ -427,7 +427,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-111).\n")
+    cat("(fastTopics 0.6-112).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -520,6 +520,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
     progress[i,"loglik"]      <- loglik.const - fit$loss
     progress[i,"loglik.multinom"] <-
       loglik.const - fit$loss - sum(loglik_size_factors(X,fit$F,fit$L))
+    # loglik.multinom <- loglik_multinom_const(X) -
+    #   cost(X,fit$L,t(fit$F),1e-8,"multinom")
     progress[i,"dev"]         <- dev.const + 2*fit$loss
     progress[i,"res"]         <- with(poisson_nmf_kkt(X,fit$F,fit$L),
                                       max(abs(rbind(F[update.factors,],
