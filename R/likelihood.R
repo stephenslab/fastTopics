@@ -131,10 +131,7 @@ loglik_helper <- function (X, fit,
         inherits(fit,"multinom_topic_model_fit")))
     stop("Input argument \"fit\" should be an object of class ",
          "\"multinom_topic_model_fit\" or \"multinom_topic_model_fit\"")
-  if (output.type == "loglik.multinom") {
-    if (inherits(fit,"poisson_nmf_fit"))
-      fit <- poisson2multinom(fit)
-  } else if (inherits(fit,"multinom_topic_model_fit"))
+  if (inherits(fit,"multinom_topic_model_fit"))
     fit <- multinom2poisson(fit)
   verify.fit.and.count.matrix(X,fit)
   if (is.matrix(X) & is.integer(X))
@@ -143,11 +140,11 @@ loglik_helper <- function (X, fit,
   L <- fit$L
 
   # Compute the log-likelihood or deviance.
-  if (output.type == "loglik.poisson")
+  if (output.type == "loglik.poisson" | output.type == "loglik.multinom") {
     f <- loglik_poisson_const(X) - cost(X,L,t(F),e,"poisson")
-  else if (output.type == "loglik.multinom")
-    f <- loglik_multinom_const(X) - cost(X,L,t(F),e,"multinom")
-  else if (output.type == "deviance.poisson")
+    if (output.type == "loglik.multinom")
+      f <- f - loglik_size_factors(X,fit$F,fit$L)
+  } else if (output.type == "deviance.poisson")
     f <- deviance_poisson_const(X) + 2*cost(X,L,t(F),e,"poisson")
   return(f)
 }
