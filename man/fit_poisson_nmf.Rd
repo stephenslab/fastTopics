@@ -339,7 +339,7 @@ X <- simulate_count_data(80,100,k = 3,sparse = TRUE)$X
 X <- X[,colSums(X > 0) > 0]
 
 # Run 10 EM updates to find a good initialization.
-fit0 <- fit_poisson_nmf(X,k = 3,numiter = 10)
+fit0 <- fit_poisson_nmf(X,k = 3,numiter = 10,method = "em")
 
 # Fit the Poisson NMF model by running 50 EM updates.
 fit_em <- fit_poisson_nmf(X,fit0 = fit0,numiter = 50,method = "em")
