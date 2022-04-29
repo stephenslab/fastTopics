@@ -213,7 +213,7 @@ structure_plot <-
   
   # Prepare the data for plotting and create the structure plot.
   fit$L <- fit$L[loadings_order,]
-  grouping <- grouping[loadings_order,drop = FALSE]
+  grouping <- grouping[loadings_order,drop = TRUE]
   if (nlevels(grouping) == 1) {
     dat <- compile_structure_plot_data(fit$L,topics)
     return(ggplot_call(dat,colors))
@@ -345,7 +345,7 @@ compile_grouped_structure_plot_data <- function (L, topics, grouping,
   m <- 0
   for (j in levels(grouping)) {
     i          <- which(grouping == j)
-    out        <- compile_structure_plot_data(L[i,],topics)
+    out        <- compile_structure_plot_data(L[i,,drop = FALSE],topics)
     out$sample <- out$sample + m
     n          <- length(i)
     dat        <- rbind(dat,out)
