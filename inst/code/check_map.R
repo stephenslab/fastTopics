@@ -30,7 +30,8 @@ for (i in 1:N) {
   # Compute the multinomial topic model likelihood with "pseudodata".
   Y      <- rbind(X,t(a - 1))
   fit2   <- fit
-  fit2$L <- rbind(fit$L,diag(b/(colSums(a - 1))))
+  u      <- colSums(a - 1)/b
+  fit2$L <- rbind(fit$L,diag(1/u))
   f1[i]  <- sum(loglik_multinom_topic_model(Y,poisson2multinom(fit2),e = 0))
 
   # Compute the penalized Poisson NMF likelihood with a gamma prior.
