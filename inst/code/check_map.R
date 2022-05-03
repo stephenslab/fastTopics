@@ -31,7 +31,9 @@ for (i in 1:N) {
   Y      <- rbind(X,t(a - 1))
   fit2   <- fit
   u      <- colSums(a - 1)/b
-  fit2$L <- rbind(fit$L,diag(1/u))
+  fit2$L <- rbind(fit$L,diag(k))
+  fit2$F <- scale.cols(fit2$F,u)
+  fit2$L <- scale.cols(fit2$L,1/u)
   f1[i]  <- sum(loglik_multinom_topic_model(Y,poisson2multinom(fit2),e = 0))
 
   # Compute the penalized Poisson NMF likelihood with a gamma prior.
