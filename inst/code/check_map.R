@@ -32,12 +32,10 @@ for (i in 1:N) {
 
   # Compute Poisson NMF likelihood with "pseudodata" (here we have to
   # remove the "size factor" likelihoods).
-  f2[i]  <- sum(loglik_poisson_nmf(Y,fit2,e = 0)) # -
-            # sum(loglik_size_factors(Y,fit2$F,fit2$L))
+  f2[i]  <- sum(loglik_poisson_nmf(Y,fit2,e = 0))
 
   # Compute the Poisson NMF likelihood + gamma prior.
-  f3[i]  <- sum(loglik_poisson_nmf(X,fit,e = 0)) # -
-            # sum(loglik_size_factors(X,fit$F,fit$L))
+  f3[i]  <- sum(loglik_poisson_nmf(X,fit,e = 0))
   for (j in 1:k)
     f3[i] <- f3[i] + sum(dgamma(fit$F[,j],A[,j],b[j],log = TRUE))
   
@@ -47,5 +45,4 @@ for (i in 1:N) {
 }
 
 plot(f0,f1,pch = 20)
-plot(f0,f2,pch = 20)
 plot(f2,f3,pch = 20)
