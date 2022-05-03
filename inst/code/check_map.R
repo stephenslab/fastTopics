@@ -27,17 +27,17 @@ for (i in 1:N) {
   # Compute multinomial topic model likelihood with "pseudodata".
   Y      <- rbind(X,t(A - 1))
   fit2   <- fit
-  fit2$L <- rbind(fit$L,diag(abs(rnorm(k))))
+  fit2$L <- rbind(fit$L,diag(b/(colSums(A - 1))))
   f1[i]  <- sum(loglik_multinom_topic_model(Y,poisson2multinom(fit2),e = 0))
 
   # Compute Poisson NMF likelihood with "pseudodata" (here we have to
   # remove the "size factor" likelihoods).
-  f2[i]  <- sum(loglik_poisson_nmf(Y,fit2,e = 0)) -
-            sum(loglik_size_factors(Y,fit2$F,fit2$L))
+  f2[i]  <- sum(loglik_poisson_nmf(Y,fit2,e = 0)) # -
+            # sum(loglik_size_factors(Y,fit2$F,fit2$L))
 
   # Compute the Poisson NMF likelihood + gamma prior.
-  f3[i]  <- sum(loglik_poisson_nmf(X,fit,e = 0)) -
-            sum(loglik_size_factors(X,fit$F,fit$L))
+  f3[i]  <- sum(loglik_poisson_nmf(X,fit,e = 0)) # -
+            # sum(loglik_size_factors(X,fit$F,fit$L))
   for (j in 1:k)
     f3[i] <- f3[i] + sum(dgamma(fit$F[,j],A[,j],b[j],log = TRUE))
   
