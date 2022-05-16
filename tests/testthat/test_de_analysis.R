@@ -106,8 +106,8 @@ test_that(paste("de_analysis with and without multithreading, using a",
                 "\"none\", produces the same result"),{
 
   # Skip this test on CRAN because it takes too long.
-  skip_on_cran() 
-                    
+  skip_if(on_cran) 
+
   # Simulate gene expression data.
   set.seed(1)
   n   <- 800
@@ -152,7 +152,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
                 "\"ash\", produces the same result"),{
                     
   # Skip this test on CRAN because it takes too long.
-  skip_on_cran() 
+  skip_if(on_cran) 
 
   # Simulate gene expression data.
   set.seed(1)
@@ -206,8 +206,8 @@ test_that(paste("de_analysis with s = rowSums(X) closely recovers true",
                 "provided with the true topic proportions"),{
                     
   # Skip this test on CRAN because it takes too long.
-  skip_on_cran()
-  
+  skip_if(on_cran)
+
   # Simulate gene expression data.
   set.seed(1)
   n   <- 800
@@ -244,6 +244,9 @@ test_that(paste("de_analysis with s = rowSums(X) closely recovers true",
 test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
                 "for k = 2 topics, with shrink.method = \"none\""),{
 
+  # Skip this test on CRAN because it takes too long.
+  skip_if(on_cran)
+  
   # Simulate gene expression data.
   set.seed(1)
   n   <- 100
@@ -297,7 +300,7 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
                 "for k = 2 topics, with shrink.method = \"ash\""),{
 
   # Skip this test on CRAN because it takes too long.
-  skip_on_cran()
+  skip_if(on_cran)
   
   # Simulate gene expression data.
   set.seed(1)
@@ -351,7 +354,7 @@ test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
 test_that("no output from de_analysis when verbose = FALSE",{
 
   # Skip this test on CRAN because it takes too long.
-  skip_on_cran()
+  skip_if(on_cran)
   
   set.seed(1)
   X <- simulate_multinom_gene_data(n = 50,m = 100,k = 3,sparse = FALSE)$X

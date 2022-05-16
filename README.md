@@ -66,6 +66,11 @@ example("fit_poisson_nmf")
 
 See the [package documentation][pkgdown] for more information.
 
+## Developer notes
+
+To prepare the package for CRAN, remove the "Remotes" field in the
+DESCRIPTION file, and set `on_cran <- TRUE` in `helper_functions.R`.
+
 ## Credits
 
 The fastTopics R package was developed by [Peter Carbonetto][peter],
