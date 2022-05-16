@@ -1,7 +1,6 @@
 # fastTopics
 
  [![R-CMD-check](https://github.com/stephenslab/fastTopics/workflows/R-CMD-check/badge.svg)](https://github.com/stephenslab/fastTopics/actions)
-[![Travis Build Status](https://travis-ci.com/stephenslab/fastTopics.svg?branch=master)](https://travis-ci.com/stephenslab/fastTopics)
 [![CircleCI build status](https://circleci.com/gh/stephenslab/fastTopics.svg?style=svg)](https://circleci.com/gh/stephenslab/fastTopics)
 [![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/fastTopics)
 

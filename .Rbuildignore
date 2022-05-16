@@ -6,3 +6,6 @@
 ^\.circleci$
 ^\.circleci/config\.yml$
 ^\.github$
+^vignettes/single\_cell\_rnaseq_basic\.Rmd$
+^vignettes/single\_cell\_rnaseq\_practical\.Rmd$
+^inst/code/DA\_regions\_topics\_noshrinkage\_10000iters\.rds$
