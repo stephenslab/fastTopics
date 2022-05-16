@@ -280,10 +280,10 @@ algorithm settings (as they are defined by
   "ccd"}.}
 
 \item{\code{nc}}{Number of RcppParallel threads to use for the
-  updates. When \code{nc} is \code{NA}, the default number of threads
-  is used; see \code{\link[RcppParallel]{defaultNumThreads}}. This
-  setting is ignored for the multiplicative upates (\code{method =
-  "mu"}).}
+  updates. When \code{nc} is \code{NA}, the number of threads is
+  determined by calling
+  \code{\link[RcppParallel]{defaultNumThreads}}. This setting is
+  ignored for the multiplicative upates (\code{method = "mu"}).}
 
 \item{\code{minval}}{A small, positive constant used to safeguard
   the multiplicative updates. The safeguarded updates are implemented

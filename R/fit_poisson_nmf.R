@@ -80,10 +80,10 @@
 #'   "ccd"}.}
 #'
 #' \item{\code{nc}}{Number of RcppParallel threads to use for the
-#'   updates. When \code{nc} is \code{NA}, the default number of threads
-#'   is used; see \code{\link[RcppParallel]{defaultNumThreads}}. This
-#'   setting is ignored for the multiplicative upates (\code{method =
-#'   "mu"}).}
+#'   updates. When \code{nc} is \code{NA}, the number of threads is
+#'   determined by calling
+#'   \code{\link[RcppParallel]{defaultNumThreads}}. This setting is
+#'   ignored for the multiplicative upates (\code{method = "mu"}).}
 #'
 #' \item{\code{minval}}{A small, positive constant used to safeguard
 #'   the multiplicative updates. The safeguarded updates are implemented
@@ -427,7 +427,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-119).\n")
+    cat("(fastTopics 0.6-120).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -757,7 +757,7 @@ fit_poisson_nmf_control_default <- function()
        minval            = 1e-10,
        eps               = 1e-8,
        zero.threshold    = 1e-6,
-       nc                = as.integer(NA),
+       nc                = 1,
        extrapolate       = FALSE,
        extrapolate.reset = 20,
        beta.increase     = 1.1,
