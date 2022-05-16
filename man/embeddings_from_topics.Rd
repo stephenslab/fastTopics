@@ -148,7 +148,7 @@ quickplot(Y2[,1],Y2[,2],color = subpop) + theme_cowplot()
 \references{
 Kobak, D. and Berens, P. (2019). The art of using t-SNE for
 single-cell transcriptomics. \emph{Nature Communications} \bold{10},
-5416. \url{https://doi.org/10.1038/s41467-019-13056-x}
+5416. \doi{10.1038/s41467-019-13056-x}
 }
 \seealso{
 \code{\link{pca_plot}}, \code{\link{tsne_plot}},

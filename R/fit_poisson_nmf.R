@@ -49,7 +49,7 @@
 #' initialized \dQuote{sufficiently close} to a stationary point. The
 #' CCD implementation is adapted from the C++ code developed by
 #' Cho-Jui Hsieh and Inderjit Dhillon, which is available for download
-#' at \url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
+#' at \url{https://www.cs.utexas.edu/~cjhsieh/nmf/}. The SCD
 #' implementation is based on version 0.4-3 of the NNLM package.
 #'
 #' An additional re-scaling step is performed after each update to
@@ -289,7 +289,7 @@
 #'   \bold{21}, 7.
 #'
 #'   Ke, Z. & Wang, M. (2017). A new SVD approach to optimal topic
-#'   estimation. \emph{arXiv} \url{http://arxiv.org/abs/1704.07016}
+#'   estimation. \emph{arXiv} \url{https://arxiv.org/abs/1704.07016}
 #'
 #' @seealso \code{\link{fit_topic_model}}, \code{\link{plot_progress}}
 #' 
@@ -427,7 +427,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "CCD"
     cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
         method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-120).\n")
+    cat("(fastTopics 0.6-121).\n")
   }
   
   # INITIALIZE ESTIMATES

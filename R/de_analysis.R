@@ -179,7 +179,7 @@
 #' @references
 #' Stephens, M. (2016). False discovery rates: a new deal.
 #' \emph{Biostatistics} \bold{18}(2), kxw041.
-#' \url{https://doi.org/10.1093/biostatistics/kxw041}
+#' \doi{10.1093/biostatistics/kxw041}
 #'
 #' Zhu, A., Ibrahim, J. G. and Love, M. I. (2019). Heavy-tailed prior
 #' distributions for sequence count data: removing the noise and

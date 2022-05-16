@@ -197,4 +197,4 @@ fit (`poisson2multinom`).
 
 [lee-seung-2001]: http://papers.nips.cc/paper/1861-algorithms-for-non-negative-matrix-factorization
 
-[blei-2003]: http://jmlr.csail.mit.edu/papers/v3/blei03a.html
+[blei-2003]: https://jmlr.csail.mit.edu/papers/v3/blei03a.html

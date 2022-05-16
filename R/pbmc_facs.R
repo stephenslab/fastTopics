@@ -42,12 +42,12 @@
 #'     the vignette how the Poisson NMF model fitting was performed.}}
 #'
 #' @source
-#' \url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}
+#' \url{https://www.10xgenomics.com/resources/datasets}
 #' 
 #' @references
 #' G. X. Y. Zheng \emph{et al} (2017). Massively parallel digital
 #' transcriptional profiling of single cells. \emph{Nature Communications}
-#' \bold{8}, 14049. \url{https://doi.org/10.1038/ncomms14049}
+#' \bold{8}, 14049. \doi{10.1038/ncomms14049}
 #' 
 #' @keywords data
 #'

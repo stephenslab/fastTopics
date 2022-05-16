@@ -249,7 +249,7 @@ that the CCD and SCD updates arrive at the same solution when
 initialized \dQuote{sufficiently close} to a stationary point. The
 CCD implementation is adapted from the C++ code developed by
 Cho-Jui Hsieh and Inderjit Dhillon, which is available for download
-at \url{https://www.cs.utexas.edu/~cjhsieh/nmf}. The SCD
+at \url{https://www.cs.utexas.edu/~cjhsieh/nmf/}. The SCD
 implementation is based on version 0.4-3 of the NNLM package.
 
 An additional re-scaling step is performed after each update to
@@ -388,7 +388,7 @@ Ang, A. and Gillis, N. (2019). Accelerating nonnegative matrix
   \bold{21}, 7.
 
   Ke, Z. & Wang, M. (2017). A new SVD approach to optimal topic
-  estimation. \emph{arXiv} \url{http://arxiv.org/abs/1704.07016}
+  estimation. \emph{arXiv} \url{https://arxiv.org/abs/1704.07016}
 }
 \seealso{
 \code{\link{fit_topic_model}}, \code{\link{plot_progress}}

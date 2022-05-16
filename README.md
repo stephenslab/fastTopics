@@ -1,8 +1,8 @@
 # fastTopics
 
  [![R-CMD-check](https://github.com/stephenslab/fastTopics/workflows/R-CMD-check/badge.svg)](https://github.com/stephenslab/fastTopics/actions)
-[![CircleCI build status](https://circleci.com/gh/stephenslab/fastTopics.svg?style=svg)](https://circleci.com/gh/stephenslab/fastTopics)
-[![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/fastTopics)
+[![CircleCI build status](https://circleci.com/gh/stephenslab/fastTopics.svg?style=svg)](https://app.circleci.com/pipelines/github/stephenslab/fastTopics)
+[![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://app.codecov.io/gh/stephenslab/fastTopics)
 
 fastTopics is an R package implementing fast, scalable optimization
 algorithms for fitting topic models ("grade of membership" models) and
@@ -82,7 +82,7 @@ Kevin Luo, Kushal Dey, Joyce Hsiao and
 [cran]: https://cran.r-project.org
 [countclust]: https://github.com/kkdey/CountClust
 [countclust-paper]: https://doi.org/10.1371/journal.pgen.1006599
-[pkgdown]: https://stephenslab.github.io/fastTopics
+[pkgdown]: https://stephenslab.github.io/fastTopics/
 [vignette-close-relationship]: https://stephenslab.github.io/fastTopics/articles/relationship.html
 [vignette-scrnaseq-1]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
 [vignette-scrnaseq-2]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html
