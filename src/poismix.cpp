@@ -157,7 +157,7 @@ arma::vec ccd_kl_update_rcpp (const arma::mat& L, const arma::vec& w,
 			      const arma::vec& x0, unsigned int numiter, 
 			      double e) {
   vec x = x0;
-  for (int iter = 0; iter < numiter; iter++)
+  for (unsigned int iter = 0; iter < numiter; iter++)
     x = ccd_kl_update(L,w,x,e);
   return x;
 }
@@ -170,7 +170,7 @@ arma::vec ccd_kl_update2_rcpp (const arma::mat& L, const arma::vec& u,
 			       const arma::vec& w, const arma::vec& x0,
 			       unsigned int numiter, double e) {
   vec x = x0;
-  for (int iter = 0; iter < numiter; iter++) 
+  for (unsigned int iter = 0; iter < numiter; iter++) 
     x = ccd_kl_update(L,u,w,x,e);
   return x;
 }
