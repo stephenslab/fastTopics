@@ -70,9 +70,11 @@ A list with the following elements:
 
 \item{postmean}{Posterior mean LFC estimates.}
 
-\item{lower}{Lower limits of estimated HPD intervals.}
+\item{lower}{Lower limits of estimated HPD intervals. Note that
+  these are not updated by the shrinkage step.}
 
-\item{upper}{Upper limits of estimated HPD intervals.}
+\item{upper}{Upper limits of estimated HPD intervals. Note that
+  these are not updated by the shrinkage step.}
 
 \item{z}{z-scores for posterior mean LFC estimates.}
 

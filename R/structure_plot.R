@@ -157,13 +157,16 @@ structure_plot <-
   k  <- ncol(fit$L)
   
   # Check and process input argument "topics".
+  if (is.null(colnames(fit$L)))
+    colnames(fit$L) <- paste0("k",1:k)
   if (missing(topics))
     topics <- order(colMeans(fit$L))
-  if (is.character(topics))
-    topics <- match(topics,colnames(fit$L))
-  if (!all(is.element(topics,1:k)))
-    stop("Input argument \"topics\" should be a subset of the topics ",
-         "(columns of fit$L) specified by their names or column indices")
+  if (!is.character(topics))
+    topics <- colnames(fit$L[,topics,drop = FALSE])
+  if (!(length(topics) > 1 & all(is.element(topics,colnames(fit$L)))))
+    stop("Input argument \"topics\" should be a subset of at least two ",
+         "topics (columns of fit$L) specified by their names or column ",
+         "indices")
 
   # Check and process input argument "grouping".
   if (missing(grouping))
@@ -177,6 +180,7 @@ structure_plot <-
   # Check and process input argument "colors".
   if (length(colors) < k)
     stop("There must be at least as many colours as topics")
+  names(colors) <- colnames(fit$L)
   colors <- colors[topics]
 
   # Check and process input arguments "loadings_order" and "n".
