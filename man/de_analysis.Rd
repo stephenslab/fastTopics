@@ -202,6 +202,7 @@ algorithm settings (as they are defined by
 # Perform a differential expression (DE) analysis using the previously
 # fitted multinomial topic model. Note that the de_analysis call could
 # take several minutes to complete.
+\dontrun{
 set.seed(1)
 data(pbmc_facs)
 de <- de_analysis(pbmc_facs$fit,pbmc_facs$counts)
@@ -227,6 +228,7 @@ tail(dat,n = 10)
 
 # Create a volcano plot from the DE results for topic 4.
 volcano_plot(de,k = k,ymax = 50,labels = pbmc_facs$genes$symbol)
+}
 
 }
 \references{

@@ -190,6 +190,7 @@
 #' # Perform a differential expression (DE) analysis using the previously
 #' # fitted multinomial topic model. Note that the de_analysis call could
 #' # take several minutes to complete.
+#' \dontrun{
 #' set.seed(1)
 #' data(pbmc_facs)
 #' de <- de_analysis(pbmc_facs$fit,pbmc_facs$counts)
@@ -215,7 +216,8 @@
 #'
 #' # Create a volcano plot from the DE results for topic 4.
 #' volcano_plot(de,k = k,ymax = 50,labels = pbmc_facs$genes$symbol)
-#'
+#' }
+#' 
 #' @importFrom utils modifyList
 #' @importFrom Matrix rowSums
 #' @importFrom Matrix colSums

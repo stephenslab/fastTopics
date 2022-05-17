@@ -184,6 +184,7 @@ p6 <- pca_plot(fit2,fill = subpop)
 p7 <- pca_hexbin_plot(fit1)
 p8 <- pca_hexbin_plot(fit2)
 
+\dontrun{
 # Plot the loadings using t-SNE.
 p1 <- tsne_plot(fit1,k = 1)
 p2 <- tsne_plot(fit2)
@@ -193,6 +194,7 @@ p3 <- tsne_plot(fit2,fill = subpop)
 p1 <- umap_plot(fit1,k = 1)
 p2 <- umap_plot(fit2)
 p3 <- umap_plot(fit2,fill = subpop)
+}
 
 }
 \seealso{
