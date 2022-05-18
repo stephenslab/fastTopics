@@ -71,6 +71,16 @@ See the [package documentation][pkgdown] for more information.
 To prepare the package for CRAN, remove the "Remotes" field in the
 DESCRIPTION file, and set `on_cran <- TRUE` in `helper_functions.R`.
 
+This is the command used to check the package before submitting to
+CRAN:
+
+```r
+library(rhub)
+check_for_cran(".",show_status = TRUE,
+  env_vars = c(`_R_CHECK_FORCE_SUGGESTS_` = "false",
+               `_R_CHECK_CRAN_INCOMING_USE_ASPELL_` = "true"))
+```
+
 ## Credits
 
 The fastTopics R package was developed by [Peter Carbonetto][peter],

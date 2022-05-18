@@ -28,6 +28,7 @@ Predict loadings based on previously fit Poisson NMF,
   a previously estimated set of factors \code{fit$F}.
 }
 \examples{
+\dontrun{
 # Simulate a 175 x 1,200 counts matrix.
 set.seed(1)
 dat <- simulate_count_data(175,1200,k = 3)
@@ -83,6 +84,7 @@ Ltest <- predict(fit,test)
 plot(dat$L[101:175,],Ltest,pch = 20,col = "darkblue",
      xlab = "true",ylab = "estimated")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+}
 
 }
 \seealso{

@@ -136,6 +136,7 @@ arrangement of the samples is, by default, generated automatically
 by performing a 1-d embedding of the samples.
 }
 \examples{
+\dontrun{
 set.seed(1)
 data(pbmc_facs)
 
@@ -166,18 +167,25 @@ topic_colors <- c("skyblue","forestgreen","darkmagenta",
 p3 <- structure_plot(fit,grouping = pbmc_facs$samples$subpop,gap = 20,
                      n = 1500,topics = c(5,6,1,4,2,3),colors = topic_colors)
 
-# In this example, we use UMAP instead of t-SNE to arrange all 3,744
-# cells in the Structure plot. Note that this can be accomplished in a
-# different way by overriding the default setting of "embed_method".
+# In this example, we use UMAP instead of t-SNE to arrange the
+# cells in the Structure plot. Note that this can be accomplished in
+# a different way by overriding the default setting of
+# "embed_method".
 y <- drop(umap_from_topics(fit,dims = 1))
 p4 <- structure_plot(fit,loadings_order = order(y),grouping = subpop,
+                     gap = 40,colors = topic_colors)
+
+# We can also use PCA to arrange the cells.
+y <- drop(pca_from_topics(fit,dims = 1))
+p5 <- structure_plot(fit,loadings_order = order(y),grouping = subpop,
                      gap = 40,colors = topic_colors)
 
 # In this final example, we plot a random subset of 400 cells, and
 # arrange the cells randomly along the horizontal axis of the
 # Structure plot.
-p5 <- structure_plot(fit,loadings_order = sample(3744,400),gap = 10,
+p6 <- structure_plot(fit,loadings_order = sample(3744,400),gap = 10,
                      grouping = subpop,colors = topic_colors)
+}
 
 }
 \references{

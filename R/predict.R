@@ -21,6 +21,7 @@
 #' @seealso \code{\link{fit_poisson_nmf}}
 #' 
 #' @examples
+#' \dontrun{
 #' # Simulate a 175 x 1,200 counts matrix.
 #' set.seed(1)
 #' dat <- simulate_count_data(175,1200,k = 3)
@@ -76,7 +77,8 @@
 #' plot(dat$L[101:175,],Ltest,pch = 20,col = "darkblue",
 #'      xlab = "true",ylab = "estimated")
 #' abline(a = 0,b = 1,col = "magenta",lty = "dotted")
-#'
+#' }
+#' 
 #' @importFrom stats predict
 #' 
 #' @method predict poisson_nmf_fit
