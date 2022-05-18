@@ -78,7 +78,10 @@ test_that(paste("multiplicative and EM updates produce same result, and",
                             control = list(numiter = 1,nc = 1)))
 
   # Run 20 EM updates again, this time using multithreaded computations.
-  nc <- 4
+  if (on_cran)
+    nc <- 1
+  else
+    nc <- 4
   capture.output(
     fit3 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "em",
                             control = list(numiter = 1,nc = nc)))
@@ -169,7 +172,10 @@ test_that(paste("ccd and scd updates produce the same result, and",
   
   # Run 20 sequential coordinate descent (SCD) updates using the
   # multithreaded computations.
-  nc <- 4
+  if (on_cran)
+    nc <- 1
+  else
+    nc <- 4
   capture.output(
     fit4 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,method = "scd",
                             control = list(numiter = 1,nc = nc)))
@@ -519,7 +525,11 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   j0 <- setdiff(1:m,j)
   
   # Run all variants of the EM algorithm.
-  fit0    <- init_poisson_nmf(X,F = out$F,L = out$L)
+  if (on_cran)
+    nc <- 1
+  else
+    nc <- 4
+  fit0 <- init_poisson_nmf(X,F = out$F,L = out$L)
   capture.output(
     fit1 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,
                             update.factors = j,update.loadings = i,
@@ -527,7 +537,7 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,
                             update.factors = j,update.loadings = i,
-                            method = "em",control = list(nc = 4)))
+                            method = "em",control = list(nc = nc)))
   capture.output(
     fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "em",
                             update.factors = j,update.loadings = i,
@@ -535,7 +545,7 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   capture.output(
     fit4 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "em",
                             update.factors = j,update.loadings = i,
-                            control = list(nc = 4)))
+                            control = list(nc = nc)))
 
   # The factors that are not selected for updating should not change,
   # aside from a rescaling.
@@ -567,7 +577,7 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   capture.output(
     fit2 <- fit_poisson_nmf(X,fit0 = fit0,numiter = numiter,
                             update.factors = j,update.loadings = i,
-                            method = "scd",control = list(nc = 4)))
+                            method = "scd",control = list(nc = nc)))
   capture.output(
     fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd",
                             update.factors = j,update.loadings = i,
@@ -575,7 +585,7 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   capture.output(
     fit4 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd",
                             update.factors = j,update.loadings = i,
-                            control = list(nc = 4)))
+                            control = list(nc = nc)))
 
   # The factors that are not selected for updating should not change,
   # aside from a rescaling.
@@ -605,18 +615,22 @@ test_that(paste("no output from init_poisson_nmf and fit_poisson_nmf when",
   set.seed(1)
 
   # Check init_poisson_nmf console outputs.
+  if (on_cran)
+    nc <- 1
+  else
+    nc <- 4
   X <- generate_test_data(n = 50,m = 100,k = 3)$X
   out1 <- capture.output(fit0 <-
       init_poisson_nmf(X,k = 3,control = list(nc = 1),verbose = "none"),
     type = "output")
   out2 <- capture.output(fit0 <-
-      init_poisson_nmf(X,k = 3,control = list(nc = 2),verbose = "none"),
+      init_poisson_nmf(X,k = 3,control = list(nc = nc),verbose = "none"),
     type = "output")
   out3 <- capture.output(fit0 <-
       init_poisson_nmf(X,k = 3,control = list(nc = 1),verbose = "none"),
     type = "message")
   out4 <- capture.output(fit0 <-
-      init_poisson_nmf(X,k = 3,control = list(nc = 2),verbose = "none"),
+      init_poisson_nmf(X,k = 3,control = list(nc = nc),verbose = "none"),
     type = "message")
   expect_equal(out1,character(0))
   expect_equal(out2,character(0))
@@ -628,13 +642,13 @@ test_that(paste("no output from init_poisson_nmf and fit_poisson_nmf when",
       fit_poisson_nmf(X,fit0 = fit0,control = list(nc = 1),verbose = "none"),
     type = "output")
   out2 <- capture.output(fit <-
-      fit_poisson_nmf(X,fit0 = fit0,control = list(nc = 2),verbose = "none"),
+      fit_poisson_nmf(X,fit0 = fit0,control = list(nc = nc),verbose = "none"),
     type = "output")
   out1 <- capture.output(fit <-
       fit_poisson_nmf(X,fit0 = fit0,control = list(nc = 1),verbose = "none"),
     type = "message")
   out2 <- capture.output(fit <-
-      fit_poisson_nmf(X,fit0 = fit0,control = list(nc = 2),verbose = "none"),
+      fit_poisson_nmf(X,fit0 = fit0,control = list(nc = nc),verbose = "none"),
     type = "message")
   expect_equal(out1,character(0))
   expect_equal(out2,character(0))
