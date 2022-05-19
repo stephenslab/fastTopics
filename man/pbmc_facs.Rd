@@ -13,15 +13,15 @@
      rows corresponding to samples (cells) and columns corresponding to
      genes. It is an object of class \code{"dgCMatrix"}).}
 
-  \item{counts_test}{UMI counts for an additional test set of 1,000
+  \item{counts_test}{UMI counts for an additional test set of 100
     cells.}
 
   \item{samples}{Data frame containing information about the
     samples, including cell barcode and source FACS population
-    ("celltype" and "facs_subpop").}
+    (\dQuote{celltype} and \dQuote{facs_subpop}).}
 
   \item{samples_test}{Sample information for the additional test
-     set of 1,000 cells.}
+     set of 100 cells.}
 
   \item{genes}{Data frame containing information and the genes,
     including gene symbol and Ensembl identifier.}
@@ -44,7 +44,7 @@ These data are a selection of the reference
   stored as a 3,774 x 16,791 sparse matrix. These data are used in
   the vignette illustrating how fastTopics can be used to analyze to
   single-cell RNA-seq data. Data for a separate set of 1,000 cells is
-  provided as a "test set" to evaluate out-of-sample predictions.
+  provided as a \dQuote{test set} to evaluate out-of-sample predictions.
 }
 \examples{
 library(Matrix)

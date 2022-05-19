@@ -223,7 +223,7 @@ Predicting topics in other cells
 Having fitted a topic model to single-cell data, it is easy to use
 that model to predict the topic proportions for other cells that were
 not used to fit the model. We illustrate this with a separate
-collection of 1,000 cells drawn from the same PBMC data set:
+collection of 100 cells drawn from the same PBMC data set:
 
 ```{r test-data}
 counts_test <- pbmc_facs$counts_test
@@ -241,7 +241,7 @@ fit_test <- init_poisson_nmf(X = counts_test,L = Ltest,init.method = "random")
 The predictions appear to align well with the provided cell labels:
 
 ```{r structure-plot-test, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
-structure_plot(fit_test,topics = 1:6,colors = topic_colors,gap = 10,
+structure_plot(fit_test,topics = 1:6,colors = topic_colors,gap = 2,
                grouping = pbmc_facs$samples_test$subpop)
 ```
 
