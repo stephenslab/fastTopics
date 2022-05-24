@@ -21,6 +21,14 @@ estimated in the original data are returned.}
 \item{\dots}{Additional arguments passed to
 \code{\link{fit_poisson_nmf}}.}
 }
+\value{
+A loadings matrix with one row for each data point and one
+  column for each topic or factor. For
+  \code{predict.multinom_topic_model_fit}, the output can also be
+  interpreted as a matrix of estimated topic proportions, in which
+  \code{L[i,j]} is the proportional contribution of topic j to data
+  point i.
+}
 \description{
 Predict loadings based on previously fit Poisson NMF,
   or predict topic proportions based on previously fit multinomial

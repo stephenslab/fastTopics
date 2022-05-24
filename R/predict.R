@@ -18,6 +18,13 @@
 #' @param \dots Additional arguments passed to
 #'   \code{\link{fit_poisson_nmf}}.
 #'
+#' @return A loadings matrix with one row for each data point and one
+#'   column for each topic or factor. For
+#'   \code{predict.multinom_topic_model_fit}, the output can also be
+#'   interpreted as a matrix of estimated topic proportions, in which
+#'   \code{L[i,j]} is the proportional contribution of topic j to data
+#'   point i.
+#' 
 #' @seealso \code{\link{fit_poisson_nmf}}
 #' 
 #' @examples
@@ -123,7 +130,9 @@ project_poisson_nmf <- function (X, F, numiter, ...) {
          "equal the number of columns of X")
 
   # Fit a Poisson NMF to the data, X, with F fixed.
-  L0  <- matrix(1/k,n,k)
+  L0 <- matrix(1/k,n,k)
+  rownames(L0) <- rownames(X)
+  colnames(L0) <- colnames(F)
   fit <- init_poisson_nmf(X,F = F,L = L0)
   fit <- fit_poisson_nmf(X,fit0 = fit,numiter = numiter,...)
   return(fit)

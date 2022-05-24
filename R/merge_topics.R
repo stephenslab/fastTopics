@@ -10,6 +10,8 @@
 #'
 #' @param k The names or numbers of the topics to be combined. Two or
 #'   more topics should be chosen.
+#'
+#' @return A multinomial topic model fit.
 #' 
 #' @export
 #' 

@@ -12,6 +12,9 @@ merge_topics(fit, k)
 \item{k}{The names or numbers of the topics to be combined. Two or
 more topics should be chosen.}
 }
+\value{
+A multinomial topic model fit.
+}
 \description{
 Combine two or more topics in a multinomial topic
   model fit.
