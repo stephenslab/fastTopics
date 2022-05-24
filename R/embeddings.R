@@ -65,7 +65,7 @@
 #' quickplot(Y2[,1],Y2[,2],color = subpop) + theme_cowplot()
 #'
 #' # Compute a 2-d embedding of the loadings using t-SNE.
-#' \dontrun{
+#' \donttest{
 #' Y1 <- tsne_from_topics(fit1)
 #' Y2 <- tsne_from_topics(fit2)
 #' quickplot(Y1[,1],Y1[,2],color = subpop) + theme_cowplot()
@@ -73,7 +73,7 @@
 #' }
 #'
 #' # Compute a 2-d embedding of the loadings using UMAP.
-#' \dontrun{
+#' \donttest{
 #' Y1 <- umap_from_topics(fit1)
 #' Y2 <- umap_from_topics(fit2)
 #' quickplot(Y1[,1],Y1[,2],color = subpop) + theme_cowplot()

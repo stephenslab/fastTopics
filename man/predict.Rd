@@ -28,7 +28,7 @@ Predict loadings based on previously fit Poisson NMF,
   a previously estimated set of factors \code{fit$F}.
 }
 \examples{
-\dontrun{
+\donttest{
 # Simulate a 175 x 1,200 counts matrix.
 set.seed(1)
 dat <- simulate_count_data(175,1200,k = 3)

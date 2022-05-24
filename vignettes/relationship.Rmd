@@ -14,7 +14,7 @@ knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
                       fig.align = "center")
 ```
 
-The **fastTopics** package implements fast optimization algorithms for
+The 'fastTopics' package implements fast optimization algorithms for
 fitting topic models and non-negative matrix factorizations to count
 data. This document explains the close relationship between topic
 modeling and non-negative matrix factorization (NMF).
@@ -45,7 +45,7 @@ $$
 in which $K$ is a user-specified tuning parameter specifying the rank
 of the matrix factorization.
 
-The fastTopics function `fit_poisson_nmf` computes maximum-likelihood
+The 'fastTopics' function `fit_poisson_nmf` computes maximum-likelihood
 estimates (MLEs) of the Poisson NMF parameters. These parameters are
 stored as an $m \times K$ matrix $F$, and an $n \times K$ matrix
 $L$. Drawing the connection to PCA, we call $L$ the "loadings matrix"
@@ -178,7 +178,7 @@ quickplot(x = loglik1,y = loglik3) + theme_cowplot(12)
 Summary
 -------
 
-The "fastTopics" approach aims to combine the advantages of Poisson
+The 'fastTopics' approach aims to combine the advantages of Poisson
 NMF and topic modeling.
 
 The Poisson NMF is easier to fit because it doesn't have the

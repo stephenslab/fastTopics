@@ -21,7 +21,7 @@
 #' @seealso \code{\link{fit_poisson_nmf}}
 #' 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Simulate a 175 x 1,200 counts matrix.
 #' set.seed(1)
 #' dat <- simulate_count_data(175,1200,k = 3)

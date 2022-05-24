@@ -202,7 +202,7 @@ algorithm settings (as they are defined by
 # Perform a differential expression (DE) analysis using the previously
 # fitted multinomial topic model. Note that the de_analysis call could
 # take several minutes to complete.
-\dontrun{
+\donttest{
 set.seed(1)
 data(pbmc_facs)
 de <- de_analysis(pbmc_facs$fit,pbmc_facs$counts)

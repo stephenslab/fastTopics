@@ -59,11 +59,12 @@ fit <- poisson2multinom(fit)
 then we plot the estimated topic proportions.
 
 ```{r plot-topic-proportions, fig.height=3, fig.width=3}
-par(mar = c(0,0,0,0))
+par0 <- par(mar = c(0,0,0,0))
 pdat <- as.data.frame(fit$L)
 TernaryPlot(alab = "k1",blab = "k2",clab = "k3",grid.col = "skyblue",
             grid.minor.lines = 0)
 TernaryPoints(pdat,pch = 21,col = "white",bg = "black",cex = 0.8)
+par(par0)
 ```
 
 We observe in this plot that the estimated topic model recaptures the

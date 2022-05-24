@@ -94,7 +94,7 @@
 #' 2381–2385.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' set.seed(1)
 #' data(pbmc_facs)
 #'

@@ -136,7 +136,7 @@ arrangement of the samples is, by default, generated automatically
 by performing a 1-d embedding of the samples.
 }
 \examples{
-\dontrun{
+\donttest{
 set.seed(1)
 data(pbmc_facs)
 
