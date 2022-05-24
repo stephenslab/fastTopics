@@ -118,7 +118,7 @@ Create a \dQuote{volcano} plot to visualize the
 }
 \details{
 Interactive volcano plots can be created using the
-  \dQuote{plotly} package. The \dQuote{hover text} shows the label
+  \sQuote{plotly} package. The \dQuote{hover text} shows the label
   and detailed LFC statistics.
 }
 \examples{

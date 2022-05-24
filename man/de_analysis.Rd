@@ -42,7 +42,7 @@ for testing.}
 
 \item{shrink.method}{Method used to stabilize the posterior mean
 LFC estimates.  When \code{shrink.method = "ash"}, the "adaptive
-shrinkage" method implemented in the ashr package is used to
+shrinkage" method implemented in the \sQuote{ashr} package is used to
 compute posterior. When \code{shrink.method = "none"}, no
 stabilization is performed, and the \dQuote{raw} posterior mean LFC
 estimates are returned.}
@@ -148,8 +148,8 @@ extreme} LFC, defined as \eqn{LFC(j) = log2(f_j/f_k)} such that
 We recommend setting \code{shrink.method = "ash"}, which uses the
 \dQuote{adaptive shrinkage} method (Stephens, 2016) to improve
 accuracy of the posterior mean estimates and z-scores. We follow
-the settings used in \code{lfcShrink} from the DESeq2 package, with
-\code{type = "ashr"}.
+the settings used in \code{lfcShrink} from the \sQuote{DESeq2}
+package, with \code{type = "ashr"}.
 
 Note that all LFC statistics are defined using the base-2 logarithm
 following the conventioned used in differential expression

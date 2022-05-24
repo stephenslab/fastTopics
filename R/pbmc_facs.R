@@ -12,7 +12,7 @@
 #'   (Genes with no expression in any of the cells were removed.) Since
 #'   the majority of the UMI counts are zero, they are efficiently
 #'   stored as a 3,774 x 16,791 sparse matrix. These data are used in
-#'   the vignette illustrating how fastTopics can be used to analyze to
+#'   the vignette illustrating how 'fastTopics' can be used to analyze to
 #'   single-cell RNA-seq data. Data for a separate set of 1,000 cells is
 #'   provided as a \dQuote{test set} to evaluate out-of-sample predictions.
 #'

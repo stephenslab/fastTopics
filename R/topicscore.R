@@ -1,4 +1,4 @@
-# Much of the code contained here is based on the "TopicScore" package
+# Much of the code contained here is based on the TopicScore package
 # source code developed by Minzhe Wang and Tracy Ke, distributed under
 # the MIT license.
 

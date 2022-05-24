@@ -16,8 +16,8 @@ vignette: >
 
 The aim of this vignette is to introduce the basic concepts behind an
 analysis of single-cell RNA-seq data using a topic model, and to show
-how to use **fastTopics** to implement a topic model analysis. We
-introduce the basic concepts and **fastTopics** interface through a
+how to use 'fastTopics' to implement a topic model analysis. We
+introduce the basic concepts and 'fastTopics' interface through a
 simple example. This first vignette is only intended to explain the
 topic model analysis at a high level---see [Part 2][vignette-part-2]
 for additional explanations and guidance.
@@ -131,7 +131,7 @@ Each cell is represented as a unique mixture
 A key feature of the topic model is that each cell $i$ is represented
 as a *unique mixture of the topics.* Therefore, each cell can be
 summarized from the $K$ mixture proportions. This cell-specific
-mixture is learned from the data. In **fastTopics**, the mixture
+mixture is learned from the data. In 'fastTopics', the mixture
 proportions for all cells are stored as an $n \times K$ matrix:
 
 ```{r loadings-1}
@@ -253,7 +253,7 @@ of topics. In our running example, some of the topics seem to have a
 straightforward interpretation as known cell types. More precisely,
 each topic captures an expression pattern, encoded as a vector of $m$
 relative expression levels ($m$ is the number of genes). In
-**fastTopics**, the relative expression levels for all topics are stored
+'fastTopics', the relative expression levels for all topics are stored
 as an $m \times K$ matrix:
 
 ```{r factors-1}
@@ -317,7 +317,7 @@ rbind(dfc_out$beta[genes$symbol == "CD79A",],
       dfc_out$beta[genes$symbol == "CD79B",])
 ```
 
-**fastTopics** extends the classic DE analysis to allow for *partial
+'fastTopics' extends the classic DE analysis to allow for *partial
 membership* to groups. This generalized DE analysis is implemented in
 `diff_count_analysis`:
 

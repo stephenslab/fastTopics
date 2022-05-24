@@ -69,7 +69,7 @@ than \dQuote{fits} are given, the fill colours are recycled.}
 \code{y = "loglik"} and \code{y = "dev"} only) so that the
 logarithmic scale does not over-emphasize very small differences.}
 
-\item{theme}{The ggplot2 \dQuote{theme}.}
+\item{theme}{The \sQuote{ggplot2} \dQuote{theme}.}
 }
 \value{
 A \code{ggplot} object.

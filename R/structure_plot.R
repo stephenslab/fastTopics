@@ -324,7 +324,7 @@ structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
           axis.text.x = element_text(angle = 45,hjust = 1))
 
 # This is used by structure_plot to create a data frame suitable for
-# plotting with ggplot. Input argument L is the topic proportions
+# plotting with 'ggplot'. Input argument L is the topic proportions
 # matrix. Input argument "topics" is the vector of the selected topics
 # (that is, selected columns of L). The output is a data frame with
 # three columns: "sample", a row of L (numeric); "topic", a topic
@@ -341,7 +341,7 @@ compile_structure_plot_data <- function (L, topics) {
 }
 
 # This is used by structure_plot to create a data frame suitable for
-# plotting with ggplot when the data are grouped. Input argument L is
+# plotting with 'ggplot' when the data are grouped. Input argument L is
 # the topic proportions matrix. Input argument "topics" is the vector
 # of selected topics (that is, selected columns of L).  Input argument
 # "grouping" is a factor with one entry for each row of L giving the

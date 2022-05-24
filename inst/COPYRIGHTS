@@ -1,8 +1,18 @@
+This file contains additional copyright information about code adapted
+from other R packages.
+
 Portions of the C++ code in src/poismix.cpp and src/scd.cpp were
 adapted from R and C++ code developed by Eric Xihui Lin and Paul
 C. Boutros, which is available for download at
 https://github.com/linxihui/NNLM. This code is distributed under the
-2-Clause BSD License and retains the following copyright:
+2-Clause BSD license and retains the following copyright:
 
 YEAR: 2015
 COPYRIGHT HOLDER: Eric Xihui Lin, the Boutros Lab and the Ontario Institute for Cancer Research
+
+Portions of the R code in R/topicscore.R were adapted from R code
+developed by Minzhe Wang and Tracy Ke. This code is distributed under
+the MIT license and retains the following copyright:
+
+YEAR: 2019
+COPYRIGHT HOLDER: Minzhe Wang

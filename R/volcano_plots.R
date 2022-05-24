@@ -11,7 +11,7 @@
 #'   plot.
 #'
 #' @details Interactive volcano plots can be created using the
-#'   \dQuote{plotly} package. The \dQuote{hover text} shows the label
+#'   \sQuote{plotly} package. The \dQuote{hover text} shows the label
 #'   and detailed LFC statistics.
 #' 
 #' @param de An object of class \dQuote{topic_model_de_analysis},
@@ -233,7 +233,7 @@ volcano_plot_ly_call <- function (dat, plot.title, width, height) {
 }
 
 # This is used by volcano_plot and volcano_plotly to compile the data
-# frame passed to ggplot.
+# frame passed to 'ggplot'.
 compile_volcano_plot_data <- function (de, k, ymax, labels, do.label = NULL) {
   if (all(is.na(de$lfsr))) {
     message("lfsr is not available, probably because \"shrink.method\" was ",

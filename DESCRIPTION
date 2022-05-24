@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.6-134
+Version: 0.6-135
 Date: 2022-05-24
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
@@ -14,6 +14,8 @@ Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
              person("Anthony","Hung",role="ctb"),
 	     person("Xihui","Lin",role="ctb"),
 	     person("Paul C.","Boutros",role="ctb"),
+	     person("Minzhe","Wang",role="ctb"),
+	     person("Tracy","Ke",role="ctb"),
              person("Matthew","Stephens",role="aut"))
 URL: https://github.com/stephenslab/fastTopics
 BugReports: https://github.com/stephenslab/fastTopics/issues

@@ -148,8 +148,8 @@ Visualize the structure of the Poisson NMF loadings or
 \details{
 This is a lightweight interface primarily intended to
 expedite creation of plots for visualizing the loadings or topic
-proportions; most of the heavy lifting is done by ggplot2. The 2-d
-embedding itself is computed by invoking
+proportions; most of the heavy lifting is done by
+\sQuote{ggplot2}. The 2-d embedding itself is computed by invoking
 \code{\link{pca_from_topics}}, \code{\link{tsne_from_topics}} or
 \code{\link{umap_from_topics}}. For more control over the plot's
 appearance, the plot can be customized by modifying the

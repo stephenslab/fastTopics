@@ -250,7 +250,8 @@ initialized \dQuote{sufficiently close} to a stationary point. The
 CCD implementation is adapted from the C++ code developed by
 Cho-Jui Hsieh and Inderjit Dhillon, which is available for download
 at \url{https://www.cs.utexas.edu/~cjhsieh/nmf/}. The SCD
-implementation is based on version 0.4-3 of the NNLM package.
+implementation is based on version 0.4-3 of the \sQuote{NNLM}
+package.
 
 An additional re-scaling step is performed after each update to
 promote numerical stability.
