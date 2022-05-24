@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.6-131
-Date: 2022-05-19
+Version: 0.6-132
+Date: 2022-05-24
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
 Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
@@ -12,6 +12,8 @@ Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
              person("Joyce","Hsiao",role="ctb"),
              person("Abhishek","Sarkar",role="ctb"),
              person("Anthony","Hung",role="ctb"),
+	     person("Xihui","Lin",role="ctb"),
+	     person("Paul","Boutros","C.",role="ctb"),
              person("Matthew","Stephens",role="aut"))
 URL: https://github.com/stephenslab/fastTopics
 BugReports: https://github.com/stephenslab/fastTopics/issues
@@ -24,9 +26,10 @@ Description: Implements fast, scalable optimization algorithms for
     non-negative matrix factorization. The package provides tools to
     compare, annotate and visualize model fits, including functions to
     efficiently create "structure plots" and identify key features in
-    topics. The fastTopics package is a successor to the 'CountClust'
+    topics. The 'fastTopics' package is a successor to the 'CountClust'
     package.
-License: MIT + file LICENSE
+License: BSD_2_clause + file LICENSE
+Copyright: inst/COPYRIGHTS
 SystemRequirements: GNU make
 Imports:
     graphics,
