@@ -41,7 +41,14 @@ under the terms of the [MIT license][mit-license].
 
 ## Quick Start
 
-Install and load the package:
+Install and load the package from CRAN:
+
+```R
+install.packages("fastTopics")
+library(fastTopics)
+```
+
+Alternatively, install the latest version from GitHub:
 
 ```R
 remotes::install_github("stephenslab/fastTopics")
