@@ -1,0 +1,5 @@
+# For Matrix version 1.4-2.
+export R_BUILD_ENVIRON=$HOME/git/fastTopics/.Renviron
+export R_CHECK_ENVIRON=$HOME/git/fastTopics/.Renviron
+R CMD build fastTopics
+R CMD check fastTopics_0.6.138.tar.gz

@@ -1,4 +1,5 @@
 ^TODO\.txt$
+^NOTES\.txt$
 ^docs$
 ^_pkgdown\.yml$
 ^\.travis\.yml$
@@ -9,3 +10,4 @@
 ^inst/code$
 ^vignettes/single\_cell\_rnaseq_basic\.Rmd$
 ^vignettes/single\_cell\_rnaseq\_practical\.Rmd$
+^\.Renviron$
