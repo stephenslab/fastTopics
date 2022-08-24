@@ -9,7 +9,7 @@ test_that("fit_multinom_model gives correct factor estimates",{
   k   <- 3
   out <- simulate_toy_gene_data(n,m,k,s = 1000)
   X   <- out$X
-  Y   <- as(X,"dgCMatrix")
+  Y   <- as(X,"CsparseMatrix")
 
   # Force "hard" topic assignments.
   cluster <- factor(apply(force_hard_topic_assignments(out$L),1,which.max))

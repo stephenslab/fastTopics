@@ -34,7 +34,7 @@ test_that("multinom2poisson recovers original Poisson NMF model fit",{
   fit2a$s <- NULL
   fit3 <- multinom2poisson(fit2)
   fit4 <- multinom2poisson(fit2a,X)
-  fit5 <- multinom2poisson(fit2a,as(X,"dgCMatrix"))
+  fit5 <- multinom2poisson(fit2a,as(X,"CsparseMatrix"))
   Y1   <- with(fit1,tcrossprod(L,F))
   Y3   <- with(fit3,tcrossprod(L,F))
   Y4   <- with(fit4,tcrossprod(L,F))

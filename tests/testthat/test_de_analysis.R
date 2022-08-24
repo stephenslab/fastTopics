@@ -86,7 +86,7 @@ test_that(paste("All variants of fit_poisson_models should produce the",
   out <- add_pseudocounts(X,s*L,0.1)
   X   <- out$X
   L   <- out$L
-  Y   <- as(X,"dgCMatrix")
+  Y   <- as(X,"CsparseMatrix")
   
   # Fit the univariate Poisson models using glm and scd.
   F1 <- fit_poisson_models(X,L,method = "glm")
@@ -115,7 +115,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
   k   <- 4
   dat <- simulate_multinom_gene_data(n,m,k,sparse = FALSE)
   X   <- dat$X
-  Y   <- as(X,"dgCMatrix")
+  Y   <- as(X,"CsparseMatrix")
   L   <- dat$L
 
   # Run de_analysis twice, using the single-threaded computations (nc
@@ -161,7 +161,7 @@ test_that(paste("de_analysis with and without multithreading, using a",
   k   <- 4
   dat <- simulate_multinom_gene_data(n,m,k,sparse = FALSE)
   X   <- dat$X
-  Y   <- as(X,"dgCMatrix")
+  Y   <- as(X,"CsparseMatrix")
   L   <- dat$L
 
   # Run de_analysis twice, using the single-threaded computations (nc

@@ -12,7 +12,7 @@ test_that(paste("R and Rcpp versions of cost function return same result",
     X   <- out$X
     F   <- out$F
     L   <- out$L
-    Y   <- as(X,"dgCMatrix")
+    Y   <- as(X,"CsparseMatrix")
 
     # Compute the loss function.
     f1 <- cost(X,L,t(F),version = "R")
@@ -43,7 +43,7 @@ test_that(paste("loglik_poisson_nmf gives correct result for sparse and",
     # Compute the log-likelikhood.
     f1 <- loglik_poisson_nmf_with_dpois(X,fit)
     f2 <- loglik_poisson_nmf(X,fit,e = 0)
-    f3 <- loglik_poisson_nmf(as(X,"dgCMatrix"),fit,e = 0)
+    f3 <- loglik_poisson_nmf(as(X,"CsparseMatrix"),fit,e = 0)
     names(f1) <- rownames(X)
 
     # The likelihood calculations should all be the same.
@@ -68,7 +68,7 @@ test_that(paste("loglik_multinom_topic_model gives correct result for",
     # Compute the log-likelikhood.
     f1 <- loglik_multinom_topic_model_with_dmultinom(X,poisson2multinom(fit))
     f2 <- loglik_multinom_topic_model(X,fit,e = 0)
-    f3 <- loglik_multinom_topic_model(as(X,"dgCMatrix"),fit,e = 0)
+    f3 <- loglik_multinom_topic_model(as(X,"CsparseMatrix"),fit,e = 0)
 
     # Compute the multinomial log-likelihood a different way: first
     # compute the Poisson log-likelihood, then subtract out the
@@ -98,7 +98,7 @@ test_that(paste("deviance_poisson_topic_nmf gives correct result for sparse",
     # Compute the deviances.
     d1 <- deviance_poisson_nmf_with_poisson(X,fit)
     d2 <- deviance_poisson_nmf(X,fit,e = 0)
-    d3 <- deviance_poisson_nmf(as(X,"dgCMatrix"),fit,e = 0)
+    d3 <- deviance_poisson_nmf(as(X,"CsparseMatrix"),fit,e = 0)
 
     # The deviance calculations should all be the same.
     expect_equal(d1,d2)
@@ -117,7 +117,7 @@ test_that("poisson_nmf_kkt gives same result for sparse and dense matrices",{
 
   # Compute the KKT residuals, and check that they are the same.
   out1 <- poisson_nmf_kkt(X,F,L)
-  out2 <- poisson_nmf_kkt(as(X,"dgCMatrix"),F,L)
+  out2 <- poisson_nmf_kkt(as(X,"CsparseMatrix"),F,L)
   expect_equal(out1,out2,tolerance = 1e-15,scale = 1)
 })
 

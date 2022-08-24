@@ -87,7 +87,7 @@ test_that(paste("multiplicative and EM updates produce same result, and",
                             control = list(numiter = 1,nc = nc)))
   
   # Store the counts as a sparse matrix.
-  Y <- as(X,"dgCMatrix")
+  Y <- as(X,"CsparseMatrix")
   
   # Run 20 EM updates a third time, this time using the sparse counts
   # matrix.
@@ -165,7 +165,7 @@ test_that(paste("ccd and scd updates produce the same result, and",
                             control = list(numiter = 1,nc = 1)))
 
   # Redo the SCD updates with a sparse matrix.
-  Y <- as(X,"dgCMatrix")
+  Y <- as(X,"CsparseMatrix")
   capture.output(
       fit3 <- fit_poisson_nmf(Y,fit0 = fit0,numiter = numiter,method = "scd",
                               control = list(numiter = 1,nc = 1)))
@@ -492,7 +492,7 @@ test_that("Fixed factors and loadings to not change (aside from rescaling)",{
   k   <- 3
   out <- generate_test_data(n,m,k)
   X   <- out$X
-  Y   <- as(X,"dgCMatrix")
+  Y   <- as(X,"CsparseMatrix")
 
   # Check that the factors remain the same (up to a rescaling) when
   # update.factors is NULL.
