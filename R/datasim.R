@@ -60,7 +60,7 @@ simulate_count_data <- function (n, m, k, fmax = 1, lmax = 1, sparse = FALSE) {
   L <- rand(n,k,0,lmax)
   X <- generate_poisson_nmf_counts(F,L)
   if (sparse)
-    X <- as(X,"dgCMatrix")
+    X <- as(X,"CsparseMatrix")
 
   # Add row and column names to outputs.
   rownames(X) <- paste0("i",1:n)
@@ -254,7 +254,7 @@ simulate_poisson_gene_data <- function (n, m, k, s, p = 1, sparse = FALSE) {
   L <- generate_mixture_proportions(n,k)
   X <- generate_poisson_nmf_counts(F,s*L)
   if (sparse)
-    X <- as(X,"dgCMatrix")
+    X <- as(X,"CsparseMatrix")
 
   # Add row and column names to outputs.
   rownames(X) <- paste0("i",1:n)
@@ -293,7 +293,7 @@ simulate_multinom_gene_data <- function (n, m, k, sparse = FALSE) {
   F <- normalize.cols(generate_poisson_rates(m,k))
   X <- generate_multinom_topic_model_counts(F,L,s)
   if (sparse)
-    X <- as(X,"dgCMatrix")
+    X <- as(X,"CsparseMatrix")
   
   # Add row and column names to outputs.
   rownames(X) <- paste0("i",1:n)
