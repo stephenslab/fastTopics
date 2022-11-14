@@ -190,6 +190,7 @@ volcano_plot_ggplot_call <- function (dat, plot.title, max.overlaps = Inf,
          scale_y_continuous(trans = "sqrt",
                             breaks = c(0,1,2,5,10,20,50,100,200,500,
                                        1000,2000,5000,1e4,2e4,5e4)) +
+         # scale_y_continuous(trans = "log10") +
          scale_fill_manual(values = c("deepskyblue","gold","orange","coral")) +
          labs(x = "log-fold change",y = "|z-score|",title = plot.title) +
          theme_cowplot(font.size) +
@@ -246,7 +247,7 @@ compile_volcano_plot_data <- function (de, k, ymax, labels, do.label = NULL) {
                     lower    = de$lower[,k],
                     postmean = de$postmean[,k],
                     upper    = de$upper[,k],
-                    z        = de$z[,k],
+                    z        = de$z[,k], # fit$F[,k] + 1e-5,
                     lfsr     = lfsr,
                     stringsAsFactors = FALSE)
   if (!is.null(do.label))
