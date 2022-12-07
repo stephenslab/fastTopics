@@ -1,4 +1,4 @@
-on_cran <- FALSE
+on_cran <- TRUE
 
 # Used to check that x is a vector in which x[i+1] >= x[i] for all i.
 expect_nondecreasing <- function (x)
