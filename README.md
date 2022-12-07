@@ -1,7 +1,7 @@
 # fastTopics
 
- [![R-CMD-check](https://github.com/stephenslab/fastTopics/workflows/R-CMD-check/badge.svg)](https://github.com/stephenslab/fastTopics/actions)
-[![CircleCI build status](https://circleci.com/gh/stephenslab/fastTopics.svg?style=svg)](https://app.circleci.com/pipelines/github/stephenslab/fastTopics)
+[![R-CMD-check](https://github.com/stephenslab/fastTopics/workflows/R-CMD-check/badge.svg)](https://github.com/stephenslab/fastTopics/actions)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/stephenslab/fastTopics/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/stephenslab/fastTopics/tree/master)
 [![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://app.codecov.io/gh/stephenslab/fastTopics)
 
 fastTopics is an R package implementing fast, scalable optimization
