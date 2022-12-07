@@ -34,7 +34,7 @@ jobs:
       - run:
           name: Check package
           no_output_timeout: 55m
-          command: R CMD check --as-cran --ignore-vignettes --no-manual --no-examples *tar.gz
+          command: R CMD check --ignore-vignettes --no-manual --no-examples *tar.gz
       - store_artifacts:
           path: fastTopics.Rcheck/
       - save_cache:
