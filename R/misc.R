@@ -10,6 +10,11 @@ pfromz <- function (z)
 lpfromz <- function (z)
   (log(2) + pnorm(-abs(z),log.p = TRUE))/log(10)
 
+# Set all entries of x less than a to a, and set alll entries of x
+# greater than b to b.
+clamp <- function (x, a, b)
+    pmax(a,pmin(b,x))
+
 # Return true if x is a compressed, sparse, column-oriented numeric
 # matrix.
 is.sparse.matrix <- function (x)

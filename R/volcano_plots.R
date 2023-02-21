@@ -7,8 +7,10 @@
 #'   the volcano plot is a scatterplot in which the posterior mean
 #'   log-fold change (LFC), estimated by running the methods implemented
 #'   in \code{\link{de_analysis}}, is plotted against the estimated
-#'   z-score. Use \code{volcano_plotly} to create an interactive volcano
-#'   plot.
+#'   z-score. Variations on this volcano plot may also be created, for
+#'   example by showing f0 (the null-model estimates) instead of the
+#'   z-scores. Use \code{volcano_plotly} to create an interactive
+#'   volcano plot.
 #'
 #' @details Interactive volcano plots can be created using the
 #'   \sQuote{plotly} package. The \dQuote{hover text} shows the label
@@ -29,16 +31,23 @@
 #'   available. labels are added to the plot using
 #'   \code{\link[ggrepel]{geom_text_repel}}.
 #'
+#' @param y Which quantity to plot on along the vertical (y)
+#'   axis. Choose \code{y = "z"} to show z-score magnitudes, or \code{y
+#'   = "f0"} to show the estimated expression levels.
+#'
 #' @param do.label The function used to deetermine which LFC estimates
 #'   to label. Replace \code{volcano_plot_do_label_default} with your
 #'   own function to customize the labeling of points in the volcano
 #'   plot.
 #' 
-#' @param ymax z-scores greater than \code{ymax} (in magnitude) are
-#'   shown as \code{max}. Setting \code{ymax} to a finite value can
-#'   improve the volcano plot when some z-scores are much larger (in
-#'   magnitude) than others.
+#' @param ymin Y-axis values less than \code{ymin} are shown as
+#'   \code{ymin}.
 #' 
+#' @param ymax Y-axis values greater than \code{ymax} are shown as
+#' \code{ymax}. When \code{y = "z"}, setting \code{ymax} to a finite
+#' value can improve the volcano plot when some z-scores are much
+#' larger (in magnitude) than others.
+#'
 #' @param max.overlaps Argument passed to
 #'   \code{\link[ggrepel]{geom_text_repel}}.
 #'
@@ -58,12 +67,15 @@
 #' @export
 #' 
 volcano_plot <-
-  function (de, k, labels, do.label = volcano_plot_do_label_default,
-            ymax = Inf, max.overlaps = Inf, plot.title = paste("topic",k),
+  function (de, k, labels, y = c("z","f0"),
+            do.label = volcano_plot_do_label_default,
+            ymin = 1e-6, ymax = Inf, max.overlaps = Inf,
+            plot.title = paste("topic",k),
             ggplot_call = volcano_plot_ggplot_call) {
   if (!inherits(de,"topic_model_de_analysis"))
     stop("Input \"de\" should be an object of class ",
          "\"topic_model_de_analysis\"")
+  y <- match.arg(y)
   n <- nrow(de$postmean)
   if (missing(labels)) {
     if (!is.null(rownames(de$postmean)))
@@ -75,8 +87,8 @@ volcano_plot <-
     stop("Input argument \"labels\", when specified, should be a character ",
          "vector with one entry per log-fold change estimate (column of ",
          "the counts matrix)")
-  dat <- compile_volcano_plot_data(de,k,ymax,labels,do.label)
-  return(ggplot_call(dat,plot.title,max.overlaps))
+  dat <- compile_volcano_plot_data(de,k,y,ymin,ymax,labels,do.label)
+  return(ggplot_call(dat,y,plot.title,max.overlaps))
 }
 
 #' @rdname volcano_plot
@@ -114,15 +126,16 @@ plot.topic_model_de_analysis <- function (x, ...)
 #' 
 #' @export
 #' 
-volcano_plotly <- function (de, k, file, labels,
-                            ymax = Inf, width = 500, height = 500,
-                            plot.title = paste("topic",k),
+volcano_plotly <- function (de, k, file, labels, y = c("z","f0"),
+                            ymin = 1e-6, ymax = Inf, width = 500,
+                            height = 500, plot.title = paste("topic",k),
                             plot_ly_call = volcano_plot_ly_call) {
 
   # Check and process input arguments.
   if (!inherits(de,"topic_model_de_analysis"))
     stop("Input \"de\" should be an object of class ",
          "\"topic_model_de_analysis\"")
+  y <- match.arg(y)
   n <- nrow(de$postmean)
   if (missing(labels)) {
     if (!is.null(rownames(de$postmean)))
@@ -134,8 +147,8 @@ volcano_plotly <- function (de, k, file, labels,
     stop("Input argument \"labels\", when specified, should be a character ",
          "vector with one entry per log-fold change estimate (column of ",
          "the counts matrix)")
-  dat <- compile_volcano_plot_data(de,k,ymax,labels)
-  p <- volcano_plot_ly_call(dat,plot.title,width,height)
+  dat <- compile_volcano_plot_data(de,k,y,ymin,ymax,labels)
+  p <- volcano_plot_ly_call(dat,y,plot.title,width,height)
   if (!missing(file))
     saveWidget(p,file,selfcontained = TRUE,title = plot.title)
   return(p)
@@ -145,23 +158,23 @@ volcano_plotly <- function (de, k, file, labels,
 #'
 #' @param lfc A vector of log-fold change estimates.
 #'
-#' @param z A vector of z-scores of the same length as \code{lfc}.
+#' @param y A vector of the same length as \code{lfc}.
 #'
 #' @importFrom stats quantile
 #' 
 #' @export
 #' 
-volcano_plot_do_label_default <- function (lfc, z)
-  abs(z) >= quantile(abs(z),0.999,na.rm = TRUE) |
-    lfc <= quantile(lfc,0.001,na.rm = TRUE) |
-    lfc >= quantile(lfc,0.999,na.rm = TRUE)
+volcano_plot_do_label_default <- function (lfc, y)
+  y >= quantile(y,0.999,na.rm = TRUE) |
+  lfc <= quantile(lfc,0.001,na.rm = TRUE) |
+  lfc >= quantile(lfc,0.999,na.rm = TRUE)
 
 #' @rdname volcano_plot
 #'
 #' @param dat A data frame passed as input to
 #'   \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-#'   \dQuote{f0}, \dQuote{postmean}, \dQuote{z}, \dQuote{zabs},
-#'   \dQuote{lfsr} and \dQuote{label}.
+#'   \dQuote{f0}, \dQuote{postmean}, \dQuote{y}, \dQuote{lfsr} and
+#'   \dQuote{label}.
 #' 
 #' @param font.size Font size used in plot.
 #'
@@ -172,27 +185,32 @@ volcano_plot_do_label_default <- function (lfc, z)
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 theme
 #' @importFrom ggplot2 element_text
+#' @importFrom ggplot2 waiver
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom cowplot theme_cowplot
 #' 
 #' @export
 #' 
-volcano_plot_ggplot_call <- function (dat, plot.title, max.overlaps = Inf,
+volcano_plot_ggplot_call <- function (dat, y, plot.title, max.overlaps = Inf,
                                       font.size = 9) {
-  dat$lfsr <- cut(dat$lfsr,c(-1,0.001,0.01,0.05,Inf))
-  return(ggplot(dat,aes_string(x = "postmean",y = "zabs",fill = "lfsr",
+    dat$lfsr <- cut(dat$lfsr,c(-1,0.001,0.01,0.05,Inf))
+  if (y == "z")
+    ybreaks <- c(0,1,2,5,10,20,50,100,200,500,1000,2000,5000,1e4,2e4,5e4)
+  else
+    ybreaks <- 10^seq(-8,0)
+  return(ggplot(dat,aes_string(x = "postmean",y = "y",fill = "lfsr",
                                label = "label")) +
          geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
          geom_text_repel(color = "darkgray",size = 2.25,fontface = "italic",
                          segment.color = "darkgray",segment.size = 0.25,
                          min.segment.length = 0,max.overlaps = max.overlaps,
                          na.rm = TRUE) +
-         scale_y_continuous(trans = "sqrt",
-                            breaks = c(0,1,2,5,10,20,50,100,200,500,
-                                       1000,2000,5000,1e4,2e4,5e4)) +
-         # scale_y_continuous(trans = "log10") +
+         scale_y_continuous(trans = ifelse(y == "z","sqrt","log10"),
+                            breaks = ybreaks) +
          scale_fill_manual(values = c("deepskyblue","gold","orange","coral")) +
-         labs(x = "log-fold change",y = "|z-score|",title = plot.title) +
+         labs(x = "log-fold change",
+              y = ifelse(y == "z","|z-score|","null estimate"),
+                  title = plot.title) +
          theme_cowplot(font.size) +
          theme(plot.title = element_text(size = font.size,face = "plain")))
 }
@@ -205,9 +223,9 @@ volcano_plot_ggplot_call <- function (dat, plot.title, max.overlaps = Inf,
 #' 
 #' @export
 #' 
-volcano_plot_ly_call <- function (dat, plot.title, width, height) {
+volcano_plot_ly_call <- function (dat, y, plot.title, width, height) {
   dat$fill <- cut(dat$lfsr,c(-1,0.001,0.01,0.05,Inf))
-  p <- plot_ly(data = dat,x = ~postmean,y = ~sqrt(zabs),color = ~fill,
+  p <- plot_ly(data = dat,x = ~postmean,y = ~y,color = ~fill,
                colors = c("deepskyblue","gold","orange","coral"),
                text = ~sprintf(paste0("%s\nmean(null): %0.2e\n",
                                       "logFC(lower): %+0.3f\n",
@@ -223,8 +241,9 @@ volcano_plot_ly_call <- function (dat, plot.title, width, height) {
   p <- layout(p,
               xaxis = list(title = "log-fold change",zeroline = FALSE,
                            showgrid = FALSE),
-              yaxis = list(title = "sqrt|z-score|",zeroline = FALSE,
-                           showgrid = FALSE),
+              yaxis = list(title=ifelse(y == "z","|z-score|","null estimate"),
+                           zeroline = FALSE,showgrid = FALSE,
+                           type = ifelse(y == "z","identity","log")),
               hoverlabel = list(bgcolor = "white",bordercolor = "black",
                                 font = list(color = "black",family = "arial",
                                             size = 12)),
@@ -235,7 +254,12 @@ volcano_plot_ly_call <- function (dat, plot.title, width, height) {
 
 # This is used by volcano_plot and volcano_plotly to compile the data
 # frame passed to 'ggplot'.
-compile_volcano_plot_data <- function (de, k, ymax, labels, do.label = NULL) {
+compile_volcano_plot_data <- function (de, k, y, ymin, ymax, labels,
+                                       do.label = NULL) {
+  if (y == "z")
+    y <- abs(de$z[,k])
+  else
+    y <- de$f0
   if (all(is.na(de$lfsr))) {
     message("lfsr is not available, probably because \"shrink.method\" was ",
             "not set to \"ash\"; lfsr in plot should be ignored")
@@ -247,11 +271,12 @@ compile_volcano_plot_data <- function (de, k, ymax, labels, do.label = NULL) {
                     lower    = de$lower[,k],
                     postmean = de$postmean[,k],
                     upper    = de$upper[,k],
-                    z        = de$z[,k], # fit$F[,k] + 1e-5,
+                    z        = de$z[,k],
+                    y        = clamp(y,ymin,ymax),
                     lfsr     = lfsr,
                     stringsAsFactors = FALSE)
+  dat <- dat[order(dat$lfsr,decreasing = TRUE,na.last = FALSE),]
   if (!is.null(do.label))
-    dat$label[which(!do.label(dat$postmean,dat$z))] <- ""
-  dat$zabs <- pmin(ymax,abs(dat$z))
+    dat$label[which(!do.label(dat$postmean,dat$y))] <- ""
   return(dat)
 }

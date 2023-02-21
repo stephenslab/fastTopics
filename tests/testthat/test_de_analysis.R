@@ -230,16 +230,16 @@ test_that(paste("de_analysis with s = rowSums(X) closely recovers true",
   expect_equal(dat$F,de$F,scale = 1,tolerance = 1e-4)
 
   # Create a volcano plot from the de_analysis output.
-  p1 <- volcano_plot(de,k = 1)
-  p2 <- volcano_plotly(de,k = 1)
+  p1 <- volcano_plot(de,k = 1,y = "z")
+  p2 <- volcano_plotly(de,k = 1,y = "z")
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"plotly")
 
   # Check that the volcano plots also work without the adaptive
   # shrinkage step.
   de <- de_analysis(fit,X,shrink.method = "none",verbose = FALSE)
-  p1 <- volcano_plot(de,k = 1)
-  p2 <- volcano_plotly(de,k = 1)
+  p1 <- volcano_plot(de,k = 1,y = "z")
+  p2 <- volcano_plotly(de,k = 1,y = "z")
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"plotly")
 })

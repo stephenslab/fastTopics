@@ -13,7 +13,9 @@ volcano_plot(
   de,
   k,
   labels,
+  y = c("z", "f0"),
   do.label = volcano_plot_do_label_default,
+  ymin = 1e-06,
   ymax = Inf,
   max.overlaps = Inf,
   plot.title = paste("topic", k),
@@ -27,6 +29,8 @@ volcano_plotly(
   k,
   file,
   labels,
+  y = c("z", "f0"),
+  ymin = 1e-06,
   ymax = Inf,
   width = 500,
   height = 500,
@@ -34,11 +38,11 @@ volcano_plotly(
   plot_ly_call = volcano_plot_ly_call
 )
 
-volcano_plot_do_label_default(lfc, z)
+volcano_plot_do_label_default(lfc, y)
 
-volcano_plot_ggplot_call(dat, plot.title, max.overlaps = Inf, font.size = 9)
+volcano_plot_ggplot_call(dat, y, plot.title, max.overlaps = Inf, font.size = 9)
 
-volcano_plot_ly_call(dat, plot.title, width, height)
+volcano_plot_ly_call(dat, y, plot.title, width, height)
 }
 \arguments{
 \item{de}{An object of class \dQuote{topic_model_de_analysis},
@@ -56,15 +60,20 @@ specified, the row names of \code{de$postmean} are used. When
 available. labels are added to the plot using
 \code{\link[ggrepel]{geom_text_repel}}.}
 
+\item{y}{A vector of the same length as \code{lfc}.}
+
 \item{do.label}{The function used to deetermine which LFC estimates
 to label. Replace \code{volcano_plot_do_label_default} with your
 own function to customize the labeling of points in the volcano
 plot.}
 
-\item{ymax}{z-scores greater than \code{ymax} (in magnitude) are
-shown as \code{max}. Setting \code{ymax} to a finite value can
-improve the volcano plot when some z-scores are much larger (in
-magnitude) than others.}
+\item{ymin}{Y-axis values less than \code{ymin} are shown as
+\code{ymin}.}
+
+\item{ymax}{Y-axis values greater than \code{ymax} are shown as
+\code{ymax}. When \code{y = "z"}, setting \code{ymax} to a finite
+value can improve the volcano plot when some z-scores are much
+larger (in magnitude) than others.}
 
 \item{max.overlaps}{Argument passed to
 \code{\link[ggrepel]{geom_text_repel}}.}
@@ -95,12 +104,10 @@ the appearance of the interactive plot.}
 
 \item{lfc}{A vector of log-fold change estimates.}
 
-\item{z}{A vector of z-scores of the same length as \code{lfc}.}
-
 \item{dat}{A data frame passed as input to
 \code{\link[ggplot2]{ggplot}}, containing, at a minimum, columns
-\dQuote{f0}, \dQuote{postmean}, \dQuote{z}, \dQuote{zabs},
-\dQuote{lfsr} and \dQuote{label}.}
+\dQuote{f0}, \dQuote{postmean}, \dQuote{y}, \dQuote{lfsr} and
+\dQuote{label}.}
 
 \item{font.size}{Font size used in plot.}
 }
@@ -113,8 +120,10 @@ Create a \dQuote{volcano} plot to visualize the
   the volcano plot is a scatterplot in which the posterior mean
   log-fold change (LFC), estimated by running the methods implemented
   in \code{\link{de_analysis}}, is plotted against the estimated
-  z-score. Use \code{volcano_plotly} to create an interactive volcano
-  plot.
+  z-score. Variations on this volcano plot may also be created, for
+  example by showing f0 (the null-model estimates) instead of the
+  z-scores. Use \code{volcano_plotly} to create an interactive
+  volcano plot.
 }
 \details{
 Interactive volcano plots can be created using the
