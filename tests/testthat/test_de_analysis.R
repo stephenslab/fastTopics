@@ -233,7 +233,7 @@ test_that(paste("de_analysis with s = rowSums(X) closely recovers true",
   p1 <- volcano_plot(de,k = 1,y = "z")
   p2 <- volcano_plot(de,k = 1,y = "f0")
   p3 <- volcano_plotly(de,k = 1,y = "z")
-  p4 <- volcano_plotly(de,k = 1,y = "f0"
+  p4 <- volcano_plotly(de,k = 1,y = "f0")
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
   expect_s3_class(p3,"plotly")
