@@ -231,17 +231,25 @@ test_that(paste("de_analysis with s = rowSums(X) closely recovers true",
 
   # Create a volcano plot from the de_analysis output.
   p1 <- volcano_plot(de,k = 1,y = "z")
-  p2 <- volcano_plotly(de,k = 1,y = "z")
+  p2 <- volcano_plot(de,k = 1,y = "f0")
+  p3 <- volcano_plotly(de,k = 1,y = "z")
+  p4 <- volcano_plotly(de,k = 1,y = "f0"
   expect_s3_class(p1,"ggplot")
-  expect_s3_class(p2,"plotly")
+  expect_s3_class(p2,"ggplot")
+  expect_s3_class(p3,"plotly")
+  expect_s3_class(p4,"plotly")
 
   # Check that the volcano plots also work without the adaptive
   # shrinkage step.
   de <- de_analysis(fit,X,shrink.method = "none",verbose = FALSE)
   p1 <- volcano_plot(de,k = 1,y = "z")
-  p2 <- volcano_plotly(de,k = 1,y = "z")
+  p2 <- volcano_plot(de,k = 1,y = "f0")
+  p3 <- volcano_plotly(de,k = 1,y = "z")
+  p4 <- volcano_plotly(de,k = 1,y = "f0")
   expect_s3_class(p1,"ggplot")
-  expect_s3_class(p2,"plotly")
+  expect_s3_class(p2,"ggplot")
+  expect_s3_class(p3,"plotly")
+  expect_s3_class(p4,"plotly")
 })
 
 test_that(paste("Pairwise and \"least extreme\" LFC statistics are correct",
