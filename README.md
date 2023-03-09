@@ -5,15 +5,14 @@
 [![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://app.codecov.io/gh/stephenslab/fastTopics)
 
 fastTopics is an R package implementing fast, scalable optimization
-algorithms for fitting topic models ("grade of membership" models) and
-non-negative matrix factorizations to count data. The methods exploit
-the [special relationship][vignette-close-relationship] between the
-multinomial topic model (also "probabilistic latent semantic
-indexing") and Poisson non-negative matrix factorization. The package
+algorithms for fitting topic models and non-negative matrix
+factorizations to count data. The methods exploit the
+[close relationship][vignette-close-relationship] between the topic
+model and Poisson non-negative matrix factorization. The package also
 provides tools to compare, annotate and visualize model fits,
-including functions to efficiently create "structure plots" and
-identify key features in topics. The fastTopics package is a successor
-to the [CountClust package][countclust].
+including functions to create "structure plots" and functions to
+identify distinctive features of topics. The fastTopics package is a
+successor to the [CountClust package][countclust].
 
 If you find a bug, or you have a question or feedback on this software,
 please post an [issue][issues].
@@ -23,18 +22,25 @@ please post an [issue][issues].
 If you find the fastTopics package or any of the source code in this
 repository useful for your work, please cite:
 
-> Kushal K. Dey, Chiaowen Joyce Hsiao and Matthew Stephens (2017).
-> [Visualizing the structure of RNA-seq expression data using grade of membership models.][countclust-paper]
-> *PLoS Genetics* **13**, e1006599.
+> K. K. Dey, C. Joyce Hsiao and M. Stephens (2017). [Visualizing the
+> structure of RNA-seq expression data using grade of membership >
+> models.][countclust-paper] *PLoS Genetics* **13**, e1006599.
 >
-> Peter Carbonetto, Kevin Luo, Kushal Dey, Joyce Hsiao and Matthew
-> Stephens (2021). fastTopics: fast algorithms for fitting topic models
-> and non-negative matrix factorizations to count data. R package
-> version 0.4-11. [https://github.com/stephenslab/fastTopics][fasttopics]
+
+> P. Carbonetto, A. Sarkar, Z. Wang"and M. Stephens (2021).
+> [Non-negative matrix factorization algorithms greatly improve topic
+> model fits.][fasttopics-paper] arXiv* **2105.13440**
+
+If you used the `de_analysis` function in fastTopics, please cite:
+
+> P. Carbonetto, K. Luo, A. Sarkar, A. Hung, K. Tayeb, S. Pott and
+> M. Stephens (2023). Interpreting structure in sequence count data
+> with differential expression analysis allowing for grades of
+> membership. bioRxiv doi:10.1101/2023.03.03.531029
 
 ## License
 
-Copyright (c) 2019-2021, Peter Carbonetto and Matthew Stephens.
+Copyright (c) 2019-2023, Peter Carbonetto and Matthew Stephens.
 
 All source code and software in this repository are made available
 under the terms of the [MIT license][mit-license].
@@ -92,8 +98,7 @@ check_for_cran(".",show_status = TRUE,
 ## Credits
 
 The fastTopics R package was developed by [Peter Carbonetto][peter],
-Kevin Luo, Kushal Dey, Joyce Hsiao and
-[Matthew Stephens][matthew] at the [University of Chicago][uchicago].
+[Matthew Stephens][matthew] and others.
 
 [fasttopics]:  https://github.com/stephenslab/fastTopics
 [mit-license]: https://opensource.org/licenses/mit-license.html
@@ -105,6 +110,7 @@ Kevin Luo, Kushal Dey, Joyce Hsiao and
 [cran]: https://cran.r-project.org
 [countclust]: https://github.com/kkdey/CountClust
 [countclust-paper]: https://doi.org/10.1371/journal.pgen.1006599
+[fasttopics-paper]: https://arxiv.org/abs/2105.13440
 [pkgdown]: https://stephenslab.github.io/fastTopics/
 [vignette-close-relationship]: https://stephenslab.github.io/fastTopics/articles/relationship.html
 [vignette-scrnaseq-1]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
