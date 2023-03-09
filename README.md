@@ -24,20 +24,20 @@ repository useful for your work, please cite:
 
 > K. K. Dey, C. Joyce Hsiao and M. Stephens (2017). [Visualizing the
 > structure of RNA-seq expression data using grade of membership >
-> models.][countclust-paper] *PLoS Genetics* **13**, e1006599.
+> models.][countclust-paper] PLoS Genetics 13, e1006599.
 >
 
 > P. Carbonetto, A. Sarkar, Z. Wang"and M. Stephens (2021).
 > [Non-negative matrix factorization algorithms greatly improve topic
-> model fits.][fasttopics-paper] *arXiv* 2105.13440
+> model fits.][fasttopics-paper] arXiv 2105.13440
 
 If you used the `de_analysis` function in fastTopics, please cite:
 
 > P. Carbonetto, K. Luo, A. Sarkar, A. Hung, K. Tayeb, S. Pott and
-> [M. Stephens (2023). Interpreting structure in sequence count data
+> M. Stephens (2023). [Interpreting structure in sequence count data
 > with differential expression analysis allowing for grades of
 > membership.][singlecell-topics-paper]
-> *bioRxiv* doi:10.1101/2023.03.03.531029
+> bioRxiv doi:10.1101/2023.03.03.531029
 
 ## License
 
