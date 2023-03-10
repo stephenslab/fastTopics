@@ -210,12 +210,13 @@ previously fit topic model.
 
 ```{r predict, results="hide", message=FALSE}
 Ltest <- predict(fit,counts_test)
-fit_test <- init_poisson_nmf(X = counts_test,L = Ltest,init.method = "random")
 ```
 
 The predictions appear to align well with the provided cell labels:
 
 ```{r structure-plot-test, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
+fit_test <- list(F = fit$F,L = Ltest)
+class(fit_test) <- c("multinom_topic_model_fit","list")
 structure_plot(fit_test,topics = 1:6,colors = topic_colors,gap = 2,
                grouping = pbmc_facs$samples_test$subpop)
 ```
@@ -223,53 +224,26 @@ structure_plot(fit_test,topics = 1:6,colors = topic_colors,gap = 2,
 Topics capture patterns of relative expression
 ----------------------------------------------
 
-Above, we explained that the topic model represents cells as mixtures
-of topics. In our running example, some of the topics seem to have a
-straightforward interpretation as known cell types. More precisely,
-each topic captures an expression pattern, encoded as a vector of $m$
-relative expression levels ($m$ is the number of genes). In
-'fastTopics', the relative expression levels for all topics are stored
-as an $m \times K$ matrix:
+Each topic is represented as a vector of $m$ expression levels which
+are stored as an $m \times K$ matrix:
 
 ```{r factors-1}
 dim(fit$F)
 ```
 
-Because the expression patterns are encoded by *relative expression
-levels*, the estimates of relative expression are directly comparable
-across topics. For example, gene *CD79B* is an important component of
-B cell differentiation, so we would expect higher expression in B
-cells. Indeed, this is what we find in the topic 4 (we multiplied the
-estimates by $10^6$ only to make them easier to read):
+These expression levels are comparable across topics. For example,
+genes *CD79A* are *CD79B* are important to B cells, so we would expect
+higher expression in topic 4:
 
 ```{r factors-2}
 genes <- pbmc_facs$genes
-j <- which(genes$symbol == "CD79B")
-round(1e6 * fit$F[j,])
+fit$F[genes$symbol == "CD79B",]
+fit$F[genes$symbol == "CD79A",]
 ```
 
-Expression of *CD79A*---a known marker gene for B cells---provides an
-even stronger clue, as it is uniquely expressed in topic 4:
-
-```{r factors-3}
-j <- which(genes$symbol == "CD79A")
-round(1e6 * fit$F[j,])
-```
-
-By contrast, genes that are highly expressed in all topics, e.g.,
-*COX4I1*, provide little useful information:
-
-```{r factors-4}
-j <- which(genes$symbol == "COX4I1")
-round(1e6 * fit$F[j,])
-```
-
-The larger point here is that the most informative genes are the genes
-with higher expression in one topic compared to the other topics (and
-more generally, genes with large differences in gene expression).
-This idea of analyzing differences in gene expression analysis is an
-old idea. The next section explains how differential expression
-analysis is performed using the topic model.
+The most informative genes are those with higher expression in one
+topic compared to the other topics. In the next section we explain how
+to identify these genes.
 
 Interpreting topics by analyzing gene expression differences
 ------------------------------------------------------------
