@@ -245,40 +245,23 @@ The most informative genes are those with higher expression in one
 topic compared to the other topics. In the next section we explain how
 to identify these genes.
 
-Interpreting topics by analyzing gene expression differences
-------------------------------------------------------------
+Annotating topics by differentially expressed genes
+---------------------------------------------------
 
-To set the stage for differential expression (DE) analysis using a
-topic model, we begin with a classic DE analysis using the available
-cell-type labels. This analysis centers on calculation of the
-*log-fold change* (LFC) statistic. For a given group or cluster, the
-LFC is defined as the (base-2) log-ratio of two expectations: the mean
-expression (*i.e.*, mean UMI count) for all cells belonging to the
-specifed group over the mean expression among cells not belonging to
-the group. For example, genes *CD79A* and *CD79B* are overexpressed in
-B cells, by a multiplicative factor of $2^{5.66} \approx 50$ and
-$2^{4.9} \approx 30$, respectively, and they are underexpressed in the
-other four cell types:
+Consider a standard differential expression (DE) analysis using
+cell-type labels.  This analysis centers on calculation of the
+*log-fold change* (LFC); for a given cell type, the LFC is
+defined as the (base-2) log-ratio of two expression levels, the
+estimated expression in cells belonging to the group over the
+expression in cells not belonging to the group.
 
-```{r diff-count-analysis-1}
-dfc_out <- diff_count_clusters(samples$subpop,counts)
-rbind(dfc_out$beta[genes$symbol == "CD79A",],
-      dfc_out$beta[genes$symbol == "CD79B",])
-```
+'fastTopics' extends the standard DE analysis to allow for *partial
+membership* to multiple groups. This grade of membership differential
+expression (GoM DE) analysis is implemented by the function
+`de_analysis`:
 
-'fastTopics' extends the classic DE analysis to allow for *partial
-membership* to groups. This generalized DE analysis is implemented in
-`diff_count_analysis`:
-
-```{r diff-count-analysis-2}
-dfa_out <- diff_count_analysis(fit,counts)
-```
-
-As in the standard analysis, it outputs LFC estimates:
-
-```{r diff-count-analysis-3}
-rbind(dfa_out$beta[genes$symbol == "CD79A",],
-      dfa_out$beta[genes$symbol == "CD79B",])
+```{r de-analysis-1, eval=FALSE}
+de <- de_analysis(fit,counts)
 ```
 
 These LFC statistics have the same interpretation (the standard LFC
@@ -286,6 +269,11 @@ emerges as a special case when the all mixture proportions are 0 or
 1). The LFC estimates are noticeably larger in the B cells topic
 (topic 4), particularly so for *CD79A*. In fact, *CD79A* is almost
 uniquely expressed in topic 4.
+
+```{r diff-count-analysis-3}
+rbind(dfa_out$beta[genes$symbol == "CD79A",],
+      dfa_out$beta[genes$symbol == "CD79B",])
+```
 
 Up to this point, we have illustrated the DE analysis with known genes
 such as *CD79A*. Ultimately, we would like to *discover* genes
