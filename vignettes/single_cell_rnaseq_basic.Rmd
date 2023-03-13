@@ -237,8 +237,8 @@ higher expression in topic 4:
 
 ```{r factors-2}
 genes <- pbmc_facs$genes
-fit$F[genes$symbol == "CD79B",]
-fit$F[genes$symbol == "CD79A",]
+rbind(fit$F[genes$symbol == "CD79B",],
+      fit$F[genes$symbol == "CD79A",])
 ```
 
 The most informative genes are those with higher expression in one
@@ -275,9 +275,9 @@ de <- pbmc_facs$de
 ```
 
 The GoM DE analysis generates LFC estimates that have a similar
-interpretation to a standard DE analysis. To illustrate, the LFC
-estimates are largest for *CD79A* and *CD79B*, two marker genes for B
-cells, in the "B cells topic" (topic 4):
+interpretation to a standard DE analysis. To illustrate, the GoM DE
+analysis estimates strong overexpression of B-cell genes *CD79A* and
+*CD79B* in topic 4:
 
 ```{r diff-count-analysis-3}
 rbind(de$postmean[genes$symbol == "CD79A",],
@@ -295,8 +295,8 @@ volcano_plot(de,k = 4,labels = genes$symbol)
 
 Typically, the most interesting genes are found on the right-hand side
 of the volcano plot---that is, genes with large LFC---so long as they
-have a small lfsr (local false sign rate). Indeed, *CD79A* is on the
-far right-hand side of the plot.
+have a small lfsr (local false sign rate). Indeed, B cell gene *CD79A*
+is on the far right-hand side of the plot.
 
 Likewise, natural killer genes such as *NKG7* and *GNLY* emerge on the
 right-hand side of the volcano plot for topic 1:

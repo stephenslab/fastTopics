@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-147</span>
       </span>
     </div>
 
@@ -49,7 +51,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/stephenslab/fastTopics">Source</a>
+  <a href="https://github.com/stephenslab/fastTopics" class="external-link">Source</a>
 </li>
       </ul>
 </div>
@@ -64,109 +66,175 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Exploring the close relationship between topic modeling and non-negative matrix factorization for count data</h1>
-                        <h4 class="author">Peter Carbonetto</h4>
+      <h1 data-toc-skip>Exploring the close relationship between topic
+modeling and non-negative matrix factorization for count data</h1>
+                        <h4 data-toc-skip class="author">Peter
+Carbonetto</h4>
             
-            <h4 class="date">2021-06-11</h4>
+            <h4 data-toc-skip class="date">2023-03-13</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/relationship.Rmd"><code>vignettes/relationship.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/HEAD/vignettes/relationship.Rmd" class="external-link"><code>vignettes/relationship.Rmd</code></a></small>
       <div class="hidden name"><code>relationship.Rmd</code></div>
 
     </div>
 
     
     
-<p>The <strong>fastTopics</strong> package implements fast optimization algorithms for fitting topic models and non-negative matrix factorizations to count data. This document explains the close relationship between topic modeling and non-negative matrix factorization (NMF).</p>
+<p>The ‘fastTopics’ package implements fast optimization algorithms for
+fitting topic models and non-negative matrix factorizations to count
+data. This document explains the close relationship between topic
+modeling and non-negative matrix factorization (NMF).</p>
 <p>These are the packages used in the examples below:</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">fastTopics</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggplot2</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">cowplot</span>)</pre></body></html></div>
-<div id="poisson-non-negative-matrix-factorization" class="section level2">
-<h2 class="hasAnchor">
-<a href="#poisson-non-negative-matrix-factorization" class="anchor"></a>Poisson non-negative matrix factorization</h2>
-<p>In Poisson non-negative matrix factorization (<a href="http://papers.nips.cc/paper/1861-algorithms-for-non-negative-matrix-factorization">Lee &amp; Seung, 2001</a>), counts <span class="math inline">\(x_{ij}\)</span> in an <span class="math inline">\(n \times m\)</span> matrix, <span class="math inline">\(X\)</span>, are modeled by the Poisson distribution: <span class="math display">\[
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stephenslab/fastTopics" class="external-link">fastTopics</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></code></pre></div>
+<div class="section level2">
+<h2 id="poisson-non-negative-matrix-factorization">Poisson non-negative matrix factorization<a class="anchor" aria-label="anchor" href="#poisson-non-negative-matrix-factorization"></a>
+</h2>
+<p>In Poisson non-negative matrix factorization (<a href="http://papers.nips.cc/paper/1861-algorithms-for-non-negative-matrix-factorization" class="external-link">Lee
+&amp; Seung, 2001</a>), counts <span class="math inline">\(x_{ij}\)</span> in an <span class="math inline">\(n \times m\)</span> matrix, <span class="math inline">\(X\)</span>, are modeled by the Poisson
+distribution: <span class="math display">\[
 x_{ij} \sim \mathrm{Poisson}(\lambda_{ij}).
-\]</span> Each Poisson rate, <span class="math inline">\(\lambda_{ij}\)</span>, is a simple linear combination of parameters <span class="math inline">\(f_{jk} \geq 0, l_{ik} \geq 0\)</span> to be fitted to the data: <span class="math display">\[
+\]</span> Each Poisson rate, <span class="math inline">\(\lambda_{ij}\)</span>, is a simple linear
+combination of parameters <span class="math inline">\(f_{jk} \geq 0,
+l_{ik} \geq 0\)</span> to be fitted to the data: <span class="math display">\[
 \lambda_{ij} = \sum_{k=1}^K l_{ik} f_{jk},
-\]</span> in which <span class="math inline">\(K\)</span> is a user-specified tuning parameter specifying the rank of the matrix factorization.</p>
-<p>The fastTopics function <code>fit_poisson_nmf</code> computes maximum-likelihood estimates (MLEs) of the Poisson NMF parameters. These parameters are stored as an <span class="math inline">\(m \times K\)</span> matrix <span class="math inline">\(F\)</span>, and an <span class="math inline">\(n \times K\)</span> matrix <span class="math inline">\(L\)</span>. Drawing the connection to PCA, we call <span class="math inline">\(L\)</span> the “loadings matrix” (also sometimes called the “activations”), and <span class="math inline">\(F\)</span> is the “factors matrix” (or “basis vectors”). Here we siulate a “toy” data set with <span class="math inline">\(n = 80\)</span>, <span class="math inline">\(m = 100\)</span> and <span class="math inline">\(K = 3\)</span>:</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">1</span>)
-<span class="no">dat</span>  <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/simulate_count_data.html">simulate_count_data</a></span>(<span class="fl">80</span>,<span class="fl">100</span>,<span class="fl">3</span>)
-<span class="no">fit1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span>(<span class="no">dat</span>$<span class="no">X</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">3</span>,<span class="kw">numiter</span> <span class="kw">=</span> <span class="fl">200</span>,<span class="kw">verbose</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">dat</span>$<span class="no">X</span>),
-      <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">fit1</span>$<span class="no">L</span>),
-      <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">fit1</span>$<span class="no">F</span>))
+\]</span> in which <span class="math inline">\(K\)</span> is a
+user-specified tuning parameter specifying the rank of the matrix
+factorization.</p>
+<p>The ‘fastTopics’ function <code>fit_poisson_nmf</code> computes
+maximum-likelihood estimates (MLEs) of the Poisson NMF parameters. These
+parameters are stored as an <span class="math inline">\(m \times
+K\)</span> matrix <span class="math inline">\(F\)</span>, and an <span class="math inline">\(n \times K\)</span> matrix <span class="math inline">\(L\)</span>. Drawing the connection to PCA, we call
+<span class="math inline">\(L\)</span> the “loadings matrix” (also
+sometimes called the “activations”), and <span class="math inline">\(F\)</span> is the “factors matrix” (or “basis
+vectors”). Here we siulate a “toy” data set with <span class="math inline">\(n = 80\)</span>, <span class="math inline">\(m =
+100\)</span> and <span class="math inline">\(K = 3\)</span>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
+<span class="va">dat</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_count_data.html">simulate_count_data</a></span><span class="op">(</span><span class="fl">80</span>,<span class="fl">100</span>,<span class="fl">3</span><span class="op">)</span>
+<span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_poisson_nmf.html">fit_poisson_nmf</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">X</span>,k <span class="op">=</span> <span class="fl">3</span>,numiter <span class="op">=</span> <span class="fl">200</span>,verbose <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">X</span><span class="op">)</span>,
+      <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">$</span><span class="va">L</span><span class="op">)</span>,
+      <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#      [,1] [,2]</span>
 <span class="co"># [1,]   80  100</span>
 <span class="co"># [2,]   80    3</span>
-<span class="co"># [3,]  100    3</span></pre></body></html></div>
-<p>The fitting procedure finds an <span class="math inline">\(L\)</span> and an <span class="math inline">\(F\)</span> that maximize the likelihood (or, equivalently, that minimize the “deviance”):</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html">quickplot</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">200</span>,<span class="kw">y</span> <span class="kw">=</span> <span class="no">fit1</span>$<span class="no">progress</span>$<span class="no">loglik</span>,<span class="kw">geom</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"point"</span>,<span class="st">"line"</span>),
-  <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"iteration"</span>,<span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"loglik"</span>) + <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="fl">12</span>)</pre></body></html></div>
+<span class="co"># [3,]  100    3</span></code></pre></div>
+<p>The fitting procedure finds an <span class="math inline">\(L\)</span>
+and an <span class="math inline">\(F\)</span> that maximize the
+likelihood (or, equivalently, that minimize the “deviance”):</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">200</span>,y <span class="op">=</span> <span class="va">fit1</span><span class="op">$</span><span class="va">progress</span><span class="op">$</span><span class="va">loglik</span>,geom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"point"</span>,<span class="st">"line"</span><span class="op">)</span>,
+  xlab <span class="op">=</span> <span class="st">"iteration"</span>,ylab <span class="op">=</span> <span class="st">"loglik"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span></code></pre></div>
 <p><img src="relationship_files/figure-html/plot-loglik-1.png" width="336" style="display: block; margin: auto;"></p>
-<p>Note that the MLE is not unique; if we multiply the <span class="math inline">\(k\)</span>th column of <span class="math inline">\(F\)</span> by some positive scalar, <span class="math inline">\(a_k\)</span>, and divide the corresponding column of <span class="math inline">\(L\)</span> by the same <span class="math inline">\(a_k\)</span>, the likelihood will not change.</p>
+<p>Note that the MLE is not unique; if we multiply the <span class="math inline">\(k\)</span>th column of <span class="math inline">\(F\)</span> by some positive scalar, <span class="math inline">\(a_k\)</span>, and divide the corresponding column
+of <span class="math inline">\(L\)</span> by the same <span class="math inline">\(a_k\)</span>, the likelihood will not change.</p>
 </div>
-<div id="the-multinomial-topic-model" class="section level2">
-<h2 class="hasAnchor">
-<a href="#the-multinomial-topic-model" class="anchor"></a>The multinomial topic model</h2>
-<p>In the multinomial topic model (<a href="https://doi.org/10.1145/312624.312649">Hofmann, 1999</a>; <a href="http://jmlr.csail.mit.edu/papers/v3/blei03a.html">Blei <em>et al</em>, 2003</a>), each sample, or row of <span class="math inline">\(X\)</span>, is drawn from a multinomial distribution: <span class="math display">\[
+<div class="section level2">
+<h2 id="the-multinomial-topic-model">The multinomial topic model<a class="anchor" aria-label="anchor" href="#the-multinomial-topic-model"></a>
+</h2>
+<p>In the multinomial topic model (<a href="https://doi.org/10.1145/312624.312649" class="external-link">Hofmann, 1999</a>; <a href="https://jmlr.csail.mit.edu/papers/v3/blei03a.html" class="external-link">Blei <em>et
+al</em>, 2003</a>), each sample, or row of <span class="math inline">\(X\)</span>, is drawn from a multinomial
+distribution: <span class="math display">\[
 x_{i1}, \ldots, x_{im} \,|\, t_i \sim \mathrm{Multinom}(t_i, \pi_i),
-\]</span> Here. <span class="math inline">\(t_i = \sum_{j=1}^m x_{ij}\)</span> is the total sample size for the <span class="math inline">\(i\)</span>th row, and the multinomial probabilities are <span class="math display">\[
+\]</span> Here. <span class="math inline">\(t_i = \sum_{j=1}^m
+x_{ij}\)</span> is the total sample size for the <span class="math inline">\(i\)</span>th row, and the multinomial
+probabilities are <span class="math display">\[
 \pi_{ij} = \sum_{k=1}^K l_{ik}^{\ast} f_{jk}^{\ast}
 \]</span></p>
-<p>where <span class="math inline">\(l_{ik}^{\ast} \geq 0, f_{jk}^{\ast} \geq 0\)</span>. Note the similarity to the Poisson rates <span class="math inline">\(\lambda_{ij}\)</span> above. There is, however, an important difference: the topic model parameters are additionally constrained so that each row of the loadings matrix, <span class="math inline">\(L^{\ast}\)</span>, and each column of factors matrix, <span class="math inline">\(F^{\ast}\)</span>, sums to 1: <span class="math display">\[
+<p>where <span class="math inline">\(l_{ik}^{\ast} \geq 0, f_{jk}^{\ast}
+\geq 0\)</span>. Note the similarity to the Poisson rates <span class="math inline">\(\lambda_{ij}\)</span> above. There is, however, an
+important difference: the topic model parameters are additionally
+constrained so that each row of the loadings matrix, <span class="math inline">\(L^{\ast}\)</span>, and each column of factors
+matrix, <span class="math inline">\(F^{\ast}\)</span>, sums to 1: <span class="math display">\[
 \sum_{k=1}^K l_{ik}^{\ast} = 1, \qquad
 \sum_{j=1}^m f_{jk}^{\ast} = 1.
 \]</span></p>
-<p>With these new constraints, the <span class="math inline">\(\pi_{ij}\)</span>’s are guaranteed to be probabilities, and the factors and loadings have a simple interpretation: <span class="math inline">\(l_{ik}^{\ast}\)</span> is the proportion that topic <span class="math inline">\(k\)</span> contributes to the counts in sample <span class="math inline">\(i\)</span>; <span class="math inline">\(f_{jk}\)</span> is the probability of item <span class="math inline">\(j\)</span> occuring in topic <span class="math inline">\(k\)</span>.</p>
+<p>With these new constraints, the <span class="math inline">\(\pi_{ij}\)</span>’s are guaranteed to be
+probabilities, and the factors and loadings have a simple
+interpretation: <span class="math inline">\(l_{ik}^{\ast}\)</span> is
+the proportion that topic <span class="math inline">\(k\)</span>
+contributes to the counts in sample <span class="math inline">\(i\)</span>; <span class="math inline">\(f_{jk}\)</span> is the probability of item <span class="math inline">\(j\)</span> occuring in topic <span class="math inline">\(k\)</span>.</p>
 </div>
-<div id="from-poisson-nmf-to-topic-model" class="section level2">
-<h2 class="hasAnchor">
-<a href="#from-poisson-nmf-to-topic-model" class="anchor"></a>From Poisson NMF to topic model</h2>
-<p>Having fitted the Poisson NMF model, the multinomial topic model is easily recovered:</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">fit.multinom</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/poisson2multinom.html">poisson2multinom</a></span>(<span class="no">fit1</span>)</pre></body></html></div>
-<p>The rows of <span class="math inline">\(L\)</span> and columns of <span class="math inline">\(F\)</span> indeed sum to 1:</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(<span class="no">fit.multinom</span>$<span class="no">L</span>))
-<span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colSums.html">colSums</a></span>(<span class="no">fit.multinom</span>$<span class="no">F</span>))
+<div class="section level2">
+<h2 id="from-poisson-nmf-to-topic-model">From Poisson NMF to topic model<a class="anchor" aria-label="anchor" href="#from-poisson-nmf-to-topic-model"></a>
+</h2>
+<p>Having fitted the Poisson NMF model, the multinomial topic model is
+easily recovered:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit.multinom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/poisson2multinom.html">poisson2multinom</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></code></pre></div>
+<p>The rows of <span class="math inline">\(L\)</span> and columns of
+<span class="math inline">\(F\)</span> indeed sum to 1:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">fit.multinom</span><span class="op">$</span><span class="va">L</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">fit.multinom</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span><span class="op">)</span>
 <span class="co"># [1] 1 1</span>
-<span class="co"># [1] 1 1</span></pre></body></html></div>
-<p>The multinomial topic model is in fact a <em>reparameterization</em> of the Poisson NMF model; in particular, the <em>likelihood does not change with this reparameterization.</em> We have the following result: <span class="math display">\[
+<span class="co"># [1] 1 1</span></code></pre></div>
+<p>The multinomial topic model is in fact a <em>reparameterization</em>
+of the Poisson NMF model; in particular, the <em>likelihood does not
+change with this reparameterization.</em> We have the following result:
+<span class="math display">\[
 \mathrm{Multinom}(x_i; t_i, \pi_i) \times \mathrm{Poisson}(t_i;
 s_i) = \prod_{j=1}^m \mathrm{Poisson}(x_{ij}; \lambda_{ij}),
-\]</span> in which the <span class="math inline">\(s_i\)</span>’s are the “size factors”. We can check that this result holds in the toy data:</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">ll.pnmf</span>     <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span>(<span class="no">dat</span>$<span class="no">X</span>,<span class="no">fit1</span>)
-<span class="no">ll.multinom</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_multinom_topic_model</a></span>(<span class="no">dat</span>$<span class="no">X</span>,<span class="no">fit.multinom</span>) +
-               <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html">dpois</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(<span class="no">dat</span>$<span class="no">X</span>),<span class="no">fit.multinom</span>$<span class="no">s</span>,<span class="kw">log</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html">quickplot</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">ll.pnmf</span>,<span class="kw">y</span> <span class="kw">=</span> <span class="no">ll.multinom</span>) + <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="fl">12</span>)</pre></body></html></div>
+\]</span> in which the <span class="math inline">\(s_i\)</span>’s are
+the “size factors”. We can check that this result holds in the toy
+data:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ll.pnmf</span>     <span class="op">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">X</span>,<span class="va">fit1</span><span class="op">)</span>
+<span class="va">ll.multinom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_multinom_topic_model</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">X</span>,<span class="va">fit.multinom</span><span class="op">)</span> <span class="op">+</span>
+               <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">dpois</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">X</span><span class="op">)</span>,<span class="va">fit.multinom</span><span class="op">$</span><span class="va">s</span>,log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">ll.pnmf</span>,y <span class="op">=</span> <span class="va">ll.multinom</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span></code></pre></div>
 <p><img src="relationship_files/figure-html/loglik-poisson-vs-multinom-1.png" width="312" style="display: block; margin: auto;"></p>
 </div>
-<div id="from-topic-model-to-poisson-nmf" class="section level2">
-<h2 class="hasAnchor">
-<a href="#from-topic-model-to-poisson-nmf" class="anchor"></a>From topic model to Poisson NMF</h2>
-<p>We can also easily go in the reverse direction, from multinomial topic model fit to Poisson NMF fit. Here is an example, using the same toy data set (the size factor estimates returned by <code>poisson2multinom</code> were removed first to demonstrate that they are not needed):</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">fit.multinom</span>[<span class="st">"s"</span>] <span class="kw">&lt;-</span> <span class="kw">NULL</span>
-<span class="no">fit2</span>    <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/multinom2poisson.html">multinom2poisson</a></span>(<span class="no">fit.multinom</span>,<span class="no">dat</span>$<span class="no">X</span>)
-<span class="no">loglik1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span>(<span class="no">dat</span>$<span class="no">X</span>,<span class="no">fit1</span>)
-<span class="no">loglik2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span>(<span class="no">dat</span>$<span class="no">X</span>,<span class="no">fit2</span>)
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html">quickplot</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">loglik1</span>,<span class="kw">y</span> <span class="kw">=</span> <span class="no">loglik2</span>) + <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="fl">12</span>)</pre></body></html></div>
+<div class="section level2">
+<h2 id="from-topic-model-to-poisson-nmf">From topic model to Poisson NMF<a class="anchor" aria-label="anchor" href="#from-topic-model-to-poisson-nmf"></a>
+</h2>
+<p>We can also easily go in the reverse direction, from multinomial
+topic model fit to Poisson NMF fit. Here is an example, using the same
+toy data set (the size factor estimates returned by
+<code>poisson2multinom</code> were removed first to demonstrate that
+they are not needed):</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit.multinom</span><span class="op">[</span><span class="st">"s"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+<span class="va">fit2</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multinom2poisson.html">multinom2poisson</a></span><span class="op">(</span><span class="va">fit.multinom</span>,<span class="va">dat</span><span class="op">$</span><span class="va">X</span><span class="op">)</span>
+<span class="va">loglik1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">X</span>,<span class="va">fit1</span><span class="op">)</span>
+<span class="va">loglik2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">X</span>,<span class="va">fit2</span><span class="op">)</span>
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">loglik1</span>,y <span class="op">=</span> <span class="va">loglik2</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span></code></pre></div>
 <p><img src="relationship_files/figure-html/multinom2poisson-1-1.png" width="312" style="display: block; margin: auto;"></p>
-<p>From this plot, we see that the likelihoods for the original Poisson NMF fit, and the one recovered from the topic model, are exactly the same. (Note that the factors and loadings will not necessarily be the same—they will only the same up to a rescaling of the columns).</p>
-<p>The reverse transformation from multinomial topic model back to Poisson NMF is in fact <em>very</em> simple, involving only a simple rescaling of the loadings by the total counts for each sample (the function <code>multinom2poisson</code> is really only needed for additional bookkeeping):</p>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">s</span>           <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(<span class="no">dat</span>$<span class="no">X</span>)
-<span class="no">fit3</span>        <span class="kw">&lt;-</span> <span class="no">fit.multinom</span>
-<span class="no">fit3</span>$<span class="no">L</span>      <span class="kw">&lt;-</span> <span class="no">s</span> * <span class="no">fit3</span>$<span class="no">L</span>
-<span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span>(<span class="no">fit3</span>) <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"poisson_nmf_fit"</span>,<span class="st">"list"</span>)
-<span class="no">loglik3</span>     <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span>(<span class="no">dat</span>$<span class="no">X</span>,<span class="no">fit3</span>)
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html">quickplot</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">loglik1</span>,<span class="kw">y</span> <span class="kw">=</span> <span class="no">loglik3</span>) + <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="fl">12</span>)</pre></body></html></div>
+<p>From this plot, we see that the likelihoods for the original Poisson
+NMF fit, and the one recovered from the topic model, are exactly the
+same. (Note that the factors and loadings will not necessarily be the
+same—they will only the same up to a rescaling of the columns).</p>
+<p>The reverse transformation from multinomial topic model back to
+Poisson NMF is in fact <em>very</em> simple, involving only a simple
+rescaling of the loadings by the total counts for each sample (the
+function <code>multinom2poisson</code> is really only needed for
+additional bookkeeping):</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">s</span>           <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">X</span><span class="op">)</span>
+<span class="va">fit3</span>        <span class="op">&lt;-</span> <span class="va">fit.multinom</span>
+<span class="va">fit3</span><span class="op">$</span><span class="va">L</span>      <span class="op">&lt;-</span> <span class="va">s</span> <span class="op">*</span> <span class="va">fit3</span><span class="op">$</span><span class="va">L</span>
+<span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">fit3</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"poisson_nmf_fit"</span>,<span class="st">"list"</span><span class="op">)</span>
+<span class="va">loglik3</span>     <span class="op">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_poisson_nmf</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">X</span>,<span class="va">fit3</span><span class="op">)</span>
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">loglik1</span>,y <span class="op">=</span> <span class="va">loglik3</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span></code></pre></div>
 <p><img src="relationship_files/figure-html/multinom2poisson-2-1.png" width="312" style="display: block; margin: auto;"></p>
 </div>
-<div id="summary" class="section level2">
-<h2 class="hasAnchor">
-<a href="#summary" class="anchor"></a>Summary</h2>
-<p>The “fastTopics” approach aims to combine the advantages of Poisson NMF and topic modeling.</p>
-<p>The Poisson NMF is easier to fit because it doesn’t have the additional constraints.</p>
-<p>On ther other hand, the parameters of the topic model are typically more useful for for understanding data; for example, the <span class="math inline">\(l_{ik}^{\ast}\)</span>’s are topic proportions, which can be used to compare samples (documents), among other things.</p>
-<p>So we provide a function to fit the Poisson NMF model (<code>fit_poisson_nmf</code>), and another function to obtain the topic model fit (<code>poisson2multinom</code>).</p>
+<div class="section level2">
+<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</h2>
+<p>The ‘fastTopics’ approach aims to combine the advantages of Poisson
+NMF and topic modeling.</p>
+<p>The Poisson NMF is easier to fit because it doesn’t have the
+additional constraints.</p>
+<p>On ther other hand, the parameters of the topic model are typically
+more useful for for understanding data; for example, the <span class="math inline">\(l_{ik}^{\ast}\)</span>’s are topic proportions,
+which can be used to compare samples (documents), among other
+things.</p>
+<p>So we provide a function to fit the Poisson NMF model
+(<code>fit_poisson_nmf</code>), and another function to obtain the topic
+model fit (<code>poisson2multinom</code>).</p>
 </div>
   </div>
 
@@ -181,11 +249,15 @@ s_i) = \prod_{j=1}^m \mathrm{Poisson}(x_{ij}; \lambda_{ij}),
 
 
       <footer><div class="copyright">
-  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
+  <p></p>
+<p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew
+Stephens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
       </footer>
@@ -193,6 +265,8 @@ s_i) = \prod_{j=1}^m \mathrm{Poisson}(x_{ij}; \lambda_{ij}),
 
   
 
+
+  
 
   </body>
 </html>

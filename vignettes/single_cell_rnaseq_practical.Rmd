@@ -26,7 +26,7 @@ extracting interesting biological insights.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
-                      fig.align = "center",dpi = 120)
+                      fig.align = "center",dpi = 120, eval=FALSE)
 ```
 
 We begin our analysis by loading the packages. Then we set the seed so

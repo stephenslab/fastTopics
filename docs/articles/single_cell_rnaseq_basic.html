@@ -268,12 +268,11 @@ genes <em>CD79A</em> are <em>CD79B</em> are important to B cells, so we
 would expect higher expression in topic 4:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">genes</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span>
-<span class="va">fit</span><span class="op">$</span><span class="cn">F</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79B"</span>,<span class="op">]</span>
-<span class="va">fit</span><span class="op">$</span><span class="cn">F</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79A"</span>,<span class="op">]</span>
-<span class="co">#           k1           k2           k3           k4           k5           k6 </span>
-<span class="co"># 4.007731e-05 8.923875e-19 3.069143e-19 2.135105e-03 1.991487e-04 3.445500e-19 </span>
-<span class="co">#           k1           k2           k3           k4           k5           k6 </span>
-<span class="co"># 4.589634e-19 8.923875e-19 3.069143e-19 2.747011e-03 5.998699e-19 3.445500e-19</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="cn">F</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79B"</span>,<span class="op">]</span>,
+      <span class="va">fit</span><span class="op">$</span><span class="cn">F</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79A"</span>,<span class="op">]</span><span class="op">)</span>
+<span class="co">#                k1           k2           k3          k4           k5         k6</span>
+<span class="co"># [1,] 4.007731e-05 8.923875e-19 3.069143e-19 0.002135105 1.991487e-04 3.4455e-19</span>
+<span class="co"># [2,] 4.589634e-19 8.923875e-19 3.069143e-19 0.002747011 5.998699e-19 3.4455e-19</span></code></pre></div>
 <p>The most informative genes are those with higher expression in one
 topic compared to the other topics. In the next section we explain how
 to identify these genes.</p>
@@ -301,9 +300,9 @@ provided the output of this <code>de_analysis</code> call in the
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">de</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">de</span></code></pre></div>
 <p>The GoM DE analysis generates LFC estimates that have a similar
-interpretation to a standard DE analysis. To illustrate, the LFC
-estimates are largest for <em>CD79A</em> and <em>CD79B</em>, two marker
-genes for B cells, in the “B cells topic” (topic 4):</p>
+interpretation to a standard DE analysis. To illustrate, the GoM DE
+analysis estimates strong overexpression of B-cell genes <em>CD79A</em>
+and <em>CD79B</em> in topic 4:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">de</span><span class="op">$</span><span class="va">postmean</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79A"</span>,<span class="op">]</span>,
       <span class="va">de</span><span class="op">$</span><span class="va">postmean</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79B"</span>,<span class="op">]</span><span class="op">)</span>
@@ -319,8 +318,8 @@ example, here is the volcano plot for topic 4:</p>
 <p><img src="single_cell_rnaseq_basic_files/figure-html/volcano-plot-bcells-1.png" width="540" style="display: block; margin: auto;"></p>
 <p>Typically, the most interesting genes are found on the right-hand
 side of the volcano plot—that is, genes with large LFC—so long as they
-have a small lfsr (local false sign rate). Indeed, <em>CD79A</em> is on
-the far right-hand side of the plot.</p>
+have a small lfsr (local false sign rate). Indeed, B cell gene
+<em>CD79A</em> is on the far right-hand side of the plot.</p>
 <p>Likewise, natural killer genes such as <em>NKG7</em> and
 <em>GNLY</em> emerge on the right-hand side of the volcano plot for
 topic 1:</p>

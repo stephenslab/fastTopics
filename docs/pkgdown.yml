@@ -1,10 +1,10 @@
-pandoc: 2.3.1
-pkgdown: 1.5.1
-pkgdown_sha: fa4b76ac151cac680dc542174d126d570e411eeb
+pandoc: 2.17.1.1
+pkgdown: 2.0.2
+pkgdown_sha: ~
 articles:
   relationship: relationship.html
   single_cell_rnaseq_basic: single_cell_rnaseq_basic.html
   single_cell_rnaseq_practical: single_cell_rnaseq_practical.html
   topics_vs_clusters: topics_vs_clusters.html
-last_built: 2021-06-11T15:44Z
+last_built: 2023-03-13T20:41Z
 
