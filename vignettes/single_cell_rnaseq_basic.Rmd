@@ -31,7 +31,7 @@ data.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
-                      fig.align = "center",dpi = 120,eval = FALSE)
+                      fig.align = "center",dpi = 120)
 ```
 
 We begin our analysis by loading the packages. Then we set the seed so
@@ -39,7 +39,7 @@ that the results can be reproduced.
 
 ```{r load-pkgs, message=FALSE, warning=FALSE}
 library(Matrix)
-# library(fastTopics)
+library(fastTopics)
 library(ggplot2)
 library(cowplot)
 set.seed(1)
@@ -248,75 +248,68 @@ to identify these genes.
 Annotating topics by differentially expressed genes
 ---------------------------------------------------
 
-Consider a standard differential expression (DE) analysis using
-cell-type labels.  This analysis centers on calculation of the
-*log-fold change* (LFC); for a given cell type, the LFC is
-defined as the (base-2) log-ratio of two expression levels, the
-estimated expression in cells belonging to the group over the
-expression in cells not belonging to the group.
+Consider a standard differential expression (DE) analysis of cell
+types: for a given cell type, the log-fold change (LFC) is estimated
+as the (base-2) log-ratio of two expression levels, the expression in
+cells belonging to the cell type over the expression in cells not
+belonging to the cell type.
 
 'fastTopics' extends the standard DE analysis to allow for *partial
-membership* to multiple groups. This grade of membership differential
-expression (GoM DE) analysis is implemented by the function
-`de_analysis`:
+membership* to multiple groups (the methods are described
+[here][single-cell-topics-paper]). This "grade of membership" (GoM)
+differential expression analysis is implemented by the
+function `de_analysis`:
 
 ```{r de-analysis-1, eval=FALSE}
-de <- de_analysis(fit,counts)
+set.seed(1)
+de <- de_analysis(fit,counts,pseudocount = 0.1,
+                  control = list(ns = 1e4,nc = 4))
 ```
 
-These LFC statistics have the same interpretation (the standard LFC
-emerges as a special case when the all mixture proportions are 0 or
-1). The LFC estimates are noticeably larger in the B cells topic
-(topic 4), particularly so for *CD79A*. In fact, *CD79A* is almost
-uniquely expressed in topic 4.
+Since this computation can take 10 minutes or more to run, we have
+provided the output of this `de_analysis` call in the `pbmc_facs` data
+set:
+
+```{r de-analysis-2}
+de <- pbmc_facs$de
+```
+
+The GoM DE analysis generates LFC estimates that have a similar
+interpretation to a standard DE analysis. To illustrate, the LFC
+estimates are largest for *CD79A* and *CD79B*, two marker genes for B
+cells, in the "B cells topic" (topic 4):
 
 ```{r diff-count-analysis-3}
-rbind(dfa_out$beta[genes$symbol == "CD79A",],
-      dfa_out$beta[genes$symbol == "CD79B",])
+rbind(de$postmean[genes$symbol == "CD79A",],
+      de$postmean[genes$symbol == "CD79B",])
 ```
 
-Up to this point, we have illustrated the DE analysis with known genes
-such as *CD79A*. Ultimately, we would like to *discover* genes
-relevant to a topic (of known or unknown biological relevance).
+Ultimately, we would like to discover genes most relevant to a topic,
+not just report LFC estimates for known genes. A common approach is to
+visualize the results of the DE analysis using a volcano plot. For
+example, here is the volcano plot for topic 4:
 
-To discover genes, a natural thing to do would be to rank candidates
-by their LFC. The complication is that lowly expressed genes could
-also produce, by chance, large LFCs, and we would not want to rank
-these genes highly. The *volcano plot* balances these two concerns:
-the LFC is shown on the x-axis, and the *p*-value or *z*-score,
-quantifying support for differential expression, is shown on the
-*y*-axis. Here is volcano plot for topic 4:
-
-```{r volcano-plot-b, fig.height=4, fig.width=4.5}
-volcano_plot(dfa_out,k = 4,label_above_quantile = 0.995,
-             labels = genes$symbol)
+```{r volcano-plot-bcells, fig.height=4, fig.width=4.5}
+volcano_plot(de,k = 4,labels = genes$symbol)
 ```
 
-Typically, the most interesting genes are found in the top-right
-portion of the volcano plot---that is, genes with large LFC and strong
-support (small *p*-value or high-magnitude *z*-score). Indeed, B-cell
-genes, among them *CD79A* and *CD79B*, appear near the top-right
-corner of the volcano plot.
+Typically, the most interesting genes are found on the right-hand side
+of the volcano plot---that is, genes with large LFC---so long as they
+have a small lfsr (local false sign rate). Indeed, *CD79A* is on the
+far right-hand side of the plot.
 
-(Note that the x-axis in the volcano plot ranges between -15 and 15;
-by default, LFC estimates outside this range are projected onto this
-range. You can use the `betamax` argument to change how the LFC
-estimates are shown in the volcano plot.)
-
-Likewise, natural killer genes such as *NKG7* emerge at the top of the
-volcano plot for topic 1:
+Likewise, natural killer genes such as *NKG7* and *GNLY* emerge on the
+right-hand side of the volcano plot for topic 1:
 
 ```{r volcano-plot-nk, fig.height=4, fig.width=4.5}
-volcano_plot(dfa_out,k = 1,label_above_quantile = 0.995,
-             labels = genes$symbol)
+volcano_plot(de,k = 1,labels = genes$symbol,ymax = 100)
 ```
 
-T-cell-specific expression patterns are captured by topic 6 (e.g.,
-genes *CD3D*, *CD3E*):
+Some of the genes with the largest LFCs are *CD3D*, *CD3E* and *CD8B*
+which suggest topic 6 is capturing expression specific to T cells:
 
-```{r volcano-plot-t, fig.height=4, fig.width=4.5}
-volcano_plot(dfa_out,k = 6,label_above_quantile = 0.9925,
-             labels = genes$symbol)
+```{r volcano-plot-tcells, fig.height=4, fig.width=4.5}
+volcano_plot(de,k = 6,labels = genes$symbol,ymax = 100)
 ```
 
 See also [Part 2][vignette-part-2] for more DE analysis examples.
@@ -333,3 +326,4 @@ sessionInfo()
 
 [vignette-part-2]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_practical.html
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
+[single-cell-topics-paper]: https://doi.org/10.1101/2023.03.03.531029 

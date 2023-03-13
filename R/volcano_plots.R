@@ -209,7 +209,7 @@ volcano_plot_ggplot_call <- function (dat, y, plot.title, max.overlaps = Inf,
                             breaks = ybreaks) +
          scale_fill_manual(values = c("deepskyblue","gold","orange","coral")) +
          labs(x = "log-fold change",
-              y = ifelse(y == "z","|z-score|","null estimate"),
+              y = ifelse(y == "z","|posterior z-score|","null estimate"),
                   title = plot.title) +
          theme_cowplot(font.size) +
          theme(plot.title = element_text(size = font.size,face = "plain")))
@@ -231,7 +231,8 @@ volcano_plot_ly_call <- function (dat, y, plot.title, width, height) {
                                       "logFC(lower): %+0.3f\n",
                                       "logFC(mean): %+0.3f\n",
                                       "logFC(upper): %0.3f\n",
-                                      "z-score: %+0.3f\nlfsr: %0.2e"),
+                                      "posterior z-score: %+0.3f\n",
+                                      "lfsr: %0.2e"),
                                label,f0,lower,postmean,upper,z,lfsr),
                type = "scatter",mode = "markers",hoverinfo = "text",
                width = width,height = height,
@@ -241,8 +242,8 @@ volcano_plot_ly_call <- function (dat, y, plot.title, width, height) {
   p <- layout(p,
               xaxis = list(title = "log-fold change",zeroline = FALSE,
                            showgrid = FALSE),
-              yaxis = list(title=ifelse(y == "z","|z-score|","null estimate"),
-                           zeroline = FALSE,showgrid = FALSE,
+              yaxis = list(title=ifelse(y == "z","|posterior z-score|",
+                           "null estimate"),zeroline = FALSE,showgrid = FALSE,
                            type = ifelse(y == "z","identity","log")),
               hoverlabel = list(bgcolor = "white",bordercolor = "black",
                                 font = list(color = "black",family = "arial",
