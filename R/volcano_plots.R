@@ -181,6 +181,7 @@ volcano_plot_do_label_default <- function (lfc, y)
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
 #' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 scale_color_manual
 #' @importFrom ggplot2 scale_y_continuous
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 theme
@@ -198,16 +199,16 @@ volcano_plot_ggplot_call <- function (dat, y, plot.title, max.overlaps = Inf,
     ybreaks <- c(0,1,2,5,10,20,50,100,200,500,1000,2000,5000,1e4,2e4,5e4)
   else
     ybreaks <- 10^seq(-8,0)
-  return(ggplot(dat,aes_string(x = "postmean",y = "y",fill = "lfsr",
+  return(ggplot(dat,aes_string(x = "postmean",y = "y",color = "lfsr",
                                label = "label")) +
-         geom_point(color = "white",stroke = 0.3,shape = 21,na.rm = TRUE) +
+         geom_point(shape = 20,na.rm = TRUE) +
          geom_text_repel(color = "darkgray",size = 2.25,fontface = "italic",
                          segment.color = "darkgray",segment.size = 0.25,
                          min.segment.length = 0,max.overlaps = max.overlaps,
                          na.rm = TRUE) +
          scale_y_continuous(trans = ifelse(y == "z","sqrt","log10"),
                             breaks = ybreaks) +
-         scale_fill_manual(values = c("deepskyblue","gold","orange","coral")) +
+         scale_color_manual(values = c("deepskyblue","gold","orange","coral")) +
          labs(x = "log-fold change",
               y = ifelse(y == "z","|posterior z-score|","null estimate"),
                   title = plot.title) +
@@ -237,9 +238,7 @@ volcano_plot_ly_call <- function (dat, y, plot.title, width, height) {
                                       "lfsr: %0.2e"),
                                label,f0,lower,postmean,upper,z,lfsr),
                type = "scatter",mode = "markers",hoverinfo = "text",
-               width = width,height = height,
-               marker = list(line = list(color = "white",width = 1),
-                             size = 7.5))
+               width = width,height = height)
   p <- hide_colorbar(p)
   p <- layout(p,
               xaxis = list(title = "log-fold change",zeroline = FALSE,
