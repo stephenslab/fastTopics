@@ -58,14 +58,14 @@ plot_progress(fit,x = "iter",add.point.every = 10,colors = "black") +
 ```
 
 Internally, `fit_topic_model` first fits a non-negative matrix
-factorization to the count data, then converts the fitted NMF to a
-topic model, so the plot shows the improvement in the model fit over
+factorization (NMF) to the count data, then converts the fitted NMF to
+a topic model, so the plot shows the improvement in the model fit over
 time. Judging by this plot, the parameter estimates get close to a
 maxium-likelihood solution after about 150 updates.
 
-For larger or more complex data sets, more than 200 updates may be
-needed to obtain a good fit. For guidance, see `help(fit_topic_model)`
-and `help(fit_poisson_nmf)`.
+For larger or more complex data sets, more updates may be needed to
+obtain a good fit. For guidance, see `help(fit_topic_model)` and
+`help(fit_poisson_nmf)`.
 
 Evaluating fit: single-cell likelihoods
 ---------------------------------------
@@ -101,10 +101,9 @@ ggplot(pdat,aes(x = loglik,fill = subpop)) +
 Visualizing the topics without cell labels
 ------------------------------------------
 
-In Part 1, we made use of additional information about the cells to
-help us interpret the topics. In some cases, however, we may not have
-the benefit of external information to guide our explorations.
-Without the cell labels, the Structure plot can still be effective:
+In [Part 1][single_cell_rnaseq_practical], we made use of additional
+information about the cells to help us interpret the topics. Even
+without the cell labels, the Structure plot can still be effective:
 
 ```{r structure-plot-without-labels, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
@@ -112,32 +111,26 @@ topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
 structure_plot(fit,colors = topic_colors)
 ```
 
-From this Structure plot, we see clustering into B cells (dark blue),
-CD14+ monocytes (green) and CD34+ cells (purple).  The clustering of
-the NK (light blue) and T cells (mixtures of yellow and orange) is
-less distinct, and this is reflected by more sharing of topics (mostly
-topic 6) among NK and T cells.
+From this Structure plot, the topics clearly distinguish the B cells
+(dark blue), CD14+ monocytes (green) and CD34+ cells (purple).  The NK
+cells (light blue) and T cells (cells high proportions of yellow and
+orange) are harder to distinguish, and this is reflected in sharing of
+topics (mostly topic 6) among NK and T cells.
 
 Of course, without the cell labels, we cannot know that the topics
 correspond to these cell types without further downstream
-analyses---for this, we perform a GoM DE analysis as we explained in
-Part 1.
+analyses---for this, we performed a GoM DE analysis (see
+[Part 1][vignette-part-1]).
 
-Identifying clusters from the mixture proportions
--------------------------------------------------
+Identifying clusters from the topic proportions
+-----------------------------------------------
 
 In more complex data sets, some structure may not show up well without
 additional fine-tuning of the plot.
 
-One simple strategy we have found to work well is to first identify
-clusters in the topic proportions matrix, $L$. Here, we illustrate
-this idea using *k*-means. Specifically, we apply $k$-means to the
-principal components (PCs) of the mixture proportions.
-
-We previously experimented with different numbers of clusters and we
-found that 6 clusters worked best. Note that *k*-means can be
-sensitive to (random) initialization, so we set the seed before
-running *k*-means to ensure that the output is reproducible.
+One simple strategy that often works well is to first identify
+clusters in the topic proportions matrix, $L$. Here we use $k$-means
+to identify clusters, but other methods could be used.
 
 ```{r clustering-1}
 set.seed(1)
@@ -146,18 +139,21 @@ clusters <- kmeans(pca,centers = 6,iter.max = 100)$cluster
 summary(factor(clusters))
 ```
 
+We chose 6 clusters, but to be clear the best number of clusters may
+not be the same as the number of topics.
+
 Now we create another Structure plot in which the cells are grouped
-by their membership to the 6 clusters:
+according to the clusters:
 
 ```{r structure-plot-by-cluster-1, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 structure_plot(fit,topics = 1:6,colors = topic_colors,gap = 25,
-               grouping = clusters)
+               grouping = clusters) +
+  theme(axis.text.x = element_blank())
 ```
 
-Judging by the Structure plot, the *k*-means clusters look sensible,
-the one exception being that the T cells (cells with high proportions
-of topics 5 and 6) are arbitrarily split into clusters 1
-and 3. Therefore, we merge these two clusters:
+k-means somewhat arbitrarily split the T cells (cells with high
+proportions of topics 5 and 6) into clusters 1 and 3. Therefore, we
+merge these two clusters:
 
 ```{r clustering-2}
 clusters[clusters == 3] <- 1
@@ -167,9 +163,9 @@ clusters <- factor(clusters)
 We have found that visual inspection of the clusters followed by
 manual refinement is often be needed to get the "right" clustering.
 
-For clarity, we label the clusters by these cell types in the plot,
-noting that labeling the clusters is usually not possible until
-downstream analyses have been performed.
+Now we can label the clusters by these cell types in the plot.
+(Noting that this labeling is usually not possible until downstream
+analyses have been performed.)
 
 ```{r structure-plot-by-cluster-2, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
@@ -177,9 +173,9 @@ structure_plot(fit,topics = 1:6,colors = topic_colors,gap = 25,
                grouping = clusters)
 ```
 
-For clustering, it is also sometimes helpful to visualize the clusters
-in PCA plots which show the projection of the cells onto PCs of the
-mixture proportions:
+It is also sometimes helpful to visualize the structure in PCA plots
+which show the projection of the cells onto PCs of the topic
+proportions:
 
 ```{r pca-plot-1, fig.width=3.5, fig.height=2.5, message=FALSE, warning=FALSE}
 cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
@@ -187,11 +183,8 @@ pca_plot(fit,fill = clusters) +
   scale_fill_manual(values = cluster_colors)
 ```
 
-(The CD14+ and CD34+ cells separate better in PCs 3 and 4.)
-
-When there are many overlapping points, as is the case here, plotting
-instead the density of the points can sometimes show the clustering
-more clearly:
+When there are many overlapping points, plotting the *density* can
+sometimes show the clusters more clearly:
 
 ```{r pca-plot-2, fig.width=3.75, fig.height=2.5, message=FALSE}
 pca_hexbin_plot(fit,bins = 24)
@@ -200,7 +193,8 @@ pca_hexbin_plot(fit,bins = 24)
 More on differential expression analysis
 ----------------------------------------
 
-In Part 1, we performed a DE analysis using the topic model.
+In [Part 1][vignette-part-1], we performed a DE analysis using the
+topic model.
 
 ```{r diff-count-analysis}
 de <- pbmc_facs$de

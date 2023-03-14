@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-148</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-149</span>
       </span>
     </div>
 
@@ -111,14 +111,13 @@ easily done with ‘fastTopics’:</p>
   <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span>font_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/plot-loglik-1.png" width="480" style="display: block; margin: auto;"></p>
 <p>Internally, <code>fit_topic_model</code> first fits a non-negative
-matrix factorization to the count data, then converts the fitted NMF to
-a topic model, so the plot shows the improvement in the model fit over
-time. Judging by this plot, the parameter estimates get close to a
+matrix factorization (NMF) to the count data, then converts the fitted
+NMF to a topic model, so the plot shows the improvement in the model fit
+over time. Judging by this plot, the parameter estimates get close to a
 maxium-likelihood solution after about 150 updates.</p>
-<p>For larger or more complex data sets, more than 200 updates may be
-needed to obtain a good fit. For guidance, see
-<code><a href="../reference/fit_topic_model.html">help(fit_topic_model)</a></code> and
-<code><a href="../reference/fit_poisson_nmf.html">help(fit_poisson_nmf)</a></code>.</p>
+<p>For larger or more complex data sets, more updates may be needed to
+obtain a good fit. For guidance, see <code><a href="../reference/fit_topic_model.html">help(fit_topic_model)</a></code>
+and <code><a href="../reference/fit_poisson_nmf.html">help(fit_poisson_nmf)</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="evaluating-fit-single-cell-likelihoods">Evaluating fit: single-cell likelihoods<a class="anchor" aria-label="anchor" href="#evaluating-fit-single-cell-likelihoods"></a>
@@ -150,37 +149,32 @@ cell.</p>
 <div class="section level2">
 <h2 id="visualizing-the-topics-without-cell-labels">Visualizing the topics without cell labels<a class="anchor" aria-label="anchor" href="#visualizing-the-topics-without-cell-labels"></a>
 </h2>
-<p>In Part 1, we made use of additional information about the cells to
-help us interpret the topics. In some cases, however, we may not have
-the benefit of external information to guide our explorations. Without
-the cell labels, the Structure plot can still be effective:</p>
+<p>In [Part 1][single_cell_rnaseq_practical], we made use of additional
+information about the cells to help us interpret the topics. Even
+without the cell labels, the Structure plot can still be effective:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">topic_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skyblue"</span>,<span class="st">"forestgreen"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"dodgerblue"</span>,
                   <span class="st">"gold"</span>,<span class="st">"darkorange"</span><span class="op">)</span>
 <span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span><span class="op">(</span><span class="va">fit</span>,colors <span class="op">=</span> <span class="va">topic_colors</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-without-labels-1.png" width="780" style="display: block; margin: auto;"></p>
-<p>From this Structure plot, we see clustering into B cells (dark blue),
-CD14+ monocytes (green) and CD34+ cells (purple). The clustering of the
-NK (light blue) and T cells (mixtures of yellow and orange) is less
-distinct, and this is reflected by more sharing of topics (mostly topic
-6) among NK and T cells.</p>
+<p>From this Structure plot, the topics clearly distinguish the B cells
+(dark blue), CD14+ monocytes (green) and CD34+ cells (purple). The NK
+cells (light blue) and T cells (cells high proportions of yellow and
+orange) are harder to distinguish, and this is reflected in sharing of
+topics (mostly topic 6) among NK and T cells.</p>
 <p>Of course, without the cell labels, we cannot know that the topics
 correspond to these cell types without further downstream analyses—for
-this, we perform a GoM DE analysis as we explained in Part 1.</p>
+this, we performed a GoM DE analysis (see <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html" class="external-link">Part
+1</a>).</p>
 </div>
 <div class="section level2">
-<h2 id="identifying-clusters-from-the-mixture-proportions">Identifying clusters from the mixture proportions<a class="anchor" aria-label="anchor" href="#identifying-clusters-from-the-mixture-proportions"></a>
+<h2 id="identifying-clusters-from-the-topic-proportions">Identifying clusters from the topic proportions<a class="anchor" aria-label="anchor" href="#identifying-clusters-from-the-topic-proportions"></a>
 </h2>
 <p>In more complex data sets, some structure may not show up well
 without additional fine-tuning of the plot.</p>
-<p>One simple strategy we have found to work well is to first identify
-clusters in the topic proportions matrix, <span class="math inline">\(L\)</span>. Here, we illustrate this idea using
-<em>k</em>-means. Specifically, we apply <span class="math inline">\(k\)</span>-means to the principal components (PCs)
-of the mixture proportions.</p>
-<p>We previously experimented with different numbers of clusters and we
-found that 6 clusters worked best. Note that <em>k</em>-means can be
-sensitive to (random) initialization, so we set the seed before running
-<em>k</em>-means to ensure that the output is reproducible.</p>
+<p>One simple strategy that often works well is to first identify
+clusters in the topic proportions matrix, <span class="math inline">\(L\)</span>. Here we use <span class="math inline">\(k\)</span>-means to identify clusters, but other
+methods could be used.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">L</span><span class="op">)</span><span class="op">$</span><span class="va">x</span>
@@ -188,41 +182,41 @@ sensitive to (random) initialization, so we set the seed before running
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#    1    2    3    4    5    6 </span>
 <span class="co">#  400  207 1047  797  616  707</span></code></pre></div>
+<p>We chose 6 clusters, but to be clear the best number of clusters may
+not be the same as the number of topics.</p>
 <p>Now we create another Structure plot in which the cells are grouped
-by their membership to the 6 clusters:</p>
+according to the clusters:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span><span class="op">(</span><span class="va">fit</span>,topics <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,colors <span class="op">=</span> <span class="va">topic_colors</span>,gap <span class="op">=</span> <span class="fl">25</span>,
-               grouping <span class="op">=</span> <span class="va">clusters</span><span class="op">)</span></code></pre></div>
+               grouping <span class="op">=</span> <span class="va">clusters</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-by-cluster-1-1.png" width="900" style="display: block; margin: auto;"></p>
-<p>Judging by the Structure plot, the <em>k</em>-means clusters look
-sensible, the one exception being that the T cells (cells with high
-proportions of topics 5 and 6) are arbitrarily split into clusters 1 and
-3. Therefore, we merge these two clusters:</p>
+<p>k-means somewhat arbitrarily split the T cells (cells with high
+proportions of topics 5 and 6) into clusters 1 and 3. Therefore, we
+merge these two clusters:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">clusters</span><span class="op">[</span><span class="va">clusters</span> <span class="op">==</span> <span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
 <span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span></code></pre></div>
 <p>We have found that visual inspection of the clusters followed by
 manual refinement is often be needed to get the “right” clustering.</p>
-<p>For clarity, we label the clusters by these cell types in the plot,
-noting that labeling the clusters is usually not possible until
-downstream analyses have been performed.</p>
+<p>Now we can label the clusters by these cell types in the plot.
+(Noting that this labeling is usually not possible until downstream
+analyses have been performed.)</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"T"</span>,<span class="st">"CD14+"</span>,<span class="st">"B"</span>,<span class="st">"CD34+"</span>,<span class="st">"NK"</span><span class="op">)</span>
 <span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span><span class="op">(</span><span class="va">fit</span>,topics <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,colors <span class="op">=</span> <span class="va">topic_colors</span>,gap <span class="op">=</span> <span class="fl">25</span>,
                grouping <span class="op">=</span> <span class="va">clusters</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-by-cluster-2-1.png" width="900" style="display: block; margin: auto;"></p>
-<p>For clustering, it is also sometimes helpful to visualize the
-clusters in PCA plots which show the projection of the cells onto PCs of
-the mixture proportions:</p>
+<p>It is also sometimes helpful to visualize the structure in PCA plots
+which show the projection of the cells onto PCs of the topic
+proportions:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cluster_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gold"</span>,<span class="st">"forestgreen"</span>,<span class="st">"dodgerblue"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"skyblue"</span><span class="op">)</span>
 <span class="fu"><a href="../reference/embedding_plots.html">pca_plot</a></span><span class="op">(</span><span class="va">fit</span>,fill <span class="op">=</span> <span class="va">clusters</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">cluster_colors</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/pca-plot-1-1.png" width="420" style="display: block; margin: auto;"></p>
-<p>(The CD14+ and CD34+ cells separate better in PCs 3 and 4.)</p>
-<p>When there are many overlapping points, as is the case here, plotting
-instead the density of the points can sometimes show the clustering more
-clearly:</p>
+<p>When there are many overlapping points, plotting the <em>density</em>
+can sometimes show the clusters more clearly:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/embedding_plots.html">pca_hexbin_plot</a></span><span class="op">(</span><span class="va">fit</span>,bins <span class="op">=</span> <span class="fl">24</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/pca-plot-2-1.png" width="450" style="display: block; margin: auto;"></p>
@@ -230,7 +224,8 @@ clearly:</p>
 <div class="section level2">
 <h2 id="more-on-differential-expression-analysis">More on differential expression analysis<a class="anchor" aria-label="anchor" href="#more-on-differential-expression-analysis"></a>
 </h2>
-<p>In Part 1, we performed a DE analysis using the topic model.</p>
+<p>In <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html" class="external-link">Part
+1</a>, we performed a DE analysis using the topic model.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">de</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">de</span></code></pre></div>
 <p>When the volcano plot shows many overlapping differentially expressed
@@ -268,7 +263,7 @@ these results.</p>
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] cowplot_1.1.1      ggplot2_3.3.6      fastTopics_0.6-147 Matrix_1.2-18     </span>
+<span class="co"># [1] cowplot_1.1.1      ggplot2_3.3.6      fastTopics_0.6-149 Matrix_1.2-18     </span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
 <span class="co">#  [1] mcmc_0.9-6         fs_1.5.2           progress_1.2.2     httr_1.4.2        </span>
