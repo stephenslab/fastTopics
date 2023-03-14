@@ -15,18 +15,13 @@ vignette: >
 ---
 
 This vignette continues from [Part 1][vignette-part-1], where we
-introduced the basic concepts behind an analysis of single-cell
-RNA-seq data using a topic model, and showed how the topic model
-analysis can be implemented in 'fastTopics'. Here we revisit the same
-example data set, giving more detailed guidance, and discussing a few
-complications that may arise as you consider larger or more complex
-data sets. We illustrate a few strategies that could be helpful
-for improving your results, creating effective visualizations and
-extracting interesting biological insights.
+introduced the basic steps of a topic modeling analysis for
+single-cell data. Here we give more detailed guidance and discuss
+complications that may arise.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
-                      fig.align = "center",dpi = 120, eval=FALSE)
+                      fig.align = "center",dpi = 120)
 ```
 
 We begin our analysis by loading the packages. Then we set the seed so
@@ -54,8 +49,8 @@ Assessing convergence of model fitting
 The topic model was fitted using the `fit_topic_model` function. This
 function, as we mentioned, hides most of the complexities of model
 fitting. Nevertheless, it is a good idea to check that the model
-fitting has converged to a maximum-likelihood solution. This can be
-easily done in 'fastTopics':
+fitting has converged to a maximum-likelihood solution. This is
+easily done with 'fastTopics':
 
 ```{r plot-loglik, fig.height=2, fig.width=4}
 plot_progress(fit,x = "iter",add.point.every = 10,colors = "black") +
@@ -64,21 +59,18 @@ plot_progress(fit,x = "iter",add.point.every = 10,colors = "black") +
 
 Internally, `fit_topic_model` first fits a non-negative matrix
 factorization to the count data, then converts the fitted NMF to a
-topic model, so the plot shows the improvement in the NMF model fit
-over time (improvement is measured by the NMF likelihood, not the
-multinomial topic model likelihood). Judging by this plot, the
-parameter estimates get close to a maxium-likelihood solution after
-about 150 updates.
+topic model, so the plot shows the improvement in the model fit over
+time. Judging by this plot, the parameter estimates get close to a
+maxium-likelihood solution after about 150 updates.
 
 For larger or more complex data sets, more than 200 updates may be
-needed to obtain a good fit. For guidance on fine-tuning the model
-fitting, refer to the documentation for `fit_topic_model` and
-`fit_poisson_nmf`.
+needed to obtain a good fit. For guidance, see `help(fit_topic_model)`
+and `help(fit_poisson_nmf)`.
 
 Evaluating fit: single-cell likelihoods
 ---------------------------------------
 
-The topic model can be used to calculate a likelihood for each cell.
+The topic model can be used to calculate *a likelihood for each cell:*
 
 ```{r loglik-1}
 loglik <- loglik_multinom_topic_model(counts,fit)
@@ -89,7 +81,7 @@ This can be used to assess how well the topic model "fits" each cell.
 ```{r loglik-2, fig.height=2, fig.width=4.5}
 pdat <- data.frame(loglik)
 ggplot(pdat,aes(loglik)) +
-  geom_histogram(bins = 64,color = "white",fill = "black") +
+  geom_histogram(bins = 64,color = "white",fill = "black",size = 0.25) +
   labs(y = "number of cells") +
   theme_cowplot(font_size = 10)
 ```
@@ -100,7 +92,7 @@ Most of the poorly fit cells are in the CD34+ subpopulation:
 subpop_colors <- c("dodgerblue","forestgreen","darkmagenta","skyblue","gold")
 pdat <- data.frame(loglik = loglik,subpop = pbmc_facs$samples$subpop)
 ggplot(pdat,aes(x = loglik,fill = subpop)) +
-  geom_histogram(bins = 64,color = "white") +
+  geom_histogram(bins = 64,color = "white",size = 0.25) +
   scale_fill_manual(values = subpop_colors) +
   labs(y = "number of cells") +
   theme_cowplot(font_size = 10)
@@ -111,12 +103,8 @@ Visualizing the topics without cell labels
 
 In Part 1, we made use of additional information about the cells to
 help us interpret the topics. In some cases, however, we may not have
-the benefit of external information to guide our explorations. In this
-section, we illustrate the *de novo* discovery of structure using a
-topic model.
-
-Without the cell labels, the Structure plot can still be quite
-effective:
+the benefit of external information to guide our explorations.
+Without the cell labels, the Structure plot can still be effective:
 
 ```{r structure-plot-without-labels, fig.width=6.5, fig.height=1.5, results="hide", message=FALSE}
 topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
@@ -124,28 +112,27 @@ topic_colors <- c("skyblue","forestgreen","darkmagenta","dodgerblue",
 structure_plot(fit,colors = topic_colors)
 ```
 
-From this Structure plot, we see the clustering of the cells into B
-cells (dark blue), CD14+ monocytes (green) and CD34+ cells (purple).
-The clustering of the NK (light blue) and T cells (mixtures of yellow
-and orange) is less distinct, and this is reflected by more sharing of
-topics (mostly topic 6) among NK and T cells.
+From this Structure plot, we see clustering into B cells (dark blue),
+CD14+ monocytes (green) and CD34+ cells (purple).  The clustering of
+the NK (light blue) and T cells (mixtures of yellow and orange) is
+less distinct, and this is reflected by more sharing of topics (mostly
+topic 6) among NK and T cells.
 
 Of course, without the cell labels, we cannot know that the topics
 correspond to these cell types without further downstream
-analyses---for this, we will perform a differential expression 
-analysis (continue reading).
+analyses---for this, we perform a GoM DE analysis as we explained in
+Part 1.
 
 Identifying clusters from the mixture proportions
 -------------------------------------------------
 
-In more complex data sets, some types of fine scale structure, or rare
-cell types, may not show up well in the Structure plot, at least
-without additional fine-tuning of the plot.
+In more complex data sets, some structure may not show up well without
+additional fine-tuning of the plot.
 
-One simple strategy we have found to be generally helpful is to first
-identify clusters in the mixture proportions matrix, $L$. Here, we
-illustrate this idea using *k*-means. Specifically, we apply $k$-means
-to the principal components (PCs) of the mixture proportions.
+One simple strategy we have found to work well is to first identify
+clusters in the topic proportions matrix, $L$. Here, we illustrate
+this idea using *k*-means. Specifically, we apply $k$-means to the
+principal components (PCs) of the mixture proportions.
 
 We previously experimented with different numbers of clusters and we
 found that 6 clusters worked best. Note that *k*-means can be
@@ -159,7 +146,7 @@ clusters <- kmeans(pca,centers = 6,iter.max = 100)$cluster
 summary(factor(clusters))
 ```
 
-Now we create another Structure plot in which the cells are organized
+Now we create another Structure plot in which the cells are grouped
 by their membership to the 6 clusters:
 
 ```{r structure-plot-by-cluster-1, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
@@ -169,7 +156,7 @@ structure_plot(fit,topics = 1:6,colors = topic_colors,gap = 25,
 
 Judging by the Structure plot, the *k*-means clusters look sensible,
 the one exception being that the T cells (cells with high proportions
-of topics 5 and 6) seem to be rather arbitrarily split into clusters 1
+of topics 5 and 6) are arbitrarily split into clusters 1
 and 3. Therefore, we merge these two clusters:
 
 ```{r clustering-2}
@@ -180,12 +167,9 @@ clusters <- factor(clusters)
 We have found that visual inspection of the clusters followed by
 manual refinement is often be needed to get the "right" clustering.
 
-With the benefit of hindsight, we know that these 5 clusters
-correspond to 5 cell types: B cells, T cells, natural killer (NK)
-cellls, CD14+ monoytes and CD34+ cells. For clarity of presentation,
-we label the clusters by these cell types, noting that, in most
-practical settings, labeling the clusters is usually not possible
-until downstream analyses have been performed.
+For clarity, we label the clusters by these cell types in the plot,
+noting that labeling the clusters is usually not possible until
+downstream analyses have been performed.
 
 ```{r structure-plot-by-cluster-2, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
 levels(clusters) <- c("T","CD14+","B","CD34+","NK")
@@ -193,98 +177,50 @@ structure_plot(fit,topics = 1:6,colors = topic_colors,gap = 25,
                grouping = clusters)
 ```
 
-This new Structure plot better highlights the heterogeneity within the
-clusters, particularly in the T cells. Within the T cells cluster,
-there is distinctive subset of cells with contributions from topic 1
-(the "NK cells" topic, in light blue).
-
 For clustering, it is also sometimes helpful to visualize the clusters
 in PCA plots which show the projection of the cells onto PCs of the
 mixture proportions:
 
-```{r pca-plot-1, fig.width=3.5, fig.height=2.5, message=FALSE}
+```{r pca-plot-1, fig.width=3.5, fig.height=2.5, message=FALSE, warning=FALSE}
 cluster_colors <- c("gold","forestgreen","dodgerblue","darkmagenta","skyblue")
 pca_plot(fit,fill = clusters) +
   scale_fill_manual(values = cluster_colors)
 ```
 
-(Note that the CD14+ and CD34+ cells separate better in PCs 3 and 4.)
+(The CD14+ and CD34+ cells separate better in PCs 3 and 4.)
 
-When there are many overlapping points, as is the case here, a
-plotting instead the density of the points can show the clustering
+When there are many overlapping points, as is the case here, plotting
+instead the density of the points can sometimes show the clustering
 more clearly:
 
 ```{r pca-plot-2, fig.width=3.75, fig.height=2.5, message=FALSE}
 pca_hexbin_plot(fit,bins = 24)
 ```
 
-In particular, the separation of the T cells and NK cells into two
-clusters is more clear in the density ("hexbin") plot.
-
-This example is only meant to illustrate clustering of the cells by
-the estimated mixture proportions; *k*-means may not be the best
-clustering technique for all data sets. For more complex data sets,
-some ingenuity may be needed to identify and visualize clusters.
-
 More on differential expression analysis
 ----------------------------------------
 
-In Part 1, we performed a differential expression (DE) analysis using
-the topic model, and using the results of this analysis we were
-interpreted topic 1 as NK cells, topic 4 as B cells, and topic 6 as T
-cells. Let's briefly expand on this DE analysis.
+In Part 1, we performed a DE analysis using the topic model.
 
 ```{r diff-count-analysis}
-dfa_out <- diff_count_analysis(fit,counts)
+de <- pbmc_facs$de
 ```
 
-When the volcano plot shows many overlapping DE genes, it can be
-helpful to explore the results interactively. The function
-`volcano_plotly` creates an interactive volcano plot that can be
-viewed in a Web browser. For example, here is an interactive volcano
-plot for the T cells topic:
+When the volcano plot shows many overlapping differentially expressed
+genes, it can be helpful to explore the results interactively. The
+function `volcano_plotly` creates an *interactive volcano plot* that can
+be viewed in a Web browser. For example, here is an interactive
+volcano plot for the T cells topic:
 
-```{r volcano-plotly}
+```{r volcano-plotly, warning=FALSE}
 genes <- pbmc_facs$genes
-p1 <- volcano_plotly(dfa_out,k = 6,file = "volcano_plot_t_cells.html",
-                     labels = genes$symbol)
+p <- volcano_plotly(de,k = 6,file = "volcano_plot_t_cells.html",
+                    labels = genes$symbol,ymax = 100)
 ```
 
 This call creates a new file `volcano_plot_t_cells.html`. The
 interactive volcano plot can also be viewed [here][volcano-plotly], or
-by calling `print(p1)` in your R session.
-
-Within the T cell cluster, there is a distinctive subset of cells with
-sizeable contributions from the "NK cells" topic (that is, topic 1,
-shown in light blue in the Structure plot). This subset of cells sits
-in between the dense clumps of NK and T cells in the PCA plots
-above. To highlight this subset of cells---which turn out to be CD8+
-cells, as we will see shortly---we define a new cluster:
-
-```{r structure-plot-by-cluster-3, fig.width=7.5, fig.height=1.75, results="hide", message=FALSE}
-clusters <- as.character(clusters)
-clusters[clusters == "T" & fit$L[,1] > 0.1] <- "CD8+"
-clusters <- factor(clusters)
-structure_plot(fit,topics = 1:6,colors = topic_colors,gap = 25,
-               grouping = clusters)
-```
-
-Now we can perform DE analysis on the CD8+ cluster (as well as the
-other clusters) using the `diff_count_clusters` function, and
-visualize the results using a volcano plot, as before:
-
-```{r volcano-plot-cd8, fig.height=3.5, fig.width=4.5, results="hide"}
-dfc_clusters <- diff_count_clusters(clusters,counts)
-volcano_plot(dfc_clusters,k = "CD8+",label_above_quantile = 0.98,
-             labels = genes$symbol) +
-  ggtitle("cluster CD8+")
-```
-
-(Recall, we also used `diff_count_clusters` in Part 1 to perform a
-basic DE analysis.)
-
-For example, genes *CD8A*, *CD8B* and *CCL5* (*RANTES*) are among the
-top DE genes, which are clues pointing to CD8+ cytotoxic T cells.
+by calling `print(p)` in R.
 
 Session info
 ------------

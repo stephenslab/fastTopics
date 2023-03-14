@@ -225,6 +225,8 @@ volcano_plot_ggplot_call <- function (dat, y, plot.title, max.overlaps = Inf,
 #' 
 volcano_plot_ly_call <- function (dat, y, plot.title, width, height) {
   dat$fill <- cut(dat$lfsr,c(-1,0.001,0.01,0.05,Inf))
+  if (y == "z")
+    dat$y <- sqrt(dat$y)
   p <- plot_ly(data = dat,x = ~postmean,y = ~y,color = ~fill,
                colors = c("deepskyblue","gold","orange","coral"),
                text = ~sprintf(paste0("%s\nmean(null): %0.2e\n",
@@ -242,7 +244,7 @@ volcano_plot_ly_call <- function (dat, y, plot.title, width, height) {
   p <- layout(p,
               xaxis = list(title = "log-fold change",zeroline = FALSE,
                            showgrid = FALSE),
-              yaxis = list(title=ifelse(y == "z","|posterior z-score|",
+              yaxis = list(title=ifelse(y == "z","sqrt|posterior z-score|",
                            "null estimate"),zeroline = FALSE,showgrid = FALSE,
                            type = ifelse(y == "z","identity","log")),
               hoverlabel = list(bgcolor = "white",bordercolor = "black",

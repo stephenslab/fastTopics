@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5-52</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-148</span>
       </span>
     </div>
 
@@ -49,7 +51,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/stephenslab/fastTopics">Source</a>
+  <a href="https://github.com/stephenslab/fastTopics" class="external-link">Source</a>
 </li>
       </ul>
 </div>
@@ -64,145 +66,193 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a topic model, Part 2: practical implementation</h1>
-                        <h4 class="author">Peter Carbonetto</h4>
+      <h1 data-toc-skip>Analysis of single-cell RNA-seq data using a
+topic model, Part 2: practical implementation</h1>
+                        <h4 data-toc-skip class="author">Peter
+Carbonetto</h4>
             
-            <h4 class="date">2021-06-11</h4>
+            <h4 data-toc-skip class="date">2023-03-14</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/master/vignettes/single_cell_rnaseq_practical.Rmd"><code>vignettes/single_cell_rnaseq_practical.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/stephenslab/fastTopics/blob/HEAD/vignettes/single_cell_rnaseq_practical.Rmd" class="external-link"><code>vignettes/single_cell_rnaseq_practical.Rmd</code></a></small>
       <div class="hidden name"><code>single_cell_rnaseq_practical.Rmd</code></div>
 
     </div>
 
     
     
-<p>This vignette continues from <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html">Part 1</a>, where we introduced the basic concepts behind an analysis of single-cell RNA-seq data using a topic model, and showed how the topic model analysis can be implemented in <strong>fastTopics</strong>. Here we revisit the same example data set, giving more detailed guidance, and discussing a few complications that may arise as you consider larger or more complex data sets. We illustrate a few strategies that could be helpful for improving your results, creating effective visualizations and extracting interesting biological insights.</p>
-<p>We begin our analysis by loading the packages. Then we set the seed so that the results can be reproduced.</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">Matrix</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">fastTopics</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggplot2</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">cowplot</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">1</span>)</pre></body></html></div>
-<p>Now we load the data set and the <span class="math inline">\(K = 6\)</span> pre-fitted topic model.</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">pbmc_facs</span>)
-<span class="no">counts</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">counts</span>
-<span class="no">fit</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">fit</span></pre></body></html></div>
-<div id="assessing-convergence-of-model-fitting" class="section level2">
-<h2 class="hasAnchor">
-<a href="#assessing-convergence-of-model-fitting" class="anchor"></a>Assessing convergence of model fitting</h2>
-<p>The topic model was fitted using the <code>fit_topic_model</code> function. This function, as we mentioned, hides most of the complexities of model fitting. Nevertheless, it is a good idea to check that the model fitting has converged to a maximum-likelihood solution. This can be easily done in <strong>fastTopics</strong>:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="../reference/plot_progress.html">plot_progress</a></span>(<span class="no">fit</span>,<span class="kw">x</span> <span class="kw">=</span> <span class="st">"iter"</span>,<span class="kw">add.point.every</span> <span class="kw">=</span> <span class="fl">10</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="st">"black"</span>) +
-  <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="kw">font_size</span> <span class="kw">=</span> <span class="fl">10</span>)</pre></body></html></div>
+<p>This vignette continues from <a href="https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html" class="external-link">Part
+1</a>, where we introduced the basic steps of a topic modeling analysis
+for single-cell data. Here we give more detailed guidance and discuss
+complications that may arise.</p>
+<p>We begin our analysis by loading the packages. Then we set the seed
+so that the results can be reproduced.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://Matrix.R-forge.R-project.org/" class="external-link">Matrix</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stephenslab/fastTopics" class="external-link">fastTopics</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></code></pre></div>
+<p>Now we load the data set and the <span class="math inline">\(K =
+6\)</span> pre-fitted topic model.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">)</span>
+<span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">counts</span>
+<span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span></code></pre></div>
+<div class="section level2">
+<h2 id="assessing-convergence-of-model-fitting">Assessing convergence of model fitting<a class="anchor" aria-label="anchor" href="#assessing-convergence-of-model-fitting"></a>
+</h2>
+<p>The topic model was fitted using the <code>fit_topic_model</code>
+function. This function, as we mentioned, hides most of the complexities
+of model fitting. Nevertheless, it is a good idea to check that the
+model fitting has converged to a maximum-likelihood solution. This is
+easily done with ‘fastTopics’:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_progress.html">plot_progress</a></span><span class="op">(</span><span class="va">fit</span>,x <span class="op">=</span> <span class="st">"iter"</span>,add.point.every <span class="op">=</span> <span class="fl">10</span>,colors <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span>font_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/plot-loglik-1.png" width="480" style="display: block; margin: auto;"></p>
-<p>Internally, <code>fit_topic_model</code> first fits a non-negative matrix factorization to the count data, then converts the fitted NMF to a topic model, so the plot shows the improvement in the NMF model fit over time (improvement is measured by the NMF likelihood, not the multinomial topic model likelihood). Judging by this plot, the parameter estimates get close to a maxium-likelihood solution after about 150 updates.</p>
-<p>For larger or more complex data sets, more than 200 updates may be needed to obtain a good fit. For guidance on fine-tuning the model fitting, refer to the documentation for <code>fit_topic_model</code> and <code>fit_poisson_nmf</code>.</p>
+<p>Internally, <code>fit_topic_model</code> first fits a non-negative
+matrix factorization to the count data, then converts the fitted NMF to
+a topic model, so the plot shows the improvement in the model fit over
+time. Judging by this plot, the parameter estimates get close to a
+maxium-likelihood solution after about 150 updates.</p>
+<p>For larger or more complex data sets, more than 200 updates may be
+needed to obtain a good fit. For guidance, see
+<code><a href="../reference/fit_topic_model.html">help(fit_topic_model)</a></code> and
+<code><a href="../reference/fit_poisson_nmf.html">help(fit_poisson_nmf)</a></code>.</p>
 </div>
-<div id="evaluating-fit-single-cell-likelihoods" class="section level2">
-<h2 class="hasAnchor">
-<a href="#evaluating-fit-single-cell-likelihoods" class="anchor"></a>Evaluating fit: single-cell likelihoods</h2>
-<p>The topic model can be used to calculate a likelihood for each cell.</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">loglik</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_multinom_topic_model</a></span>(<span class="no">counts</span>,<span class="no">fit</span>)</pre></body></html></div>
-<p>This can be used to assess how well the topic model “fits” each cell.</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">pdat</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="no">loglik</span>)
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="no">pdat</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="no">loglik</span>)) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html">geom_histogram</a></span>(<span class="kw">bins</span> <span class="kw">=</span> <span class="fl">64</span>,<span class="kw">color</span> <span class="kw">=</span> <span class="st">"white"</span>,<span class="kw">fill</span> <span class="kw">=</span> <span class="st">"black"</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="st">"number of cells"</span>) +
-  <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="kw">font_size</span> <span class="kw">=</span> <span class="fl">10</span>)</pre></body></html></div>
+<div class="section level2">
+<h2 id="evaluating-fit-single-cell-likelihoods">Evaluating fit: single-cell likelihoods<a class="anchor" aria-label="anchor" href="#evaluating-fit-single-cell-likelihoods"></a>
+</h2>
+<p>The topic model can be used to calculate <em>a likelihood for each
+cell:</em></p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">loglik</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/likelihood.html">loglik_multinom_topic_model</a></span><span class="op">(</span><span class="va">counts</span>,<span class="va">fit</span><span class="op">)</span></code></pre></div>
+<p>This can be used to assess how well the topic model “fits” each
+cell.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pdat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">loglik</span><span class="op">)</span>
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pdat</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">loglik</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">64</span>,color <span class="op">=</span> <span class="st">"white"</span>,fill <span class="op">=</span> <span class="st">"black"</span>,size <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"number of cells"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span>font_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/loglik-2-1.png" width="540" style="display: block; margin: auto;"></p>
 <p>Most of the poorly fit cells are in the CD34+ subpopulation:</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">subpop_colors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"dodgerblue"</span>,<span class="st">"forestgreen"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"skyblue"</span>,<span class="st">"gold"</span>)
-<span class="no">pdat</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">loglik</span> <span class="kw">=</span> <span class="no">loglik</span>,<span class="kw">subpop</span> <span class="kw">=</span> <span class="no">pbmc_facs</span>$<span class="no">samples</span>$<span class="no">subpop</span>)
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="no">pdat</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">loglik</span>,<span class="kw">fill</span> <span class="kw">=</span> <span class="no">subpop</span>)) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html">geom_histogram</a></span>(<span class="kw">bins</span> <span class="kw">=</span> <span class="fl">64</span>,<span class="kw">color</span> <span class="kw">=</span> <span class="st">"white"</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_fill_manual</a></span>(<span class="kw">values</span> <span class="kw">=</span> <span class="no">subpop_colors</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="st">"number of cells"</span>) +
-  <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="kw">font_size</span> <span class="kw">=</span> <span class="fl">10</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">subpop_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dodgerblue"</span>,<span class="st">"forestgreen"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"skyblue"</span>,<span class="st">"gold"</span><span class="op">)</span>
+<span class="va">pdat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>loglik <span class="op">=</span> <span class="va">loglik</span>,subpop <span class="op">=</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span>
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pdat</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">loglik</span>,fill <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">64</span>,color <span class="op">=</span> <span class="st">"white"</span>,size <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">subpop_colors</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"number of cells"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span>font_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/loglik-3-1.png" width="660" style="display: block; margin: auto;"></p>
 </div>
-<div id="visualizing-the-topics-without-cell-labels" class="section level2">
-<h2 class="hasAnchor">
-<a href="#visualizing-the-topics-without-cell-labels" class="anchor"></a>Visualizing the topics without cell labels</h2>
-<p>In Part 1, we made use of additional information about the cells to help us interpret the topics. In some cases, however, we may not have the benefit of external information to guide our explorations. In this section, we illustrate the <em>de novo</em> discovery of structure using a topic model.</p>
-<p>Without the cell labels, the Structure plot can still be quite effective:</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">topic_colors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"skyblue"</span>,<span class="st">"forestgreen"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"dodgerblue"</span>,
-                  <span class="st">"gold"</span>,<span class="st">"darkorange"</span>)
-<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>)</pre></body></html></div>
+<div class="section level2">
+<h2 id="visualizing-the-topics-without-cell-labels">Visualizing the topics without cell labels<a class="anchor" aria-label="anchor" href="#visualizing-the-topics-without-cell-labels"></a>
+</h2>
+<p>In Part 1, we made use of additional information about the cells to
+help us interpret the topics. In some cases, however, we may not have
+the benefit of external information to guide our explorations. Without
+the cell labels, the Structure plot can still be effective:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">topic_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skyblue"</span>,<span class="st">"forestgreen"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"dodgerblue"</span>,
+                  <span class="st">"gold"</span>,<span class="st">"darkorange"</span><span class="op">)</span>
+<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span><span class="op">(</span><span class="va">fit</span>,colors <span class="op">=</span> <span class="va">topic_colors</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-without-labels-1.png" width="780" style="display: block; margin: auto;"></p>
-<p>From this Structure plot, we see the clustering of the cells into B cells (dark blue), CD14+ monocytes (green) and CD34+ cells (purple). The clustering of the NK (light blue) and T cells (mixtures of yellow and orange) is less distinct, and this is reflected by more sharing of topics (mostly topic 6) among NK and T cells.</p>
-<p>Of course, without the cell labels, we cannot know that the topics correspond to these cell types without further downstream analyses—for this, we will perform a differential expression analysis (continue reading).</p>
+<p>From this Structure plot, we see clustering into B cells (dark blue),
+CD14+ monocytes (green) and CD34+ cells (purple). The clustering of the
+NK (light blue) and T cells (mixtures of yellow and orange) is less
+distinct, and this is reflected by more sharing of topics (mostly topic
+6) among NK and T cells.</p>
+<p>Of course, without the cell labels, we cannot know that the topics
+correspond to these cell types without further downstream analyses—for
+this, we perform a GoM DE analysis as we explained in Part 1.</p>
 </div>
-<div id="identifying-clusters-from-the-mixture-proportions" class="section level2">
-<h2 class="hasAnchor">
-<a href="#identifying-clusters-from-the-mixture-proportions" class="anchor"></a>Identifying clusters from the mixture proportions</h2>
-<p>In more complex data sets, some types of fine scale structure, or rare cell types, may not show up well in the Structure plot, at least without additional fine-tuning of the plot.</p>
-<p>One simple strategy we have found to be generally helpful is to first identify clusters in the mixture proportions matrix, <span class="math inline">\(L\)</span>. Here, we illustrate this idea using <em>k</em>-means. Specifically, we apply <span class="math inline">\(k\)</span>-means to the principal components (PCs) of the mixture proportions.</p>
-<p>We previously experimented with different numbers of clusters and we found that 6 clusters worked best. Note that <em>k</em>-means can be sensitive to (random) initialization, so we set the seed before running <em>k</em>-means to ensure that the output is reproducible.</p>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">1</span>)
-<span class="no">pca</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html">prcomp</a></span>(<span class="no">fit</span>$<span class="no">L</span>)$<span class="no">x</span>
-<span class="no">clusters</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/kmeans.html">kmeans</a></span>(<span class="no">pca</span>,<span class="kw">centers</span> <span class="kw">=</span> <span class="fl">6</span>,<span class="kw">iter.max</span> <span class="kw">=</span> <span class="fl">100</span>)$<span class="no">cluster</span>
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="no">clusters</span>))
+<div class="section level2">
+<h2 id="identifying-clusters-from-the-mixture-proportions">Identifying clusters from the mixture proportions<a class="anchor" aria-label="anchor" href="#identifying-clusters-from-the-mixture-proportions"></a>
+</h2>
+<p>In more complex data sets, some structure may not show up well
+without additional fine-tuning of the plot.</p>
+<p>One simple strategy we have found to work well is to first identify
+clusters in the topic proportions matrix, <span class="math inline">\(L\)</span>. Here, we illustrate this idea using
+<em>k</em>-means. Specifically, we apply <span class="math inline">\(k\)</span>-means to the principal components (PCs)
+of the mixture proportions.</p>
+<p>We previously experimented with different numbers of clusters and we
+found that 6 clusters worked best. Note that <em>k</em>-means can be
+sensitive to (random) initialization, so we set the seed before running
+<em>k</em>-means to ensure that the output is reproducible.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
+<span class="va">pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">L</span><span class="op">)</span><span class="op">$</span><span class="va">x</span>
+<span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/kmeans.html" class="external-link">kmeans</a></span><span class="op">(</span><span class="va">pca</span>,centers <span class="op">=</span> <span class="fl">6</span>,iter.max <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">$</span><span class="va">cluster</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#    1    2    3    4    5    6 </span>
-<span class="co">#  400  207 1047  797  616  707</span></pre></body></html></div>
-<p>Now we create another Structure plot in which the cells are organized by their membership to the 6 clusters:</p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>,
-               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">clusters</span>)</pre></body></html></div>
+<span class="co">#  400  207 1047  797  616  707</span></code></pre></div>
+<p>Now we create another Structure plot in which the cells are grouped
+by their membership to the 6 clusters:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span><span class="op">(</span><span class="va">fit</span>,topics <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,colors <span class="op">=</span> <span class="va">topic_colors</span>,gap <span class="op">=</span> <span class="fl">25</span>,
+               grouping <span class="op">=</span> <span class="va">clusters</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-by-cluster-1-1.png" width="900" style="display: block; margin: auto;"></p>
-<p>Judging by the Structure plot, the <em>k</em>-means clusters look sensible, the one exception being that the T cells (cells with high proportions of topics 5 and 6) seem to be rather arbitrarily split into clusters 1 and 3. Therefore, we merge these two clusters:</p>
-<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">clusters</span>[<span class="no">clusters</span> <span class="kw">==</span> <span class="fl">3</span>] <span class="kw">&lt;-</span> <span class="fl">1</span>
-<span class="no">clusters</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="no">clusters</span>)</pre></body></html></div>
-<p>We have found that visual inspection of the clusters followed by manual refinement is often be needed to get the “right” clustering.</p>
-<p>With the benefit of hindsight, we know that these 5 clusters correspond to 5 cell types: B cells, T cells, natural killer (NK) cellls, CD14+ monoytes and CD34+ cells. For clarity of presentation, we label the clusters by these cell types, noting that, in most practical settings, labeling the clusters is usually not possible until downstream analyses have been performed.</p>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(<span class="no">clusters</span>) <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"T"</span>,<span class="st">"CD14+"</span>,<span class="st">"B"</span>,<span class="st">"CD34+"</span>,<span class="st">"NK"</span>)
-<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>,
-               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">clusters</span>)</pre></body></html></div>
+<p>Judging by the Structure plot, the <em>k</em>-means clusters look
+sensible, the one exception being that the T cells (cells with high
+proportions of topics 5 and 6) are arbitrarily split into clusters 1 and
+3. Therefore, we merge these two clusters:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">clusters</span><span class="op">[</span><span class="va">clusters</span> <span class="op">==</span> <span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
+<span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span></code></pre></div>
+<p>We have found that visual inspection of the clusters followed by
+manual refinement is often be needed to get the “right” clustering.</p>
+<p>For clarity, we label the clusters by these cell types in the plot,
+noting that labeling the clusters is usually not possible until
+downstream analyses have been performed.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"T"</span>,<span class="st">"CD14+"</span>,<span class="st">"B"</span>,<span class="st">"CD34+"</span>,<span class="st">"NK"</span><span class="op">)</span>
+<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span><span class="op">(</span><span class="va">fit</span>,topics <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,colors <span class="op">=</span> <span class="va">topic_colors</span>,gap <span class="op">=</span> <span class="fl">25</span>,
+               grouping <span class="op">=</span> <span class="va">clusters</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-by-cluster-2-1.png" width="900" style="display: block; margin: auto;"></p>
-<p>This new Structure plot better highlights the heterogeneity within the clusters, particularly in the T cells. Within the T cells cluster, there is distinctive subset of cells with contributions from topic 1 (the “NK cells” topic, in light blue).</p>
-<p>For clustering, it is also sometimes helpful to visualize the clusters in PCA plots which show the projection of the cells onto PCs of the mixture proportions:</p>
-<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">cluster_colors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"gold"</span>,<span class="st">"forestgreen"</span>,<span class="st">"dodgerblue"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"skyblue"</span>)
-<span class="fu"><a href="../reference/embedding_plots.html">pca_plot</a></span>(<span class="no">fit</span>,<span class="kw">fill</span> <span class="kw">=</span> <span class="no">clusters</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_fill_manual</a></span>(<span class="kw">values</span> <span class="kw">=</span> <span class="no">cluster_colors</span>)</pre></body></html></div>
+<p>For clustering, it is also sometimes helpful to visualize the
+clusters in PCA plots which show the projection of the cells onto PCs of
+the mixture proportions:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">cluster_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gold"</span>,<span class="st">"forestgreen"</span>,<span class="st">"dodgerblue"</span>,<span class="st">"darkmagenta"</span>,<span class="st">"skyblue"</span><span class="op">)</span>
+<span class="fu"><a href="../reference/embedding_plots.html">pca_plot</a></span><span class="op">(</span><span class="va">fit</span>,fill <span class="op">=</span> <span class="va">clusters</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">cluster_colors</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/pca-plot-1-1.png" width="420" style="display: block; margin: auto;"></p>
-<p>(Note that the CD14+ and CD34+ cells separate better in PCs 3 and 4.)</p>
-<p>When there are many overlapping points, as is the case here, a plotting instead the density of the points can show the clustering more clearly:</p>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="../reference/embedding_plots.html">pca_hexbin_plot</a></span>(<span class="no">fit</span>,<span class="kw">bins</span> <span class="kw">=</span> <span class="fl">24</span>)</pre></body></html></div>
+<p>(The CD14+ and CD34+ cells separate better in PCs 3 and 4.)</p>
+<p>When there are many overlapping points, as is the case here, plotting
+instead the density of the points can sometimes show the clustering more
+clearly:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/embedding_plots.html">pca_hexbin_plot</a></span><span class="op">(</span><span class="va">fit</span>,bins <span class="op">=</span> <span class="fl">24</span><span class="op">)</span></code></pre></div>
 <p><img src="single_cell_rnaseq_practical_files/figure-html/pca-plot-2-1.png" width="450" style="display: block; margin: auto;"></p>
-<p>In particular, the separation of the T cells and NK cells into two clusters is more clear in the density (“hexbin”) plot.</p>
-<p>This example is only meant to illustrate clustering of the cells by the estimated mixture proportions; <em>k</em>-means may not be the best clustering technique for all data sets. For more complex data sets, some ingenuity may be needed to identify and visualize clusters.</p>
 </div>
-<div id="more-on-differential-expression-analysis" class="section level2">
-<h2 class="hasAnchor">
-<a href="#more-on-differential-expression-analysis" class="anchor"></a>More on differential expression analysis</h2>
-<p>In Part 1, we performed a differential expression (DE) analysis using the topic model, and using the results of this analysis we were interpreted topic 1 as NK cells, topic 4 as B cells, and topic 6 as T cells. Let’s briefly expand on this DE analysis.</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">dfa_out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_analysis</a></span>(<span class="no">fit</span>,<span class="no">counts</span>)
-<span class="co"># Fitting 16791 x 6 = 100746 univariate Poisson models.</span>
-<span class="co"># Computing log-fold change statistics.</span>
-<span class="co"># Stabilizing log-fold change estimates using adaptive shrinkage.</span></pre></body></html></div>
-<p>When the volcano plot shows many overlapping DE genes, it can be helpful to explore the results interactively. The function <code>volcano_plotly</code> creates an interactive volcano plot that can be viewed in a Web browser. For example, here is an interactive volcano plot for the T cells topic:</p>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">genes</span> <span class="kw">&lt;-</span> <span class="no">pbmc_facs</span>$<span class="no">genes</span>
-<span class="no">p1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/volcano_plot.html">volcano_plotly</a></span>(<span class="no">dfa_out</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="fl">6</span>,<span class="kw">file</span> <span class="kw">=</span> <span class="st">"volcano_plot_t_cells.html"</span>,
-                     <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>)</pre></body></html></div>
-<p>This call creates a new file <code>volcano_plot_t_cells.html</code>. The interactive volcano plot can also be viewed <a href="https://stephenslab.github.io/fastTopics/articles/volcano_plot_t_cells.html">here</a>, or by calling <code><a href="https://rdrr.io/r/base/print.html">print(p1)</a></code> in your R session.</p>
-<p>Within the T cell cluster, there is a distinctive subset of cells with sizeable contributions from the “NK cells” topic (that is, topic 1, shown in light blue in the Structure plot). This subset of cells sits in between the dense clumps of NK and T cells in the PCA plots above. To highlight this subset of cells—which turn out to be CD8+ cells, as we will see shortly—we define a new cluster:</p>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">clusters</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(<span class="no">clusters</span>)
-<span class="no">clusters</span>[<span class="no">clusters</span> <span class="kw">==</span> <span class="st">"T"</span> <span class="kw">&amp;</span> <span class="no">fit</span>$<span class="no">L</span>[,<span class="fl">1</span>] <span class="kw">&gt;</span> <span class="fl">0.1</span>] <span class="kw">&lt;-</span> <span class="st">"CD8+"</span>
-<span class="no">clusters</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="no">clusters</span>)
-<span class="fu"><a href="../reference/structure_plot.html">structure_plot</a></span>(<span class="no">fit</span>,<span class="kw">topics</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">6</span>,<span class="kw">colors</span> <span class="kw">=</span> <span class="no">topic_colors</span>,<span class="kw">gap</span> <span class="kw">=</span> <span class="fl">25</span>,
-               <span class="kw">grouping</span> <span class="kw">=</span> <span class="no">clusters</span>)</pre></body></html></div>
-<p><img src="single_cell_rnaseq_practical_files/figure-html/structure-plot-by-cluster-3-1.png" width="900" style="display: block; margin: auto;"></p>
-<p>Now we can perform DE analysis on the CD8+ cluster (as well as the other clusters) using the <code>diff_count_clusters</code> function, and visualize the results using a volcano plot, as before:</p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="no">dfc_clusters</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/diff_count_analysis.html">diff_count_clusters</a></span>(<span class="no">clusters</span>,<span class="no">counts</span>)
-<span class="fu"><a href="../reference/volcano_plot.html">volcano_plot</a></span>(<span class="no">dfc_clusters</span>,<span class="kw">k</span> <span class="kw">=</span> <span class="st">"CD8+"</span>,<span class="kw">label_above_quantile</span> <span class="kw">=</span> <span class="fl">0.98</span>,
-             <span class="kw">labels</span> <span class="kw">=</span> <span class="no">genes</span>$<span class="no">symbol</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span>(<span class="st">"cluster CD8+"</span>)</pre></body></html></div>
-<p><img src="single_cell_rnaseq_practical_files/figure-html/volcano-plot-cd8-1.png" width="540" style="display: block; margin: auto;"></p>
-<p>(Recall, we also used <code>diff_count_clusters</code> in Part 1 to perform a basic DE analysis.)</p>
-<p>For example, genes <em>CD8A</em>, <em>CD8B</em> and <em>CCL5</em> (<em>RANTES</em>) are among the top DE genes, which are clues pointing to CD8+ cytotoxic T cells.</p>
+<div class="section level2">
+<h2 id="more-on-differential-expression-analysis">More on differential expression analysis<a class="anchor" aria-label="anchor" href="#more-on-differential-expression-analysis"></a>
+</h2>
+<p>In Part 1, we performed a DE analysis using the topic model.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">de</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">de</span></code></pre></div>
+<p>When the volcano plot shows many overlapping differentially expressed
+genes, it can be helpful to explore the results interactively. The
+function <code>volcano_plotly</code> creates an <em>interactive volcano
+plot</em> that can be viewed in a Web browser. For example, here is an
+interactive volcano plot for the T cells topic:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">genes</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span>
+<span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/volcano_plot.html">volcano_plotly</a></span><span class="op">(</span><span class="va">de</span>,k <span class="op">=</span> <span class="fl">6</span>,file <span class="op">=</span> <span class="st">"volcano_plot_t_cells.html"</span>,
+                    labels <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">symbol</span>,ymax <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></code></pre></div>
+<p>This call creates a new file <code>volcano_plot_t_cells.html</code>.
+The interactive volcano plot can also be viewed <a href="https://stephenslab.github.io/fastTopics/articles/volcano_plot_t_cells.html" class="external-link">here</a>,
+or by calling <code>print(p)</code> in R.</p>
 </div>
-<div id="session-info" class="section level2">
-<h2 class="hasAnchor">
-<a href="#session-info" class="anchor"></a>Session info</h2>
-<p>This is the version of R and the packages that were used to generate these results.</p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
+<div class="section level2">
+<h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
+</h2>
+<p>This is the version of R and the packages that were used to generate
+these results.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co"># R version 3.6.2 (2019-12-12)</span>
 <span class="co"># Platform: x86_64-apple-darwin15.6.0 (64-bit)</span>
 <span class="co"># Running under: macOS Catalina 10.15.7</span>
@@ -218,29 +268,33 @@
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] cowplot_1.0.0     ggplot2_3.3.0     fastTopics_0.5-52 Matrix_1.2-18    </span>
+<span class="co"># [1] cowplot_1.1.1      ggplot2_3.3.6      fastTopics_0.6-147 Matrix_1.2-18     </span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
-<span class="co">#  [1] httr_1.4.2         tidyr_1.0.0        jsonlite_1.6       viridisLite_0.3.0 </span>
-<span class="co">#  [5] RcppParallel_4.4.2 shiny_1.4.0        assertthat_0.2.1   mixsqp_0.3-46     </span>
-<span class="co">#  [9] yaml_2.2.0         progress_1.2.2     ggrepel_0.9.0      pillar_1.4.3      </span>
-<span class="co"># [13] backports_1.1.5    lattice_0.20-38    quantreg_5.54      glue_1.3.1        </span>
-<span class="co"># [17] quadprog_1.5-8     digest_0.6.23      promises_1.1.0     colorspace_1.4-1  </span>
-<span class="co"># [21] httpuv_1.5.2       htmltools_0.4.0    pkgconfig_2.0.3    invgamma_1.1      </span>
-<span class="co"># [25] SparseM_1.78       xtable_1.8-4       purrr_0.3.3        scales_1.1.0      </span>
-<span class="co"># [29] later_1.0.0        Rtsne_0.15         MatrixModels_0.4-1 tibble_2.1.3      </span>
-<span class="co"># [33] farver_2.0.1       withr_2.1.2        ashr_2.2-51        hexbin_1.28.0     </span>
-<span class="co"># [37] lazyeval_0.2.2     mime_0.8           magrittr_1.5       crayon_1.3.4      </span>
-<span class="co"># [41] memoise_1.1.0      mcmc_0.9-6         evaluate_0.14      fs_1.3.1          </span>
-<span class="co"># [45] MASS_7.3-51.4      truncnorm_1.0-8    tools_3.6.2        data.table_1.12.8 </span>
-<span class="co"># [49] prettyunits_1.1.1  hms_0.5.2          lifecycle_0.1.0    stringr_1.4.0     </span>
-<span class="co"># [53] MCMCpack_1.4-5     plotly_4.9.2       munsell_0.5.0      irlba_2.3.3       </span>
-<span class="co"># [57] compiler_3.6.2     pkgdown_1.5.1      rlang_0.4.5        grid_3.6.2        </span>
-<span class="co"># [61] htmlwidgets_1.5.1  crosstalk_1.0.0    labeling_0.3       rmarkdown_2.3     </span>
-<span class="co"># [65] gtable_0.3.0       R6_2.4.1           knitr_1.26         dplyr_0.8.3       </span>
-<span class="co"># [69] fastmap_1.0.1      uwot_0.1.10        zeallot_0.1.0      rprojroot_1.3-2   </span>
-<span class="co"># [73] desc_1.2.0         stringi_1.4.3      SQUAREM_2017.10-1  Rcpp_1.0.5        </span>
-<span class="co"># [77] vctrs_0.2.1        tidyselect_0.2.5   xfun_0.11          coda_0.19-3</span></pre></body></html></div>
+<span class="co">#  [1] mcmc_0.9-6         fs_1.5.2           progress_1.2.2     httr_1.4.2        </span>
+<span class="co">#  [5] rprojroot_1.3-2    tools_3.6.2        backports_1.1.5    bslib_0.3.1       </span>
+<span class="co">#  [9] utf8_1.1.4         R6_2.4.1           irlba_2.3.3        uwot_0.1.10       </span>
+<span class="co"># [13] DBI_1.1.0          lazyeval_0.2.2     colorspace_1.4-1   withr_2.5.0       </span>
+<span class="co"># [17] tidyselect_1.1.1   prettyunits_1.1.1  compiler_3.6.2     cli_3.5.0         </span>
+<span class="co"># [21] quantreg_5.54      SparseM_1.78       desc_1.2.0         plotly_4.10.1     </span>
+<span class="co"># [25] labeling_0.3       sass_0.4.0         scales_1.1.0       SQUAREM_2017.10-1 </span>
+<span class="co"># [29] hexbin_1.28.0      quadprog_1.5-8     pbapply_1.5-1      pkgdown_2.0.2     </span>
+<span class="co"># [33] mixsqp_0.3-46      systemfonts_1.0.2  stringr_1.4.0      digest_0.6.23     </span>
+<span class="co"># [37] rmarkdown_2.11     MCMCpack_1.4-5     pkgconfig_2.0.3    htmltools_0.5.4   </span>
+<span class="co"># [41] fastmap_1.1.0      invgamma_1.1       highr_0.8          htmlwidgets_1.6.1 </span>
+<span class="co"># [45] rlang_1.0.6        shiny_1.7.4        jquerylib_0.1.4    generics_0.0.2    </span>
+<span class="co"># [49] farver_2.0.1       jsonlite_1.7.2     crosstalk_1.0.0    dplyr_1.0.7       </span>
+<span class="co"># [53] magrittr_2.0.1     Rcpp_1.0.8         munsell_0.5.0      fansi_0.4.0       </span>
+<span class="co"># [57] lifecycle_1.0.3    stringi_1.4.3      yaml_2.2.0         MASS_7.3-51.4     </span>
+<span class="co"># [61] Rtsne_0.15         grid_3.6.2         promises_1.1.0     parallel_3.6.2    </span>
+<span class="co"># [65] ggrepel_0.9.1      crayon_1.4.1       lattice_0.20-38    hms_1.1.0         </span>
+<span class="co"># [69] knitr_1.37         pillar_1.6.2       glue_1.4.2         evaluate_0.14     </span>
+<span class="co"># [73] data.table_1.12.8  RcppParallel_5.1.5 httpuv_1.5.2       vctrs_0.3.8       </span>
+<span class="co"># [77] MatrixModels_0.4-1 gtable_0.3.0       purrr_0.3.4        tidyr_1.1.3       </span>
+<span class="co"># [81] assertthat_0.2.1   ashr_2.2-54        xfun_0.29          mime_0.8          </span>
+<span class="co"># [85] xtable_1.8-4       later_1.0.0        coda_0.19-3        ragg_0.3.1        </span>
+<span class="co"># [89] viridisLite_0.3.0  truncnorm_1.0-8    tibble_3.1.3       memoise_1.1.0     </span>
+<span class="co"># [93] ellipsis_0.3.2</span></code></pre></div>
 </div>
   </div>
 
@@ -255,11 +309,15 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
+  <p></p>
+<p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew
+Stephens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
       </footer>
@@ -267,6 +325,8 @@
 
   
 
+
+  
 
   </body>
 </html>
