@@ -23,7 +23,7 @@ If you find the fastTopics package or any of the source code in this
 repository useful for your work, please cite:
 
 > K. K. Dey, C. Joyce Hsiao and M. Stephens (2017). [Visualizing the
-> structure of RNA-seq expression data using grade of membership >
+> structure of RNA-seq expression data using grade of membership 
 > models.][countclust-paper] PLoS Genetics 13, e1006599.
 >
 
