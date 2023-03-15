@@ -27,7 +27,7 @@ repository useful for your work, please cite:
 > models.][countclust-paper] PLoS Genetics 13, e1006599.
 >
 
-> P. Carbonetto, A. Sarkar, Z. Wang"and M. Stephens (2021).
+> P. Carbonetto, A. Sarkar, Z. Wang and M. Stephens (2021).
 > [Non-negative matrix factorization algorithms greatly improve topic
 > model fits.][fasttopics-paper] arXiv 2105.13440
 
