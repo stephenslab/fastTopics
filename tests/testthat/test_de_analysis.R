@@ -390,3 +390,31 @@ test_that("no output from de_analysis when verbose = FALSE",{
   expect_equal(out3,character(0))
   expect_equal(out4,character(0))
 })
+
+test_that("",{
+
+  # Simulate a gene expression data set.
+  set.seed(1)
+  n   <- 100
+  m   <- 200
+  k   <- 4
+  dat <- simulate_multinom_gene_data(n,m,k,sparse = TRUE)
+  X   <- dat$X
+  L   <- dat$L
+
+  # Fit a topic model with k = 4 topics to the simulatd gene
+  # expression data.
+  capture.output(fit <- fit_topic_model(X,k = 4,init.method = "random"))
+
+  set.seed(1)
+  capture.output(de1 <- de_analysis(fit,X,control = list(ns = 100)))
+  
+  set.seed(1)
+  capture.output(de2 <- de_analysis(fit$L,X,control = list(ns = 100)))
+
+  de1["ash"] <- NULL
+  de2["ash"] <- NULL
+  de1["svalue"] <- NULL
+  de2["svalue"] <- NULL
+  expect_equal(de1,de2,scale = 1,tolerance = 1e-10)
+})
