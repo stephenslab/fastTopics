@@ -79,6 +79,10 @@ verify.fit.and.count.matrix <-
   if (!(nrow(fit$L) == nrow(x) & nrow(fit$F) == ncol(x)))
     stop(paste("Dimensions of input matrices",arg.name.x,",",arg.name.F,
                "and",arg.name.L,"do not agree"))
+  if (!(identical(rownames(fit$L),rownames(x)) &
+        identical(rownames(fit$F),colnames(x))))
+    stop(paste("Dimnames of input matrices",arg.name.x,",",arg.name.F,
+               "and",arg.name.L,"are not consistent"))
   return(TRUE)
 }
 

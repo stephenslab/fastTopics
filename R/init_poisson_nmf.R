@@ -174,6 +174,7 @@ init_poisson_nmf <-
               betamax   = betamax,
               progress  = progress)
   class(fit) <- c("poisson_nmf_fit","list")
+  verify.fit.and.count.matrix(X,fit)
   return(fit)
 }
 

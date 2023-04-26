@@ -391,7 +391,7 @@ test_that("no output from de_analysis when verbose = FALSE",{
   expect_equal(out4,character(0))
 })
 
-test_that("",{
+test_that("de_analysis provided with fit and fit$L give the same result",{
 
   # Simulate a gene expression data set.
   set.seed(1)
