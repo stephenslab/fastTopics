@@ -238,10 +238,13 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
   # ------------------------
   # Check and process input argument "fit".
   if (is.matrix(fit)) {
-    L   <- fit
-    m   <- ncol(X)
-    k   <- ncol(fit)
-    F   <- matrix(1,m,k)
+    L <- fit
+    if (any((rowSums(L) - 1) > 1e-15))
+      warning("\"fit\" is a matrix but may not be topic proportions matrix; ",
+              "rowSums(X) should be a vector of all ones")
+    m <- ncol(X)
+    k <- ncol(fit)
+    F <- matrix(1,m,k)
     rownames(F) <- colnames(X)
     colnames(F) <- colnames(L)
     fit <- init_poisson_nmf(X,F = F,L = L)
