@@ -123,11 +123,16 @@ iterate_updates <- function (X, F, L, numiter, update_factors = NULL,
       if (!is.null(update_factors))
         F <- update_factors(X,F,L)
     }
-    fit        <- list(F = F,L = L)
-    class(fit) <- c("poisson_nmf_fit","list")
-    loglik[i]  <- sum(loglik_poisson_nmf(X,fit))
-    dev[i]     <- sum(deviance_poisson_nmf(X,fit))
-    res[i]     <- with(poisson_nmf_kkt(X,F,L),max(abs(rbind(F,L))))
+    k           <- ncol(F)
+    rownames(L) <- rownames(X)
+    rownames(F) <- colnames(X)
+    colnames(L) <- paste0("k",1:k)
+    colnames(F) <- paste0("k",1:k)
+    fit         <- list(F = F,L = L)
+    class(fit)  <- c("poisson_nmf_fit","list")
+    loglik[i]   <- sum(loglik_poisson_nmf(X,fit))
+    dev[i]      <- sum(deviance_poisson_nmf(X,fit))
+    res[i]      <- with(poisson_nmf_kkt(X,F,L),max(abs(rbind(F,L))))
   }
   return(list(F = F,L = L,loglik = loglik,dev = dev,res = res))
 }
