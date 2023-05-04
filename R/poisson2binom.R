@@ -50,18 +50,63 @@ poisson2binom <- function (X, fit, numem = 20, verbose = TRUE) {
   # Choose U = diag(u) such that L*U is closer to being a matrix of
   # topic proportions.
   ones <- matrix(1,n,1)
-  L <- fit$L
-  F <- fit$F
-  
+  L    <- fit$L
+  F    <- fit$F
   if (verbose)
     cat("Rescaling L and F using non-negative linear regression (nnlm).\n")
-  u <- drop(coef(NNLM::nnlm(L,ones)))
-  L <- scale.cols(L,u)
-  F <- scale.cols(F,1/u)
+  u   <- drop(coef(NNLM::nnlm(L,ones)))
+  L   <- scale.cols(L,u)
+  L   <- normalize.rows(L)
+  F   <- scale.cols(F,1/u)
+  fit <- list(F = F,L = L,progress = NA)
+
+  # Refine the binomial topic model fit by performing several EM updates.
+  if (numem > 0) {
+    cat("Performing",numem,"EM updates to refine the fit.\n")
+    progress <- as.data.frame(cbind(1:numem,0,0))
+    names(progress) <- c("iter","delta.f","delta.l")
+    if (verbose)
+    cat("iter  |F - F'|  |L - L'|\n")
+    for (i in 1:numem) {
+      fit0 <- fit
+      fit  <- fit_binom_topic_model_em(X,fit,numem)
+      progress[i,"delta.f"] <- max(abs(fit0$F - fit$F))
+      progress[i,"delta.l"] <- max(abs(fit0$L - fit$L))
+      if (verbose)
+        cat(sprintf("%4d %0.3e %0.3e\n",i,progress[i,"delta.f"],
+                    progress[i,"delta.f"]))
+    }
+    fit$progress <- progress
+  }
   
   # Return the Binomial topic model fit.
-  fit <- list(F = F,L = L)
   class(fit) <- c("binom_topic_model_fit","list")
   return(fit)
+}
 
+# Perform a single EM udpate for fiitting the binomial topic model to
+# binary data matrix X. This code is adapted from the meth_tpxEM
+# function in the methClust package by Kushal Dey.
+fit_binom_topic_model_em <- function (X, fit, numiter) {
+
+  # Make sure no parameters are exactly zero or exactly one.
+  e <- 1e-8
+  L <- fit$L
+  F <- fit$F
+  F <- clamp(F,e,1 - e)
+  L <- clamp(L,e,1 - e)
+  L <- normalize.rows(L)
+
+  # Perform the E step.
+  m_temp     <- X/(L %*% t(F))
+  m_matrix   <- (m_temp %*% F) * L
+  m_t_matrix <- (t(m_temp) %*% L) * F
+  u_temp     <- (1 - X)/(L %*% t(1 - F))
+  u_matrix   <- (u_temp %*% (1 - F)) * L
+  u_t_matrix <- (t(u_temp) %*% L) * (1 - F)
+
+  # Perform the M step.
+  L <- normalize.rows(m_matrix + u_matrix)
+  F <- m_t_matrix/(m_t_matrix + u_t_matrix)
+  return(list(F = F,L = L))
 }

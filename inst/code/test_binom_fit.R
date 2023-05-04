@@ -6,7 +6,9 @@ library(Matrix)
 # model with k = 3 topics.
 set.seed(1)
 n <- 200
-m <- 200
+m <- 180
+
+# TO DO: Try with n different from m.
 L <- rbind(cbind(rep(1,n),rep(0,n),rep(0,n)),
            cbind(rep(0,n),rep(1,n),rep(0,n)),
            cbind(rep(0,n),rep(0,n),rep(1,n)),
@@ -39,14 +41,21 @@ fit_binom <- poisson2binom(X,fit_pois,numem = 0)
 # to refine the fit.
 fit_binom_em <- poisson2binom(X,fit_pois,numem = 20)
 
-# Show that the multinomial topic model gets the incorrect binomial
-# frequencies (F), which is not surprising, but perhaps more
-# surprising it gets the incorrect binomial topic proportions (L).
+# ADD COMMENTS HERE.
+print(cor(sim$F,fit_binom_em$F))
+print(cor(sim$L,fit_binom_em$L))
+
+# ADD COMMENTS HERE.
+par(mfrow = c(1,2))
+plot(fit_binom_em$F,fit_binom$F,pch = 20)
+abline(a = 0,b = 1,col = "magenta",lty = "dashed")
+plot(fit_binom_em$L,fit_binom$L,pch = 20)
+abline(a = 0,b = 1,col = "magenta",lty = "dashed")
+
+# ADD COMMENTS HERE.
 fit_multinom <- poisson2multinom(fit_pois)
 par(mfrow = c(1,2))
-plot(fit$freq,mtm$F,pch = 20)
+plot(fit_binom_em$F,fit_multinom$F,pch = 20)
 abline(a = 0,b = 1,col = "magenta",lty = "dashed")
-plot(fit$omega,mtm$L,pch = 20)
+plot(fit_binom_em$L,fit_multinom$L,pch = 20)
 abline(a = 0,b = 1,col = "magenta",lty = "dashed")
-
-

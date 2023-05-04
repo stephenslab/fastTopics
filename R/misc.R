@@ -13,7 +13,7 @@ lpfromz <- function (z)
 # Set all entries of x less than a to a, and set alll entries of x
 # greater than b to b.
 clamp <- function (x, a, b)
-    pmax(a,pmin(b,x))
+  pmax(pmin(x,b),a)
 
 # Return true if x is a compressed, sparse, column-oriented numeric
 # matrix.
