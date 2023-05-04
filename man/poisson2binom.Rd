@@ -4,10 +4,21 @@
 \alias{poisson2binom}
 \title{Recover Binomial Topic Model Fit from Poisson NMF fit}
 \usage{
-poisson2binom(fit)
+poisson2binom(X, fit, numiter = 20)
+}
+\arguments{
+\item{X}{Describe input argument "X" here.}
+
+\item{fit}{Describe input argument "fit" here.}
+}
+\value{
+Describe the output here.
 }
 \description{
-Recover Binomial Topic Model Fit from Poisson NMF fit
+Add a brief description
+}
+\details{
+Describe the binomial topic model in more detail here.
 }
 \examples{
 # See the vignette for an example.
