@@ -4,13 +4,13 @@
 #'
 #' @details Describe the binomial topic model in more detail here.
 #'  
-#' @param X The n x m \dQuote{binary} matrix; all entries of X should be
-#'   between 0 and 1. It can be a sparse matrix (class \code{"dgCMatrix"})
-#'   or dense matrix (class \code{"matrix"})
+#' @param X The n x m \dQuote{binary} matrix; all entries of X should
+#'   be between 0 and 1 (including 0 and 1). It can be a sparse matrix
+#'   (class \code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).
 #'
 #' @param fit Describe input argument "fit" here.
 #'
-#' @param Describe input argument "numiter" here.
+#' @param numem Describe input argument "numem" here.
 #' 
 #' @param verbose Describe input argument "verbose" here.
 #' 
@@ -21,7 +21,7 @@
 #' 
 #' @export
 #'
-poisson2binom <- function (X, fit, numiter = 20, verbose = TRUE) {
+poisson2binom <- function (X, fit, numem = 20, verbose = TRUE) {
 
   # Check input argument "fit".
   if (inherits(fit,"binom_topic_model_fit"))
@@ -39,6 +39,9 @@ poisson2binom <- function (X, fit, numiter = 20, verbose = TRUE) {
     stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
          "a \"dgCMatrix\")")
   verify.fit.and.count.matrix(X,fit)
+  if (any(X < 0) | any(X > 1))
+    warning("Input argument \"X\" should be a \"binary\" matrix ",
+            "(that is, all entries should range from 0 and 1)")
   if (is.matrix(X) & is.integer(X))
     storage.mode(X) <- "double"
 
@@ -47,7 +50,16 @@ poisson2binom <- function (X, fit, numiter = 20, verbose = TRUE) {
   ones <- matrix(1,n,1)
   L <- fit$L
   F <- fit$F
-  u <- drop(coef(NNLM::nnlm(L,ones)))
-  L <- scale.cols(L,u)
-  F <- scale.cols(F,1/u)
+  # TO DO.
+  
+  # Return the Binomial topic model fit.
+  fit <- list(F = F,L = L)
+  class(fit) <- c("binom_topic_model_fit","list")
+  return(fit)
+
+  # if (verbose)
+  #   cat(...)
+  # u <- drop(coef(NNLM::nnlm(L,ones)))
+  # L <- scale.cols(L,u)
+  # F <- scale.cols(F,1/u)
 }

@@ -28,5 +28,13 @@ sim <- list(L = L,F = F,X = X)
 # data.  To simplify comparison with the "true" factorization---that
 # is, the L and F used to simulate the data--the factorization is
 # initialized to the true parameter values.
-res <- init_poisson_nmf(X,L = L,F = F)
-res <- fit_poisson_nmf(X,fit0 = res,control = list(extrapolate = TRUE))
+fit_pois <- init_poisson_nmf(X,L = L,F = F)
+fit_pois <- fit_poisson_nmf(X,fit0 = fit_pois,control = list(extrapolate = TRUE))
+
+# Convert the Poisson NMF to a binomial topic model without any EM
+# updates to refine the fit.
+fit_binom <- poisson2binom(X,fit_pois,numem = 0)
+
+# Perform the conversion a second time, this time with some EM updates
+# to refine the fit.
+fit_binom_em <- poisson2binom(X,fit_pois,numem = 20)

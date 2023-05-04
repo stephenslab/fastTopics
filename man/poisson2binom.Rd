@@ -4,12 +4,18 @@
 \alias{poisson2binom}
 \title{Recover Binomial Topic Model Fit from Poisson NMF fit}
 \usage{
-poisson2binom(X, fit, numiter = 20)
+poisson2binom(X, fit, numem = 20, verbose = TRUE)
 }
 \arguments{
-\item{X}{Describe input argument "X" here.}
+\item{X}{The n x m \dQuote{binary} matrix; all entries of X should
+be between 0 and 1 (including 0 and 1). It can be a sparse matrix
+(class \code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).}
 
 \item{fit}{Describe input argument "fit" here.}
+
+\item{numem}{Describe input argument "numem" here.}
+
+\item{verbose}{Describe input argument "verbose" here.}
 }
 \value{
 Describe the output here.
