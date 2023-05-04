@@ -20,12 +20,12 @@ n <- nrow(P)
 m <- ncol(P)
 X <- matrix(rbinom(n*m,1,P),n,m)
 print(unique(as.vector(X)))
-# TO DO: Try also the case when M is sparse.
+# TO DO: Try also the case when X is sparse.
 # X <- as(X,"dgCMatrix")
 sim <- list(L = L,F = F,X = X)
 
 # Fit a Poisson non-negative matrix factorization to the binomial
-# data.  To simplify comparison with the "true" factorization---that
+# data. To simplify comparison with the "true" factorization---that
 # is, the L and F used to simulate the data--the factorization is
 # initialized to the true parameter values.
 fit_pois <- init_poisson_nmf(X,L = L,F = F)
@@ -38,3 +38,15 @@ fit_binom <- poisson2binom(X,fit_pois,numem = 0)
 # Perform the conversion a second time, this time with some EM updates
 # to refine the fit.
 fit_binom_em <- poisson2binom(X,fit_pois,numem = 20)
+
+# Show that the multinomial topic model gets the incorrect binomial
+# frequencies (F), which is not surprising, but perhaps more
+# surprising it gets the incorrect binomial topic proportions (L).
+fit_multinom <- poisson2multinom(fit_pois)
+par(mfrow = c(1,2))
+plot(fit$freq,mtm$F,pch = 20)
+abline(a = 0,b = 1,col = "magenta",lty = "dashed")
+plot(fit$omega,mtm$L,pch = 20)
+abline(a = 0,b = 1,col = "magenta",lty = "dashed")
+
+

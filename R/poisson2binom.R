@@ -22,6 +22,8 @@
 #' @export
 #'
 poisson2binom <- function (X, fit, numem = 20, verbose = TRUE) {
+  if (!requireNamespace("NNLM",quietly = TRUE))
+    stop("poisson2binom requires the NNLM package")
 
   # Check input argument "fit".
   if (inherits(fit,"binom_topic_model_fit"))
@@ -50,16 +52,16 @@ poisson2binom <- function (X, fit, numem = 20, verbose = TRUE) {
   ones <- matrix(1,n,1)
   L <- fit$L
   F <- fit$F
-  # TO DO.
+  
+  if (verbose)
+    cat("Rescaling L and F using non-negative linear regression (nnlm).\n")
+  u <- drop(coef(NNLM::nnlm(L,ones)))
+  L <- scale.cols(L,u)
+  F <- scale.cols(F,1/u)
   
   # Return the Binomial topic model fit.
   fit <- list(F = F,L = L)
   class(fit) <- c("binom_topic_model_fit","list")
   return(fit)
 
-  # if (verbose)
-  #   cat(...)
-  # u <- drop(coef(NNLM::nnlm(L,ones)))
-  # L <- scale.cols(L,u)
-  # F <- scale.cols(F,1/u)
 }
