@@ -4,29 +4,52 @@
 \alias{poisson2binom}
 \title{Recover Binomial Topic Model Fit from Poisson NMF fit}
 \usage{
-poisson2binom(X, fit, numem = 20, umin = 0.0001, verbose = TRUE)
+poisson2binom(X, fit, numem = 0, umin = 0.0001, verbose = TRUE)
 }
 \arguments{
 \item{X}{The n x m \dQuote{binary} matrix; all entries of X should
 be between 0 and 1 (including 0 and 1). It can be a sparse matrix
 (class \code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).}
 
-\item{fit}{Describe input argument "fit" here.}
+\item{fit}{An object of class \dQuote{poisson_nmf_fit}, such as an
+output from \code{fit_poisson_nmf}. It does not make sense for a
+binomial topic model to have less than 2 topics, so an error
+will be reported when k < 2, where k is the rank of the matrix
+factorization.}
 
-\item{numem}{Describe input argument "numem" here.}
+\item{numem}{Number of EM refinement steps. Increasing this number
+may improve the quality of the estimates.}
 
-\item{umin}{Describe input argument "umin" here.}
+\item{umin}{A small positive number near zero used to prevent
+division by zero in the rescaling of the Poisson NMF factorization.}
 
-\item{verbose}{Describe input argument "verbose" here.}
+\item{verbose}{When \code{verbose = TRUE}, progress information is
+printed to the console.}
 }
 \value{
-Describe the output here.
+The return value is the list \code{fit}, in which
+  \code{fit$F} and \code{fit$L} are the parameters of the binomial
+  topic model; specifically, \code{fit$L[i,]} gives the topic
+  proportions for document/sample i, and \code{fit$F[,k]} gives
+  the frequencies for topic k.
 }
 \description{
-Add a brief description
+Approximately recover the maximum-likelihood estimates
+of the binomial topic model from a Poisson NMF model fit (see
+\code{\link{fit_poisson_nmf}}). The Poisson NMF model is a good
+approximation when the binary matrix \code{X} is large and ones are
+infrequent.
 }
 \details{
-Describe the binomial topic model in more detail here.
+The binomial topic model for binary matrix \eqn{X} with
+entries \eqn{x_{ij}} is \deqn{x_{ij} \sim \mathrm{Binom}(1,
+p_{ij})} where the binomial probabilities are given by the linear
+combinations \deqn{p_{ij} = \sum_{k=1}^K l_{ik} f_{jk},} in which
+the the \eqn{l_{ik}}'s are the topic proportions and the
+\eqn{f_{jk}}'s are the topic-specific frequencies of ones.
+
+Note the special case of the binomial with sample size of 1 is also
+called the Bernoulli distribution.
 }
 \examples{
 # See the vignette for an example.
