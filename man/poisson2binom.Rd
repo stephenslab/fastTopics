@@ -4,7 +4,7 @@
 \alias{poisson2binom}
 \title{Recover Binomial Topic Model Fit from Poisson NMF fit}
 \usage{
-poisson2binom(X, fit, numem = 20, verbose = TRUE)
+poisson2binom(X, fit, numem = 20, umin = 0.0001, verbose = TRUE)
 }
 \arguments{
 \item{X}{The n x m \dQuote{binary} matrix; all entries of X should
@@ -14,6 +14,8 @@ be between 0 and 1 (including 0 and 1). It can be a sparse matrix
 \item{fit}{Describe input argument "fit" here.}
 
 \item{numem}{Describe input argument "numem" here.}
+
+\item{umin}{Describe input argument "umin" here.}
 
 \item{verbose}{Describe input argument "verbose" here.}
 }

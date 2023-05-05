@@ -7,8 +7,6 @@ library(Matrix)
 set.seed(1)
 n <- 200
 m <- 180
-
-# TO DO: Try with n different from m.
 L <- rbind(cbind(rep(1,n),rep(0,n),rep(0,n)),
            cbind(rep(0,n),rep(1,n),rep(0,n)),
            cbind(rep(0,n),rep(0,n),rep(1,n)),
@@ -21,9 +19,7 @@ P <- L %*% t(F)
 n <- nrow(P)
 m <- ncol(P)
 X <- matrix(rbinom(n*m,1,P),n,m)
-print(unique(as.vector(X)))
-# TO DO: Try also the case when X is sparse.
-# X <- as(X,"dgCMatrix")
+X <- as(X,"dgCMatrix")
 sim <- list(L = L,F = F,X = X)
 
 # Fit a Poisson non-negative matrix factorization to the binomial

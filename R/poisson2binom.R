@@ -11,6 +11,8 @@
 #' @param fit Describe input argument "fit" here.
 #'
 #' @param numem Describe input argument "numem" here.
+#'
+#' @param umin Describe input argument "umin" here.
 #' 
 #' @param verbose Describe input argument "verbose" here.
 #' 
@@ -21,7 +23,7 @@
 #' 
 #' @export
 #'
-poisson2binom <- function (X, fit, numem = 20, verbose = TRUE) {
+poisson2binom <- function (X, fit, numem = 0, umin = 1e-4, verbose = TRUE) {
   if (!requireNamespace("NNLM",quietly = TRUE))
     stop("poisson2binom requires the NNLM package")
 
@@ -55,6 +57,8 @@ poisson2binom <- function (X, fit, numem = 20, verbose = TRUE) {
   if (verbose)
     cat("Rescaling L and F using non-negative linear regression (nnlm).\n")
   u   <- drop(coef(NNLM::nnlm(L,ones)))
+  u   <- pmax(u,umin)
+  # TO DO: Make sure u's are always positive.
   L   <- scale.cols(L,u)
   L   <- normalize.rows(L)
   F   <- scale.cols(F,1/u)
@@ -88,7 +92,9 @@ poisson2binom <- function (X, fit, numem = 20, verbose = TRUE) {
 # binary data matrix X. This code is adapted from the meth_tpxEM
 # function in the methClust package by Kushal Dey.
 fit_binom_topic_model_em <- function (X, fit, numiter) {
-
+  if (!is.matrix(X))
+    X <- as.matrix(X)
+    
   # Make sure no parameters are exactly zero or exactly one.
   e <- 1e-8
   L <- fit$L
@@ -98,15 +104,15 @@ fit_binom_topic_model_em <- function (X, fit, numiter) {
   L <- normalize.rows(L)
 
   # Perform the E step.
-  m_temp     <- X/(L %*% t(F))
-  m_matrix   <- (m_temp %*% F) * L
-  m_t_matrix <- (t(m_temp) %*% L) * F
-  u_temp     <- (1 - X)/(L %*% t(1 - F))
-  u_matrix   <- (u_temp %*% (1 - F)) * L
-  u_t_matrix <- (t(u_temp) %*% L) * (1 - F)
+  A  <- X/tcrossprod(L,F)
+  M  <- (A %*% F) * L
+  Mt <- crossprod(A,L) * F
+  A  <- (1 - X)/tcrossprod(L,1 - F)
+  U  <- (A %*% (1 - F)) * L
+  Ut <- crossprod(A,L) * (1 - F)
 
   # Perform the M step.
-  L <- normalize.rows(m_matrix + u_matrix)
-  F <- m_t_matrix/(m_t_matrix + u_t_matrix)
+  L <- normalize.rows(M + U)
+  F <- Mt/(Mt + Ut)
   return(list(F = F,L = L))
 }
