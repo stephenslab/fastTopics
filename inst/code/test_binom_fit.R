@@ -37,18 +37,23 @@ fit_binom <- poisson2binom(X,fit_pois,numem = 0)
 # to refine the fit.
 fit_binom_em <- poisson2binom(X,fit_pois,numem = 20)
 
-# ADD COMMENTS HERE.
+# A quick sanity check that the estimates align well with the ground
+# truth.
 print(cor(sim$F,fit_binom_em$F))
 print(cor(sim$L,fit_binom_em$L))
 
-# ADD COMMENTS HERE.
+# The Poisson NMF estimates should be close to the binomial topic
+# model estimates here because the binomial probabilities are small
+# and the sample size is reasonably large.
 par(mfrow = c(1,2))
 plot(fit_binom_em$F,fit_binom$F,pch = 20)
 abline(a = 0,b = 1,col = "magenta",lty = "dashed")
 plot(fit_binom_em$L,fit_binom$L,pch = 20)
 abline(a = 0,b = 1,col = "magenta",lty = "dashed")
 
-# ADD COMMENTS HERE.
+# By contrast, the multinomial topic model estimates of the word
+# proportions (F) are very wrong, and, more worryingly, the topic
+# proportions (L) are also off.
 fit_multinom <- poisson2multinom(fit_pois)
 par(mfrow = c(1,2))
 plot(fit_binom_em$F,fit_multinom$F,pch = 20)
