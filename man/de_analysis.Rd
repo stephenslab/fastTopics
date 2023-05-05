@@ -8,7 +8,7 @@
 de_analysis(
   fit,
   X,
-  s = rowSums(X),
+  s,
   pseudocount = 0.01,
   fit.method = c("scd", "em", "mu", "ccd", "glm"),
   shrink.method = c("ash", "none"),
@@ -33,8 +33,10 @@ automatically recovered using \code{\link{poisson2multinom}}.}
 \code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).}
 
 \item{s}{A numeric vector of length n determining how the rates are
-scaled in the Poisson models. See \dQuote{Details} for guidance on
-the choice of \code{s}.}
+scaled in the Poisson models. By default, this is set to
+\code{fit$s} when \dQuote{fit} is a multinomial or binomial topic
+model, otherwise \code{s = rowSums(X)}. See \dQuote{Details} for
+guidance on the choice of \code{s}.}
 
 \item{pseudocount}{Observations with this value are added to the
 counts matrix to stabilize maximum-likelihood estimation.}
@@ -113,19 +115,20 @@ Implements methods for differential expression
   \dQuote{key words} for topics.
 }
 \details{
-The methods are based on the Poisson model
-\deqn{x_i ~ Poisson(\lambda_i),} in which the Poisson rates are
-\deqn{\lambda_i = \sum_{j=1}^k s_i l_{ij} f_j,} the \eqn{l_{ik}}
-are the topic proportions and the \eqn{f_j} are the unknowns to be
+The methods are based on the Poisson model \deqn{x_i ~
+Poisson(\lambda_i),} in which the Poisson rates are \deqn{\lambda_i
+= \sum_{j=1}^k s_i l_{ij} f_j,} the \eqn{l_{ik}} are the topic
+proportions and the \eqn{f_j} are the unknowns to be
 estimated. This model is applied separately to each column of
 \code{X}. When \eqn{s_i} (specified by input argument \code{s}) is
 equal the total count in row i (this is the default), the Poisson
-model will closely approximate a binomial model of the count data,
-and the unknowns \eqn{f_j} will approximate binomial
+model will closely approximate a multinomial of the count data, and
+the unknowns \eqn{f_j} will approximate multinomial
 probabilities. (The Poisson approximation to the binomial is most
 accurate when the total counts \code{rowSums(X)} are large and the
-unknowns \eqn{f_j} are small.) Other choices for \code{s} are
-possible, and implement different normalization schemes.
+unknowns \eqn{f_j} are small.) For approximating the binomial topic
+model, all the \eqn{s_i} should be 1. Other choices for \code{s}
+are possible, and implement different normalization schemes.
 
 To allow for some flexibility, \code{de_analysis} allows for the
 log-fold change to be measured in several ways.

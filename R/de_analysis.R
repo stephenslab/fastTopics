@@ -7,19 +7,20 @@
 #'   expression studies, but could have other uses, such as identifying
 #'   \dQuote{key words} for topics.
 #'
-#' @details The methods are based on the Poisson model
-#' \deqn{x_i ~ Poisson(\lambda_i),} in which the Poisson rates are
-#' \deqn{\lambda_i = \sum_{j=1}^k s_i l_{ij} f_j,} the \eqn{l_{ik}}
-#' are the topic proportions and the \eqn{f_j} are the unknowns to be
+#' @details The methods are based on the Poisson model \deqn{x_i ~
+#' Poisson(\lambda_i),} in which the Poisson rates are \deqn{\lambda_i
+#' = \sum_{j=1}^k s_i l_{ij} f_j,} the \eqn{l_{ik}} are the topic
+#' proportions and the \eqn{f_j} are the unknowns to be
 #' estimated. This model is applied separately to each column of
 #' \code{X}. When \eqn{s_i} (specified by input argument \code{s}) is
 #' equal the total count in row i (this is the default), the Poisson
-#' model will closely approximate a binomial model of the count data,
-#' and the unknowns \eqn{f_j} will approximate binomial
+#' model will closely approximate a multinomial of the count data, and
+#' the unknowns \eqn{f_j} will approximate multinomial
 #' probabilities. (The Poisson approximation to the binomial is most
 #' accurate when the total counts \code{rowSums(X)} are large and the
-#' unknowns \eqn{f_j} are small.) Other choices for \code{s} are
-#' possible, and implement different normalization schemes.
+#' unknowns \eqn{f_j} are small.) For approximating the binomial topic
+#' model, all the \eqn{s_i} should be 1. Other choices for \code{s}
+#' are possible, and implement different normalization schemes.
 #'
 #' To allow for some flexibility, \code{de_analysis} allows for the
 #' log-fold change to be measured in several ways.
@@ -107,8 +108,10 @@
 #'   \code{"dgCMatrix"}) or dense matrix (class \code{"matrix"}).
 #'
 #' @param s A numeric vector of length n determining how the rates are
-#'   scaled in the Poisson models. See \dQuote{Details} for guidance on
-#'   the choice of \code{s}.
+#'   scaled in the Poisson models. By default, this is set to
+#'   \code{fit$s} when \dQuote{fit} is a multinomial or binomial topic
+#'   model, otherwise \code{s = rowSums(X)}. See \dQuote{Details} for
+#'   guidance on the choice of \code{s}.
 #' 
 #' @param pseudocount Observations with this value are added to the
 #'   counts matrix to stabilize maximum-likelihood estimation.
@@ -230,13 +233,36 @@
 #'
 #' @export
 #' 
-de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
+de_analysis <- function (fit, X, s, pseudocount = 0.01,
                          fit.method = c("scd","em","mu","ccd","glm"),
                          shrink.method = c("ash","none"), lfc.stat = "le",
                          control = list(), verbose = TRUE, ...) {
 
   # CHECK AND PROCESS INPUTS
   # ------------------------
+  # Check and process input argument "X".
+  if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
+    stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
+         "a \"dgCMatrix\")")
+  if (is.matrix(X) & is.integer(X))
+    storage.mode(X) <- "double"
+
+  # Check and process input argument "s".
+  if (inherits(fit,"poisson_nmf_fit"))
+    fit <- poisson2multinom(fit)
+  if (missing(s)) {
+    if (inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit"))
+      s <- fit$s
+    else
+      s <- rowSums(X)  
+  }
+  verify.positive.vector(s)
+  if (length(s) != n)
+    stop("Input argument \"s\" should be a vector of positive numbers, ",
+         "in which length(s) = nrow(X)")
+  
+  
   # Check and process input argument "fit".
   if (is.matrix(fit)) {
     L <- fit
@@ -251,35 +277,19 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     fit <- init_poisson_nmf(X,F = F,L = L)
     fit <- poisson2multinom(fit)
   }
-  if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit") |
+  if (!(inherits(fit,"multinom_topic_model_fit") |
         inherits(fit,"binom_topic_model_fit")))
     stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
          "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\", or a ",
          "matrix of topic proportions")
-  if (inherits(fit,"poisson_nmf_fit"))
-    fit <- poisson2multinom(fit)
-  
-  # Check and process input argument "X".
-  if (!((is.numeric(X) & is.matrix(X)) | is.sparse.matrix(X)))
-    stop("Input argument \"X\" should be a numeric matrix (a \"matrix\" or ",
-         "a \"dgCMatrix\")")
   verify.fit.and.count.matrix(X,fit)
-  if (is.matrix(X) & is.integer(X))
-    storage.mode(X) <- "double"
-
+  
   # Get the number of rows (n) and columns (m) in the counts matrix, and
   # the number of groups or topics (k).
   n <- nrow(X)
   m <- ncol(X)
   k <- ncol(fit$F)
 
-  # Check input argument "s".
-  verify.positive.vector(s)
-  if (length(s) != n)
-    stop("Input argument \"s\" should be a vector of positive numbers, ",
-         "in which length(s) = nrow(X)")
-  
   # Check input argument "pseudocount".
   if (any(pseudocount <= 0))
     stop("Input argument \"pseudocount\" should be a positive number")

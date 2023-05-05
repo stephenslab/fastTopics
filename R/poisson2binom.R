@@ -85,8 +85,7 @@ poisson2binom <- function (X, fit, numem = 0, umin = 1e-4, verbose = TRUE) {
   L   <- normalize.rows(L)
   F   <- scale.cols(F,1/u)
   n   <- nrow(L)
-  fit <- list(F = F,L = L,s = rep(1,n),progress = NA)
-  names(fit$s) <- rownames(L)
+  fit <- list(F = F,L = L,progress = NA)
   
   # Refine the binomial topic model fit by performing several EM updates.
   if (numem > 0) {
@@ -108,6 +107,8 @@ poisson2binom <- function (X, fit, numem = 0, umin = 1e-4, verbose = TRUE) {
   }
   
   # Return the Binomial topic model fit.
+  fit$s <- rep(1,n)
+  names(fit$s) <- rownames(L)
   class(fit) <- c("binom_topic_model_fit","list")
   return(fit)
 }

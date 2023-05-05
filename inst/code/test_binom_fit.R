@@ -66,3 +66,6 @@ plot(fit_binom_em$F,fit_multinom$F,pch = 20)
 abline(a = 0,b = 1,col = "magenta",lty = "dashed")
 plot(fit_binom_em$L,fit_multinom$L,pch = 20)
 abline(a = 0,b = 1,col = "magenta",lty = "dashed")
+
+# ADD COMMENTS HERE.
+de <- de_analysis(fit_binom_em,X)
