@@ -75,18 +75,19 @@ poisson2binom <- function (X, fit, numem = 0, umin = 1e-4, verbose = TRUE) {
   # Choose U = diag(u) such that L*U is closer to being a matrix of
   # topic proportions.
   ones <- matrix(1,n,1)
-  L    <- fit$L
-  F    <- fit$F
+  L <- fit$L
+  F <- fit$F
   if (verbose)
     cat("Rescaling L and F using non-negative linear regression (nnlm).\n")
   u   <- drop(coef(NNLM::nnlm(L,ones)))
   u   <- pmax(u,umin)
-  # TO DO: Make sure u's are always positive.
   L   <- scale.cols(L,u)
   L   <- normalize.rows(L)
   F   <- scale.cols(F,1/u)
-  fit <- list(F = F,L = L,progress = NA)
-
+  n   <- nrow(L)
+  fit <- list(F = F,L = L,s = rep(1,n),progress = NA)
+  names(fit$s) <- rownames(L)
+  
   # Refine the binomial topic model fit by performing several EM updates.
   if (numem > 0) {
     cat("Performing",numem,"EM updates to refine the fit.\n")

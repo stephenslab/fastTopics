@@ -95,8 +95,9 @@
 #'   slow down the mutithreaded computations by introducing more
 #'   overhead in the call to \code{\link[pbapply]{pblapply}}.}}
 #' 
-#' @param fit An object of class \dQuote{poisson_nmf_fit} or
-#'   \dQuote{multinom_topic_model_fit}, or an n x k matrix of topic
+#' @param fit An object of class \dQuote{poisson_nmf_fit},
+#'   \dQuote{multinom_topic_model_fit} or
+#'   \dQuote{binom_topic_model_fit}, or an n x k matrix of topic
 #'   proportions, where k is the number of topics. (The elements in each
 #'   row of this matrix should sum to 1.) If a Poisson NMF fit is
 #'   provided as input, the corresponding multinomial topic model fit is
@@ -251,9 +252,11 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     fit <- poisson2multinom(fit)
   }
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\", or a matrix of topic proportions")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\", or a ",
+         "matrix of topic proportions")
   if (inherits(fit,"poisson_nmf_fit"))
     fit <- poisson2multinom(fit)
   
