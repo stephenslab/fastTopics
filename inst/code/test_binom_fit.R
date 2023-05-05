@@ -1,20 +1,23 @@
 # Verify the implementation of poisson2binom with a small, simulated
 # data set.
 library(Matrix)
+library(ggplot2)
+library(cowplot)
         
 # Simulate a 800 x 800 sparse binary matrix from a binomial topic
 # model with k = 3 topics.
 set.seed(1)
-n <- 200
-m <- 180
+n <- 1000
+m <- 100
 L <- rbind(cbind(rep(1,n),rep(0,n),rep(0,n)),
            cbind(rep(0,n),rep(1,n),rep(0,n)),
            cbind(rep(0,n),rep(0,n),rep(1,n)),
            cbind(runif(n),runif(n),runif(n)))
 L <- normalize.rows(L)
-F <- cbind(c(rep(0.08,m),rep(0.02,m),rep(0.05,m),rep(0.01,m)),
-           c(rep(0.01,m),rep(0.01,m),rep(0.05,m),rep(0.008,m)),
-           c(rep(0.08,m),rep(0.00,m),rep(0.05,m),rep(0.1,m)))
+F <- rbind(diag(3)/3,
+           cbind(c(rep(0.1,m),rep(0.1,m),rep(0.05,m),rep(0.0,m),rep(0.0,m)),
+                 c(rep(0.0,m),rep(0.0,m),rep(0.05,m),rep(0.1,m),rep(0.0,m)),
+                 c(rep(0.1,m),rep(0.0,m),rep(0.05,m),rep(0.0,m),rep(0.1,m))))
 P <- L %*% t(F)
 n <- nrow(P)
 m <- ncol(P)
@@ -67,5 +70,32 @@ abline(a = 0,b = 1,col = "magenta",lty = "dashed")
 plot(fit_binom_em$L,fit_multinom$L,pch = 20)
 abline(a = 0,b = 1,col = "magenta",lty = "dashed")
 
-# ADD COMMENTS HERE.
-de <- de_analysis(fit_binom_em,X)
+# Perform the GoM differential expression analysis using the binomial topic model. 
+de_binom <- de_analysis(fit_binom_em,X,control = list(nc = 4,ns = 1e4))
+
+# Verify that the F estimates from de_analysis are close to the ground truth.
+plot(fit_binom_em$F,de_binom$F,pch = 20)
+abline(a = 0,b = 1,col = "magenta",lty = "dashed")
+
+# Plot posterior mean l.e. LFC vs. z-score, coloring the points by the
+# "true" change in order to show visually that the GoM DE analysis is
+# working.
+df <- sim$F - apply(sim$F,1,function (x) sort(x,decreasing = TRUE)[2])
+p <- qplot(x = de_binom$postmean,y = de_binom$z,color = df) +
+  scale_color_gradient2(low = "darkblue",mid = "deepskyblue",high = "orangered",
+                        midpoint = 0) +
+  theme_cowplot(font_size = 12)
+print(p)
+
+# Perform a second GoM differential expression analysis using the
+# multinomial topic model.
+de_multinom <- de_analysis(fit_multinom,X,control = list(nc = 4,ns = 1e4))
+
+# Plot posterior mean l.e. LFC vs. z-score, coloring the points by the
+# "true" change in order to show visually that the GoM DE analysis is
+# working.
+p2 <- qplot(x = de_multinom$postmean,y = de_multinom$z,color = df) +
+  scale_color_gradient2(low = "darkblue",mid = "deepskyblue",high = "orangered",
+                        midpoint = 0) +
+  theme_cowplot(font_size = 12)
+print(p2)

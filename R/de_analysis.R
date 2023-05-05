@@ -262,7 +262,6 @@ de_analysis <- function (fit, X, s, pseudocount = 0.01,
     stop("Input argument \"s\" should be a vector of positive numbers, ",
          "in which length(s) = nrow(X)")
   
-  
   # Check and process input argument "fit".
   if (is.matrix(fit)) {
     L <- fit
