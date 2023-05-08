@@ -120,3 +120,64 @@ plot(fit_binom_em$L,fit_binom$L,pch = 20,xlab = "without EM",
      ylab = "with EM",main = "L")
 abline(a = 0,b = 1,col = "darkorange",lty = "dashed")
 ```
+
+One might be tempted to fit the standard (multinomial) topic model to
+these data,
+
+```{r poisson2multinom}
+fit_multinom <- poisson2multinom(fit_pois)
+```
+
+but this results in quite different estimates of L and F:
+
+```{r multinom-vs-binom, fig.height=3.5, fig.width=6}
+par(mfrow = c(1,2))
+plot(fit_binom_em$F,fit_multinom$F,pch = 20,
+     xlab = "binomial",ylab = "multinomial",main = "F")
+abline(a = 0,b = 1,col = "darkorange",lty = "dashed")
+plot(fit_binom_em$L,fit_multinom$L,pch = 20,
+     xlab = "binomial",ylab = "multinomial",main = "L")
+abline(a = 0,b = 1,col = "darkorange",lty = "dashed")
+```
+
+So this suggests that using the multinomial topic model is the wrong
+thing to do if the data are indeed binomial.
+
+Using this same Poisson approximation to the binomial, we can perform
+also a grade-of-membership (GoM) differential expression analysis,
+which is based on a Poisson model of the binary data:
+
+```{r de-analysis, results="hide"}
+de_binom <- de_analysis(fit_binom_em,X,control = list(nc = 4,ns = 1e4))
+```
+
+Plot posterior mean l.e. LFC vs. z-score, coloring the points by the
+"true" change (df) in order to show visually that the GoM DE analysis is
+effective capturing the largest changes):
+
+```{r volcano-plot-1, fig.height=3, fig.width=3.75}
+df <- sim$F - apply(sim$F,1,function (x) sort(x,decreasing = TRUE)[2])
+p <- qplot(x = de_binom$postmean,y = abs(de_binom$z),color = df) +
+  scale_color_gradient2(low = "darkblue",mid = "deepskyblue",
+                        high = "orangered",midpoint = 0) +
+  labs(x = "posterior mean l.e. LFC",
+       y = "|posterior z-score|") +
+  theme_cowplot(font_size = 12)
+print(p)
+```
+
+Again, to underscore that using the multinomial topic model is not a
+good idea when the data are binomial, a GoM DE analysis based on the
+multinomial topic model does not as effectively distinguish the large
+changes from the zero or near-zero changes:
+
+```{r volcano-plot-2, fig.height=3, fig.width=3.75, results="hide"}
+de_multinom <- de_analysis(fit_multinom,X,control = list(nc = 4,ns = 1e4))
+p2 <- qplot(x = de_multinom$postmean,y = abs(de_multinom$z),color = df) +
+  scale_color_gradient2(low = "darkblue",mid = "deepskyblue",
+                        high = "orangered",midpoint = 0) +
+  labs(x = "posterior mean l.e. LFC",
+       y = "|posterior z-score|") +
+  theme_cowplot(font_size = 12)
+print(p2)
+```

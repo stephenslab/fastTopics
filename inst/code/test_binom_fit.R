@@ -70,7 +70,8 @@ abline(a = 0,b = 1,col = "magenta",lty = "dashed")
 plot(fit_binom_em$L,fit_multinom$L,pch = 20)
 abline(a = 0,b = 1,col = "magenta",lty = "dashed")
 
-# Perform the GoM differential expression analysis using the binomial topic model. 
+# Perform the GoM differential expression analysis using the binomial
+# topic model.
 de_binom <- de_analysis(fit_binom_em,X,control = list(nc = 4,ns = 1e4))
 
 # Verify that the F estimates from de_analysis are close to the ground truth.
@@ -82,8 +83,8 @@ abline(a = 0,b = 1,col = "magenta",lty = "dashed")
 # working.
 df <- sim$F - apply(sim$F,1,function (x) sort(x,decreasing = TRUE)[2])
 p <- qplot(x = de_binom$postmean,y = de_binom$z,color = df) +
-  scale_color_gradient2(low = "darkblue",mid = "deepskyblue",high = "orangered",
-                        midpoint = 0) +
+  scale_color_gradient2(low = "darkblue",mid = "deepskyblue",
+                        high = "orangered",midpoint = 0) +
   theme_cowplot(font_size = 12)
 print(p)
 
@@ -95,7 +96,7 @@ de_multinom <- de_analysis(fit_multinom,X,control = list(nc = 4,ns = 1e4))
 # "true" change in order to show visually that the GoM DE analysis is
 # working.
 p2 <- qplot(x = de_multinom$postmean,y = de_multinom$z,color = df) +
-  scale_color_gradient2(low = "darkblue",mid = "deepskyblue",high = "orangered",
-                        midpoint = 0) +
+  scale_color_gradient2(low = "darkblue",mid = "deepskyblue",
+                        high = "orangered",midpoint = 0) +
   theme_cowplot(font_size = 12)
 print(p2)
