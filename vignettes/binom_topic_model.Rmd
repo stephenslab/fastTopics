@@ -1,0 +1,122 @@
+---
+title: "Analysis of a binomial data set with fastTopics"
+author: Peter Carbonetto
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+    toc_float: no
+    highlight: textmate
+    theme: readable
+vignette: >
+  %\VignetteIndexEntry{Analysis of binomial data with fastTopics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+In this vignette, we show that fastTopics can be used to efficiently
+fit a *binomial topic model for binary data*; by "binary data", we
+mean an $n \times m$ binary data matrix ${\bf X}$ with entries $x_{ij}
+\in \{0, 1\}$. The binomial topic model is
+$$
+x_{ij} \sim \mathrm{Binom}(1,\pi_{ij}),
+$$
+in which each binomial probability, $\pi_{ij}$, is a linear
+combination of the parameters $f_{jk}, l_{ik}$,
+$$
+\pi_{ij} = \sum_{k=1}^K l_{ik} f_{jk},
+$$
+such that $l_{ik}$ is the proportion of row $i$ attributed to topic
+$k$, and $f_{jk}$ is the frequency of ones in column $j$ and topic
+$k$.
+
+In fastTopics, this binomial model is approximated by a Poisson
+non-negative matrix factorization (NMF). That is, we make the following
+approximation:
+$$
+\mathrm{Binom}(1,\pi_{ij}) \approx \mathrm{Pois}(\pi_{ij})
+$$
+This approximation will be good whenever the sample size is large and
+the binomial probabilities are small.
+
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
+                      fig.align = "center",dpi = 120)
+```
+
+Load the packages and set the seed so the results can be reproduced.
+
+```{r load-pkgs, message=FALSE, warning=FALSE}
+library(Matrix)
+library(fastTopics)
+library(ggplot2)
+library(cowplot)
+set.seed(1)
+```
+
+Simulate a 4,000 x 503 sparse binary matrix from a binomial topic
+model with 3 topics.
+
+```{r simulate}
+set.seed(1)
+n <- 1000
+m <- 100
+L <- rbind(cbind(rep(1,n),rep(0,n),rep(0,n)),
+           cbind(rep(0,n),rep(1,n),rep(0,n)),
+           cbind(rep(0,n),rep(0,n),rep(1,n)),
+           cbind(runif(n),runif(n),runif(n)))
+L <- L/rowSums(L)
+F <- rbind(diag(3)/3,
+           cbind(c(rep(0.1,m),rep(0.1,m),rep(0.05,m),rep(0.0,m),rep(0.0,m)),
+                 c(rep(0.0,m),rep(0.0,m),rep(0.05,m),rep(0.1,m),rep(0.0,m)),
+                 c(rep(0.1,m),rep(0.0,m),rep(0.05,m),rep(0.0,m),rep(0.1,m))))
+P <- L %*% t(F)
+n <- nrow(P)
+m <- ncol(P)
+X <- matrix(rbinom(n*m,1,P),n,m)
+X <- as(X,"dgCMatrix")
+sim <- list(L = L,F = F,X = X)
+```
+
+Fit a Poisson NMF model to the binomial data. To simplify comparison
+with the true factorization---that is, the L and F used to simulate
+the data---we initialize to the true parameter values.
+
+```{r fit-poisson-nmf}
+fit_pois <- init_poisson_nmf(X,L = L,F = F)
+fit_pois <- fit_poisson_nmf(X,fit0 = fit_pois,
+                            control = list(extrapolate = TRUE),
+							verbose = "none")
+```
+
+Convert the Poisson NMF to a binomial topic model without any EM
+updates to refine the fit. (This step involves a simple rescaling of L
+and F, and should be very fast.)
+
+```{r fit-binom-noem, results="hide"}
+fit_binom <- poisson2binom(X,fit_pois,numem = 0)
+```
+
+Perform the conversion a second time, this time with some EM updates
+to refine the fit. 
+
+```{r fit-binom-em, results="hide"}
+fit_binom_em <- poisson2binom(X,fit_pois,numem = 20)
+```
+
+The EM updates for fitting the binomial topic model can be very slow
+for large matrices, so we would like to avoid running the EM updates
+if we can. Since the binomial probabilitiies are small and the sample
+size is large, the Poisson NMF model parameters should closely
+approximate the binomial topic model parameters, and indeed this is
+the case in this example:
+
+```{r em-vs-noem, fig.height=3.5, fig.width=6}
+par(mfrow = c(1,2))
+plot(fit_binom_em$F,fit_binom$F,pch = 20,xlab = "without EM",
+     ylab = "with EM",main = "F")
+abline(a = 0,b = 1,col = "darkorange",lty = "dashed")
+plot(fit_binom_em$L,fit_binom$L,pch = 20,xlab = "without EM",
+     ylab = "with EM",main = "L")
+abline(a = 0,b = 1,col = "darkorange",lty = "dashed")
+```

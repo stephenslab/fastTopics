@@ -4,7 +4,7 @@ library(Matrix)
 library(ggplot2)
 library(cowplot)
         
-# Simulate a 800 x 800 sparse binary matrix from a binomial topic
+# Simulate a 4,000 x 503 sparse binary matrix from a binomial topic
 # model with k = 3 topics.
 set.seed(1)
 n <- 1000
@@ -33,7 +33,7 @@ sim <- list(L = L,F = F,X = X)
 
 # Fit a Poisson non-negative matrix factorization to the binomial
 # data. To simplify comparison with the "true" factorization---that
-# is, the L and F used to simulate the data--the factorization is
+# is, the L and F used to simulate the data---the factorization is
 # initialized to the true parameter values.
 fit_pois <- init_poisson_nmf(X,L = L,F = F)
 fit_pois <- fit_poisson_nmf(X,fit0 = fit_pois,control = list(extrapolate = TRUE))
