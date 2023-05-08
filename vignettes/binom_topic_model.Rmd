@@ -15,13 +15,15 @@ vignette: >
 ---
 
 In this vignette, we show that fastTopics can be used to efficiently
-fit a *binomial topic model for binary data*; by "binary data", we
+fit a *binomial topic model for binary data*---by "binary data", we
 mean an $n \times m$ binary data matrix ${\bf X}$ with entries $x_{ij}
-\in \{0, 1\}$. The binomial topic model is
+\in \{0, 1\}$.
+
+The binomial topic model is
 $$
 x_{ij} \sim \mathrm{Binom}(1,\pi_{ij}),
 $$
-in which each binomial probability, $\pi_{ij}$, is a linear
+in which each binomial probability $\pi_{ij}$ is a linear
 combination of the parameters $f_{jk}, l_{ik}$,
 $$
 \pi_{ij} = \sum_{k=1}^K l_{ik} f_{jk},
@@ -37,7 +39,8 @@ $$
 \mathrm{Binom}(1,\pi_{ij}) \approx \mathrm{Pois}(\pi_{ij})
 $$
 This approximation will be good whenever the sample size is large and
-the binomial probabilities are small.
+the binomial probabilities are small. We illustrate this idea in the
+example below.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
@@ -54,7 +57,7 @@ library(cowplot)
 set.seed(1)
 ```
 
-Simulate a 4,000 x 503 sparse binary matrix from a binomial topic
+Simulate a 4,000 x 503 (sparse) binary matrix from a binomial topic
 model with 3 topics.
 
 ```{r simulate}
@@ -76,11 +79,12 @@ m <- ncol(P)
 X <- matrix(rbinom(n*m,1,P),n,m)
 X <- as(X,"dgCMatrix")
 sim <- list(L = L,F = F,X = X)
+mean(X)
 ```
 
 Fit a Poisson NMF model to the binomial data. To simplify comparison
-with the true factorization---that is, the L and F used to simulate
-the data---we initialize to the true parameter values.
+with the true factorization, we "cheat" here and initialize to the
+true parameter values.
 
 ```{r fit-poisson-nmf}
 fit_pois <- init_poisson_nmf(X,L = L,F = F)
@@ -105,11 +109,11 @@ fit_binom_em <- poisson2binom(X,fit_pois,numem = 20)
 ```
 
 The EM updates for fitting the binomial topic model can be very slow
-for large matrices, so we would like to avoid running the EM updates
-if we can. Since the binomial probabilitiies are small and the sample
-size is large, the Poisson NMF model parameters should closely
-approximate the binomial topic model parameters, and indeed this is
-the case in this example:
+for large matrices so we would like to avoid running the EM updates if
+we can. Since the binomial probabilitiies are small and the sample
+size is large in this example, the Poisson NMF model parameters should
+closely approximate the binomial topic model parameters. Indeed,
+this is the case:
 
 ```{r em-vs-noem, fig.height=3.5, fig.width=6}
 par(mfrow = c(1,2))
@@ -128,7 +132,8 @@ these data,
 fit_multinom <- poisson2multinom(fit_pois)
 ```
 
-but this results in quite different estimates of L and F:
+but this results in estimates that are quite different from the
+binomial topic model:
 
 ```{r multinom-vs-binom, fig.height=3.5, fig.width=6}
 par(mfrow = c(1,2))
@@ -140,20 +145,20 @@ plot(fit_binom_em$L,fit_multinom$L,pch = 20,
 abline(a = 0,b = 1,col = "darkorange",lty = "dashed")
 ```
 
-So this suggests that using the multinomial topic model is the wrong
+This suggests that using the multinomial topic model is the wrong
 thing to do if the data are indeed binomial.
 
-Using this same Poisson approximation to the binomial, we can perform
-also a grade-of-membership (GoM) differential expression analysis,
-which is based on a Poisson model of the binary data:
+We can also perform a grade-of-membership (GoM) differential
+expression analysis, which is similiarly based on a Poisson
+approximation to the binomial:
 
-```{r de-analysis, results="hide"}
+```{r de-analysis, message=FALSE, results="hide"}
 de_binom <- de_analysis(fit_binom_em,X,control = list(nc = 4,ns = 1e4))
 ```
 
 Plot posterior mean l.e. LFC vs. z-score, coloring the points by the
-"true" change (df) in order to show visually that the GoM DE analysis is
-effective capturing the largest changes):
+"true" change ("df") in order to show visually that the GoM DE analysis is
+effective capturing the largest changes:
 
 ```{r volcano-plot-1, fig.height=3, fig.width=3.75}
 df <- sim$F - apply(sim$F,1,function (x) sort(x,decreasing = TRUE)[2])
@@ -166,10 +171,10 @@ p <- qplot(x = de_binom$postmean,y = abs(de_binom$z),color = df) +
 print(p)
 ```
 
-Again, to underscore that using the multinomial topic model is not a
-good idea when the data are binomial, a GoM DE analysis based on the
-multinomial topic model does not as effectively distinguish the large
-changes from the zero or near-zero changes:
+Again, to underscore that using the multinomial topic model may not be
+a good idea when the data are binomial, a GoM DE analysis based on the
+multinomial topic model does not distinguish as effectively the large
+changes from the zero/near-zero changes:
 
 ```{r volcano-plot-2, fig.height=3, fig.width=3.75, results="hide"}
 de_multinom <- de_analysis(fit_multinom,X,control = list(nc = 4,ns = 1e4))
