@@ -258,7 +258,7 @@ de_analysis <- function (fit, X, s, pseudocount = 0.01,
       s <- rowSums(X)  
   }
   verify.positive.vector(s)
-  if (length(s) != n)
+  if (length(s) != nrow(X))
     stop("Input argument \"s\" should be a vector of positive numbers, ",
          "in which length(s) = nrow(X)")
   
