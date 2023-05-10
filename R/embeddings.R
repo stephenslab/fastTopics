@@ -11,8 +11,8 @@
 #'   distances between points are generally less interpretable than a
 #'   linear transformation obtained by, say, PCA.
 #'
-#' @param fit An object of class \dQuote{poisson_nmf_fit} or
-#'   \dQuote{multinom_topic_model_fit}.
+#' @param fit An object of class \dQuote{poisson_nmf_fit},
+#'   \dQuote{multinom_topic_model_fit} or \dQuote{binom_topic_model_fit}.
 #'
 #' @param dims The number of dimensions in the embedding. In
 #'   \code{tsne_from_topics}, this is passed as argument \dQuote{dims}
@@ -87,9 +87,10 @@
 pca_from_topics <- function (fit, dims = 2, center = TRUE,
                              scale. = FALSE, ...) {
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
   Y <- prcomp(fit$L,retx = TRUE,center = center,scale. = scale.,...)$x
   return(Y[,1:dims])
 }
@@ -137,9 +138,10 @@ tsne_from_topics <- function (fit, dims = 2, pca = FALSE, normalize = FALSE,
     
   # Check input argument "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
   n <- nrow(fit$L)
   if (n < 4)
     stop("Rtsne cannot run on a matrix with fewer than 4 rows")
@@ -186,9 +188,10 @@ umap_from_topics <- function (fit, dims = 2, n_neighbors = 30,
 
   # Check input argument "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
   n <- nrow(fit$L)
   if (n < 4)
     stop("umap cannot run on a matrix with fewer than 4 rows")

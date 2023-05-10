@@ -78,8 +78,8 @@ pca_hexbin_plot(
 pca_hexbin_plot_ggplot_call(Y, bins, breaks, font.size = 9)
 }
 \arguments{
-\item{fit}{An object of class \dQuote{poisson_nmf_fit} or
-\dQuote{multinom_topic_model_fit}.}
+\item{fit}{An object of class \dQuote{poisson_nmf_fit},
+\dQuote{multinom_topic_model_fit} or \dQuote{binom_topic_model_fit}.}
 
 \item{Y}{The n x 2 matrix containing the 2-d embedding, where n is
 the number of rows in \code{fit$L}. If not provided, the embedding

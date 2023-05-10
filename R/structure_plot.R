@@ -20,8 +20,9 @@
 #' arrangement of the samples is, by default, generated automatically
 #' by performing a 1-d embedding of the samples.
 #'
-#' @param fit An object of class \dQuote{poisson_nmf_fit} or
-#'   \dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
+#' @param fit An object of class \dQuote{poisson_nmf_fit},
+#'   \dQuote{multinom_topic_model_fit} or
+#'   \dQuote{binom_topic_model_fit}.  If a Poisson NMF fit is provided
 #'   as input, the corresponding multinomial topic model fit is
 #'   automatically recovered using \code{\link{poisson2multinom}}.
 #'
@@ -83,7 +84,6 @@
 #' @return A \code{ggplot} object.
 #'
 #' @references
-#'
 #' Dey, K. K., Hsiao, C. J. and Stephens, M. (2017). Visualizing the
 #' structure of RNA-seq expression data using grade of membership
 #' models. \emph{PLoS Genetics} \bold{13}, e1006599.
@@ -156,9 +156,10 @@ structure_plot <-
 
   # Check and process input argument "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
   if (inherits(fit,"poisson_nmf_fit"))
     fit <- poisson2multinom(fit)
   n0 <- nrow(fit$L)

@@ -24,8 +24,8 @@
 #' (\dots). Alternatively, a 2-d embedding may be pre-computed, and
 #' passed as argument \code{Y}.
 #' 
-#' @param fit An object of class \dQuote{poisson_nmf_fit} or
-#'   \dQuote{multinom_topic_model_fit}.
+#' @param fit An object of class \dQuote{poisson_nmf_fit},
+#'   \dQuote{multinom_topic_model_fit} or \dQuote{binom_topic_model_fit}.
 #'
 #' @param Y The n x 2 matrix containing the 2-d embedding, where n is
 #'   the number of rows in \code{fit$L}. If not provided, the embedding
@@ -107,9 +107,10 @@ embedding_plot_2d <-
     
   # Check input "fit".
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
 
   # Process input argument Y.
   if (!(is.matrix(Y) & nrow(Y) == nrow(fit$L) & ncol(Y) == 2))
@@ -239,9 +240,10 @@ pca_plot <-
             ggplot_call = embedding_plot_2d_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots), ...) {
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
   if (missing(fill.label))
     fill.label <- deparse(substitute(fill))
   if (missing(Y)) {
@@ -269,9 +271,10 @@ tsne_plot <-
             ggplot_call = embedding_plot_2d_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots), ...) {
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
   if (missing(fill.label))
     fill.label <- deparse(substitute(fill))
   if (missing(Y)) {
@@ -298,9 +301,10 @@ umap_plot <-
             ggplot_call = embedding_plot_2d_ggplot_call,
             plot_grid_call = function (plots) do.call(plot_grid,plots), ...) {
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
   if (missing(fill.label))
     fill.label <- deparse(substitute(fill))
   if (missing(Y)) {
@@ -332,9 +336,10 @@ pca_hexbin_plot <- function (fit, Y, pcs = 1:2, bins = 40,
                              breaks = c(0,1,10,100,1000,Inf),
                              ggplot_call = pca_hexbin_plot_ggplot_call, ...) {
   if (!(inherits(fit,"poisson_nmf_fit") |
-        inherits(fit,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(fit,"multinom_topic_model_fit") |
+        inherits(fit,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
   if (missing(Y))
     Y <- pca_from_topics(fit,dims = ncol(fit$L),...)
   return(ggplot_call(Y[,pcs],bins,breaks))

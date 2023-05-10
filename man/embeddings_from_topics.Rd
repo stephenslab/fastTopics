@@ -34,8 +34,8 @@ umap_from_topics(
 )
 }
 \arguments{
-\item{fit}{An object of class \dQuote{poisson_nmf_fit} or
-\dQuote{multinom_topic_model_fit}.}
+\item{fit}{An object of class \dQuote{poisson_nmf_fit},
+\dQuote{multinom_topic_model_fit} or \dQuote{binom_topic_model_fit}.}
 
 \item{dims}{The number of dimensions in the embedding. In
 \code{tsne_from_topics}, this is passed as argument \dQuote{dims}

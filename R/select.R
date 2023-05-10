@@ -45,9 +45,10 @@ select.multinom_topic_model_fit <- function (.data, loadings, ...)
 #'
 select_loadings <- function (.data, loadings, ...) {
   if (!(inherits(.data,"poisson_nmf_fit") |
-        inherits(.data,"multinom_topic_model_fit")))
-    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\" or ",
-         "\"multinom_topic_model_fit\"")
+        inherits(.data,"multinom_topic_model_fit") |
+        inherits(.data,"binom_topic_model_fit")))
+    stop("Input \"fit\" should be an object of class \"poisson_nmf_fit\", ",
+         "\"multinom_topic_model_fit\" or \"binom_topic_model_fit\"")
   verify.fit(.data)
   n <- nrow(.data$L)
   if (missing(loadings))

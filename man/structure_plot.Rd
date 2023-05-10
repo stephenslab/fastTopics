@@ -31,8 +31,9 @@ structure_plot_default_embed_method(fit, ...)
 structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 9)
 }
 \arguments{
-\item{fit}{An object of class \dQuote{poisson_nmf_fit} or
-\dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
+\item{fit}{An object of class \dQuote{poisson_nmf_fit},
+\dQuote{multinom_topic_model_fit} or
+\dQuote{binom_topic_model_fit}.  If a Poisson NMF fit is provided
 as input, the corresponding multinomial topic model fit is
 automatically recovered using \code{\link{poisson2multinom}}.}
 
