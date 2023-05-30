@@ -85,9 +85,13 @@
 #'
 #' \item{\code{nc}}{Number of threads used in the multithreaded
 #'   computations. Note that the multithreading relies on forking hence
-#'   is not available on Windows; will return an error on Windows
-#'   unless \code{nc = 1}. See \code{\link[parallel]{mclapply}} for
-#'   details.}
+#'   is not available on Windows; will return an error on Windows unless
+#'   \code{nc = 1}. See \code{\link[parallel]{mclapply}} for
+#'   details. Also note that if R is installed with a multithreading
+#'   numerical linear algebra library (e.g., OpenBLAS), for best
+#'   performance the number of threads used by the linear algebra
+#'   library should be set to 1 (i.e., no multithreading). This can be
+#'   controlled for example using the RhpcBLASctl package.}
 #'
 #' \item{\code{nsplit}}{The number of data splits used in the
 #'   multithreaded computations (only relevant when \code{nc > 1}). More
