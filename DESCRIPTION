@@ -49,6 +49,7 @@ Imports:
     ashr,
     Rcpp (>= 1.0.1),
     RcppParallel (>= 4.4.1),
+    RhpcBLASctl,
     parallel,
     progress,
     pbapply,
@@ -62,8 +63,7 @@ Suggests:
     Ternary,
     testthat,
     knitr,
-    rmarkdown,
-    RhpcBLASctl
+    rmarkdown
 LinkingTo:
     Rcpp,
     RcppParallel,

@@ -29,6 +29,7 @@ jobs:
           install.packages(c("RcppArmadillo","RcppParallel","pbapply"))
           install.packages(c("progress","ggplot2","ggrepel","cowplot"))
           install.packages(c("plotly","htmlwidgets","testthat","Ternary"))
+          install.packages("RhpcBLASctl")
           remotes::install_github("slowkow/ggrepel",upgrade="never",force=TRUE)
           remotes::install_github("stephens999/ashr",upgrade="never",force=TRUE)
           remotes::install_github("linxihui/NNLM",upgrade="never",force=TRUE)
