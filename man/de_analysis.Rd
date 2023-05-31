@@ -189,14 +189,17 @@ algorithm settings (as they are defined by
   inside the logarithms to avoid computing logarithms of zero.}
 
 \item{\code{nc}}{Number of threads used in the multithreaded
-  computations. Note that the multithreading relies on forking hence
-  is not available on Windows; will return an error on Windows unless
-  \code{nc = 1}. See \code{\link[parallel]{mclapply}} for
-  details. Also note that if R is installed with a multithreading
-  numerical linear algebra library (e.g., OpenBLAS), for best
-  performance the number of threads used by the linear algebra
-  library should be set to 1 (i.e., no multithreading). This can be
-  controlled for example using the RhpcBLASctl package.}
+  computations. This controls both (1) the number of RcppParallel
+  threads used to fit the factors in the Poisson models, and (2) the
+  number of cores used in \code{\link[parallel]{mclapply}} for the
+  MCMC simulation step.  Note that mclapply relies on forking hence is not
+  available on Windows; will return an error on Windows unless
+  \code{nc = 1}.}
+
+\item{\code{nc.blas}}{Number of threads used in the multithreading
+  numerical linear algebra library (e.g., OpenBLAS), if available,
+  for the MCMC simulation step. For best performance, we recommend
+  setting this to 1 (i.e., no multithreading).}
 
 \item{\code{nsplit}}{The number of data splits used in the
   multithreaded computations (only relevant when \code{nc > 1}). More
