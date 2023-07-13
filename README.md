@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://app.codecov.io/gh/stephenslab/fastTopics)
 
 fastTopics is an R package implementing fast, scalable optimization
-algorithms for fitting topic models and non-negative matrix
+algorithms for fitting topic models and non-negative matrix 
 factorizations to count data. The methods exploit the
 [close relationship][vignette-close-relationship] between the topic
 model and Poisson non-negative matrix factorization. The package also
