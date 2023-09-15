@@ -56,9 +56,7 @@
 #'   plot due to screen resolution limits. Ignored if
 #'   \code{loadings_order} is provided.
 #'
-#' @param colors Colors used to draw topics in Structure plot. The
-#'   default colour setting is the from \url{https://colorbrewer2.org}
-#'   (qualitative data, \dQuote{9-class Set1}).
+#' @param colors Colors used to draw topics in Structure plot.
 #'
 #' @param gap The horizontal spacing between groups. Ignored if
 #'   \code{grouping} is not provided.
@@ -149,9 +147,8 @@
 #'
 structure_plot <-
   function (fit, topics, grouping, loadings_order = "embed", n = 2000,
-            colors = c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
-                       "#ffff33","#a65628","#f781bf","#999999"),
-            gap = 1, embed_method = structure_plot_default_embed_method,
+            colors, gap = 1,
+            embed_method = structure_plot_default_embed_method,
             ggplot_call = structure_plot_ggplot_call, ...) {
 
   # Check and process input argument "fit".
@@ -185,7 +182,18 @@ structure_plot <-
     stop("Input argument \"grouping\" should be a factor with one entry ",
          "for each row of fit$L")
 
-  # Check and process input argument "colors".
+  # Check and process input argument "colors". colors9 is the from
+  # colorbrewer2.org (qualitative data, 9-class Set1).
+  colors9 <- c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
+               "#ffff33","#a65628","#f781bf","#999999")
+  if (missing(colors)) {
+    if (k < 10)
+      colors <- colors9
+    else if (k < 22)
+      colors <- kelly()[-1]
+    else      
+      colors <- glasbey()[-1]
+  }
   if (length(colors) < k)
     stop("There must be at least as many colours as topics")
   names(colors) <- colnames(fit$L)

@@ -14,8 +14,7 @@ structure_plot(
   grouping,
   loadings_order = "embed",
   n = 2000,
-  colors = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
-    "#a65628", "#f781bf", "#999999"),
+  colors,
   gap = 1,
   embed_method = structure_plot_default_embed_method,
   ggplot_call = structure_plot_ggplot_call,
@@ -67,9 +66,7 @@ no benefit in including large number of samples in the Structure
 plot due to screen resolution limits. Ignored if
 \code{loadings_order} is provided.}
 
-\item{colors}{Colors used to draw topics in Structure plot. The
-default colour setting is the from \url{https://colorbrewer2.org}
-(qualitative data, \dQuote{9-class Set1}).}
+\item{colors}{Colors used to draw topics in Structure plot.}
 
 \item{gap}{The horizontal spacing between groups. Ignored if
 \code{grouping} is not provided.}
