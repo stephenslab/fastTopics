@@ -28,7 +28,7 @@ get_lut <- function (LUT, index,
   if (name)
     nm <- rownames(LUT)
   if (missing(index))
-    index <- seq_len(nrows(LUT))
+    index <- seq_len(nrow(LUT))
   form <- tolower(form[1])
   if (form == "hex"){
     x <- LUT[index,"hex"]
