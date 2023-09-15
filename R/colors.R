@@ -1,3 +1,7 @@
+# Code in this file is adapted from
+# https://github.com/btupper/catecolors
+# by Ben Tupper.
+
 # K. L. Kelly. Twenty two colors of maximum contrast. Color
 # Engineering, 3:26-27, 1965.
 # http://www.iscc.org/pdf/PC54_1724_001.pdf
