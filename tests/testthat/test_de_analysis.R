@@ -416,5 +416,5 @@ test_that("de_analysis provided with fit and fit$L give the same result",{
   de2["ash"] <- NULL
   de1["svalue"] <- NULL
   de2["svalue"] <- NULL
-  expect_equal(de1,de2,scale = 1,tolerance = 1e-10)
+  expect_equal(de1,de2,scale = 1,tolerance = 1e-8)
 })

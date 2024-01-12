@@ -1,7 +1,7 @@
 # fastTopics
 
 [![R-CMD-check](https://github.com/stephenslab/fastTopics/workflows/R-CMD-check/badge.svg)](https://github.com/stephenslab/fastTopics/actions)
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/stephenslab/fastTopics/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/stephenslab/fastTopics/tree/master)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/stephenslab/fastTopics/tree/master.svg?style=svg)](https://app.circleci.com/pipelines/github/stephenslab/fastTopics?branch=master)
 [![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://app.codecov.io/gh/stephenslab/fastTopics)
 
 fastTopics is an R package implementing fast, scalable optimization
@@ -101,7 +101,7 @@ The fastTopics R package was developed by [Peter Carbonetto][peter],
 [Matthew Stephens][matthew] and others.
 
 [fasttopics]:  https://github.com/stephenslab/fastTopics
-[mit-license]: https://opensource.org/licenses/mit-license.html
+[mit-license]: https://opensource.org/license/mit/
 [issues]: https://github.com/stephenslab/fastTopics/issues
 [peter]: https://pcarbo.github.io
 [kevin]: https://github.com/kevinlkx
