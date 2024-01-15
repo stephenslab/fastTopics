@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.6-162
-Date: 2024-01-12
+Version: 0.6-163
+Date: 2024-01-15
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
 Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
@@ -29,7 +29,8 @@ Description: Implements fast, scalable optimization algorithms for
     compare, annotate and visualize model fits, including functions to
     efficiently create "structure plots" and identify key features in
     topics. The 'fastTopics' package is a successor to the 'CountClust'
-    package.
+    package. Note that the 'fastTopicis' package on GitHub has more 
+    vignettes illustrating application to single-cell RNA-seq data.
 License: BSD_2_clause + file LICENSE
 Copyright: inst/COPYRIGHTS
 SystemRequirements: GNU make
