@@ -68,7 +68,6 @@ LinkingTo:
     Rcpp,
     RcppParallel,
     RcppArmadillo
-Remotes: linxihui/NNLM
 Additional_repositories: https://stephenslab.github.io/nnlm-drat
 LazyData: true
 LazyDataCompression: xz
