@@ -31,8 +31,10 @@ structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 9)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
-\dQuote{multinom_topic_model_fit}. If a Poisson NMF fit is provided
-as input, the corresponding multinomial topic model fit is
+\dQuote{multinom_topic_model_fit}, or an n x k matrix of topic
+proportions, where k is the number of topics. (The elements in each
+row of this matrix should sum to 1.) If a Poisson NMF fit is
+provided as input, the corresponding multinomial topic model fit is
 automatically recovered using \code{\link{poisson2multinom}}.}
 
 \item{topics}{Top-to-bottom ordering of the topics in the Structure
@@ -40,7 +42,9 @@ plot; \code{topics[1]} is shown on the top, \code{topics[2]} is
 shown next, and so on. If the ordering of the topics is not
 specified, the topics are automatically ordered so that the topics
 with the greatest total \dQuote{mass} are at shown at the bottom of
-the plot. The topics may be specified by number or by name.}
+the plot. The topics may be specified by number or by name. Note
+that not all of the topics need to be included, so one may also use
+this argument to plot a subset of the topics.}
 
 \item{grouping}{Optional categorical variable (a factor) with one
 entry for each row of the loadings matrix \code{fit$L} defining a
@@ -111,12 +115,13 @@ axis, and their names. For data that are not grouped, use
 A \code{ggplot} object.
 }
 \description{
-Create a \dQuote{Structure plot} from a multinomial topic
-  model fit. The Structure plot represents the estimated topic
+Create a \dQuote{Structure plot} from a multinomial
+  topic model fit or other model with \dQuote{loadings} or
+  \dQuote{weights}. The Structure plot represents the estimated topic
   proportions of each sample in a stacked bar chart, with bars of
   different colors representing different topics. Consequently,
-  samples that have similar topic proportions have similar amounts
-  of each color.
+  samples that have similar topic proportions have similar amounts of
+  each color.
 }
 \details{
 The name \dQuote{Structure plot} comes from its widespread
@@ -144,13 +149,28 @@ fit <- pbmc_facs$fit
 # Create a Structure plot without labels. The samples (rows of L) are
 # automatically arranged along the x-axis using t-SNE to highlight the
 # structure in the data.
-p1 <- structure_plot(fit)
+p1a <- structure_plot(fit)
+
+# The first argument to structure_plot may also be an "L" matrix.
+# This call to structure_plot should produce the exact same plot as
+# the previous call.
+set.seed(1)
+p1b <- structure_plot(fit$L)
+
+# There is no requirement than the rows of L sum up to 1. To
+# illustrate, in this next example we have removed topic 5 from the a
+# structure plot.
+p2a <- structure_plot(L[,-5])
+
+# This is perhaps a more elegant way to remove topic 5 from the
+# structure plot:
+p2b <- structure_plot(fit,topics = c(1:4,6))
 
 # Create a Structure plot with the FACS cell-type labels. Within each
 # group (cell-type), the cells (rows of L) are automatically arranged
 # using t-SNE.
 subpop <- pbmc_facs$samples$subpop
-p2 <- structure_plot(fit,grouping = subpop)
+p3 <- structure_plot(fit,grouping = subpop)
 
 # Next, we apply some customizations to improve the plot: (1) use the
 # "topics" argument to specify the order in which the topic
@@ -161,7 +181,7 @@ p2 <- structure_plot(fit,grouping = subpop)
 # proportions.
 topic_colors <- c("skyblue","forestgreen","darkmagenta",
                   "dodgerblue","gold","darkorange")
-p3 <- structure_plot(fit,grouping = pbmc_facs$samples$subpop,gap = 20,
+p4 <- structure_plot(fit,grouping = pbmc_facs$samples$subpop,gap = 20,
                      n = 1500,topics = c(5,6,1,4,2,3),colors = topic_colors)
 
 # In this example, we use UMAP instead of t-SNE to arrange the
@@ -169,18 +189,18 @@ p3 <- structure_plot(fit,grouping = pbmc_facs$samples$subpop,gap = 20,
 # a different way by overriding the default setting of
 # "embed_method".
 y <- drop(umap_from_topics(fit,dims = 1))
-p4 <- structure_plot(fit,loadings_order = order(y),grouping = subpop,
+p5 <- structure_plot(fit,loadings_order = order(y),grouping = subpop,
                      gap = 40,colors = topic_colors)
 
 # We can also use PCA to arrange the cells.
 y <- drop(pca_from_topics(fit,dims = 1))
-p5 <- structure_plot(fit,loadings_order = order(y),grouping = subpop,
+p6 <- structure_plot(fit,loadings_order = order(y),grouping = subpop,
                      gap = 40,colors = topic_colors)
 
 # In this final example, we plot a random subset of 400 cells, and
 # arrange the cells randomly along the horizontal axis of the
 # Structure plot.
-p6 <- structure_plot(fit,loadings_order = sample(3744,400),gap = 10,
+p7 <- structure_plot(fit,loadings_order = sample(3744,400),gap = 10,
                      grouping = subpop,colors = topic_colors)
 }
 
