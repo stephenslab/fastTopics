@@ -91,10 +91,10 @@
 #'   updates is less than \code{min.delta.loglik}. This should not be
 #'   kept at zero when \code{control$extrapolate = TRUE} because the
 #'   extrapolated updates are expected to occasionally keep the
-#'   likelihood unchanged.}
+#'   likelihood unchanged. Ignored if \code{min.delta.loglik < 0}.}
 #'
 #' \item{\code{min.res}}{Stop performing updates if the maximum KKT
-#'   residual is less than \code{min.res}.}
+#'   residual is less than \code{min.res}. Ignored if \code{min.res < 0}.}
 #' 
 #' \item{\code{minval}}{A small, positive constant used to safeguard
 #'   the multiplicative updates. The safeguarded updates are implemented
@@ -440,7 +440,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     cat(sprintf("Running at most %d %s updates, %s extrapolation ",
                 numiter,method.text,
                 ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-168).\n")
+    cat("(fastTopics 0.6-169).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -553,11 +553,16 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
                   progress[i,"res"],progress[i,"delta.f"],
                   progress[i,"delta.l"],progress[i,"nonzeros.f"],
                   progress[i,"nonzeros.l"],extrapolate * progress[i,"beta"]))
-    if (res < control$min.res) {
+    if (control$min.res >= 0 & res < control$min.res) {
+      if (verbose == "progressbar")
+        pb$terminate()
       cat("Stopping condition is satisfied: ")
       cat(sprintf("maximum KKT residual < %0.2e\n",control$min.res))
       break
-    } else if (loglik.diff < control$min.delta.loglik) {
+    } else if (control$min.delta.loglik >= 0 &
+               loglik.diff < control$min.delta.loglik) {
+      if (verbose == "progressbar")
+        pb$terminate()
       cat("Stopping condition is satisfied: ")
       cat(sprintf("change in Poisson NMF loglik < %0.2e\n",
                   control$min.delta.loglik))
@@ -780,8 +785,8 @@ safeguard.fit <- function (fit, minval) {
 fit_poisson_nmf_control_default <- function()
   list(numiter           = 4,
        init.numiter      = 10,
-       min.delta.loglik  = 0,
-       min.res           = 0,
+       min.delta.loglik  = -1,
+       min.res           = -1,
        minval            = 1e-10,
        eps               = 1e-8,
        zero.threshold    = 1e-6,
