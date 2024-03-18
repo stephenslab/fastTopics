@@ -51,8 +51,8 @@ or \code{F, L}) is not provided.}
 \code{init_poisson_nmf}, or from a previous call to
 \code{fit_poisson_nmf}.}
 
-\item{numiter}{The number of updates of the factors and loadings to
-perform.}
+\item{numiter}{The maximum number of updates of the factors and
+loadings to perform.}
 
 \item{update.factors}{A numeric vector specifying which factors
 (rows of \code{F}) to update. By default, all factors are
@@ -177,7 +177,8 @@ with the following elements:
   last iteration that improved the solution.}
 
 \item{progress}{A data frame containing detailed information about
-  the algorithm's progress. The data frame should have \code{numiter}
+  the algorithm's progress. The data frame should have at most
+  \code{numiter}
   rows. The columns of the data frame are: \dQuote{iter}, the
   iteration number; \dQuote{loglik}, the Poisson NMF log-likelihood
   at the current best factor and loading estimates;
@@ -285,6 +286,13 @@ algorithm settings (as they are defined by
   determined by calling
   \code{\link[RcppParallel]{defaultNumThreads}}. This setting is
   ignored for the multiplicative upates (\code{method = "mu"}).}
+
+\item{\code{min.delta.loglik}}{Stop performing updates if the
+  difference in the Poisson NMF log-likelihood between two successive
+  updates is less than \code{min.delta.loglik}.}
+
+\item{\code{min.res}}{Stop performing updates if the maximum KKT
+  residual is less than \code{min.res}.}
 
 \item{\code{minval}}{A small, positive constant used to safeguard
   the multiplicative updates. The safeguarded updates are implemented

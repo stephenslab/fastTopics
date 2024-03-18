@@ -86,6 +86,13 @@
 #'   \code{\link[RcppParallel]{defaultNumThreads}}. This setting is
 #'   ignored for the multiplicative upates (\code{method = "mu"}).}
 #'
+#' \item{\code{min.delta.loglik}}{Stop performing updates if the
+#'   difference in the Poisson NMF log-likelihood between two successive
+#'   updates is less than \code{min.delta.loglik}.}
+#'
+#' \item{\code{min.res}}{Stop performing updates if the maximum KKT
+#'   residual is less than \code{min.res}.}
+#' 
 #' \item{\code{minval}}{A small, positive constant used to safeguard
 #'   the multiplicative updates. The safeguarded updates are implemented
 #'   as \code{F <- pmax(F1,minval)} and \code{L <- pmax(L1,minval)},
@@ -144,8 +151,8 @@
 #'   \code{init_poisson_nmf}, or from a previous call to
 #'   \code{fit_poisson_nmf}.
 #'
-#' @param numiter The number of updates of the factors and loadings to
-#'   perform.
+#' @param numiter The maximum number of updates of the factors and
+#'   loadings to perform.
 #'
 #' @param update.factors A numeric vector specifying which factors
 #'   (rows of \code{F}) to update. By default, all factors are
@@ -241,7 +248,8 @@
 #'   last iteration that improved the solution.}
 #' 
 #' \item{progress}{A data frame containing detailed information about
-#'   the algorithm's progress. The data frame should have \code{numiter}
+#'   the algorithm's progress. The data frame should have at most
+#'   \code{numiter}
 #'   rows. The columns of the data frame are: \dQuote{iter}, the
 #'   iteration number; \dQuote{loglik}, the Poisson NMF log-likelihood
 #'   at the current best factor and loading estimates;
@@ -426,9 +434,10 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       method.text <- "SCD"
     else if (method == "ccd")
       method.text <- "CCD"
-    cat(sprintf("Running %d %s updates, %s extrapolation ",numiter,
-        method.text,ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-165).\n")
+    cat(sprintf("Running at most %d %s updates, %s extrapolation ",
+                numiter,method.text,
+                ifelse(control$extrapolate,"with","without")))
+    cat("(fastTopics 0.6-166).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -522,9 +531,10 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
     progress[i,"loglik.multinom"] <-
       loglik.const - fit$loss - sum(loglik_size_factors(X,fit$F,fit$L))
     progress[i,"dev"]         <- dev.const + 2*fit$loss
-    progress[i,"res"]         <- with(poisson_nmf_kkt(X,fit$F,fit$L),
-                                      max(abs(rbind(F[update.factors,],
-                                                    L[update.loadings,]))))
+    res <- with(poisson_nmf_kkt(X,fit$F,fit$L),
+                max(abs(rbind(F[update.factors,],
+                              L[update.loadings,]))))
+    progress[i,"res"]         <- res
     progress[i,"delta.f"]     <- max(abs(fit$F - fit0$F))
     progress[i,"delta.l"]     <- max(abs(fit$L - fit0$L))
     progress[i,"beta"]        <- fit$beta
@@ -539,9 +549,19 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
                   progress[i,"res"],progress[i,"delta.f"],
                   progress[i,"delta.l"],progress[i,"nonzeros.f"],
                   progress[i,"nonzeros.l"],extrapolate * progress[i,"beta"]))
+    if (res < control$min.res) {
+      cat("Stopping criterion is satisfied:\n")
+      cat(sprintf("res(KKT) < %0.1e\n",control$min.res))
+      break
+    } # else if () {
+    #  cat("Stopping criterion is satisfied:\n")
+    #  cat(sprintf("res(KKT) < %0.1e\n",control$min.res))
+    #  break
+    #}
   }
 
   # Output the updated "fit".
+  progress <- progress[1:i,]    
   fit$progress <- progress
   return(fit)
 }
@@ -755,6 +775,8 @@ safeguard.fit <- function (fit, minval) {
 fit_poisson_nmf_control_default <- function()
   list(numiter           = 4,
        init.numiter      = 10,
+       min.delta.loglik  = 0,
+       min.res           = 0,
        minval            = 1e-10,
        eps               = 1e-8,
        zero.threshold    = 1e-6,
