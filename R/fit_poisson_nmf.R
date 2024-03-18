@@ -440,7 +440,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     cat(sprintf("Running at most %d %s updates, %s extrapolation ",
                 numiter,method.text,
                 ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-167).\n")
+    cat("(fastTopics 0.6-168).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -554,11 +554,11 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
                   progress[i,"delta.l"],progress[i,"nonzeros.f"],
                   progress[i,"nonzeros.l"],extrapolate * progress[i,"beta"]))
     if (res < control$min.res) {
-      cat("Stopping criterion is satisfied: ")
+      cat("Stopping condition is satisfied: ")
       cat(sprintf("maximum KKT residual < %0.2e\n",control$min.res))
       break
     } else if (loglik.diff < control$min.delta.loglik) {
-      cat("Stopping criterion is satisfied: ")
+      cat("Stopping condition is satisfied: ")
       cat(sprintf("change in Poisson NMF loglik < %0.2e\n",
                   control$min.delta.loglik))
       break
