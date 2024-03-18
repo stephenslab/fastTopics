@@ -289,7 +289,10 @@ algorithm settings (as they are defined by
 
 \item{\code{min.delta.loglik}}{Stop performing updates if the
   difference in the Poisson NMF log-likelihood between two successive
-  updates is less than \code{min.delta.loglik}.}
+  updates is less than \code{min.delta.loglik}. This should not be
+  kept at zero when \code{control$extrapolate = TRUE} because the
+  extrapolated updates are expected to occasionally keep the
+  likelihood unchanged.}
 
 \item{\code{min.res}}{Stop performing updates if the maximum KKT
   residual is less than \code{min.res}.}

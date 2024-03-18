@@ -88,7 +88,10 @@
 #'
 #' \item{\code{min.delta.loglik}}{Stop performing updates if the
 #'   difference in the Poisson NMF log-likelihood between two successive
-#'   updates is less than \code{min.delta.loglik}.}
+#'   updates is less than \code{min.delta.loglik}. This should not be
+#'   kept at zero when \code{control$extrapolate = TRUE} because the
+#'   extrapolated updates are expected to occasionally keep the
+#'   likelihood unchanged.}
 #'
 #' \item{\code{min.res}}{Stop performing updates if the maximum KKT
 #'   residual is less than \code{min.res}.}
@@ -437,7 +440,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     cat(sprintf("Running at most %d %s updates, %s extrapolation ",
                 numiter,method.text,
                 ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-166).\n")
+    cat("(fastTopics 0.6-167).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -519,7 +522,8 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
     t2 <- proc.time()
 
     # Update the iteration number.
-    fit$iter <- fit$iter + 1
+    fit$iter    <- fit$iter + 1
+    loglik.diff <- fit0$loss - fit$loss
     
     # Update the "progress" data frame with the log-likelihood,
     # deviance, and other quantities, and report the algorithm's
@@ -550,14 +554,15 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
                   progress[i,"delta.l"],progress[i,"nonzeros.f"],
                   progress[i,"nonzeros.l"],extrapolate * progress[i,"beta"]))
     if (res < control$min.res) {
-      cat("Stopping criterion is satisfied:\n")
-      cat(sprintf("res(KKT) < %0.1e\n",control$min.res))
+      cat("Stopping criterion is satisfied: ")
+      cat(sprintf("maximum KKT residual < %0.2e\n",control$min.res))
       break
-    } # else if () {
-    #  cat("Stopping criterion is satisfied:\n")
-    #  cat(sprintf("res(KKT) < %0.1e\n",control$min.res))
-    #  break
-    #}
+    } else if (loglik.diff < control$min.delta.loglik) {
+      cat("Stopping criterion is satisfied: ")
+      cat(sprintf("change in Poisson NMF loglik < %0.2e\n",
+                  control$min.delta.loglik))
+      break
+    }
   }
 
   # Output the updated "fit".
