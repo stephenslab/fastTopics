@@ -440,7 +440,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     cat(sprintf("Running at most %d %s updates, %s extrapolation ",
                 numiter,method.text,
                 ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-169).\n")
+    cat("(fastTopics 0.6-171).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -495,6 +495,7 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
                        "extrapolate","beta","betamax","timing")
 
   # Iterate the updates of the factors and loadings.
+  converged <- FALSE
   for (i in 1:numiter) {
     fit0 <- fit
     t1   <- proc.time()
@@ -556,20 +557,28 @@ fit_poisson_nmf_main_loop <- function (X, fit, numiter, update.factors,
     if (control$min.res >= 0 & res < control$min.res) {
       if (verbose == "progressbar")
         pb$terminate()
-      cat("Stopping condition is satisfied: ")
-      cat(sprintf("maximum KKT residual < %0.2e\n",control$min.res))
+      cat(sprintf("Stopping condition is met at iteration %d: ",i))
+      cat(sprintf("max. KKT residual < %0.2e\n",control$min.res))
+      converged <- TRUE
       break
     } else if (control$min.delta.loglik >= 0 &
                loglik.diff < control$min.delta.loglik) {
       if (verbose == "progressbar")
         pb$terminate()
-      cat("Stopping condition is satisfied: ")
-      cat(sprintf("change in Poisson NMF loglik < %0.2e\n",
+      cat(sprintf("Stopping condition is met at iteration %d: ",i))
+      cat(sprintf("change in NMF loglik < %0.2e\n",
                   control$min.delta.loglik))
+      converged <- TRUE
       break
     }
   }
 
+  # Print a warning if one or more of the stopping criteria were not
+  # satisfied.
+  if (!converged & with(control,min.res >= 0 | min.delta.loglik >= 0))
+    warning(sprintf(paste("One or both stopping conditions were not met",
+                          "within %d iterations"),numiter))
+  
   # Output the updated "fit".
   progress <- progress[1:i,]    
   fit$progress <- progress
