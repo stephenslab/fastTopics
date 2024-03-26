@@ -250,9 +250,9 @@ de_analysis <- function (fit, X, s = rowSums(X), pseudocount = 0.01,
     L <- fit
     if (any((rowSums(L) - 1) > 1e-15))
       warning("\"fit\" is a matrix but may not be topic proportions matrix; ",
-              "rowSums(X) should be a vector of all ones")
+              "rowSums(fit) should be a vector of all ones")
     m <- ncol(X)
-    k <- ncol(fit)
+    k <- ncol(L)
     F <- matrix(1,m,k)
     rownames(F) <- colnames(X)
     colnames(F) <- colnames(L)

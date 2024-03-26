@@ -18,7 +18,7 @@
 #' EM algorithm initially makes rapid progress toward a solution, but
 #' its convergence slows considerably as the iterates approach a
 #' solution. Close to a solution, we have found that other algorithms
-#' make much more rapid progress than EM; in particularly, we founr
+#' make much more rapid progress than EM; in particularly, we found
 #' that the extrapolated SCD updates usually performed best). For
 #' larger data sets, more updates in the main model fitting and
 #' refinement steps may be needed to obtain a good fit.
@@ -115,7 +115,7 @@ fit_topic_model <-
   verbose <- match.arg(verbose)
   
   # If necessary, remove all-zero columns from the counts matrix.
-  if (any.allzero.cols(X)) {
+  if (any_allzero_cols(X)) {
     X <- remove.allzero.cols(X)
     warning(sprintf(paste("One or more columns of X are all zero; after",
                           "removing all-zero columns, %d columns will be",

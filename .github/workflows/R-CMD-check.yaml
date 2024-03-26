@@ -16,15 +16,15 @@ jobs:
       _R_CHECK_FORCE_SUGGESTS_: false
     steps:
       - uses: actions/checkout@v3
-
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
           
       - name: Install dependencies
         run: |
+          update.packages("Matrix")
           install.packages(c("remotes","rcmdcheck"))
-          install.packages(c("devtools","remotes","quadprog","MCMCpack"))
+          install.packages(c("devtools","remotes","quadprog","gtools"))
           install.packages(c("irlba","Rtsne","uwot","dplyr","Rcpp"))
           install.packages(c("RcppArmadillo","RcppParallel","pbapply"))
           install.packages(c("progress","ggplot2","ggrepel","cowplot"))

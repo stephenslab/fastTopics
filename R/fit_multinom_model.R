@@ -44,7 +44,7 @@ fit_multinom_model <- function (cluster, X,
   verbose <- match.arg(verbose)
   
   # If necessary, remove all-zero columns from the counts matrix.
-  if (any.allzero.cols(X)) {
+  if (any_allzero_cols(X)) {
     X <- remove.allzero.cols(X)
     warning(sprintf(paste("One or more columns of X are all zero; after",
                           "removing all-zero columns, %d columns will be",

@@ -29,7 +29,7 @@ get.nonzeros <- function (A, j)
 # Check if the matrix contains one or more all-zero columns.
 #
 #' @importFrom Matrix colSums
-any.allzero.cols <- function (X)
+any_allzero_cols <- function (X)
   any(colSums(X > 0) == 0)
 
 # Filter out all-zero columns from the matrix.

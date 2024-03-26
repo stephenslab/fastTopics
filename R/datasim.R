@@ -340,7 +340,7 @@ generate_multinom_topic_model_counts <- function (F, L, s) {
 # (3) sample the nonzero mixture proportions from the Dirichlet
 # distribution with shape parameter alpha.
 #
-#' @importFrom MCMCpack rdirichlet
+#' @importFrom gtools rdirichlet
 generate_mixture_proportions <- function (n, k, alpha = rep(1,k)) {
   L  <- matrix(0,n,k)
   k1 <- sample(k,n,replace = TRUE,prob = 2^(-seq(1,k)))

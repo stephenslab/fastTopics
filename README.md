@@ -1,11 +1,11 @@
 # fastTopics
 
 [![R-CMD-check](https://github.com/stephenslab/fastTopics/workflows/R-CMD-check/badge.svg)](https://github.com/stephenslab/fastTopics/actions)
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/stephenslab/fastTopics/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/stephenslab/fastTopics/tree/master)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/stephenslab/fastTopics/tree/master.svg?style=svg)](https://app.circleci.com/pipelines/github/stephenslab/fastTopics?branch=master)
 [![codecov](https://codecov.io/gh/stephenslab/fastTopics/branch/master/graph/badge.svg)](https://app.codecov.io/gh/stephenslab/fastTopics)
 
 fastTopics is an R package implementing fast, scalable optimization
-algorithms for fitting topic models and non-negative matrix
+algorithms for fitting topic models and non-negative matrix 
 factorizations to count data. The methods exploit the
 [close relationship][vignette-close-relationship] between the topic
 model and Poisson non-negative matrix factorization. The package also
@@ -28,15 +28,15 @@ repository useful for your work, please cite:
 >
 > P. Carbonetto, A. Sarkar, Z. Wang and M. Stephens (2021).
 > [Non-negative matrix factorization algorithms greatly improve topic
-> model fits.][fasttopics-paper] arXiv 2105.13440
+> model fits.][fasttopics-paper] arXiv 2105.13440.
 
 If you used the `de_analysis` function in fastTopics, please cite:
 
 > P. Carbonetto, K. Luo, A. Sarkar, A. Hung, K. Tayeb, S. Pott and
-> M. Stephens (2023). [Interpreting structure in sequence count data
-> with differential expression analysis allowing for grades of
-> membership.][singlecell-topics-paper]
-> bioRxiv doi:10.1101/2023.03.03.531029
+> M. Stephens (2023). [GoM DE: interpreting structure in sequence
+> count data with differential expression analysis allowing for
+> grades of membership.][singlecell-topics-paper]
+> Genome Biology 24, 236.
 
 ## License
 
@@ -101,7 +101,7 @@ The fastTopics R package was developed by [Peter Carbonetto][peter],
 [Matthew Stephens][matthew] and others.
 
 [fasttopics]:  https://github.com/stephenslab/fastTopics
-[mit-license]: https://opensource.org/licenses/mit-license.html
+[mit-license]: https://opensource.org/license/mit/
 [issues]: https://github.com/stephenslab/fastTopics/issues
 [peter]: https://pcarbo.github.io
 [kevin]: https://github.com/kevinlkx
@@ -111,7 +111,7 @@ The fastTopics R package was developed by [Peter Carbonetto][peter],
 [countclust]: https://github.com/kkdey/CountClust
 [countclust-paper]: https://doi.org/10.1371/journal.pgen.1006599
 [fasttopics-paper]: https://arxiv.org/abs/2105.13440
-[singlecell-topics-paper]: https://doi.org/10.1101/2023.03.03.531029 
+[singlecell-topics-paper]: https://doi.org/10.1186/s13059-023-03067-9
 [pkgdown]: https://stephenslab.github.io/fastTopics/
 [vignette-close-relationship]: https://stephenslab.github.io/fastTopics/articles/relationship.html
 [vignette-scrnaseq-1]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html

@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.6-156
-Date: 2023-05-31
+Version: 0.6-172
+Date: 2024-03-26
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
 Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
@@ -16,8 +16,9 @@ Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
 	     person("Paul C.","Boutros",role="ctb"),
 	     person("Minzhe","Wang",role="ctb"),
 	     person("Tracy","Ke",role="ctb"),
+	     person("Eric","Weine",role="ctb"),
              person("Matthew","Stephens",role="aut"))
-URL: https://github.com/stephenslab/fastTopics
+URL: https://stephenslab.github.io/fastTopics/, https://github.com/stephenslab/fastTopics
 BugReports: https://github.com/stephenslab/fastTopics/issues
 Depends: R (>= 3.3.0)
 Description: Implements fast, scalable optimization algorithms for
@@ -39,7 +40,7 @@ Imports:
     methods,
     stats,
     Matrix,
-    MCMCpack,
+    gtools,
     quadprog,
     irlba,
     dplyr,
@@ -72,5 +73,5 @@ Additional_repositories: https://stephenslab.github.io/nnlm-drat
 LazyData: true
 LazyDataCompression: xz
 NeedsCompilation: yes
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr
