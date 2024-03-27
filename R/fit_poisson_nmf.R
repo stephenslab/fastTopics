@@ -404,7 +404,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
       control$extrapolate)
     stop("control$extrapolate cannot be TRUE when all factors or loadings ",
          "are fixed")
-  control$nc <- initialize.multithreading(control$nc)
+  control$nc <- initialize.multithreading(control$nc,verbose != "none")
   
   # Only one of "k" and "fit0" should be provided. If argument "k" is
   # given, generate a random initialization of the factors and
