@@ -86,6 +86,11 @@
 #'   \code{\link[RcppParallel]{defaultNumThreads}}. This setting is
 #'   ignored for the multiplicative upates (\code{method = "mu"}).}
 #'
+#' \item{\code{nc.blas}}{Number of threads used in the multithreading
+#'   numerical linear algebra library (e.g., OpenBLAS), if available,
+#'   for the MCMC simulation step. For best performance, we recommend
+#'   setting this to 1 (i.e., no multithreading).}
+#' 
 #' \item{\code{min.delta.loglik}}{Stop performing updates if the
 #'   difference in the Poisson NMF log-likelihood between two successive
 #'   updates is less than \code{min.delta.loglik}. This should not be
@@ -338,6 +343,8 @@
 #' @useDynLib fastTopics
 #'
 #' @importFrom utils modifyList
+#' @importFrom RhpcBLASctl blas_set_num_threads
+#' @importFrom RhpcBLASctl blas_get_num_procs
 #'
 #' @export
 #'
@@ -405,6 +412,8 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     stop("control$extrapolate cannot be TRUE when all factors or loadings ",
          "are fixed")
   control$nc <- initialize.multithreading(control$nc,verbose != "none")
+  ncb <- blas_get_num_procs()
+  blas_set_num_threads(control$nc.blas)
   
   # Only one of "k" and "fit0" should be provided. If argument "k" is
   # given, generate a random initialization of the factors and
@@ -440,7 +449,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     cat(sprintf("Running at most %d %s updates, %s extrapolation ",
                 numiter,method.text,
                 ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-172).\n")
+    cat("(fastTopics 0.6-173).\n")
   }
   
   # INITIALIZE ESTIMATES
@@ -464,6 +473,9 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
                                    update.loadings,method,control,
                                    verbose)
 
+  # Restore the BLAS settings.
+  blas_set_num_threads(ncb)
+  
   # Output the updated "fit".
   fit$progress     <- rbind(fit0$progress,fit$progress)
   dimnames(fit$F)  <- dimnames(fit0$F)
@@ -800,6 +812,7 @@ fit_poisson_nmf_control_default <- function()
        eps               = 1e-8,
        zero.threshold    = 1e-6,
        nc                = 1,
+       nc.blas           = 1,
        extrapolate       = FALSE,
        extrapolate.reset = 20,
        beta.increase     = 1.1,

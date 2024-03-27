@@ -287,15 +287,20 @@ algorithm settings (as they are defined by
   \code{\link[RcppParallel]{defaultNumThreads}}. This setting is
   ignored for the multiplicative upates (\code{method = "mu"}).}
 
+\item{\code{nc.blas}}{Number of threads used in the multithreading
+  numerical linear algebra library (e.g., OpenBLAS), if available,
+  for the MCMC simulation step. For best performance, we recommend
+  setting this to 1 (i.e., no multithreading).}
+
 \item{\code{min.delta.loglik}}{Stop performing updates if the
   difference in the Poisson NMF log-likelihood between two successive
   updates is less than \code{min.delta.loglik}. This should not be
   kept at zero when \code{control$extrapolate = TRUE} because the
   extrapolated updates are expected to occasionally keep the
-  likelihood unchanged.}
+  likelihood unchanged. Ignored if \code{min.delta.loglik < 0}.}
 
 \item{\code{min.res}}{Stop performing updates if the maximum KKT
-  residual is less than \code{min.res}.}
+  residual is less than \code{min.res}. Ignored if \code{min.res < 0}.}
 
 \item{\code{minval}}{A small, positive constant used to safeguard
   the multiplicative updates. The safeguarded updates are implemented

@@ -24,6 +24,8 @@
 #'   of Ang & Gillis (2019).
 #'
 #' @importFrom Matrix rowSums
+#' @importFrom RhpcBLASctl blas_set_num_threads
+#' @importFrom RhpcBLASctl blas_get_num_procs
 #' 
 #' @export
 #' 
@@ -61,7 +63,9 @@ init_poisson_nmf <-
   # Check and process the optimization settings.
   control <- modifyList(fit_poisson_nmf_control_default(),
                         control,keep.null = TRUE)
-
+  ncb <- blas_get_num_procs()
+  blas_set_num_threads(control$nc.blas)
+  
   # If the factor and loadings matrices are not provided, initialize
   # them using the chosen method. If the factor and loadings matrices
   # are provided, run a few simple checks to verify that they are
@@ -141,6 +145,9 @@ init_poisson_nmf <-
   # initial estimates of the factors and loading.
   loss <- sum(cost(X,L,t(F),control$eps))
 
+  # Restore the BLAS settings.
+  blas_set_num_threads(ncb)
+  
   # Initialize the data frame for keeping track of the algorithm's
   # progress over time.
   progress        <- as.data.frame(matrix(0,0,13))
