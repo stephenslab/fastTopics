@@ -189,11 +189,11 @@ algorithm settings (as they are defined by
   inside the logarithms to avoid computing logarithms of zero.}
 
 \item{\code{nc}}{Number of threads used in the multithreaded
-  computations. This controls both (1) the number of RcppParallel
-  threads used to fit the factors in the Poisson models, and (2) the
+  computations. This controls both (a) the number of RcppParallel
+  threads used to fit the factors in the Poisson models, and (b) the
   number of cores used in \code{\link[parallel]{mclapply}} for the
-  MCMC simulation step.  Note that mclapply relies on forking hence is not
-  available on Windows; will return an error on Windows unless
+  MCMC simulation step. Note that mclapply relies on forking hence is
+  not available on Windows; will return an error on Windows unless
   \code{nc = 1}.}
 
 \item{\code{nc.blas}}{Number of threads used in the multithreading
