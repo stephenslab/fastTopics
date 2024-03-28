@@ -104,21 +104,16 @@ compute_lfc_stats_multicore <- function (X, F, L, f0, D, U, M, lfc.stat,
   # Split the data.
   nsplit <- min(m,nsplit)
   cols   <- splitIndices(m,nsplit)
-  dat    <- vector("list",nsplit)
-  for (i in 1:nsplit) {
-    j        <- cols[[i]]
-    dat[[i]] <- list(X = X[,j,drop = FALSE],F = F[j,,drop = FALSE],f0 = f0[j])
-  }
 
   # Distribute the calculations using pblapply.
-  parlapplyf <- function (dat, L, D, U, M, lfc.stat, conf.level, rw, e)
-    compute_lfc_stats(dat$X,dat$F,L,dat$f0,D,U,M,lfc.stat,conf.level,rw,e,
+  parlapplyf <- function (c, X, F, L, f0, D, U, M, lfc.stat, conf.level, rw, e)
+    compute_lfc_stats(X[,c],F[c,],L,f0[c],D,U,M,lfc.stat,conf.level,rw,e,
                       verbose = FALSE)
   if (verbose)
     op <- pboptions(type = "txt",txt.width = 70)
   else
     op <- pboptions(type = NULL)
-  ans <- pblapply(cl = nc,dat,parlapplyf,L,D,U,M,lfc.stat,conf.level,rw,e)
+  ans <- pblapply(cl = nc,cols,parlapplyf,X,F,L,f0,D,U,M,lfc.stat,conf.level,rw,e)
   pboptions(op)
 
   # Combine the individual compute_lfc_stats outputs, and output the
