@@ -86,10 +86,10 @@
 #'   \code{\link[RcppParallel]{defaultNumThreads}}. This setting is
 #'   ignored for the multiplicative upates (\code{method = "mu"}).}
 #'
-#' \item{\code{nc.blas}}{Number of threads used in the multithreading
-#'   numerical linear algebra library (e.g., OpenBLAS), if available,
-#'   for the MCMC simulation step. For best performance, we recommend
-#'   setting this to 1 (i.e., no multithreading).}
+#' \item{\code{nc.blas}}{Number of threads used in the numerical
+#'   linear algebra library (e.g., OpenBLAS), if available. For best
+#'   performance, we recommend setting this to 1 (i.e., no
+#'   multithreading).}
 #' 
 #' \item{\code{min.delta.loglik}}{Stop performing updates if the
 #'   difference in the Poisson NMF log-likelihood between two successive
