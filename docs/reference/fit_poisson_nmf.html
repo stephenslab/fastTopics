@@ -24,7 +24,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-147</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-175</span>
       </span>
     </div>
 
@@ -67,34 +67,34 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">fit_poisson_nmf</span><span class="op">(</span>
-  <span class="va">X</span>,
-  <span class="va">k</span>,
-  <span class="va">fit0</span>,
-  numiter <span class="op">=</span> <span class="fl">100</span>,
-  update.factors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>,
-  update.loadings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>,
-  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"scd"</span>, <span class="st">"em"</span>, <span class="st">"mu"</span>, <span class="st">"ccd"</span><span class="op">)</span>,
-  init.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"topicscore"</span>, <span class="st">"random"</span><span class="op">)</span>,
-  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"progressbar"</span>, <span class="st">"detailed"</span>, <span class="st">"none"</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="fu">fit_poisson_nmf_control_default</span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu">init_poisson_nmf</span><span class="op">(</span>
-  <span class="va">X</span>,
-  <span class="cn">F</span>,
-  <span class="va">L</span>,
-  <span class="va">k</span>,
-  init.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"topicscore"</span>, <span class="st">"random"</span><span class="op">)</span>,
-  beta <span class="op">=</span> <span class="fl">0.5</span>,
-  betamax <span class="op">=</span> <span class="fl">0.99</span>,
-  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"detailed"</span>, <span class="st">"none"</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="fu">init_poisson_nmf_from_clustering</span><span class="op">(</span><span class="va">X</span>, <span class="va">clusters</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fit_poisson_nmf</span><span class="op">(</span></span>
+<span>  <span class="va">X</span>,</span>
+<span>  <span class="va">k</span>,</span>
+<span>  <span class="va">fit0</span>,</span>
+<span>  numiter <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  update.factors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  update.loadings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"scd"</span>, <span class="st">"em"</span>, <span class="st">"mu"</span>, <span class="st">"ccd"</span><span class="op">)</span>,</span>
+<span>  init.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"topicscore"</span>, <span class="st">"random"</span><span class="op">)</span>,</span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"progressbar"</span>, <span class="st">"detailed"</span>, <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">fit_poisson_nmf_control_default</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">init_poisson_nmf</span><span class="op">(</span></span>
+<span>  <span class="va">X</span>,</span>
+<span>  <span class="cn">F</span>,</span>
+<span>  <span class="va">L</span>,</span>
+<span>  <span class="va">k</span>,</span>
+<span>  init.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"topicscore"</span>, <span class="st">"random"</span><span class="op">)</span>,</span>
+<span>  beta <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  betamax <span class="op">=</span> <span class="fl">0.99</span>,</span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"detailed"</span>, <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">init_poisson_nmf_from_clustering</span><span class="op">(</span><span class="va">X</span>, <span class="va">clusters</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -104,18 +104,26 @@
 non-negative. It can be a sparse matrix (class <code>"dgCMatrix"</code>)
 or dense matrix (class <code>"matrix"</code>), with some exceptions (see
 ‘Details’).</p></dd>
+
+
 <dt>k</dt>
 <dd><p>An integer 2 or greater giving the matrix rank. This
 argument should only be specified if the initial fit (<code>fit0</code>
 or <code>F, L</code>) is not provided.</p></dd>
+
+
 <dt>fit0</dt>
 <dd><p>The initial model fit. It should be an object of class
 “poisson_nmf_fit”, such as an output from
 <code>init_poisson_nmf</code>, or from a previous call to
 <code>fit_poisson_nmf</code>.</p></dd>
+
+
 <dt>numiter</dt>
-<dd><p>The number of updates of the factors and loadings to
-perform.</p></dd>
+<dd><p>The maximum number of updates of the factors and
+loadings to perform.</p></dd>
+
+
 <dt>update.factors</dt>
 <dd><p>A numeric vector specifying which factors
 (rows of <code>F</code>) to update. By default, all factors are
@@ -124,6 +132,8 @@ by rescaling. When <code>NULL</code>, all factors are fixed. This option
 is only implemented for <code>method = "em"</code> and <code>method =
 "scd"</code>. If another method is selected, the default setting of
 <code>update.factors</code> must be used.</p></dd>
+
+
 <dt>update.loadings</dt>
 <dd><p>A numeric vector specifying which loadings
 (rows of <code>L</code>) to update. By default, all loadings are
@@ -132,6 +142,8 @@ by rescaling. When <code>NULL</code>, all loadings are fixed. This option
 is only implemented for <code>method = "em"</code> and <code>method =
 "scd"</code>. If another method is selected, the default setting of
 <code>update.loadings</code> must be used.</p></dd>
+
+
 <dt>method</dt>
 <dd><p>The method to use for updating the factors and
 loadings. Four methods are implemented: multiplicative updates,
@@ -139,6 +151,8 @@ loadings. Four methods are implemented: multiplicative updates,
 "em"</code>; sequential co-ordinate descent (SCD), <code>method = "scd"</code>;
 and cyclic co-ordinate descent (CCD), <code>method = "ccd"</code>. See
 ‘Details’ for a detailed description of these methods.</p></dd>
+
+
 <dt>init.method</dt>
 <dd><p>The method used to initialize the factors and
 loadings. When <code>init.method = "random"</code>, the factors and
@@ -149,10 +163,14 @@ the loadings are initialized by running a small number of SCD
 updates. This input argument is ignored if initial estimates of the
 factors and loadings are already provided via input <code>fit0</code>, or
 inputs <code>F</code> and <code>L</code>.</p></dd>
+
+
 <dt>control</dt>
 <dd><p>A list of parameters controlling the behaviour of
 the optimization algorithm (and the Topic SCORE algorithm if it
 is used to initialize the model parameters). See ‘Details’.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>When <code>verbose = "detailed"</code>, information about
 the algorithm's progress is printed to the console at each
@@ -162,6 +180,8 @@ printed. See the description of the “progress” return value
 for an explanation of <code>verbose = "detailed"</code> console
 output. (Note that some columns of the “progress” data frame
 are not shown in the console output.)</p></dd>
+
+
 <dt>F</dt>
 <dd><p>An optional argument giving is the initial estimate of the
 factors (also known as “basis vectors”). It should be an m x
@@ -170,6 +190,8 @@ k matrix, where m is the number of columns in the counts matrix
 (equivalently, the number of “topics”). All entries of
 <code>F</code> should be non-negative. When <code>F</code> and <code>L</code> are not
 provided, input argument <code>k</code> should be specified instead.</p></dd>
+
+
 <dt>L</dt>
 <dd><p>An optional argument giving the initial estimate of the
 loadings (also known as “activations”). It should be an n x k
@@ -178,70 +200,106 @@ matrix, where n is the number of rows in the counts matrix
 (equivalently, the number of “topics”). All entries of
 <code>L</code> should be non-negative. When <code>F</code> and <code>L</code> are not
 provided, input argument <code>k</code> should be specified instead.</p></dd>
+
+
 <dt>beta</dt>
 <dd><p>Initial setting of the extrapolation parameter. This is
 \(beta\) in Algorithm 3 of Ang &amp; Gillis (2019).</p></dd>
+
+
 <dt>betamax</dt>
 <dd><p>Initial setting for the upper bound on the
 extrapolation parameter. This is \(\bar{\gamma}\) in Algorithm 3
 of Ang &amp; Gillis (2019).</p></dd>
+
+
 <dt>clusters</dt>
 <dd><p>A factor specifying a grouping, or clustering, of
 the rows of <code>X</code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments passed to <code>init_poisson_nmf</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>init_poisson_nmf</code> and <code>fit_poisson_nmf</code> both
+    
+
+<p><code>init_poisson_nmf</code> and <code>fit_poisson_nmf</code> both
 return an object capturing the optimization algorithm state (for
 <code>init_poisson_nmf</code>, this is the initial state). It is a list
 with the following elements:</p>
 <dl><dt>F</dt>
 <dd><p>A matrix containing the current best estimates of the
   factors.</p></dd>
+
+
 <dt>L</dt>
 <dd><p>A matrix containing the current best estimates of the
   loadings.</p></dd>
+
+
 <dt>Fn</dt>
 <dd><p>A matrix containing the non-extrapolated factor estimates.
   If extrapolation is not used, <code>Fn</code> and <code>F</code> will be the
   same.</p></dd>
+
+
 <dt>Ln</dt>
 <dd><p>A matrix containing the non-extrapolated estimates of the
   loadings. If extrapolation is not used, <code>Ln</code> and <code>L</code> will
   be the same.</p></dd>
+
+
 <dt>Fy</dt>
 <dd><p>A matrix containing the extrapolated factor estimates. If
   the extrapolation scheme is not used, <code>Fy</code> and <code>F</code> will
   be the same.</p></dd>
+
+
 <dt>Ly</dt>
 <dd><p>A matrix containing the extrapolated estimates of the
   loadings. If extrapolation is not used, <code>Ly</code> and <code>L</code> will
   be the same.</p></dd>
+
+
 <dt>loss</dt>
 <dd><p>Value of the objective (“loss”) function
   computed at the current best estimates of the factors and
   loadings.</p></dd>
+
+
 <dt>loss.fnly</dt>
 <dd><p>Value of the objective (“loss”) function
   computed at the extrapolated solution for the loadings (<code>Ly</code>)
   and the non-extrapolated solution for the factors (<code>Fn</code>). This
   is used internally to implement the extrapolated updates.</p></dd>
+
+
 <dt>iter</dt>
 <dd><p>The number of the most recently completed iteration.</p></dd>
+
+
 <dt>beta</dt>
 <dd><p>The extrapolation parameter, \(beta\) in Algorithm 3
   of Ang &amp; Gillis (2019).</p></dd>
+
+
 <dt>betamax</dt>
 <dd><p>Upper bound on the extrapolation parameter. This is
   \(\bar{\gamma}\) in Algorithm 3 of Ang &amp; Gillis (2019).</p></dd>
+
+
 <dt>beta0</dt>
 <dd><p>The setting of the extrapolation parameter at the
   last iteration that improved the solution.</p></dd>
+
+
 <dt>progress</dt>
 <dd><p>A data frame containing detailed information about
-  the algorithm's progress. The data frame should have <code>numiter</code>
+  the algorithm's progress. The data frame should have at most
+  <code>numiter</code>
   rows. The columns of the data frame are: “iter”, the
   iteration number; “loglik”, the Poisson NMF log-likelihood
   at the current best factor and loading estimates;
@@ -261,6 +319,7 @@ with the following elements:</p>
   setting of the extrapolation parameter upper bound; and
   “timing”, the elapsed time in seconds (recorded using
   <code><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></code>).</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -332,6 +391,27 @@ algorithm settings (as they are defined by
   determined by calling
   <code><a href="https://rdrr.io/pkg/RcppParallel/man/setThreadOptions.html" class="external-link">defaultNumThreads</a></code>. This setting is
   ignored for the multiplicative upates (<code>method = "mu"</code>).</p></dd>
+
+
+<dt><code>nc.blas</code></dt>
+<dd><p>Number of threads used in the numerical
+  linear algebra library (e.g., OpenBLAS), if available. For best
+  performance, we recommend setting this to 1 (i.e., no
+  multithreading).</p></dd>
+
+
+<dt><code>min.delta.loglik</code></dt>
+<dd><p>Stop performing updates if the
+  difference in the Poisson NMF log-likelihood between two successive
+  updates is less than <code>min.delta.loglik</code>. This should not be
+  kept at zero when <code>control$extrapolate = TRUE</code> because the
+  extrapolated updates are expected to occasionally keep the
+  likelihood unchanged. Ignored if <code>min.delta.loglik &lt; 0</code>.</p></dd>
+
+
+<dt><code>min.res</code></dt>
+<dd><p>Stop performing updates if the maximum KKT
+  residual is less than <code>min.res</code>. Ignored if <code>min.res &lt; 0</code>.</p></dd>
 
 
 <dt><code>minval</code></dt>
@@ -425,51 +505,139 @@ performed to initialize the loadings matrix when <code>init.method
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Simulate a (sparse) 80 x 100 counts matrix.</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://Matrix.R-forge.R-project.org/" class="external-link">Matrix</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_count_data.html">simulate_count_data</a></span><span class="op">(</span><span class="fl">80</span>,<span class="fl">100</span>,k <span class="op">=</span> <span class="fl">3</span>,sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">X</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Remove columns (words) that do not appear in any row (document).</span></span>
-<span class="r-in"><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">X</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Run 10 EM updates to find a good initialization.</span></span>
-<span class="r-in"><span class="va">fit0</span> <span class="op">&lt;-</span> <span class="fu">fit_poisson_nmf</span><span class="op">(</span><span class="va">X</span>,k <span class="op">=</span> <span class="fl">3</span>,numiter <span class="op">=</span> <span class="fl">10</span>,method <span class="op">=</span> <span class="st">"em"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Simulate a (sparse) 80 x 100 counts matrix.</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org" class="external-link">Matrix</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_count_data.html">simulate_count_data</a></span><span class="op">(</span><span class="fl">80</span>,<span class="fl">100</span>,k <span class="op">=</span> <span class="fl">3</span>,sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">X</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Remove columns (words) that do not appear in any row (document).</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">X</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Run 10 EM updates to find a good initialization.</span></span></span>
+<span class="r-in"><span><span class="va">fit0</span> <span class="op">&lt;-</span> <span class="fu">fit_poisson_nmf</span><span class="op">(</span><span class="va">X</span>,k <span class="op">=</span> <span class="fl">3</span>,numiter <span class="op">=</span> <span class="fl">10</span>,method <span class="op">=</span> <span class="st">"em"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Initializing factors using Topic SCORE algorithm.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Initializing loadings by running 10 SCD updates.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Running 10 EM updates, without extrapolation (fastTopics 0.6-147).</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Fit the Poisson NMF model by running 50 EM updates.</span></span>
-<span class="r-in"><span class="va">fit_em</span> <span class="op">&lt;-</span> <span class="fu">fit_poisson_nmf</span><span class="op">(</span><span class="va">X</span>,fit0 <span class="op">=</span> <span class="va">fit0</span>,numiter <span class="op">=</span> <span class="fl">50</span>,method <span class="op">=</span> <span class="st">"em"</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running at most 10 EM updates, without extrapolation (fastTopics 0.6-175).</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fit the Poisson NMF model by running 50 EM updates.</span></span></span>
+<span class="r-in"><span><span class="va">fit_em</span> <span class="op">&lt;-</span> <span class="fu">fit_poisson_nmf</span><span class="op">(</span><span class="va">X</span>,fit0 <span class="op">=</span> <span class="va">fit0</span>,numiter <span class="op">=</span> <span class="fl">50</span>,method <span class="op">=</span> <span class="st">"em"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Running 50 EM updates, without extrapolation (fastTopics 0.6-147).</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Fit the Poisson NMF model by running 50 extrapolated SCD updates.</span></span>
-<span class="r-in"><span class="va">fit_scd</span> <span class="op">&lt;-</span> <span class="fu">fit_poisson_nmf</span><span class="op">(</span><span class="va">X</span>,fit0 <span class="op">=</span> <span class="va">fit0</span>,numiter <span class="op">=</span> <span class="fl">50</span>,method <span class="op">=</span> <span class="st">"scd"</span>,</span>
-<span class="r-in">                           control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>extrapolate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running at most 50 EM updates, without extrapolation (fastTopics 0.6-175).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  68%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  70%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================&gt;--------------------]  72%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  74%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================&gt;-----------------]  76%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  78%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================================&gt;--------------]  80%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  82%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  84%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================================&gt;----------]  86%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  88%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================================&gt;-------]  90%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  92%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  94%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================================&gt;---]  96%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  98%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================================] 100%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>                                                                               </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fit the Poisson NMF model by running 50 extrapolated SCD updates.</span></span></span>
+<span class="r-in"><span><span class="va">fit_scd</span> <span class="op">&lt;-</span> <span class="fu">fit_poisson_nmf</span><span class="op">(</span><span class="va">X</span>,fit0 <span class="op">=</span> <span class="va">fit0</span>,numiter <span class="op">=</span> <span class="fl">50</span>,method <span class="op">=</span> <span class="st">"scd"</span>,</span></span>
+<span class="r-in"><span>                           control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>extrapolate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Running 50 SCD updates, with extrapolation (fastTopics 0.6-147).</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Compare the two fits.</span></span>
-<span class="r-in"><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>em <span class="op">=</span> <span class="va">fit_em</span>,scd <span class="op">=</span> <span class="va">fit_scd</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="compare_fits.html">compare_fits</a></span><span class="op">(</span><span class="va">fits</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     k    loglik      dev loglik.diff dev.diff          res nonzeros.f</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> em  3 -8316.196 7719.679    0.000000 0.000000 1.821374e-01  0.8533333</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> scd 3 -8311.760 7710.809    4.435338 8.870676 1.283011e-05  0.8766667</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     nonzeros.l numiter runtime</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> em   0.8875000      60   0.080</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> scd  0.8166667      60   0.085</span>
-<span class="r-in"><span class="fu"><a href="plot_progress.html">plot_progress</a></span><span class="op">(</span><span class="va">fits</span>,y <span class="op">=</span> <span class="st">"loglik"</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running at most 50 SCD updates, with extrapolation (fastTopics 0.6-175).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================&gt;----------------------------------]  52%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  54%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  56%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================&gt;------------------------------]  58%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  60%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================&gt;---------------------------]  62%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  64%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================&gt;------------------------]  66%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  68%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  70%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================&gt;--------------------]  72%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  74%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================&gt;-----------------]  76%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  78%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================================&gt;--------------]  80%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  82%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  84%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================================&gt;----------]  86%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  88%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================================&gt;-------]  90%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  92%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  94%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================================&gt;---]  96%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  98%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================================] 100%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>                                                                               </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Compare the two fits.</span></span></span>
+<span class="r-in"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>em <span class="op">=</span> <span class="va">fit_em</span>,scd <span class="op">=</span> <span class="va">fit_scd</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="compare_fits.html">compare_fits</a></span><span class="op">(</span><span class="va">fits</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     k loglik  dev loglik.diff dev.diff        res nonzeros.f nonzeros.l numiter</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> em  3  -8316 7720       0.000    0.000 0.18213738     0.8533     0.8875      60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> scd 3  -8312 7711       4.435    8.871 0.00001283     0.8767     0.8167      60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     runtime</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> em    0.289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> scd   0.371</span>
+<span class="r-in"><span><span class="fu"><a href="plot_progress.html">plot_progress</a></span><span class="op">(</span><span class="va">fits</span>,y <span class="op">=</span> <span class="st">"loglik"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="fit_poisson_nmf-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="fu"><a href="plot_progress.html">plot_progress</a></span><span class="op">(</span><span class="va">fits</span>,y <span class="op">=</span> <span class="st">"res"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="plot_progress.html">plot_progress</a></span><span class="op">(</span><span class="va">fits</span>,y <span class="op">=</span> <span class="st">"res"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="fit_poisson_nmf-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Recover the topic model. After this step, the L matrix contains the</span></span>
-<span class="r-in"><span class="co"># mixture proportions ("loadings"), and the F matrix contains the</span></span>
-<span class="r-in"><span class="co"># word frequencies ("factors").</span></span>
-<span class="r-in"><span class="va">fit_multinom</span> <span class="op">&lt;-</span> <span class="fu"><a href="poisson2multinom.html">poisson2multinom</a></span><span class="op">(</span><span class="va">fit_scd</span><span class="op">)</span></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Recover the topic model. After this step, the L matrix contains the</span></span></span>
+<span class="r-in"><span><span class="co"># mixture proportions ("loadings"), and the F matrix contains the</span></span></span>
+<span class="r-in"><span><span class="co"># word frequencies ("factors").</span></span></span>
+<span class="r-in"><span><span class="va">fit_multinom</span> <span class="op">&lt;-</span> <span class="fu"><a href="poisson2multinom.html">poisson2multinom</a></span><span class="op">(</span><span class="va">fit_scd</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -480,13 +648,11 @@ performed to initialize the loadings matrix when <code>init.method
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew
-Stephens.</p>
+  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

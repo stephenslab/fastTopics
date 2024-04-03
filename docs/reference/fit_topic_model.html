@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-147</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-175</span>
       </span>
     </div>
 
@@ -61,19 +61,19 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">fit_topic_model</span><span class="op">(</span>
-  <span class="va">X</span>,
-  <span class="va">k</span>,
-  numiter.main <span class="op">=</span> <span class="fl">100</span>,
-  numiter.refine <span class="op">=</span> <span class="fl">100</span>,
-  method.main <span class="op">=</span> <span class="st">"em"</span>,
-  method.refine <span class="op">=</span> <span class="st">"scd"</span>,
-  init.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"topicscore"</span>, <span class="st">"random"</span><span class="op">)</span>,
-  control.init <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  control.main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>numiter <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,
-  control.refine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>numiter <span class="op">=</span> <span class="fl">4</span>, extrapolate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"progressbar"</span>, <span class="st">"detailed"</span>, <span class="st">"none"</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fit_topic_model</span><span class="op">(</span></span>
+<span>  <span class="va">X</span>,</span>
+<span>  <span class="va">k</span>,</span>
+<span>  numiter.main <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  numiter.refine <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  method.main <span class="op">=</span> <span class="st">"em"</span>,</span>
+<span>  method.refine <span class="op">=</span> <span class="st">"scd"</span>,</span>
+<span>  init.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"topicscore"</span>, <span class="st">"random"</span><span class="op">)</span>,</span>
+<span>  control.init <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  control.main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>numiter <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,</span>
+<span>  control.refine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>numiter <span class="op">=</span> <span class="fl">4</span>, extrapolate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"progressbar"</span>, <span class="st">"detailed"</span>, <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -82,50 +82,78 @@
 <dd><p>The n x m matrix of counts; all entries of X should be
 non-negative. It can be a sparse matrix (class <code>"dgCMatrix"</code>)
 or dense matrix (class <code>"matrix"</code>).</p></dd>
+
+
 <dt>k</dt>
 <dd><p>The number of topics. Must be 2 or greater.</p></dd>
+
+
 <dt>numiter.main</dt>
 <dd><p>Number of updates of the factors and loadings
 to perform in the main model fitting step. Should be 1 or more.</p></dd>
+
+
 <dt>numiter.refine</dt>
 <dd><p>Number of updates of the factors and loadings
 to perform in the model refinement step.</p></dd>
+
+
 <dt>method.main</dt>
 <dd><p>The method to use for updating the factors and
 loadings in the main model fitting step. Passed as argument
 "method" to <code><a href="fit_poisson_nmf.html">fit_poisson_nmf</a></code>.</p></dd>
+
+
 <dt>method.refine</dt>
 <dd><p>The method to use for updating the factors in
 evthe model refinement step. Passed as argument "method"
 to <code><a href="fit_poisson_nmf.html">fit_poisson_nmf</a></code>.</p></dd>
+
+
 <dt>init.method</dt>
 <dd><p>The method used to initialize the factors and
 loadings. See <code><a href="fit_poisson_nmf.html">init_poisson_nmf</a></code> for details.</p></dd>
+
+
 <dt>control.init</dt>
 <dd><p>A list of parameters controlling the behaviour
 of the optimization and Topic SCORE method in the call to
 <code>init_poisson_nmf</code>. This is passed as argument "control" to
 <code>init_poisson_nmf</code>.</p></dd>
+
+
 <dt>control.main</dt>
 <dd><p>A list of parameters controlling the behaviour
 of the optimization in the main model fitting step. This is passed
 as argument "control" to <code>fit_poisson_nmf</code>.</p></dd>
+
+
 <dt>control.refine</dt>
 <dd><p>A list of parameters controlling the
 behaviour of the of the optimization algorithm in the model
 refinement step. This is passed as argument "control" to
 <code>fit_poisson_nmf</code>.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>When <code>verbose = "progressbar"</code> or <code>verbose
 = "detailed"</code>, information about the progress of the model fitting
 is printed to the console. See <code><a href="fit_poisson_nmf.html">fit_poisson_nmf</a></code> for
 more information.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A multinomial topic model fit; see
-<code><a href="poisson2multinom.html">poisson2multinom</a></code> and <code><a href="fit_poisson_nmf.html">fit_poisson_nmf</a></code>  for details. Note that outputted likelihoods and deviances in
-<code>progress</code> are evaluated with respect to the equivalent
+    
+
+<p>A multinomial topic model fit; see</p>
+<p></p>
+<p><code><a href="poisson2multinom.html">poisson2multinom</a></code> and <code><a href="fit_poisson_nmf.html">fit_poisson_nmf</a></code></p>
+
+
+<p>for details. Note that outputted likelihoods and deviances in</p>
+<p></p>
+<p><code>progress</code> are evaluated with respect to the equivalent
   Poisson NMF model.</p>
     </div>
     <div id="details">
@@ -141,7 +169,7 @@ by calling <code>poisson2multinom</code>.</p>
 EM algorithm initially makes rapid progress toward a solution, but
 its convergence slows considerably as the iterates approach a
 solution. Close to a solution, we have found that other algorithms
-make much more rapid progress than EM; in particularly, we founr
+make much more rapid progress than EM; in particularly, we found
 that the extrapolated SCD updates usually performed best). For
 larger data sets, more updates in the main model fitting and
 refinement steps may be needed to obtain a good fit.</p>
@@ -170,18 +198,302 @@ allocation. <em>Journal of Machine Learning Research</em> <b>3</b>,
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://Matrix.R-forge.R-project.org/" class="external-link">Matrix</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_count_data.html">simulate_count_data</a></span><span class="op">(</span><span class="fl">80</span>,<span class="fl">100</span>,k <span class="op">=</span> <span class="fl">3</span>,sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">X</span></span>
-<span class="r-in"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">fit_topic_model</span><span class="op">(</span><span class="va">X</span>,k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org" class="external-link">Matrix</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_count_data.html">simulate_count_data</a></span><span class="op">(</span><span class="fl">80</span>,<span class="fl">100</span>,k <span class="op">=</span> <span class="fl">3</span>,sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">X</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">fit_topic_model</span><span class="op">(</span><span class="va">X</span>,k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Initializing factors using Topic SCORE algorithm.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Initializing loadings by running 10 SCD updates.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Running 100 EM updates, without extrapolation (fastTopics 0.6-147).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running at most 100 EM updates, without extrapolation (fastTopics 0.6-175).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================&gt;-----------------------------------------------]  34%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================&gt;----------------------------------------------]  35%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================&gt;---------------------------------------------]  36%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================&gt;---------------------------------------------]  37%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================&gt;--------------------------------------------]  38%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================&gt;-------------------------------------------]  39%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================&gt;-------------------------------------------]  40%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================&gt;------------------------------------------]  41%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================&gt;-----------------------------------------]  42%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================&gt;----------------------------------------]  43%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================&gt;----------------------------------------]  44%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================&gt;---------------------------------------]  45%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================&gt;--------------------------------------]  46%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================&gt;--------------------------------------]  47%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================&gt;-------------------------------------]  48%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================&gt;------------------------------------]  49%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================&gt;-----------------------------------]  50%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================&gt;-----------------------------------]  51%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================&gt;----------------------------------]  52%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  53%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  54%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================&gt;--------------------------------]  55%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  56%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  57%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================&gt;------------------------------]  58%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================&gt;-----------------------------]  59%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  60%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  61%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================&gt;---------------------------]  62%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  63%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  64%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================&gt;-------------------------]  65%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================&gt;------------------------]  66%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  67%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  68%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================&gt;----------------------]  69%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  70%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  71%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================&gt;--------------------]  72%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================&gt;-------------------]  73%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  74%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  75%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================&gt;-----------------]  76%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  77%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  78%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================&gt;---------------]  79%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================================&gt;--------------]  80%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  81%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  82%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================================&gt;------------]  83%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  84%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  85%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================================&gt;----------]  86%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  87%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  88%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================================&gt;--------]  89%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================================&gt;-------]  90%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  91%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  92%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================================&gt;-----]  93%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  94%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  95%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================================&gt;---]  96%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================================&gt;--]  97%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  98%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  99%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================================] 100%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>                                                                               </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Refining model fit.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitting rank-3 Poisson NMF to 80 x 100 sparse matrix.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Running 100 SCD updates, with extrapolation (fastTopics 0.6-147).</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running at most 100 SCD updates, with extrapolation (fastTopics 0.6-175).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================&gt;---------------------------------------------------]  28%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================&gt;--------------------------------------------------]  29%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================&gt;--------------------------------------------------]  30%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================&gt;-------------------------------------------------]  31%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================&gt;------------------------------------------------]  32%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================&gt;------------------------------------------------]  33%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================&gt;-----------------------------------------------]  34%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================&gt;----------------------------------------------]  35%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================&gt;---------------------------------------------]  36%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================&gt;---------------------------------------------]  37%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================&gt;--------------------------------------------]  38%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================&gt;-------------------------------------------]  39%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================&gt;-------------------------------------------]  40%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================&gt;------------------------------------------]  41%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================&gt;-----------------------------------------]  42%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================&gt;----------------------------------------]  43%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================&gt;----------------------------------------]  44%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================&gt;---------------------------------------]  45%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================&gt;--------------------------------------]  46%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================&gt;--------------------------------------]  47%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================&gt;-------------------------------------]  48%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================&gt;------------------------------------]  49%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================&gt;-----------------------------------]  50%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================&gt;-----------------------------------]  51%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================&gt;----------------------------------]  52%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  53%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  54%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================&gt;--------------------------------]  55%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  56%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  57%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================&gt;------------------------------]  58%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================&gt;-----------------------------]  59%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  60%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  61%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================&gt;---------------------------]  62%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  63%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  64%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================&gt;-------------------------]  65%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================&gt;------------------------]  66%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  67%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  68%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================&gt;----------------------]  69%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  70%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  71%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================&gt;--------------------]  72%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================&gt;-------------------]  73%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  74%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  75%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================&gt;-----------------]  76%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  77%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  78%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================&gt;---------------]  79%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================================&gt;--------------]  80%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  81%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  82%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================================&gt;------------]  83%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  84%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  85%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================================&gt;----------]  86%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  87%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  88%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================================&gt;--------]  89%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================================&gt;-------]  90%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  91%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  92%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================================&gt;-----]  93%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  94%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  95%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================================&gt;---]  96%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================================&gt;--]  97%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  98%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  99%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================================] 100%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>                                                                               </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model overview:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Number of data rows, n: 80</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Number of data cols, m: 100</span>
@@ -190,9 +502,9 @@ allocation. <em>Journal of Machine Learning Research</em> <b>3</b>,
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Poisson NMF log-likelihood: -8.311490191230e+03</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Multinomial topic model log-likelihood: -8.068320081877e+03</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Poisson NMF deviance: +7.710268688987e+03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Max KKT residual: +2.569054e-07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Max KKT residual: +2.984697e-07</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set show.size.factors = TRUE, show.mixprops = TRUE and/or show.topic.reps = TRUE in print(...) for more information</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -203,13 +515,11 @@ allocation. <em>Journal of Machine Learning Research</em> <b>3</b>,
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew
-Stephens.</p>
+  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

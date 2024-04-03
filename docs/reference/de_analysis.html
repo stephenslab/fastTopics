@@ -20,7 +20,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-147</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-175</span>
       </span>
     </div>
 
@@ -59,43 +59,55 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">de_analysis</span><span class="op">(</span>
-  <span class="va">fit</span>,
-  <span class="va">X</span>,
-  s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>,
-  pseudocount <span class="op">=</span> <span class="fl">0.01</span>,
-  fit.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"scd"</span>, <span class="st">"em"</span>, <span class="st">"mu"</span>, <span class="st">"ccd"</span>, <span class="st">"glm"</span><span class="op">)</span>,
-  shrink.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ash"</span>, <span class="st">"none"</span><span class="op">)</span>,
-  lfc.stat <span class="op">=</span> <span class="st">"le"</span>,
-  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">de_analysis_control_default</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">de_analysis</span><span class="op">(</span></span>
+<span>  <span class="va">fit</span>,</span>
+<span>  <span class="va">X</span>,</span>
+<span>  s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>,</span>
+<span>  pseudocount <span class="op">=</span> <span class="fl">0.01</span>,</span>
+<span>  fit.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"scd"</span>, <span class="st">"em"</span>, <span class="st">"mu"</span>, <span class="st">"ccd"</span>, <span class="st">"glm"</span><span class="op">)</span>,</span>
+<span>  shrink.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ash"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  lfc.stat <span class="op">=</span> <span class="st">"le"</span>,</span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">de_analysis_control_default</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>fit</dt>
 <dd><p>An object of class “poisson_nmf_fit” or
-“multinom_topic_model_fit”. If a Poisson NMF fit is provided
-as input, the corresponding multinomial topic model fit is
+“multinom_topic_model_fit”, or an n x k matrix of topic
+proportions, where k is the number of topics. (The elements in each
+row of this matrix should sum to 1.) If a Poisson NMF fit is
+provided as input, the corresponding multinomial topic model fit is
 automatically recovered using <code><a href="poisson2multinom.html">poisson2multinom</a></code>.</p></dd>
+
+
 <dt>X</dt>
 <dd><p>The n x m counts matrix. It can be a sparse matrix (class
 <code>"dgCMatrix"</code>) or dense matrix (class <code>"matrix"</code>).</p></dd>
+
+
 <dt>s</dt>
 <dd><p>A numeric vector of length n determining how the rates are
 scaled in the Poisson models. See “Details” for guidance on
 the choice of <code>s</code>.</p></dd>
+
+
 <dt>pseudocount</dt>
 <dd><p>Observations with this value are added to the
 counts matrix to stabilize maximum-likelihood estimation.</p></dd>
+
+
 <dt>fit.method</dt>
 <dd><p>Method used to fit the Poisson models. Note that
 <code>fit.method = "glm"</code> is the slowest method, and is mainly used
 for testing.</p></dd>
+
+
 <dt>shrink.method</dt>
 <dd><p>Method used to stabilize the posterior mean
 LFC estimates.  When <code>shrink.method = "ash"</code>, the "adaptive
@@ -103,6 +115,8 @@ shrinkage" method implemented in the ‘ashr’ package is used to
 compute posterior. When <code>shrink.method = "none"</code>, no
 stabilization is performed, and the “raw” posterior mean LFC
 estimates are returned.</p></dd>
+
+
 <dt>lfc.stat</dt>
 <dd><p>The log-fold change statistics returned:
 <code>lfc.stat = "vsnull"</code>, the log-fold change relative to the
@@ -110,56 +124,88 @@ null; <code>lfc.stat = "le"</code>, the “least extreme” LFC; or a
 topic name or number, in which case the LFC is defined relative to
 the selected topic. See “Details” for more detailed
 explanations of these choices.</p></dd>
+
+
 <dt>control</dt>
 <dd><p>A list of parameters controlling behaviour of
 the optimization and Monte Carlo algorithms. See ‘Details’.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>When <code>verbose = TRUE</code>, progress information is
 printed to the console.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>When <code>shrink.method = "ash"</code>, these are
 additional arguments passed to <code><a href="https://rdrr.io/pkg/ashr/man/ash.html" class="external-link">ash</a></code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list with the following elements:</p>
+    
+
+<p>A list with the following elements:</p>
 <dl><dt>est</dt>
 <dd><p>The log-fold change maximum-likelihood estimates.</p></dd>
+
+
 <dt>postmean</dt>
 <dd><p>Posterior mean LFC estimates.</p></dd>
+
+
 <dt>lower</dt>
 <dd><p>Lower limits of estimated HPD intervals. Note that
   these are not updated by the shrinkage step.</p></dd>
+
+
 <dt>upper</dt>
 <dd><p>Upper limits of estimated HPD intervals. Note that
   these are not updated by the shrinkage step.</p></dd>
+
+
 <dt>z</dt>
 <dd><p>z-scores for posterior mean LFC estimates.</p></dd>
+
+
 <dt>lpval</dt>
 <dd><p>-log10 two-tailed p-values obtained from the
   z-scores. When <code>shrink.method = "ash"</code>, this is <code>NA</code>, and
   the s-values are returned instead (see below).</p></dd>
+
+
 <dt>svalue</dt>
 <dd><p>s-values returned by
   <code><a href="https://rdrr.io/pkg/ashr/man/ash.html" class="external-link">ash</a></code>. s-values are analogous to q-values, but
   based on the local false sign rate; see Stephens (2016).</p></dd>
+
+
 <dt>lfsr</dt>
 <dd><p>When <code>shrink.method = "ash"</code> only, this output
   contains the estimated local false sign rates.</p></dd>
+
+
 <dt>ash</dt>
 <dd><p>When <code>shrink.method = "ash"</code> only, this output
   contains the <code><a href="https://rdrr.io/pkg/ashr/man/ash.html" class="external-link">ash</a></code> return value (after removing
   the <code>"data"</code>, <code>"result"</code> and <code>"call"</code> list
   elements).</p></dd>
+
+
 <dt>F</dt>
 <dd><p>Maximum-likelihood estimates of the Poisson model
   parameters.</p></dd>
+
+
 <dt>f0</dt>
 <dd><p>Maximum-likelihood estimates of the null model
    parameters.</p></dd>
+
+
 <dt>ar</dt>
 <dd><p>A vector containing the Metropolis acceptance ratios
   from each MCMC run.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -245,10 +291,22 @@ algorithm settings (as they are defined by
 
 <dt><code>nc</code></dt>
 <dd><p>Number of threads used in the multithreaded
-  computations. Note that the multithreading relies on forking hence
-  is not available on Windows; will return an error on Windows
-  unless <code>nc = 1</code>. See <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">mclapply</a></code> for
-  details.</p></dd>
+  computations. This controls both (a) the number of RcppParallel
+  threads used to fit the factors in the Poisson models, and (b)
+  the number of cores used in <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">mclapply</a></code> for
+  the MCMC simulation step. Note that mclapply relies on forking
+  hence is not available on Windows; will return an error on
+  Windows unless <code>nc = 1</code>. Also note that setting <code>nc &gt;
+  1</code> copies the contents of memory <code>nc</code> times, which can lead
+  to poor performance if the total resident memory required exceeds
+  available physical memory.</p></dd>
+
+
+<dt><code>nc.blas</code></dt>
+<dd><p>Number of threads used in the numerical
+  linear algebra library (e.g., OpenBLAS), if available. For best
+  performance, we recommend setting this to 1 (i.e., no
+  multithreading).</p></dd>
 
 
 <dt><code>nsplit</code></dt>
@@ -263,7 +321,7 @@ algorithm settings (as they are defined by
     <h2>References</h2>
     <p>Stephens, M. (2016). False discovery rates: a new deal.
 <em>Biostatistics</em> <b>18</b>(2), kxw041.
-doi: <a href="https://doi.org/10.1093/biostatistics/kxw041" class="external-link">10.1093/biostatistics/kxw041</a></p>
+<a href="https://doi.org/10.1093/biostatistics/kxw041" class="external-link">doi:10.1093/biostatistics/kxw041</a></p>
 <p>Zhu, A., Ibrahim, J. G. and Love, M. I. (2019). Heavy-tailed prior
 distributions for sequence count data: removing the noise and
 preserving large differences. <em>Bioinformatics</em> <b>35</b>(12),
@@ -272,63 +330,411 @@ preserving large differences. <em>Bioinformatics</em> <b>35</b>(12),
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Perform a differential expression (DE) analysis using the previously</span></span>
-<span class="r-in"><span class="co"># fitted multinomial topic model. Note that the de_analysis call could</span></span>
-<span class="r-in"><span class="co"># take several minutes to complete.</span></span>
-<span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">de</span> <span class="op">&lt;-</span> <span class="fu">de_analysis</span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span>,<span class="va">pbmc_facs</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Perform a differential expression (DE) analysis using the previously</span></span></span>
+<span class="r-in"><span><span class="co"># fitted multinomial topic model. Note that the de_analysis call could</span></span></span>
+<span class="r-in"><span><span class="co"># take several minutes to complete.</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de</span> <span class="op">&lt;-</span> <span class="fu">de_analysis</span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span>,<span class="va">pbmc_facs</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitting 16791 Poisson models with k=6 using method="scd".</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Computing log-fold change statistics from 16791 Poisson models with k=6.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [-----------------------------------------------------------------------]   0%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [-----------------------------------------------------------------------]   1%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [&gt;----------------------------------------------------------------------]   1%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [&gt;----------------------------------------------------------------------]   2%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=&gt;---------------------------------------------------------------------]   2%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=&gt;---------------------------------------------------------------------]   3%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=&gt;---------------------------------------------------------------------]   4%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==&gt;--------------------------------------------------------------------]   4%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==&gt;--------------------------------------------------------------------]   5%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===&gt;-------------------------------------------------------------------]   5%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===&gt;-------------------------------------------------------------------]   6%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====&gt;------------------------------------------------------------------]   6%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====&gt;------------------------------------------------------------------]   7%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====&gt;------------------------------------------------------------------]   8%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====&gt;-----------------------------------------------------------------]   8%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====&gt;-----------------------------------------------------------------]   9%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======&gt;----------------------------------------------------------------]   9%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======&gt;----------------------------------------------------------------]  10%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======&gt;----------------------------------------------------------------]  11%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======&gt;---------------------------------------------------------------]  11%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======&gt;---------------------------------------------------------------]  12%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========&gt;--------------------------------------------------------------]  12%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========&gt;--------------------------------------------------------------]  13%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========&gt;-------------------------------------------------------------]  13%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========&gt;-------------------------------------------------------------]  14%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========&gt;-------------------------------------------------------------]  15%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========&gt;------------------------------------------------------------]  15%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========&gt;------------------------------------------------------------]  16%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========&gt;-----------------------------------------------------------]  16%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========&gt;-----------------------------------------------------------]  17%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========&gt;-----------------------------------------------------------]  18%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============&gt;----------------------------------------------------------]  18%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============&gt;----------------------------------------------------------]  19%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============&gt;---------------------------------------------------------]  19%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============&gt;---------------------------------------------------------]  20%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============&gt;--------------------------------------------------------]  20%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============&gt;--------------------------------------------------------]  21%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============&gt;--------------------------------------------------------]  22%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============&gt;-------------------------------------------------------]  22%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============&gt;-------------------------------------------------------]  23%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================&gt;------------------------------------------------------]  23%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================&gt;------------------------------------------------------]  24%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================&gt;------------------------------------------------------]  25%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================&gt;-----------------------------------------------------]  25%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================&gt;-----------------------------------------------------]  26%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================&gt;----------------------------------------------------]  26%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================&gt;----------------------------------------------------]  27%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================&gt;---------------------------------------------------]  27%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================&gt;---------------------------------------------------]  28%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================&gt;---------------------------------------------------]  29%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================&gt;--------------------------------------------------]  29%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================&gt;--------------------------------------------------]  30%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================&gt;-------------------------------------------------]  30%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================&gt;-------------------------------------------------]  31%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================&gt;-------------------------------------------------]  32%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================&gt;------------------------------------------------]  32%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================&gt;------------------------------------------------]  33%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================&gt;-----------------------------------------------]  33%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================&gt;-----------------------------------------------]  34%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================&gt;-----------------------------------------------]  35%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================&gt;----------------------------------------------]  35%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================&gt;----------------------------------------------]  36%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================&gt;---------------------------------------------]  36%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================&gt;---------------------------------------------]  37%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================&gt;--------------------------------------------]  37%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================&gt;--------------------------------------------]  38%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================&gt;--------------------------------------------]  39%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================&gt;-------------------------------------------]  39%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================&gt;-------------------------------------------]  40%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================&gt;------------------------------------------]  40%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================&gt;------------------------------------------]  41%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================&gt;------------------------------------------]  42%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================&gt;-----------------------------------------]  42%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================&gt;-----------------------------------------]  43%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================&gt;----------------------------------------]  43%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================&gt;----------------------------------------]  44%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================&gt;---------------------------------------]  44%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================&gt;---------------------------------------]  45%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================&gt;---------------------------------------]  46%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================&gt;--------------------------------------]  46%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================&gt;--------------------------------------]  47%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================&gt;-------------------------------------]  47%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================&gt;-------------------------------------]  48%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================&gt;-------------------------------------]  49%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================&gt;------------------------------------]  49%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================&gt;------------------------------------]  50%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================&gt;-----------------------------------]  50%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================&gt;-----------------------------------]  51%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================&gt;----------------------------------]  51%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================&gt;----------------------------------]  52%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================&gt;----------------------------------]  53%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  53%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================&gt;---------------------------------]  54%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================&gt;--------------------------------]  54%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================&gt;--------------------------------]  55%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================&gt;--------------------------------]  56%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  56%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================&gt;-------------------------------]  57%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================&gt;------------------------------]  57%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================&gt;------------------------------]  58%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================&gt;-----------------------------]  58%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================&gt;-----------------------------]  59%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================&gt;-----------------------------]  60%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  60%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================&gt;----------------------------]  61%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================&gt;---------------------------]  61%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================&gt;---------------------------]  62%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================&gt;---------------------------]  63%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  63%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================&gt;--------------------------]  64%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================&gt;-------------------------]  64%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================&gt;-------------------------]  65%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================&gt;------------------------]  65%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================&gt;------------------------]  66%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================&gt;------------------------]  67%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  67%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================&gt;-----------------------]  68%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================&gt;----------------------]  68%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================&gt;----------------------]  69%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================&gt;----------------------]  70%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  70%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================&gt;---------------------]  71%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================&gt;--------------------]  71%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================&gt;--------------------]  72%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================&gt;--------------------]  73%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================&gt;-------------------]  73%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================&gt;-------------------]  74%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  74%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================&gt;------------------]  75%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================&gt;-----------------]  75%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================&gt;-----------------]  76%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================&gt;-----------------]  77%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  77%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================&gt;----------------]  78%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================&gt;---------------]  78%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================&gt;---------------]  79%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================&gt;---------------]  80%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================================&gt;--------------]  80%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [========================================================&gt;--------------]  81%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  81%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=========================================================&gt;-------------]  82%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================================&gt;------------]  82%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================================&gt;------------]  83%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==========================================================&gt;------------]  84%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  84%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===========================================================&gt;-----------]  85%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================================&gt;----------]  85%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================================&gt;----------]  86%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [============================================================&gt;----------]  87%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  87%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=============================================================&gt;---------]  88%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================================&gt;--------]  88%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==============================================================&gt;--------]  89%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================================&gt;-------]  89%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================================&gt;-------]  90%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===============================================================&gt;-------]  91%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  91%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [================================================================&gt;------]  92%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================================&gt;-----]  92%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================================&gt;-----]  93%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=================================================================&gt;-----]  94%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  94%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [==================================================================&gt;----]  95%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================================&gt;---]  95%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [===================================================================&gt;---]  96%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================================&gt;--]  96%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================================&gt;--]  97%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [====================================================================&gt;--]  98%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  98%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=====================================================================&gt;-]  99%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================================&gt;]  99%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [======================================================================&gt;] 100%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [=======================================================================] 100%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>                                                                               </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Stabilizing posterior log-fold change estimates using adaptive shrinkage.</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Compile the DE analysis results for topic 4 into a table, and</span></span>
-<span class="r-in"><span class="co"># rank the genes by the posterior mean log-fold change, limiting to</span></span>
-<span class="r-in"><span class="co"># DE genes identified with low lfsr ("local false sign rate").</span></span>
-<span class="r-in"><span class="va">k</span> <span class="op">&lt;-</span> <span class="fl">4</span></span>
-<span class="r-in"><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>postmean <span class="op">=</span> <span class="va">de</span><span class="op">$</span><span class="va">postmean</span><span class="op">[</span>,<span class="va">k</span><span class="op">]</span>,</span>
-<span class="r-in">                  z        <span class="op">=</span> <span class="va">de</span><span class="op">$</span><span class="va">z</span><span class="op">[</span>,<span class="va">k</span><span class="op">]</span>,</span>
-<span class="r-in">                  lfsr     <span class="op">=</span> <span class="va">de</span><span class="op">$</span><span class="va">lfsr</span><span class="op">[</span>,<span class="va">k</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">symbol</span>,<span class="va">ensembl</span>,sep <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">dat</span>,<span class="va">lfsr</span> <span class="op">&lt;</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">postmean</span>,decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="op">]</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Genes at the top of this ranking are genes that are much more</span></span>
-<span class="r-in"><span class="co"># highly expressed in the topic compared to other topics.</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dat</span>,n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                           postmean         z         lfsr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> LINC00926_ENSG00000247982 6.475599  8.405566 7.979085e-15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> HLA-DOB_ENSG00000241106   5.700977  4.478844 2.617188e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BANK1_ENSG00000153064     5.209646  6.491398 6.920289e-09</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BLK_ENSG00000136573       5.160458  9.992161 2.425516e-21</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CD40_ENSG00000101017      3.996156  7.485619 9.640508e-12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> P2RX5_ENSG00000083454     3.822560 15.001932 4.232709e-48</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RALGPS2_ENSG00000116191   3.667691 12.199455 1.112070e-31</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CD79B_ENSG00000007312     3.543927 15.986085 7.459672e-55</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> TNFRSF13C_ENSG00000159958 3.424878  3.009488 8.031846e-03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CD72_ENSG00000137101      3.224403  6.464962 2.382711e-09</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># The genes at the bottom of the ranking are genes that are much less</span></span>
-<span class="r-in"><span class="co"># expressed in the topic.</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">dat</span>,n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                           postmean          z         lfsr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> KIAA0125_ENSG00000226777 -1.368692 -10.312766 0.000000e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> LILRA4_ENSG00000239961   -1.405395 -16.906653 0.000000e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> VAMP5_ENSG00000168899    -1.429959  -5.526587 3.009102e-06</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GSTP1_ENSG00000084207    -1.478443 -13.814083 0.000000e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> FGR_ENSG00000000938      -1.697954 -17.267656 0.000000e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ARL4C_ENSG00000188042    -1.773366  -4.868172 3.512310e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGJ_ENSG00000132465      -1.780658 -14.423687 0.000000e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> LST1_ENSG00000204482     -1.798490  -7.558970 2.202016e-12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ABRACL_ENSG00000146386   -1.853036  -5.407003 1.859083e-06</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> HCK_ENSG00000101336      -2.152558 -44.483701 0.000000e+00</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Create a volcano plot from the DE results for topic 4.</span></span>
-<span class="r-in"><span class="fu"><a href="volcano_plot.html">volcano_plot</a></span><span class="op">(</span><span class="va">de</span>,k <span class="op">=</span> <span class="va">k</span>,ymax <span class="op">=</span> <span class="fl">50</span>,labels <span class="op">=</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Compile the DE analysis results for topic 4 into a table, and</span></span></span>
+<span class="r-in"><span><span class="co"># rank the genes by the posterior mean log-fold change, limiting to</span></span></span>
+<span class="r-in"><span><span class="co"># DE genes identified with low lfsr ("local false sign rate").</span></span></span>
+<span class="r-in"><span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fl">4</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>postmean <span class="op">=</span> <span class="va">de</span><span class="op">$</span><span class="va">postmean</span><span class="op">[</span>,<span class="va">k</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                  z        <span class="op">=</span> <span class="va">de</span><span class="op">$</span><span class="va">z</span><span class="op">[</span>,<span class="va">k</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                  lfsr     <span class="op">=</span> <span class="va">de</span><span class="op">$</span><span class="va">lfsr</span><span class="op">[</span>,<span class="va">k</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">symbol</span>,<span class="va">ensembl</span>,sep <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">dat</span>,<span class="va">lfsr</span> <span class="op">&lt;</span> <span class="fl">0.01</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">postmean</span>,decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Genes at the top of this ranking are genes that are much more</span></span></span>
+<span class="r-in"><span><span class="co"># highly expressed in the topic compared to other topics.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dat</span>,n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                           postmean      z      lfsr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> LINC00926_ENSG00000247982    6.476  8.406 7.977e-15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> HLA-DOB_ENSG00000241106      5.701  4.479 2.617e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BANK1_ENSG00000153064        5.210  6.491 6.919e-09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BLK_ENSG00000136573          5.160  9.992 2.424e-21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CD40_ENSG00000101017         3.996  7.486 9.637e-12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> P2RX5_ENSG00000083454        3.823 15.002 4.223e-48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RALGPS2_ENSG00000116191      3.668 12.199 1.110e-31</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CD79B_ENSG00000007312        3.544 15.986 7.436e-55</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TNFRSF13C_ENSG00000159958    3.425  3.009 8.031e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CD72_ENSG00000137101         3.224  6.465 2.382e-09</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The genes at the bottom of the ranking are genes that are much less</span></span></span>
+<span class="r-in"><span><span class="co"># expressed in the topic.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">dat</span>,n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                          postmean       z      lfsr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> KIAA0125_ENSG00000226777   -1.369 -10.313 1.110e-16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> LILRA4_ENSG00000239961     -1.405 -16.907 1.110e-16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> VAMP5_ENSG00000168899      -1.430  -5.527 3.007e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GSTP1_ENSG00000084207      -1.478 -13.814 0.000e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> FGR_ENSG00000000938        -1.698 -17.268 0.000e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ARL4C_ENSG00000188042      -1.773  -4.868 3.511e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGJ_ENSG00000132465        -1.781 -14.424 0.000e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> LST1_ENSG00000204482       -1.798  -7.559 2.200e-12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ABRACL_ENSG00000146386     -1.853  -5.407 1.858e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> HCK_ENSG00000101336        -2.153 -44.484 2.220e-16</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Create a volcano plot from the DE results for topic 4.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="volcano_plot.html">volcano_plot</a></span><span class="op">(</span><span class="va">de</span>,k <span class="op">=</span> <span class="va">k</span>,ymax <span class="op">=</span> <span class="fl">50</span>,labels <span class="op">=</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="de_analysis-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="co"># }</span></span>
-<span class="r-in"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -339,13 +745,11 @@ preserving large differences. <em>Bioinformatics</em> <b>35</b>(12),
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew
-Stephens.</p>
+  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

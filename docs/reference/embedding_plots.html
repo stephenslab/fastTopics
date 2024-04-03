@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-147</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-175</span>
       </span>
     </div>
 
@@ -61,72 +61,72 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">embedding_plot_2d</span><span class="op">(</span>
-  <span class="va">fit</span>,
-  <span class="va">Y</span>,
-  fill <span class="op">=</span> <span class="st">"loading"</span>,
-  <span class="va">k</span>,
-  <span class="va">fill.label</span>,
-  ggplot_call <span class="op">=</span> <span class="va">embedding_plot_2d_ggplot_call</span>,
-  plot_grid_call <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">plots</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">plot_grid</span>, <span class="va">plots</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="fu">embedding_plot_2d_ggplot_call</span><span class="op">(</span>
-  <span class="va">Y</span>,
-  <span class="va">fill</span>,
-  fill.type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loading"</span>, <span class="st">"numeric"</span>, <span class="st">"factor"</span>, <span class="st">"none"</span><span class="op">)</span>,
-  <span class="va">fill.label</span>,
-  font.size <span class="op">=</span> <span class="fl">9</span>
-<span class="op">)</span>
-
-<span class="fu">pca_plot</span><span class="op">(</span>
-  <span class="va">fit</span>,
-  <span class="va">Y</span>,
-  pcs <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,
-  n <span class="op">=</span> <span class="fl">10000</span>,
-  fill <span class="op">=</span> <span class="st">"loading"</span>,
-  <span class="va">k</span>,
-  <span class="va">fill.label</span>,
-  ggplot_call <span class="op">=</span> <span class="va">embedding_plot_2d_ggplot_call</span>,
-  plot_grid_call <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">plots</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">plot_grid</span>, <span class="va">plots</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">tsne_plot</span><span class="op">(</span>
-  <span class="va">fit</span>,
-  <span class="va">Y</span>,
-  n <span class="op">=</span> <span class="fl">2000</span>,
-  fill <span class="op">=</span> <span class="st">"loading"</span>,
-  <span class="va">k</span>,
-  <span class="va">fill.label</span>,
-  ggplot_call <span class="op">=</span> <span class="va">embedding_plot_2d_ggplot_call</span>,
-  plot_grid_call <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">plots</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">plot_grid</span>, <span class="va">plots</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">umap_plot</span><span class="op">(</span>
-  <span class="va">fit</span>,
-  <span class="va">Y</span>,
-  n <span class="op">=</span> <span class="fl">2000</span>,
-  fill <span class="op">=</span> <span class="st">"loading"</span>,
-  <span class="va">k</span>,
-  <span class="va">fill.label</span>,
-  ggplot_call <span class="op">=</span> <span class="va">embedding_plot_2d_ggplot_call</span>,
-  plot_grid_call <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">plots</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">plot_grid</span>, <span class="va">plots</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">pca_hexbin_plot</span><span class="op">(</span>
-  <span class="va">fit</span>,
-  <span class="va">Y</span>,
-  pcs <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,
-  bins <span class="op">=</span> <span class="fl">40</span>,
-  breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">1000</span>, <span class="cn">Inf</span><span class="op">)</span>,
-  ggplot_call <span class="op">=</span> <span class="va">pca_hexbin_plot_ggplot_call</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">pca_hexbin_plot_ggplot_call</span><span class="op">(</span><span class="va">Y</span>, <span class="va">bins</span>, <span class="va">breaks</span>, font.size <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">embedding_plot_2d</span><span class="op">(</span></span>
+<span>  <span class="va">fit</span>,</span>
+<span>  <span class="va">Y</span>,</span>
+<span>  fill <span class="op">=</span> <span class="st">"loading"</span>,</span>
+<span>  <span class="va">k</span>,</span>
+<span>  <span class="va">fill.label</span>,</span>
+<span>  ggplot_call <span class="op">=</span> <span class="va">embedding_plot_2d_ggplot_call</span>,</span>
+<span>  plot_grid_call <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">plots</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">plot_grid</span>, <span class="va">plots</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">embedding_plot_2d_ggplot_call</span><span class="op">(</span></span>
+<span>  <span class="va">Y</span>,</span>
+<span>  <span class="va">fill</span>,</span>
+<span>  fill.type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loading"</span>, <span class="st">"numeric"</span>, <span class="st">"factor"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  <span class="va">fill.label</span>,</span>
+<span>  font.size <span class="op">=</span> <span class="fl">9</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">pca_plot</span><span class="op">(</span></span>
+<span>  <span class="va">fit</span>,</span>
+<span>  <span class="va">Y</span>,</span>
+<span>  pcs <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span>
+<span>  n <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  fill <span class="op">=</span> <span class="st">"loading"</span>,</span>
+<span>  <span class="va">k</span>,</span>
+<span>  <span class="va">fill.label</span>,</span>
+<span>  ggplot_call <span class="op">=</span> <span class="va">embedding_plot_2d_ggplot_call</span>,</span>
+<span>  plot_grid_call <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">plots</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">plot_grid</span>, <span class="va">plots</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">tsne_plot</span><span class="op">(</span></span>
+<span>  <span class="va">fit</span>,</span>
+<span>  <span class="va">Y</span>,</span>
+<span>  n <span class="op">=</span> <span class="fl">2000</span>,</span>
+<span>  fill <span class="op">=</span> <span class="st">"loading"</span>,</span>
+<span>  <span class="va">k</span>,</span>
+<span>  <span class="va">fill.label</span>,</span>
+<span>  ggplot_call <span class="op">=</span> <span class="va">embedding_plot_2d_ggplot_call</span>,</span>
+<span>  plot_grid_call <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">plots</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">plot_grid</span>, <span class="va">plots</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">umap_plot</span><span class="op">(</span></span>
+<span>  <span class="va">fit</span>,</span>
+<span>  <span class="va">Y</span>,</span>
+<span>  n <span class="op">=</span> <span class="fl">2000</span>,</span>
+<span>  fill <span class="op">=</span> <span class="st">"loading"</span>,</span>
+<span>  <span class="va">k</span>,</span>
+<span>  <span class="va">fill.label</span>,</span>
+<span>  ggplot_call <span class="op">=</span> <span class="va">embedding_plot_2d_ggplot_call</span>,</span>
+<span>  plot_grid_call <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">plots</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">plot_grid</span>, <span class="va">plots</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">pca_hexbin_plot</span><span class="op">(</span></span>
+<span>  <span class="va">fit</span>,</span>
+<span>  <span class="va">Y</span>,</span>
+<span>  pcs <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span>
+<span>  bins <span class="op">=</span> <span class="fl">40</span>,</span>
+<span>  breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">1000</span>, <span class="cn">Inf</span><span class="op">)</span>,</span>
+<span>  ggplot_call <span class="op">=</span> <span class="va">pca_hexbin_plot_ggplot_call</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">pca_hexbin_plot_ggplot_call</span><span class="op">(</span><span class="va">Y</span>, <span class="va">bins</span>, <span class="va">breaks</span>, font.size <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -134,10 +134,14 @@
     <dl><dt>fit</dt>
 <dd><p>An object of class “poisson_nmf_fit” or
 “multinom_topic_model_fit”.</p></dd>
+
+
 <dt>Y</dt>
 <dd><p>The n x 2 matrix containing the 2-d embedding, where n is
 the number of rows in <code>fit$L</code>. If not provided, the embedding
 will be computed automatically.</p></dd>
+
+
 <dt>fill</dt>
 <dd><p>The quantity to map onto the fill colour of the points
 in the PCA plot. Set <code>fill = "loading"</code> to vary the fill
@@ -146,52 +150,77 @@ select topiced or topics. Alternatively, <code>fill</code> may be set to a
 data vector with one entry per row of <code>fit$L</code>, in which case
 the data are mapped to the fill colour of the points. When
 <code>fill = "none"</code>, the fill colour is not varied.</p></dd>
+
+
 <dt>k</dt>
 <dd><p>The dimensions or topics selected by number or name. When
 <code>fill = "loading"</code>, one plot is created per selected dimension
 or topic; when <code>fill = "loading"</code> and <code>k</code> is not
 specified, all dimensions or topics are plotted.</p></dd>
+
+
 <dt>fill.label</dt>
 <dd><p>The label used for the fill colour legend.</p></dd>
+
+
 <dt>ggplot_call</dt>
 <dd><p>The function used to create the plot. Replace
 <code>embedding_plot_2d_ggplot_call</code> or <code>pca_hexbin_plot_ggplot_call</code>
 with your own function to customize the appearance of the plot.</p></dd>
+
+
 <dt>plot_grid_call</dt>
 <dd><p>When <code>fill = "loading"</code> and multiple
 topics (<code>k</code>) are selected, this is the function used to
 arrange the plots into a grid using <code><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></code>.
 It should be a function accepting a single argument, <code>plots</code>,
 a list of <code>ggplot</code> objects.</p></dd>
+
+
 <dt>fill.type</dt>
 <dd><p>The type of variable mapped to fill colour. The
 fill colour is not varied when <code>fill.type = "none"</code>.</p></dd>
+
+
 <dt>font.size</dt>
 <dd><p>Font size used in plot.</p></dd>
+
+
 <dt>pcs</dt>
 <dd><p>The two principal components (PCs) to be plotted,
 specified by name or number.</p></dd>
+
+
 <dt>n</dt>
 <dd><p>The maximum number of points to plot. If <code>n</code> is less
 than the number of rows of <code>fit$L</code>, the rows are subsampled at
 random. This argument is ignored if <code>Y</code> is provided.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments passed to
 <code><a href="embeddings_from_topics.html">pca_from_topics</a></code>, <code><a href="embeddings_from_topics.html">tsne_from_topics</a></code> or
 <code><a href="embeddings_from_topics.html">umap_from_topics</a></code>. These additional arguments are only
 used if <code>Y</code> is not provided.</p></dd>
+
+
 <dt>bins</dt>
 <dd><p>Number of bins used to create hexagonal 2-d
 histogram. Passed as the “bins” argument to
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_hex.html" class="external-link">stat_bin_hex</a></code>.</p></dd>
+
+
 <dt>breaks</dt>
 <dd><p>To produce the hexagonal histogram, the counts are
 subdivided into intervals based on <code>breaks</code>. Passed as the
 “breaks” argument to <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A <code>ggplot</code> object.</p>
+    
+
+<p>A <code>ggplot</code> object.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -219,152 +248,154 @@ passed as argument <code>Y</code>.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Get the Poisson NMF and multinomial topic models fitted to the</span></span>
-<span class="r-in"><span class="co"># PBMC data.</span></span>
-<span class="r-in"><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="multinom2poisson.html">multinom2poisson</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Plot the first two PCs of the loadings matrix (for the</span></span>
-<span class="r-in"><span class="co"># multinomial topic model, "fit2", the loadings are the topic</span></span>
-<span class="r-in"><span class="co"># proportions).</span></span>
-<span class="r-in"><span class="va">subpop</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span></span>
-<span class="r-in"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit1</span>,k <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">p4</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span>,pcs <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">4</span>,fill <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">p5</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="va">fit2</span><span class="op">$</span><span class="va">L</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">p6</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">p7</span> <span class="op">&lt;-</span> <span class="fu">pca_hexbin_plot</span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">p8</span> <span class="op">&lt;-</span> <span class="fu">pca_hexbin_plot</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="co"># Plot the loadings using t-SNE.</span></span>
-<span class="r-in"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu">tsne_plot</span><span class="op">(</span><span class="va">fit1</span>,k <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get the Poisson NMF and multinomial topic models fitted to the</span></span></span>
+<span class="r-in"><span><span class="co"># PBMC data.</span></span></span>
+<span class="r-in"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="multinom2poisson.html">multinom2poisson</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Plot the first two PCs of the loadings matrix (for the</span></span></span>
+<span class="r-in"><span><span class="co"># multinomial topic model, "fit2", the loadings are the topic</span></span></span>
+<span class="r-in"><span><span class="co"># proportions).</span></span></span>
+<span class="r-in"><span><span class="va">subpop</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span></span></span>
+<span class="r-in"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit1</span>,k <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p4</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span>,pcs <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">4</span>,fill <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p5</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="va">fit2</span><span class="op">$</span><span class="va">L</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p6</span> <span class="op">&lt;-</span> <span class="fu">pca_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p7</span> <span class="op">&lt;-</span> <span class="fu">pca_hexbin_plot</span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p8</span> <span class="op">&lt;-</span> <span class="fu">pca_hexbin_plot</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># Plot the loadings using t-SNE.</span></span></span>
+<span class="r-in"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu">tsne_plot</span><span class="op">(</span><span class="va">fit1</span>,k <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Read the 2000 x 6 data matrix successfully!</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> OpenMP is working. 1 threads.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using no_dims = 2, perplexity = 100.000000, and theta = 0.100000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Computing input similarities...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Building tree...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 0.62 seconds (sparsity = 0.195510)!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 0.50 seconds (sparsity = 0.195510)!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Learning embedding...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 56.566020 (50 iterations in 0.99 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 49.588009 (50 iterations in 0.70 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 48.780437 (50 iterations in 0.63 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 48.481760 (50 iterations in 0.62 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 48.321616 (50 iterations in 0.67 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.500184 (50 iterations in 0.82 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.355462 (50 iterations in 0.90 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.304304 (50 iterations in 0.86 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.280181 (50 iterations in 0.84 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.266792 (50 iterations in 0.83 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.258517 (50 iterations in 0.78 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.252917 (50 iterations in 0.83 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.248990 (50 iterations in 0.79 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.246069 (50 iterations in 0.78 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.243836 (50 iterations in 0.84 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.242063 (50 iterations in 0.80 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.240679 (50 iterations in 0.78 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.239602 (50 iterations in 0.78 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.238714 (50 iterations in 0.76 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.237994 (50 iterations in 0.74 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fitting performed in 15.75 seconds.</span>
-<span class="r-in"><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu">tsne_plot</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 56.566020 (50 iterations in 1.02 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 49.586311 (50 iterations in 0.70 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 48.779634 (50 iterations in 0.68 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 48.481377 (50 iterations in 0.67 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 48.321772 (50 iterations in 0.68 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.499560 (50 iterations in 0.81 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.354588 (50 iterations in 0.83 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.303966 (50 iterations in 0.81 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.280049 (50 iterations in 0.81 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.266749 (50 iterations in 0.81 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.258490 (50 iterations in 0.80 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.252933 (50 iterations in 0.80 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.248995 (50 iterations in 0.79 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.246062 (50 iterations in 0.78 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.243852 (50 iterations in 0.78 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.242078 (50 iterations in 0.78 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.240709 (50 iterations in 0.78 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.239629 (50 iterations in 0.77 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.238710 (50 iterations in 0.76 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.237995 (50 iterations in 0.76 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fitting performed in 15.62 seconds.</span>
+<span class="r-in"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu">tsne_plot</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Read the 2000 x 6 data matrix successfully!</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> OpenMP is working. 1 threads.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using no_dims = 2, perplexity = 100.000000, and theta = 0.100000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Computing input similarities...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Building tree...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 0.62 seconds (sparsity = 0.185092)!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 0.48 seconds (sparsity = 0.185092)!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Learning embedding...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 55.169629 (50 iterations in 1.06 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 48.296536 (50 iterations in 0.67 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 47.208215 (50 iterations in 0.60 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 46.768378 (50 iterations in 0.56 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 46.529132 (50 iterations in 0.56 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.481751 (50 iterations in 0.72 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.333907 (50 iterations in 0.74 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.276316 (50 iterations in 0.72 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.247547 (50 iterations in 0.73 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.231735 (50 iterations in 0.69 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.222157 (50 iterations in 0.72 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.215846 (50 iterations in 0.67 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.211401 (50 iterations in 0.79 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.208026 (50 iterations in 0.65 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.205488 (50 iterations in 0.72 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.203476 (50 iterations in 0.68 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.201817 (50 iterations in 0.67 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.200466 (50 iterations in 0.67 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.199298 (50 iterations in 0.69 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.198349 (50 iterations in 0.65 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fitting performed in 13.94 seconds.</span>
-<span class="r-in"><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu">tsne_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 55.169629 (50 iterations in 0.96 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 48.296393 (50 iterations in 0.68 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 47.207207 (50 iterations in 0.62 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 46.770503 (50 iterations in 0.61 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 46.531120 (50 iterations in 0.61 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.483807 (50 iterations in 0.74 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.337533 (50 iterations in 0.74 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.280061 (50 iterations in 0.74 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.251434 (50 iterations in 0.73 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.235569 (50 iterations in 0.74 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.226006 (50 iterations in 0.72 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.219770 (50 iterations in 0.70 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.215321 (50 iterations in 0.71 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.212055 (50 iterations in 0.70 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.209506 (50 iterations in 0.70 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.207451 (50 iterations in 0.69 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.205801 (50 iterations in 0.69 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.204450 (50 iterations in 0.74 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.203271 (50 iterations in 0.86 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.202383 (50 iterations in 0.75 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fitting performed in 14.43 seconds.</span>
+<span class="r-in"><span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu">tsne_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Read the 2000 x 6 data matrix successfully!</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> OpenMP is working. 1 threads.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using no_dims = 2, perplexity = 100.000000, and theta = 0.100000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Computing input similarities...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Building tree...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 0.58 seconds (sparsity = 0.184268)!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 0.49 seconds (sparsity = 0.184268)!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Learning embedding...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 54.034875 (50 iterations in 1.17 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 47.811956 (50 iterations in 0.73 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 47.003071 (50 iterations in 0.71 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 46.677254 (50 iterations in 0.67 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 46.489028 (50 iterations in 0.67 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.463680 (50 iterations in 0.72 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.321646 (50 iterations in 0.77 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.268448 (50 iterations in 0.82 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.242447 (50 iterations in 0.78 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.227653 (50 iterations in 0.77 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.218327 (50 iterations in 0.74 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.212016 (50 iterations in 0.78 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.207504 (50 iterations in 0.74 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.204139 (50 iterations in 0.75 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.201572 (50 iterations in 0.83 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.199485 (50 iterations in 0.78 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.197809 (50 iterations in 0.78 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.196472 (50 iterations in 0.79 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.195349 (50 iterations in 0.78 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.194371 (50 iterations in 0.78 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 54.034875 (50 iterations in 1.06 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 47.811985 (50 iterations in 0.73 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 47.002541 (50 iterations in 0.72 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 46.676555 (50 iterations in 0.72 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 46.488674 (50 iterations in 0.71 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.461843 (50 iterations in 0.75 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.320256 (50 iterations in 0.76 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.267543 (50 iterations in 0.77 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.241771 (50 iterations in 0.76 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.227141 (50 iterations in 0.77 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.217905 (50 iterations in 0.76 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.211658 (50 iterations in 0.76 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.207181 (50 iterations in 0.77 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.203827 (50 iterations in 0.78 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.201253 (50 iterations in 0.78 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.199169 (50 iterations in 0.79 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.197529 (50 iterations in 0.79 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.196210 (50 iterations in 0.78 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.195116 (50 iterations in 0.78 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.194157 (50 iterations in 0.79 seconds)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitting performed in 15.54 seconds.</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Plot the loadings using UMAP.</span></span>
-<span class="r-in"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu">umap_plot</span><span class="op">(</span><span class="va">fit1</span>,k <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:14 UMAP embedding parameters a = 1.896 b = 0.8006</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:14 Read 2000 rows and found 6 numeric columns</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:14 Using FNN for neighbor search, n_neighbors = 30</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:14 Commencing smooth kNN distance calibration using 2 threads</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:14 Initializing from normalized Laplacian + noise</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:14 Commencing optimization for 500 epochs, with 74134 positive edges</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 Optimization finished</span>
-<span class="r-in"><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu">umap_plot</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 UMAP embedding parameters a = 1.896 b = 0.8006</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 Read 2000 rows and found 6 numeric columns</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 Using FNN for neighbor search, n_neighbors = 30</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 Commencing smooth kNN distance calibration using 2 threads</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 64 smooth knn distance failures</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 Found 3 connected components, </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Plot the loadings using UMAP.</span></span></span>
+<span class="r-in"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu">umap_plot</span><span class="op">(</span><span class="va">fit1</span>,k <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:01 UMAP embedding parameters a = 1.896 b = 0.8006</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:01 Read 2000 rows and found 6 numeric columns</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:01 Using FNN for neighbor search, n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:01 Commencing smooth kNN distance calibration using 4 threads</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  with target n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:02 Initializing from normalized Laplacian + noise (using irlba)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:02 Commencing optimization for 500 epochs, with 74134 positive edges</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:04 Optimization finished</span>
+<span class="r-in"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu">umap_plot</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:04 UMAP embedding parameters a = 1.896 b = 0.8006</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:04 Read 2000 rows and found 6 numeric columns</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:04 Using FNN for neighbor search, n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:05 Commencing smooth kNN distance calibration using 4 threads</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  with target n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:05 56 smooth knn distance failures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:05 Found 3 connected components, </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> falling back to 'spca' initialization with init_sdev = 1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 Initializing from PCA</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 PCA: 2 components explained 65.66% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:17 Commencing optimization for 500 epochs, with 72866 positive edges</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:20 Optimization finished</span>
-<span class="r-in"><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu">umap_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:20 UMAP embedding parameters a = 1.896 b = 0.8006</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:20 Read 2000 rows and found 6 numeric columns</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:20 Using FNN for neighbor search, n_neighbors = 30</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:20 Commencing smooth kNN distance calibration using 2 threads</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:20 66 smooth knn distance failures</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:21 Found 2 connected components, </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:05 Using 'irlba' for PCA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:05 PCA: 2 components explained 65.39% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:05 Scaling init to sdev = 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:05 Commencing optimization for 500 epochs, with 72844 positive edges</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 Optimization finished</span>
+<span class="r-in"><span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu">umap_plot</span><span class="op">(</span><span class="va">fit2</span>,fill <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 UMAP embedding parameters a = 1.896 b = 0.8006</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 Read 2000 rows and found 6 numeric columns</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 Using FNN for neighbor search, n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 Commencing smooth kNN distance calibration using 4 threads</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  with target n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 54 smooth knn distance failures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 Found 2 connected components, </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> falling back to 'spca' initialization with init_sdev = 1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:21 Initializing from PCA</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:21 PCA: 2 components explained 66.13% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:21 Commencing optimization for 500 epochs, with 73072 positive edges</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:47:23 Optimization finished</span>
-<span class="r-in"><span class="co"># }</span></span>
-<span class="r-in"></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 Using 'irlba' for PCA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 PCA: 2 components explained 65.4% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 Scaling init to sdev = 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:08 Commencing optimization for 500 epochs, with 72822 positive edges</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:21:11 Optimization finished</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -375,13 +406,11 @@ passed as argument <code>Y</code>.</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew
-Stephens.</p>
+  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

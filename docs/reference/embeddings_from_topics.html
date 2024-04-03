@@ -20,7 +20,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastTopics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-147</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6-175</span>
       </span>
     </div>
 
@@ -59,32 +59,32 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">pca_from_topics</span><span class="op">(</span><span class="va">fit</span>, dims <span class="op">=</span> <span class="fl">2</span>, center <span class="op">=</span> <span class="cn">TRUE</span>, scale. <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">tsne_from_topics</span><span class="op">(</span>
-  <span class="va">fit</span>,
-  dims <span class="op">=</span> <span class="fl">2</span>,
-  pca <span class="op">=</span> <span class="cn">FALSE</span>,
-  normalize <span class="op">=</span> <span class="cn">FALSE</span>,
-  perplexity <span class="op">=</span> <span class="fl">100</span>,
-  theta <span class="op">=</span> <span class="fl">0.1</span>,
-  max_iter <span class="op">=</span> <span class="fl">1000</span>,
-  eta <span class="op">=</span> <span class="fl">200</span>,
-  check_duplicates <span class="op">=</span> <span class="cn">FALSE</span>,
-  verbose <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">umap_from_topics</span><span class="op">(</span>
-  <span class="va">fit</span>,
-  dims <span class="op">=</span> <span class="fl">2</span>,
-  n_neighbors <span class="op">=</span> <span class="fl">30</span>,
-  metric <span class="op">=</span> <span class="st">"euclidean"</span>,
-  scale <span class="op">=</span> <span class="st">"none"</span>,
-  pca <span class="op">=</span> <span class="cn">NULL</span>,
-  verbose <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pca_from_topics</span><span class="op">(</span><span class="va">fit</span>, dims <span class="op">=</span> <span class="fl">2</span>, center <span class="op">=</span> <span class="cn">TRUE</span>, scale. <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">tsne_from_topics</span><span class="op">(</span></span>
+<span>  <span class="va">fit</span>,</span>
+<span>  dims <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  pca <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  normalize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  perplexity <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  theta <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  max_iter <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  eta <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>  check_duplicates <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">umap_from_topics</span><span class="op">(</span></span>
+<span>  <span class="va">fit</span>,</span>
+<span>  dims <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  n_neighbors <span class="op">=</span> <span class="fl">30</span>,</span>
+<span>  metric <span class="op">=</span> <span class="st">"euclidean"</span>,</span>
+<span>  scale <span class="op">=</span> <span class="st">"none"</span>,</span>
+<span>  pca <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -92,70 +92,103 @@
     <dl><dt>fit</dt>
 <dd><p>An object of class “poisson_nmf_fit” or
 “multinom_topic_model_fit”.</p></dd>
+
+
 <dt>dims</dt>
 <dd><p>The number of dimensions in the embedding. In
 <code>tsne_from_topics</code>, this is passed as argument “dims”
 to <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code>. In <code>umap_from_topics</code>, this is
 passed as argument “n_components” to
 <code><a href="https://rdrr.io/pkg/uwot/man/umap.html" class="external-link">umap</a></code>.</p></dd>
+
+
 <dt>center</dt>
 <dd><p>A logical value indicating whether columns of
 <code>fit$L</code> should be zero-centered before performing PCA; passed
 as argument “center” to <code><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></code>.</p></dd>
+
+
 <dt>scale.</dt>
 <dd><p>A logical value indicating whether columns of
 <code>fit$L</code> should be scaled to have unit variance prior to
 performing PCA; passed as argument “scale.” to
 <code><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments passed to
 <code><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></code>, <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code> or
 <code><a href="https://rdrr.io/pkg/uwot/man/umap.html" class="external-link">umap</a></code>.</p></dd>
+
+
 <dt>pca</dt>
 <dd><p>Whether to perform a PCA processing step in t-SNE or
 UMAP; passed as argument “pca” to <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code>
 or <code><a href="https://rdrr.io/pkg/uwot/man/umap.html" class="external-link">umap</a></code>.</p></dd>
+
+
 <dt>normalize</dt>
 <dd><p>Whether to normalize the data prior to running
 t-SNE; passed as argument “normalize” to
 <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code>.</p></dd>
+
+
 <dt>perplexity</dt>
 <dd><p>t-SNE perplexity parameter, passed as argument
 “perplexity” to <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code>. The perplexity
 is automatically revised if it is too large; see
 <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code> for more information.</p></dd>
+
+
 <dt>theta</dt>
 <dd><p>t-SNE speed/accuracy trade-off parameter; passed as
 argument “theta” to <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code>.</p></dd>
+
+
 <dt>max_iter</dt>
 <dd><p>Maximum number of t-SNE iterations; passed as
 argument “max_iter” to <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code>.</p></dd>
+
+
 <dt>eta</dt>
 <dd><p>t-SNE learning rate parameter; passed as argument
 “eta” to <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code>.</p></dd>
+
+
 <dt>check_duplicates</dt>
 <dd><p>When <code>check_duplicates = TRUE</code>, checks
 whether there are duplicate rows in <code>fit$L</code>; passed as argument
 “check_duplicates” to <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code>.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>If <code>verbose = TRUE</code>, progress updates are
 printed; passed as argument “verbose” to
 <code><a href="https://rdrr.io/pkg/Rtsne/man/Rtsne.html" class="external-link">Rtsne</a></code> or <code><a href="https://rdrr.io/pkg/uwot/man/umap.html" class="external-link">umap</a></code>.</p></dd>
+
+
 <dt>n_neighbors</dt>
 <dd><p>Number of nearest neighbours in manifold
 approximation; passed as argument “n_neighbors” to
 <code><a href="https://rdrr.io/pkg/uwot/man/umap.html" class="external-link">umap</a></code>.</p></dd>
+
+
 <dt>metric</dt>
 <dd><p>Distance matrix used to find nearest neighbors;
 passed as argument “metric” to
 <code><a href="https://rdrr.io/pkg/uwot/man/umap.html" class="external-link">umap</a></code>.</p></dd>
+
+
 <dt>scale</dt>
 <dd><p>Scaling to apply to <code>fit$L</code>; passed as argument
 “scale” to <code><a href="https://rdrr.io/pkg/uwot/man/umap.html" class="external-link">umap</a></code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An n x d matrix containing the embedding, where n is the
+    
+
+<p>An n x d matrix containing the embedding, where n is the
   number of rows of <code>fit$L</code>, and <code>d = dims</code>.</p>
     </div>
     <div id="details">
@@ -169,7 +202,7 @@ passed as argument “metric” to
     <h2>References</h2>
     <p>Kobak, D. and Berens, P. (2019). The art of using t-SNE for
 single-cell transcriptomics. <em>Nature Communications</em> <b>10</b>,
-5416. doi: <a href="https://doi.org/10.1038/s41467-019-13056-x" class="external-link">10.1038/s41467-019-13056-x</a></p>
+5416. <a href="https://doi.org/10.1038/s41467-019-13056-x" class="external-link">doi:10.1038/s41467-019-13056-x</a></p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -180,117 +213,118 @@ single-cell transcriptomics. <em>Nature Communications</em> <b>10</b>,
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Get the Poisson NMF and multinomial topic model fit to the PBMC data.</span></span>
-<span class="r-in"><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="multinom2poisson.html">multinom2poisson</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span></span>
-<span class="r-in"><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="poisson2multinom.html">poisson2multinom</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Compute the first two PCs of the loadings matrix (for the topic</span></span>
-<span class="r-in"><span class="co"># model, fit2, the loadings are the topic proportions).</span></span>
-<span class="r-in"><span class="va">Y1</span> <span class="op">&lt;-</span> <span class="fu">pca_from_topics</span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu">pca_from_topics</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">subpop</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span></span>
-<span class="r-in"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y1</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y1</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get the Poisson NMF and multinomial topic model fit to the PBMC data.</span></span></span>
+<span class="r-in"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="multinom2poisson.html">multinom2poisson</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">fit</span></span></span>
+<span class="r-in"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="poisson2multinom.html">poisson2multinom</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Compute the first two PCs of the loadings matrix (for the topic</span></span></span>
+<span class="r-in"><span><span class="co"># model, fit2, the loadings are the topic proportions).</span></span></span>
+<span class="r-in"><span><span class="va">Y1</span> <span class="op">&lt;-</span> <span class="fu">pca_from_topics</span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu">pca_from_topics</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">subpop</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y1</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y1</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`qplot()` was deprecated in ggplot2 3.4.0.</span>
 <span class="r-plt img"><img src="embeddings_from_topics-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y2</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y2</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y2</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y2</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="embeddings_from_topics-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Compute a 2-d embedding of the loadings using t-SNE.</span></span>
-<span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="va">Y1</span> <span class="op">&lt;-</span> <span class="fu">tsne_from_topics</span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Compute a 2-d embedding of the loadings using t-SNE.</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">Y1</span> <span class="op">&lt;-</span> <span class="fu">tsne_from_topics</span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Read the 3774 x 6 data matrix successfully!</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> OpenMP is working. 1 threads.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using no_dims = 2, perplexity = 100.000000, and theta = 0.100000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Computing input similarities...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Building tree...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 1.25 seconds (sparsity = 0.103577)!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 0.97 seconds (sparsity = 0.103577)!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Learning embedding...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 67.907680 (50 iterations in 2.57 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 55.093056 (50 iterations in 1.71 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 53.522954 (50 iterations in 1.56 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 52.982533 (50 iterations in 1.57 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 52.699767 (50 iterations in 1.57 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.869698 (50 iterations in 1.98 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.639252 (50 iterations in 2.14 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.537416 (50 iterations in 2.14 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.483018 (50 iterations in 2.13 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.449935 (50 iterations in 2.10 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.427851 (50 iterations in 2.06 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.412277 (50 iterations in 2.06 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.400706 (50 iterations in 2.02 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.391901 (50 iterations in 2.02 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.385024 (50 iterations in 2.03 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.379472 (50 iterations in 2.04 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.374967 (50 iterations in 2.07 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.371282 (50 iterations in 2.16 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.368180 (50 iterations in 2.02 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.365565 (50 iterations in 2.01 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fitting performed in 39.98 seconds.</span>
-<span class="r-in"><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu">tsne_from_topics</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 67.907680 (50 iterations in 2.31 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 55.093036 (50 iterations in 1.63 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 53.522705 (50 iterations in 1.56 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 52.982723 (50 iterations in 1.54 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 52.700813 (50 iterations in 1.54 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.869868 (50 iterations in 1.89 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.639018 (50 iterations in 2.04 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.537143 (50 iterations in 2.01 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.482721 (50 iterations in 2.01 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.449646 (50 iterations in 1.98 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.427580 (50 iterations in 1.97 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.412004 (50 iterations in 1.95 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.400458 (50 iterations in 1.93 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.391642 (50 iterations in 1.95 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.384759 (50 iterations in 1.96 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.379201 (50 iterations in 1.97 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.374679 (50 iterations in 1.97 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.370959 (50 iterations in 1.98 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.367860 (50 iterations in 2.10 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.365237 (50 iterations in 1.97 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fitting performed in 38.27 seconds.</span>
+<span class="r-in"><span><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu">tsne_from_topics</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Read the 3774 x 6 data matrix successfully!</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> OpenMP is working. 1 threads.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using no_dims = 2, perplexity = 100.000000, and theta = 0.100000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Computing input similarities...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Building tree...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 1.20 seconds (sparsity = 0.101133)!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Done in 0.98 seconds (sparsity = 0.101133)!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Learning embedding...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 65.682366 (50 iterations in 2.85 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 53.576745 (50 iterations in 1.71 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 51.737409 (50 iterations in 1.56 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 51.078123 (50 iterations in 1.48 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 50.736489 (50 iterations in 1.42 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.800799 (50 iterations in 1.81 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.576955 (50 iterations in 1.89 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.477994 (50 iterations in 1.91 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.425876 (50 iterations in 1.85 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.394320 (50 iterations in 1.94 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.373474 (50 iterations in 1.91 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.358792 (50 iterations in 1.94 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.347992 (50 iterations in 1.92 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.339768 (50 iterations in 1.88 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.333361 (50 iterations in 1.88 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.328239 (50 iterations in 1.84 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.324056 (50 iterations in 1.83 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.320605 (50 iterations in 1.84 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.317695 (50 iterations in 1.92 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.315221 (50 iterations in 1.95 seconds)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fitting performed in 37.31 seconds.</span>
-<span class="r-in"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y1</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y1</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 50: error is 65.682366 (50 iterations in 2.66 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 100: error is 53.576821 (50 iterations in 1.66 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 150: error is 51.735807 (50 iterations in 1.52 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 200: error is 51.078410 (50 iterations in 1.45 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 250: error is 50.736216 (50 iterations in 1.43 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 300: error is 0.804715 (50 iterations in 1.77 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 350: error is 0.580748 (50 iterations in 1.85 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 400: error is 0.481837 (50 iterations in 1.83 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 450: error is 0.429849 (50 iterations in 1.81 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 500: error is 0.398384 (50 iterations in 1.81 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 550: error is 0.377602 (50 iterations in 1.81 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 600: error is 0.362985 (50 iterations in 1.81 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 650: error is 0.352226 (50 iterations in 1.81 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 700: error is 0.344063 (50 iterations in 1.77 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 750: error is 0.337688 (50 iterations in 1.75 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 800: error is 0.332612 (50 iterations in 1.74 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 850: error is 0.328442 (50 iterations in 1.74 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 900: error is 0.325026 (50 iterations in 1.74 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 950: error is 0.322085 (50 iterations in 1.73 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration 1000: error is 0.319664 (50 iterations in 1.72 seconds)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fitting performed in 35.44 seconds.</span>
+<span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y1</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y1</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="embeddings_from_topics-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y2</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y2</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y2</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y2</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="embeddings_from_topics-4.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="co"># }</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Compute a 2-d embedding of the loadings using UMAP.</span></span>
-<span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="va">Y1</span> <span class="op">&lt;-</span> <span class="fu">umap_from_topics</span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:50 UMAP embedding parameters a = 1.896 b = 0.8006</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:50 Read 3774 rows and found 6 numeric columns</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:50 Using FNN for neighbor search, n_neighbors = 30</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:51 Commencing smooth kNN distance calibration using 2 threads</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:51 Initializing from normalized Laplacian + noise</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:51 Commencing optimization for 500 epochs, with 139662 positive edges</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:56 Optimization finished</span>
-<span class="r-in"><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu">umap_from_topics</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:56 UMAP embedding parameters a = 1.896 b = 0.8006</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:56 Read 3774 rows and found 6 numeric columns</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:56 Using FNN for neighbor search, n_neighbors = 30</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:56 Commencing smooth kNN distance calibration using 2 threads</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:56 111 smooth knn distance failures</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:56 Initializing from normalized Laplacian + noise</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:48:57 Commencing optimization for 500 epochs, with 138012 positive edges</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 15:49:01 Optimization finished</span>
-<span class="r-in"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y1</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y1</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Compute a 2-d embedding of the loadings using UMAP.</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">Y1</span> <span class="op">&lt;-</span> <span class="fu">umap_from_topics</span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:32 UMAP embedding parameters a = 1.896 b = 0.8006</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:32 Read 3774 rows and found 6 numeric columns</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:32 Using FNN for neighbor search, n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:32 Commencing smooth kNN distance calibration using 4 threads</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  with target n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:32 Initializing from normalized Laplacian + noise (using irlba)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:33 Commencing optimization for 500 epochs, with 139662 positive edges</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:37 Optimization finished</span>
+<span class="r-in"><span><span class="va">Y2</span> <span class="op">&lt;-</span> <span class="fu">umap_from_topics</span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:37 UMAP embedding parameters a = 1.896 b = 0.8006</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:37 Read 3774 rows and found 6 numeric columns</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:37 Using FNN for neighbor search, n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:38 Commencing smooth kNN distance calibration using 4 threads</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  with target n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:38 110 smooth knn distance failures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:38 Initializing from normalized Laplacian + noise (using irlba)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:38 Commencing optimization for 500 epochs, with 137990 positive edges</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:22:43 Optimization finished</span>
+<span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y1</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y1</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="embeddings_from_topics-5.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y2</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y2</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/qplot.html" class="external-link">quickplot</a></span><span class="op">(</span><span class="va">Y2</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">Y2</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>,color <span class="op">=</span> <span class="va">subpop</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="embeddings_from_topics-6.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="co"># }</span></span>
-<span class="r-in"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -301,13 +335,11 @@ single-cell transcriptomics. <em>Nature Communications</em> <b>10</b>,
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew
-Stephens.</p>
+  <p></p><p>Developed by Peter Carbonetto, Kevin Luo, Kushal Dey, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
