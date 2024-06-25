@@ -449,7 +449,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     cat(sprintf("Running at most %d %s updates, %s extrapolation ",
                 numiter,method.text,
                 ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-179).\n")
+    cat("(fastTopics 0.6-180).\n")
   }
   
   # INITIALIZE ESTIMATES

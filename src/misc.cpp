@@ -20,9 +20,9 @@ arma::mat le_diff_rcpp (const arma::mat& X) {
   vec x(m);
   vec y(m);
   for (unsigned int i = 0; i < n; i++) {
-    x = X.row(i);
+    x = conv_to<vec>::from(X.row(i));
     le_diff(x,y);
-    Y.row(i) = y;
+    Y.row(i) = conv_to<rowvec>::from(y);
   }
   return Y;
 }
