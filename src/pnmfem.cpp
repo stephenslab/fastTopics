@@ -11,6 +11,7 @@ using namespace arma;
 inline vec pnmfem_update_factor (const mat& X, const mat& F, const mat& L1,
 				 const vec& u, mat& P, unsigned int j, 
 				 unsigned int numiter) {
+  colvec temp = F.col(j);
   vec f = F.col(j);
   poismixem(L1,u,X.col(j),f,P,numiter);
   return f;
@@ -105,7 +106,7 @@ arma::mat pnmfem_update_factors_rcpp (const arma::mat& X, const arma::mat& F,
 				      const arma::mat& L, const arma::vec& j,
 				      double numiter) {
   unsigned int n = j.n_elem;
-  vec  u    = sum(L,0);
+  vec  u    = conv_to<vec>::from(sum(L,0));
   mat  L1   = L;
   mat  P    = L;
   mat  Fnew = F;

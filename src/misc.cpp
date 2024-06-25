@@ -96,24 +96,24 @@ void getcolnonzeros (const sp_mat& A, uvec& i, unsigned int j) {
 
 // Scale each column A[,i] by b[i].
 void scalecols (mat& A, const vec& b) {
-  vec c = b;
+  rowvec c = conv_to<rowvec>::from(b);
   A.each_row() %= c;
 }
 
 // Normalize each row of A so that the entries in each row sum to 1.
 void normalizerows (mat& A) {
-  vec b = sum(A,1);
+  vec b = conv_to<vec>::from(sum(A,1));
   A.each_col() /= b;
 }
 
 // Normalize each column of A so that the entries in each column sum to 1.
 void normalizecols (mat& A) {
-  vec b = sum(A,0);
+  rowvec b = sum(A,0);
   A.each_row() /= b;
 }
 
 // Scale each row of A so that the largest entry in each row is 1.
 void normalizerowsbymax (mat& A) {
-  vec b = max(A,1);
+  vec b = conv_to<vec>::from(max(A,1));
   A.each_col() /= b;
 }

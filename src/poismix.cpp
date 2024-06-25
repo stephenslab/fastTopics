@@ -191,7 +191,7 @@ vec poismixem (const mat& L, const vec& w, const vec& x0,
 	       unsigned int numiter) {
   mat L1 = L;
   mat P  = L;
-  vec u  = sum(L,0);
+  vec u  = conv_to<vec>::from(sum(L,0));
   vec x  = x0;
   normalizecols(L1);
   poismixem(L1,u,w,x,P,numiter);
@@ -221,7 +221,7 @@ void poismixem (const mat& L1, const vec& u, const vec& w, vec& x, mat& P,
 
   // Perform one or more EM updates for the multinomial mixture model.
   mixem(L1,w,x,P,numiter);
-
+  
   // Recover the mixture weights of the Poisson mixture model from the
   // mixture weights of the multinomial mixture model.
   x *= s;
