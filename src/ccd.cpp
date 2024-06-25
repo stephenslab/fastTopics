@@ -67,7 +67,7 @@ struct ccd_factor_updater_sparse : public RcppParallel::Worker {
   // This is used to create a ccd_factor_updater_sparse object.
   ccd_factor_updater_sparse (const sp_mat& V, const mat& W, mat& H, double e) :
     V(V), W(W), sumw(W.n_cols), H(H), e(e) {
-    sumw = sum(W,0);
+    sumw = conv_to<vec>::from(sum(W,0));
   };
 
   // This function updates the factors for a given range of columns.
@@ -155,7 +155,7 @@ void ccd_update_factors (const mat& V, const mat& W, mat& H, double e) {
 void ccd_update_factors_sparse (const sp_mat& V, const mat& W, mat& H,
 				double e) {
   unsigned int m = H.n_cols;
-  vec sumw = sum(W,0);
+  vec sumw = conv_to<vec>::from(sum(W,0));
   for (unsigned int j = 0; j < m; j++)
     ccd_update_factor_sparse(V,W,sumw,H,j,e);
 }

@@ -76,7 +76,7 @@ struct scd_factor_updater_sparse : public RcppParallel::Worker {
   scd_factor_updater_sparse (const sp_mat& A, const mat& W, mat& H, 
 			     const vec& j, unsigned int numiter, double e) :
     A(A), W(W), sumw(W.n_cols), H(H), j(j), numiter(numiter), e(e) {
-    sumw = sum(W,0);
+    sumw = conv_to<vec>::from(sum(W,0));
   };
  
   // This function updates the factors for a given range of columns.
@@ -176,7 +176,7 @@ void scd_update_factors (const mat& A, const mat& W, mat& H, const vec& j,
 void scd_update_factors_sparse (const sp_mat& A, const mat& W, mat& H,
 				const vec& j, unsigned int numiter, double e) {
   unsigned int n    = j.n_elem;
-  vec          sumw = sum(W,0);
+  vec          sumw = conv_to<vec>::from(sum(W,0));
   for (unsigned int i = 0; i < n; i++)
     scd_update_factor_sparse(A,W,sumw,H,j(i),numiter,e);
 }
