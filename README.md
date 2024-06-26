@@ -101,7 +101,7 @@ The fastTopics R package was developed by [Peter Carbonetto][peter],
 [Matthew Stephens][matthew] and others.
 
 [fasttopics]:  https://github.com/stephenslab/fastTopics
-[mit-license]: https://opensource.org/license/mit/
+[mit-license]: https://opensource.org/license/mit
 [issues]: https://github.com/stephenslab/fastTopics/issues
 [peter]: https://pcarbo.github.io
 [kevin]: https://github.com/kevinlkx
