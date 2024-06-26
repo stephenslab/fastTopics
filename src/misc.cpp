@@ -20,9 +20,9 @@ arma::mat le_diff_rcpp (const arma::mat& X) {
   vec x(m);
   vec y(m);
   for (unsigned int i = 0; i < n; i++) {
-    x = conv_to<vec>::from(X.row(i));
+    x = trans(X.row(i));
     le_diff(x,y);
-    Y.row(i) = conv_to<rowvec>::from(y);
+    Y.row(i) = trans(y);
   }
   return Y;
 }
@@ -96,7 +96,7 @@ void getcolnonzeros (const sp_mat& A, uvec& i, unsigned int j) {
 
 // Scale each column A[,i] by b[i].
 void scalecols (mat& A, const vec& b) {
-  rowvec c = conv_to<rowvec>::from(b);
+  rowvec c = trans(b);
   A.each_row() %= c;
 }
 

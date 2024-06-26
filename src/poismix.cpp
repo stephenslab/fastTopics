@@ -191,7 +191,7 @@ vec poismixem (const mat& L, const vec& w, const vec& x0,
 	       unsigned int numiter) {
   mat L1 = L;
   mat P  = L;
-  vec u  = conv_to<vec>::from(sum(L,0));
+  vec u  = trans(sum(L,0));
   vec x  = x0;
   normalizecols(L1);
   poismixem(L1,u,w,x,P,numiter);

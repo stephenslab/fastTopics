@@ -39,7 +39,7 @@ List simulate_posterior_poisson_rcpp (const arma::vec& x, const arma::mat& L,
   unsigned int k  = D.n_cols;
   mat samples(ns,k);
   vec ar(k);
-  vec ll = conv_to<vec>::from(sum(L,0));
+  vec ll = trans(sum(L,0));
   simulate_posterior_poisson(x,L,ll,f,D,U,M,samples,ar,s,e);
   return List::create(Named("samples") = samples,Named("ar") = ar);
 }
@@ -127,7 +127,7 @@ void simulate_posterior_poisson (const vec& x, const mat& L, const vec& w,
     }
 
     // Store the current state of the Markov chain.
-    samples.row(i) = conv_to<rowvec>::from(g);
+    samples.row(i) = trans(g);
   }
 
   // Compute the final acceptance rates.
