@@ -119,7 +119,7 @@
 #' # There is no requirement than the rows of L sum up to 1. To
 #' # illustrate, in this next example we have removed topic 5 from the a
 #' # structure plot.
-#' p2a <- structure_plot(L[,-5])
+#' p2a <- structure_plot(fit$L[,-5])
 #'
 #' # This is perhaps a more elegant way to remove topic 5 from the
 #' # structure plot:
