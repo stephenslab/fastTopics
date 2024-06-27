@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.6-184
-Date: 2024-06-26
+Version: 0.6-185
+Date: 2024-06-27
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
 Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
@@ -29,8 +29,10 @@ Description: Implements fast, scalable optimization algorithms for
     non-negative matrix factorization. The package provides tools to
     compare, annotate and visualize model fits, including functions to
     efficiently create "structure plots" and identify key features in
-    topics. The 'fastTopics' package is a successor to the 'CountClust'
-    package.
+    topics. The 'fastTopics' package is a successor to the
+    'CountClust' package. For more information, see
+    <doi:10.48550/arXiv.2105.13440> and
+    <doi:10.1186/s13059-023-03067-9>.
 License: BSD_2_clause + file LICENSE
 Copyright: inst/COPYRIGHTS
 SystemRequirements: GNU make
@@ -68,7 +70,6 @@ LinkingTo:
     Rcpp,
     RcppParallel,
     RcppArmadillo
-Remotes: linxihui/NNLM
 Additional_repositories: https://stephenslab.github.io/nnlm-drat
 LazyData: true
 LazyDataCompression: xz
