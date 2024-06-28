@@ -268,9 +268,14 @@ de <- de_analysis(fit,counts,pseudocount = 0.1,
 
 Since this computation can take 10 minutes or more to run, we have
 provided the output of this `de_analysis` call in the `pbmc_facs` data
-set:
+set. Since the `de_analysis` output is quite large, we have made this
+available outside the package:
 
 ```{r de-analysis-2}
+pbmc_facs_file <- tempfile(fileext = ".RData")
+pbmc_facs_url <- "https://stephenslab.github.io/fastTopics/pbmc_facs.RData"
+download.file(pbmc_facs_url,pbmc_facs_file)
+load(pbmc_facs_file)
 de <- pbmc_facs$de
 ```
 

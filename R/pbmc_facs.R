@@ -39,14 +39,8 @@
 #'
 #'   \item{fit}{Poisson non-negative matrix factorization (NMF) fitted
 #'     to the UMI count data \code{counts}, with rank \code{k = 6}. See
-#'     the vignette how the Poisson NMF model fitting was performed.}
+#'     the vignette how the Poisson NMF model fitting was performed.}}
 #'
-#'   \item{de}{Result of calling 
-#'     \code{de_analysis(fit,counts,pseudocount = 0.1,
-#'     control = list(ns = 1e4,nc = 4))}
-#'     after first setting the seed to 1, \code{set.seed(1)}.}}
-#'
-#' @source
 #' \url{https://www.10xgenomics.com/resources/datasets}
 #' 
 #' @references

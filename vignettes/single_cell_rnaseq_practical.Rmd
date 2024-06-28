@@ -194,10 +194,15 @@ More on differential expression analysis
 ----------------------------------------
 
 In [Part 1][vignette-part-1], we performed a DE analysis using the
-topic model.
+topic model. (Note that since the `de_analysis` output is quite large,
+we have made the results of the DE analysis available outside the
+package.)
 
 ```{r diff-count-analysis}
-de <- pbmc_facs$de
+pbmc_facs_file <- tempfile(fileext = ".RData")
+pbmc_facs_url <- "https://stephenslab.github.io/fastTopics/pbmc_facs.RData"
+download.file(pbmc_facs_url,pbmc_facs_file)
+load(pbmc_facs_file)
 ```
 
 When the volcano plot shows many overlapping differentially expressed
