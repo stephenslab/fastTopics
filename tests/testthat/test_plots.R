@@ -73,16 +73,6 @@ test_that("Test that other plotting functions work",{
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
 
-  # Test tsne_plot and umap_plot.
-  capture.output(p1 <- tsne_plot(fit1,fill = "loading"))
-  capture.output(p2 <- tsne_plot(fit2,fill = "loading"))
-  capture.output(p3 <- umap_plot(fit1,fill = "loading",verbose = FALSE))
-  capture.output(p4 <- umap_plot(fit2,fill = "loading",verbose = FALSE))
-  expect_s3_class(p1,"ggplot")
-  expect_s3_class(p2,"ggplot")
-  expect_s3_class(p3,"ggplot")
-  expect_s3_class(p4,"ggplot")
-
   # Test structure_plot.
   grouping <- factor(apply(poisson2multinom(fit1)$L,1,which.max))
   capture.output(y <- drop(tsne_from_topics(poisson2multinom(fit1),dims = 1)))
@@ -103,4 +93,16 @@ test_that("Test that other plotting functions work",{
   capture.output(p2 <- plot(fit2))
   expect_s3_class(p1,"ggplot")
   expect_s3_class(p2,"ggplot")
+
+  skip_if(on_cran)
+  
+  # Test tsne_plot and umap_plot.
+  capture.output(p1 <- tsne_plot(fit1,fill = "loading"))
+  capture.output(p2 <- tsne_plot(fit2,fill = "loading"))
+  capture.output(p3 <- umap_plot(fit1,fill = "loading",verbose = FALSE))
+  capture.output(p4 <- umap_plot(fit2,fill = "loading",verbose = FALSE))
+  expect_s3_class(p1,"ggplot")
+  expect_s3_class(p2,"ggplot")
+  expect_s3_class(p3,"ggplot")
+  expect_s3_class(p4,"ggplot")
 })
