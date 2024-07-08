@@ -18,7 +18,10 @@ The aim of this vignette is to introduce the basic concepts behind an
 analysis of single-cell RNA-seq data using a topic model, and to show
 how to use 'fastTopics' to implement this analysis. This first
 vignette explains the analysis steps at only a high level---see
-[Part 2][vignette-part-2] for additional explanations and guidance.
+[Part 2][vignette-part-2] for additional explanations and
+guidance. (Note that Part 2 was not included with the fastTopics
+package on CRAN. It is only included with the fastTopics package on
+GitHub.)
 
 Since a topic model analysis is quite different from most conventional
 analyses of single-cell RNA-seq data, we point out key

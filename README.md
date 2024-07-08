@@ -81,9 +81,9 @@ See the [package documentation][pkgdown] for more information.
 
 ## Developer notes
 
-To prepare the package for CRAN, remove the "Remotes" field in the
-DESCRIPTION file, and set `on_cran <- TRUE` in `helper_functions.R`,
-then run `R CMD build fastTopics` to build the source package.
+To prepare the package for CRAN, remove the
+"single_cell_rnaseq_practical" vignette, then run `R CMD build
+fastTopics` to build the source package.
 
 This is the command used to check the package before submitting to
 CRAN:
