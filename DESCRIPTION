@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.6-190
+Version: 0.6-191
 Date: 2024-07-08
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
@@ -69,7 +69,6 @@ LinkingTo:
     Rcpp,
     RcppParallel,
     RcppArmadillo
-Additional_repositories: https://stephenslab.github.io/nnlm-drat
 LazyData: true
 LazyDataCompression: xz
 NeedsCompilation: yes
