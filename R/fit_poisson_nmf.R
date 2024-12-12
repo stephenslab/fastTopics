@@ -84,12 +84,18 @@
 #'   updates. When \code{nc} is \code{NA}, the number of threads is
 #'   determined by calling
 #'   \code{\link[RcppParallel]{defaultNumThreads}}. This setting is
-#'   ignored for the multiplicative upates (\code{method = "mu"}).}
+#'   ignored for the multiplicative upates (\code{method = "mu"}).
+#'   Please note that best multithreading performance is typically
+#'   achieved when the number of BLAS threads is set to 1, but
+#'   controlling this in R is not always possible; see the
+#'   \dQuote{\code{nc.blas}} control option for more information.}
 #'
 #' \item{\code{nc.blas}}{Number of threads used in the numerical
-#'   linear algebra library (e.g., OpenBLAS), if available. For best
-#'   performance, we recommend setting this to 1 (i.e., no
-#'   multithreading).}
+#'   linear algebra library (e.g., OpenBLAS), if available. Typically
+#'   setting this to 1 (i.e., no multithreading) results in best
+#'   performance. Note that setting the number of BLAS threads relies on
+#'   the RhpcBLASctl package, and may not work for all multithreaded
+#'   BLAS libraries.}
 #' 
 #' \item{\code{min.delta.loglik}}{Stop performing updates if the
 #'   difference in the Poisson NMF log-likelihood between two successive
@@ -449,7 +455,7 @@ fit_poisson_nmf <- function (X, k, fit0, numiter = 100,
     cat(sprintf("Running at most %d %s updates, %s extrapolation ",
                 numiter,method.text,
                 ifelse(control$extrapolate,"with","without")))
-    cat("(fastTopics 0.6-193).\n")
+    cat("(fastTopics 0.6-194).\n")
   }
   
   # INITIALIZE ESTIMATES
