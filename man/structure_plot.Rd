@@ -27,7 +27,13 @@ structure_plot_default_embed_method(fit, ...)
 
 \method{plot}{multinom_topic_model_fit}(x, ...)
 
-structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 9)
+structure_plot_ggplot_call(
+  dat,
+  colors,
+  ticks = NULL,
+  font.size = 9,
+  linewidth = 0
+)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
@@ -110,6 +116,9 @@ axis, and their names. For data that are not grouped, use
 \code{ticks = NULL}.}
 
 \item{font.size}{Font size used in plot.}
+
+\item{linewidth}{Passed as the \dQuote{linewidth} argument to
+\code{\link[ggplot2]{geom_col}}.}
 }
 \value{
 A \code{ggplot} object.

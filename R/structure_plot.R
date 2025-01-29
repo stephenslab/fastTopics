@@ -328,6 +328,9 @@ plot.multinom_topic_model_fit <- function (x, ...)
 #'   \code{ticks = NULL}.
 #'
 #' @param font.size Font size used in plot.
+#'
+#' @param linewidth Passed as the \dQuote{linewidth} argument to
+#'   \code{\link[ggplot2]{geom_col}}.
 #' 
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
@@ -344,13 +347,11 @@ plot.multinom_topic_model_fit <- function (x, ...)
 #' @export
 #'
 structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
-                                        font.size = 9)
-  ggplot(dat,aes_string(x = "sample",y = "prop",color = "topic",
-                        fill = "topic")) +
-    geom_col() +
+                                        font.size = 9, linewidth = 0)
+  ggplot(dat,aes_string(x = "sample",y = "prop",fill = "topic")) +
+    geom_col(linewidth = linewidth) +
     scale_x_continuous(limits = c(0,max(dat$sample) + 1),breaks = ticks,
                        labels = names(ticks)) +
-    scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
     labs(x = "",y = "topic proportion") +
     theme_cowplot(font.size) +
