@@ -79,6 +79,9 @@
 #'   \code{structure_plot_ggplot_call} with your own function to
 #'   customize the appearance of the plot.
 #'
+#' @param res The resolution of the tiling along the y-axis
+#'   (in units of topic probabilities).
+#'
 #' @param \dots Additional arguments passed to \code{structure_plot}
 #'   (for the \code{plot} method) or \code{embed_method} (for
 #'   function \code{structure_plot}).
@@ -167,9 +170,10 @@
 #'
 structure_plot <-
   function (fit, topics, grouping, loadings_order = "embed", n = 2000,
-            colors, gap = 1,
+            colors, gap = 1, 
             embed_method = structure_plot_default_embed_method,
-            ggplot_call = structure_plot_ggplot_call, ...) {
+            ggplot_call = structure_plot_ggplot_call, res = 0.01,
+            ...) {
 
   # Check and process input argument "fit".
   if (is.matrix(fit)) {
@@ -266,7 +270,7 @@ structure_plot <-
     return(ggplot_call(dat,colors))
   } else {
     out <- compile_grouped_structure_plot_data(fit$L,topics,grouping,gap)
-    return(ggplot_call(out$dat,colors,out$ticks))
+    return(ggplot_call(out$dat,colors,out$ticks,res = res))
   }
 }
 
@@ -328,12 +332,21 @@ plot.multinom_topic_model_fit <- function (x, ...)
 #'   \code{ticks = NULL}.
 #'
 #' @param font.size Font size used in plot.
-#' 
+#'
+#' @importFrom rlang .data
+#' @importFrom dplyr group_by
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr arrange
+#' @importFrom dplyr mutate
+#' @importFrom dplyr coalesce
+#' @importFrom dplyr lag
+#' @importFrom dplyr left_join
+#' @importFrom dplyr join_by
+#' @importFrom tidyr crossing
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes_string
-#' @importFrom ggplot2 geom_col
+#' @importFrom ggplot2 geom_tile
 #' @importFrom ggplot2 scale_x_continuous
-#' @importFrom ggplot2 scale_color_manual
 #' @importFrom ggplot2 scale_fill_manual
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 theme
@@ -344,19 +357,29 @@ plot.multinom_topic_model_fit <- function (x, ...)
 #' @export
 #'
 structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
-                                        font.size = 9)
-  ggplot(dat,aes_string(x = "sample",y = "prop",color = "topic",
-                        fill = "topic")) +
-    geom_col() +
-    scale_x_continuous(limits = c(0,max(dat$sample) + 1),breaks = ticks,
-                       labels = names(ticks)) +
-    scale_color_manual(values = colors) +
-    scale_fill_manual(values = colors) +
-    labs(x = "",y = "topic proportion") +
-    theme_cowplot(font.size) +
-    theme(axis.line   = element_blank(),
-          axis.ticks  = element_blank(),
-          axis.text.x = element_text(angle = 45,hjust = 1))
+                                        font.size = 9, res = 0.01) {
+  dat <- group_by(dat,.data$sample)
+  dat <- arrange(dat,.data$topic)
+  dat <- mutate(dat,"top" = cumsum(.data$prop))
+  dat <- mutate(dat,"bot" = coalesce(lag(.data$top),0))
+  dat <- ungroup(dat)
+  dat <- dat[,c("sample","topic","top","bot")]
+  rasterdat <- dat["sample"]
+  rasterdat <- crossing(rasterdat,
+                        data.frame("y" = seq(0 + res/2,1 - res/2,by = res)))
+  rasterdat <- left_join(rasterdat,dat,
+                         by = join_by("sample",x$y > y$bot,x$y < y$top))
+  return(ggplot(rasterdat,aes_string(x = "sample",y = "y",fill = "topic")) +
+         geom_tile() +
+         scale_fill_manual(values = colors) +
+         scale_x_continuous(limits = c(0,max(dat$sample) + 1),breaks = ticks,
+                            labels = names(ticks)) +
+         labs(x = "",y = "topic proportion") +
+         theme_cowplot(font.size) +
+         theme(axis.line   = element_blank(),
+               axis.ticks  = element_blank(),
+               axis.text.x = element_text(angle = 45,hjust = 1)))
+}
 
 # This is used by structure_plot to create a data frame suitable for
 # plotting with 'ggplot'. Input argument L is the topic proportions

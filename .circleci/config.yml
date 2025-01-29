@@ -19,7 +19,7 @@ jobs:
           command: |
             mkdir -p ~/R/Library
             Rscript -e 'update.packages("Matrix")'
-            Rscript -e 'install.packages(c("devtools","remotes","quadprog","gtools","irlba","Rtsne","uwot","dplyr","Rcpp","RcppArmadillo","RcppParallel","progress","pbapply","ggplot2","ggrepel","cowplot","plotly","htmlwidgets","testthat","Ternary","RhpcBLASctl"))'
+            Rscript -e 'install.packages(c("devtools","remotes","quadprog","gtools","irlba","Rtsne","uwot","dplyr","rlang","tidyr","Rcpp","RcppArmadillo","RcppParallel","progress","pbapply","ggplot2","ggrepel","cowplot","plotly","htmlwidgets","testthat","Ternary","RhpcBLASctl"))'
             Rscript -e 'devtools::install_github("slowkow/ggrepel",upgrade="never",force=TRUE)'
             Rscript -e 'devtools::install_github("stephens999/ashr",upgrade="never",force=TRUE)'
             Rscript -e 'devtools::install_github("linxihui/NNLM",upgrade="never",force=TRUE)'

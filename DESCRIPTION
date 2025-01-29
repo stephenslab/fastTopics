@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.6-194
-Date: 2024-12-12
+Version: 0.7-1
+Date: 2025-01-29
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
 Authors@R: c(person("Peter","Carbonetto",role=c("aut","cre"),
@@ -47,7 +47,9 @@ Imports:
     gtools,
     quadprog,
     irlba,
+    rlang,
     dplyr,
+    tidyr,
     Rtsne,
     uwot,
     ashr,
