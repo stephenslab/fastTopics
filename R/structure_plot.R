@@ -364,9 +364,12 @@ structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
   dat <- mutate(dat,"bot" = coalesce(lag(.data$top),0))
   dat <- ungroup(dat)
   dat <- dat[,c("sample","topic","top","bot")]
+  upper <- max(dat$top)
+  res   <- res/upper
   rasterdat <- dat["sample"]
   rasterdat <- crossing(rasterdat,
-                        data.frame("y" = seq(0 + res/2,1 - res/2,by = res)))
+                        data.frame("y" = seq(0 + res/2,upper - res/2,
+                                             by = res)))
   rasterdat <- left_join(rasterdat,dat,
                          by = join_by("sample",x$y > y$bot,x$y < y$top))
   return(ggplot(rasterdat,aes_string(x = "sample",y = "y",fill = "topic")) +
