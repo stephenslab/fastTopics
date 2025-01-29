@@ -18,7 +18,6 @@ structure_plot(
   gap = 1,
   embed_method = structure_plot_default_embed_method,
   ggplot_call = structure_plot_ggplot_call,
-  res = 0.01,
   ...
 )
 
@@ -28,13 +27,7 @@ structure_plot_default_embed_method(fit, ...)
 
 \method{plot}{multinom_topic_model_fit}(x, ...)
 
-structure_plot_ggplot_call(
-  dat,
-  colors,
-  ticks = NULL,
-  font.size = 9,
-  res = 0.01
-)
+structure_plot_ggplot_call(dat, colors, ticks = NULL, font.size = 9)
 }
 \arguments{
 \item{fit}{An object of class \dQuote{poisson_nmf_fit} or
@@ -94,9 +87,6 @@ the names of the entries should be the same as the row names of
 \item{ggplot_call}{The function used to create the plot. Replace
 \code{structure_plot_ggplot_call} with your own function to
 customize the appearance of the plot.}
-
-\item{res}{The resolution of the tiling along the y-axis
-(in units of topic probabilities).}
 
 \item{\dots}{Additional arguments passed to \code{structure_plot}
 (for the \code{plot} method) or \code{embed_method} (for
