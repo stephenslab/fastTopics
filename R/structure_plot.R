@@ -349,7 +349,7 @@ plot.multinom_topic_model_fit <- function (x, ...)
 structure_plot_ggplot_call <- function (dat, colors, ticks = NULL,
                                         font.size = 9, linewidth = 0)
   ggplot(dat,aes_string(x = "sample",y = "prop",fill = "topic")) +
-    geom_col(linewidth = linewidth) +
+    geom_col(linewidth = linewidth,width = 1) +
     scale_x_continuous(limits = c(0,max(dat$sample) + 1),breaks = ticks,
                        labels = names(ticks)) +
     scale_fill_manual(values = colors) +
