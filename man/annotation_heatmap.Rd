@@ -10,6 +10,7 @@ annotation_heatmap(
   feature_sign = c("both", "positive", "negative"),
   dims = colnames(effects_matrix),
   compare_dims = dims,
+  n = 2,
   zero_value = 0.01,
   font_size = 10
 )
@@ -24,6 +25,8 @@ annotation_heatmap(
 \item{dims}{Describe the dims input argument here.}
 
 \item{compare_dims}{Describe the compare_dims argument here.}
+
+\item{n}{Describe argument n here.}
 
 \item{zero_value}{Describe the zero_value argument here.}
 

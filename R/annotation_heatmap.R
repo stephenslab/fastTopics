@@ -73,15 +73,16 @@ annotation_heatmap <-
       features <- all_features
     else {
 
-      # Repeat for each dimension.
+      # Repeat for each dimension that was chosen.
       for (k in dims) {
-         if (select_features == "largest") {
+         if (select_features == "largest")
+           features <- c(features,
+                         get_largest_features(effects_matrix,k,n,feature_sign))
+         else if (select_features == "distinctive") {
            # Add code here.
-         } else if (select_features == "distinctive") {
-           # Add code here.
-         } else if (select_features == "both") {
-           # Add code here.
-         }
+         } else if (select_features == "both")
+           features <- c(features,
+                         get_largest_features(effects_matrix,k,n,feature_sign))
       }
     }
   }
@@ -93,8 +94,36 @@ annotation_heatmap <-
   return(effect_heatmap(effects_matrix[features,dims],zero_value,font_size))
 }
 
-# This function is used by annotation_heatmap() to create the final heatmap.
+# This is the function used by annotation_heatmap() to select the
+# largest positive and/or negative features for a given dimension k.
+get_largest_features <-
+  function (effects_matrix, k, n,
+            feature_sign = c("both","positive","negative")) {
+  feature_sign <- match.arg(feature_sign)
+  features     <- NULL
+  rows <- which(effects_matrix[,k] < 0)
+  X0   <- effects_matrix[rows,,drop = FALSE]
+  rows <- which(effects_matrix[,k] > 0)
+  X1   <- effects_matrix[rows,,drop = FALSE]
+  n0   <- min(n,nrow(X0))
+  n1   <- min(n,nrow(X1))
+  if ((feature_sign == "positive" | feature_sign == "both") & n1 > 0) {
+    all_features <- rownames(X1)
+    rows         <- order(X1[,k],decreasing = TRUE)
+    rows         <- rows[1:n1]
+    features     <- c(features,all_features[rows])
+  }
+  if ((feature_sign == "negative" | feature_sign == "both") & n0 > 0) {
+    all_features <- rownames(X0)
+    rows         <- order(X0[,k],decreasing = FALSE)
+    rows         <- rows[1:n0]
+    features     <- c(features,all_features[rows])
+  }
+  return(features)
+}
 
+# This function is used by annotation_heatmap() to create the final heatmap.
+#
 #' @importFrom stats quantile
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot
