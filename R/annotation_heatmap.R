@@ -204,13 +204,16 @@ effect_heatmap <- function (effects_matrix, zero_value, font_size) {
   effect_size_breaks <-
     unname(quantile(pdat$effect_size,probs = c(0,0.25,0.5,0.75,1),
                     na.rm = TRUE))
+  if (any(pdat$effect_sign == -1))
+    dot_colors <- c("navy","gray","darkorange")
+  else
+    dot_colors <- c("navy","gray","black")
   return(ggplot(pdat,aes(x = dim,y = feature_name,size = effect_size,
                          fill = effect_sign)) +
          geom_point(color = "white",shape = 21,na.rm = TRUE) +
          scale_size(range = c(1,6),breaks = effect_size_breaks,
                     labels = round(effect_size_breaks,digits = 3)) +
-         scale_fill_manual(values = c("navy","gray","orangered"),
-                           drop = FALSE) +
+         scale_fill_manual(values = dot_colors,drop = FALSE) +
          guides(size = guide_legend(override.aes = list(fill = "black")),
                 fill = guide_legend(override.aes = list(color = "white",
                                                         shape = 21,
