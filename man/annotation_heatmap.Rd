@@ -9,7 +9,9 @@ annotation_heatmap(
   select_features = c("both", "distinctive", "largest", "all"),
   feature_sign = c("both", "positive", "negative"),
   dims = colnames(effects_matrix),
-  compare_dims = dims
+  compare_dims = dims,
+  zero_value = 0.01,
+  font_size = 10
 )
 }
 \arguments{
@@ -22,9 +24,13 @@ annotation_heatmap(
 \item{dims}{Describe the dims input argument here.}
 
 \item{compare_dims}{Describe the compare_dims argument here.}
+
+\item{zero_value}{Describe the zero_value argument here.}
+
+\item{font_size}{Describe the font_size argument here.}
 }
 \value{
-TO DO.
+A \code{ggplot} object.
 }
 \description{
 TO DO.

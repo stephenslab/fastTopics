@@ -11,8 +11,12 @@
 #' @param dims Describe the dims input argument here.
 #'
 #' @param compare_dims Describe the compare_dims argument here.
+#'
+#' @param zero_value Describe the zero_value argument here.
+#'
+#' @param font_size Describe the font_size argument here.
 #' 
-#' @return TO DO.
+#' @return A \code{ggplot} object.
 #'
 #' @examples
 #' # TO DO.
@@ -24,7 +28,9 @@ annotation_heatmap <-
             select_features = c("both","distinctive","largest","all"),
             feature_sign = c("both","positive","negative"),
             dims = colnames(effects_matrix),
-            compare_dims = dims) {
+            compare_dims = dims,
+            zero_value = 0.01,
+            font_size = 10) {
 
   # Verify and process the effects_matrix input.
   if (!(is.matrix(effects_matrix) & is.numeric(effects_matrix)))
@@ -43,7 +49,7 @@ annotation_heatmap <-
          "\"distinctive\", \"largest\" or \"all\", or a character ",
          "vector selecting the rows to plot")
   if (length(select_features) == 1 &
-      is.element(select_features,c("both","distinctive","largest","all")))
+      is.element(select_features[1],c("both","distinctive","largest","all")))
     select_features <- match.arg(select_features)
   feature_sign <- match.arg(feature_sign)
   if (!is.character(dims))
@@ -53,13 +59,15 @@ annotation_heatmap <-
     stop("Input \"compare_dims\" should be a character vector specifying ",
          "the columns of the effects matrix to compare to")
 
+  # Select the features to plot.
+  features <- select_features
   
-  
-  return(NULL)
+  # Create the heatmap.
+  return(effect_heatmap(effects_matrix[features,dims],zero_value,font_size))
 }
 
-# TO DO: Explain here what this function is for, and how it is used.
-#
+# This function is used by annotation_heatmap() to create the final heatmap.
+
 #' @importFrom stats quantile
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot
@@ -72,7 +80,7 @@ annotation_heatmap <-
 #' @importFrom ggplot2 labs
 #' @importFrom cowplot theme_cowplot
 #' 
-effect_plot <- function (effects_matrix, zero_value = 0.01, font_size = 10) {
+effect_heatmap <- function (effects_matrix, zero_value, font_size) {
   features <- rownames(effects_matrix)
   pdat <- data.frame(feature_name = features,stringsAsFactors = FALSE)
   pdat <- cbind(pdat,effects_matrix)
