@@ -107,8 +107,9 @@ annotation_heatmap <-
 
   # Print the list of selected features, if requested.
   if (verbose) {
-    cat("Features selected for plot:\n")
-    cat(features,sep = "\n")
+    cat("# Features selected for plot:",
+        paste(features,collapse = " "),"\n")
+    dput(features)
   }
   
   # Create the heatmap.
@@ -206,7 +207,7 @@ effect_heatmap <- function (effects_matrix, zero_value, font_size) {
     unname(quantile(pdat$effect_size,probs = c(0,0.25,0.5,0.75,1),
                     na.rm = TRUE))
   if (any(pdat$effect_sign == -1))
-    dot_colors <- c("navy","gray","darkorange")
+    dot_colors <- c("navy","gray","orangered")
   else
     dot_colors <- c("navy","gray","black")
   return(ggplot(pdat,aes(x = dim,y = feature_name,size = effect_size,
