@@ -42,6 +42,7 @@ A \code{ggplot} object.
 TO DO.
 }
 \examples{
-# TO DO.
+data(newsgroups)
+p1 <- annotation_heatmap(newsgroups$F)
 
 }

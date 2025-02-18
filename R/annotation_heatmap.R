@@ -23,7 +23,8 @@
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' # TO DO.
+#' data(newsgroups)
+#' p1 <- annotation_heatmap(newsgroups$F)
 #' 
 #' @export
 #'
@@ -52,8 +53,10 @@ annotation_heatmap <-
     stop("Input \"select_features\" should be one of \"both\", ",
          "\"distinctive\", \"largest\" or \"all\", or a character ",
          "vector selecting the rows to plot")
-  if (length(select_features) == 1 &
-      is.element(select_features[1],c("both","distinctive","largest","all"))) {
+  if (missing(select_features) |
+      (length(select_features) == 1 &
+       is.element(select_features[1],
+                  c("both","distinctive","largest","all")))) {
     select_features <- match.arg(select_features)
     features <- NULL
   }
