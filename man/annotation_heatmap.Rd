@@ -13,7 +13,8 @@ annotation_heatmap(
   n = 2,
   show_dims = colnames(effects_matrix),
   zero_value = 0.01,
-  font_size = 10
+  font_size = 10,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ annotation_heatmap(
 \item{zero_value}{Describe the zero_value argument here.}
 
 \item{font_size}{Describe the font_size argument here.}
+
+\item{verbose}{Describe the verbose argument here.}
 }
 \value{
 A \code{ggplot} object.

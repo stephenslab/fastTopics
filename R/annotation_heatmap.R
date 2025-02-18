@@ -19,6 +19,8 @@
 #' @param zero_value Describe the zero_value argument here.
 #'
 #' @param font_size Describe the font_size argument here.
+#'
+#' @param verbose Describe the verbose argument here.
 #' 
 #' @return A \code{ggplot} object.
 #'
@@ -35,7 +37,7 @@ annotation_heatmap <-
             dims = colnames(effects_matrix),
             compare_dims = colnames(effects_matrix), n = 2,
             show_dims = colnames(effects_matrix), zero_value = 0.01,
-            font_size = 10) {
+            font_size = 10, verbose = TRUE) {
 
   # Verify and process the effects_matrix input.
   if (!(is.matrix(effects_matrix) & is.numeric(effects_matrix)))
@@ -102,6 +104,11 @@ annotation_heatmap <-
 
   # Remove any selected features that were selected more than once.
   features <- features[!duplicated(features)]
+
+  if (verbose) {
+    cat("Features selected for plot:\n")
+    cat(features,sep = "\n")
+  }
   
   # Create the heatmap.
   return(effect_heatmap(effects_matrix[features,,drop = FALSE],
