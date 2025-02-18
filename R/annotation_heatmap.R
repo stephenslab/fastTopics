@@ -12,6 +12,8 @@
 #'
 #' @param compare_dims Describe the compare_dims argument here.
 #'
+#' @param n Describe argument n here.
+#'
 #' @param zero_value Describe the zero_value argument here.
 #'
 #' @param font_size Describe the font_size argument here.
@@ -29,6 +31,7 @@ annotation_heatmap <-
             feature_sign = c("both","positive","negative"),
             dims = colnames(effects_matrix),
             compare_dims = dims,
+            n = 2,
             zero_value = 0.01,
             font_size = 10) {
 
@@ -49,8 +52,12 @@ annotation_heatmap <-
          "\"distinctive\", \"largest\" or \"all\", or a character ",
          "vector selecting the rows to plot")
   if (length(select_features) == 1 &
-      is.element(select_features[1],c("both","distinctive","largest","all")))
+      is.element(select_features[1],c("both","distinctive","largest","all"))) {
     select_features <- match.arg(select_features)
+    features <- NULL
+  }
+  else
+    features <- select_features
   feature_sign <- match.arg(feature_sign)
   if (!is.character(dims))
     stop("Input \"dims\" should be a character vector specifying the ",
@@ -59,8 +66,28 @@ annotation_heatmap <-
     stop("Input \"compare_dims\" should be a character vector specifying ",
          "the columns of the effects matrix to compare to")
 
-  # Select the features to plot.
-  features <- select_features
+  # Automatically select the features to plot.
+  if (is.null(features)) {
+    all_features <- rownames(effects_matrix)
+    if (select_features == "all")
+      features <- all_features
+    else {
+
+      # Repeat for each dimension.
+      for (k in dims) {
+         if (select_features == "largest") {
+           # Add code here.
+         } else if (select_features == "distinctive") {
+           # Add code here.
+         } else if (select_features == "both") {
+           # Add code here.
+         }
+      }
+    }
+  }
+
+  # Remove any selected features that were selected more than once.
+  features <- features[!duplicated(features)]
   
   # Create the heatmap.
   return(effect_heatmap(effects_matrix[features,dims],zero_value,font_size))
