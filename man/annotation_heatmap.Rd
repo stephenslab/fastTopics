@@ -11,6 +11,7 @@ annotation_heatmap(
   dims = colnames(effects_matrix),
   compare_dims = dims,
   n = 2,
+  show_dims = colnames(effects_matrix),
   zero_value = 0.01,
   font_size = 10
 )
@@ -27,6 +28,8 @@ annotation_heatmap(
 \item{compare_dims}{Describe the compare_dims argument here.}
 
 \item{n}{Describe argument n here.}
+
+\item{show_dims}{Describe argument show_dims here.}
 
 \item{zero_value}{Describe the zero_value argument here.}
 

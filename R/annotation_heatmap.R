@@ -14,6 +14,8 @@
 #'
 #' @param n Describe argument n here.
 #'
+#' @param show_dims Describe argument show_dims here.
+#' 
 #' @param zero_value Describe the zero_value argument here.
 #'
 #' @param font_size Describe the font_size argument here.
@@ -29,10 +31,8 @@ annotation_heatmap <-
   function (effects_matrix,
             select_features = c("both","distinctive","largest","all"),
             feature_sign = c("both","positive","negative"),
-            dims = colnames(effects_matrix),
-            compare_dims = dims,
-            n = 2,
-            zero_value = 0.01,
+            dims = colnames(effects_matrix), compare_dims = dims,n = 2,
+            show_dims = colnames(effects_matrix), zero_value = 0.01,
             font_size = 10) {
 
   # Verify and process the effects_matrix input.
@@ -61,10 +61,13 @@ annotation_heatmap <-
   feature_sign <- match.arg(feature_sign)
   if (!is.character(dims))
     stop("Input \"dims\" should be a character vector specifying the ",
-         "columns of the effects matrix to plot")
+         "columns of the effects matrix used to select features to plot")
   if (!is.character(compare_dims))
     stop("Input \"compare_dims\" should be a character vector specifying ",
          "the columns of the effects matrix to compare to")
+  if (!is.character(show_dims))
+    stop("Input \"show_dims\" should be a character vector specifying the ",
+         "columns of the effects matrix to include in the plot")
 
   # Automatically select the features to plot.
   if (is.null(features)) {
@@ -91,7 +94,8 @@ annotation_heatmap <-
   features <- features[!duplicated(features)]
   
   # Create the heatmap.
-  return(effect_heatmap(effects_matrix[features,dims],zero_value,font_size))
+  return(effect_heatmap(effects_matrix[features,,drop = FALSE],
+                        zero_value,font_size))
 }
 
 # This is the function used by annotation_heatmap() to select the
