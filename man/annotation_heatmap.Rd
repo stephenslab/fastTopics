@@ -9,7 +9,7 @@ annotation_heatmap(
   select_features = c("both", "distinctive", "largest", "all"),
   feature_sign = c("both", "positive", "negative"),
   dims = colnames(effects_matrix),
-  compare_dims = dims,
+  compare_dims = colnames(effects_matrix),
   n = 2,
   show_dims = colnames(effects_matrix),
   zero_value = 0.01,

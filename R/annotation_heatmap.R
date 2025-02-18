@@ -31,7 +31,8 @@ annotation_heatmap <-
   function (effects_matrix,
             select_features = c("both","distinctive","largest","all"),
             feature_sign = c("both","positive","negative"),
-            dims = colnames(effects_matrix), compare_dims = dims,n = 2,
+            dims = colnames(effects_matrix),
+            compare_dims = colnames(effects_matrix), n = 2,
             show_dims = colnames(effects_matrix), zero_value = 0.01,
             font_size = 10) {
 
@@ -81,11 +82,17 @@ annotation_heatmap <-
          if (select_features == "largest")
            features <- c(features,
                          get_largest_features(effects_matrix,k,n,feature_sign))
-         else if (select_features == "distinctive") {
-           # Add code here.
-         } else if (select_features == "both")
-           features <- c(features,
-                         get_largest_features(effects_matrix,k,n,feature_sign))
+         else if (select_features == "distinctive")
+           features <-
+             c(features,
+               get_distinctive_features(effects_matrix,k,n,feature_sign,
+                                        compare_dims))
+         else if (select_features == "both")
+           features <-
+             c(features,
+               get_largest_features(effects_matrix,k,n,feature_sign),
+               get_distinctive_features(effects_matrix,k,n,feature_sign,
+                                        compare_dims))
       }
     }
   }
@@ -120,6 +127,39 @@ get_largest_features <-
   if ((feature_sign == "negative" | feature_sign == "both") & n0 > 0) {
     all_features <- rownames(X0)
     rows         <- order(X0[,k],decreasing = FALSE)
+    rows         <- rows[1:n0]
+    features     <- c(features,all_features[rows])
+  }
+  return(features)
+}
+
+# This is the function used by annotation_heatmap() to select the most
+# distinctive positive and/or negative features for a given dimension
+# k.
+get_distinctive_features <-
+  function (effects_matrix, k, n,
+            feature_sign = c("both","positive","negative"),
+            compare_dims = colnames(effects_matrix)) {
+  feature_sign <- match.arg(feature_sign)
+  features     <- NULL
+  rows <- which(effects_matrix[,k] < 0)
+  X0   <- effects_matrix[rows,,drop = FALSE]
+  rows <- which(effects_matrix[,k] > 0)
+  X1   <- effects_matrix[rows,,drop = FALSE]
+  n0   <- min(n,nrow(X0))
+  n1   <- min(n,nrow(X1))
+  compare_dims <- setdiff(compare_dims,k)
+  if ((feature_sign == "positive" | feature_sign == "both") & n1 > 0) {
+    all_features <- rownames(X1)
+    y            <- X1[,k] - apply(X1[,compare_dims,drop = FALSE],1,max)
+    rows         <- order(y,decreasing = TRUE)
+    rows         <- rows[1:n1]
+    features     <- c(features,all_features[rows])
+  }
+  if ((feature_sign == "negative" | feature_sign == "both") & n0 > 0) {
+    all_features <- rownames(X0)
+    y            <- X0[,k] - apply(X0[,compare_dims],1,min)
+    rows         <- order(y,decreasing = FALSE)
     rows         <- rows[1:n0]
     features     <- c(features,all_features[rows])
   }
