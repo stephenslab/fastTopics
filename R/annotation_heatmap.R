@@ -105,6 +105,7 @@ annotation_heatmap <-
   # Remove any selected features that were selected more than once.
   features <- features[!duplicated(features)]
 
+  # Print the list of selected features, if requested.
   if (verbose) {
     cat("Features selected for plot:\n")
     cat(features,sep = "\n")
