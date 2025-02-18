@@ -6,7 +6,7 @@
 \usage{
 annotation_heatmap(
   effects_matrix,
-  select_features = c("both", "distinctive", "largest"),
+  select_features = c("both", "distinctive", "largest", "all"),
   feature_sign = c("both", "positive", "negative"),
   dims = colnames(effects_matrix),
   compare_dims = dims

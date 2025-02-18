@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: fastTopics
-Version: 0.7-09
+Version: 0.7-10
 Date: 2024-02-18
 Title: Fast Algorithms for Fitting Topic Models and Non-Negative
     Matrix Factorizations to Count Data
@@ -61,6 +61,7 @@ Imports:
     ggrepel (>= 0.9.0),
     cowplot,
     plotly,
+    reshape2,
     htmlwidgets
 Suggests:
     Ternary,
