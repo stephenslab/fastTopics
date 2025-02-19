@@ -26,7 +26,7 @@
 #'
 #' @examples
 #' data(newsgroups)
-#' p1 <- annotation_heatmap(newsgroups$F)
+#' p1 <- annotation_heatmap(newsgroups$F,feature_sign = "positive")
 #' 
 #' @export
 #'
