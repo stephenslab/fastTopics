@@ -97,8 +97,14 @@
 #' 2381–2385.
 #'
 #' @examples
-#' \donttest{
+#' # Create a Structure plot to visualize topic modeling results 
+#' # from the 20 Newsgroups.
 #' set.seed(1)
+#' data(newsgroups)
+#' structure_plot(newsgroups$L,grouping = newsgroups$topics,
+#'                topics = paste0("k",c(1,3,6:10)),gap = 10)
+#' 
+#' \donttest{
 #' data(pbmc_facs)
 #'
 #' # Get the multinomial topic model fitted to the
