@@ -6,7 +6,7 @@
 \usage{
 annotation_heatmap(
   effects_matrix,
-  select_features = c("both", "distinctive", "largest", "all"),
+  select_features = c("largest", "distinctive", "both", "all"),
   feature_sign = c("both", "positive", "negative"),
   dims = colnames(effects_matrix),
   compare_dims = colnames(effects_matrix),
@@ -18,31 +18,54 @@ annotation_heatmap(
 )
 }
 \arguments{
-\item{effects_matrix}{Describe the effects_matrix input argument here.}
+\item{effects_matrix}{n x d numeric matrix, where n is the number
+of features and d is the number of dimensions. This could be for
+example the word frequencies matrix \code{F} from a multinomial
+topic model fitted using \code{\link{fit_topic_model}}. The row
+and columns of this matrix must be named, otherwise this function
+will throw and error.}
 
-\item{select_features}{Describe the select_features input argument here.}
+\item{select_features}{This may be a character vector specifying
+the features to plot (rows of the effects matrix). Or it may be one
+of the following: \code{"largest"}, which automatically selects the
+largest effects for each chosen dimension; \code{"distinctive"},
+which automatically selects the \dQuote{most distinctive}, "both",
+"all"),}
 
-\item{feature_sign}{Describe the feature_sign input argument here.}
+\item{feature_sign}{For automated selection of features, this
+option determines whether to consider positive effects only
+(\code{"positive"}), negative effects only (\code{"negative"}), or
+both (\code{"both"}).}
 
-\item{dims}{Describe the dims input argument here.}
+\item{dims}{The dimensions (columns of the effect matrix) to
+consider for automatic feature selection. This should be dimension
+names (not numbers).}
 
-\item{compare_dims}{Describe the compare_dims argument here.}
+\item{compare_dims}{This should be dimension names (not numbers).}
 
-\item{n}{Describe argument n here.}
+\item{n}{For automated feature selection, the number of features to
+select of each type and for each dimension. (see arguments
+\code{select_features} and \code{feature_sign}).}
 
-\item{show_dims}{Describe argument show_dims here.}
+\item{show_dims}{The dimensions (columns) to include in the
+plot. This should be dimension names (not numbers).}
 
-\item{zero_value}{Describe the zero_value argument here.}
+\item{zero_value}{Numbers smaller than \code{zero_value} (in
+magnitude) are not shown in the plot.}
 
-\item{font_size}{Describe the font_size argument here.}
+\item{font_size}{Specifies the font size for the plot.}
 
-\item{verbose}{Describe the verbose argument here.}
+\item{verbose}{When \code{verbose = TRUE}, the list of selected
+features (rows) is printed.}
 }
 \value{
 A \code{ggplot} object.
 }
 \description{
-TO DO.
+This is a generic plotting utility (not specific to 
+topic the model) for comparing \dQuote{effects} across multiple
+dimensions (e.g., topics). The function has several options for
+selecting the features to compare.
 }
 \examples{
 data(newsgroups)
