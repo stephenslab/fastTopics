@@ -13,11 +13,14 @@
 #'   will throw and error.
 #'
 #' @param select_features This may be a character vector specifying
-#' the features to plot (rows of the effects matrix). Or it may be one
-#' of the following: \code{"largest"}, which automatically selects the
-#' largest effects for each chosen dimension; \code{"distinctive"},
-#' which automatically selects the \dQuote{most distinctive}, "both",
-#' "all"),
+#'   the features to plot (rows of the effects matrix). Or it may be one
+#'   of the following: \code{"largest"}, which automatically selects the
+#'   largest effects for each chosen dimension; \code{"distinctive"},
+#'   which automatically selects the \dQuote{most distinctive} effects
+#'   for each chosen dimension; or \code{"both"}, which uses both
+#'   criteria to select features. Distinctive features are defined as
+#'   rows of the effects matrix that are much larger in magnitude than
+#'   the effects in the other dimensions that also share the same sign.
 #'
 #' @param feature_sign For automated selection of features, this
 #'   option determines whether to consider positive effects only
