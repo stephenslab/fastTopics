@@ -40,7 +40,7 @@ If you used the `de_analysis` function in fastTopics, please cite:
 
 ## License
 
-Copyright (c) 2019-2023, Peter Carbonetto and Matthew Stephens.
+Copyright (c) 2019-2025, Peter Carbonetto and Matthew Stephens.
 
 All source code and software in this repository are made available
 under the terms of the [MIT license][mit-license].
