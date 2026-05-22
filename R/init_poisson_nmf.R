@@ -144,7 +144,7 @@ init_poisson_nmf <-
   # Compute the value of the objective ("loss") function at the
   # initial estimates of the factors and loadings.
   loss <- sum(cost(X,L,t(F),control$eps,
-                   version = ifelse(control$nc == 1,"Rcpp","RcppParallel")))
+                   version = ifelse(control$nc == 1,"Rcpp","Rcpp_parallel")))
 
   # Restore the BLAS settings.
   blas_set_num_threads(ncb)
