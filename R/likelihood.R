@@ -105,7 +105,6 @@ cost <- function (X, A, B, e = 1e-8, family = c("poisson","multinom"),
   }
 
   # Compute the terms in the log-likelihoods that depend on A or B.
-  f <- NULL
   if (version == "R") {
     AB <- A %*% B
     f  <- rowSums(poisson*AB - X*log(AB + e))
